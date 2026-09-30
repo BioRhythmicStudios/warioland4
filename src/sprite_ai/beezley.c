@@ -375,7 +375,6 @@ void func_8040720(void)
 
     if (func_804012C()) {
         gCurrentSprite.pose = 23;
-        asm("" ::: "memory");
         return;
     }
 

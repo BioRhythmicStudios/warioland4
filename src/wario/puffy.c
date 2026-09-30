@@ -69,7 +69,6 @@ u8 PuffyWarioFloating(void)
     } else {
         direction ^= 0x30;
         temp = direction;
-        asm("" : "+r"(temp));
         temp &= held;
         temp <<= 16;
         if (temp != 0) {
@@ -257,10 +256,7 @@ void LoadPuffyWarioGraphics(int index)
     struct WarioData* wario;
     const struct PuffyGraphicsFrame* frame;
     const u8* data;
-    value = index;
-    asm("" : "+r"(value));
-    value <<= 24;
-    value >>= 24;
+    value = (u8)index;
     UpdateWarioPositionHistory();
     table = sPuffyGraphicsTable;
     value <<= 2;
@@ -311,7 +307,7 @@ void UpdatePuffyWarioHitbox(void)
     struct WarioData* wario;
     const u8* hitboxes;
     u32 offset;
-    register u32 address asm("r0");
+    u32 address;
     u32 poseOffset;
     data = sPuffyPoseData;
     wario = &gWarioData;
@@ -321,11 +317,9 @@ void UpdatePuffyWarioHitbox(void)
     address = offset + (u32)hitboxes;
     wario->hitboxOffsetLeft = *(const u16*)address;
     address = (u32)(hitboxes + 2);
-    asm("" : "+r"(address));
     address = offset + address;
     wario->hitboxOffsetTop = *(const u16*)address;
     address = (u32)(hitboxes + 4);
-    asm("" : "+r"(address));
     address = offset + address;
     wario->hitboxOffsetRight = *(const u16*)address;
     hitboxes += 6;

@@ -11,8 +11,6 @@
 
 void BossTreasureInit(void)
 {
-    register struct PrimarySpriteData* sprite asm("r1");
-    register u8 treasureType asm("r0");
 
     gCurrentSprite.drawPriority |= 0x80;
     gCurrentSprite.status |= SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
@@ -31,38 +29,39 @@ void BossTreasureInit(void)
     gCurrentSprite.hitboxExtentRight = 4;
     gCurrentSprite.warioCollision = 0;
 
-    treasureType = gBossTreasureType;
-    sprite = &gCurrentSprite;
-    switch (treasureType) {
+    switch (gBossTreasureType) {
         case 1:
-            sprite->pOamData = sBossTreasureOam_83DF9E8;
+            gCurrentSprite.pOamData = sBossTreasureOam_83DF9E8;
             break;
         case 2:
-            sprite->pOamData = sBossTreasureOam_83BA7BC;
+            gCurrentSprite.pOamData = sBossTreasureOam_83BA7BC;
             break;
         case 3:
-            sprite->pOamData = sBossTreasureOam_83DAB40;
+            gCurrentSprite.pOamData = sBossTreasureOam_83DAB40;
             break;
         case 4:
-            sprite->pOamData = sBossTreasureOam_83CF72C;
+            gCurrentSprite.pOamData = sBossTreasureOam_83CF72C;
             break;
         default:
-            sprite->pOamData = sAerodentOam_83DABA0;
+            gCurrentSprite.pOamData = sAerodentOam_83DABA0;
             break;
     }
 }
 
 void SpriteBossTreasure(void)
 {
-    register struct PrimarySpriteData* sprite asm("r4");
-    register u16 originalY asm("r5");
-    register u32 relativeY asm("r6");
+    struct PrimarySpriteData* sprite;
+    u16 originalY;
+    u32 relativeY;
     u8 one;
-    register s32 completed asm("r3");
+    s32 completed;
     register u32 coordinate asm("r1");
-    register struct PrimarySpriteData* current asm("r2");
-    register u8 pose asm("r0");
-    register u32 backgroundPosition asm("r0");
+    struct PrimarySpriteData* current;
+    s32 pose;
+    u32 backgroundPosition;
+    u8* indexPtr;
+    u8* indexBase;
+    register const s16* velocities asm("r8");
 
     completed = 0;
     sprite = &gCurrentSprite;
@@ -88,7 +87,7 @@ void SpriteBossTreasure(void)
             break;
 
         case SPOSE_IDLE: {
-            register u16 adjustedY asm("r0");
+            u16 adjustedY;
 
             if (relativeY > 32) {
                 adjustedY = originalY - 2;
@@ -115,23 +114,18 @@ void SpriteBossTreasure(void)
         }
 
         case SPOSE_12: {
-            register u8* indexPtr asm("r12");
-            register const s16* tableLoad asm("r1");
-            register const s16* velocities asm("r8");
-            register u16 movement asm("r3");
-            register u16 newY asm("r0");
-            register u8 nextIndex asm("r0");
-            register u8* storePtr asm("r1");
+            u16 movement;
+            u16 newY;
+            u8 nextIndex;
             const s16* velocity;
             u8 index;
-            register u8* timer asm("r5");
+            u8* timer;
 
             indexPtr = &sprite->work3;
             index = *indexPtr;
-            tableLoad = sTreasureFloatYVelocity;
+            coordinate = (u32)sTreasureFloatYVelocity;
             /* Keep the table load in r1 before agbcc moves it to r8. */
-            asm("" : "+r"(tableLoad));
-            velocities = tableLoad;
+            velocities = (const s16*)coordinate;
             velocity = &velocities[index];
             movement = *(const u16*)velocity;
             if (*velocity == 0x7FFF) {
@@ -139,8 +133,8 @@ void SpriteBossTreasure(void)
                 index = 0;
             }
             nextIndex = index + 1;
-            storePtr = indexPtr;
-            *storePtr = nextIndex;
+            coordinate = (u32)indexPtr;
+            *(u8*)coordinate = nextIndex;
             newY = originalY + movement;
             sprite->yPosition = newY;
 
@@ -160,20 +154,15 @@ void SpriteBossTreasure(void)
         }
 
         case SPOSE_14: {
-            register u8* indexBase asm("r6");
-            register u8* indexPtr asm("r12");
-            register const s16* velocities asm("r8");
-            register u16 movement asm("r3");
-            register u16 newY asm("r0");
-            register u8 nextIndex asm("r0");
-            register u8* storePtr asm("r1");
+            u16 movement;
+            u16 newY;
+            u8 nextIndex;
             const s16* velocity;
             u8 index;
-            register u8* timer asm("r5");
+            u8* timer;
 
             indexBase = (u8*)42;
             /* Prevent agbcc from folding the required constant-first pointer addition. */
-            asm("" : "+r"(indexBase));
             indexBase = (u8*)((u32)indexBase + (u32)sprite);
             indexPtr = indexBase;
             index = *indexBase;
@@ -185,8 +174,8 @@ void SpriteBossTreasure(void)
                 index = 0;
             }
             nextIndex = index + 1;
-            storePtr = indexPtr;
-            *storePtr = nextIndex;
+            coordinate = (u32)indexPtr;
+            *(u8*)coordinate = nextIndex;
             newY = originalY + movement;
             sprite->yPosition = newY;
 
@@ -206,20 +195,16 @@ void SpriteBossTreasure(void)
         }
 
         case SPOSE_16: {
-            register u8* indexBase asm("r6");
-            register u8* indexPtr asm("r12");
-            register const s16* velocities asm("r8");
-            register u16 movement asm("r3");
-            register u16 newY asm("r0");
-            register u8 nextIndex asm("r0");
-            register u8* storePtr asm("r1");
+            const s16* velocities;
+            u16 movement;
+            u16 newY;
+            u8 nextIndex;
             const s16* velocity;
             u8 index;
-            register u8* timer asm("r5");
+            u8* timer;
 
             indexBase = (u8*)42;
             /* Prevent agbcc from folding the required constant-first pointer addition. */
-            asm("" : "+r"(indexBase));
             indexBase = (u8*)((u32)indexBase + (u32)sprite);
             indexPtr = indexBase;
             index = *indexBase;
@@ -231,8 +216,8 @@ void SpriteBossTreasure(void)
                 index = 0;
             }
             nextIndex = index + 1;
-            storePtr = indexPtr;
-            *storePtr = nextIndex;
+            coordinate = (u32)indexPtr;
+            *(u8*)coordinate = nextIndex;
             newY = originalY + movement;
             sprite->yPosition = newY;
 
@@ -252,22 +237,17 @@ void SpriteBossTreasure(void)
         }
 
         case SPOSE_17: {
-            register u8* indexBase asm("r6");
-            register u8* indexPtr asm("r12");
-            register const s16* velocities asm("r6");
-            register u16 movement asm("r3");
-            register u16 newY asm("r0");
-            register u8 nextIndex asm("r0");
-            register u8* storePtr asm("r1");
-            register const s16* velocity asm("r0");
+            const s16* velocities;
+            u16 movement;
+            u16 newY;
+            u8 nextIndex;
+            const s16* velocity;
             u8 index;
-            register u8* timer asm("r5");
-            register s32 zero asm("r7");
-            register s32 signedMovement asm("r1");
+            u8* timer;
+            s32 zero;
 
             indexBase = (u8*)42;
             /* Prevent agbcc from folding the required constant-first pointer addition. */
-            asm("" : "+r"(indexBase));
             indexBase = (u8*)((u32)indexBase + (u32)sprite);
             indexPtr = indexBase;
             index = *indexBase;
@@ -275,15 +255,14 @@ void SpriteBossTreasure(void)
             velocity = (const s16*)((index << 1) + (u32)velocities);
             movement = *(const u16*)velocity;
             zero = 0;
-            /* agbcc otherwise reuses the unsigned halfword load; the target requires one signed load. */
-            asm("ldrsh %0, [%1, %2]" : "=r"(signedMovement) : "r"(velocity), "r"(zero));
-            if (signedMovement == 0x7FFF) {
+            coordinate = (s32)*(s16 *)((u8 *)velocity + zero);
+            if ((s32)coordinate == 0x7FFF) {
                 movement = *(const u16*)velocities;
                 index = 0;
             }
             nextIndex = index + 1;
-            storePtr = indexPtr;
-            *storePtr = nextIndex;
+            coordinate = (u32)indexPtr;
+            *(u8*)coordinate = nextIndex;
             newY = originalY + movement;
             sprite->yPosition = newY;
 
@@ -298,23 +277,18 @@ void SpriteBossTreasure(void)
         }
 
         case SPOSE_18: {
-            register u8* indexBase asm("r6");
-            register u8* indexPtr asm("r12");
-            register const s16* velocities asm("r6");
-            register u16 movement asm("r3");
-            register u16 newY asm("r0");
-            register u8 nextIndex asm("r0");
-            register u8* storePtr asm("r1");
-            register const s16* velocity asm("r0");
+            const s16* velocities;
+            u16 movement;
+            u16 newY;
+            u8 nextIndex;
+            const s16* velocity;
             u8 index;
-            register u8* timer asm("r1");
-            register s32 zero asm("r7");
-            register s32 signedMovement asm("r1");
-            register u8 clear asm("r0");
+            u8* timer;
+            s32 zero;
+            u8 clear;
 
             indexBase = (u8*)42;
             /* Prevent agbcc from folding the required constant-first pointer addition. */
-            asm("" : "+r"(indexBase));
             indexBase = (u8*)((u32)indexBase + (u32)sprite);
             indexPtr = indexBase;
             index = *indexBase;
@@ -322,15 +296,14 @@ void SpriteBossTreasure(void)
             velocity = (const s16*)((index << 1) + (u32)velocities);
             movement = *(const u16*)velocity;
             zero = 0;
-            /* agbcc otherwise reuses the unsigned halfword load; the target requires one signed load. */
-            asm("ldrsh %0, [%1, %2]" : "=r"(signedMovement) : "r"(velocity), "r"(zero));
-            if (signedMovement == 0x7FFF) {
+            coordinate = (s32)*(s16 *)((u8 *)velocity + zero);
+            if ((s32)coordinate == 0x7FFF) {
                 movement = *(const u16*)velocities;
                 index = 0;
             }
             nextIndex = index + 1;
-            storePtr = indexPtr;
-            *storePtr = nextIndex;
+            coordinate = (u32)indexPtr;
+            *(u8*)coordinate = nextIndex;
             newY = originalY + movement;
             sprite->yPosition = newY;
 
@@ -350,8 +323,8 @@ void SpriteBossTreasure(void)
 
         case SPOSE_CRUSHED_OR_COLLECTED:
             if (sprite->status & SPRITE_STATUS_ONSCREEN) {
-                register u8* timer asm("r5");
-                register u16 adjustedY asm("r0");
+                u8* timer;
+                u16 adjustedY;
 
                 adjustedY = originalY - 8;
                 sprite->yPosition = adjustedY;
@@ -361,41 +334,37 @@ void SpriteBossTreasure(void)
                 }
                 (*timer)++;
             } else {
-                register s32 roomSlot asm("r3");
-
                 sprite->pose = SPOSE_71;
-                roomSlot = SpriteUtilFindBossTreasureChest(0);
-                if (roomSlot == 0xFF) {
-                    register u8* timer asm("r0");
+                completed = SpriteUtilFindBossTreasureChest(0);
+                if (completed == 0xFF) {
+                    u8* timer;
 
                     timer = &sprite->work0;
                     *timer = one;
                 } else {
-                    register u8* timer asm("r1");
+                    u8* timer;
 
                     timer = &sprite->work0;
                     *timer = 60;
-                    gSpriteData[roomSlot].pose = SPOSE_14;
+                    gSpriteData[completed].pose = SPOSE_14;
                     VoiceSetPlay(VS_20);
                 }
             }
             break;
 
         case SPOSE_71: {
-            register u8* timer asm("r5");
-            register s32 roomSlot asm("r3");
-
+            u8* timer;
             timer = &sprite->work0;
             if (--*timer != 0) {
                 break;
             }
             sprite->pose = SPOSE_73;
-            roomSlot = SpriteUtilFindBossTreasureChest(1);
-            if (roomSlot == 0xFF) {
+            completed = SpriteUtilFindBossTreasureChest(1);
+            if (completed == 0xFF) {
                 *timer = one;
             } else {
                 *timer = 60;
-                gSpriteData[roomSlot].pose = SPOSE_14;
+                gSpriteData[completed].pose = SPOSE_14;
                 VoiceSetPlay(VS_20);
             }
             break;
@@ -403,26 +372,24 @@ void SpriteBossTreasure(void)
 
         case SPOSE_73: {
             register u8* timer asm("r5");
-            register s32 roomSlot asm("r3");
-
             timer = &sprite->work0;
             if (--*timer != 0) {
                 break;
             }
             sprite->pose = SPOSE_6D;
-            roomSlot = SpriteUtilFindBossTreasureChest(2);
-            if (roomSlot == 0xFF) {
+            completed = SpriteUtilFindBossTreasureChest(2);
+            if (completed == 0xFF) {
                 *timer = one;
             } else {
                 *timer = 60;
-                gSpriteData[roomSlot].pose = SPOSE_14;
+                gSpriteData[completed].pose = SPOSE_14;
                 VoiceSetPlay(VS_20);
             }
             break;
         }
 
         case SPOSE_6D: {
-            register u8* timer asm("r1");
+            u8* timer;
 
             timer = &sprite->work0;
             if (--*timer != 0) {

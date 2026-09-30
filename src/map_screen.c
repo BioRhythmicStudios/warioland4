@@ -170,10 +170,10 @@ void InitMapScreen(void)
     register const void *objTiles;
     register const void *bgMap0;
     register const void *bgMap1;
-    register const void *bgMap2 asm("sl");
-    register const void *bgMap3 asm("ip");
-    register const struct MusicPlayer *musicPlayers asm("r9");
-    register const struct Song *songs asm("r8");
+    const void *bgMap2;
+    const void *bgMap3;
+    const struct MusicPlayer *musicPlayers;
+    const struct Song *songs;
     register volatile u32 *dma asm("r1");
     register u32 mask asm("r2");
     u32 control;
@@ -306,7 +306,7 @@ void InitMapScreen(void)
     control = dma[2];
 
     {
-        register volatile u16 *bgControl asm("r1");
+        volatile u16 *bgControl;
         bgControl = (volatile u16 *)((u8 *)dma - 0xCC);
         *bgControl++ = 0x1801;
         *bgControl++ = 0x1A02;
@@ -355,12 +355,11 @@ void InitMapScreen(void)
     gUnk_3003C6F = zero8;
 
     {
-        register const u8 *collection asm("r2");
+        const u8 *collection;
         collection = (const u8 *)gCurrentCollection;
-        asm("" : : "r"(collection));
         if ((collection[16] & 0x20) == 0)
         {
-            register u8 *modeZero asm("r0");
+            u8 *modeZero;
             modeZero = &gUnk_3003C95;
             *modeZero = zero8;
             mapMode = modeZero;
@@ -386,7 +385,6 @@ void InitMapScreen(void)
             *modeStore = modeValue;
             mapMode = modeStore;
         }
-        asm("" : : "r"(collection));
     }
 
     gUnk_3003C88[2] = 0;
@@ -396,9 +394,9 @@ void InitMapScreen(void)
     gUnk_3003C68 = (const struct AnimationFrame *)sUnk_8639528[*mapMode];
 
     {
-        register vu16 *scroll asm("r1");
+        vu16 *scroll;
         register u16 zero;
-        register vu16 *bg23 asm("r0");
+        vu16 *bg23;
 
         scroll = (vu16 *)0x04000012;
         bgVertical = (s16)gUnk_3003C6C >> 4;
@@ -442,7 +440,7 @@ void InitMapScreen(void)
     *(vu16 *)0x04000048 = 63;
     *(vu16 *)0x0400004A = 8;
     {
-        register vu16 *blendReg asm("r1");
+        vu16 *blendReg;
         register u16 blendValue asm("r0");
         blendReg = (vu16 *)0x04000052;
         asm("" : "=r"(blendValue) : "0"(0x0A0A), "r"(blendReg));
@@ -550,13 +548,13 @@ void StartMapScreenBossUnlockSequence(void)
 int UpdateMapScreenPassageInput(void)
 {
     register u32 directionOrPrevious asm("r5");
-    register u32 fallingOrDestination asm("r6");
+    u32 fallingOrDestination;
     register u32 mapModeOrDurationTable asm("r8");
     register u32 transitionPointer asm("r9");
-    register u32 passageTableOrXSpeed asm("sl");
+    u32 passageTableOrXSpeed;
     register s32 passageOrTransition asm("r4");
-    register u32 directionOffset asm("r3");
-    register u8 *fallingSource asm("r1");
+    u32 directionOffset;
+    u8 *fallingSource;
     register u16 buttons asm("r2");
     u8 *currentPassagePointer;
     u32 previousFalling;
@@ -609,8 +607,8 @@ int UpdateMapScreenPassageInput(void)
 
     {
         register u32 byteOffset asm("r1");
-        register u32 mode asm("r2");
-        register s32 tableValue asm("r0");
+        u32 mode;
+        s32 tableValue;
 
         byteOffset = directionOffset + (passageOrTransition << 4);
         {
@@ -630,14 +628,14 @@ int UpdateMapScreenPassageInput(void)
             directionOrPrevious = (u32)&gCurrentPassageTemp;
             *(u8 *)directionOrPrevious = passageOrTransition;
             {
-                register u8 *transitionInit asm("r0");
+                u8 *transitionInit;
                 transitionInit = &gUnk_3003C6E;
                 asm("" : : "r"(transitionInit));
                 transitionPointer = (u32)transitionInit;
             }
             {
-                register const s32 *transitionTable asm("r1");
-                register u32 transitionAddress asm("r0");
+                const s32 *transitionTable;
+                u32 transitionAddress;
                 transitionTable = sUnk_8639420;
                 asm("" : : "r"(transitionTable));
                 transitionAddress = directionOffset + ((*currentPassagePointer) << 4);
@@ -651,9 +649,8 @@ int UpdateMapScreenPassageInput(void)
             }
             {
                 register u8 *transitionRead asm("r2");
-                register const s32 *fallingTable asm("r1");
+                const s32 *fallingTable;
                 fallingTable = sUnk_8639490;
-                asm("" : : "r"(fallingTable));
                 transitionRead = (u8 *)transitionPointer;
                 *(u8 *)fallingOrDestination = fallingTable[*transitionRead];
             }
@@ -677,7 +674,6 @@ int UpdateMapScreenPassageInput(void)
                 {
                     register u8 *transitionRead asm("r2");
                     transitionRead = (u8 *)transitionPointer;
-                    asm("" : : "r"(transitionRead));
                     *(u16 *)fallingOrDestination = numerator
                         / ((const s32 *)mapModeOrDurationTable)[*transitionRead];
                 }
@@ -685,7 +681,7 @@ int UpdateMapScreenPassageInput(void)
 
             {
                 register u8 *transitionRead asm("r2");
-                register s32 denominator asm("r1");
+                s32 denominator;
                 s32 numerator;
 
                 numerator = (sUnk_863926C[*currentPassagePointer]
@@ -705,7 +701,7 @@ int UpdateMapScreenPassageInput(void)
             fallingOrDestination = (u32)&gUnk_3003C48;
             {
                 register u8 *transitionRead asm("r2");
-                register s32 denominator asm("r1");
+                s32 denominator;
                 s32 numerator;
 
                 numerator = (sUnk_8639288[*currentPassagePointer]
@@ -718,10 +714,10 @@ int UpdateMapScreenPassageInput(void)
             passageOrTransition = (u8)passageOrTransition;
             if ((u32)passageOrTransition <= 3)
             {
-                register u32 transitionOffset asm("r1");
-                register u16 *xDestination asm("r0");
+                u32 transitionOffset;
+                u16 *xDestination;
 
-                register const s32 *curveBase asm("r0");
+                const s32 *curveBase;
                 register u8 *transitionRead asm("r2");
                 curveBase = sUnk_8639500;
                 transitionRead = (u8 *)transitionPointer;
@@ -748,8 +744,8 @@ int UpdateMapScreenPassageInput(void)
 void UpdateMapScreenBackgroundsAndText(void)
 {
     register s32 scroll asm("r1");
-    register vu16 *reg asm("r0");
-    register vu16 *hOffset asm("r2");
+    vu16 *reg;
+    vu16 *hOffset;
     const u16 *text;
     u32 language;
 
@@ -798,9 +794,9 @@ void ApplyMapScreenScrollVelocity(void)
 
 void UpdateMapScreenPassageTransition(void)
 {
-    register s32 duration asm("r5");
-    register s32 speed asm("r6");
-    register s32 curve asm("r4");
+    s32 duration;
+    s32 speed;
+    s32 curve;
     u8 *transitionIndex;
     const s32 *durationTable;
     u16 *xVelocity;
@@ -814,10 +810,10 @@ void UpdateMapScreenPassageTransition(void)
 
     if (transition <= 3)
     {
-        register s32 passage asm("r0");
-        register u32 position asm("r2");
-        register u32 temp asm("r1");
-        register u32 positions asm("r3");
+        s32 passage;
+        u32 position;
+        u32 temp;
+        u32 positions;
 
         positions = (u32)sUnk_863926C;
         position = (gCurrentPassage << 2) + positions;
@@ -831,7 +827,6 @@ void UpdateMapScreenPassageTransition(void)
         curve = sUnk_8639500[*transitionIndex];
         curve -= ((gUnk_3003C6F << 1) * curve) / duration;
         curve += speed;
-        asm("" : "+r"(curve));
         *xVelocity = curve;
     }
 
@@ -1078,9 +1073,9 @@ void UpdateMapScreenFinalPassageSequence(void)
 
         if (gUnk_3003C88[1] < (sUnk_863951C[2] << 4))
         {
-            register u32 *shakeMode asm("r3");
-            register u32 zero2 asm("r2");
-            register u32 zero1 asm("r1");
+            u32 *shakeMode;
+            u32 zero2;
+            u32 zero1;
 
             shakeMode = &gStageEntryShakeMode;
             zero2 = 0;
@@ -1115,7 +1110,7 @@ void UpdateMapScreenFinalPassageSequence(void)
                 gUnk_3003C68 = sUnk_8639528[2];
                 gStageEntrySequenceStep++;
                 {
-                    register u16 *velocityPtr asm("r1");
+                    u16 *velocityPtr;
                     register s32 storedVelocity asm("r0");
 
                     velocityPtr = &gUnk_3003C48;
@@ -1154,7 +1149,7 @@ void UpdateMapScreenFinalPassageSequence(void)
 }
 int UpdateMapScreenStageStartTransition(void)
 {
-    register u16 *velocity asm("r5");
+    u16 *velocity;
 
     switch (gStageEntrySequenceStep)
     {
@@ -1188,10 +1183,10 @@ int UpdateMapScreenStageStartTransition(void)
 
 void AdvanceMapScreenWarioAnimation(void)
 {
-    register u16 *state asm("r3");
-    register const struct AnimationFrame *animation asm("r2");
+    u16 *state;
+    const struct AnimationFrame *animation;
     register u32 timer asm("r0");
-    register u32 frame asm("r1");
+    u32 frame;
 
     state = gStageEntryMainSpriteState;
     timer = state[0];
@@ -1223,8 +1218,8 @@ void AdvanceMapScreenWarioAnimation(void)
         }
 
         {
-            register u16 *state2 asm("r2");
-            register const struct AnimationFrame *animation2 asm("r1");
+            u16 *state2;
+            const struct AnimationFrame *animation2;
 
             state2 = gStageEntryMainSpriteState;
             timer = state2[1];
@@ -1242,10 +1237,10 @@ void AdvanceMapScreenWarioAnimation(void)
 
 void AdvanceMapScreenDoorAnimation(void)
 {
-    register u16 *state asm("r3");
-    register const struct AnimationFrame *animation asm("r2");
+    u16 *state;
+    const struct AnimationFrame *animation;
     register u32 timer asm("r0");
-    register u32 duration asm("r1");
+    u32 duration;
     u32 frame;
 
     state = gUnk_3003C78;
@@ -1273,9 +1268,9 @@ void AdvanceMapScreenDoorAnimation(void)
 
 void UpdateMapScreenPaletteCycle(void)
 {
-    register volatile u8 *ptr asm("r1");
+    volatile u8 *ptr;
     register u32 index asm("r0");
-    register vu32 *dma asm("r2");
+    vu32 *dma;
     u32 temp;
 
     ptr = &gUnk_3003C96;
@@ -1309,12 +1304,12 @@ void UpdateMapScreenPaletteCycle(void)
 
 void UpdateMapScreenTreasurePalettes(void)
 {
-    register u16 *timerPtr asm("r4");
+    u16 *timerPtr;
     register s32 phase asm("r3");
     register u8 *collection asm("r4");
-    register vu32 *dma asm("r2");
+    vu32 *dma;
     register u32 mask asm("r5");
-    register u32 test asm("r0");
+    u32 test;
     register u32 byte asm("r1");
 
     timerPtr = &gStageTransitionPaletteCycleTimer;
@@ -1417,7 +1412,7 @@ void DrawMapScreenSprites(void)
 {
   const struct AnimationFrame *animation;
   const u16 *frame;
-  register u16 *copyRaw asm("r5");
+  u16 *copyRaw;
   OamData *screenDst;
   s32 drawn;
   register s32 used asm("r6");
@@ -1436,7 +1431,7 @@ void DrawMapScreenSprites(void)
   drawn = 0;
   {
     register u8 *slotsRead asm("r4") = &gOamSlotsUsed;
-    register u32 oamByteOffset asm("r1");
+    u32 oamByteOffset;
     // Couldn't reproduce this part in pure C, so I had to use inline assembly to get the same result.
     asm(
         "ldrb %0, [%2]\n"
@@ -1445,7 +1440,7 @@ void DrawMapScreenSprites(void)
         : "r"(slotsRead));
     {
       register OamData *oamStart asm("r0") = gOamBuffer;
-      asm("add %0, %1, %2" : "=r"(copyRaw) : "r"(oamByteOffset), "r"(oamStart));
+      copyRaw = (u16 *)(oamByteOffset + (u32)oamStart);
     }
   }
   {
@@ -1477,7 +1472,7 @@ void DrawMapScreenSprites(void)
       u32 xMask;
       u32 highMask;
       s32 modeMask;
-      register OamData *oamBase asm("r1");
+      OamData *oamBase;
       oamBase = gOamBuffer;
       {
         register u32 xMaskLoad asm("r2") = 0x1FF;
@@ -1486,7 +1481,7 @@ void DrawMapScreenSprites(void)
       }
       highMask = 0xFFFFFE00;
       {
-        register s32 modeMaskLoad asm("r2") = -13;
+        s32 modeMaskLoad = -13;
         // Couldn't reproduce this part in pure C, so I had to use inline assembly to get the same result.
         asm("mov %0, %1" : "=r"(modeMask) : "r"(modeMaskLoad));
       }
@@ -1537,8 +1532,8 @@ void DrawMapScreenSprites(void)
       {
         u32 xMask;
         u32 highMask;
-        register s32 modeMask asm("sl");
-        register OamData *oamBaseMain asm("r1");
+        s32 modeMask;
+        OamData *oamBaseMain;
         oamBaseMain = gOamBuffer;
         mainState = gStageEntryMainSpriteState;
         highMask = 0xFFFFFE00;
@@ -1600,7 +1595,7 @@ void DrawMapScreenSprites(void)
         u32 xMask;
         u32 highMask;
         s32 modeMask;
-        register OamData *oamBase asm("r1");
+        OamData *oamBase;
         oamBase = gOamBuffer;
         xMask = 0x1FF;
         highMask = 0xFFFFFE00;
@@ -1661,9 +1656,8 @@ void DrawMapScreenSprites(void)
     {
       s32 i;
       {
-        register s32 indexInit asm("r1");
-        // Couldn't reproduce this part in pure C, so I had to use inline assembly to get the same result.
-        asm("mov %0, #0" : "=r"(indexInit));
+        s32 indexInit;
+        indexInit = 0;
         i = indexInit;
       }
       do
@@ -1684,14 +1678,14 @@ void DrawMapScreenSprites(void)
             register u32 lowLocal asm("r1");
             {
               const u32 *yTable;
-              register u32 tableOffset asm("r1");
+              u32 tableOffset;
               yTable = (const u32 *)sUnk_86395B4;
-              asm("lsl %0, %1, #2" : "=r"(tableOffset) : "r"(i));
+              tableOffset = i << 2;
               yValue = *(const u32 *)((const u8 *)yTable + tableOffset);
               {
-                register u32 oamOffset asm("r0");
-                register OamData *oamBaseLocal asm("r2");
-                asm("lsl %0, %1, #3" : "=r"(oamOffset) : "r"(drawn));
+                u32 oamOffset;
+                OamData *oamBaseLocal;
+                oamOffset = drawn << 3;
                 oamBaseLocal = gOamBuffer;
                 asm("add %0, %1, %2"
                     : "=r"(screenDst)
@@ -1769,7 +1763,7 @@ void DrawMapScreenSprites(void)
         u32 xMask;
         u32 highMask;
         s32 modeMask;
-        register OamData *oamBase asm("r1");
+        OamData *oamBase;
         oamBase = gOamBuffer;
         spritePos = spriteState;
         highMask = 0xFFFFFE00;
@@ -1823,7 +1817,7 @@ void DrawMapScreenSprites(void)
       {
         u32 xMask;
         u32 highMask;
-        register OamData *oamBaseZero asm("r1");
+        OamData *oamBaseZero;
         oamBaseZero = gOamBuffer;
         mainStateZero = gStageEntryMainSpriteState;
         highMask = 0xFFFFFE00;
@@ -1889,11 +1883,11 @@ void DrawMapScreenSprites(void)
           goto overflow;
         if (drawn < used)
         {
-          register u8 *stagePtrLocal asm("r8");
+          u8 *stagePtrLocal;
           register const u32 *xTableLocal asm("sl");
           register u32 xMask asm("r9");
           register u32 highMask asm("r12");
-          register OamData *oamBaseLe asm("r1");
+          OamData *oamBaseLe;
           s32 modeMask;
           oamBaseLe = gOamBuffer;
           stagePtrLocal = &gUnk_3003C60;
@@ -1908,14 +1902,14 @@ void DrawMapScreenSprites(void)
             attr0 = *(frame++);
             *(copyRaw++) = attr0;
             {
-              register u8 *stageReadY asm("r1");
+              u8 *stageReadY;
               stageReadY = stagePtrLocal;
               screenDst->split.y = (((s32)attr0) + ((const u32 *)sUnk_8639550)[*stageReadY]) - (((s16)gUnk_3003C6C) >> 4);
             }
             attr1 = *(frame++);
             *(copyRaw++) = attr1;
             {
-              register u8 *stageReadX asm("r1");
+              u8 *stageReadX;
               register const u32 *xEntry asm("r0");
               u16 oldAttr1Local;
               register u32 merged asm("r0");
@@ -1977,7 +1971,6 @@ void DrawMapScreenSprites(void)
           xTableLate = (const u32 *)sUnk_8639534;
           highMask = 0xFFFFFE00;
           oamBaseLate = gOamBuffer;
-          asm("" : : "r"(oamBaseLate));
           modeMask = -13;
           screenDst = &oamBaseLate[drawn];
           do
@@ -1994,11 +1987,10 @@ void DrawMapScreenSprites(void)
             *(copyRaw++) = attr1;
             {
               u32 stageIndexX;
-              register u32 lowLocal asm("r1");
-              register u32 xMaskLocal asm("r0");
+              u32 lowLocal;
+              u32 xMaskLocal;
               stageIndexX = *stagePtrLate;
               stageIndexX -= 3;
-              asm("" : "+r"(stageIndexX));
               lowLocal = attr1 + xTableLate[stageIndexX];
               xMaskLocal = 0x1FF;
               lowLocal &= xMaskLocal;
@@ -2028,7 +2020,7 @@ void DrawMapScreenSprites(void)
     }
   }
   {
-    register u8 *modePtrCheck asm("r2");
+    u8 *modePtrCheck;
     modePtrCheck = &gUnk_3003C94;
     if (*modePtrCheck <= 3)
     {
@@ -2045,20 +2037,18 @@ void DrawMapScreenSprites(void)
           u32 xMask;
           u32 highMask;
           s32 modeMask;
-          register OamData *oamBaseMode2 asm("r1");
+          OamData *oamBaseMode2;
           oamBaseMode2 = gOamBuffer;
           {
-            register u32 reservedR2 asm("r2");
+            u32 reservedR2;
             asm("" : "=r"(reservedR2));
             highMask = 0xFFFFFE00;
-            asm("" : : "r"(reservedR2));
           }
           modeMask = -13;
           screenDst = (OamData *)(((u32)drawn << 3) + (u32)oamBaseMode2);
           {
-            register u32 xMaskLow asm("r0");
+            u32 xMaskLow;
             xMaskLow = 0x1FF;
-            asm("" : : "r"(xMaskLow));
             xMask = xMaskLow;
           }
           remaining = used - drawn;
@@ -2087,7 +2077,7 @@ void DrawMapScreenSprites(void)
             frame++;
             copyRaw++;
             {
-              register u32 attrByteLocal asm("r1");
+              u32 attrByteLocal;
               attrByteLocal = ((u8 *)(&screenDst->all.attr2))[1] | 12;
               ((u8 *)(&screenDst->all.attr2))[1] = attrByteLocal;
               if (gUnk_3003C94 == 1)
@@ -2122,7 +2112,7 @@ void DrawMapScreenSprites(void)
       {
         u32 xMask;
         u32 highMask;
-        register OamData *oamBase asm("r1");
+        OamData *oamBase;
         u16 *yPosPtr;
         u16 *xPosPtr;
         oamBase = gOamBuffer;
@@ -2130,7 +2120,6 @@ void DrawMapScreenSprites(void)
         highMask = 0xFFFFFE00;
         yPosPtr = &gUnk_3003C92;
         xPosPtr = &gUnk_3003C90;
-        asm("" : "+r"(yPosPtr), "+r"(xPosPtr));
         screenDst = (OamData *)(((u32)drawn << 3) + (u32)oamBase);
         remaining = used - drawn;
         do
@@ -2173,7 +2162,7 @@ void DrawMapScreenSprites(void)
       u32 xMask;
       u32 highMask;
       s32 modeMask;
-      register OamData *oamBaseFinal asm("r1");
+      OamData *oamBaseFinal;
       oamBaseFinal = gOamBuffer;
       xMask = 0x1FF;
       highMask = 0xFFFFFE00;

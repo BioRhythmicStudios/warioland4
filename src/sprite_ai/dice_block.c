@@ -29,8 +29,6 @@ void SetDiceBlockCollision(void)
         s8 *pointer;
 
         value = action;
-        /* Preserve the value move before agbcc materializes the destination pointer. */
-        asm("" : "+r" (value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -41,8 +39,6 @@ void SetDiceBlockCollision(void)
         s8 *pointer;
 
         value = action;
-        /* Preserve the value move before agbcc materializes the destination pointer. */
-        asm("" : "+r" (value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -53,8 +49,6 @@ void SetDiceBlockCollision(void)
         s8 *pointer;
 
         value = action;
-        /* Preserve the value move before agbcc materializes the destination pointer. */
-        asm("" : "+r" (value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -83,8 +77,6 @@ void ClearDiceBlockCollision(void)
         s8 *pointer;
 
         value = action;
-        /* Preserve the value move before agbcc materializes the destination pointer. */
-        asm("" : "+r" (value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -95,8 +87,6 @@ void ClearDiceBlockCollision(void)
         s8 *pointer;
 
         value = action;
-        /* Preserve the value move before agbcc materializes the destination pointer. */
-        asm("" : "+r" (value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -107,8 +97,6 @@ void ClearDiceBlockCollision(void)
         s8 *pointer;
 
         value = action;
-        /* Preserve the value move before agbcc materializes the destination pointer. */
-        asm("" : "+r" (value));
         pointer = blockAction;
         *pointer = value;
     }

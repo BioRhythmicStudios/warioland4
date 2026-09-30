@@ -11,17 +11,17 @@
 
 s32 ToyBlockTriangleUnlockTouchedLock(void)
 {
-    register u32 currentBottom asm("sl");
+    u32 currentBottom;
     u32 currentLeft;
     u32 currentRight;
     s32 i;
-    register struct PrimarySpriteData* sprite asm("r5");
+    struct PrimarySpriteData* sprite;
     u8 pose;
     volatile u32 currentTop;
 
     {
-        register struct PrimarySpriteData* current asm("r3");
-        register u32 value asm("r0");
+        struct PrimarySpriteData* current;
+        u32 value;
         register u32 currentY asm("r1");
         register u32 currentX asm("r2");
 
@@ -51,7 +51,7 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
         currentLeft = value;
 
         {
-            register u8* extent asm("r0");
+            u8* extent;
 
             extent = (u8*)current;
             extent += 38;
@@ -66,7 +66,7 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
     pose = 17;
     do
     {
-        register struct PrimarySpriteData* sprites asm("r1");
+        struct PrimarySpriteData* sprites;
         register u32 value asm("r0");
 
         sprites = gSpriteData;
@@ -79,7 +79,7 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
             register u32 spriteY asm("r3");
             register u32 spriteX asm("r2");
             register u32 top asm("r4");
-            register u32 left asm("r1");
+            u32 left;
             register u8* extent asm("r0");
 
             value = 0x1000;
@@ -95,9 +95,9 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
             top = spriteY - *extent;
             top = (u16)top;
 
-            /* agbcc otherwise folds this required pointer increment into ldrb [r0, #1]. */
-            asm("add %0, #1" : "+r"(extent));
-            spriteY -= *extent;
+            /* Volatile keeps the pointer increment separate from the byte load. */
+            extent++;
+            spriteY -= *(volatile u8 *)extent;
             spriteY = (u16)spriteY;
 
             extent = (u8*)sprite + 37;
@@ -130,21 +130,20 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
 
 void InitToyBlockTriangle(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
-    register struct PrimarySpriteData* temp asm("r1");
-    register u8* drawPtr asm("r0");
-    register u16 zero16 asm("r3");
+    struct PrimarySpriteData* sprite;
+    struct PrimarySpriteData* temp;
+    u8* drawPtr;
+    u16 zero16;
     register u8 zero asm("r2");
-    register u8 value asm("r1");
-    register u16 status asm("r0");
+    u8 value;
+    u16 status;
     u16 x;
 
     sprite = &gCurrentSprite;
     x = sprite->xPosition;
     x += 32;
     zero = 0;
-    /* Keep the zero halfword in r3 before the first structure store. */
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
     temp = sprite;
     temp->xPosition = x;
     status = temp->status;
@@ -152,7 +151,7 @@ void InitToyBlockTriangle(void)
     status |= value;
 
     {
-        register u8* hitboxPtr asm("r4");
+        u8* hitboxPtr;
         hitboxPtr = (u8*)sprite;
         *(u16*)hitboxPtr = status;
         drawPtr = (u8*)sprite + 32;
@@ -163,8 +162,7 @@ void InitToyBlockTriangle(void)
         hitboxPtr++;
         *hitboxPtr = 96;
         *((u8*)sprite + 36) = zero;
-        /* agbcc otherwise folds this required pointer increment into indexed addressing. */
-        asm("add %0, #2" : "+r"(hitboxPtr));
+        hitboxPtr += 2;
         *hitboxPtr = 36;
         *((u8*)sprite + 38) = value;
     }
@@ -315,20 +313,19 @@ void StartCarryingToyBlockTriangleLeft(void)
 
 void InitToyBlockTriangleLock(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
-    register u8* ptr asm("r1");
-    register u8* temp asm("r0");
-    register u16 oldStatus asm("r1");
+    struct PrimarySpriteData* sprite;
+    u8* ptr;
+    u8* temp;
+    u16 oldStatus;
     register u16 status asm("r0");
     register u8 zero asm("r2");
-    register u16 zero16 asm("r3");
+    u16 zero16;
     u16 x;
 
     sprite = &gCurrentSprite;
     x = sprite->xPosition;
     x += 32;
-    /* Preserve the target's early zero in r3. */
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
     ptr = (u8*)sprite;
     ((struct PrimarySpriteData*)ptr)->xPosition = x;
     oldStatus = ((struct PrimarySpriteData*)ptr)->status;
@@ -349,8 +346,7 @@ void InitToyBlockTriangleLock(void)
     *ptr = 60;
     ptr++;
     *ptr = 4;
-    /* Preserve the separate increment required by the original. */
-    asm("add %0, #1" : "+r"(ptr));
+    ptr += 1;
     *ptr = 4;
     {
         const struct AnimationFrame* oam;
@@ -378,16 +374,16 @@ void InitOpenToyBlockTriangleLock(void)
 
 void UnlockMatchingToyBlockTriangleLock(void)
 {
-    register u32 x asm("r4");
-    register u32 y asm("r5");
-    register s32 found asm("r6");
-    register s32 i asm("r2");
+    u32 x;
+    u32 y;
+    s32 found;
+    s32 i;
     register u8* data asm("r3");
-    register s32 value asm("r0");
+    s32 value;
     register u32 temp asm("r1");
 
     {
-        register struct PrimarySpriteData* sprite asm("r2");
+        struct PrimarySpriteData* sprite;
 
         sprite = &gCurrentSprite;
         sprite->pose = 24;
@@ -409,7 +405,7 @@ void UnlockMatchingToyBlockTriangleLock(void)
     found = FALSE;
     i = 0;
     {
-        register u8* rawData asm("r0");
+        u8* rawData;
 
         rawData = &gRoomSpriteData[0][0];
         /* Preserve the separate r0-to-r3 move used for the room lookup table. */
@@ -427,7 +423,7 @@ void UnlockMatchingToyBlockTriangleLock(void)
             value = i << 1;
             temp = value + i;
             {
-                register u8* entry asm("r0");
+                u8* entry;
 
                 entry = (u8*)((u32)temp + (u32)data);
                 value = *entry;
@@ -455,10 +451,10 @@ void UnlockMatchingToyBlockTriangleLock(void)
         gPersistentSpriteData[gCurrentRoom][i] = 17;
 
         {
-            register s32 roomSlot asm("r3");
-            register s32 spriteIndex asm("r2");
-            register struct PrimarySpriteData* sprites asm("r4");
-            register struct PrimarySpriteData* first asm("r0");
+            s32 roomSlot;
+            s32 spriteIndex;
+            struct PrimarySpriteData* sprites;
+            struct PrimarySpriteData* first;
 
             roomSlot = i;
             spriteIndex = 0;
@@ -479,7 +475,7 @@ void UnlockMatchingToyBlockTriangleLock(void)
                 value = sizeof(struct PrimarySpriteData);
                 value *= spriteIndex;
                 {
-                    register struct PrimarySpriteData* current asm("r1");
+                    struct PrimarySpriteData* current;
 
                     current = (struct PrimarySpriteData*)((u32)value + (u32)sprites);
                     if (current->roomSlot != roomSlot)
@@ -495,20 +491,19 @@ void UnlockMatchingToyBlockTriangleLock(void)
 
 void InitToyBlockTriangleDoor(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
-    register u8* ptr asm("r1");
-    register u8* temp asm("r0");
-    register u16 oldStatus asm("r1");
+    struct PrimarySpriteData* sprite;
+    u8* ptr;
+    u8* temp;
+    u16 oldStatus;
     register u16 status asm("r0");
     register u8 zero asm("r2");
-    register u16 zero16 asm("r3");
+    u16 zero16;
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
     status = 0x408;
     zero = 0;
-    /* Keep the zero halfword in r3 before the status store. */
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
     status |= oldStatus;
     ptr = (u8*)sprite;
     *(u16*)ptr = status;
@@ -526,18 +521,15 @@ void InitToyBlockTriangleDoor(void)
     *ptr = 32;
     ptr++;
     *ptr = 64;
-    /* Preserve the separate increment required by the original. */
-    asm("add %0, #1" : "+r"(ptr));
+    ptr += 1;
     *ptr = 60;
     temp = (u8*)sprite;
-    /* agbcc otherwise inserts a move before this byte store. */
-    asm("strb %1, [%0, #22]" : : "r"(temp), "r"(zero));
+    temp[22] = zero;
     *(u16*)(temp + 20) = zero16;
     {
-        register struct PrimarySpriteData* work asm("r1");
-        register u8 collision asm("r0");
-        /* Force the target's immediate load before materializing the sprite pointer. */
-        asm("mov %0, #29" : "=r"(collision));
+        struct PrimarySpriteData* work;
+        u8 collision;
+        collision = 29;
         work = sprite;
         work->warioCollision = collision;
     }
@@ -579,18 +571,17 @@ void ToyBlockTriangleDoorWaitToOpen(void)
 
 void ToyBlockTriangleDoorOpen(void)
 {
-    register struct PrimarySpriteData* sprite asm("r4");
-    register u8* timerPtr asm("r2");
-    register u32 value asm("r0");
-    register u8 truncated asm("r1");
+    struct PrimarySpriteData* sprite;
+    u8* timerPtr;
+    u32 value;
+    u8 truncated;
 
     sprite = &gCurrentSprite;
     timerPtr = (u8*)sprite + 39;
     value = *timerPtr;
     value--;
     *timerPtr = value;
-    value <<= 24;
-    truncated = value >> 24;
+    truncated = (u8)value;
     if (truncated == 0)
     {
         sprite->pOamData = sToyBlockTriangleDoorOpenOam;

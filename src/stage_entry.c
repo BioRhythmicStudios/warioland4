@@ -65,7 +65,7 @@ void InitializeStageEntrySceneGraphics(void)
   u8 *stageGraphicIndex;
   u8 *stageGraphicMirror;
   u8 *stageVariant;
-  register u8 *sequenceFlag asm("r12");
+  u8 *sequenceFlag;
   u32 stageGraphic;
   s32 resetStart;
   s32 resetAddress;
@@ -139,16 +139,16 @@ void InitializeStageEntrySceneGraphics(void)
     stageVariant = &gStageEntryStageVariant;
     selectedStage = &gStageEntrySelectedStage;
     {
-    register struct ItemCollection (*collection)[6] asm("r5");
+    struct ItemCollection (*collection)[6];
     collection = gCurrentCollection;
     {
-      register u16 *keyzerPosition asm("r6");
+      u16 *keyzerPosition;
       keyzerPosition = gStageEntryKeyzerPositionState;
       sequenceFlag = &gStageEntryKeyzerPaletteStep;
       passageGraphics = sStageEntryPassageBgGraphics;
       resetStart = (s32) gStageEntrySparkleFlags;
       {
-        register u32 clearValue asm("r2");
+        u32 clearValue;
         clearValue = 0;
         resetEnd = resetStart + 20;
         resetAddress = resetEnd;
@@ -201,16 +201,16 @@ void InitializeStageEntrySceneGraphics(void)
         keyzerPosition[2] = (((*selectedStage) << 8) + 476) - *horizontalScroll;
       }
       {
-        register u8 zero asm("r1");
+        u8 zero;
         zero = 0;
         keyzerPosition[3] = 142;
-        asm volatile("" : "=r"(sequenceStore) : "0"(sequenceFlag));
+        sequenceStore = sequenceFlag;
         *sequenceStore = zero;
       }
     }
     }
     {
-      register vu32 *dma1 asm("r1");
+      vu32 *dma1;
       dma1 = initialDma;
       dma1[0] = (u32) passageGraphics[gCurrentPassage];
       dma1[1] = 0x06000000;
@@ -233,7 +233,7 @@ void InitializeStageEntrySceneGraphics(void)
 
     {
       vu32 *dma3;
-      register u32 dma3Scratch asm("r2");
+      u32 dma3Scratch;
       dma3 = (vu32 *) 0x040000D4;
       dma3Scratch = (u32) sStageEntryCommonBgTiles;
       dma3[0] = dma3Scratch;
@@ -265,21 +265,21 @@ void InitializeStageEntrySceneGraphics(void)
     }
   }
   {
-    register s32 graphicsIndexBound asm("r4");
-    register vu32 *graphicsDma asm("r3");
-    register const u8 *graphicsSource asm("r5");
+    s32 graphicsIndexBound;
+    vu32 *graphicsDma;
+    const u8 *graphicsSource;
     register u32 graphicsDestination asm("r12");
-    register u32 graphicsControl asm("r6");
+    u32 graphicsControl;
     register u32 graphicsBusyMask asm("r2");
     graphicsIndexBound = 0;
     graphicsDma = (vu32 *) 0x040000D4;
     {
       register u8 *graphicsPassage asm("r0");
-      register u32 graphicsPassageValue asm("r1");
+      u32 graphicsPassageValue;
       graphicsPassage = &gCurrentPassage;
       graphicsPassageValue = *graphicsPassage;
       {
-        register u32 graphicsPassageOffset asm("r0");
+        u32 graphicsPassageOffset;
         register const u8 *graphicsBase asm("r1");
         graphicsPassageOffset = graphicsPassageValue * 5;
         graphicsPassageOffset <<= 10;
@@ -305,7 +305,6 @@ void InitializeStageEntrySceneGraphics(void)
       {
       }
       graphicsStep = graphicsIndexBound + 1;
-      asm volatile("" : : "r"(graphicsStep));
       graphicsIndexBound = graphicsStep;
     }
     while (graphicsIndexBound <= 4);
@@ -313,7 +312,7 @@ void InitializeStageEntrySceneGraphics(void)
   goto afterStageGraphics;
   copyNormalStageGraphics:
   {
-    register u8 *normalSelectedStage asm("r4");
+    u8 *normalSelectedStage;
     asm volatile("" : "=r"(normalSelectedStage));
     dma = (vu32 *) 0x040000D4;
     dma[0] = (u32) sStageEntryStagePalettes[gCurrentPassage][(*normalSelectedStage) - 1];
@@ -1424,7 +1423,7 @@ void RenderStageEntrySprites(void)
   currentSlot = 0;
   nextSlot = gOamSlotsUsed;
   {
-    register u32 oamOffset asm("r1");
+    u32 oamOffset;
     register OamData *oamBase asm("r0");
     oamOffset = nextSlot << 3;
     oamBase = gOamBuffer;
@@ -1433,12 +1432,11 @@ void RenderStageEntrySprites(void)
   {
     u32 *entryFlagAddress;
     u32 entryFlagValue;
-    register u32 *entryFlagPtr asm("r4");
-    register struct StageEntryPositionedAnimationState *entryState asm("r3");
+    u32 *entryFlagPtr;
+    struct StageEntryPositionedAnimationState *entryState;
     entryFlagAddress = &gStageEntryImpactEffectActive;
     entryFlagValue = *entryFlagAddress;
     entryFlagPtr = entryFlagAddress;
-    asm("" : "+r"(entryFlagPtr) : "r"(entryFlagAddress));
     if (entryFlagValue != 0)
     {
       if (gStageEntryMainSpriteFalling == 1)
@@ -1446,11 +1444,10 @@ void RenderStageEntrySprites(void)
         {
           struct StageEntryPositionedAnimationState *entryStateAddress;
           u32 entryStateWord;
-          register const u16 *entryPosition asm("r1");
+          const u16 *entryPosition;
           entryStateAddress = (struct StageEntryPositionedAnimationState *) gStageEntryImpactEffectState;
           entryStateWord = *((u32 *) entryStateAddress);
           entryState = entryStateAddress;
-          asm("" : "+r"(entryState) : "r"(entryStateAddress));
           if (entryStateWord == 0)
           {
             if (entryFlagValue == 1)
@@ -1504,11 +1501,10 @@ void RenderStageEntrySprites(void)
         {
           struct StageEntryPositionedAnimationState *entryStateAddress;
           u32 entryStateWord;
-          register const u16 *entryPosition asm("r1");
+          const u16 *entryPosition;
           entryStateAddress = (struct StageEntryPositionedAnimationState *) gStageEntryImpactEffectState;
           entryStateWord = *((u32 *) entryStateAddress);
           entryState = entryStateAddress;
-          asm("" : "+r"(entryState) : "r"(entryStateAddress));
           if (entryStateWord == 0)
           {
             if (entryFlagValue == 1)
@@ -1614,7 +1610,7 @@ void RenderStageEntrySprites(void)
       attr = *(src++);
       *(dest++) = attr;
       {
-        register u32 *stageFlag asm("r2");
+        u32 *stageFlag;
         stageFlag = &gStageEntryShowCollectionSparkle;
         if ((*stageFlag) != 0)
         {
@@ -1622,7 +1618,7 @@ void RenderStageEntrySprites(void)
         }
         else
         {
-          register u8 *directionFlag asm("r2");
+          u8 *directionFlag;
           directionFlag = &gStageEntryMainSpriteFalling;
           if (((*directionFlag) == 0) && (gStageEntryUseAffineMainSprite != 1))
           {
@@ -1652,8 +1648,8 @@ void RenderStageEntrySprites(void)
         }
       }
       {
-        register u8 modeByte asm("r1");
-        register s32 modeMask asm("r0");
+        u8 modeByte;
+        s32 modeMask;
         modeByte = ((u8 *) (&oamBase[currentSlot]))[3];
         modeMask = -15;
         modeMask &= modeByte;
@@ -1716,7 +1712,7 @@ void RenderStageEntrySprites(void)
   do
   {
     {
-      register u32 *activeFlag asm("r2");
+      u32 *activeFlag;
       activeFlag = (u32 *) (((u8 *) gStageEntrySparkleFlags) + i);
       if ((*activeFlag) != 0)
       {
@@ -1755,27 +1751,27 @@ void RenderStageEntrySprites(void)
           if (currentSlot < (stateSlotLimit + nextSlot - stateSlotLimit))
           {
           register u32 objectY asm("r12");
-          register u32 objectX asm("r9");
+          u32 objectX;
           OamData *oam;
           register OamData *oamBase asm("r1");
           {
-            register const u32 *stateYBase asm("r0");
-            register s32 stateOffsetY asm("r1");
+            const u32 *stateYBase;
+            s32 stateOffsetY;
             stateYBase = sUnk_8639ADC;
             stateOffsetY = i;
             stateYBase = (const u32 *) (stateOffsetY + (u32) stateYBase);
             objectY = *stateYBase;
           }
           {
-            register s32 slotIndex asm("r2");
-            register u32 oamOffset asm("r0");
+            s32 slotIndex;
+            u32 oamOffset;
             slotIndex = currentSlot;
             oamOffset = slotIndex << 3;
             oamBase = gOamBuffer;
             oam = (OamData *) (oamOffset + ((u32) oamBase));
           }
           {
-            register const u32 *stateXBase asm("r0");
+            const u32 *stateXBase;
             register s32 stateOffsetX asm("r2");
             stateXBase = sUnk_8639AC4;
             stateOffsetX = i;
@@ -1783,8 +1779,8 @@ void RenderStageEntrySprites(void)
             objectX = *stateXBase + stateOffsetX - stateOffsetX;
           }
           {
-            register s32 slotEnd asm("r0");
-            register s32 slotStart asm("r1");
+            s32 slotEnd;
+            s32 slotStart;
             slotEnd = nextSlot;
             slotStart = currentSlot;
             currentSlot = slotEnd - slotStart;
@@ -1797,9 +1793,9 @@ void RenderStageEntrySprites(void)
             attr = *(src++);
             *(dest++) = attr;
             {
-              register u32 stateX asm("r1");
+              u32 stateX;
               register u32 stateMask asm("r0");
-              register u32 stateAttr1 asm("r2");
+              u32 stateAttr1;
               stateX = attr + objectX;
               stateMask = 0x1FF;
               stateX &= stateMask;
@@ -1905,7 +1901,7 @@ void RenderStageEntrySprites(void)
     matrix3Ptr = &matrix[3];
     if (currentSlot < nextSlot)
     {
-      register u8 *ce8State asm("r9");
+      u8 *ce8State;
       u32 eight;
       register s32 priorityBase asm("r12");
       OamData *oam;
@@ -1922,7 +1918,7 @@ void RenderStageEntrySprites(void)
         attr = *(src++);
         *(dest++) = attr;
         {
-          register u8 *yState asm("r1");
+          u8 *yState;
           yState = ce8State;
           oam->split.y = (attr + yState[2]) - 8;
         }
@@ -1932,7 +1928,7 @@ void RenderStageEntrySprites(void)
         {
           u32 objectX;
           {
-            register u8 *xState asm("r2");
+            u8 *xState;
             xState = ce8State;
             objectX = attr + *((u16 *) xState);
           }

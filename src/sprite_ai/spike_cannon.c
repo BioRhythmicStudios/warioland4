@@ -57,8 +57,7 @@ void SpikeCannonWait(void)
             storePointer = timer;
             *storePointer = next;
         }
-        next <<= 24;
-        value = (u32)next >> 24;
+        value = (u8)next;
         if (value == 0) {
             sprite->status &= ~SPRITE_STATUS_HIDDEN;
             sprite->currentAnimationFrame = 0;
@@ -87,8 +86,7 @@ void SpikeCannonFire(void)
     next = *timer;
     next--;
     *timer = next;
-    next <<= 24;
-    value = (u32)next >> 24;
+    value = (u8)next;
     if (value == 0) {
         sprite->status |= SPRITE_STATUS_HIDDEN;
         SpawnPrimarySpriteWithStatus(184, sprite->roomSlot, sprite->gfxSlot, sprite->yPosition,
@@ -111,7 +109,7 @@ void InitSpikeCannonProjectile(void)
     int distance;
     u8 *bounds;
     int horizontalExtent;
-    register int verticalExtent asm("r1");
+    int verticalExtent;
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
@@ -141,8 +139,7 @@ void InitSpikeCannonProjectile(void)
     bounds++;
     *bounds = horizontalExtent;
     bounds++;
-    asm("" : "+r"(bounds));
-    *bounds = verticalExtent;
+    *(volatile u8 *)bounds = verticalExtent;
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     {
@@ -151,7 +148,6 @@ void InitSpikeCannonProjectile(void)
         collision = 9;
         workPointer = (u8 *)sprite;
         workPointer[30] = collision;
-        asm("" : "+r"(workPointer));
         workPointer += 39;
         *workPointer = 36;
         workPointer += 2;

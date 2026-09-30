@@ -131,8 +131,7 @@ void UpdateMoguramenAttackWindup(void)
     func_8023BFC(frontY, frontX);
     if (gSpriteCollisionTileType & 0xF) {
         nextPose = 17;
-        /* agbcc otherwise shares this store with the later nextPose update. */
-        asm("strb %0, [%1, #28]" : : "r"(nextPose), "r"(currentSprite));
+        currentSprite->pose = nextPose;
     } else {
         struct PrimarySpriteData *currentSprite2;
         func_8026374();

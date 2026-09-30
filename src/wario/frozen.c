@@ -84,8 +84,7 @@ u8 FrozenWarioBonk(void)
 void SetFrozenWarioPose(int pose)
 {
     int value;
-    pose <<= 24;
-    value = (u32)pose >> 24;
+    value = (u8)pose;
     ResetWarioState();
     if (value == 3) {
         goto playVoice;
@@ -128,7 +127,7 @@ void UpdateFrozenWarioMovement(void)
     struct WarioData* wario;
     s32 movement;
     u16 velocity;
-    register s32 temp asm("r0");
+    s32 temp;
     const u8* ptr;
     u16 horizontalMovement;
     u32 index;
@@ -154,8 +153,7 @@ void UpdateFrozenWarioMovement(void)
         velocity = wario->yVelocity;
         temp = velocity << 16;
         temp >>= 19;
-        temp <<= 16;
-        movement = (u32)temp >> 16;
+        movement = (u16)temp;
         velocity -= 8;
         wario->yVelocity = velocity;
     }
@@ -170,8 +168,7 @@ void UpdateFrozenWarioMovement(void)
     }
     temp <<= 16;
     temp >>= 19;
-    temp <<= 16;
-    movement = (u32)temp >> 16;
+    movement = (u16)temp;
     /* Keep the normalized movement live in r2 before loading gWarioData. */
     asm("" : "+r"(movement));
     gWarioData.xPosition += movement;
@@ -269,10 +266,7 @@ void LoadFrozenWarioGraphics(int index)
     struct WarioData* wario;
     const struct FrozenGraphicsFrame* frame;
     const u8* gfx;
-    value = index;
-    asm("" : "+r"(value));
-    value <<= 24;
-    value >>= 24;
+    value = (u8)index;
     UpdateWarioPositionHistory();
     table = sFrozenGraphicsTable;
     value <<= 2;
@@ -319,7 +313,7 @@ void UpdateFrozenWarioHitbox(void)
     struct WarioData* wario;
     const u8* hitboxes;
     u32 offset;
-    register u32 address asm("r0");
+    u32 address;
     u32 poseOffset;
     u8 value;
     data = sFrozenPoseData;
@@ -330,11 +324,9 @@ void UpdateFrozenWarioHitbox(void)
     address = offset + (u32)hitboxes;
     wario->hitboxOffsetLeft = *(u16*)address;
     address = (u32)(hitboxes + 2);
-    asm("" : "+r"(address));
     address = offset + address;
     wario->hitboxOffsetTop = *(u16*)address;
     address = (u32)(hitboxes + 4);
-    asm("" : "+r"(address));
     address = offset + address;
     wario->hitboxOffsetRight = *(u16*)address;
     hitboxes += 6;

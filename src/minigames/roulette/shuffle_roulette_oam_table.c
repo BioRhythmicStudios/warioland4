@@ -39,8 +39,7 @@ void ShuffleRouletteOamTable(void)
             current = (u8 *)((unsigned int)i + (unsigned int)order);
             swappedOrder = *current;
             random = (u8 *)index;
-            /* agbcc commutes this pointer add; keep the target r0 + r5 operand order. */
-            asm volatile("add %0, %0, %1" : "+r"(random) : "r"(order));
+            random = (u8 *)((u32)random + (u32)order);
             *current = *random;
             *random = swappedOrder;
             i--;

@@ -87,7 +87,7 @@ u8 FatWarioWalking(void)
         buttons = &gButtonsHeld;
         held = *buttons;
         direction = wario->horizontalDirection;
-        asm("" : "=r"(active) : "0"(held));
+        active = held;
         active &= direction;
         if (active != 0) {
             unsigned int right;
@@ -123,8 +123,7 @@ u8 FatWarioWalking(void)
             frame = animWario->unk_1F;
             frame++;
             animWario->unk_1F = frame;
-            frame <<= 24;
-            frame >>= 24;
+            frame = (u8)frame;
             if (frame == 1) {
                 m4aSongNumStart(SE_WARIO_STEP);
             } else if (frames[wario->unk_1F].time == 0) {
@@ -418,7 +417,7 @@ void UpdateFatWarioMotion(void)
 {
     struct WarioCollisionData *collision;
     const u8 *config;
-    register struct WarioData *wario asm("r4");
+    struct WarioData *wario;
     u16 yOffset;
 
     collision = &gWarioCollisionData;
@@ -462,14 +461,13 @@ void UpdateFatWarioMotion(void)
         shifted = velocity;
         shifted <<= 16;
         shifted = (s32)shifted >> 19;
-        shifted <<= 16;
-        yOffset = shifted >> 16;
+        yOffset = (u16)shifted;
         velocity -= 8;
         wario->yVelocity = velocity;
     }
 
     {
-        register struct WarioData *clampWario asm("r4");
+        struct WarioData *clampWario;
         clampWario = wario;
         if (clampWario->yVelocity < -128) {
             clampWario->yVelocity = -128;
@@ -612,10 +610,7 @@ void LoadFatWarioGraphics(int variant)
     const struct FatWarioGraphicsFrame *frame;
     const u8 *gfx;
 
-    graphicsVariant = variant;
-    asm("" : "+r"(graphicsVariant));
-    graphicsVariant <<= 24;
-    graphicsVariant >>= 24;
+    graphicsVariant = (u8)variant;
     UpdateWarioPositionHistory();
 
     frame = sFatWarioGraphicsTable[gWarioData.pose][graphicsVariant];
@@ -645,15 +640,15 @@ void UpdateFatWarioMusic(void)
         player0 = table[0].info;
         m4aMPlayTempoControl(player0, 150);
         player1 = table[1].info;
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player1; a1=150; m4aMPlayTempoControl(a0,a1); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=150; m4aMPlayTempoControl(a0,a1); }
         tracks = 0xFFFF;
         pitch = -500;
-        { register struct MusicPlayerInfo *arg0 asm("r0"); arg0=player0; m4aMPlayPitchControl(arg0, tracks, pitch); }
-        { register struct MusicPlayerInfo *arg0 asm("r0"); arg0=player1; m4aMPlayPitchControl(arg0, tracks, pitch); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player0; a1=tracks; m4aMPlayModDepthSet(a0,a1,10); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player1; a1=tracks; m4aMPlayModDepthSet(a0,a1,10); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player0; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,50); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player1; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,50); }
+        { struct MusicPlayerInfo *arg0; arg0=player0; m4aMPlayPitchControl(arg0, tracks, pitch); }
+        { struct MusicPlayerInfo *arg0; arg0=player1; m4aMPlayPitchControl(arg0, tracks, pitch); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player0; a1=tracks; m4aMPlayModDepthSet(a0,a1,10); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=tracks; m4aMPlayModDepthSet(a0,a1,10); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player0; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,50); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,50); }
         gWarioMusicState = 7;
     }
 }

@@ -217,9 +217,7 @@ void InitializePassageClear(void)
 
         blendAlpha = (volatile u16 *)REG_ADDR_BLDALPHA;
         alpha = 0x1000;
-        COMPILER_BARRIER(alpha);
         zero16 = 0;
-        COMPILER_BARRIER(zero16);
         *blendAlpha = alpha;
     }
     gPassageClearBlendFadeActive = zero8;
@@ -269,7 +267,6 @@ void InitializePassageClear(void)
 
         start = (u8 *)gPassageClearMediumParticles;
         zero = 0;
-        COMPILER_BARRIER4(zero, indexA, indexB, indexC);
         current = start;
         current += 32;
         do

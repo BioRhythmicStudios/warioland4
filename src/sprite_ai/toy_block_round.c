@@ -25,8 +25,7 @@ void InitToyBlockRound(void)
     oldStatus = sprite->status;
     status = SPRITE_STATUS_AFFINE | SPRITE_STATUS_HEAVY;
     zero = 0;
-    /* Keep the zero halfword in r3; agbcc otherwise rematerializes it in r0. */
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
     status |= oldStatus;
     ptr = (u8*)sprite;
     *(u16*)ptr = status;
@@ -43,8 +42,7 @@ void InitToyBlockRound(void)
     *temp = zero;
     ptr += 2;
     *ptr = 40;
-    /* agbcc otherwise folds this required pointer increment into indexed addressing. */
-    asm("add %0, #1" : "+r"(ptr));
+    ptr += 1;
     *ptr = 36;
     oam = sToyBlockRoundOam;
     ptr = (u8*)sprite;

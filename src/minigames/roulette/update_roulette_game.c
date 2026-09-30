@@ -7,8 +7,8 @@ int UpdateRouletteGame(void)
     u32 sound;
     s8 *fadePtr;
     u8 fadeRaw;
-    register s32 fade asm("r0");
-    register int parity asm("r1");
+    s32 fade;
+    int parity;
     u32 state;
 
     stateLoad = &gMinigameState;
@@ -84,14 +84,9 @@ int UpdateRouletteGame(void)
     case 6:
         {
             parity = (u32)&gUnk_300188E;
-            /* agbcc otherwise swaps r0/r1 for this tightly related counter update. */
-            asm volatile(
-                "ldrh %0, [%1]\n"
-                "add %0, #1\n"
-                "strh %0, [%1]"
-                : "=r"(fade)
-                : "r"(parity)
-                : "memory");
+            fade = *(u16 *)parity;
+            fade += 1;
+            *(u16 *)parity = fade;
             parity = 1;
             parity &= fade;
             if (parity != 0)
@@ -105,21 +100,11 @@ int UpdateRouletteGame(void)
 
 fadeForward:
         fade = (u32)&gRouletteBlendEva;
-        /* Keep the display-byte increment in r0/r1 as emitted by the original compiler. */
-        asm volatile(
-            "ldrb %1, [%0]\n"
-            "add %1, #1\n"
-            "strb %1, [%0]"
-            : "+r"(fade), "=r"(parity)
-            :
-            : "memory");
-        /* Preserve the target's r0 result instead of decrementing the live r3 byte. */
-        asm volatile(
-            "sub %0, %1, #1\n"
-            "strb %0, [%2]"
-            : "=r"(fade)
-            : "r"(fadeRaw), "r"(fadePtr)
-            : "memory");
+        parity = *(u8 *)fade;
+        parity += 1;
+        *(u8 *)fade = parity;
+        fade = fadeRaw - 1;
+        *fadePtr = fade;
         return 0;
 
 fadeFinished:
@@ -137,8 +122,8 @@ advanceStateCached:
             return 0;
         SortRouletteItemsByScale();
         {
-            register struct RouletteItem **base asm("r0");
-            register struct RouletteItem **ref asm("r3");
+            struct RouletteItem **base;
+            struct RouletteItem **ref;
             register int hiddenX asm("r2");
             int count;
             struct RouletteItem *hidden;
@@ -155,7 +140,6 @@ advanceStateCached:
             } while (count >= 0);
         }
         m4aSongNumStart(587);
-        asm volatile("@ roulette case 7 copy boundary");
         {
             struct RouletteSmallState *result;
             struct RouletteItem **base;
@@ -171,12 +155,11 @@ advanceStateCached:
             gRouletteAngularAcceleration = 0;
         }
         UpdateRouletteResultTiles();
-        asm volatile("@ roulette case 7 end boundary");
         goto advanceStateReload;
 
     case 8:
         {
-            register int done asm("r4");
+            int done;
             done = MoveRouletteResultIntoSlot();
             if (done != 1)
                 return 0;
@@ -188,7 +171,7 @@ advanceStateCached:
             ShuffleRouletteValuePool();
             gRouletteStopRequested = done;
         {
-            register u16 *itemHalfwords asm("r0");
+            u16 *itemHalfwords;
             int zero;
             register int angle asm("r2");
             int count;
@@ -210,15 +193,13 @@ advanceStateCached:
         }
 
     case 9:
-        /* Keep the second selection block physically distinct from case 7. */
-        asm volatile("" ::: "memory");
         UpdateRouletteWheel();
         if (IsRouletteConfirmPressed() == 0)
             return 0;
         SortRouletteItemsByScale();
         {
-            register struct RouletteItem **base asm("r0");
-            register struct RouletteItem **ref asm("r3");
+            struct RouletteItem **base;
+            struct RouletteItem **ref;
             register int hiddenX asm("r2");
             int count;
             struct RouletteItem *hidden;
@@ -235,7 +216,6 @@ advanceStateCached:
             } while (count >= 0);
         }
         m4aSongNumStart(588);
-        asm volatile("@ roulette case 9 copy boundary");
         {
             struct RouletteSmallState *result;
             struct RouletteItem **base;
@@ -255,15 +235,13 @@ advanceStateCached:
         goto advanceStateReload;
 
     case 10:
-        /* Keep the second reset loop distinct from case 8. */
-        asm volatile("" ::: "memory");
         if (MoveRouletteResultIntoSlot() == 0)
             return 0;
         gMinigameState++;
         ShuffleRouletteValuePool();
         gRouletteStopRequested = 2;
         {
-            register u16 *itemHalfwords asm("r0");
+            u16 *itemHalfwords;
             int zero;
             register int angle asm("r2");
             int count;
@@ -284,8 +262,6 @@ advanceStateCached:
         return 0;
 
     case 11:
-        /* Keep the third selection block physically distinct. */
-        asm volatile("" ::: "memory");
         UpdateRouletteWheel();
         if (IsRouletteConfirmPressed() == 0)
             return 0;
@@ -309,7 +285,6 @@ advanceStateCached:
             } while (count >= 0);
         }
         m4aSongNumStart(589);
-        asm volatile("@ roulette case 11 copy boundary");
         {
             struct RouletteSmallState *result;
             struct RouletteItem **base;
@@ -358,7 +333,6 @@ rouletteMismatch:
             mplay = gMPlayTable;
             songBase = (const u8 *)gSongTable;
             songOffset = 0x1624;
-            asm volatile("" : "+r"(mplay), "+r"(songBase), "+r"(songOffset));
             songBase += songOffset;
             songIndex = *(u16 *)songBase;
             m4aMPlayFadeOut(mplay[songIndex].info, 8);

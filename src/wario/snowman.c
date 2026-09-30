@@ -52,7 +52,7 @@ u8 SnowmanWarioWalking(void)
     struct WarioData* wario;
     register u32 held asm("r3");
     register u32 direction asm("r2");
-    register u32 common asm("r0");
+    u32 common;
 
     wario = &gWarioData;
     if ((wario->unk_1C & 1) != 0) {
@@ -75,8 +75,6 @@ u8 SnowmanWarioWalking(void)
         direction = movementWario->horizontalDirection;
         common = held;
         common &= direction;
-        /* Preserve the original agbcc instruction scheduling before r4 is assigned. */
-        asm("" : "+r"(common));
         wario = movementWario;
     }
 
@@ -86,11 +84,9 @@ u8 SnowmanWarioWalking(void)
         else
             wario->xVelocity = -32;
     } else {
-        register u32 temp asm("r0");
+        u32 temp;
 
         temp = 0x30;
-        /* Keep the constant in r0 so agbcc emits eor r0, r2. */
-        asm("" : "+r"(temp));
         temp ^= direction;
         temp &= held;
         temp <<= 16;
@@ -336,8 +332,8 @@ void SetSnowmanWarioPose(u8 result)
         m4aSongNumStart(SE_WARIO_TRANSFORM_LOOP);
         VoiceSetPlay(4);
     } else if (result == 0xFD) {
-        register const u8* properties asm("r1");
-        register u32 offset asm("r0");
+        const u8* properties;
+        u32 offset;
 
         properties = (const u8*)sSnowmanWarioPoseProperties;
         offset = gWarioDataCopy.pose * 8;
@@ -433,8 +429,7 @@ void UpdateSnowmanWarioMovement(void)
         velocity = wario->yVelocity;
         temp = (u32)(u16)velocity << 16;
         temp = (s32)temp >> 19;
-        temp <<= 16;
-        movement = temp >> 16;
+        movement = (u16)temp;
         velocity -= 8;
         wario->yVelocity = velocity;
     }
@@ -450,8 +445,7 @@ void UpdateSnowmanWarioMovement(void)
 
     xMovement <<= 16;
     xMovement = (s32)xMovement >> 19;
-    xMovement <<= 16;
-    movement = xMovement >> 16;
+    movement = (u16)xMovement;
     /* Keep the completed movement in r2 before loading the position pointer. */
     asm("" : "+r"(movement));
 

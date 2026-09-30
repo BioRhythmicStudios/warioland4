@@ -19,8 +19,8 @@ extern void DrawRouletteScoreText(void);
 void DrawRoulette(void)
 {
     register int slot;
-    register int total asm("r9");
-    register u16 *rawDst asm("r6");
+    int total;
+    u16 *rawDst;
     register struct RouletteMainState *mainState asm("r8");
     const u16 *src;
     OamData *oamBase;
@@ -31,14 +31,14 @@ void DrawRoulette(void)
     slot = 0;
     total = gOamSlotsUsed;
     {
-        register int byteOffset asm("r0");
+        int byteOffset;
         byteOffset = total << 3;
         oamBase = gOamBuffer;
         rawDst = (u16 *)(byteOffset + (u32)oamBase);
     }
 
     {
-        register int active asm("r1");
+        int active;
         struct RouletteMainState *statePtr;
         statePtr = &gMinigameCameraState;
         active = statePtr->active;
@@ -50,17 +50,15 @@ void DrawRoulette(void)
                 src = sRouletteMainState2Oam[0].oam;
             total += *src++;
             {
-                register s16 *affineBAddress asm("r0");
+                s16 *affineBAddress;
                 register s16 *affineCAddress asm("r1");
                 register s16 *affineDAddress asm("r4");
                 /* agbcc otherwise delays these stack addresses until after the OAM loop. */
-                asm volatile("mov %0, sp\nadd %0, %0, #2" : "=r"(affineBAddress));
+                affineBAddress = &stack.affineB;
                 stack.affineBPtr = affineBAddress;
-                asm volatile("" : : : "memory");
                 asm volatile("mov %0, sp\nadd %0, %0, #4" : "=r"(affineCAddress));
                 stack.affineCPtr = affineCAddress;
-                asm volatile("" : : : "memory");
-                asm volatile("mov %0, sp\nadd %0, %0, #6" : "=r"(affineDAddress));
+                affineDAddress = &stack.affineD;
                 stack.affineDPtr = affineDAddress;
             }
             if (slot < total) {
@@ -89,15 +87,14 @@ void DrawRoulette(void)
                         value = *src++;
                         *rawDst++ = value;
                         xOffset = 8;
-                        /* agbcc otherwise chooses r7 for the signed-load index. */
-                        asm volatile("ldrsh %0, [%1, %2]" : "=r"(coord) : "r"(position), "r"(xOffset));
+                        coord = *(s16 *)((u8 *)position + xOffset);
                         coord = value + coord;
                         coord -= 32;
                         /* agbcc otherwise copies sl through r0; the target uses r2. */
                         asm volatile("mov r2, %1\nand %0, r2" : "+r"(coord) : "r"(xMask) : "r2");
                         {
-                            register int oldAttr asm("r2");
-                            register int maskedAttr asm("r0");
+                            int oldAttr;
+                            int maskedAttr;
                             oldAttr = oam->all.attr1;
                             maskedAttr = 0xFFFFFE00;
                             maskedAttr &= oldAttr;
@@ -107,22 +104,20 @@ void DrawRoulette(void)
                     }
                     {
                         u16 oldByte;
-                        register int mask asm("r0");
+                        int mask;
                         oldByte = ((u8 *)oam)[3];
-                        asm volatile("" : "+r"(oldByte) : : "memory");
                         mask = 15;
                         mask = -mask;
                         mask &= oldByte;
                         ((u8 *)oam)[3] = mask;
                     }
                     {
-                        register int value asm("r0");
+                        int value;
                         register int oldByte asm("r1");
                         value = *src;
                         *rawDst = value;
                         src++;
                         oldByte = ((u8 *)oam)[5];
-                        asm volatile("" : "+r"(oldByte) : : "memory");
                         value = attr2Mask;
                         value &= oldByte;
                         ((u8 *)oam)[5] = value;
@@ -130,7 +125,6 @@ void DrawRoulette(void)
                     rawDst += 2;
                     oam++;
                     slot--;
-                    asm volatile("" : "+r"(slot));
                 } while (slot != 0);
                 slot = total;
             }
@@ -138,7 +132,7 @@ void DrawRoulette(void)
                 s32 sin64;
                 s32 sin0;
                 register s32 negSin0 asm("r4");
-                register u32 affineDResult asm("r0");
+                u32 affineDResult;
 
                 {
                     register const s16 *sinPtr asm("r0");
@@ -158,7 +152,7 @@ void DrawRoulette(void)
                 {
                     register const s16 *sinPtr asm("r2");
                     s32 scaleValue;
-                    register s32 result asm("r0");
+                    s32 result;
                     register s16 *outPtr asm("r3");
                     sinPtr = sSinCosTable;
                     asm volatile("mov r3, #0\nldrsh r4, [r2, r3]"
@@ -172,8 +166,8 @@ void DrawRoulette(void)
 
                 {
                     const s16 *sinPtr;
-                    register s32 scaleValue asm("r0");
-                    register s32 result asm("r0");
+                    s32 scaleValue;
+                    s32 result;
                     register s16 *outPtr asm("r3");
                     sinPtr = sSinCosTable;
                     negSin0 = (u16)*sinPtr;
@@ -187,8 +181,8 @@ void DrawRoulette(void)
                 }
 
                 {
-                    register s32 scaleValue asm("r0");
-                    register s32 result asm("r0");
+                    s32 scaleValue;
+                    s32 result;
                     register s16 *outPtr asm("r2");
                     asm volatile("mov r4, r8\nmov r1, #4\nldrsh r0, [r4, r1]"
                                  : "=r"(scaleValue) : : "r1", "r4");
@@ -201,14 +195,14 @@ void DrawRoulette(void)
                 gOamBuffer[0].all.affineParam = stack.affineA;
                 {
                     register s16 *affineBAddress asm("r3");
-                    register int value asm("r1");
+                    int value;
                     affineBAddress = stack.affineBPtr;
                     value = *(u16 *)affineBAddress;
                     gOamBuffer[1].all.affineParam = value;
                 }
                 {
                     register s16 *affineCAddress asm("r4");
-                    register int value asm("r1");
+                    int value;
                     affineCAddress = stack.affineCPtr;
                     value = *(u16 *)affineCAddress;
                     gOamBuffer[2].all.affineParam = value;
@@ -218,11 +212,9 @@ void DrawRoulette(void)
         }
     }
 
-    asm volatile("" : "+r"(slot));
     {
         register u8 *statePtr asm("r1");
         statePtr = &gMinigameState;
-        asm volatile("" : "+r"(statePtr));
         state = *statePtr;
     }
     if ((u8)(state - 4) <= 1) {
@@ -236,14 +228,14 @@ void DrawRoulette(void)
         src = sRoulettePromptOam[gRoulettePromptAnim.frame].oam;
         total += *src++;
         if (slot < total) {
-            register OamData *oam asm("r4");
-            register OamData *oamBase2 asm("r1");
-            register int xMask asm("r8");
+            OamData *oam;
+            OamData *oamBase2;
+            int xMask;
             register int xMaskLoad asm("r5");
-            register int attr1Mask asm("r10");
-            register int attr1Load asm("r0");
+            int attr1Mask;
+            int attr1Load;
             register int attr2Mask asm("r5");
-            register int byteOffset asm("r0");
+            int byteOffset;
             register int totalTemp asm("r1");
             oamBase2 = gOamBuffer;
             xMaskLoad = 0x1FF;
@@ -260,7 +252,7 @@ void DrawRoulette(void)
                          : "=r"(totalTemp), "+r"(slot) : "r"(total));
             do {
                 register int value asm("r2");
-                register int coord asm("r1");
+                int coord;
                 value = *src++;
                 *rawDst++ = value;
                 {
@@ -289,7 +281,7 @@ void DrawRoulette(void)
                 }
 
                 {
-                    register int out asm("r0");
+                    int out;
                     register int oldByte asm("r1");
                     out = *src;
                     *rawDst = out;
@@ -304,7 +296,6 @@ void DrawRoulette(void)
                 rawDst += 2;
                 oam++;
                 slot--;
-                asm volatile("" : "+r"(slot));
             } while (slot != 0);
             slot = total;
         }
@@ -318,17 +309,16 @@ void DrawRoulette(void)
             itemIndex = 0;
             do {
                 register struct RouletteItem **currentItemRef asm("r5");
-                register struct RouletteItem **itemsBase asm("r0");
-                register int itemOffset asm("r1");
-                register int nextItem asm("r1");
+                struct RouletteItem **itemsBase;
+                int itemOffset;
+                int nextItem;
                 register struct RouletteItem *itemPtr asm("r0");
                 register int itemZero asm("r5");
                 register int itemX asm("r2");
                 register int itemLimit asm("r0");
                 itemsBase = gRouletteItemDrawOrder;
                 itemOffset = itemIndex << 2;
-                /* agbcc commutes this address add; preserve the target r1 + r0 order. */
-                asm volatile("add %0, %1, %0" : "+r"(itemsBase) : "r"(itemOffset));
+                itemsBase = (struct RouletteItem **)(itemOffset + (u32)itemsBase);
                 itemPtr = *itemsBase;
                 itemZero = 0;
                 asm volatile("ldrsh %0, [%1, %2]" : "=r"(itemX) : "r"(itemPtr), "r"(itemZero));
@@ -353,19 +343,18 @@ rouletteItemUpdate:
                     SortRouletteItemsByScale();
 rouletteItemDraw:
                     {
-                        register const u16 **animBase asm("r1");
+                        const u16 **animBase;
                         register struct RouletteItem **itemsBase2 asm("r2");
                         register int savedOffset asm("r3");
                         animBase = gRouletteItemOamTable;
                         itemsBase2 = gRouletteItemDrawOrder;
                         savedOffset = stack.itemOffset;
-                        /* Keep the target operand order for this address calculation. */
-                        asm volatile("add %0, %1, %2" : "=r"(currentItemRef) : "r"(savedOffset), "r"(itemsBase2));
+                        currentItemRef = (struct RouletteItem **)(savedOffset + (u32)itemsBase2);
                         src = animBase[(*currentItemRef)->value];
                     }
                     total += *src++;
                     {
-                        register s16 *affineBAddress asm("r0");
+                        s16 *affineBAddress;
                         register s16 *affineCAddress asm("r1");
                         affineBAddress = &stack.affineB;
                         stack.affineBPtr = affineBAddress;
@@ -377,34 +366,32 @@ rouletteItemDraw:
                     itemIndex++;
                     stack.nextItem = itemIndex;
                     if (slot < total) {
-                        register int matrixIndex asm("r10");
-                        register int nibbleMask asm("r8");
-                        register int nibbleLoad asm("r1");
+                        int matrixIndex;
+                        int nibbleMask;
+                        int nibbleLoad;
                         register int attr1Mask asm("r12");
                         register int attr1Load asm("r2");
                         stack.itemRef = currentItemRef;
                         matrixIndex = itemIndex;
                         nibbleLoad = 15;
-                        asm volatile("" : "+r"(nibbleLoad) : : "memory");
                         /* Keep the persistent nibble mask in r8 for both priority paths. */
                         asm volatile("mov %0, %1" : "=r"(nibbleMask) : "r"(nibbleLoad));
                         attr1Load = 0xFFFFFE00;
                         asm volatile("" : "+r"(attr1Load) : : "memory");
                         attr1Mask = attr1Load;
                         do {
-                            register int value asm("r2");
-                            register int byteOffset asm("r0");
-                            register OamData *oam asm("r5");
+                            int value;
+                            int byteOffset;
+                            OamData *oam;
                             register OamData *base asm("r4");
                             register struct RouletteItem **savedRef asm("r1");
-                            register struct RouletteItem *savedItem asm("r0");
+                            struct RouletteItem *savedItem;
                             register int coord asm("r1");
 
                             value = *src++;
                             *rawDst++ = value;
                             byteOffset = slot << 3;
                             base = gOamBuffer;
-                            asm volatile("" : "+r"(base) : : "memory");
                             oam = (OamData *)(byteOffset + (u32)base);
                             savedRef = stack.itemRef;
                             savedItem = *savedRef;
@@ -427,7 +414,7 @@ rouletteItemDraw:
                             coord &= 0x1FF;
                             {
                                 register int oldAttr asm("r2");
-                                register int maskedAttr asm("r0");
+                                int maskedAttr;
                                 oldAttr = oam->all.attr1;
                                 maskedAttr = attr1Mask;
                                 maskedAttr &= oldAttr;
@@ -435,10 +422,10 @@ rouletteItemDraw:
                                 oam->all.attr1 = maskedAttr;
                             }
                             {
-                                register int bits asm("r1");
+                                int bits;
                                 register int seven asm("r0");
-                                register int oldByte asm("r2");
-                                register int mask asm("r0");
+                                int oldByte;
+                                int mask;
                                 seven = 7;
                                 bits = matrixIndex;
                                 bits &= seven;
@@ -453,15 +440,15 @@ rouletteItemDraw:
                             }
 
                             {
-                                register int third asm("r0");
+                                int third;
                                 third = *src;
                                 *rawDst = third;
                             }
                             src++;
                             rawDst++;
                             {
-                                register u32 priority asm("r2");
-                                register int oldByte asm("r0");
+                                u32 priority;
+                                int oldByte;
                                 oldByte = ((u8 *)oam)[5];
                                 priority = 13;
                                 priority = -priority;
@@ -469,12 +456,12 @@ rouletteItemDraw:
                                 ((u8 *)oam)[5] = priority;
                                 {
                                     register u8 *itemState asm("r1");
-                                    register u32 itemStateValue asm("r0");
+                                    u32 itemStateValue;
                                     itemState = &gMinigameState;
                                     asm volatile("" : "+r"(itemState) : : "memory");
                                     itemStateValue = *itemState;
                                     if (itemStateValue > 10) {
-                                        register u32 low asm("r1");
+                                        u32 low;
                                         register u32 high asm("r0");
                                         register u32 maskTemp asm("r2");
                                         high = priority >> 4;
@@ -492,7 +479,7 @@ rouletteItemDraw:
                                         low |= high;
                                         ((u8 *)oam)[5] = low;
                                     } else if (itemStateValue > 8) {
-                                        register u32 low asm("r0");
+                                        u32 low;
                                         register u32 high asm("r1");
                                         high = priority >> 4;
                                         high++;
@@ -516,50 +503,43 @@ rouletteItemDraw:
 
                     {
                         register const s16 *sinPtr asm("r0");
-                        register s32 sin64 asm("r5");
-                        register struct RouletteItem **affineItemRef asm("r4");
+                        s32 sin64;
+                        struct RouletteItem **affineItemRef;
                         register int savedOffset asm("r2");
                         register struct RouletteItem **itemsBase3 asm("r3");
-                        register s32 sin0 asm("r8");
-                        register s32 negSin0 asm("r10");
+                        s32 sin0;
+                        s32 negSin0;
 
                         /* Prevent agbcc from hoisting this literal load above the OAM loop. */
                         sinPtr = sSinCosTable;
-                        asm volatile("" : "+r"(sinPtr) : : "memory");
                         sinPtr += 64;
                         /* agbcc otherwise chooses r7 for the zero index. */
-                        asm volatile("mov r1, #0\nldrsh r5, [r0, r1]" : "=r"(sin64) : "r"(sinPtr) : "r1");
+                        sin64 = *sinPtr;
                         savedOffset = stack.itemOffset;
                         itemsBase3 = gRouletteItemDrawOrder;
-                        /* Keep the target operand order (r2 + r3). */
-                        asm volatile("add %0, %1, %2" : "=r"(affineItemRef) : "r"(savedOffset), "r"(itemsBase3));
+                        affineItemRef = (struct RouletteItem **)(savedOffset + (u32)itemsBase3);
 
                         {
-                            register struct RouletteItem *scaleItem asm("r0");
+                            struct RouletteItem *scaleItem;
                             scaleItem = *affineItemRef;
-                            asm volatile("mov r1, #4\nldrsh r0, [r0, r1]"
-                                         : "+r"(scaleItem) : : "r1");
-                            inverse = (s32)scaleItem;
+                            inverse = scaleItem->scale;
                         }
                         stack.affineA = FixedMul(sin64, (s16)FixedInverse(inverse));
 
                         {
                             register const s16 *zeroSinPtr asm("r2");
                             zeroSinPtr = sSinCosTable;
-                            asm volatile("" : "+r"(zeroSinPtr) : : "memory");
                             /* Load sin(0) in r2, then preserve it in r8 across calls. */
                             asm volatile("mov r3, #0\nldrsh r2, [r2, r3]\nmov r8, r2"
                                          : "=r"(sin0) : "r"(zeroSinPtr) : "r2", "r3");
                         }
                         {
-                            register struct RouletteItem *scaleItem asm("r0");
+                            struct RouletteItem *scaleItem;
                             scaleItem = *affineItemRef;
-                            asm volatile("mov r1, #4\nldrsh r0, [r0, r1]"
-                                         : "+r"(scaleItem) : : "r1");
-                            inverse = (s32)scaleItem;
+                            inverse = scaleItem->scale;
                         }
                         {
-                            register s32 result asm("r0");
+                            s32 result;
                             result = FixedMul(sin0, (s16)FixedInverse(inverse));
                             /* agbcc selects r1 for the spill pointer; the target reloads it in r2. */
                             asm volatile("ldr r2, [sp, #8]\nstrh r0, [r2]"
@@ -570,21 +550,18 @@ rouletteItemDraw:
                             register const s16 *negativeSinPtr asm("r3");
                             register int value asm("r0");
                             negativeSinPtr = sSinCosTable;
-                            asm volatile("" : "+r"(negativeSinPtr) : : "memory");
                             value = *(u16 *)negativeSinPtr;
                             value = -value;
                             value = (s16)value;
                             negSin0 = value;
                         }
                         {
-                            register struct RouletteItem *scaleItem asm("r0");
+                            struct RouletteItem *scaleItem;
                             scaleItem = *affineItemRef;
-                            asm volatile("mov r1, #4\nldrsh r0, [r0, r1]"
-                                         : "+r"(scaleItem) : : "r1");
-                            inverse = (s32)scaleItem;
+                            inverse = scaleItem->scale;
                         }
                         {
-                            register s32 result asm("r0");
+                            s32 result;
                             result = FixedMul(negSin0, (s16)FixedInverse(inverse));
                             /* Match the target's r2 reload for the affine-C spill pointer. */
                             asm volatile("ldr r2, [sp, #12]\nstrh r0, [r2]"
@@ -592,7 +569,7 @@ rouletteItemDraw:
                         }
 
                         {
-                            register struct RouletteItem *scaleItem asm("r0");
+                            struct RouletteItem *scaleItem;
                             scaleItem = *affineItemRef;
                             asm volatile("mov r3, #4\nldrsh r0, [r0, r3]"
                                          : "+r"(scaleItem) : : "r3");
@@ -607,7 +584,7 @@ rouletteItemDraw:
                             asm volatile("mov r2, #4\nldrsh %0, [%1, r2]"
                                          : "=r"(scaleCheck) : "r"(scaleItem) : "r2");
                             if (scaleCheck > 512) {
-                                register s32 result asm("r0");
+                                s32 result;
                                 stack.affineA = FixedMul(sin64, (s16)FixedInverse(512));
                                 {
                                     register s16 *out asm("r3");
@@ -628,7 +605,7 @@ rouletteItemDraw:
                                     *out = result;
                                 }
                             } else if (scaleCheck <= 15) {
-                                register s32 result asm("r0");
+                                s32 result;
                                 stack.affineA = FixedMul(sin64, (s16)FixedInverse(16));
                                 {
                                     register s16 *out asm("r3");
@@ -652,24 +629,22 @@ rouletteItemDraw:
                         }
                     }
                     {
-                        register OamData *base asm("r3");
+                        OamData *base;
                         register int next asm("r0");
-                        register int byteOffset asm("r1");
+                        int byteOffset;
                         register int firstValue asm("r0");
-                        register int matrixBase asm("r2");
-                        register int dstOffset asm("r0");
+                        int matrixBase;
+                        int dstOffset;
                         register s16 *valuePtrB asm("r4");
                         register s16 *valuePtrC asm("r5");
                         register s16 *valuePtrD asm("r1");
-                        register int value asm("r1");
+                        int value;
 
                         base = gOamBuffer;
                         next = stack.nextItem;
                         byteOffset = next << 5;
-                        /* agbcc otherwise commutes this add. */
-                        asm volatile("add %0, %0, %1" : "+r"(byteOffset) : "r"(base));
-                        asm volatile("mov %0, sp" : "=r"(firstValue));
-                        firstValue = *(u16 *)firstValue;
+                        byteOffset = (int)(byteOffset + (u8 *)base);
+                        firstValue = (u16)stack.affineA;
                         ((OamData *)byteOffset)->all.affineParam = firstValue;
 
                         value = stack.nextItem;
@@ -701,10 +676,9 @@ rouletteItemDraw:
         }
     }
 
-/* removed empty asm for target pool placement */
     {
         register u8 *statePtr asm("r2");
-        register u32 stateValue asm("r0");
+        u32 stateValue;
         statePtr = &gMinigameState;
         stateValue = *statePtr;
         stateValue -= 7;
@@ -713,16 +687,16 @@ rouletteItemDraw:
             src = sRouletteAffineTableB;
             total += *src++;
             if (slot < total) {
-                register OamData *baseLoad asm("r1");
+                OamData *baseLoad;
                 register struct RouletteSmallState *positionLoad asm("r4");
-                register struct RouletteSmallState *position asm("r8");
-                register int attrMaskLoad asm("r5");
-                register int attrByteMask asm("r10");
-                register int byteOffset asm("r0");
-                register OamData *oam asm("r4");
-                register int xMaskLoad asm("r0");
+                struct RouletteSmallState *position;
+                int attrMaskLoad;
+                int attrByteMask;
+                int byteOffset;
+                OamData *oam;
+                int xMaskLoad;
                 register int xMask asm("r12");
-                register int totalTemp asm("r1");
+                int totalTemp;
 
                 baseLoad = gOamBuffer;
                 positionLoad = &gRouletteMiddleResult;
@@ -731,19 +705,16 @@ rouletteItemDraw:
                 /* agbcc otherwise reuses an earlier mask instead of the target setup. */
                 asm volatile("mov r5, #13\nneg r5, r5\nmov sl, r5" : : : "r5");
                 byteOffset = slot << 3;
-                /* agbcc commutes this add; keep the target byteOffset + base order. */
-                asm volatile("add %0, %1, %2" : "=r"(oam) : "r"(byteOffset), "r"(baseLoad));
+                oam = (OamData *)(byteOffset + (u8 *)baseLoad);
                 xMaskLoad = 0x1FF;
-                /* Keep the literal load in the target low register before moving it to ip. */
-                asm volatile("mov %0, %1" : "=r"(xMask) : "r"(xMaskLoad));
-                /* Preserve the target low-register copy of total before subtraction. */
-                asm volatile("mov %0, %2\nsub %1, %0, %1"
-                             : "=r"(totalTemp), "+r"(slot) : "r"(total));
+                xMask = xMaskLoad;
+                totalTemp = total;
+                slot = totalTemp - slot;
                 do {
-                    register int value asm("r2");
+                    int value;
                     register int coord asm("r1");
                     register struct RouletteSmallState *positionLow asm("r5");
-                    register int out asm("r0");
+                    int out;
 
                     value = *src++;
                     *rawDst++ = value;
@@ -764,16 +735,15 @@ rouletteItemDraw:
                     value = *src++;
                     *rawDst++ = value;
                     out = 0;
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(coord) : "r"(positionLow), "r"(out));
-                    /* Preserve target operand order. */
-                    asm volatile("add %0, %1, %0" : "+r"(coord) : "r"(value));
+                    coord = *(s16 *)((u8 *)positionLow + out);
+                    coord = value + coord;
                     {
                         /* Keep the target's ip -> r2 mask copy. */
                         asm volatile("mov r2, %1\nand %0, r2" : "+r"(coord) : "r"(xMask) : "r2");
                     }
                     {
-                        register int oldAttr asm("r2");
-                        register int maskedAttr asm("r0");
+                        int oldAttr;
+                        int maskedAttr;
                         oldAttr = oam->all.attr1;
                         maskedAttr = -512;
                         maskedAttr &= oldAttr;
@@ -805,7 +775,7 @@ rouletteItemDraw:
 
     {
         register u8 *statePtr asm("r1");
-        register u32 stateValue asm("r0");
+        u32 stateValue;
         statePtr = &gMinigameState;
         stateValue = *statePtr;
         stateValue -= 7;
@@ -814,11 +784,11 @@ rouletteItemDraw:
             src = sRouletteAffineTableA;
             total += *src++;
             if (slot < total) {
-                register OamData *baseLoad asm("r1");
+                OamData *baseLoad;
                 register struct RouletteSmallState *positionLoad asm("r2");
-                register struct RouletteSmallState *position asm("r8");
-                register int byteOffset asm("r0");
-                register OamData *oam asm("r4");
+                struct RouletteSmallState *position;
+                int byteOffset;
+                OamData *oam;
                 register int xMaskLoad asm("r5");
                 register int xMask asm("r12");
                 register int totalTemp asm("r0");
@@ -830,8 +800,7 @@ rouletteItemDraw:
                 /* Materialize -13 in sl at this exact loop boundary. */
                 asm volatile("mov r4, #13\nneg r4, r4\nmov sl, r4" : : : "r4");
                 byteOffset = slot << 3;
-                /* agbcc commutes this add; keep the target byteOffset + base order. */
-                asm volatile("add %0, %1, %2" : "=r"(oam) : "r"(byteOffset), "r"(baseLoad));
+                oam = (OamData *)(byteOffset + (u8 *)baseLoad);
                 xMaskLoad = 0x1FF;
                 /* Keep the literal load in the target low register before moving it to ip. */
                 asm volatile("mov %0, %1" : "=r"(xMask) : "r"(xMaskLoad));
@@ -839,14 +808,14 @@ rouletteItemDraw:
                 asm volatile("mov %0, %2\nsub %1, %0, %1"
                              : "=r"(totalTemp), "+r"(slot) : "r"(total));
                 do {
-                    register int value asm("r2");
+                    int value;
                     register int coord asm("r1");
-                    register int out asm("r0");
+                    int out;
 
                     value = *src++;
                     *rawDst++ = value;
                     {
-                        register struct RouletteSmallState *positionLow asm("r1");
+                        struct RouletteSmallState *positionLow;
                         positionLow = position;
                         out = *(u8 *)((u8 *)positionLow + 2);
                     }
@@ -870,14 +839,14 @@ rouletteItemDraw:
                         out = 0;
                         asm volatile("ldrsh %0, [%1, %2]" : "=r"(coord) : "r"(positionLow), "r"(out));
                     }
-                    asm volatile("add %0, %1, %0" : "+r"(coord) : "r"(value));
+                    coord = value + coord;
                     {
                         /* Keep the target's ip -> r2 mask copy. */
                         asm volatile("mov r2, %1\nand %0, r2" : "+r"(coord) : "r"(xMask) : "r2");
                     }
                     {
-                        register int oldAttr asm("r2");
-                        register int maskedAttr asm("r0");
+                        int oldAttr;
+                        int maskedAttr;
                         oldAttr = oam->all.attr1;
                         maskedAttr = -512;
                         maskedAttr &= oldAttr;
@@ -909,7 +878,7 @@ rouletteItemDraw:
 
     {
         register u8 *statePtr asm("r1");
-        register u32 stateValue asm("r0");
+        u32 stateValue;
         statePtr = &gMinigameState;
         stateValue = *statePtr;
         stateValue -= 7;
@@ -918,11 +887,11 @@ rouletteItemDraw:
             src = sRouletteAffineTableC;
             total += *src++;
             if (slot < total) {
-                register OamData *baseLoad asm("r1");
+                OamData *baseLoad;
                 register struct RouletteSmallState *positionLoad asm("r2");
-                register struct RouletteSmallState *position asm("r8");
-                register int byteOffset asm("r0");
-                register OamData *oam asm("r4");
+                struct RouletteSmallState *position;
+                int byteOffset;
+                OamData *oam;
                 register int xMaskLoad asm("r5");
                 register int xMask asm("r12");
                 register int totalTemp asm("r0");
@@ -934,8 +903,7 @@ rouletteItemDraw:
                 /* Materialize -13 in sl at this exact loop boundary. */
                 asm volatile("mov r4, #13\nneg r4, r4\nmov sl, r4" : : : "r4");
                 byteOffset = slot << 3;
-                /* agbcc commutes this add; keep the target byteOffset + base order. */
-                asm volatile("add %0, %1, %2" : "=r"(oam) : "r"(byteOffset), "r"(baseLoad));
+                oam = (OamData *)(byteOffset + (u8 *)baseLoad);
                 xMaskLoad = 0x1FF;
                 /* Keep the literal load in the target low register before moving it to ip. */
                 asm volatile("mov %0, %1" : "=r"(xMask) : "r"(xMaskLoad));
@@ -943,14 +911,14 @@ rouletteItemDraw:
                 asm volatile("mov %0, %2\nsub %1, %0, %1"
                              : "=r"(totalTemp), "+r"(slot) : "r"(total));
                 do {
-                    register int value asm("r2");
+                    int value;
                     register int coord asm("r1");
-                    register int out asm("r0");
+                    int out;
 
                     value = *src++;
                     *rawDst++ = value;
                     {
-                        register struct RouletteSmallState *positionLow asm("r1");
+                        struct RouletteSmallState *positionLow;
                         positionLow = position;
                         out = *(u8 *)((u8 *)positionLow + 2);
                     }
@@ -974,14 +942,14 @@ rouletteItemDraw:
                         out = 0;
                         asm volatile("ldrsh %0, [%1, %2]" : "=r"(coord) : "r"(positionLow), "r"(out));
                     }
-                    asm volatile("add %0, %1, %0" : "+r"(coord) : "r"(value));
+                    coord = value + coord;
                     {
                         /* Keep the target's ip -> r2 mask copy. */
                         asm volatile("mov r2, %1\nand %0, r2" : "+r"(coord) : "r"(xMask) : "r2");
                     }
                     {
-                        register int oldAttr asm("r2");
-                        register int maskedAttr asm("r0");
+                        int oldAttr;
+                        int maskedAttr;
                         oldAttr = oam->all.attr1;
                         maskedAttr = -512;
                         maskedAttr &= oldAttr;
@@ -1013,22 +981,19 @@ rouletteItemDraw:
 
     {
         register u8 *animationFlag asm("r1");
-        register int flagValue asm("r0");
+        int flagValue;
         animationFlag = &gMinigameMedalHighlight;
-/* removed empty asm for target pool placement */
         flagValue = *animationFlag;
         if (flagValue != 0) {
-            register struct RouletteAnimationState *anim asm("r2");
-            register const struct AnimationFrame *frames asm("r3");
+            struct RouletteAnimationState *anim;
+            const struct AnimationFrame *frames;
             register int timerValue asm("r0");
-            register u32 frameTime asm("r1");
+            u32 frameTime;
             anim = &gMinigameUiAnimation;
-/* removed empty asm for target pool placement */
             timerValue = anim->timer;
             timerValue++;
             anim->timer = timerValue;
             frames = sRouletteCenterResultOam;
-/* removed empty asm for target pool placement */
             frameTime = frames[anim->frame].time;
             timerValue = (u16)timerValue;
             if (frameTime < timerValue) {
@@ -1042,7 +1007,7 @@ rouletteItemDraw:
                     anim->frame = 0;
                     anim->timer = 0;
                     {
-                        register int zero asm("r0");
+                        int zero;
                         register u8 *flagReload asm("r2");
                         /* The target materializes zero before loading the flag address. */
                         asm volatile("mov %0, #0" : "=r"(zero));
@@ -1056,27 +1021,26 @@ rouletteItemDraw:
     }
 
     {
-        register const struct AnimationFrame *frames asm("r1");
-        register struct RouletteAnimationState *anim asm("r0");
-        register struct RouletteAnimationState *nextAnim asm("r5");
-        register int frameIndex asm("r0");
+        const struct AnimationFrame *frames;
+        struct RouletteAnimationState *anim;
+        struct RouletteAnimationState *nextAnim;
+        int frameIndex;
         frames = sRouletteCenterResultOam;
         anim = &gMinigameUiAnimation;
         frameIndex = anim->frame;
         src = frames[frameIndex].oam;
         total += *src++;
         nextAnim = &gRouletteSideAnim;
-/* removed empty asm for target pool placement */
         if (slot < total) {
-            register OamData *base asm("r1");
+            OamData *base;
             register int xMaskLoad asm("r4");
-            register int xMask asm("r10");
-            register int attr1MaskLoad asm("r0");
-            register int attr1Mask asm("r12");
-            register int attrByteLoad asm("r2");
-            register int attrByteMask asm("r8");
-            register int byteOffset asm("r0");
-            register OamData *oam asm("r4");
+            int xMask;
+            int attr1MaskLoad;
+            int attr1Mask;
+            int attrByteLoad;
+            int attrByteMask;
+            int byteOffset;
+            OamData *oam;
             register int totalTemp asm("r0");
 
             base = gOamBuffer;
@@ -1084,21 +1048,19 @@ rouletteItemDraw:
             /* Keep the target r4 literal load before moving the mask to sl. */
             asm volatile("mov %0, %1" : "=r"(xMask) : "r"(xMaskLoad));
             attr1MaskLoad = -512;
-            /* Keep the target r0 literal load before moving the mask to ip. */
-            asm volatile("mov %0, %1" : "=r"(attr1Mask) : "r"(attr1MaskLoad));
+            attr1Mask = attr1MaskLoad;
             /* agbcc chooses r0 here; the target materializes -13 through r2 into r8. */
             asm volatile("mov r2, #13\nneg r2, r2\nmov %0, r2"
                          : "=r"(attrByteMask) : : "r2");
             byteOffset = slot << 3;
-            /* Preserve the target's r0 + r1 operand order directly into r4. */
-            asm volatile("add %0, %1, %2" : "=r"(oam) : "r"(byteOffset), "r"(base));
+            oam = (OamData *)(byteOffset + (u8 *)base);
             /* Preserve the target r0 copy of total before subtraction. */
             asm volatile("mov %0, %2\nsub %1, %0, %1"
                          : "=r"(totalTemp), "+r"(slot) : "r"(total));
             do {
                 register int value asm("r2");
                 register int out asm("r0");
-                register int coord asm("r1");
+                int coord;
 
                 value = *src++;
                 *rawDst++ = value;
@@ -1141,10 +1103,10 @@ rouletteItemDraw:
         }
 
         {
-            register int timerValue asm("r0");
+            int timerValue;
             register int frameIndex2 asm("r1");
             register const struct AnimationFrame *nextFrames asm("r3");
-            register u32 frameTime asm("r1");
+            u32 frameTime;
             timerValue = nextAnim->timer;
             timerValue++;
             nextAnim->timer = timerValue;
@@ -1154,9 +1116,8 @@ rouletteItemDraw:
              * agbcc hoists this literal into r7 across the preceding OAM loop,
              * clobbering the live slot counter. Keep the single target load here.
              */
-            nextFrames = sRouletteSideResultOam; /* tied barrier removed for pool placement */
-            /* agbcc commutes this address add; preserve frameIndex2 + nextFrames. */
-            asm volatile("add %0, %0, %1" : "+r"(frameIndex2) : "r"(nextFrames));
+            nextFrames = sRouletteSideResultOam;
+            frameIndex2 = frameIndex2 + (u32)nextFrames;
             frameTime = *(u8 *)((u8 *)frameIndex2 + 4);
             timerValue = (u16)timerValue;
             if (frameTime < timerValue) {
@@ -1175,31 +1136,29 @@ rouletteItemDraw:
         frameIndex <<= 3;
         {
             register const struct AnimationFrame *sideFrames asm("r4");
-            register const struct AnimationFrame *framePtr asm("r0");
+            const struct AnimationFrame *framePtr;
             /* Prevent reuse of the earlier literal; the target reloads it in r4 here. */
             sideFrames = sRouletteSideResultOam; asm volatile("" : "+r"(sideFrames) : : "memory");
-            /* Preserve the target frameIndex + sideFrames operand order in r0. */
-            asm volatile("add %0, %0, %1" : "+r"(frameIndex) : "r"(sideFrames));
+            frameIndex = (int)(frameIndex + (u8 *)sideFrames);
             framePtr = (const struct AnimationFrame *)frameIndex;
             src = framePtr->oam;
         }
         total += *src++;
         if (slot < total) {
-            register OamData *base asm("r1");
-            register int xMaskLoad asm("r0");
-            register int xMask asm("r10");
+            OamData *base;
+            int xMaskLoad;
+            int xMask;
             register int attr1MaskLoad asm("r2");
             register int attr1Mask asm("r12");
-            register int attrByteLoad asm("r4");
-            register int attrByteMask asm("r8");
-            register int byteOffset asm("r0");
-            register OamData *oam asm("r4");
+            int attrByteLoad;
+            int attrByteMask;
+            int byteOffset;
+            OamData *oam;
             register int totalTemp asm("r0");
 
             base = gOamBuffer;
             xMaskLoad = 0x1FF;
-            /* Keep the target r0 literal load before moving the mask to sl. */
-            asm volatile("mov %0, %1" : "=r"(xMask) : "r"(xMaskLoad));
+            xMask = xMaskLoad;
             attr1MaskLoad = -512;
             /* Keep the target r2 literal load before moving the mask to ip. */
             asm volatile("mov %0, %1" : "=r"(attr1Mask) : "r"(attr1MaskLoad));
@@ -1207,15 +1166,14 @@ rouletteItemDraw:
             asm volatile("mov r4, #13\nneg r4, r4\nmov %0, r4"
                          : "=r"(attrByteMask) : : "r4");
             byteOffset = slot << 3;
-            /* Preserve the target's r0 + r1 operand order directly into r4. */
-            asm volatile("add %0, %1, %2" : "=r"(oam) : "r"(byteOffset), "r"(base));
+            oam = (OamData *)(byteOffset + (u8 *)base);
             /* Preserve the target r0 copy of total before subtraction. */
             asm volatile("mov %0, %2\nsub %1, %0, %1"
                          : "=r"(totalTemp), "+r"(slot) : "r"(total));
             do {
                 register int value asm("r2");
                 register int out asm("r0");
-                register int coord asm("r1");
+                int coord;
 
                 value = *src++;
                 *rawDst++ = value;
@@ -1244,7 +1202,7 @@ rouletteItemDraw:
                 *rawDst = out;
                 src++;
                 {
-                    register int oldByte asm("r1");
+                    int oldByte;
                     oldByte = ((u8 *)oam)[5];
                     out = attrByteMask;
                     out &= oldByte;
@@ -1263,24 +1221,23 @@ rouletteItemDraw:
         frameIndex <<= 3;
         {
             register const struct AnimationFrame *sideFrames asm("r3");
-            register const struct AnimationFrame *framePtr asm("r0");
+            const struct AnimationFrame *framePtr;
             /* The target performs a separate r3 literal load for the right-side list. */
-            sideFrames = sRouletteSideResultOam; /* tied barrier removed for pool placement */
-            /* Preserve the target frameIndex + sideFrames operand order in r0. */
-            asm volatile("add %0, %0, %1" : "+r"(frameIndex) : "r"(sideFrames));
+            sideFrames = sRouletteSideResultOam;
+            frameIndex = (int)(frameIndex + (u8 *)sideFrames);
             framePtr = (const struct AnimationFrame *)frameIndex;
             src = framePtr->oam;
         }
         total += *src++;
         if (slot < total) {
-            register OamData *base asm("r1");
+            OamData *base;
             register int xMaskLoad asm("r4");
-            register int xMask asm("r8");
+            int xMask;
             register int attr1MaskLoad asm("r5");
             register int attr1Mask asm("r10");
-            register int attrByteMask asm("r5");
-            register int byteOffset asm("r0");
-            register OamData *oam asm("r4");
+            int attrByteMask;
+            int byteOffset;
+            OamData *oam;
             register int totalTemp asm("r0");
 
             base = gOamBuffer;
@@ -1292,15 +1249,14 @@ rouletteItemDraw:
             asm volatile("mov %0, %1" : "=r"(attr1Mask) : "r"(attr1MaskLoad));
             attrByteMask = -13;
             byteOffset = slot << 3;
-            /* Preserve the target's r0 + r1 operand order directly into r4. */
-            asm volatile("add %0, %1, %2" : "=r"(oam) : "r"(byteOffset), "r"(base));
+            oam = (OamData *)(byteOffset + (u8 *)base);
             /* Preserve the target r0 copy of total before subtraction. */
             asm volatile("mov %0, %2\nsub %1, %0, %1"
                          : "=r"(totalTemp), "+r"(slot) : "r"(total));
             do {
                 register int value asm("r2");
                 register int out asm("r0");
-                register int coord asm("r1");
+                int coord;
 
                 value = *src++;
                 *rawDst++ = value;
@@ -1329,7 +1285,7 @@ rouletteItemDraw:
                 *rawDst = out;
                 src++;
                 {
-                    register int oldByte asm("r1");
+                    int oldByte;
                     oldByte = ((u8 *)oam)[5];
                     out = attrByteMask;
                     out &= oldByte;
@@ -1354,7 +1310,6 @@ rouletteItemDraw:
         register u8 *slotsUsed asm("r3");
         finalTotal = total;
         slotsUsed = &gOamSlotsUsed;
-        asm volatile("" : "+r"(slotsUsed));
         *slotsUsed = finalTotal;
     }
 }

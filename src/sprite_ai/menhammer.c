@@ -244,8 +244,6 @@ void MenhammerAttack(void)
             previousVelocityAddress <<= 1;
             previousVelocityAddress += (u32) table;
             yPosition = ((struct PrimarySpriteData *) r4Value)->yPosition;
-            /* Preserve the original y-position load before the table halfword load. */
-            asm("" : "+r" (yPosition), "+r" (previousVelocityAddress));
             previousVelocityAddress = *(const u16 *) previousVelocityAddress;
             yPosition = yPosition + previousVelocityAddress;
         } else {
@@ -510,7 +508,7 @@ void MenhammerAirborneInit(void)
 
 void MenhammerAirborne(void)
 {
-    register u8 *indexPointer asm("ip");
+    u8 *indexPointer;
     u32 index;
     s16 velocity;
 
@@ -523,8 +521,6 @@ void MenhammerAirborne(void)
         } else {
             indexPointer = &gCurrentSprite.work3;
             index = *indexPointer;
-            /* Keep the work index and its address live so agbcc delays the table load. */
-            asm("" : "+r" (indexPointer), "+r" (index));
             velocity = sUnk_8352B18[index];
             if (velocity == 0x7FFF) {
                 u32 previousVelocityAddress;
@@ -533,8 +529,6 @@ void MenhammerAirborne(void)
                 previousVelocityAddress = index - 1;
                 previousVelocityAddress <<= 1;
                 previousVelocityAddress += (u32) sUnk_8352B18;
-                /* Preserve agbcc's original address calculation and halfword load order. */
-                asm("" : "+r" (previousVelocityAddress));
                 yPosition = gCurrentSprite.yPosition;
                 asm("" : "+r" (yPosition), "+r" (previousVelocityAddress));
                 gCurrentSprite.yPosition = yPosition + *(const s16 *) previousVelocityAddress;
@@ -545,7 +539,6 @@ void MenhammerAirborne(void)
                 nextIndex = index + 1;
                 storePointer = indexPointer;
                 /* Keep the incremented index in r0 and the destination pointer in r1. */
-                asm("" : "+r" (nextIndex), "+r" (storePointer));
                 *storePointer = nextIndex;
                 gCurrentSprite.yPosition += velocity;
             }

@@ -359,8 +359,8 @@ void func_8092CC4(void)
 void func_8092D2C(void)
 {
     register struct SaveDataClearData *data asm("r2");
-    register u8 *tbl asm("r1");
-    register u8 *ptr asm("r0");
+    u8 *tbl;
+    u8 *ptr;
     s32 value;
 
     if (gUnk_3004AB8 <= 1)
@@ -427,27 +427,27 @@ void func_8092DEC(void)
 void func_8092DFC(void)
 {
     u16 *dest;
-    register u32 slots asm("r9");
-    register u32 oldSlots asm("r6");
+    u32 slots;
+    u32 oldSlots;
     register u32 i asm("r4");
     register u32 next asm("r8");
-    register u32 yoff asm("sl");
+    u32 yoff;
     register s32 xoff asm("ip");
     register const u8 *anim asm("r5");
-    register const u16 *src asm("r3");
-    register u32 idx asm("r2");
-    register u32 twice asm("r0");
+    const u16 *src;
+    u32 idx;
+    u32 twice;
     register u32 off asm("r1");
     register u32 cidx asm("r0");
     register struct SaveClearAnimationState *firstData asm("r3");
     const u8 *const *tbl;
     u32 type;
     register u32 switchType asm("r0");
-    register u32 xhalf asm("r1");
+    u32 xhalf;
     u32 count;
     u8 *oam;
-    register u32 attr asm("r0");
-    register u32 attr1 asm("r1");
+    u32 attr;
+    u32 attr1;
     register u8 *oamBase asm("r0");
 
     dest = (u16 *)gOamBuffer;
@@ -522,13 +522,13 @@ loop:
     }
 
     {
-        register struct SaveClearAnimationState *data2 asm("r2");
+        struct SaveClearAnimationState *data2;
         data2 = (struct SaveClearAnimationState *)((u8 *)&gUnk_3004A70 + ((idx + i) << 2));
         data2->timer++;
         yoff = (u16)(data2->y - gBg1YPosition);
         {
-            register u32 xpos asm("r0");
-            register u32 bgx asm("r1");
+            u32 xpos;
+            u32 bgx;
             bgx = (u32)&gBg1XPosition;
             xpos = data2->x;
             bgx = *(u16 *)bgx;
@@ -571,8 +571,8 @@ loop:
             attr1 &= mask9;
         }
         {
-            register u32 old2 asm("r2");
-            register u32 keep asm("r0");
+            u32 old2;
+            u32 keep;
             old2 = *(u16 *)&oam[2];
             keep = 0xFFFFFE00;
             keep &= old2;
@@ -583,8 +583,8 @@ loop:
         *dest = attr;
         src++;
         {
-            register s32 mask asm("r0");
-            register u32 byte asm("r1");
+            s32 mask;
+            u32 byte;
             byte = oam[5];
             mask = 13;
             mask = -mask;

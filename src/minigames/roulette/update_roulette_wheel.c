@@ -42,8 +42,7 @@ void UpdateRouletteWheel(void)
                     u16 corrected;
 
                     correction = -8160;
-                    /* agbcc reverses the target's sum/correction register assignment here. */
-                    asm volatile("add %0, %1, %2" : "=r"(corrected) : "r"(sum), "r"(correction));
+                    corrected = sum + correction;
                     current->angle = corrected;
                 }
             }
@@ -62,7 +61,7 @@ void UpdateRouletteWheel(void)
                     offset += 64;
                     offset <<= 1;
                     samplePtr = (const s16 *)offset;
-                    asm volatile("add %0, %0, %1" : "+r"(samplePtr) : "r"(sinTable));
+                    samplePtr = (const s16 *)((u32)samplePtr + (u32)sinTable);
                     sample = *samplePtr;
                 }
                 product = (sample << 3) + sample;
@@ -73,7 +72,6 @@ void UpdateRouletteWheel(void)
 
                 sample = sinTable[index];
                 index = 256;
-                asm volatile("" : "+r"(index));
                 sample += index;
                 product = (u32)sample >> 31;
                 sample += product;
@@ -87,13 +85,12 @@ void UpdateRouletteWheel(void)
     } while (count >= 0);
 
     {
-        register s32 accumulatorValue asm("r0");
-        register s32 zeroOffset asm("r1");
+        s32 accumulatorValue;
+        s32 zeroOffset;
 
         accumulatorValue = (s32)&gRouletteAngularAcceleration;
         zeroOffset = 0;
-        /* Keep the target's r1 zero offset for the signed halfword read. */
-        asm volatile("ldrsh %0, [%0, %1]" : "+r"(accumulatorValue) : "r"(zeroOffset));
+        accumulatorValue = *(s16 *)(accumulatorValue + zeroOffset);
         if (accumulatorValue == 0) {
         volatile u8 *selectedIndex;
         register const s16 *selectedSin asm("r4");
@@ -105,7 +102,7 @@ void UpdateRouletteWheel(void)
 
             index = *selectedIndex;
             selected = (struct RouletteItem *)((index * 3) << 2);
-            asm volatile("add %0, %0, %1" : "+r"(selected) : "r"(base));
+            selected = (struct RouletteItem *)((u32)selected + (u32)base);
             selected->angle = 224 << 5;
         }
 
@@ -120,7 +117,7 @@ void UpdateRouletteWheel(void)
 
                 selectedValue = *selectedIndex;
                 selected = (struct RouletteItem *)((selectedValue * 3) << 2);
-                asm volatile("add %0, %0, %1" : "+r"(selected) : "r"(base));
+                selected = (struct RouletteItem *)((u32)selected + (u32)base);
             }
             selectedSin = sSinCosTable;
             index = (s16)selected->angle >> 5;
@@ -132,7 +129,7 @@ void UpdateRouletteWheel(void)
                 offset += 64;
                 offset <<= 1;
                 samplePtr = (const s16 *)offset;
-                asm volatile("add %0, %0, %1" : "+r"(samplePtr) : "r"(selectedSin));
+                samplePtr = (const s16 *)((u32)samplePtr + (u32)selectedSin);
                 sample = *samplePtr;
             }
             product = (sample << 3) + sample;
@@ -151,7 +148,7 @@ void UpdateRouletteWheel(void)
 
                 selectedValue = *selectedIndex;
                 selected = (struct RouletteItem *)((selectedValue * 3) << 2);
-                asm volatile("add %0, %0, %1" : "+r"(selected) : "r"(base));
+                selected = (struct RouletteItem *)((u32)selected + (u32)base);
             }
             one = 1;
             selected->active = one;
@@ -168,7 +165,7 @@ void UpdateRouletteWheel(void)
 
                 selectedValue = *selectedIndex;
                 selected = (struct RouletteItem *)((selectedValue * 3) << 2);
-                asm volatile("add %0, %0, %1" : "+r"(selected) : "r"(base));
+                selected = (struct RouletteItem *)((u32)selected + (u32)base);
             }
             index = (s16)selected->angle >> 5;
             sample = selectedSin[index];
@@ -189,7 +186,7 @@ void UpdateRouletteWheel(void)
 
                 selectedValue = *selectedIndex;
                 selected = (struct RouletteItem *)((selectedValue * 3) << 2);
-                asm volatile("add %0, %0, %1" : "+r"(selected) : "r"(base));
+                selected = (struct RouletteItem *)((u32)selected + (u32)base);
             }
             selected->value = gRouletteValuePool[gRouletteValueSequenceIndex];
         }
@@ -205,20 +202,14 @@ void UpdateRouletteWheel(void)
 
     {
         s16 *accumulatorPtr;
-        register s16 *speedPtr2 asm("r0");
-        u16 sum;
+        s16 *speedPtr2;
+        s32 sum;
 
         accumulatorPtr = &gRouletteAngularAcceleration;
         speedPtr2 = &gRouletteAngularSpeed;
-        /* agbcc otherwise swaps the accumulator pointer/value registers. */
-        asm volatile(
-            "ldrh r0, [r0]\n\t"
-            "ldrh r1, [r2]\n\t"
-            "add r0, r0, r1\n\t"
-            "strh r0, [r2]"
-            : "=r"(sum)
-            : "0"(speedPtr2), "r"(accumulatorPtr)
-            : "r1", "memory");
+        sum = *(u16 *)speedPtr2;
+        sum += *(u16 *)accumulatorPtr;
+        *accumulatorPtr = sum;
         if ((s16)sum > 2047) {
         u8 zero;
         volatile u8 *selectedPtr;
@@ -246,7 +237,6 @@ void UpdateRouletteWheel(void)
             u32 limit;
 
             limitPtr = &gRouletteValueCount;
-            asm volatile("" : "+r"(limitPtr));
             currentSequence = *sequencePtr;
             limit = *limitPtr;
             if (currentSequence >= limit)

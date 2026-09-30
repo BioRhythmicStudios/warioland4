@@ -84,9 +84,9 @@ void ChandelierFall(void)
         u8 *indexPointer;
         u8 index;
         const s16 *velocities;
-        register const s16 *entry asm("r0");
+        const s16 *entry;
         s32 velocityRaw;
-        register s32 velocity asm("r1");
+        s32 velocity;
         u16 zero;
         indexPointer = &sprite->work3;
         index = *indexPointer;
@@ -94,18 +94,15 @@ void ChandelierFall(void)
         entry = (const s16 *)((index << 1) + (u32)velocities);
         velocityRaw = *(const u16 *)entry;
         zero = 0;
-        /* agbcc otherwise reuses the unsigned load instead of emitting the target ldrsh. */
-        asm("ldrsh %0, [%1, %2]" : "=r"(velocity) : "r"(entry), "r"(zero));
+        velocity = *(s16 *)((u8 *)entry + zero);
         if (velocity == 0x7FFF) {
             u32 previousOffset;
-            register u16 currentY asm("r0");
+            u16 currentY;
             s32 previousVelocity;
             previousOffset = index - 1;
-            asm("" : "+r"(previousOffset));
             previousOffset <<= 1;
-            asm("" : "+r"(previousOffset));
             previousOffset += (u32)velocities;
-            currentY = sprite->yPosition;
+            currentY = *(volatile u16*)&sprite->yPosition;
             previousVelocity = *(const u16 *)previousOffset;
             currentY += previousVelocity;
             sprite->yPosition = currentY;

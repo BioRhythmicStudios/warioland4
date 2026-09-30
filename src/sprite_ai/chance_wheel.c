@@ -14,7 +14,6 @@ void ClearChanceWheelRewardSprites(void)
     struct PrimarySpriteData* sprite;
     register struct PrimarySpriteData* end asm("r4");
     u16 exists;
-    register u16 status asm("r1");
     s16 check;
     int id;
     u16 zero;
@@ -23,11 +22,8 @@ void ClearChanceWheelRewardSprites(void)
     end = (struct PrimarySpriteData*)((u8*)sprite + 253 * 4);
     exists = SPRITE_STATUS_EXISTS;
     do {
-        status = sprite->status;
-        /* Keep the loaded status in r1 so agbcc emits the target AND operand order. */
-        asm("" : "+r"(status));
         check = exists;
-        check &= status;
+        check &= sprite->status;
         if (check != 0) {
             id = sprite->globalID;
             switch (id) {
@@ -269,7 +265,7 @@ void CheckWarioNearChanceWheel(void)
 {
     int warioY;
     int warioX;
-    register int spriteY asm("r3");
+    int spriteY;
     int spriteX;
     int bound;
 
@@ -285,8 +281,6 @@ void CheckWarioNearChanceWheel(void)
             return;
         }
 
-        /* Preserve spriteX in r1 across the first bounds check. */
-        asm("" : "+r"(spriteX));
         bound = spriteX;
         bound += 130;
         if (bound <= warioX) {
@@ -298,8 +292,6 @@ void CheckWarioNearChanceWheel(void)
             return;
         }
 
-        /* Preserve spriteY in r3 across the upper bounds check. */
-        asm("" : "+r"(spriteY));
         bound = spriteY;
         bound -= 64;
         if (bound >= warioY) {

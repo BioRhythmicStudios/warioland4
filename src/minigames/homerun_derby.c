@@ -179,7 +179,7 @@ ALL asm inlined code islands are for agbcc frontier, i couldn't find a replaceme
 
 s32 UpdateHomerunDerby(void)
 {
-    register u8 *stateAddress asm("r0");
+    u8 *stateAddress;
     u8 *savedStateAddress;
     register u8 *cameraData asm("r4");
     u8 *cameraDataForExit;
@@ -189,7 +189,7 @@ s32 UpdateHomerunDerby(void)
     u8 *pitcherState;
     register u8 *pitcherDataForSound asm("r5");
     u8 *ballState;
-    register u8 currentState asm("r1");
+    u8 currentState;
     s32 difficulty;
     s32 pitchAnimationIndex;
     s32 updatedMissCount;
@@ -400,8 +400,7 @@ s32 UpdateHomerunDerby(void)
         break;
 
     case 13:
-        nextValue = 120;
-        asm(".4byte 0xfbb2f7fb" : "+r"(nextValue) : : "lr");
+        nextValue = MinigameWaitForFrames(120);
         if (nextValue == 0) {
             break;
         }
@@ -439,7 +438,7 @@ s32 UpdateHomerunDerby(void)
         break;
 
     case 17:
-        asm(".4byte 0xfa8ef001" : "=r"(nextValue) : : "lr");
+        nextValue = UpdateHomerunBonusAnimation();
         if (nextValue != 0) {
             gMinigameState = 3;
         }
@@ -505,7 +504,7 @@ void InitHomerunDerby(void)
     u8 *backgroundTilemapA;
     register u32 dmaBusyMask asm("r2");
     u32 zeroValue;
-    register u32 dmaStatus asm("r0");
+    u32 dmaStatus;
 
     DMA3->src = (u32)sHomerunBgPalette;
     DMA3->dst = 0x05000000;
@@ -643,7 +642,7 @@ void InitHomerunDerby(void)
     *(vu16 *)0x0400000C = 0x1E02;
 
     {
-        register vu16 *displayRegister asm("r0");
+        vu16 *displayRegister;
         displayRegister = (vu16 *)0x0400001A;
         zeroValue = 0;
         *displayRegister = zeroValue;
@@ -675,7 +674,7 @@ void InitHomerunDerby(void)
     }
 
     {
-        register u8 *pitchResultPointer asm("r1");
+        u8 *pitchResultPointer;
         dmaStatus = 4;
         pitchResultPointer = &gHomerunPitchResult;
         *pitchResultPointer = dmaStatus;
@@ -691,7 +690,7 @@ void InitHomerunDerby(void)
     gHomerunBonusCycle = 0;
 
     {
-        register u8 *cameraData asm("r1");
+        u8 *cameraData;
         cameraData = gMinigameCamera;
         dmaStatus = 0x200;
         *(u16 *)(cameraData + 4) = dmaStatus;
@@ -711,14 +710,16 @@ void InitHomerunDerby(void)
     gHomerunMissCount = 0;
     InitMinigameScoreDisplay();
     *(vu16 *)0x04000054 = 0;
-    *(vu16 *)0x04000050 = 0x1C42;
-    *(vu16 *)0x04000052 = 0x060A;
-
     {
-        register vu16 *displayRegister asm("r1");
+        vu16 *displayRegister = (vu16 *)0x04000050;
         register u32 displayControl asm("r7");
         register u32 displayControlValue asm("r0");
-        asm(".4byte 0x27803952" : "=r"(displayRegister), "=r"(displayControl));
+
+        *displayRegister = 0x1C42;
+        displayRegister++;
+        *displayRegister = 0x060A;
+        displayRegister -= 0x29;
+        displayControl = 0x80;
         displayControl <<= 4;
         displayControlValue = displayControl;
         *displayRegister = displayControlValue;
@@ -868,7 +869,7 @@ s32 CheckHomerunBatHit(void)
         register u8 contactFrame asm("r3");
         register s32 velocityMask asm("r5");
         register s32 sineValue asm("r9");
-        register u8 *velocityTable asm("r4");
+        u8 *velocityTable;
         register unsigned int scaledVelocity;
         register s32 velocityComponent asm("r0");
         register s32 trigIndexRegister asm("r1");
@@ -927,25 +928,19 @@ s32 CheckHomerunBatHit(void)
         if (((u8)(batState->contactFrame - 0xA)) <= 2) {
             m4aSongNumStart(0x234U);
         } else {
-            asm("ldr r0, .LhomerunSound233\n\tbl m4aSongNumStart");
+            m4aSongNumStart(0x233U);
         }
-        asm(
-            "mov r0, #1\n\t"
-            ".4byte 0x0000e003\n\t"
-            ".align 2, 0\n"
-            ".LhomerunSound233:\n\t"
-            ".4byte 0x233"
-        );
+        return 1;
     }
     return 0;
 }
 
 s32 UpdateHomerunBatSwing(void)
 {
-    register u8 *batState asm("r4");
+    u8 *batState;
     u16 *batXPosition;
-    register u16 *batYPosition asm("r5");
-    register const u8 *swingAngles asm("ip");
+    u16 *batYPosition;
+    const u8 *swingAngles;
     register s32 batCenterX asm("r6");
     register s32 swingFrame asm("r2");
     register const s16 *trigTable asm("r3");
@@ -984,7 +979,7 @@ s32 UpdateHomerunBatSwing(void)
 
 reset:
     {
-        register const u8 *initialSwingAngles asm("r1");
+        const u8 *initialSwingAngles;
 
         batState[6] = 0;
         initialSwingAngles = swingAngles;
@@ -1001,12 +996,12 @@ done:
 
 s32 UpdateHomerunHitBall(void)
 {
-    register struct HomerunBallState *ballState asm("r1");
-    register s32 xPosition asm("r4");
-    register s32 yPosition asm("r2");
+    struct HomerunBallState *ballState;
+    s32 xPosition;
+    s32 yPosition;
     register s32 nextXPosition asm("r3");
     s32 nextYPosition;
-    register s32 coordinateMask asm("r5");
+    s32 coordinateMask;
     register s32 workingValue asm("r0");
     u8 *pitchResultPointer;
     u8 pitchResult;
@@ -1037,7 +1032,7 @@ s32 UpdateHomerunHitBall(void)
         workingValue += yPosition;
         ballState->scale = workingValue;
         {
-            register s32 backgroundY asm("r1");
+            s32 backgroundY;
 
             workingValue <<= 16;
             backgroundY = 0x80;
@@ -1045,16 +1040,17 @@ s32 UpdateHomerunHitBall(void)
             if ((u32)workingValue <= backgroundY) {
                 goto ret0;
             } else {
-                register u16 *ballXPosition asm("r0");
+                u16 *ballXPosition;
                 register s32 backgroundX asm("r2");
-                register vu16 *backgroundYRegister asm("r0");
-                register s32 backgroundPositionAddress asm("r3");
+                vu16 *backgroundYRegister;
+                s32 backgroundPositionAddress;
 
                 ballXPosition = &gHomerunBgX;
                 backgroundX = (s32)(nextXPosition << 16) >> 20;
                 backgroundPositionAddress = 0x80;
                 backgroundPositionAddress <<= 1;
-                asm("add %0, %1, #0" : "=r"(backgroundY) : "r"(backgroundPositionAddress));
+                backgroundY = backgroundPositionAddress;
+                backgroundY += 0;
                 backgroundX = backgroundY - backgroundX;
                 *ballXPosition = backgroundX;
                 backgroundPositionAddress = (s32)&gHomerunBgY;
@@ -1103,14 +1099,14 @@ ret0:
 
 s32 UpdateHomerunMissedBall(void)
 {
-    register struct HomerunBallState *ballState asm("r2");
-    register s32 xPosition asm("r5");
-    register s32 yPosition asm("r4");
+    struct HomerunBallState *ballState;
+    s32 xPosition;
+    s32 yPosition;
     register s32 workingValue asm("r0");
-    register s32 groundHeight asm("r1");
+    s32 groundHeight;
     register s32 minimumY asm("r3");
-    register u8 *pitchResultPointer asm("r1");
-    register u8 pitchResult asm("r0");
+    u8 *pitchResultPointer;
+    u8 pitchResult;
 
     ballState = (struct HomerunBallState *)gHomerunBall;
     xPosition = ballState->xPosition;
@@ -1140,8 +1136,7 @@ s32 UpdateHomerunMissedBall(void)
         groundHeight = ballState->scale;
         workingValue += groundHeight;
         ballState->scale = workingValue;
-        workingValue <<= 16;
-        workingValue = (u32)workingValue >> 16;
+        workingValue = (u16)workingValue;
         groundHeight = 0x80;
         groundHeight <<= 3;
         if ((u32)workingValue > (u32)groundHeight) {
@@ -1188,21 +1183,21 @@ void DrawHomerunDerby(void)
   u16 *affinePc;
   u16 *affinePd;
   register struct HomerunCameraState *cameraTransform asm("r9");
-  register struct HomerunCameraState *cameraForMatrix asm("r1");
+  struct HomerunCameraState *cameraForMatrix;
   register struct HomerunCameraState *cameraForRotation asm("r3");
   register struct HomerunPitcherState *pitcherState asm("r3");
   register struct HomerunSimpleAnimation *activeAnimationState asm("r3");
-  register struct AnimationFrame *activeAnimation asm("r5");
+  struct AnimationFrame *activeAnimation;
   register u8 *stackFrame asm("sp");
   u32 animationCounterLimit;
   register u32 oamXMask asm("sl");
   register s32 oamAttributeMask asm("ip");
   register long preservedOamBits;
   register OamByte *dataPointer asm("r2");
-  register OamByte *oamBuffer asm("r2");
-  register OamByte *oamEntry asm("r4");
+  OamByte *oamBuffer;
+  OamByte *oamEntry;
   register OamByte *objectState asm("r5");
-  register struct HomerunCameraState *cameraForSprites asm("r5");
+  struct HomerunCameraState *cameraForSprites;
   s16 matrixCosine;
   s16 animationMatrixPb;
   s16 animationMatrixPc;
@@ -1230,8 +1225,8 @@ void DrawHomerunDerby(void)
   register s32 bonusEntryCount asm("r7");
   s32 pitcherEntryCount;
   s32 savedOamIndex;
-  register struct AnimationFrame *bonusAnimationFrames asm("r4");
-  register u16 *affinePointer asm("r0");
+  struct AnimationFrame *bonusAnimationFrames;
+  u16 *affinePointer;
   u16 **affinePointerReference;
   u16 *bonusFrameData;
   u16 *pitcherFrameData;
@@ -1288,20 +1283,20 @@ void DrawHomerunDerby(void)
   u8 frameTimeB;
   u8 frameTimeC;
   u8 frameTimeD;
-  register u8 pitcherAnimationType asm("r1");
+  u8 pitcherAnimationType;
   u8 animationType;
   u8 bonusAnimationIndex;
-  register s32 firstOamIndex asm("r7");
+  s32 firstOamIndex;
   register s32 nextOamIndex asm("r8");
   void *oamBufferPointer;
   int clearObjectModeMask;
   void *currentOamBytes;
   void *resultOamBytes;
-  register OamByte *ballOamBytes asm("r4");
+  OamByte *ballOamBytes;
   void *secondaryOamBytes;
-  register OamByte *batOamBytes asm("r4");
+  OamByte *batOamBytes;
   void *staticOamBytes;
-  register OamByte *bonusOamBytes asm("r4");
+  OamByte *bonusOamBytes;
   void *pitcherOamEntry;
   bonusRenderState = &gHomerunBonusRender;
   firstOamIndex = 0;
@@ -1751,7 +1746,6 @@ void DrawHomerunDerby(void)
         gHomerunBonusRender.animationTimer = 1U;
         bonusAnimation = bonusAnimationFrames;
         gHomerunBonusRender.animationFrame = (u16) (gHomerunBonusRender.animationFrame + 1);
-        asm(".pool");
         if ((byteValue = bonusAnimation[gHomerunBonusRender.animationFrame].time) == 0)
         {
           gHomerunBonusRender.animationFrame = 0;
@@ -1785,7 +1779,7 @@ void DrawHomerunDerby(void)
         cameraTransform = (struct HomerunCameraState *) 0x1FF;
         oamXMask = 0xFFFFFE00;
         asm("" : : "r"(positionValue));
-        asm(".word 0x184400f8");
+        bonusOamBytes = (OamByte *)((firstOamIndex << 3) + positionValue);
         bonusEntryCount = nextOamIndex - firstOamIndex;
         do
         {
@@ -1793,8 +1787,8 @@ void DrawHomerunDerby(void)
           *((u16 *) (((u8 *) oamDataDestination) + 0)) = oamAttribute13;
           oamDataDestination += 2;
           *((s8 *) (((u8 *) bonusOamBytes) + 0)) = (s8) ((*((u8 *) (((u8 *) render_state) + 6))) + oamAttribute13);
-          oamAttribute2 = *frameData;
-          asm(".word 0x80323302" : : "r"(oamAttribute2));
+          oamAttribute2 = *(frameData++);
+          *((u16 *)oamDataDestination) = oamAttribute2;
           oamDataDestination += 2;
           positionValue = *((s16 *) (((u8 *) render_state) + 4));
           positionValue = oamAttribute2 + positionValue;
@@ -1838,10 +1832,8 @@ void DrawHomerunDerby(void)
             break;
 
           case 1:
-            asm("ldr r0, [pc, #8]");
-            asm("bl m4aSongNumStart");
-            asm(".word 0x0000e00b");
-            asm(".word 0x00000229");
+            m4aSongNumStart(0x229U);
+            break;
 
           case 5:
             m4aSongNumStart(0x22AU);
@@ -2005,8 +1997,8 @@ asm(".set $t.hd_085c, DrawHomerunDerby + 0x85c\n"
 
 s32 UpdateHomerunScoreSequence(void)
 {
-    register u8 *sequenceStatePointer asm("r5");
-    register s32 sequenceState asm("r4");
+    u8 *sequenceStatePointer;
+    s32 sequenceState;
 
     sequenceStatePointer = &gMinigameSequenceState;
     sequenceState = *sequenceStatePointer;
@@ -2076,8 +2068,8 @@ ret0:
 
 s32 UpdateHomerunBonusAnimation(void)
 {
-    register u8 *sequenceStatePointer asm("r5");
-    register u8 *sequenceStatePointerReload asm("r2");
+    u8 *sequenceStatePointer;
+    u8 *sequenceStatePointerReload;
     struct HomerunBonusState *bonusState;
     s32 yPosition;
     u16 nextYPosition;
@@ -2092,8 +2084,8 @@ s32 UpdateHomerunBonusAnimation(void)
     switch (sequenceState) {
     case 0:
     {
-        register struct HomerunBonusState *movingBonusState asm("r0");
-        register s32 movementDirection asm("r1");
+        struct HomerunBonusState *movingBonusState;
+        s32 movementDirection;
         register struct HomerunBonusState *centeredBonusState asm("r5");
 
         movingBonusState = (struct HomerunBonusState *)gHomerunBonusAnimation;
@@ -2137,7 +2129,7 @@ s32 UpdateHomerunBonusAnimation(void)
 
     case 2:
     {
-        register struct HomerunBonusState *returningBonusState asm("r3");
+        struct HomerunBonusState *returningBonusState;
         register s32 direction asm("r4");
 
         returningBonusState = (struct HomerunBonusState *)gHomerunBonusAnimation;
@@ -2179,12 +2171,12 @@ s32 UpdateHomerunBonusAnimation(void)
 
 void StartHomerunBonusAnimation(void)
 {
-    register struct HomerunBonusState *bonusState asm("r4");
+    struct HomerunBonusState *bonusState;
     register s32 evenRandomBase asm("r1");
-    register s32 direction asm("r5");
+    s32 direction;
     u32 randomValue;
     u8 cycleIndex;
-    register s32 animationIndex asm("r0");
+    s32 animationIndex;
 
     randomValue = MinigameRandom();
     bonusState = (struct HomerunBonusState *)gHomerunBonusAnimation;
@@ -2216,8 +2208,8 @@ void StartHomerunBonusAnimation(void)
         break;
     }
     {
-        register struct HomerunBonusState *resetBonusState asm("r0");
-        register s32 zeroValue asm("r1");
+        struct HomerunBonusState *resetBonusState;
+        s32 zeroValue;
 
         resetBonusState = (struct HomerunBonusState *)gHomerunBonusAnimation;
         zeroValue = 0;

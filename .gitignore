@@ -80,3 +80,7 @@ bundles/
 tools/
 decomp_work/
 decomp_work_v2/
+asm_cleaning*
+.asmclean_local/
+.asmclean_smart/
+*.json*

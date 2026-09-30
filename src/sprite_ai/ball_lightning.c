@@ -13,9 +13,9 @@ void InitBallLightningSpawner(void)
     register struct PrimarySpriteData* sprite asm("ip");
     u16 oldStatus;
     register u16 status asm("r0");
-    register u8 zero asm("r2");
-    register u16 zero16 asm("r3");
-    register u8* ptr asm("r0");
+    u8 zero;
+    u16 zero16;
+    u8* ptr;
     u8 one;
     const struct AnimationFrame* oam;
     struct PrimarySpriteData* postSprite;
@@ -25,7 +25,7 @@ void InitBallLightningSpawner(void)
     status = 0x40C;
     /* Preserve the target's early zero values in r2 and r3. */
     asm("mov %0, #0" : "=r"(zero));
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
     status |= oldStatus;
     postSprite = sprite;
     postSprite->status = status;
@@ -42,9 +42,9 @@ void InitBallLightningSpawner(void)
     *ptr = one;
     ptr++;
     *ptr = one;
-    /* agbcc otherwise folds this increment into an indexed byte store. */
-    asm("add %0, #1" : "+r"(ptr));
-    *ptr = one;
+    /* Volatile keeps the final byte store separate from the pointer increment. */
+    ptr++;
+    *(volatile u8 *)ptr = one;
     oam = sBallLightningSpawnerOam;
     postSprite = sprite;
     postSprite->pOamData = oam;
@@ -76,15 +76,15 @@ void BallLightningSpawnerIdle(void)
 
 void InitBallLightningBolt(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
+    struct PrimarySpriteData* sprite;
     u16 oldStatus;
     register u16 status asm("r0");
-    register u8 zero asm("r3");
-    register u16 zero16 asm("r4");
-    register u8* ptr asm("r0");
+    u8 zero;
+    u16 zero16;
+    u8* ptr;
     u8 value16;
     u8 value20;
-    register u8* leftPtr asm("r5");
+    u8* leftPtr;
     const struct AnimationFrame* oam;
     struct PrimarySpriteData* postSprite;
 
@@ -93,7 +93,7 @@ void InitBallLightningBolt(void)
     status = 0x420;
     /* Preserve the target's early zero values in r3 and r4. */
     asm("mov %0, #0" : "=r"(zero));
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
     status |= oldStatus;
     status &= 0xFFFB;
     postSprite = sprite;
@@ -105,8 +105,7 @@ void InitBallLightningBolt(void)
     *ptr = value16;
     ptr++;
     *ptr = value16;
-    /* Preserve the separate pointer increment used by the target. */
-    asm("add %0, #2" : "+r"(ptr));
+    ptr += 2;
     value20 = 20;
     *ptr = value20;
     leftPtr = (u8*)sprite + 37;
@@ -120,7 +119,7 @@ void InitBallLightningBolt(void)
     postSprite->animationTimer = zero16;
     postSprite->warioCollision = 9;
     {
-        register u8* timerPtr asm("r1");
+        u8* timerPtr;
         timerPtr = (u8*)sprite + 39;
         *timerPtr = 30;
     }
@@ -175,7 +174,7 @@ void StartBallLightningBoltRollLeft(void)
 void BallLightningBoltFall(void)
 {
     struct PrimarySpriteData* sprite;
-    register u32 newY asm("r2");
+    u32 newY;
 
     sprite = &gCurrentSprite;
     newY = func_8023A60(sprite->yPosition, sprite->xPosition);
@@ -205,16 +204,17 @@ void BallLightningBoltFall(void)
     }
     else
     {
-        register u8* workPtr asm("r6");
-        register u8* savedWorkPtr asm("ip");
-        register u32 index asm("r2");
-        register const s16* table asm("r5");
-        register u32 movement asm("r3");
+        u8* workPtr;
+        u8* savedWorkPtr;
+        u32 index;
+        const s16* table;
+        u32 movement;
         s32 signedMovement;
         register u32 value asm("r0");
 
         /* Preserve the target's immediate-first construction of the work pointer. */
-        asm("mov %0, #42\nadd %0, %1" : "=r"(workPtr) : "r"(sprite));
+        workPtr = (u8 *)42;
+        workPtr = (u8 *)((u32)workPtr + (u32)sprite);
         savedWorkPtr = workPtr;
         index = *workPtr;
         table = sSpriteGravityVelocityTable;
@@ -224,8 +224,8 @@ void BallLightningBoltFall(void)
         signedMovement = *(const s16*)value;
         if (signedMovement == 0x7FFF)
         {
-            register s32 previousIndex asm("r1");
-            register u32 previousMovement asm("r1");
+            s32 previousIndex;
+            u32 previousMovement;
 
             previousIndex = index - 1;
             previousIndex <<= 1;
@@ -233,8 +233,6 @@ void BallLightningBoltFall(void)
             value = sprite->yPosition;
             previousMovement = *(const u16*)previousIndex;
             value += previousMovement;
-            /* Prevent agbcc from factoring this branch-specific addition into the shared tail. */
-            asm("" : "+r"(value));
         }
         else
         {
@@ -261,9 +259,9 @@ void StartBallLightningBoltDisappearing(void)
 void BallLightningBoltDisappearing(void)
 {
     struct PrimarySpriteData* sprite;
-    register u8* timerPtr asm("r2");
-    register u32 oldValue asm("r0");
-    register u32 value asm("r1");
+    u8* timerPtr;
+    u32 oldValue;
+    u32 value;
 
     sprite = &gCurrentSprite;
     timerPtr = &sprite->work0;
@@ -274,8 +272,7 @@ void BallLightningBoltDisappearing(void)
     oldValue >>= 24;
     if (oldValue != 0)
     {
-        oldValue = value << 24;
-        oldValue >>= 24;
+        oldValue = (u8)value;
         if (oldValue <= 7)
             sprite->disableWarioCollisionTimer = 1;
         return;
@@ -286,23 +283,23 @@ void BallLightningBoltDisappearing(void)
 void InitBallLightningTrail(void)
 {
     register struct PrimarySpriteData* sprite asm("ip");
-    register u16 oldStatus asm("r1");
+    u16 oldStatus;
     register u16 status asm("r0");
-    register u8 zero asm("r2");
-    register u16 zero16 asm("r3");
-    register u8* drawPtr asm("r1");
+    u8 zero;
+    u16 zero16;
+    u8* drawPtr;
     register u8 value10 asm("r0");
-    register u8* hitboxPtr asm("r0");
-    register u8 value4 asm("r1");
-    register const struct AnimationFrame* oam asm("r0");
-    register struct PrimarySpriteData* postSprite asm("r1");
+    u8* hitboxPtr;
+    u8 value4;
+    const struct AnimationFrame* oam;
+    struct PrimarySpriteData* postSprite;
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
     status = 0x400;
     /* Preserve the target's early zero values in r2 and r3. */
     asm("mov %0, #0" : "=r"(zero));
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
     status |= oldStatus;
     status &= 0xFFFB;
     postSprite = sprite;
@@ -310,19 +307,19 @@ void InitBallLightningTrail(void)
     drawPtr = (u8*)sprite + 32;
     value10 = 10;
     *drawPtr = value10;
-    asm("add %0, #1" : "+r"(drawPtr));
+    drawPtr += 1;
     *drawPtr = value10;
-    asm("add %0, #1" : "+r"(drawPtr));
-    *drawPtr = value10;
+    drawPtr++;
+    *(volatile u8 *)drawPtr = value10;
     hitboxPtr = (u8*)sprite + 35;
     value4 = 4;
     *hitboxPtr = value4;
-    asm("add %0, #1" : "+r"(hitboxPtr));
+    hitboxPtr += 1;
     *hitboxPtr = value4;
-    asm("add %0, #1" : "+r"(hitboxPtr));
+    hitboxPtr += 1;
     *hitboxPtr = value4;
-    asm("add %0, #1" : "+r"(hitboxPtr));
-    *hitboxPtr = value4;
+    hitboxPtr++;
+    *(volatile u8 *)hitboxPtr = value4;
     oam = sBallLightningTrailOam;
     postSprite = sprite;
     postSprite->pOamData = oam;
@@ -332,15 +329,14 @@ void InitBallLightningTrail(void)
     postSprite = sprite;
     postSprite->work0 = 13;
     {
-        register u8* work3Ptr asm("r0");
+        u8* work3Ptr;
         work3Ptr = (u8*)sprite + 42;
         *work3Ptr = zero;
     }
     {
-        register u8 pose asm("r0");
+        u8 pose;
         register struct PrimarySpriteData* finalSprite asm("r2");
-        /* Keep the pose immediate before copying the sprite pointer to r2. */
-        asm("mov %0, #16" : "=r"(pose));
+        pose = 16;
         finalSprite = sprite;
         finalSprite->pose = pose;
         pose = 1;
@@ -350,9 +346,9 @@ void InitBallLightningTrail(void)
 
 void BallLightningTrailMove(void)
 {
-    register struct PrimarySpriteData* initialSprite asm("r3");
-    register struct PrimarySpriteData* sprite asm("r4");
-    register u8* timerPtr asm("r1");
+    struct PrimarySpriteData* initialSprite;
+    struct PrimarySpriteData* sprite;
+    u8* timerPtr;
     register u32 value asm("r0");
 
     initialSprite = &gCurrentSprite;
@@ -360,20 +356,20 @@ void BallLightningTrailMove(void)
     value = *timerPtr;
     value--;
     *timerPtr = value;
-    value <<= 24;
-    value >>= 24;
+    value = (u8)value;
     sprite = initialSprite;
     if (value != 0)
     {
-        register u8* workPtr asm("r0");
-        register u8* savedWorkPtr asm("ip");
-        register u32 index asm("r2");
-        register const s16* table asm("r6");
+        u8* workPtr;
+        u8* savedWorkPtr;
+        u32 index;
+        const s16* table;
         register u32 movement asm("r5");
         s32 signedMovement;
 
         /* Preserve the target's immediate-first construction of the work pointer. */
-        asm("mov %0, #42\nadd %0, %1" : "=r"(workPtr) : "r"(initialSprite));
+        workPtr = (u8 *)42;
+        workPtr = (u8 *)((u32)workPtr + (u32)initialSprite);
         savedWorkPtr = workPtr;
         index = *workPtr;
         table = sBallLightningTrailYVelocity;
@@ -383,8 +379,8 @@ void BallLightningTrailMove(void)
         signedMovement = *(const s16*)value;
         if (signedMovement == 0x7FFF)
         {
-            register s32 previousIndex asm("r1");
-            register u32 previousMovement asm("r1");
+            s32 previousIndex;
+            u32 previousMovement;
 
             previousIndex = index - 1;
             previousIndex <<= 1;
@@ -392,8 +388,6 @@ void BallLightningTrailMove(void)
             value = initialSprite->yPosition;
             previousMovement = *(const u16*)previousIndex;
             value += previousMovement;
-            /* Prevent agbcc from factoring this branch-specific addition into the shared tail. */
-            asm("" : "+r"(value));
         }
         else
         {

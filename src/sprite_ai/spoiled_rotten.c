@@ -60,9 +60,8 @@ void func_803AB4C(void)
     value = 72;
     *field = value;
     field++;
-    asm("" : "+r"(field));
     value = 68;
-    *field = value;
+    *(volatile u8 *)field = value;
 
     value = 41;
     sprite->warioCollision = value;
@@ -164,22 +163,18 @@ void func_803AD2C(void)
             case 2:
             case 3:
                 current->pOamData = sSpoiledRottenOam_83C2FAC;
-                asm("" ::: "memory");
                 break;
             case 4:
             case 5:
                 current->pOamData = sSpoiledRottenOam_83C2ED4;
-                asm("" ::: "memory");
                 break;
             case 6:
             case 7:
                 current->pOamData = sSpoiledRottenOam_83C2DFC;
-                asm("" ::: "memory");
                 break;
             case 8:
             case 9:
                 current->pOamData = sSpoiledRottenOam_83C2D24;
-                asm("" ::: "memory");
                 break;
             default:
                 sprite->pOamData = sSpoiledRottenOam_83C2C4C;
@@ -192,22 +187,18 @@ void func_803AD2C(void)
             case 2:
             case 3:
                 current->pOamData = sSpoiledRottenOam_83C2F74;
-                asm("" ::: "memory");
                 break;
             case 4:
             case 5:
                 current->pOamData = sSpoiledRottenOam_83C2E9C;
-                asm("" ::: "memory");
                 break;
             case 6:
             case 7:
                 current->pOamData = sSpoiledRottenOam_83C2DC4;
-                asm("" ::: "memory");
                 break;
             case 8:
             case 9:
                 current->pOamData = sSpoiledRottenOam_83C2CEC;
-                asm("" ::: "memory");
                 break;
             default:
                 sprite->pOamData = sSpoiledRottenOam_83C2C14;
@@ -298,22 +289,18 @@ void func_803AF50(void)
         case 2:
         case 3:
             current->pOamData = sSpoiledRottenOam_83C2FE4;
-            asm("" ::: "memory");
             break;
         case 4:
         case 5:
             current->pOamData = sSpoiledRottenOam_83C2F0C;
-            asm("" ::: "memory");
             break;
         case 6:
         case 7:
             current->pOamData = sSpoiledRottenOam_83C2E34;
-            asm("" ::: "memory");
             break;
         case 8:
         case 9:
             current->pOamData = sSpoiledRottenOam_83C2D5C;
-            asm("" ::: "memory");
             break;
         default:
             sprite->pOamData = sSpoiledRottenOam_83C2C84;
@@ -352,26 +339,21 @@ void func_803AFE4(void)
             case 2:
             case 3:
                 current->pOamData = sSpoiledRottenOam_83C3004;
-                asm("" ::: "memory");
                 break;
             case 4:
             case 5:
                 current->pOamData = sSpoiledRottenOam_83C2F2C;
-                asm("" ::: "memory");
                 break;
             case 6:
             case 7:
                 current->pOamData = sSpoiledRottenOam_83C2E54;
-                asm("" ::: "memory");
                 break;
             case 8:
             case 9:
                 current->pOamData = sSpoiledRottenOam_83C2D7C;
-                asm("" ::: "memory");
                 break;
             default:
                 sprite->pOamData = sSpoiledRottenOam_83C2CA4;
-                asm("" ::: "memory");
                 break;
         }
     } else {
@@ -401,22 +383,18 @@ void func_803B0A0(void)
         case 3:
             current->warioCollision = 43;
             current->pOamData = sSpoiledRottenOam_83C306C;
-            asm("" ::: "memory");
             break;
         case 4:
         case 5:
             current->pOamData = sSpoiledRottenOam_83C305C;
-            asm("" ::: "memory");
             break;
         case 6:
         case 7:
             current->pOamData = sSpoiledRottenOam_83C304C;
-            asm("" ::: "memory");
             break;
         case 8:
         case 9:
             current->pOamData = sSpoiledRottenOam_83C303C;
-            asm("" ::: "memory");
             break;
         default:
             sprite->pOamData = sSpoiledRottenOam_83C302C;
@@ -623,8 +601,7 @@ void func_803B36C(void)
         *work1Ptr = newRaw;
         oldRaw <<= 24;
         previousWork1 = oldRaw >> 24;
-        newRaw <<= 24;
-        newWork1 = newRaw >> 24;
+        newWork1 = (u8)newRaw;
     }
 
     if (newWork1 == 32) {
@@ -883,22 +860,18 @@ void func_803B6C8(void)
     switch (health) {
         case 6:
             current->pOamData = sSpoiledRottenOam_83C307C;
-            asm("" ::: "memory");
             break;
         case 4:
         case 5:
             current->pOamData = sSpoiledRottenOam_83C3094;
-            asm("" ::: "memory");
             break;
         case 2:
         case 3:
             current->pOamData = sSpoiledRottenOam_83C30AC;
-            asm("" ::: "memory");
             break;
         case 0:
         case 1:
             current->pOamData = sSpoiledRottenOam_83C30C4;
-            asm("" ::: "memory");
             break;
         default:
             sprite->pOamData = sSpoiledRottenOam_83C30DC;

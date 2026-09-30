@@ -110,8 +110,6 @@ u8 BatWarioFlying(void)
     } else {
         direction ^= 0x30;
         temp = direction;
-        /* Keep the copied direction in r0 across the mask operation. */
-        asm("" : "+r"(temp));
         temp &= held;
         asm("" : "+r"(temp));
         temp <<= 16;
@@ -127,8 +125,7 @@ u8 BatWarioFlying(void)
         animationWario->unk_1E = 0;
         temp = animationWario->unk_1F + 1;
         animationWario->unk_1F = temp;
-        temp <<= 24;
-        temp = (u32)temp >> 24;
+        temp = (u8)temp;
         if (temp == 1) {
             m4aSongNumStart(SE_BAT_WARIO_FLAP);
         } else if (animation[wario->unk_1F].time == 0) {
@@ -228,8 +225,7 @@ void SetBatWarioPose(int pose)
 {
     int value;
     struct WarioData* wario;
-    pose <<= 24;
-    value = (u32)pose >> 24;
+    value = (u8)pose;
     ResetWarioState();
     if (value == 4) {
         goto resetEffects;
@@ -287,7 +283,7 @@ void UpdateBatWarioMovement(void)
     struct WarioData* wario;
     s32 movement;
     s32 temp;
-    register s32 shifted asm("r1");
+    s32 shifted;
     int velocity;
     s16 signedVelocity;
     s32 horizontalMovement;
@@ -316,8 +312,7 @@ void UpdateBatWarioMovement(void)
         velocity = *(u16*)&wario->yVelocity;
         shifted = velocity << 16;
         temp = shifted >> 19;
-        temp <<= 16;
-        movement = (u32)temp >> 16;
+        movement = (u16)temp;
         if (shifted >= 0) {
             temp = velocity;
             temp -= 8;
@@ -339,8 +334,7 @@ void UpdateBatWarioMovement(void)
     }
     horizontalMovement <<= 16;
     horizontalMovement >>= 19;
-    horizontalMovement <<= 16;
-    movement = (u32)horizontalMovement >> 16;
+    movement = (u16)horizontalMovement;
     /* Keep the normalized movement live before reloading gWarioData. */
     asm("" : "+r"(movement));
     gWarioData.xPosition += movement;
@@ -408,8 +402,7 @@ void ProcessBatWarioCollision(void)
     if (collisionType == 0) {
         callResult = ResolveWarioLandingCollision();
     normalize:
-        callResult <<= 24;
-        result = (u32)callResult >> 24;
+        result = (u8)callResult;
     }
 
     floorWario = &gWarioData;
@@ -437,8 +430,7 @@ void LoadBatWarioGraphics(int index)
     u32 offset;
     const struct BatGraphicsFrame* frame;
     const u8* gfx;
-    index <<= 24;
-    value = (u32)index >> 24;
+    value = (u8)index;
     UpdateWarioPositionHistory();
     wario = &gWarioData;
     pose = wario->pose;

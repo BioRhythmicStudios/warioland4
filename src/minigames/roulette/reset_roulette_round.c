@@ -16,9 +16,7 @@ void ResetRouletteRound(void)
         s32 value;
         u16 *angularSpeedAddress;
         angularSpeedAddress = &gRouletteAngularSpeed;
-        /* agbcc otherwise emits indexed ldrsh; the target uses ldrh/lsl/asr. */
-        asm volatile("ldrh %0, [%1, #0]\nlsl %0, %0, #16\nasr %0, %0, #16"
-                     : "=r"(value) : "r"(angularSpeedAddress));
+        value = (s16)*(volatile u16 *)angularSpeedAddress;
         if (value > 100)
             *angularSpeedAddress = 100;
     }
@@ -67,8 +65,7 @@ void ResetRouletteRound(void)
         x = 1000;
         y = 88;
         tileOffset = 256;
-        /* agbcc otherwise reverses this commutative add and changes r0/r1. */
-        asm volatile("add %0, %0, %1" : "+r"(tileValue) : "r"(tileOffset));
+        tileValue += tileOffset;
         tileValue = ((s32)(tileValue + ((u32)tileValue >> 31)) >> 1) << 1;
         remaining = 2;
         do
@@ -111,8 +108,7 @@ void ResetRouletteRound(void)
         {
             value = MinigameRandom();
             values = gRouletteWinningValues;
-            /* agbcc reverses this commutative add; the boundary preserves the target r5+r6 order. */
-            asm volatile("add %0, %1, %2" : "=r"(dst) : "r"(index), "r"(values));
+            dst = (u8 *)(index + (u32)values);
             value = __modsi3(value, gRouletteValueCount);
             *dst = value;
             index++;

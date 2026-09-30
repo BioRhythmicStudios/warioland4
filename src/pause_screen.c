@@ -112,8 +112,7 @@ u32 PauseScreenSubroutine(void)
         break;
     case 7:
         {
-            /* agbcc must retain the returned state in r0 for the original branch layout. */
-            register u32 result_r0 asm("r0");
+            u32 result_r0;
             result_r0 = UpdatePauseScreenConfirmation();
             if (result_r0 == 1) {
                 gUnk_3000000 = 4;
@@ -215,7 +214,7 @@ void PauseScreenVBlank(void)
 
 void InitializePauseScreen(void)
 {
-    register struct DmaRegisters *dma asm("r1");
+    struct DmaRegisters *dma;
     s32 i;
     u32 dmaStatus;
 
@@ -297,7 +296,7 @@ void InitializePauseScreen(void)
     languageDma->cnt = 0x80000400;
     dmaStatus = languageDma->cnt;
     {
-        register struct DmaRegisters *languageWaitDma asm("r2");
+        struct DmaRegisters *languageWaitDma;
         register u32 languageWaitMask asm("r1");
         languageWaitDma = (struct DmaRegisters *)0x040000D4;
         dmaStatus = languageWaitDma->cnt;
@@ -310,7 +309,7 @@ void InitializePauseScreen(void)
     }
 
     {
-        register struct DmaRegisters *tilesDma asm("r1");
+        struct DmaRegisters *tilesDma;
         tilesDma = (struct DmaRegisters *)0x040000D4;
         dmaMask = (u32)tilesBase;
         tilesDma->src = dmaMask;
@@ -342,7 +341,7 @@ void InitializePauseScreen(void)
     sideDma->cnt = 0x80000400;
     dmaStatus = sideDma->cnt;
     {
-        register struct DmaRegisters *sideWaitDma asm("r2");
+        struct DmaRegisters *sideWaitDma;
         register u32 sideWaitMask asm("r1");
         sideWaitDma = (struct DmaRegisters *)0x040000D4;
         dmaStatus = sideWaitDma->cnt;
@@ -358,7 +357,7 @@ void InitializePauseScreen(void)
         register u8 *sideCheck2 asm("r5");
         sideCheck2 = pauseSidePtr;
         if ((*sideCheck2) == 0) {
-            register struct DmaRegisters *optionalDma asm("r2");
+            struct DmaRegisters *optionalDma;
             optionalDma = (struct DmaRegisters *)0x040000D4;
             optionalDma->src = (u32)(sUnk_86DF0F8 + ((gCurrentPassage - 1) << 6));
             optionalDma->dst = 0x05000200;
@@ -379,7 +378,7 @@ void InitializePauseScreen(void)
     *(vu16 *)0x04000008 = 0x1800;
     *(vu16 *)0x0400000A = 0x1A01;
     *(vu16 *)0x0400000C = 0x1C02;
-    { register int soundTmp asm("r1"); register u16 soundValue asm("r0"); register u16 *soundPtr asm("r2"); soundTmp = 250; soundTmp <<= 2; soundValue = soundTmp; soundPtr = &gSoundRoomMessageTimer; *soundPtr = soundValue; }
+    { int soundTmp; register u16 soundValue asm("r0"); u16 *soundPtr; soundTmp = 250; soundTmp <<= 2; soundValue = soundTmp; soundPtr = &gSoundRoomMessageTimer; *soundPtr = soundValue; }
 
     gColorFading.type = 2;
     gColorFading.uploadFlags = 3;
@@ -403,7 +402,7 @@ void InitializePauseScreen(void)
         u8 *stagePtr;
         u8 *jewelStates;
         u8 *nePtr;
-        register u8 *sePtr asm("r6");
+        u8 *sePtr;
         register u8 *swPtr asm("r12");
         register u8 *nwPtr asm("sl");
         PauseAnimationState *cdPtr;
@@ -421,8 +420,8 @@ void InitializePauseScreen(void)
 
         {
             s32 jewelBase;
-            register s32 jewelIt asm("r1");
-            register s32 jewelZero asm("r2");
+            s32 jewelIt;
+            s32 jewelZero;
             jewelBase = (s32)jewelStates;
             jewelZero = 0;
             asm("" : : "r"(jewelZero));
@@ -456,7 +455,7 @@ void InitializePauseScreen(void)
             jewelStates[3] = 2; }
 
         {
-            register u16 zero asm("r0");
+            u16 zero;
             register u16 *sequenceTimer asm("r1");
 
             zero = 0;
@@ -466,7 +465,7 @@ void InitializePauseScreen(void)
         { register u8 *seqStepPtr asm("r2"); seqStepPtr = &gStageEntrySequenceStep; *seqStepPtr = 0; }
 
         {
-            register u16 jewelReset asm("r2");
+            u16 jewelReset;
 
             jewelReset = 0;
             for (i = 0; i < 4; i++) {
@@ -477,13 +476,12 @@ void InitializePauseScreen(void)
             cdPtr->animationFrame = 0;
             keyPtr->animationTimer = 0;
             keyPtr->animationFrame = 0;
-            asm("" : : "r"(jewelReset));
         }
 
         UploadFiveDigitNumberTiles(gHighScoreTable[*passagePtr][*stagePtr],
                                    sUnk_86D6E78, 0x2A80);
         {
-            register struct DmaRegisters *waitDma asm("r2");
+            struct DmaRegisters *waitDma;
             register u32 waitMask asm("r1");
             u32 waitStatus;
             waitDma = (struct DmaRegisters *)0x040000D4;
@@ -542,8 +540,7 @@ u32 UpdatePauseScreenSelection(void)
             gPauseScreenState.selection = 1;
             m4aSongNumStart(0x124);
         } else {
-            /* agbcc must evaluate this directional mask in r0 to preserve operand order. */
-            register u32 mask asm("r0");
+            u32 mask;
             mask = 0x20;
             mask &= buttons;
             if (mask) {
@@ -570,8 +567,7 @@ u32 UpdatePauseScreenSelection(void)
             gPauseScreenState.selection = 2;
             m4aSongNumStart(0x124);
         } else {
-            /* agbcc must evaluate this directional mask in r0 to preserve operand order. */
-            register u32 mask asm("r0");
+            u32 mask;
             mask = 0x20;
             mask &= buttons;
             if (mask) {
@@ -598,8 +594,7 @@ u32 UpdatePauseScreenSelection(void)
             gPauseScreenState.selection = 0;
             m4aSongNumStart(0x124);
         } else {
-            /* agbcc must evaluate this directional mask in r0 to preserve operand order. */
-            register u32 mask asm("r0");
+            u32 mask;
             mask = 0x20;
             mask &= buttons;
             if (mask) {
@@ -677,14 +672,14 @@ void RenderPauseScreenOam(void)
   u8 *new_var2;
   const struct AnimationFrame *new_var5;
   const struct AnimationFrame *animation;
-  register const struct AnimationFrame *initialAnimation asm("r8");
+  const struct AnimationFrame *initialAnimation;
   PauseAnimationState *animationState;
   const u16 *src;
   u16 *dest;
   u16 attr;
   const struct AnimationFrame * const *new_var9;
   s32 currentSlot;
-  register s32 nextSlot asm("r12");
+  s32 nextSlot;
   s32 i;
   u8 itemState;
   char new_var3;
@@ -692,9 +687,9 @@ void RenderPauseScreenOam(void)
   u8 cdState;
   s32 score;
   register u32 frameLoad asm("r0");
-  register const struct AnimationFrame *animationLoad asm("r5");
-  register s32 slotCheck asm("r0");
-  register s32 cdSlotCheck asm("r2");
+  const struct AnimationFrame *animationLoad;
+  s32 slotCheck;
+  s32 cdSlotCheck;
   int yMask;
   const s32 *new_var10;
   const struct AnimationFrame **new_var4;
@@ -725,7 +720,6 @@ void RenderPauseScreenOam(void)
   src = gPauseScreenAnimation[gPauseScreenState.animationFrame].oam;
   nextSlot += *(src++);
   slotCheck = nextSlot;
-  asm("" : "+r"(slotCheck));
   if (slotCheck > 128)
   {
     return;
@@ -734,42 +728,39 @@ void RenderPauseScreenOam(void)
   {
     OamData *oam;
     register OamData *initialBase asm("r1");
-    register struct PauseScreenState *pauseStateReg asm("r8");
-    register s32 initialXMask asm("r9");
+    struct PauseScreenState *pauseStateReg;
+    s32 initialXMask;
     register s32 initialPriorityMask asm("r10");
-    register s32 initialXLoad asm("r1");
-    register s32 initialPriorityLoad asm("r2");
-    register s32 initialCount asm("r0");
+    s32 initialXLoad;
+    s32 initialPriorityLoad;
+    s32 initialCount;
     initialBase = gOamBuffer;
     pauseStateReg = &gPauseScreenState;
-    asm("" : "+r"(pauseStateReg));
     oam = (OamData *) ((currentSlot << 3) + (u32) initialBase);
     initialXLoad = 0x1FF;
     asm("" : "+r"(initialXLoad));
     initialXMask = initialXLoad;
     initialPriorityLoad = -13;
-    asm("" : "+r"(initialPriorityLoad));
     initialPriorityMask = initialPriorityLoad;
     initialCount = nextSlot;
-    asm("" : "+r"(initialCount));
     currentSlot = initialCount - currentSlot;
     do
     {
       attr = *(src++);
       *(dest++) = attr;
       {
-        register struct PauseScreenState *stateY asm("r1") = pauseStateReg;
+        struct PauseScreenState *stateY = pauseStateReg;
         oam->split.y = (attr + sUnk_86D36B8[stateY->selection]) & 0xFF;
       }
       attr = *(src++);
       *(dest++) = attr;
       {
-        register struct PauseScreenState *stateX asm("r1") = pauseStateReg;
+        struct PauseScreenState *stateX = pauseStateReg;
         {
-          register s32 initialNewX asm("r1");
-          register s32 initialXMaskRead asm("r2");
-          register u16 initialOldAttr1 asm("r2");
-          register s32 initialAttr1 asm("r0");
+          s32 initialNewX;
+          s32 initialXMaskRead;
+          u16 initialOldAttr1;
+          s32 initialAttr1;
           initialNewX = attr + sUnk_86D36A4[stateX->selection];
           initialXMaskRead = initialXMask;
           initialNewX &= initialXMaskRead;
@@ -814,9 +805,9 @@ void RenderPauseScreenOam(void)
     {
       OamData *oam;
       register OamData *langBase asm("r1");
-      register s32 langXMask asm("r8");
+      s32 langXMask;
       register s32 langPreserveMask asm("r9");
-      register s32 langPriorityMask asm("r5");
+      s32 langPriorityMask;
       langBase = gOamBuffer;
       langXMask = 0x1FF;
       langPreserveMask = -0x200;
@@ -831,7 +822,7 @@ void RenderPauseScreenOam(void)
         attr = *(src++);
         *(dest++) = attr;
         {
-          register s32 langNewX asm("r1");
+          s32 langNewX;
           register u16 langOldAttr1 asm("r2");
           register s32 langAttr1 asm("r0");
           langNewX = (attr + 120) & langXMask;
@@ -922,10 +913,10 @@ void RenderPauseScreenOam(void)
     itemState = gPauseJewelPieceStates[i];
     if (itemState == 2)
     {
-      register u8 *jewelStateBase asm("r2");
+      u8 *jewelStateBase;
       {
         register const u8 *jewelAnimationBase asm("r0");
-        register const struct AnimationFrame *jewelAnimation asm("r3");
+        const struct AnimationFrame *jewelAnimation;
         register s32 jewelAnimOffset asm("r5");
         jewelAnimationBase = (const u8 *) new_var9;
 
@@ -974,10 +965,10 @@ void RenderPauseScreenOam(void)
       }
       if (currentSlot < nextSlot)
       {
-        register const s32 *jewelXTable asm("r9") = sUnk_86D36CC;
-        register s32 jewelPreserveMask asm("r10") = -0x200;
+        const s32 *jewelXTable = sUnk_86D36CC;
+        s32 jewelPreserveMask = -0x200;
         register s32 jewelPriorityMask asm("r8") = -13;
-        register u8 *jewelState asm("r4") = &gUnk_3003C4A;
+        u8 *jewelState = &gUnk_3003C4A;
         register OamData *oam asm("r5");
         register u32 jewelOffset asm("r0");
         jewelOffset = currentSlot << 3;
@@ -993,14 +984,13 @@ void RenderPauseScreenOam(void)
             attr = *(src++);
             *(dest++) = attr;
             {
-              register s32 jewelNewX asm("r1");
+              s32 jewelNewX;
               register u16 jewelOldAttr1 asm("r2");
-              register s32 jewelAttr1 asm("r0");
+              s32 jewelAttr1;
               jewelNewX = attr + jewelXTable[*jewelState];
               {
                 register s32 jewelXMaskRead asm("r2") = 0x1FF;
-                /* C `& 0x1FF` here uses the wrong registers; isolated and keeps r1/r2. */
-                asm("and %0, %1" : "+r"(jewelNewX) : "r"(jewelXMaskRead));
+                jewelNewX &= jewelXMaskRead;
               }
               jewelOldAttr1 = oam->all.attr1;
               jewelAttr1 = jewelPreserveMask;
@@ -1054,12 +1044,12 @@ void RenderPauseScreenOam(void)
         }
         if (currentSlot < nextSlot)
         {
-          register const s32 *jewel2XTable asm("r9");
+          const s32 *jewel2XTable;
           register s32 jewel2PreserveMask asm("r10");
-          register s32 jewel2PriorityMask asm("r8");
+          s32 jewel2PriorityMask;
           register s32 jewel2LowR2 asm("r2");
           register u8 *jewel2State asm("r4");
-          register OamData *oam asm("r5");
+          OamData *oam;
           jewelPieceStates = (u8 *) sUnk_86D36CC;
           asm("mov %0, %1"
               : "=r"(jewel2XTable)
@@ -1086,7 +1076,7 @@ void RenderPauseScreenOam(void)
             attr = *(src++);
             *(dest++) = attr;
             {
-              register s32 jewelNewX asm("r1");
+              s32 jewelNewX;
               register u16 jewelOldAttr1 asm("r2");
               register s32 jewelAttr1 asm("r0");
               jewelNewX = (attr + jewel2XTable[*jewel2State]) & 0x1FF;
@@ -1138,12 +1128,12 @@ void RenderPauseScreenOam(void)
       {
         OamData *oam;
         register OamData *cdOamBase asm("r1") = gOamBuffer;
-        register const s32 *allXTable asm("r10");
+        const s32 *allXTable;
         register const s32 *allXTableLoad asm("r0") = sUnk_86D36CC;
-        register s32 allPriorityMask asm("r9");
+        s32 allPriorityMask;
         register s32 allPriorityMaskLoad asm("r2");
-        register u8 *allState asm("r8");
-        register u8 *allStateLoad asm("r5");
+        u8 *allState;
+        u8 *allStateLoad;
         register s32 allXMask asm("r5");
         // This too, couldn't figure out how to get this to match without using inline assembly.
         asm(
@@ -1167,10 +1157,10 @@ void RenderPauseScreenOam(void)
           attr = *(src++);
           *(dest++) = attr;
           {
-            register u8 *allStateRead asm("r1") = allState;
-            register s32 allNewX asm("r1");
-            register u16 allOldAttr1 asm("r2");
-            register s32 allAttr1 asm("r0");
+            u8 *allStateRead = allState;
+            s32 allNewX;
+            u16 allOldAttr1;
+            s32 allAttr1;
             allNewX = (attr + allXTable[*allStateRead]) & allXMask;
             allOldAttr1 = oam->all.attr1;
             allAttr1 = -0x200;
@@ -1195,9 +1185,8 @@ void RenderPauseScreenOam(void)
     }
   }
   {
-  register u8 *collectedKeyzer asm("r2") = &gCollectedKeyzer;
-  register s32 collectedKeyzerValue asm("r4");
-  asm("" : "+r"(collectedKeyzer));
+  u8 *collectedKeyzer = &gCollectedKeyzer;
+  s32 collectedKeyzerValue;
   collectedKeyzerValue = *collectedKeyzer;
   if ((collectedKeyzerValue == 1) || gCurrentCollection[gCurrentPassage][gCurrentStageNumber].keyzer)
   {
@@ -1222,8 +1211,7 @@ void RenderPauseScreenOam(void)
     src = animation[gPauseKeyzerAnimationState.animationFrame].oam;
     nextSlot += *(src++);
     {
-      register s32 keySlotCheck asm("r5") = nextSlot;
-      asm("" : "+r"(keySlotCheck));
+      s32 keySlotCheck = nextSlot;
       if (keySlotCheck > new_var)
       {
         return;
@@ -1232,15 +1220,15 @@ void RenderPauseScreenOam(void)
     if (currentSlot < nextSlot)
     {
       register OamData *keyOamBase asm("r1") = gOamBuffer;
-      register const s32 *keyXTable asm("r10");
-      register const s32 *keyXTableLoad asm("r0") = sUnk_86D36D4;
-      register s32 keyPriorityMask asm("r9");
+      const s32 *keyXTable;
+      const s32 *keyXTableLoad = sUnk_86D36D4;
+      s32 keyPriorityMask;
       register s32 keyPriorityMaskLoad asm("r2");
-      register OamData *oam asm("r4");
-      register u8 *keyState asm("r8");
+      OamData *oam;
+      u8 *keyState;
       register u8 *keyStateLoad asm("r5");
       register s32 keyXMask asm("r5");
-      register u32 keyOffset asm("r0");
+      u32 keyOffset;
       // This too, couldn't figure out how to get this to match without using inline assembly.
       asm(
           "mov %0, %2\n\t"
@@ -1253,12 +1241,11 @@ void RenderPauseScreenOam(void)
       asm("" : "+r"(keyStateLoad));
       keyState = keyStateLoad;
       keyOffset = currentSlot << 3;
-      asm("" : "+r"(keyOffset));
       oam = (OamData *) (keyOffset + (u32) keyOamBase);
       keyXMask = 0x1FF;
       asm("" : : "r"(keyXMask));
       {
-        register s32 keyCount asm("r0") = nextSlot;
+        s32 keyCount = nextSlot;
         asm("" : "+r"(keyCount));
         keyCount -= currentSlot;
         currentSlot = keyCount;
@@ -1272,7 +1259,7 @@ void RenderPauseScreenOam(void)
         attr = *(src++);
         *(dest++) = attr;
         {
-          register u8 *keyStateRead asm("r1") = keyState;
+          u8 *keyStateRead = keyState;
           oam->split.x = (attr + keyXTable[*keyStateRead]) & 0x1FF;
         }
         *(dest++) = *(src++);
@@ -1315,7 +1302,6 @@ void RenderPauseScreenOam(void)
     src = animation[gPauseCdAnimationState.animationFrame].oam;
     nextSlot += *(src++);
     cdSlotCheck = nextSlot;
-    asm("" : "+r"(cdSlotCheck));
     if (cdSlotCheck > new_var)
     {
       return;
@@ -1324,9 +1310,9 @@ void RenderPauseScreenOam(void)
     {
       OamData *oam;
       register OamData *cdBase asm("r1") = gOamBuffer;
-      register s32 cdXMask asm("r8") = 0x1FF;
+      s32 cdXMask = 0x1FF;
       register s32 cdPreserveMask asm("r9") = -0x200;
-      register s32 cdPriorityMask asm("r5") = -13;
+      s32 cdPriorityMask = -13;
       oam = (OamData *) ((currentSlot << 3) + (u32) cdBase);
       currentSlot = cdSlotCheck - currentSlot;
       do
@@ -1337,7 +1323,7 @@ void RenderPauseScreenOam(void)
         attr = *(src++);
         *(dest++) = attr;
         {
-          register s32 cdNewX asm("r1");
+          s32 cdNewX;
           register u16 cdOldAttr1 asm("r2");
           register s32 cdAttr1 asm("r0");
           cdNewX = (attr + 200) & cdXMask;
@@ -1365,7 +1351,7 @@ void RenderPauseScreenOam(void)
   score = gHighScoreTable[gCurrentPassage][gCurrentStageNumber];
   if (score > 599)
   {
-    register const struct AnimationFrame *scoreAnimation asm("r0");
+    const struct AnimationFrame *scoreAnimation;
     if (score > 999)
     {
       scoreAnimation = sUnk_86D4008;
@@ -1389,13 +1375,12 @@ void RenderPauseScreenOam(void)
     if (currentSlot < nextSlot)
     {
       register OamData *scoreOamBase asm("r1") = gOamBuffer;
-      register s32 scoreXMask asm("r8") = 0x1FF;
+      s32 scoreXMask = 0x1FF;
       register s32 scorePreserveMask asm("r9") = -0x200;
-      register s32 scorePriorityMask asm("r5") = -13;
-      register OamData *oam asm("r4");
-      asm("" : "+r"(scoreOamBase), "+r"(scoreXMask), "+r"(scorePreserveMask));
+      s32 scorePriorityMask = -13;
+      OamData *oam;
       {
-        register u32 scoreOffset asm("r0") = currentSlot << 3;
+        u32 scoreOffset = currentSlot << 3;
         oam = (OamData *) (scoreOffset + (u32) scoreOamBase);
       }
       currentSlot = nextSlot - currentSlot;
@@ -1407,7 +1392,7 @@ void RenderPauseScreenOam(void)
         attr = *(src++);
         *(dest++) = attr;
         {
-          register s32 scoreNewX asm("r1");
+          s32 scoreNewX;
           register u16 scoreOldAttr1 asm("r2");
           register s32 scoreAttr1 asm("r0");
           scoreNewX = (attr + 168) & scoreXMask;
@@ -1436,7 +1421,7 @@ void RenderPauseScreenOam(void)
     }
   }
   {
-    register s32 finalSlot asm("r0") = nextSlot;
+    s32 finalSlot = nextSlot;
     gOamSlotsUsed = finalSlot;
   }
 }

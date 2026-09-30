@@ -162,20 +162,19 @@ void ToyBlockSquareSetSolidTiles(void)
 
 void InitToyBlockSquare(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
+    struct PrimarySpriteData* sprite;
     struct PrimarySpriteData* temp;
     u8* drawPtr;
     u16 zero16;
     register u8 zero asm("r2");
     u8 value;
-    register u16 status asm("r0");
+    u16 status;
     u16 x;
 
     sprite = &gCurrentSprite;
     x = sprite->xPosition;
     x += 32;
-    /* agbcc otherwise delays the required `mov r3, #0` until the animation fields. */
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
     temp = sprite;
     temp->xPosition = x;
     status = temp->status;
@@ -185,7 +184,7 @@ void InitToyBlockSquare(void)
     status |= value;
 
     {
-        register u8* hitboxPtr asm("r4");
+        u8* hitboxPtr;
         hitboxPtr = (u8*)sprite;
         *(u16*)hitboxPtr = status;
         ((struct PrimarySpriteData*)hitboxPtr)->drawPriority = 1;
@@ -193,29 +192,28 @@ void InitToyBlockSquare(void)
         drawPtr = (u8*)sprite + 32;
         *drawPtr++ = value;
         *drawPtr = zero;
-        /* agbcc folds this required pointer increment into indexed addressing. */
-        asm("add %0, #1" : "+r"(drawPtr));
+        /* Volatile keeps the increment and byte store as separate target instructions. */
+        drawPtr++;
         value = 16;
-        *drawPtr = value;
+        *(volatile u8 *)drawPtr = value;
 
         hitboxPtr += 35;
         *hitboxPtr = 120;
         *((u8*)sprite + 36) = zero;
         hitboxPtr += 2;
         *hitboxPtr = 64;
-        /* agbcc folds this required pointer increment into indexed addressing. */
-        asm("add %0, #1" : "+r"(hitboxPtr));
-        *hitboxPtr = 60;
+        /* Volatile keeps the increment and byte store as separate target instructions. */
+        hitboxPtr++;
+        *(volatile u8 *)hitboxPtr = 60;
     }
 
     {
         const struct AnimationFrame* oam;
-        register struct PrimarySpriteData* work asm("r4");
+        struct PrimarySpriteData* work;
         oam = sToyBlockSquareOam;
         work = sprite;
         work->pOamData = oam;
-        /* agbcc otherwise inserts a move before this byte store. */
-        asm("strb %1, [%0, #22]" : : "r"(work), "r"(zero));
+        *(u8 *)((u8 *)work + 22) = zero;
         work->animationTimer = zero16;
         work->warioCollision = 22;
         work->pose = value;

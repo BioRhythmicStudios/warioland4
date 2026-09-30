@@ -19,7 +19,6 @@ int BowlerCheckSwitch(void)
         gCurrentSprite.pose = 112;
         result = 1;
     } else {
-        asm("");
         result = 0;
     }
     return result;
@@ -55,11 +54,11 @@ void BowlerStartWalking(void)
 void BowlerWalking(void)
 {
     struct PrimarySpriteData* sprite;
-    register u8* work1Pointer asm("r2");
-    register u8* work0Pointer asm("r1");
+    u8* work1Pointer;
+    u8* work0Pointer;
     register int oldTimer asm("r5");
     int mask;
-    register int value asm("r0");
+    int value;
 
     func_80238A4();
     sprite = &gCurrentSprite;
@@ -126,7 +125,7 @@ setAttackPose:
 
     func_8023BFC(sprite->yPosition, sprite->xPosition - 116);
     {
-        register volatile u8* collision asm("r5");
+        volatile u8* collision;
         collision = &gSpriteCollisionTileType;
         if ((*collision & 0xF0) == 0)
             goto setWalkPose;
@@ -156,10 +155,10 @@ void BowlerStartTurning(void)
 
 void BowlerTurning(void)
 {
-    register struct PrimarySpriteData* sprite asm("r2");
-    register u8* timer asm("ip");
-    register int zero asm("r3");
-    register int value asm("r0");
+    struct PrimarySpriteData* sprite;
+    u8* timer;
+    int zero;
+    int value;
 
     func_80238A4();
     sprite = &gCurrentSprite;
@@ -189,7 +188,7 @@ void BowlerTurning(void)
 
 void BowlerStartDying(void)
 {
-    register struct PrimarySpriteData* sprite asm("r4");
+    struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
     sprite->pOamData = sBowlerDyingOam;
@@ -275,11 +274,11 @@ void BowlerKnockback(void)
 
 void BowlerStartThrowingBall(void)
 {
-    register struct PrimarySpriteData* sprite asm("r4");
-    register u32 direction asm("r6");
-    register u32 status asm("r5");
-    register u32 temp asm("r0");
-    register u32 oldStatus asm("r1");
+    struct PrimarySpriteData* sprite;
+    u32 direction;
+    u32 status;
+    u32 temp;
+    u32 oldStatus;
 
     sprite = &gCurrentSprite;
     sprite->pOamData = sBowlerThrowOam;
@@ -287,19 +286,15 @@ void BowlerStartThrowingBall(void)
     sprite->animationTimer = 0;
     sprite->pose = 111;
     sprite->work0 = 107;
-    oldStatus = sprite->status;
+    oldStatus = *(volatile u16 *)&sprite->status;
     direction = SPRITE_STATUS_FACING_RIGHT;
     temp = direction;
-    asm("" : "+r"(temp), "+r"(oldStatus));
     temp &= oldStatus;
-    temp <<= 16;
-    status = temp >> 16;
+    status = (u16)temp;
     if (status != 0) {
-        asm("" : : "r"(direction));
         SpawnPrimarySpriteWithStatus(PSPRITE_BOWLER_BALL, sprite->roomSlot, sprite->gfxSlot, sprite->yPosition + 128,
             sprite->xPosition, direction);
     } else {
-        asm("" : : "r"(status));
         SpawnPrimarySpriteWithStatus(PSPRITE_BOWLER_BALL, sprite->roomSlot, sprite->gfxSlot, sprite->yPosition + 128,
             sprite->xPosition, status);
     }
@@ -307,10 +302,10 @@ void BowlerStartThrowingBall(void)
 
 void BowlerThrowingBall(void)
 {
-    register struct PrimarySpriteData* sprite asm("r3");
-    register u8* timerPointer asm("r2");
-    register int timer asm("r0");
-    register int value asm("r1");
+    struct PrimarySpriteData* sprite;
+    u8* timerPointer;
+    int timer;
+    int value;
 
     sprite = &gCurrentSprite;
     timerPointer = &sprite->work0;
@@ -318,8 +313,8 @@ void BowlerThrowingBall(void)
     value = timer;
     value += 255;
     *timerPointer = value;
-    asm("" : "+r"(timer));
-    timer = (u8)timer;
+    timer <<= 24;
+    timer = (u32)timer >> 24;
     value = timer;
     if (timer == 89) {
         ScreenShakeRequestY(48, 129);
@@ -342,8 +337,8 @@ void BowlerStartTransformingIntoYeti(void)
 
 void BowlerTransformingIntoYeti(void)
 {
-    register struct PrimarySpriteData* sprite asm("r2");
-    register int value asm("r0");
+    struct PrimarySpriteData* sprite;
+    int value;
     int timer;
 
     sprite = &gCurrentSprite;
@@ -355,7 +350,6 @@ void BowlerTransformingIntoYeti(void)
         value--;
         *timerPointer = value;
     }
-    asm("" : "+r"(value));
     timer = (u8)value;
     if (timer == 0) {
         sprite->gfxSlot = gRoomSpriteGraphicsSlots[1];
@@ -366,14 +360,14 @@ void BowlerTransformingIntoYeti(void)
 
 void InitBowlerBall(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
+    struct PrimarySpriteData* sprite;
     register u32 status asm("r0");
-    register u32 oldStatus asm("r1");
+    u32 oldStatus;
     register int value asm("r2");
-    register int zero16 asm("r3");
-    register u8* field asm("r1");
-    register const struct AnimationFrame* oam asm("r0");
-    register struct PrimarySpriteData* data asm("r1");
+    int zero16;
+    u8* field;
+    const struct AnimationFrame* oam;
+    struct PrimarySpriteData* data;
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
@@ -398,7 +392,6 @@ void InitBowlerBall(void)
     field += 2;
     *field = 40;
     field++;
-    asm("" : "+r"(field));
     *field = 40;
 
     oam = sBowlerBallOam;
@@ -430,14 +423,14 @@ void BowlerBallStartSpinning(void)
 
 void BowlerBallMoving(void)
 {
-    register struct PrimarySpriteData* current asm("r2");
-    register u8* indexPointer asm("r5");
-    register u32 index asm("r4");
-    register const s16* table asm("r1");
-    register const s16* movementPointer asm("r0");
-    register u16 movementRaw asm("r3");
-    register int movement asm("r1");
-    register int zero asm("r6");
+    struct PrimarySpriteData* current;
+    u8* indexPointer;
+    u32 index;
+    const s16* table;
+    const s16* movementPointer;
+    u16 movementRaw;
+    int movement;
+    int zero;
 
     current = &gCurrentSprite;
     indexPointer = &current->work3;
@@ -446,11 +439,10 @@ void BowlerBallMoving(void)
     movementPointer = (const s16*)(index * 2 + (u32)table);
     movementRaw = *(const u16*)movementPointer;
     zero = 0;
-    /* agbcc otherwise emits an add plus ldrh instead of the required signed register-offset load. */
-    asm("ldrsh %0, [%1, %2]" : "=r"(movement) : "r"(movementPointer), "r"(zero));
+    movement = *(s16 *)((u8 *)movementPointer + zero);
     {
         struct PrimarySpriteData* sprite;
-        register int sentinel asm("r0");
+        int sentinel;
 
         sentinel = 0x7FFF;
         sprite = current;
@@ -461,19 +453,22 @@ void BowlerBallMoving(void)
         }
 
         {
-            register int nextIndex asm("r0");
+            int nextIndex;
             nextIndex = index + 1;
-            nextIndex <<= 24;
-            index = (u32)nextIndex >> 24;
+            index = (u8)nextIndex;
         }
         *indexPointer = index;
-        current->yPosition += movementRaw;
+        {
+            u16 yPosition = current->yPosition;
+            yPosition += movementRaw;
+            current->yPosition = yPosition;
+        }
 
         {
-            register int roomSlot asm("r5");
-            register int i asm("r3");
-            register struct PrimarySpriteData* data asm("r6");
-            register int offset asm("r0");
+            int roomSlot;
+            int i;
+            struct PrimarySpriteData* data;
+            int offset;
 
             roomSlot = current->roomSlot;
             i = 0;
@@ -501,7 +496,7 @@ void BowlerBallMoving(void)
 
 void DestroyBowlerBall(void)
 {
-    register struct PrimarySpriteData* sprite asm("r4");
+    struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
     if (sprite->status & SPRITE_STATUS_ONSCREEN) {
@@ -585,14 +580,14 @@ void SpriteBowler(void)
     }
 
     {
-        register struct PrimarySpriteData* sprite asm("r2");
-        register int priority asm("r1");
+        struct PrimarySpriteData* sprite;
+        int priority;
 
         sprite = &gCurrentSprite;
         priority = sprite->drawPriority;
         if (priority & 0x80) {
             if (gHeartMeter.current == 0 || gTimerState > 3) {
-                register int mask asm("r0");
+                int mask;
                 mask = 0x7F;
                 mask &= priority;
                 sprite->drawPriority = mask;
@@ -604,11 +599,11 @@ void SpriteBowler(void)
 void SpriteBowlerBall(void)
 {
     struct PrimarySpriteData* sprite;
-    register const s16* table asm("r8");
-    register u8* anglePointer asm("r6");
+    const s16* table;
+    u8* anglePointer;
     register s32 value asm("r4");
-    register s32 fixedOne asm("r5");
-    register int affine asm("r0");
+    s32 fixedOne;
+    int affine;
     u32 index;
 
     gCurrentSprite.status &= ~SPRITE_STATUS_HEAVY;

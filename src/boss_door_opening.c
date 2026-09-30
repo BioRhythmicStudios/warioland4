@@ -210,7 +210,7 @@ done:
 void InitializeBossDoorOpeningScene(void)
 {
     const volatile u8 *passage;
-    register const u8 *backgroundPalette asm("r4");
+    const u8 *backgroundPalette;
     const u8 *new_var3;
     register const u8 *passagePalette asm("r3");
     const u8 *new_var;
@@ -623,7 +623,7 @@ s32 UpdateBossDoorOpeningSequence(void)
 void UpdateBossDoorOpeningSprites(void)
 {
     register s32 oldSlot asm("r10");
-    register s32 slot asm("r9");
+    s32 slot;
     u16 *rawDestination;
     s32 i;
     s32 limit;
@@ -632,10 +632,10 @@ void UpdateBossDoorOpeningSprites(void)
     s32 iconOffset;
     const u16 *source;
     OamData *oam;
-    register struct BossDoorOpeningIcon *largeIcon asm("r4");
-    register struct BossDoorOpeningBackground *background asm("r6");
+    struct BossDoorOpeningIcon *largeIcon;
+    struct BossDoorOpeningBackground *background;
     register u32 r8Work asm("r8");
-    register const struct AnimationFrame *inactiveAnimation asm("r2");
+    const struct AnimationFrame *inactiveAnimation;
     u16 attr;
     s16 affine[4];
     s16 *affineBPtr;
@@ -647,7 +647,7 @@ void UpdateBossDoorOpeningSprites(void)
     oldSlot = 0;
     slot = gOamSlotsUsed;
     {
-        register u32 initialOffset asm("r1");
+        u32 initialOffset;
         register OamData *initialBuffer asm("r0");
         initialOffset = (u32)slot << 3;
         initialBuffer = gOamBuffer;
@@ -656,19 +656,19 @@ void UpdateBossDoorOpeningSprites(void)
 
     if (gUnk_3003C56 != 0) {
         {
-            register struct BossDoorOpeningIcon *iconAddress asm("r0");
-            register u8 iconState asm("r1");
+            struct BossDoorOpeningIcon *iconAddress;
+            u8 iconState;
             iconAddress = &gUnk_3004758;
             iconState = iconAddress->state;
             largeIcon = iconAddress;
             if (iconState != 0) {
-                register const u8 *tableBase asm("r2");
-                register const u8 *stageAddress asm("r0");
-                register u32 tableIndex asm("r0");
+                const u8 *tableBase;
+                const u8 *stageAddress;
+                u32 tableIndex;
                 register const u8 *modeAddress asm("r3");
                 register u32 modeIndex asm("r1");
                 register const struct AnimationFrame *largeAnimation asm("r3");
-                register u32 timer asm("r1");
+                u32 timer;
 
                 tableBase = (const u8 *)sUnk_863C654;
                 stageAddress = &gCurrentStageNumber;
@@ -715,7 +715,7 @@ void UpdateBossDoorOpeningSprites(void)
                             attr = *source++;
                             *rawDestination++ = attr;
                             {
-                                register u32 newX asm("r1");
+                                u32 newX;
                                 register u32 oldX asm("r2");
                                 register u32 mergedX asm("r0");
                                 newX = (attr + 0x78) & xMask;
@@ -726,7 +726,7 @@ void UpdateBossDoorOpeningSprites(void)
                                 oam->all.attr1 = mergedX;
                             }
                             {
-                                register u16 tileAttr asm("r0");
+                                u16 tileAttr;
                                 tileAttr = *source;
                                 *rawDestination = tileAttr;
                                 source++;
@@ -744,7 +744,7 @@ void UpdateBossDoorOpeningSprites(void)
 
         {
             register const u8 *doorModeAddress asm("r3");
-            register u32 doorMode asm("r0");
+            u32 doorMode;
             register s32 limitValue asm("r1");
             register s32 one asm("r2");
             doorModeAddress = &gUnk_3003C4A;
@@ -772,12 +772,12 @@ void UpdateBossDoorOpeningSprites(void)
                     iconOffset = iconOffsetZero;
                 }
                 do {
-                    register const u8 *firstStageAddress asm("r0");
-                    register u32 firstStage asm("r0");
+                    const u8 *firstStageAddress;
+                    u32 firstStage;
                     register s32 firstLoopIndex asm("r3");
-                    register const u8 *firstPassageAddress asm("r0");
-                    register u32 firstPassage asm("r1");
-                    register const u8 *savedPassageAddress asm("r2");
+                    const u8 *firstPassageAddress;
+                    u32 firstPassage;
+                    const u8 *savedPassageAddress;
 
                     firstStageAddress = &gCurrentStageNumber;
                     firstStage = *firstStageAddress;
@@ -806,15 +806,15 @@ void UpdateBossDoorOpeningSprites(void)
                             }
                             if (activeState != 0) {
                                 register u32 tableIndex asm("r1");
-                                register const u8 *modeAddress asm("r0");
-                                register const u8 *tableBase asm("r0");
+                                const u8 *modeAddress;
+                                const u8 *tableBase;
                                 register const struct AnimationFrame *activeAnimation asm("r3");
                                 tableIndex = activeState;
                                 asm("" : "+r"(tableIndex));
                                 tableIndex--;
                                 tableIndex <<= 4;
                                 {
-                                    register s32 activeOffsetValue asm("r3");
+                                    s32 activeOffsetValue;
                                     activeOffsetValue = activeTableOffset;
                                     tableIndex = activeOffsetValue + tableIndex;
                                 }
@@ -835,15 +835,15 @@ void UpdateBossDoorOpeningSprites(void)
                                 }
                                 if (oldSlot < slot) {
                                     register s32 matrixInit asm("r2");
-                                    register s32 matrixMask asm("r12");
-                                    register const u8 *verticalAddress asm("r0");
-                                    register s32 previousSlot asm("r1");
+                                    s32 matrixMask;
+                                    const u8 *verticalAddress;
+                                    s32 previousSlot;
                                     register OamData *jewelBuffer asm("r2");
                                     register u32 xMask asm("r6");
                                     register s32 priorityInit asm("r0");
-                                    register s32 priorityMask asm("r5");
+                                    s32 priorityMask;
                                     register s32 remaining asm("r2");
-                                    register s32 loopRemaining asm("r0");
+                                    s32 loopRemaining;
                                     matrixInit = 15;
                                     asm("" : : "r"(matrixInit));
                                     matrixInit = -matrixInit;
@@ -852,7 +852,7 @@ void UpdateBossDoorOpeningSprites(void)
                                     r8Work = (u32)verticalAddress;
                                     previousSlot = oldSlot;
                                     {
-                                        register u32 oamOffset asm("r0");
+                                        u32 oamOffset;
                                         oamOffset = (u32)previousSlot << 3;
                                         jewelBuffer = gOamBuffer;
                                         oam = (OamData *)(oamOffset + (u32)jewelBuffer);
@@ -871,7 +871,7 @@ void UpdateBossDoorOpeningSprites(void)
                                         *rawDestination++ = attr;
                                         {
                                             register const u8 *vertical asm("r1");
-                                            register u32 y asm("r0");
+                                            u32 y;
                                             vertical = (const u8 *)r8Work;
                                             y = *vertical;
                                             y += attr;
@@ -882,9 +882,9 @@ void UpdateBossDoorOpeningSprites(void)
                                         attr = *source++;
                                         *rawDestination++ = attr;
                                         {
-                                            register u32 newX asm("r1");
+                                            u32 newX;
                                             register u32 oldX asm("r2");
-                                            register u32 mergedX asm("r0");
+                                            u32 mergedX;
                                             newX = (attr + 0x68) & xMask;
                                             oldX = oam->all.attr1;
                                             mergedX = oldX & 0xFFFFFE00;
@@ -893,20 +893,20 @@ void UpdateBossDoorOpeningSprites(void)
                                         }
                                         {
                                             register u32 oldMatrix asm("r1");
-                                            register u32 maskedMatrix asm("r0");
+                                            u32 maskedMatrix;
                                             oldMatrix = ((u8 *)oam)[3];
                                             maskedMatrix = matrixMask;
                                             maskedMatrix &= oldMatrix;
                                             ((u8 *)oam)[3] = maskedMatrix;
                                         }
                                         {
-                                            register u16 tileAttr asm("r0");
+                                            u16 tileAttr;
                                             tileAttr = *source;
                                             *rawDestination = tileAttr;
                                             source++;
                                         }
                                         {
-                                            register u32 priority asm("r0");
+                                            u32 priority;
                                             priority = ((u8 *)oam)[5];
                                             priority &= priorityMask;
                                             ((u8 *)oam)[5] = priority;
@@ -930,10 +930,10 @@ void UpdateBossDoorOpeningSprites(void)
 
                         {
                             register const s16 *activeSinTable asm("r5");
-                            register s32 cosineValue asm("r8");
-                            register const s16 *cosineAddress asm("r0");
-                            register s32 cosineIndex asm("r2");
-                            register s32 loadedCosine asm("r1");
+                            s32 cosineValue;
+                            const s16 *cosineAddress;
+                            s32 cosineIndex;
+                            s32 loadedCosine;
                             register s32 inverse;
                             register s32 result asm("r0");
                             register s16 *activeBPtr asm("r6");
@@ -945,14 +945,14 @@ void UpdateBossDoorOpeningSprites(void)
                             loadedCosine = *(const s16 *)((const u8 *)cosineAddress + cosineIndex);
                             cosineValue = loadedCosine;
                             {
-                                register const s16 *scaleAddress asm("r3");
-                                register s32 scale asm("r0");
+                                const s16 *scaleAddress;
+                                s32 scale;
                                 scaleAddress = &gUnk_300476A;
                                 scale = scaleAddress[0];
                                 inverse = FixedInverse(scale);
                             }
                             {
-                                register s32 left asm("r0");
+                                s32 left;
                                 register s32 right asm("r1");
                                 right = inverse;
                                 asm("" : "+r"(right));
@@ -962,11 +962,11 @@ void UpdateBossDoorOpeningSprites(void)
                             }
                             affine[0] = result;
                             {
-                                register s32 sineValue asm("r4");
-                                register s32 sineIndex asm("r2");
-                                register const s16 *scaleAddress asm("r3");
-                                register s32 scale asm("r0");
-                                register s32 left asm("r0");
+                                s32 sineValue;
+                                s32 sineIndex;
+                                const s16 *scaleAddress;
+                                s32 scale;
+                                s32 left;
                                 register s32 right asm("r1");
                                 sineIndex = 0;
                                 sineValue = activeSinTable[sineIndex];
@@ -984,9 +984,9 @@ void UpdateBossDoorOpeningSprites(void)
                             }
                             {
                                 register s32 sineValue asm("r4");
-                                register const s16 *scaleAddress asm("r2");
-                                register s32 scale asm("r0");
-                                register s32 left asm("r0");
+                                const s16 *scaleAddress;
+                                s32 scale;
+                                s32 left;
                                 register s32 right asm("r1");
                                 sineValue = ((const u16 *)activeSinTable)[0];
                                 sineValue = -sineValue;
@@ -1004,13 +1004,13 @@ void UpdateBossDoorOpeningSprites(void)
                                 *activeCPtr = result;
                             }
                             {
-                                register const s16 *scaleAddress asm("r1");
-                                register s32 scale asm("r0");
-                                register s32 left asm("r0");
+                                const s16 *scaleAddress;
+                                s32 scale;
+                                s32 left;
                                 register s32 right asm("r1");
-                                register u32 finalValue asm("r0");
+                                u32 finalValue;
                                 register s16 *activeDPtr asm("r1");
-                                register u32 firstValue asm("r1");
+                                u32 firstValue;
                                 register OamData *affineBuffer asm("r3");
                                 scaleAddress = &gUnk_300476A;
                                 scale = scaleAddress[0];
@@ -1038,9 +1038,9 @@ void UpdateBossDoorOpeningSprites(void)
 active_recheck:
                         {
                             register const u8 *stageAddress asm("r1");
-                            register u32 stage asm("r0");
+                            u32 stage;
                             register s32 loopIndex asm("r3");
-                            register u32 passageState asm("r0");
+                            u32 passageState;
                             stageAddress = &gCurrentStageNumber;
                             stage = *stageAddress;
                             loopIndex = i;
@@ -1053,11 +1053,11 @@ active_recheck:
                         }
 active_inactive_render:
                         {
-                            register u8 *iconsBase asm("r0");
+                            u8 *iconsBase;
                             register s32 currentIconOffset asm("r1");
-                            register struct BossDoorOpeningIcon *loopIcon asm("r2");
-                            register u32 activeState asm("r4");
-                            register u8 *savedIconsBase asm("r12");
+                            struct BossDoorOpeningIcon *loopIcon;
+                            u32 activeState;
+                            u8 *savedIconsBase;
                             iconsBase = (u8 *)gUnk_3004738;
                             currentIconOffset = iconOffset;
                             asm("" : "+r"(currentIconOffset));
@@ -1065,12 +1065,12 @@ active_inactive_render:
                             activeState = loopIcon->state;
                             savedIconsBase = iconsBase;
                             if (activeState == 1) {
-                                register const u8 *firstTableBase asm("r1");
-                                register const u8 *modeAddress asm("r0");
+                                const u8 *firstTableBase;
+                                const u8 *modeAddress;
                                 register u32 modeOffset asm("r0");
-                                register s32 tableOffset asm("r3");
-                                register const struct AnimationFrame *firstAnimation asm("r3");
-                                register u32 timer asm("r1");
+                                s32 tableOffset;
+                                const struct AnimationFrame *firstAnimation;
+                                u32 timer;
                                 firstTableBase = (const u8 *)sUnk_863C634;
                                 modeAddress = &gUnk_3003C4A;
                                 modeOffset = *modeAddress;
@@ -1091,7 +1091,7 @@ active_inactive_render:
                                     }
                                 }
                                 {
-                                    register u32 frameIconAddress asm("r0");
+                                    u32 frameIconAddress;
                                     frameIconAddress = iconOffset;
                                     frameIconAddress += (u32)savedIconsBase;
                                     source = (firstAnimation[((struct BossDoorOpeningIcon *)frameIconAddress)->frame].oam);
@@ -1103,11 +1103,11 @@ active_inactive_render:
                                         register u32 xMask asm("r6");
                                         register s32 clearMask asm("r1");
                                         register s32 priorityMask asm("r5");
-                                        register s32 previousSlot asm("r2");
-                                        register u32 oamOffset asm("r0");
+                                        s32 previousSlot;
+                                        u32 oamOffset;
                                         register OamData *centerBuffer asm("r1");
-                                        register OamData *centerOam asm("r4");
-                                        register s32 remaining asm("r0");
+                                        OamData *centerOam;
+                                        s32 remaining;
                                         register s32 loopRemaining asm("r2");
                                         xMask = 0x1FF;
                                         clearMask = 0xFFFFFE00;
@@ -1132,7 +1132,7 @@ active_inactive_render:
                                             attr = *source++;
                                             *rawDestination++ = attr;
                                             {
-                                                register u32 newX asm("r1");
+                                                u32 newX;
                                                 register u32 oldX asm("r2");
                                                 register u32 mergedX asm("r0");
                                                 newX = (attr + 0x78) & xMask;
@@ -1143,14 +1143,14 @@ active_inactive_render:
                                                 oam->all.attr1 = mergedX;
                                             }
                                             {
-                                                register u16 tileAttr asm("r0");
+                                                u16 tileAttr;
                                                 tileAttr = *source;
                                                 *rawDestination = tileAttr;
                                                 source++;
                                                 asm volatile("" : "+r"(source));
                                             }
                                             {
-                                                register u32 oldPriority asm("r1");
+                                                u32 oldPriority;
                                                 register u32 newPriority asm("r0");
                                                 oldPriority = ((u8 *)oam)[5];
                                                 newPriority = priorityMask;
@@ -1186,9 +1186,9 @@ active_inactive_render:
                                 if (secondState != 0) {
                                     register u32 tableIndex asm("r1");
                                     register s32 tableOffset asm("r3");
-                                    register const u8 *modeAddress asm("r0");
-                                    register u32 modeOffset asm("r0");
-                                    register const u8 *tableBase asm("r0");
+                                    const u8 *modeAddress;
+                                    u32 modeOffset;
+                                    const u8 *tableBase;
                                     register const struct AnimationFrame *secondAnimation asm("r3");
                                     tableIndex = secondState;
                                     asm("" : "+r"(tableIndex));
@@ -1207,25 +1207,24 @@ active_inactive_render:
                                     source = (secondAnimation[0].oam);
                                     slot += *source++;
                                     {
-                                        register s32 slotCheck asm("r1");
+                                        s32 slotCheck;
                                         slotCheck = slot;
                                         if (slotCheck > MAX_OAM_SLOTS) {
                                             return;
                                         }
                                     }
                                     if (oldSlot < slot) {
-                                        register u32 xMask asm("r6");
-                                        register s32 clearMask asm("r2");
-                                        register s32 priorityMask asm("r5");
-                                        register s32 previousSlot asm("r1");
-                                        register u32 oamOffset asm("r0");
+                                        u32 xMask;
+                                        s32 clearMask;
+                                        s32 priorityMask;
+                                        s32 previousSlot;
+                                        u32 oamOffset;
                                         register OamData *centerBuffer asm("r2");
-                                        register OamData *centerOam asm("r4");
-                                        register s32 remaining asm("r0");
+                                        OamData *centerOam;
+                                        s32 remaining;
                                         register s32 loopRemaining asm("r2");
                                         xMask = 0x1FF;
                                         clearMask = 0xFFFFFE00;
-                                        asm("" : "+r"(clearMask));
                                         r8Work = clearMask;
                                         priorityMask = -13;
                                         previousSlot = oldSlot;
@@ -1234,9 +1233,7 @@ active_inactive_render:
                                         centerOam = (OamData *)((u32)oamOffset + (u32)centerBuffer);
                                         oam = centerOam;
                                         remaining = slot;
-                                        asm("" : "+r"(remaining));
                                         remaining -= previousSlot;
-                                        asm("" : "+r"(remaining));
                                         oldSlot = remaining;
                                         do {
                                             attr = *source++;
@@ -1245,7 +1242,7 @@ active_inactive_render:
                                             attr = *source++;
                                             *rawDestination++ = attr;
                                             {
-                                                register u32 newX asm("r1");
+                                                u32 newX;
                                                 register u32 oldX asm("r2");
                                                 register u32 mergedX asm("r0");
                                                 newX = (attr + 0x78) & xMask;
@@ -1256,13 +1253,13 @@ active_inactive_render:
                                                 oam->all.attr1 = mergedX;
                                             }
                                             {
-                                                register u16 tileAttr asm("r0");
+                                                u16 tileAttr;
                                                 tileAttr = *source;
                                                 *rawDestination = tileAttr;
                                                 source++;
                                             }
                                             {
-                                                register u32 oldPriority asm("r1");
+                                                u32 oldPriority;
                                                 register u32 newPriority asm("r0");
                                                 oldPriority = ((u8 *)oam)[5];
                                                 newPriority = priorityMask;
@@ -1299,7 +1296,7 @@ active_next:
                         activeTableOffset = nextTableOffset;
                     }
                     {
-                        register s32 nextIconOffset asm("r0");
+                        s32 nextIconOffset;
                         nextIconOffset = iconOffset;
                         asm("" : "+r"(nextIconOffset));
                         nextIconOffset += 8;
@@ -1321,13 +1318,13 @@ active_next:
         }
 
         {
-            register const u8 *tableBase asm("r1");
-            register const u8 *modeAddress asm("r0");
-            register u32 tableIndex asm("r0");
-            register const struct AnimationFrame *finalAnimation asm("r3");
-            register struct BossDoorOpeningIcon *iconAddress asm("r0");
-            register struct BossDoorOpeningIcon *finalIcon asm("r2");
-            register u32 finalState asm("r1");
+            const u8 *tableBase;
+            const u8 *modeAddress;
+            u32 tableIndex;
+            const struct AnimationFrame *finalAnimation;
+            struct BossDoorOpeningIcon *iconAddress;
+            struct BossDoorOpeningIcon *finalIcon;
+            u32 finalState;
             tableBase = (const u8 *)sUnk_863C5EC;
             modeAddress = &gUnk_3003C4A;
             tableIndex = *modeAddress;
@@ -1356,7 +1353,7 @@ active_next:
             source = finalAnimation[finalIcon->frame].oam;
             slot += *source++;
             {
-                register s32 slotCheck asm("r0");
+                s32 slotCheck;
                 slotCheck = slot;
                 asm("" : "+r"(slotCheck));
                 if (slotCheck > MAX_OAM_SLOTS) {
@@ -1364,10 +1361,10 @@ active_next:
                 }
             }
             if (oldSlot < slot) {
-                register OamData *finalBuffer asm("r1");
-                register u32 xMask asm("r6");
-                register s32 clearMask asm("r2");
-                register s32 priorityMask asm("r5");
+                OamData *finalBuffer;
+                u32 xMask;
+                s32 clearMask;
+                s32 priorityMask;
                 register s32 previousSlot asm("r2");
                 finalBuffer = gOamBuffer;
                 xMask = 0x1FF;
@@ -1382,7 +1379,7 @@ active_next:
                     *rawDestination++ = attr;
                     {
                         register const s16 *verticalAddress asm("r0");
-                        register s32 newY asm("r0");
+                        s32 newY;
                         verticalAddress = &gUnk_3004768;
                         newY = ((s16)*verticalAddress >> 4) + attr;
                         oam->split.y = newY;
@@ -1390,7 +1387,7 @@ active_next:
                     attr = *source++;
                     *rawDestination++ = attr;
                     {
-                        register u32 newX asm("r1");
+                        u32 newX;
                         register u32 oldX asm("r2");
                         register u32 mergedX asm("r0");
                         newX = (attr + 0x78) & xMask;
@@ -1401,13 +1398,13 @@ active_next:
                         oam->all.attr1 = mergedX;
                     }
                     {
-                        register u16 tileAttr asm("r0");
+                        u16 tileAttr;
                         tileAttr = *source;
                         *rawDestination = tileAttr;
                         source++;
                     }
                     {
-                        register u32 oldPriority asm("r1");
+                        u32 oldPriority;
                         register u32 newPriority asm("r0");
                         oldPriority = ((u8 *)oam)[5];
                         newPriority = priorityMask;
@@ -1421,7 +1418,7 @@ active_next:
                     oam++;
                     {
                         register s32 decrement asm("r1");
-                        register s32 remaining asm("r2");
+                        s32 remaining;
                         decrement = 1;
                         decrement = -decrement;
                         oldSlot += decrement;
@@ -1435,13 +1432,13 @@ active_next:
     }
 
     {
-        register u32 inactiveState asm("r0");
+        u32 inactiveState;
         inactiveState = gUnk_3004731;
         background = &gStageEntryMainSpriteState;
         inactiveAnimation = sUnk_8642464;
         if (inactiveState > 3 && (u8)(gUnk_3004730 - 1) <= 1) {
             register u32 timer asm("r0");
-            register u32 frameTime asm("r1");
+            u32 frameTime;
             timer = background->x;
             timer++;
             background->x = timer;
@@ -1467,7 +1464,7 @@ active_next:
     r8Work = (u32)sSinCosTable;
     {
         register s16 *bPointer asm("r2");
-        register s16 *cPointer asm("r0");
+        s16 *cPointer;
         register s16 *dPointer asm("r1");
         bPointer = affine;
         bPointer++;
@@ -1481,13 +1478,13 @@ active_next:
     }
     asm("" : "+m"(affineBPtr), "+m"(affineCPtr), "+m"(affineDPtr));
     if (oldSlot < slot) {
-        register OamData *inactiveBuffer asm("r1");
-        register struct BossDoorOpeningBackground *inactiveBackground asm("r5");
+        OamData *inactiveBuffer;
+        struct BossDoorOpeningBackground *inactiveBackground;
         register s32 previousSlot asm("r2");
-        register u32 oamOffset asm("r0");
-        register u32 xMaskValue asm("r0");
+        u32 oamOffset;
+        u32 xMaskValue;
         register u32 xMask asm("r12");
-        register s32 remaining asm("r1");
+        s32 remaining;
         inactiveBuffer = gOamBuffer;
         inactiveBackground = background;
         previousSlot = oldSlot;
@@ -1502,7 +1499,7 @@ active_next:
             attr = *source++;
             *rawDestination++ = attr;
             {
-                register s32 newY asm("r0");
+                s32 newY;
                 newY = inactiveBackground->first;
                 newY <<= 16;
                 newY >>= 20;
@@ -1514,10 +1511,10 @@ active_next:
             attr = *source++;
             *rawDestination++ = attr;
             {
-                register s32 widthOffset asm("r0");
-                register s32 newX asm("r1");
+                s32 widthOffset;
+                s32 newX;
                 register u32 oldX asm("r2");
-                register u32 mergedX asm("r0");
+                u32 mergedX;
                 widthOffset = 8;
                 newX = attr + *(s16 *)((u8 *)inactiveBackground + widthOffset);
                 newX -= 0x20;
@@ -1528,8 +1525,8 @@ active_next:
                 oam->all.attr1 = mergedX;
             }
             {
-                register u32 oldMatrix asm("r1");
-                register s32 matrixMask asm("r0");
+                u32 oldMatrix;
+                s32 matrixMask;
                 oldMatrix = ((u8 *)oam)[3];
                 matrixMask = 15;
                 matrixMask = -matrixMask;
@@ -1537,14 +1534,14 @@ active_next:
                 ((u8 *)oam)[3] = matrixMask;
             }
             {
-                register u16 tileAttr asm("r0");
+                u16 tileAttr;
                 tileAttr = *source;
                 *rawDestination = tileAttr;
                 source++;
             }
             {
-                register u32 oldPriority asm("r1");
-                register s32 priorityMask asm("r0");
+                u32 oldPriority;
+                s32 priorityMask;
                 oldPriority = ((u8 *)oam)[5];
                 priorityMask = 13;
                 priorityMask = -priorityMask;
@@ -1554,8 +1551,8 @@ active_next:
             rawDestination += 2;
             oam++;
             {
-                register s32 decrement asm("r0");
-                register s32 remainingCount asm("r1");
+                s32 decrement;
+                s32 remainingCount;
                 decrement = 1;
                 decrement = -decrement;
                 oldSlot += decrement;
@@ -1565,7 +1562,7 @@ active_next:
         oldSlot = slot;
     }
     {
-        register s32 cosine asm("r5");
+        s32 cosine;
         register s32 sine asm("r4");
         register const s16 *sineTable asm("r3");
         register const u16 *unsignedSineTable asm("r2");
@@ -1578,17 +1575,17 @@ active_next:
         sine = -unsignedSineTable[0];
         sine = (s16)sine;
         {
-            register s32 cValue asm("r0");
+            s32 cValue;
             register s16 *cStorePointer asm("r3");
             cValue = FixedMul(sine, (s16)FixedInverse(background->second >> 4));
             cStorePointer = affineCPtr;
             *cStorePointer = cValue;
         }
         {
-            register s32 dValue asm("r0");
-            register OamData *affineBuffer asm("r2");
+            s32 dValue;
+            OamData *affineBuffer;
             register s16 *otherPointer asm("r3");
-            register u16 value asm("r1");
+            u16 value;
             dValue = FixedMul(cosine, (s16)FixedInverse(background->second >> 4));
             *affineDPtr = dValue;
             affineBuffer = gOamBuffer;
@@ -1608,10 +1605,10 @@ active_next:
     }
 
     {
-        register const u8 *modeAddress asm("r0");
-        register u32 modeValue asm("r1");
+        const u8 *modeAddress;
+        u32 modeValue;
         register s32 initialLimit asm("r3");
-        register s32 loopIndex asm("r1");
+        s32 loopIndex;
         register s32 loopLimit asm("r3");
         modeAddress = &gUnk_3003C4A;
         modeValue = *modeAddress;
@@ -1625,20 +1622,20 @@ active_next:
         loopLimit = limit;
         if (loopIndex < loopLimit) {
             register s32 initialOffset asm("r0");
-            register struct BossDoorOpeningIcon *currentIcon asm("r5");
+            struct BossDoorOpeningIcon *currentIcon;
             initialOffset = 0;
             asm("" : "+r"(initialOffset));
             inactiveTableOffset = initialOffset;
             currentIcon = gUnk_3004738;
             do {
-                register u32 firstState asm("r2");
+                u32 firstState;
                 firstState = currentIcon->state;
                 if (firstState == 1) {
-                    register const u8 *tableBase asm("r1");
-                    register const u8 *currentModeAddress asm("r3");
+                    const u8 *tableBase;
+                    const u8 *currentModeAddress;
                     register u32 tableIndex asm("r0");
                     register const struct AnimationFrame *firstAnimation asm("r3");
-                    register u32 timer asm("r1");
+                    u32 timer;
                     tableBase = (const u8 *)sUnk_863C634;
                     currentModeAddress = &gUnk_3003C4A;
                     tableIndex = *currentModeAddress;
@@ -1660,16 +1657,16 @@ active_next:
                     source = firstAnimation[currentIcon->frame].oam;
                     slot += *source++;
                     {
-                        register u32 xMaskInit asm("r0");
+                        u32 xMaskInit;
                         register u32 xMask asm("r12");
-                        register s32 priorityInit asm("r1");
+                        s32 priorityInit;
                         register s32 priorityMask asm("r8");
-                        register s32 slotCheck asm("r2");
+                        s32 slotCheck;
                         register const s16 *verticalPosition asm("r6");
-                        register s32 previousSlot asm("r1");
-                        register u32 oamOffset asm("r0");
+                        s32 previousSlot;
+                        u32 oamOffset;
                         register OamData *gateBuffer asm("r2");
-                        register s32 remaining asm("r0");
+                        s32 remaining;
                         slotCheck = slot;
                         if (slotCheck > MAX_OAM_SLOTS) {
                             return;
@@ -1692,7 +1689,7 @@ active_next:
                                 attr = *source++;
                                 *rawDestination++ = attr;
                                 {
-                                    register s32 y asm("r0");
+                                    s32 y;
                                     y = *(const u16 *)verticalPosition;
                                     y <<= 16;
                                     y >>= 20;
@@ -1703,9 +1700,9 @@ active_next:
                                 attr = *source++;
                                 *rawDestination++ = attr;
                                 {
-                                    register u32 newX asm("r1");
+                                    u32 newX;
                                     register u32 oldX asm("r2");
-                                    register u32 mergedX asm("r0");
+                                    u32 mergedX;
                                     newX = (attr + 0x78) & xMask;
                                     oldX = oam->all.attr1;
                                     mergedX = oldX & 0xFFFFFE00;
@@ -1713,7 +1710,7 @@ active_next:
                                     oam->all.attr1 = mergedX;
                                 }
                                 {
-                                    register u16 tileAttr asm("r0");
+                                    u16 tileAttr;
                                     tileAttr = *source;
                                     *rawDestination = tileAttr;
                                     source++;
@@ -1730,8 +1727,8 @@ active_next:
                                 rawDestination += 2;
                                 oam++;
                                 {
-                                    register s32 decrement asm("r0");
-                                    register s32 remainingCount asm("r1");
+                                    s32 decrement;
+                                    s32 remainingCount;
                                     decrement = 1;
                                     decrement = -decrement;
                                     oldSlot += decrement;
@@ -1747,10 +1744,10 @@ active_next:
                     register u32 tableIndex asm("r0");
                     tableIndex = currentIcon->state;
                     if (tableIndex != 0) {
-                        register u32 tableOffset asm("r2");
-                        register const u8 *currentModeAddress asm("r3");
-                        register u32 modeOffset asm("r1");
-                        register const u8 *tableBase asm("r1");
+                        u32 tableOffset;
+                        const u8 *currentModeAddress;
+                        u32 modeOffset;
+                        const u8 *tableBase;
                         register const struct AnimationFrame *secondAnimation asm("r3");
                         tableIndex--;
                         tableIndex <<= 4;
@@ -1766,16 +1763,16 @@ active_next:
                         source = secondAnimation[0].oam;
                         slot += *source++;
                         {
-                            register u32 xMaskInit asm("r0");
+                            u32 xMaskInit;
                             register u32 xMask asm("r12");
-                            register s32 priorityInit asm("r1");
+                            s32 priorityInit;
                             register s32 priorityMask asm("r8");
                             register s32 slotCheck asm("r2");
                             register const s16 *verticalPosition asm("r6");
-                            register s32 previousSlot asm("r2");
-                            register u32 oamOffset asm("r0");
+                            s32 previousSlot;
+                            u32 oamOffset;
                             register OamData *gateBuffer asm("r1");
-                            register s32 remaining asm("r0");
+                            s32 remaining;
                             slotCheck = slot;
                             asm("" : "+r"(slotCheck));
                             if (slotCheck > MAX_OAM_SLOTS) {
@@ -1810,7 +1807,7 @@ active_next:
                                     attr = *source++;
                                     *rawDestination++ = attr;
                                     {
-                                        register u32 newX asm("r1");
+                                        u32 newX;
                                         register u32 oldX asm("r2");
                                         register u32 mergedX asm("r0");
                                         newX = (attr + 0x78) & xMask;
@@ -1820,7 +1817,7 @@ active_next:
                                         oam->all.attr1 = mergedX;
                                     }
                                     {
-                                        register u16 tileAttr asm("r0");
+                                        u16 tileAttr;
                                         tileAttr = *source;
                                         *rawDestination = tileAttr;
                                         source++;
@@ -1837,8 +1834,8 @@ active_next:
                                     rawDestination += 2;
                                     oam++;
                                     {
-                                        register s32 decrement asm("r0");
-                                        register s32 remainingCount asm("r1");
+                                        s32 decrement;
+                                        s32 remainingCount;
                                         decrement = 1;
                                         decrement = -decrement;
                                         oldSlot += decrement;
@@ -1854,7 +1851,7 @@ active_next:
                 currentIcon++;
                 {
                     register s32 nextIndex asm("r3");
-                    register s32 loopLimitCheck asm("r0");
+                    s32 loopLimitCheck;
                     nextIndex = i;
                     nextIndex++;
                     i = nextIndex;
@@ -1868,11 +1865,11 @@ active_next:
     }
 
     {
-        register const u8 *tableBase asm("r1");
+        const u8 *tableBase;
         register const u8 *modeAddress asm("r2");
-        register u32 tableIndex asm("r0");
+        u32 tableIndex;
         register const struct AnimationFrame *finalAnimation asm("r3");
-        register struct BossDoorOpeningIcon *finalIcon asm("r0");
+        struct BossDoorOpeningIcon *finalIcon;
         tableBase = (const u8 *)sUnk_863C5EC;
         modeAddress = &gUnk_3003C4A;
         tableIndex = *modeAddress;
@@ -1886,14 +1883,14 @@ active_next:
             return;
         }
         if (oldSlot < slot) {
-            register OamData *finalBuffer asm("r1");
-            register u32 xMaskValue asm("r2");
-            register u32 clearMaskValue asm("r0");
-            register u32 clearMask asm("r12");
+            OamData *finalBuffer;
+            u32 xMaskValue;
+            u32 clearMaskValue;
+            u32 clearMask;
             register s32 priorityMask asm("r6");
             register const u16 *verticalPosition asm("r5");
             register s32 previousSlot asm("r2");
-            register u32 oamOffset asm("r0");
+            u32 oamOffset;
             register s32 remaining asm("r0");
             finalBuffer = gOamBuffer;
             xMaskValue = 0x1FF;
@@ -1913,7 +1910,7 @@ active_next:
                 attr = *source++;
                 *rawDestination++ = attr;
                 {
-                    register s32 y asm("r0");
+                    s32 y;
                     y = *verticalPosition;
                     y <<= 16;
                     y >>= 20;
@@ -1923,7 +1920,7 @@ active_next:
                 attr = *source++;
                 *rawDestination++ = attr;
                 {
-                    register u32 newX asm("r1");
+                    u32 newX;
                     register u32 oldX asm("r2");
                     register u32 mergedX asm("r0");
                     newX = attr + 0x78;
@@ -1934,7 +1931,7 @@ active_next:
                     oam->all.attr1 = mergedX;
                 }
                 {
-                    register u16 tileAttr asm("r0");
+                    u16 tileAttr;
                     tileAttr = *source;
                     *rawDestination = tileAttr;
                     source++;
@@ -1952,7 +1949,7 @@ active_next:
                 oam++;
                 {
                     register s32 decrement asm("r0");
-                    register s32 remainingCount asm("r1");
+                    s32 remainingCount;
                     decrement = 1;
                     decrement = -decrement;
                     asm("" : "+r"(decrement));

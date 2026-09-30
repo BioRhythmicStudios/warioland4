@@ -62,15 +62,15 @@ void UpdateDeburinaAlertWait(void)
 void StartDeburinaLeapWindup(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *timer asm("r3");
+    u8 *timer;
     s16 timerValue;
     register struct PrimarySpriteData *savedSprite asm("r12");
     register u32 zero asm("r4");
-    register u32 one asm("r5");
+    u32 one;
 
     sprite = &gCurrentSprite;
     {
-        register u32 decrementedTimer asm("r0");
+        u32 decrementedTimer;
 
         timer = &sprite->work0;
         decrementedTimer = *timer;
@@ -99,7 +99,7 @@ void StartDeburinaLeapWindup(void)
         {
             struct WarioData *wario;
             register struct PrimarySpriteData *compareSprite asm("r2");
-            register u16 currentX asm("r0");
+            u16 currentX;
 
             wario = &gWarioData;
             compareSprite = savedSprite;
@@ -122,7 +122,7 @@ void StartDeburinaLeapWindup(void)
 
 void UpdateDeburinaLeap(void)
 {
-    register struct PrimarySpriteData *sprite asm("r2");
+    struct PrimarySpriteData *sprite;
     register u32 timerValue asm("r1");
 
     sprite = &gCurrentSprite;
@@ -511,16 +511,16 @@ void InitDeburinaThrownCrash(void)
 
 void UpdateDeburinaThrownCrash(void)
 {
-    register struct PrimarySpriteData *base asm("r2");
-    register u8 *indexPtr asm("r12");
-    register int index asm("r3");
-    register const s16 *table asm("r6");
-    register const s16 *entry asm("r0");
+    struct PrimarySpriteData *base;
+    u8 *indexPtr;
+    int index;
+    const s16 *table;
+    const s16 *entry;
     u16 yVelocity;
-    register int signedVelocity asm("r1");
+    int signedVelocity;
     int threshold;
-    register struct PrimarySpriteData *sprite asm("r5");
-    register int zero asm("r5");
+    struct PrimarySpriteData *sprite;
+    int zero;
     register struct PrimarySpriteData *currentSprite asm("r4");
     u8 *timer;
 
@@ -539,8 +539,8 @@ void UpdateDeburinaThrownCrash(void)
         register u16 newYPosition asm("r0");
 
         if (signedVelocity == threshold) {
-            register int previousIndexRegister asm("r1");
-            register const u16 *previousEntry asm("r1");
+            int previousIndexRegister;
+            const u16 *previousEntry;
             register u16 previousVelocity asm("r1");
 
             previousIndexRegister = index - 1;
@@ -550,8 +550,8 @@ void UpdateDeburinaThrownCrash(void)
             previousVelocity = *previousEntry;
             newYPosition = newYPosition + previousVelocity;
         } else {
-            register int nextIndex asm("r0");
-            register u8 *storePtr asm("r1");
+            int nextIndex;
+            u8 *storePtr;
 
             nextIndex = index + 1;
             storePtr = indexPtr;
@@ -618,8 +618,8 @@ void InitDeburinaChild(void)
     struct PrimarySpriteData *sprite;
     u16 statusValue;
     register u16 finalStatus asm("r0");
-    register u8 zeroByte asm("r2");
-    register u16 zeroHalf asm("r3");
+    u8 zeroByte;
+    u16 zeroHalf;
 
     sprite = &gCurrentSprite;
     {
@@ -651,13 +651,13 @@ void InitDeburinaChild(void)
 
 void UpdateDeburinaChild(void)
 {
-    register s32 parentSlot asm("r4");
-    register struct PrimarySpriteData *spriteData asm("r2");
-    register struct PrimarySpriteData *sprites asm("r5");
-    register struct PrimarySpriteData *parent asm("r3");
+    s32 parentSlot;
+    struct PrimarySpriteData *spriteData;
+    struct PrimarySpriteData *sprites;
+    struct PrimarySpriteData *parent;
     register u32 parentExists asm("r0");
-    register u16 parentStatus asm("r1");
-    register u32 parentOffset asm("r0");
+    u16 parentStatus;
+    u32 parentOffset;
 
     parentSlot = SpriteUtilFindParentSlotOrU8Max(PSPRITE_DEBURINA);
     if (parentSlot == U8_MAX) {
@@ -678,7 +678,7 @@ void UpdateDeburinaChild(void)
     }
 
     {
-        register struct PrimarySpriteData *destination asm("r2");
+        struct PrimarySpriteData *destination;
 
         switch (parent->pose) {
             case 15:
@@ -706,7 +706,7 @@ void UpdateDeburinaChild(void)
                 break;
             default:
                 {
-                    register struct PrimarySpriteData *currentSprite asm("r1");
+                    struct PrimarySpriteData *currentSprite;
                     u16 currentStatus;
                     register u16 hiddenStatus asm("r0");
 

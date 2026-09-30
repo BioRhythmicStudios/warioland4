@@ -17,13 +17,11 @@ void SetButatabiHitbox(void)
         extent = &sprite->hitboxExtentLeft;
         *extent = 40;
         extent++;
-        asm("" : "+r"(extent));
         *extent = 80;
     } else {
         extent = &sprite->hitboxExtentLeft;
         *extent = 84;
         extent++;
-        asm("" : "+r"(extent));
         *extent = 36;
     }
 }
@@ -44,8 +42,7 @@ void InitButatabi(void)
     maskedStatus = status & ~SPRITE_STATUS_HIDDEN;
     zero = 0;
     status = 0;
-    /* Preserve the long-lived zero in r8 across the hitbox helper call. */
-    asm("mov %0, %1" : "=r"(zero16) : "r"(status));
+    zero16 = status;
     sprite->status = maskedStatus;
     sprite->warioCollision = 3;
     sprite->drawDistanceDown = 24;
@@ -53,7 +50,6 @@ void InitButatabi(void)
     sixteen = 16;
     *distance = sixteen;
     distance++;
-    asm("" : "+r"(distance));
     thirtyTwo = 32;
     *distance = thirtyTwo;
     SetButatabiHitbox();
@@ -63,9 +59,7 @@ void InitButatabi(void)
     asm("" : "+r"(zero));
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero16;
-    asm("" : "+r"(sixteen));
     sprite->pose = sixteen;
-    asm("" : "+r"(zero));
     sprite->work2 = zero;
     sprite->work3 = zero;
     sprite->drawPriority = zero;
@@ -89,7 +83,6 @@ void StartButatabiTackled(void)
     *work3Pointer = zero;
     sprite->drawPriority = zero;
     work3Pointer--;
-    asm("" : "+r"(work3Pointer));
     *work3Pointer = 8;
     sprite->status = (sprite->status & ~SPRITE_STATUS_CAN_HIT_OTHER_SPRITES) | SPRITE_STATUS_MAYBE_DEAD;
     SpawnSecondarySprite(sprite->yPosition - 32, sprite->xPosition, SSPRITE_06);
@@ -125,7 +118,6 @@ void StartButatabiBumped(void)
     *work3Pointer = zero;
     sprite->drawPriority = zero;
     work3Pointer--;
-    asm("" : "+r"(work3Pointer));
     *work3Pointer = 7;
     SpawnSecondarySprite(sprite->yPosition - 32, sprite->xPosition, SSPRITE_06);
 }
@@ -145,12 +137,12 @@ void InitButatabiBumpedLeft(void)
 void ButatabiHop(void)
 {
     struct PrimarySpriteData* sprite;
-    register u8* gravityIndex asm("r6");
+    u8* gravityIndex;
     register u32 gravityTimer asm("r4");
     const s16* gravityTable;
-    register u32 gravityAddress asm("r0");
-    register const s16* gravityEntry asm("r0");
-    register u32 rawVelocity asm("r3");
+    u32 gravityAddress;
+    const s16* gravityEntry;
+    u32 rawVelocity;
     u32 zero;
     s32 velocity;
     register u32 position asm("r0");
@@ -168,20 +160,17 @@ void ButatabiHop(void)
     gravityEntry = (const s16*)gravityAddress;
     rawVelocity = *(const u16*)gravityEntry;
     zero = 0;
-    /* agbcc otherwise reindexes the table and changes the signed-load registers. */
-    asm("ldrsh %0, [%1, %2]" : "=r"(velocity) : "r"(gravityEntry), "r"(zero));
+    velocity = *(s16 *)((u8 *)gravityEntry + zero);
     if (velocity == S16_MAX) {
-        register u32 previousAddress asm("r1");
+        u32 previousAddress;
         register const s16* previousEntry asm("r1");
 
         previousAddress = gravityTimer - 1;
-        asm("" : "+r"(previousAddress));
         previousAddress <<= 1;
         previousAddress += (u32)gravityTable;
         previousEntry = (const s16*)previousAddress;
         position = sprite->yPosition;
         position += *(const u16*)previousEntry;
-        asm("" : "+r"(position));
     } else {
         register u32 nextTimer asm("r0");
 
@@ -189,13 +178,12 @@ void ButatabiHop(void)
         *gravityIndex = nextTimer;
         position = sprite->yPosition;
         position += rawVelocity;
-        asm("" : "+r"(position));
     }
     sprite->yPosition = position;
 
     {
         struct PrimarySpriteData* current;
-        register u8* timerPointer asm("r0");
+        u8* timerPointer;
 
         current = &gCurrentSprite;
         timerPointer = &current->work2;
@@ -205,16 +193,14 @@ void ButatabiHop(void)
 
             current->pOamData = sButatabiTurningOam;
             animationZero = 0;
-            /* Avoid agbcc copying the zero through r1 before this byte store. */
-            asm("strb %0, [%1, #22]" : : "r"(animationZero), "r"(current));
+            *(u8 *)((u8 *)current + 22) = animationZero;
             current->animationTimer = animationZero;
         } else if (gravityTimer == 88) {
             register u32 animationZero asm("r0");
 
             current->pOamData = sButatabiTurnAroundOam;
             animationZero = 0;
-            /* Avoid agbcc copying the zero through r1 before this byte store. */
-            asm("strb %0, [%1, #22]" : : "r"(animationZero), "r"(current));
+            *(u8 *)((u8 *)current + 22) = animationZero;
             current->animationTimer = animationZero;
             current->status ^= SPRITE_STATUS_FACING_RIGHT;
             SetButatabiHitbox();
@@ -223,11 +209,11 @@ void ButatabiHop(void)
 
     {
         const u8* xTable;
-        register u32 xAddress asm("r0");
-        register const u8* xEntry asm("r0");
+        u32 xAddress;
+        const u8* xEntry;
         u16 zeroOffset;
         register struct PrimarySpriteData* current asm("r0");
-        register u8* timerPointer asm("r2");
+        u8* timerPointer;
         register u32 oneOrNext asm("r1");
 
         xTable = (const u8*)sButatabiXVelocity;
@@ -236,16 +222,14 @@ void ButatabiHop(void)
         xEntry = (const u8*)xAddress;
         rawVelocity = *(const u16*)xEntry;
         zeroOffset = 0;
-        /* Keep the signed halfword load on the same byte-addressed table entry. */
-        asm("ldrsh %0, [%1, %2]" : "=r"(velocity) : "r"(xEntry), "r"(zeroOffset));
+        velocity = *(s16 *)(xEntry + zeroOffset);
         if (velocity == S16_MAX) {
             current = &gCurrentSprite;
             timerPointer = &current->work2;
             oneOrNext = 1;
             *timerPointer = oneOrNext;
             timerPointer++;
-            asm("" : "+r"(timerPointer));
-            *timerPointer = oneOrNext;
+            *(volatile u8 *)timerPointer = oneOrNext;
             gravityTimer = 0;
             rawVelocity = *(const u16*)xTable;
             current->pOamData = sButatabiMovingOam;
@@ -263,7 +247,7 @@ void ButatabiHop(void)
             struct PrimarySpriteData* positionSprite;
             s32 status;
             register u16 facing asm("r0");
-            register u32 xPosition asm("r0");
+            u32 xPosition;
 
             positionSprite = current;
             status = positionSprite->status;

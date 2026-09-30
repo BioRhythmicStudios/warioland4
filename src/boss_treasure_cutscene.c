@@ -322,11 +322,10 @@ int UpdateBossTreasureCutscene(void)
       {
         treasureIndex = 0;
         state3Counter = &gStageEntrySequenceTimer;
-        asm("" : : "r"(state3Counter));
         icon = (u8 *) gBossTreasureUnlockIcons;
         iconTrigger = 34;
         {
-          register s32 holdR7 asm("r7");
+          s32 holdR7;
           asm volatile("" : "=r"(holdR7));
           while (treasureIndex <= 4)
           {
@@ -352,7 +351,6 @@ int UpdateBossTreasureCutscene(void)
           treasureIndex++;
             asm volatile("" : "+r"(holdR7));
           }
-          asm volatile("" : : "r"(holdR7));
         }
 
       }

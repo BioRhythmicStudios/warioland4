@@ -49,10 +49,8 @@ void InitRobobird(void)
         finalSprite = sprite;
         finalSprite->pOamData = oam;
     }
-    /* agbcc otherwise copies zero into r0 before the byte store. */
-    asm("strb %0, [%1, #22]" : : "r"(zero), "r"(finalSprite));
-    /* Keep the same zero register for the adjacent halfword store. */
-    asm("strh %0, [%1, #20]" : : "r"(zero), "r"(finalSprite));
+    finalSprite->currentAnimationFrame = zero;
+    finalSprite->animationTimer = zero;
     finalSprite->pose = sixteen;
     finalSprite->warioCollision = 1;
     SpriteUtilTurnTowardWario();
@@ -126,8 +124,7 @@ void RobobirdAttackDelay(void)
     } else {
         sprite->pOamData = sRobobirdAttackOam;
         sprite->currentAnimationFrame = timer;
-        /* Keep the already normalized byte in r1 for the halfword store. */
-        asm("strh %0, [%1, #20]" : : "r"(timer), "r"(sprite));
+        sprite->animationTimer = timer;
         sprite->pose = SPOSE_71;
         m4aSongNumStart(SE_ROBOBIRD_ATTACK);
     }
@@ -171,23 +168,20 @@ void SetRobobirdDefeated(void)
 {
     struct PrimarySpriteData* sprite;
     u8 zero1;
-    register u8 zero2 asm("r0");
+    u8 zero2;
 
     sprite = &gCurrentSprite;
     sprite->pOamData = sRobobirdFallingOam;
     zero1 = 0;
-    /* Keep the first zero in r1 for the byte store. */
-    asm("strb %0, [%1, #22]" : : "r"(zero1), "r"(sprite));
+    sprite->currentAnimationFrame = zero1;
     zero2 = 0;
-    /* Preserve r1 across agbcc's second zero materialization. */
-    asm("strh %0, [%1, #20]" : : "r"(zero1), "r"(sprite));
+    sprite->animationTimer = zero1;
     {
         u8* work3;
         work3 = &sprite->work3;
         *work3 = zero2;
     }
-    /* Store the existing r0 zero without an unnecessary copy to r1. */
-    asm("strb %0, [%1, #29]" : : "r"(zero2), "r"(sprite));
+    sprite->health = zero2;
     sprite->drawPriority = zero2;
     {
         register u16 status asm("r1");

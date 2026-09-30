@@ -338,7 +338,7 @@ void ConfigureRoomDisplay(void)
     else
     {
         struct Window *window;
-        register int zero asm("r2");
+        int zero;
         window = &gWindow;
         zero = 0;
         window->left = zero;
@@ -401,7 +401,7 @@ void LoadRoom(void)
     struct TilesetLoadData tileset;
     const struct RoomHeader *roomTable;
     const struct RoomHeader *const *roomTableBase;
-    register const struct RoomHeader *const *roomTablePointer asm("r0");
+    const struct RoomHeader *const *roomTablePointer;
     const void *selectedData;
     u32 roomIndex;
     register u16 tileAttribute asm("r3");
@@ -633,7 +633,7 @@ void InitializeRoomState(void)
     register struct ColorFading *colorFading asm("r5");
     s8 *pauseFlag;
     s32 initialize;
-    register const struct RoomStartData *roomData asm("r3");
+    const struct RoomStartData *roomData;
     s32 switchState;
     s32 switchStateStart;
     u32 roomIndex;
@@ -729,9 +729,7 @@ void InitializeRoomState(void)
         u32 pose;
 
         tile = (u16 *)0x02039F00;
-        /* agbcc otherwise reuses a known zero and omits the target register reset. */
-        /* agbcc otherwise materializes the initial loop index in the wrong register. */
-        asm("mov %0, #0" : "=r"(index));
+        index = 0;
         stageFlags = &gUnk_3000020;
         wario = &gWarioData;
         zero = 0;
@@ -754,10 +752,8 @@ void InitializeRoomState(void)
             pose = wario->pose;
             if (pose == 17) {
                 wario->yPosition = yPosition - 65;
-                asm volatile("" ::: "memory");
             } else if (pose == 18) {
                 wario->yPosition = yPosition + 127;
-                asm volatile("" ::: "memory");
             }
         } else {
             xPosition = roomData->x;
@@ -769,7 +765,6 @@ void InitializeRoomState(void)
             yPosition += roomData->yOffset << 2;
             yPosition--;
             wario->yPosition = yPosition;
-            asm volatile("" ::: "memory");
         }
 
         if (*stageFlags & 0x80)
@@ -803,7 +798,7 @@ void InitializeRoomEffects(void)
 
     {
         u16 *effectValues;
-        register u32 zeroValue asm("r3");
+        u32 zeroValue;
         register u32 defaultValue asm("r2");
 
         effectValues = gRoomCameraBounds;
@@ -829,9 +824,9 @@ void InitializeRoomEffects(void)
     }
 
     {
-        register struct RoomEffectState *effect asm("r1");
+        struct RoomEffectState *effect;
         register u32 zeroType2 asm("r2");
-        register u32 zeroValue2 asm("r0");
+        u32 zeroValue2;
 
         effect = &gBg0ScrollEffect;
         zeroType2 = 0;
@@ -870,7 +865,7 @@ void DrawRoomBackgroundLayer(u8 layer)
     register u16 screenColumn asm("r1");
     layerValue = layer;
     {
-        register u32 yPosition asm("r2");
+        u32 yPosition;
 
         {
             register struct BackgroundInfo *background asm("r6");
@@ -879,7 +874,7 @@ void DrawRoomBackgroundLayer(u8 layer)
             u32 startRegister;
 
             {
-                register u32 xPosition asm("r1");
+                u32 xPosition;
 
                 if (layer == 0) {
                     backgroundParameter = gCurrentRoomHeader.bg0Param;
@@ -901,7 +896,6 @@ void DrawRoomBackgroundLayer(u8 layer)
 
                     mask = 0x10;
                     parameter = backgroundParameter;
-                    asm("" : "+r"(mask), "+r"(parameter));
                     if ((mask & parameter) == 0)
                         goto RenderComplete;
                 }
@@ -911,8 +905,8 @@ void DrawRoomBackgroundLayer(u8 layer)
                 asm("" : "+r"(width));
                 columns = width;
                 calculation -= 3;
-                /* agbcc otherwise keeps the normalized value in r1 instead of r3. */
-                asm("lsl %0, %0, #16\n\tlsr %1, %0, #16" : "+r"(calculation), "=r"(startRegister));
+                calculation <<= 16;
+                startRegister = calculation >> 16;
                 if ((s32)calculation < 0)
                     startRegister = 0;
                 {
@@ -926,14 +920,13 @@ void DrawRoomBackgroundLayer(u8 layer)
                 }
                 width = background->bg0Width;
                 {
-                    register u32 shiftedStart asm("r1");
-                    register s32 columnCount asm("r5");
+                    u32 shiftedStart;
+                    s32 columnCount;
 
                     shiftedStart = startRegister << 16;
                     calculation = (s32)shiftedStart >> 16;
                     calculation = width - calculation;
                     columnCount = columns;
-                    asm("" : "+r"(columnCount));
                     if (columnCount > (s32)calculation) {
                         calculation = width - startRegister;
                         calculation <<= 16;
@@ -947,25 +940,24 @@ void DrawRoomBackgroundLayer(u8 layer)
 
             calculation = yPosition >> 6;
             {
-                register u32 rowCount asm("r1");
+                u32 rowCount;
                 rowCount = 16;
                 rows = rowCount;
             }
             calculation -= 3;
-            /* agbcc otherwise keeps the normalized value in r2 instead of r3. */
-            asm("lsl %0, %0, #16\n\tlsr %1, %0, #16" : "+r"(calculation), "=r"(startRegister));
+            calculation <<= 16;
+            startRegister = calculation >> 16;
             if ((s32)calculation < 0)
                 startRegister = 0;
             {
-                register u32 height asm("r1");
-                register s32 rowCount asm("r5");
+                u32 height;
+                s32 rowCount;
 
                 height = background->bg0Height;
                 yPosition = startRegister << 16;
                 calculation = (s32)yPosition >> 16;
                 calculation = height - calculation;
                 rowCount = rows;
-                asm("" : "+r"(rowCount));
                 if (rowCount > (s32)calculation) {
                     calculation = height - startRegister;
                     calculation <<= 16;
@@ -977,10 +969,9 @@ void DrawRoomBackgroundLayer(u8 layer)
 
             calculation = width;
             calculation *= startRegister;
-            calculation <<= 16;
-            calculation >>= 16;
+            calculation = (u16)calculation;
             {
-                register u32 pointer asm("r1");
+                u32 pointer;
                 pointer = startX;
                 calculation = pointer + calculation;
                 calculation <<= 1;
@@ -1013,7 +1004,6 @@ void DrawRoomBackgroundLayer(u8 layer)
                 u32 columnRegister;
 
                 columnRegister = startX;
-                asm("" : "+r"(columnRegister));
                 column = columnRegister;
             }
             nextRow = row + 1;
@@ -1021,26 +1011,21 @@ void DrawRoomBackgroundLayer(u8 layer)
             asm("" : "+r"(nextY));
             nextStartY = nextY;
             columnCount = columns;
-            asm("" : "+r"(columnCount));
             if (columnCount != 0) {
-                register u32 screenBlockRegister asm("r12");
+                u32 screenBlockRegister;
                 u32 layerForOffset;
-                register u32 rowOffset asm("r9");
+                u32 rowOffset;
 
                 layerForOffset = layerValue;
-                asm("" : "+r"(layerForOffset));
                 screenBlockRegister = layerForOffset << 12;
-                asm("" : "+r"(screenBlockRegister));
                 screenBlockOffset = screenBlockRegister;
                 {
                     register u32 rowMask asm("r3");
                     rowMask = 0xF;
-                    asm("" : "+r"(rowMask));
                     yPosition &= rowMask;
                 }
                 yPosition <<= 6;
                 rowOffset = yPosition;
-                asm("" : "+r"(rowOffset));
                 remainingColumns = columnCount;
                 do {
                     register u32 destinationBase asm("r4");
@@ -1059,12 +1044,11 @@ void DrawRoomBackgroundLayer(u8 layer)
                     if ((screenColumn & 0x10) != 0)
                         destination = (vu16 *)(0x06000800 + screenBlockOffset);
                     {
-                        register u32 mask asm("r0");
+                        u32 mask;
                         register u32 columnOffset asm("r1");
                         register u32 rowBase asm("r2");
                         mask = screenColumn & 0xF;
-                        /* agbcc otherwise inserts an unnecessary 16-bit normalization here. */
-                        asm("lsl %0, %1, #1" : "=r"(columnOffset) : "r"(mask));
+                        columnOffset = mask << 1;
                         rowBase = rowOffset;
                         asm("" : "+r"(rowBase));
                         tileOffset = rowBase + columnOffset;
@@ -1074,11 +1058,8 @@ void DrawRoomBackgroundLayer(u8 layer)
                     indexValue = sourceIndex;
                     asm("" : "+r"(indexValue));
                     sourceOffset = indexValue << 1;
-                    asm("" : "+r"(sourceOffset));
                     sourcePointer = source;
-                    asm("" : "+r"(sourcePointer));
                     sourceOffset = sourceOffset + (u32)sourcePointer;
-                    asm("" : "+r"(sourceOffset));
                     metatile = *(u16 *)sourceOffset;
                     tileIndex = metatile * 4;
                     destination[0] = gBackgroundTileTables.top[tileIndex++];
@@ -1112,16 +1093,16 @@ RenderComplete:
         register u32 parameter asm("r4");
         parameter = backgroundParameter;
         if (parameter == 0) {
-            register u8 *bufferRegister asm("r6");
-            register struct DmaRegisters *dmaRegister asm("r4");
-            register u32 layerOffset asm("r5");
+            u8 *bufferRegister;
+            struct DmaRegisters *dmaRegister;
+            u32 layerOffset;
             u32 controlRegister;
-            register const u8 *compressedData asm("r1");
+            const u8 *compressedData;
             register u32 layerTemporary asm("r0");
             u32 controlValue;
             register u32 finalControl asm("r2");
-            register u32 vramBase asm("r0");
-            register u32 secondVramBase asm("r0");
+            u32 vramBase;
+            u32 secondVramBase;
 
             compressedData = sEmptyRoomBackgroundTilemap;
             bufferRegister = (u8 *)0x0201F040;
@@ -1139,7 +1120,6 @@ RenderComplete:
             WaitForDma3Transfer(dmaRegister->control);
             dmaRegister->source = bufferRegister;
             secondVramBase = 0x06000800;
-            asm("" : "+r"(secondVramBase));
             layerOffset += secondVramBase;
             dmaRegister->destination = (void *)layerOffset;
             finalControl = controlRegister;
@@ -1185,12 +1165,12 @@ void PreloadStageRoomBackgrounds(void)
 
 u32 DecompressRoomBackground(u8 type, const u8 *sourceArg, u8 *destinationArg)
 {
-    register const u8 *source asm("r1");
-    register u8 *destination asm("r2");
+    const u8 *source;
+    u8 *destination;
     register u32 result asm("r5");
-    register u8 *base asm("r6");
+    u8 *base;
     s32 pass;
-    register u32 count asm("r3");
+    u32 count;
     u8 marker;
     u8 value;
 
@@ -1478,11 +1458,11 @@ void ProcessWarioTransformationMusic(void)
 
 void SelectWarioTransformationMusic(void)
 {
-    register const u8 *musicIndexPointer asm("r1");
+    const u8 *musicIndexPointer;
     u32 currentMusicIndex;
     register u32 index asm("r3");
-    register struct GameMusicState *musicState asm("r2");
-    register const u32 *specialMusicTable asm("r1");
+    struct GameMusicState *musicState;
+    const u32 *specialMusicTable;
     register u32 tableOffset asm("r0");
 
     musicIndexPointer = &gUnk_3000C36;
@@ -1673,13 +1653,13 @@ void ProcessRoomBackgrounds(void)
 
 void ProcessRoomWindowEffect(void)
 {
-    register u8 *statePointer asm("r6");
+    u8 *statePointer;
     register u32 state asm("r4");
 
     statePointer = &gShopItemState;
     state = *statePointer;
     {
-        register u32 value asm("r0");
+        u32 value;
 
         value = 0xC0;
         value &= state;
@@ -1693,7 +1673,7 @@ void ProcessRoomWindowEffect(void)
     }
 
     if ((state & 0x80) != 0) {
-        register u8 *timerPointer asm("r5");
+        u8 *timerPointer;
         u32 timer;
 
         timerPointer = &gUnk_30037BF;
@@ -1701,8 +1681,8 @@ void ProcessRoomWindowEffect(void)
         timer--;
         *timerPointer = timer;
         if ((timer << 24) == 0) {
-            register struct Window *window asm("r3");
-            register u32 windowValue asm("r1");
+            struct Window *window;
+            u32 windowValue;
             vu16 *windowRegister;
             u32 windowBottom;
 
@@ -1718,7 +1698,7 @@ void ProcessRoomWindowEffect(void)
             *statePointer = state & 0x7F;
         }
     } else {
-        register u8 *timerPointer asm("r3");
+        u8 *timerPointer;
         u32 timerValue;
         u8 timer;
 
@@ -1728,7 +1708,7 @@ void ProcessRoomWindowEffect(void)
         *timerPointer = timerValue;
         timer = timerValue;
         if (timer == 0) {
-            register struct Window *window asm("r0");
+            struct Window *window;
             register u32 nextState asm("r1");
 
             window = &gWindow;

@@ -98,7 +98,7 @@ void ToyCarTurnInit(void)
 void ToyCarTurn(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 remaining asm("r6");
+    u32 remaining;
     u32 zero;
     u8 *work0;
 
@@ -112,7 +112,7 @@ void ToyCarTurn(void)
     sprite = &gCurrentSprite;
     work0 = &sprite->work0;
     {
-        register u32 value asm("r0");
+        u32 value;
 
         value = *work0;
         value--;
@@ -140,8 +140,6 @@ void ToyCarTurn(void)
                 status = sprite->status;
                 status ^= SPRITE_STATUS_FACING_RIGHT;
                 zero = 0;
-                /* Keep the status value, zero, and work pointer in the target registers. */
-                asm("" : "+r"(status), "+r"(zero), "+r"(work0));
                 sprite->status = status;
                 UpdateToyCarHorizontalHitbox();
                 sprite->pOamData = sToyCarTurningAroundOam;
@@ -427,7 +425,7 @@ void ToyCarAirborneInit(void)
 
 void ToyCarAirborne(void)
 {
-    register u8 *indexPointer asm("ip");
+    u8 *indexPointer;
     u32 index;
     s16 velocity;
 
@@ -440,8 +438,6 @@ void ToyCarAirborne(void)
         } else {
             indexPointer = &gCurrentSprite.work3;
             index = *indexPointer;
-            /* Keep the work index and its address live so agbcc delays the table load. */
-            asm("" : "+r" (indexPointer), "+r" (index));
             velocity = sUnk_8352B18[index];
             if (velocity == 0x7FFF) {
                 u32 previousVelocityAddress;
@@ -450,8 +446,6 @@ void ToyCarAirborne(void)
                 previousVelocityAddress = index - 1;
                 previousVelocityAddress <<= 1;
                 previousVelocityAddress += (u32) sUnk_8352B18;
-                /* Preserve agbcc's original address calculation and halfword load order. */
-                asm("" : "+r" (previousVelocityAddress));
                 yPosition = gCurrentSprite.yPosition;
                 asm("" : "+r" (yPosition), "+r" (previousVelocityAddress));
                 gCurrentSprite.yPosition = yPosition + *(const s16 *) previousVelocityAddress;
@@ -462,7 +456,6 @@ void ToyCarAirborne(void)
                 nextIndex = index + 1;
                 storePointer = indexPointer;
                 /* Keep the incremented index in r0 and the destination pointer in r1. */
-                asm("" : "+r" (nextIndex), "+r" (storePointer));
                 *storePointer = nextIndex;
                 gCurrentSprite.yPosition += velocity;
             }

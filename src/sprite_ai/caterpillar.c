@@ -81,8 +81,6 @@ void CaterpillarCrawl(void)
     SpriteUtilMoveForward1Subpixel();
 }
 
-asm(".align 2, 0");
-
 void CaterpillarTurnInit(void)
 {
     gCurrentSprite.pOamData = sCaterpillarTurningOam;
@@ -359,7 +357,7 @@ void CaterpillarAirborneInit(void)
 
 void CaterpillarAirborne(void)
 {
-    register u8* indexPointer asm("ip");
+    u8* indexPointer;
     u32 index;
     s16 velocity;
 
@@ -372,18 +370,15 @@ void CaterpillarAirborne(void)
         } else {
             indexPointer = &gCurrentSprite.work3;
             index = *indexPointer;
-            asm("" : "+r"(indexPointer), "+r"(index));
             velocity = sUnk_8352B18[index];
             if (velocity == 0x7FFF) {
                 u32 previousVelocityAddress;
-                register u16 yPosition asm("r0");
+                u16 yPosition;
 
                 previousVelocityAddress = index - 1;
                 previousVelocityAddress <<= 1;
                 previousVelocityAddress += (u32)sUnk_8352B18;
-                asm("" : "+r"(previousVelocityAddress));
-                yPosition = gCurrentSprite.yPosition;
-                asm("" : "+r"(yPosition), "+r"(previousVelocityAddress));
+                yPosition = *(volatile u16*)&gCurrentSprite.yPosition;
                 gCurrentSprite.yPosition = yPosition + *(const s16*)previousVelocityAddress;
             } else {
                 u32 nextIndex;
@@ -391,7 +386,6 @@ void CaterpillarAirborne(void)
 
                 nextIndex = index + 1;
                 storePointer = indexPointer;
-                asm("" : "+r"(nextIndex), "+r"(storePointer));
                 *storePointer = nextIndex;
                 gCurrentSprite.yPosition += velocity;
             }
@@ -403,16 +397,9 @@ void CaterpillarAirborne(void)
 
 void CaterpillarLiftedInit(void)
 {
-    u8 zero8;
-    u16 zero16;
-
     gCurrentSprite.pOamData = sCaterpillarCarriedOam;
-    zero8 = 0;
-    zero16 = 0;
-    /* Preserve the distinct byte and halfword zero temporaries used by agbcc. */
-    asm("" : "+r"(zero8), "+r"(zero16));
-    gCurrentSprite.animationTimer = zero16;
-    gCurrentSprite.currentAnimationFrame = zero8;
+    gCurrentSprite.animationTimer = (u16)0;
+    gCurrentSprite.currentAnimationFrame = (u8)0;
     gCurrentSprite.hitboxExtentUp = 64;
 }
 

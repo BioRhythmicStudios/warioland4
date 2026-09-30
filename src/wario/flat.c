@@ -126,7 +126,7 @@ u8 FlatWarioFloating(void)
     direction = temp->horizontalDirection;
     directionTest = DPAD_RIGHT;
     directionTest &= direction;
-    asm("" : "=r"(wario) : "0"(temp));
+    wario = temp;
     if (directionTest) {
         wario->xPosition += sFlatWarioHorizontalMovement[wario->unk_0A >> 2];
     } else {
@@ -136,7 +136,6 @@ u8 FlatWarioFloating(void)
     current = wario;
     yTable = sFlatWarioVerticalMovement;
     counter = current->unk_0A;
-    asm("" : "+r"(counter));
     value = (u8)counter;
     current->yPosition += yTable[value >> 2];
 
@@ -386,8 +385,7 @@ void ProcessFlatWarioCollision(void)
     }
 
     collisionResult = GetBackgroundCollisionAtPosition(gWarioData.yPosition - 0x30, gWarioData.xPosition);
-    /* The empty constraint keeps the function result in r0 and materializes the masked copy in r1. */
-    asm("" : "=r"(maskedResult) : "0"(collisionResult));
+    maskedResult = collisionResult;
     maskedResult &= 0xFF;
     if (maskedResult == 1) {
         gWarioData.reaction = maskedResult;

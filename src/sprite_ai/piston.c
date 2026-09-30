@@ -167,8 +167,7 @@ void InitPistonChild(void)
         statusBits = 0x8400;
         status = statusBits;
         zero = 0;
-        /* agbcc otherwise reuses another zero register at the final halfword store. */
-        asm("mov %0, #0" : "=r"(zero16));
+        zero16 = 0;
         status |= oldStatus;
         status &= 0xFFFB;
         sprite->status = status;
@@ -184,14 +183,11 @@ void InitPistonChild(void)
     *ptr++ = extent;
     *ptr++ = extent;
     *ptr++ = extent;
-    /* agbcc otherwise folds this store and increment into indexed addressing. */
-    asm volatile("strb %1, [%0, #0]"
-        :
-        : "r"(ptr), "r"(extent));
+    /* Volatile keeps this as a direct store instead of folding it into indexed addressing. */
+    *(volatile u8 *)ptr = extent;
 
     ptr = (u8*)sprite;
-    /* agbcc otherwise inserts a move before this byte store. */
-    asm volatile("strb %1, [%0, #30]" : : "r"(ptr), "r"(zero));
+    ptr[30] = zero;
     ptr = (u8*)sPistonChildOam;
     ptr32 = (u8*)sprite;
     ((struct PrimarySpriteData*)ptr32)->pOamData = (const struct AnimationFrame*)ptr;
@@ -228,10 +224,9 @@ void SpritePistonChild(void)
     u8 roomSlot;
     u8* sprite;
     register u8* positionSprite asm("r3");
-    register u8* end asm("r6");
+    u8* end;
 
     zero = 0;
-    asm volatile("" : "+r"(zero));
     currentLoad = &gCurrentSprite;
     roomSlot = currentLoad->roomSlot;
     current = currentLoad;

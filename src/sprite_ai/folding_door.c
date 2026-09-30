@@ -27,7 +27,6 @@ void SetFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -38,7 +37,6 @@ void SetFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -47,7 +45,6 @@ void SetFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -57,7 +54,6 @@ void SetFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -66,7 +62,6 @@ void SetFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -76,7 +71,6 @@ void SetFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -85,7 +79,6 @@ void SetFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -114,7 +107,6 @@ void ClearFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -125,7 +117,6 @@ void ClearFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -134,7 +125,6 @@ void ClearFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -144,7 +134,6 @@ void ClearFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -153,7 +142,6 @@ void ClearFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -163,7 +151,6 @@ void ClearFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -172,7 +159,6 @@ void ClearFoldingDoorCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }

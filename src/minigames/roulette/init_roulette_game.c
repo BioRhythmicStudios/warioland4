@@ -1,4 +1,5 @@
 #include "minigames/roulette.h"
+#include "minigame.h"
 #include "stage_select.h"
 
 void InitRouletteGame(void)
@@ -33,8 +34,6 @@ void InitRouletteGame(void)
     nextPalette = sRouletteObjPalette;
     mainTiles = sRouletteBgTiles;
     objectTiles = sRouletteObjTiles;
-    /* Empty boundary keeps the three future DMA sources in the target low registers. */
-    asm volatile("" : : "r"(nextPalette), "r"(mainTiles), "r"(objectTiles));
     /* agbcc cannot retain these addresses in high registers from pure assignments. Each boundary emits one target move; the literal load remains compiler-generated. */
     loadTemp = sRouletteTopResultTiles;
     asm volatile("mov %0, %1" : "=r"(firstTileBlock) : "r"(loadTemp));
@@ -190,8 +189,6 @@ void InitRouletteGame(void)
       dmaRegs[1] = value;
       dmaRegs[2] = dmaControl;
       value = dmaRegs[2];
-      /* agbcc removes this repeated copy; the original reloads r5 from r2. */
-      asm volatile("" : "+r"(dmaIndex));
       dmaIndex = (u32)dmaRegs;
       value = ((volatile u32 *)dmaIndex)[2] & dmaBusyMask;
       if (value != 0)
@@ -305,7 +302,6 @@ void InitRouletteGame(void)
       angle = 7168;
       asm volatile("" : "+r"(angle));
       item = gRouletteItems;
-      asm volatile("" : "+r"(item));
       x = 1000;
       asm volatile("" : "+r"(x));
       y = 88;
@@ -339,25 +335,25 @@ void InitRouletteGame(void)
        * registers from C alone. Each boundary is one move; all loads and all
        * state initialization remain compiler-generated C. */
       {
-        register void *sideAnimAddress asm("r0");
+        void *sideAnimAddress;
         sideAnimAddress = &gRouletteSideAnim;
-        asm volatile("mov %0, %1" : "=r"(postLoopTiles) : "r"(sideAnimAddress));
+        postLoopTiles = (u8 *)sideAnimAddress;
       }
       {
-        register void *promptAnimAddress asm("r1");
+        void *promptAnimAddress;
         promptAnimAddress = &gRoulettePromptAnim;
-        asm volatile("mov %0, %1" : "=r"(firstTileBlock) : "r"(promptAnimAddress));
+        firstTileBlock = promptAnimAddress;
       }
       {
-        register void *centerAnimAddress asm("r2");
+        void *centerAnimAddress;
         centerAnimAddress = &gMinigameUiAnimation;
-        asm volatile("mov %0, %1" : "=r"(thirdTileBlock) : "r"(centerAnimAddress));
+        thirdTileBlock = centerAnimAddress;
       }
       mainState = &gMinigameCameraState;
       {
-        register void *blendRegisterAddress asm("r0");
+        void *blendRegisterAddress;
         blendRegisterAddress = &gRouletteBlendEva;
-        asm volatile("mov %0, %1" : "=r"(secondTileBlock) : "r"(blendRegisterAddress));
+        secondTileBlock = blendRegisterAddress;
       }
       for (i = 0; i < 3; i++)
       {
@@ -375,7 +371,7 @@ void InitRouletteGame(void)
       bottomLabel->y = 116;
       bottomLabel->frame = 0;
       {
-        register u16 *resultOffset asm("r1");
+        u16 *resultOffset;
         resultOffset = &gRouletteFrameCounter;
         *resultOffset = 0;
       }
@@ -414,12 +410,12 @@ void InitRouletteGame(void)
         *resultState = 0;
       }
       {
-        register u16 *resultTimer asm("r0");
+        u16 *resultTimer;
         resultTimer = &gMinigameSequenceTimer;
         *resultTimer = 0;
       }
       {
-        register u8 *fadeLevel asm("r1");
+        u8 *fadeLevel;
         fadeLevel = secondTileBlock;
         *fadeLevel = 0;
       }
@@ -445,27 +441,17 @@ void InitRouletteGame(void)
     ShuffleRouletteOamTable();
     ShuffleRouletteValuePool();
     {
-      register int randomIndex asm("r5");
+      int randomIndex;
       randomIndex = 0;
       do
       {
-        /*
-         * A pure-C assignment was tested and changes 13 ROM bytes: agbcc
-         * schedules the destination-address calculation after __modsi3 and
-         * colors the loop counter as r4. This tightly scoped call boundary
-         * preserves the original r5/r4 call-clobber layout; the loop remains C.
-         */
-        asm volatile(
-            "bl MinigameRandom\n"
-            "ldr r4, =gRouletteWinningValues\n"
-            "add r4, r5, r4\n"
-            "ldr r1, [pc, #172]\n"
-            "ldrh r1, [r1, #0]\n"
-            "bl __modsi3\n"
-            "strb r0, [r4, #0]"
-            :
-            : "r"(randomIndex)
-            : "r0", "r1", "r4", "cc", "memory");
+        s32 randomValue;
+        u8 *winning;
+
+        randomValue = MinigameRandom();
+        winning = gRouletteWinningValues;
+        winning += randomIndex;
+        *winning = __modsi3(randomValue, gRouletteValueCount);
         randomIndex++;
       } while (randomIndex <= 2);
     }

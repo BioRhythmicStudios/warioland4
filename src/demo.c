@@ -93,8 +93,6 @@ void SetupDemo(void)
         bossData = (u8 *)gStageTimerDigits;
         bossOffset = *stageId;
         bossOffset *= 12;
-        /* Keep agbcc from scheduling the independent field base before the final index shift. */
-        asm("" : "+r"(bossOffset));
         field = data;
         field += 8;
         {
@@ -106,8 +104,6 @@ void SetupDemo(void)
 
         bossOffset = *stageId;
         bossOffset *= 12;
-        /* Keep agbcc from scheduling the independent field base before the final index shift. */
-        asm("" : "+r"(bossOffset));
         field = data + 7;
         {
             u8 *bossEntry;
@@ -118,8 +114,6 @@ void SetupDemo(void)
 
         bossOffset = *stageId;
         bossOffset *= 12;
-        /* Keep agbcc from scheduling the independent field base before the final index shift. */
-        asm("" : "+r"(bossOffset));
         field = data + 6;
         {
             u8 *bossEntry;

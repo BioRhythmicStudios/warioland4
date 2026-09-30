@@ -301,8 +301,7 @@ s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
     argument = state->attribute;
     value = argument;
     value -= 11;
-    value <<= 16;
-    value >>= 16;
+    value = (u16)value;
     if (value <= 19) {
         value = argument;
         if (value <= 15) {
@@ -337,8 +336,7 @@ s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
 
     value = argument;
     value -= 31;
-    value <<= 16;
-    value >>= 16;
+    value = (u16)value;
     if (value <= 11) {
         collisionMode = state->collisionMode;
         if (collisionMode == 2) {
@@ -389,8 +387,7 @@ s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
     argument = state->attribute;
     value = argument;
     value -= 52;
-    value <<= 16;
-    value >>= 16;
+    value = (u16)value;
     if (value <= 1) {
         value = 0;
         state->debrisOffset = value;
@@ -403,8 +400,7 @@ s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
     }
     value = argument;
     value -= 89;
-    value <<= 16;
-    value >>= 16;
+    value = (u16)value;
     if (value <= 4) {
         value = 0;
         state->debrisOffset = value;
@@ -413,8 +409,7 @@ s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
         argument = value;
         argument -= 89;
 callReturnOne:
-        argument <<= 24;
-        argument >>= 24;
+        argument = (u8)argument;
         value = DispatchTileInteractionHandler(state, argument);
         if (value != 0)
             result = 1;
@@ -442,8 +437,7 @@ s32 ProcessFragileTileAttribute(struct TileInteractionContext *ctx)
     zero = 0;
     value = state->attribute;
     value -= 43;
-    value <<= 16;
-    value >>= 16;
+    value = (u16)value;
     if (value <= 4)
         goto valid;
     value = 0;
@@ -454,8 +448,7 @@ valid:
     state->soundIndex = value;
     zero = state->attribute;
     zero -= 43;
-    zero <<= 24;
-    zero >>= 24;
+    zero = (u8)zero;
     value = DispatchTileInteractionHandler(state, zero);
     zero = -value;
     zero |= value;
@@ -488,8 +481,7 @@ main:
     attribute = state->attribute;
     value = attribute;
     value -= 48;
-    value <<= 16;
-    value >>= 16;
+    value = (u16)value;
     if (value > 3)
         goto done;
     state->debrisOffset = result;
@@ -648,8 +640,7 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
         COMPILER_BARRIER(value);
         xTile = state->xTile;
         value += xTile;
-        value <<= 16;
-        replacement = value >> 16;
+        replacement = (u16)value;
         count = &gRoomTransitionTileDataCount;
         value = *count;
         value <<= 1;
@@ -673,8 +664,7 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
     {
         u32 value;
         value = replacement + 1;
-        value <<= 16;
-        replacement = value >> 16;
+        replacement = (u16)value;
     }
     {
         u16 callY;
@@ -689,8 +679,7 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
     {
         u32 value;
         value = replacement + 2;
-        value <<= 16;
-        replacement = value >> 16;
+        replacement = (u16)value;
     }
     {
         u16 callY;
@@ -705,8 +694,7 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
     {
         u32 value;
         value = replacement + 4;
-        value <<= 16;
-        replacement = value >> 16;
+        replacement = (u16)value;
     }
     {
         u16 callY;
@@ -721,8 +709,7 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
     {
         u32 value;
         value = replacement - 2;
-        value <<= 16;
-        replacement = value >> 16;
+        replacement = (u16)value;
     }
     {
         u16 callY;
@@ -789,8 +776,7 @@ void SpawnTileDebrisSprite(struct TileInteractionContext *ctx)
         spawnY >>= 16;
         spawnX = x;
         spawnX += 64;
-        spawnX <<= 16;
-        spawnX >>= 16;
+        spawnX = (u16)spawnX;
         SpriteSpawnAsChild(0x82, 0, 0, spawnY, spawnX);
     } else {
         spawnY = 32;
@@ -816,11 +802,9 @@ s32 FindTwoStepTileReplacement(struct TileInteractionContext *ctx)
     state = ctx;
     second = state->attribute;
     temp = second - 2;
-    temp <<= 16;
-    targetA = temp >> 16;
+    targetA = (u16)temp;
     second -= 1;
-    second <<= 16;
-    targetB = second >> 16;
+    targetB = (u16)second;
     i = 0;
     tables = &gBackgroundTileTables;
     background = &gBackgroundInfo;
@@ -892,8 +876,7 @@ s32 FindTileReplacement(struct TileInteractionContext *ctx)
     state = ctx;
     temp = state->attribute;
     temp -= 1;
-    temp <<= 16;
-    target = temp >> 16;
+    target = (u16)temp;
     i = 0;
     tables = &gBackgroundTileTables;
     background = &gBackgroundInfo;
@@ -960,8 +943,7 @@ s32 ActivateSwitchTile(struct TileInteractionContext *ctx, u8 mode)
     attribute = ctx->attribute;
     value = attribute;
     value -= 64;
-    value <<= 16;
-    value >>= 16;
+    value = (u16)value;
     if (value > 3) {
         value = 0;
         goto directReturn;
@@ -1056,14 +1038,12 @@ s32 ProcessSpecialBossTile(struct TileInteractionContext *ctx)
         value += result;
         value = *(u16 *)value;
         value += 1;
-        value <<= 16;
-        value >>= 16;
+        value = (u16)value;
         {
-            register u32 yArg asm("r1");
+            u32 yArg;
             register u32 xArg asm("r2");
 
             yArg = state->yTile;
-            COMPILER_BARRIER(yArg);
             xArg = state->xTile;
             SetBg1TileAndGraphics(value, yArg, xArg);
         }
@@ -1242,12 +1222,11 @@ emptyCheck:
 
 void StartTileEffect(u32 type)
 {
-    /* The public callers pass a full word; fixed roles preserve the original u8 entry normalization. */
-    register u32 normalized asm("r3");
-    register u32 compare asm("r4");
-    register struct TileEffectState *effect asm("r2");
-    register u32 zero asm("r0");
-    register u32 stored asm("r1");
+    u32 normalized;
+    u32 compare;
+    struct TileEffectState *effect;
+    u32 zero;
+    u32 stored;
     register u32 gameMode asm("r0");
 
     normalized = (u8)type;
@@ -2293,8 +2272,7 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
                     dst[0] = work;
 
                     work = nextIndex + 1;
-                    work <<= 16;
-                    tileIndex = work >> 16;
+                    tileIndex = (u16)work;
                     COMPILER_BARRIER(tileIndex);
                     mask = tileIndex;
                     nextIndex <<= 1;
@@ -2367,7 +2345,7 @@ void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x)
     if ((s32)work <= (s32)yReg) {
         work += 17;
         if ((s32)yReg <= (s32)work) {
-            register volatile u16 *dst asm("r5");
+            volatile u16 *dst;
             register u32 tileIndex asm("r4");
             u32 originalIndex;
             u32 nextIndex;

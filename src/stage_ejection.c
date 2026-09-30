@@ -241,7 +241,7 @@ void UpdateStageEjectionParticles(void)
     u16 y;
     s32 signedY;
     u16 x;
-    register s32 signedX asm("r0");
+    s32 signedX;
 
     if (gStageEjectionParticleSpawnCount == 0) {
         return;
@@ -266,11 +266,11 @@ void UpdateStageEjectionParticles(void)
         }
     }
     {
-        register s32 xLimit asm("r8");
-        register s32 yMin asm("r6");
-        register s32 yMax asm("r5");
-        register struct StageEjectionParticle *end asm("r4");
-        register s32 offset asm("r7");
+        s32 xLimit;
+        s32 yMin;
+        s32 yMax;
+        struct StageEjectionParticle *end;
+        s32 offset;
 
         xLimit = 0xF00;
         yMin = -0x100;
@@ -281,10 +281,7 @@ void UpdateStageEjectionParticles(void)
         end = (struct StageEjectionParticle *)((u8 *)particle + offset);
         do {
             x = particle->x;
-            /* Keep r7 live so agbcc selects r2 for the signed x load. */
-            asm("" : "+r"(offset));
             signedX = *(s16 *)&particle->x;
-            asm("" : "+r"(offset));
             if ((signedX > xLimit) || ((signedY = (s16)(y = particle->y)) < yMin) || (signedY > yMax)) {
                 particle->active = 0;
             } else if (particle->active != 0) {
@@ -320,12 +317,12 @@ void UpdateStageEjectionTreasureParticles(void)
     }
 
     {
-        register struct StageEjectionTreasureParticle *base_r4 asm("r4");
-        register u32 setup_r2 asm("r2");
-        register s32 maxX_ip asm("r12");
-        register s32 minY_r6 asm("r6");
-        register struct StageEjectionTreasureParticle *it_r1 asm("r1");
-        register s32 maxY_r5 asm("r5");
+        struct StageEjectionTreasureParticle *base_r4;
+        u32 setup_r2;
+        s32 maxX_ip;
+        s32 minY_r6;
+        struct StageEjectionTreasureParticle *it_r1;
+        s32 maxY_r5;
 
         base_r4 = gStageEjectionTreasureParticles;
         setup_r2 = 0xF00;
@@ -336,8 +333,8 @@ void UpdateStageEjectionTreasureParticles(void)
 
         do
         {
-            register u32 xraw_r3 asm("r3");
-            register u32 yraw_r2 asm("r2");
+            u32 xraw_r3;
+            u32 yraw_r2;
             register s32 work_r0 asm("r0");
 
             xraw_r3 = it_r1->x;
@@ -433,18 +430,18 @@ void UpdateStageEjectionArcMovement(void)
 void DrawStageEjection(void)
 {
   unsigned int new_var4;
-  register s32 drawn asm("r9");
-  register s32 next asm("r8");
-  register u16 *rawOut asm("r5");
+  s32 drawn;
+  s32 next;
+  u16 *rawOut;
   int new_var6;
-  register const u16 *frame asm("r4");
+  const u16 *frame;
   u32 new_var9;
-  register u16 *state asm("r6");
+  u16 *state;
   u8 *new_var2;
-  register const s16 *sineTable asm("r10");
+  const s16 *sineTable;
   register u16 *stateCopy asm("r7");
   long long pad;
-  register struct StageEjectionParticle *new_var7 asm("r0");
+  struct StageEjectionParticle *new_var7;
   u16 affine[4];
   int new_var;
   u16 affine3Value;
@@ -455,8 +452,8 @@ void DrawStageEjection(void)
   u16 *new_var3;
   drawn = 0;
   {
-    register OamData *oamBase asm("r1");
-    register u32 byteOffset asm("r0");
+    OamData *oamBase;
+    u32 byteOffset;
     next = gOamSlotsUsed;
     byteOffset = next << 3;
     oamBase = gOamBuffer;
@@ -476,16 +473,16 @@ void DrawStageEjection(void)
     aff3Ptr = &affine[3];
     if (drawn < next)
     {
-      register s32 attr2Mask asm("r12");
-      register u8 *oamBytes asm("r3");
+      s32 attr2Mask;
+      u8 *oamBytes;
       stateCopy = state;
       attr2Mask = new_var4;
       oamBytes = (u8 *) oamBase;
       new_var3 = stateCopy;
       do
       {
-        register u32 attr asm("r2");
-        register u32 work0 asm("r0");
+        u32 attr;
+        u32 work0;
         register u32 work1 asm("r1");
         attr = *(frame++);
         *(rawOut++) = attr;
@@ -542,7 +539,7 @@ void DrawStageEjection(void)
   gOamBuffer[2].all.affineParam = *aff2Ptr;
   gOamBuffer[3].all.affineParam = affine3Value;
   {
-    register s32 slot asm("r12");
+    s32 slot;
     struct StageEjectionTreasureParticle *obj;
     slot = 0;
     obj = gStageEjectionTreasureParticles;
@@ -552,7 +549,7 @@ void DrawStageEjection(void)
       if (new_var2[12] != 0)
       {
         {
-          register const u16 * const *frameTable asm("r0");
+          const u16 * const *frameTable;
           frameTable = sStageEjectionTreasureOamFrames;
           frame = frameTable[slot];
         }
@@ -565,32 +562,32 @@ void DrawStageEjection(void)
         new_var8 = gOamBuffer;
         if (drawn < next)
         {
-          register u8 *oamBytes asm("r3");
-          register struct StageEjectionTreasureParticle *curObj asm("r6");
-          register s32 mask asm("r10");
+          u8 *oamBytes;
+          struct StageEjectionTreasureParticle *curObj;
+          s32 mask;
           register s32 remaining asm("r9");
           curObj = obj;
           {
-            register u32 byteOffset asm("r0");
-            register OamData *oamBase2 asm("r2");
+            u32 byteOffset;
+            OamData *oamBase2;
             byteOffset = drawn << 3;
             oamBase2 = new_var8;
             oamBytes = (u8 *) (byteOffset + ((u32) oamBase2));
           }
           {
-            register s32 maskValue asm("r0");
+            s32 maskValue;
             maskValue = 0x1FF;
             mask = maskValue;
           }
           remaining = next - drawn;
           do
           {
-            register u32 attr asm("r2");
+            u32 attr;
             long work;
             attr = *(frame++);
             *(rawOut++) = attr;
             {
-              register u32 yWork asm("r0");
+              u32 yWork;
               yWork = ((s16) curObj->y) >> 4;
               yWork += attr;
               oamBytes[0] = yWork;
@@ -599,8 +596,8 @@ void DrawStageEjection(void)
             *(rawOut++) = attr;
             {
               register u32 xWork asm("r1");
-              register u32 maskWork asm("r0");
-              register u32 oldAttr asm("r2");
+              u32 maskWork;
+              u32 oldAttr;
               xWork = ((s16) curObj->x) >> 4;
               xWork = attr + xWork;
               maskWork = mask;
@@ -638,10 +635,10 @@ void DrawStageEjection(void)
     {
       if (obj->active != 0)
       {
-        register u32 timer asm("r0");
+        u32 timer;
         register u32 frameValue asm("r1");
         register u32 animationTable asm("r2");
-        register u32 zero asm("r3");
+        u32 zero;
         timer = obj->animationTimer + 1;
         zero = 0;
         obj->animationTimer = timer;
@@ -679,21 +676,21 @@ void DrawStageEjection(void)
         }
         if (drawn < next)
         {
-          register u8 *oamBytes asm("r3");
-          register struct StageEjectionParticle *curObj asm("r6");
-          register s32 mask asm("r10");
+          u8 *oamBytes;
+          struct StageEjectionParticle *curObj;
+          s32 mask;
           register s32 remaining asm("r9");
           {
             register u32 objectBase asm("r0");
-            register u32 objectOffset asm("r1");
+            u32 objectOffset;
             objectBase = (u32) gStageEjectionParticles;
             objectOffset = offset;
             curObj = (struct StageEjectionParticle *) (objectOffset + objectBase);
           }
           {
-            register s32 drawnValue asm("r2");
-            register u32 byteOffset asm("r0");
-            register OamData *oamBase asm("r1");
+            s32 drawnValue;
+            u32 byteOffset;
+            OamData *oamBase;
             drawnValue = drawn;
             byteOffset = drawnValue << 3;
             oamBase = new_var8;
@@ -713,8 +710,8 @@ void DrawStageEjection(void)
             *(rawOut++) = attr;
             {
               register u32 xWork asm("r1");
-              register u32 maskWork asm("r0");
-              register u32 oldAttr asm("r2");
+              u32 maskWork;
+              u32 oldAttr;
               xWork = ((s16) curObj->x) >> 4;
               xWork = attr + xWork;
               maskWork = mask;

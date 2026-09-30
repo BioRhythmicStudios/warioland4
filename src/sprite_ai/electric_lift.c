@@ -93,10 +93,7 @@ void ElectricLiftStationaryReset(void)
     work0 = &sprite->work0;
     value = *work0 - 1;
     *work0 = value;
-    /* agbcc otherwise inserts a move before the original byte-normalization pair. */
-    asm("lsl %1, %1, #24\n"
-        "lsr %0, %1, #24"
-        : "=r"(timer), "+r"(value));
+    timer = (u8)value;
     if (timer > 5) {
         sprite->disableWarioCollisionTimer = 1;
     } else if (timer == 0) {
@@ -165,10 +162,7 @@ void ElectricLiftMoveDown(void)
     work0 = &sprite->work0;
     value = *work0 - 1;
     *work0 = value;
-    /* agbcc otherwise inserts a move before the original byte-normalization pair. */
-    asm("lsl %1, %1, #24\n"
-        "lsr %0, %1, #24"
-        : "=r"(timer), "+r"(value));
+    timer = (u8)value;
     if (timer > 15) {
         sprite->yPosition += 2;
         if (sprite->status & SPRITE_STATUS_WARIO_STANDING_ON)
@@ -193,10 +187,7 @@ void ElectricLiftMoveUp(void)
     work0 = &sprite->work0;
     value = *work0 - 1;
     *work0 = value;
-    /* agbcc otherwise inserts a move before the original byte-normalization pair. */
-    asm("lsl %1, %1, #24\n"
-        "lsr %0, %1, #24"
-        : "=r"(timer), "+r"(value));
+    timer = (u8)value;
     if (timer > 15) {
         sprite->yPosition -= 2;
         if (sprite->status & SPRITE_STATUS_WARIO_STANDING_ON)

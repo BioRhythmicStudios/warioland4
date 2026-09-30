@@ -49,27 +49,22 @@ void UtsuboankoIdle(void)
 void UtsuboankoEmerge(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *timerPointer asm("ip");
+    u8 *timerPointer;
     register s32 nextTimer asm("r2");
     u8 timer;
 
     sprite = &gCurrentSprite;
     {
-        register u32 address asm("r0");
+        u32 address;
 
         address = 39;
-        /* Preserve agbcc's original register form for the work0 address calculation. */
-        asm("" : "+r" (address));
         address += (u32) sprite;
         timerPointer = (u8 *) address;
         {
             register int oldTimer asm("r0");
-            register u8 *storePointer asm("r1");
-
             oldTimer = *(u8 *) address;
             nextTimer = oldTimer - 1;
-            storePointer = timerPointer;
-            *storePointer = nextTimer;
+            *timerPointer = nextTimer;
         }
     }
     {
@@ -96,11 +91,8 @@ void UtsuboankoEmerge(void)
         sprite->pose = SPOSE_14;
         {
             int resetTimer;
-            register u8 *resetPointer asm("r1");
-
             resetTimer = 117;
-            resetPointer = timerPointer;
-            *resetPointer = resetTimer;
+            *timerPointer = resetTimer;
         }
     }
 }

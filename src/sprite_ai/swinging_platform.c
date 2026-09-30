@@ -8,13 +8,13 @@
 
 void func_804A3FC(void)
 {
-    register s32 scale asm("r6");
-    register s32 cosine asm("r8");
+    s32 scale;
+    s32 cosine;
     s32 sine;
 
     {
-        register struct PrimarySpriteData *sprite asm("r4");
-        register u8 *drawDistance asm("r1");
+        struct PrimarySpriteData *sprite;
+        u8 *drawDistance;
         register u8 *hitbox asm("r0");
 
         sprite = &gCurrentSprite;
@@ -24,19 +24,15 @@ void func_804A3FC(void)
         drawDistance = &sprite->drawDistanceUp;
         *drawDistance = 64;
         drawDistance++;
-        asm("" : "+r"(drawDistance));
         *drawDistance = 64;
         hitbox = &sprite->hitboxExtentUp;
         *hitbox = 4;
         hitbox++;
-        asm("" : "+r"(hitbox));
         *hitbox = 4;
         hitbox++;
-        asm("" : "+r"(hitbox));
         *hitbox = 4;
         hitbox++;
-        asm("" : "+r"(hitbox));
-        *hitbox = 4;
+        *(volatile u8 *)hitbox = 4;
         sprite->currentAnimationFrame = 1;
         sprite->animationTimer = 0;
         sprite->pose = SPOSE_IDLE;
@@ -67,14 +63,14 @@ void func_804A508(void)
 {
   register u32 yDelta asm("r8");
   u32 xDelta;
-  register u32 frame asm("r5");
+  u32 frame;
   register struct PrimarySpriteData *current asm("r9");
   register struct PrimarySpriteData *sprite asm("r2");
-  register struct PrimarySpriteData *sprites asm("ip");
-  register struct WarioData *wario asm("r6");
-  register int offset60 asm("sl");
+  struct PrimarySpriteData *sprites;
+  struct WarioData *wario;
+  int offset60;
   register int frameOffset asm("r3");
-  register int offset48 asm("r4");
+  int offset48;
   struct
   {
     u32 mode;
@@ -85,28 +81,26 @@ void func_804A508(void)
     const s16 *mode0LowY;
     u8 *childWork1;
   } locals;
-  register u32 angle asm("r4");
-  register const u8 *lowAngleTable asm("r0");
+  u32 angle;
+  const u8 *lowAngleTable;
   s32 cosine;
-  register s32 sine asm("r4");
-  register u32 flagValue asm("r1");
+  s32 sine;
+  u32 flagValue;
   yDelta = 0;
   xDelta = 0;
   sprite = &gCurrentSprite;
   {
-    register u32 frameValue asm("r0");
+    u32 frameValue;
     register u32 nextFrame asm("r1");
     {
       register u8 *frameLoad asm("r1");
       frameLoad = &gUnk_3000A4B;
-      asm("" : "+r"(frameLoad));
       frameValue = *frameLoad;
     }
     nextFrame = frameValue + 1;
     {
-      register u8 *frameStore asm("r3");
+      u8 *frameStore;
       frameStore = &gUnk_3000A4B;
-      asm("" : "+r"(frameStore));
       *frameStore = nextFrame;
     }
     frameValue <<= 24;
@@ -115,7 +109,6 @@ void func_804A508(void)
   {
     register u8 *modePtr asm("r4");
     modePtr = ((u8 *) sprite) + 41;
-    asm("" : "+r"(modePtr));
     locals.mode = *modePtr;
   }
   {
@@ -127,10 +120,9 @@ void func_804A508(void)
   sprite = gSpriteData;
   sprites = sprite;
   {
-    register s32 offset asm("r0");
-    register const s16 *table asm("r1");
+    s32 offset;
+    const s16 *table;
     table = sUnk_83D00E8;
-    asm("" : "+r"(table));
     offset = frame;
     offset -= 60;
     offset <<= 1;
@@ -145,10 +137,9 @@ void func_804A508(void)
   locals.childWork1 = ((u8 *) sprites) + 40;
   wario = &gWarioData;
   {
-    register s32 offset asm("r0");
-    register const s16 *table asm("r1");
+    s32 offset;
+    const s16 *table;
     table = sUnk_83CFF98;
-    asm("" : "+r"(table));
     offset = frame;
     offset -= 48;
     offset48 = offset << 1;
@@ -158,7 +149,7 @@ void func_804A508(void)
   }
   loop:
   {
-    register u32 childRoomSlot asm("r0");
+    u32 childRoomSlot;
     register u32 roomSlot asm("r1");
     childRoomSlot = sprite->roomSlot;
     roomSlot = locals.roomSlot;
@@ -182,17 +173,17 @@ void func_804A508(void)
   if (locals.mode != 0)
   {
     {
-      register s32 xVelocity asm("r0");
+      s32 xVelocity;
       if (frame > 59)
       {
         register const s16 *yPointer asm("r1");
-        register s32 zero asm("r3");
+        s32 zero;
         yPointer = locals.mode1HighY;
         zero = 0;
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yPointer[zero] * 4);
         {
-          register s32 xZero asm("r4");
+          s32 xZero;
           xZero = 0;
           xVelocity = ((const s16 *) (((const u8 *) sUnk_83D0070) + offset60))[xZero];
         }
@@ -200,18 +191,17 @@ void func_804A508(void)
       else
       {
         register const s16 *yPointer asm("r1");
-        register s32 zero asm("r4");
+        s32 zero;
         yPointer = locals.mode1LowY;
         zero = 0;
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
         {
-          register const s16 *xTable asm("r1");
-          register const s16 *xPointer asm("r0");
-          register s32 xZero asm("r3");
+          const s16 *xTable;
+          const s16 *xPointer;
+          s32 xZero;
 
           xTable = sUnk_83CFFF8;
-          asm("" : : "r"(xTable));
           /* agbcc cannot otherwise keep the address result in r0 and the zero index in r3. */
           asm("add r0, r3, r1\n\tmov r3, #0\n\tldrsh r0, [r0, r3]"
               : "=r"(xVelocity) : "r"(frameOffset), "r"(xTable) : "r3");
@@ -223,7 +213,6 @@ void func_804A508(void)
       register u8 *workPointer asm("r4");
       register u32 work asm("r1");
       workPointer = locals.childWork1;
-      asm("" : "+r"(workPointer));
       work = *workPointer;
       if (work != 0)
       {
@@ -239,15 +228,13 @@ void func_804A508(void)
       else
         if (frame == 59)
       {
-        register u8 value asm("r0");
+        u8 value;
         register u8 *framePtr asm("r3");
         register u8 *flagPtr asm("r4");
         value = 48;
         framePtr = &gUnk_3000A4B;
-        asm("" : "+r"(value), "+r"(framePtr), "+r"(work));
         *framePtr = value;
         flagPtr = &gUnk_3000A4D;
-        asm("" : "+r"(flagPtr), "+r"(work));
         *flagPtr = work;
         goto applyChildMovement;
       }
@@ -265,22 +252,21 @@ void func_804A508(void)
   else
   {
     {
-      register s32 xVelocity asm("r0");
+      s32 xVelocity;
       if (frame > 47)
       {
         register const s16 *yPointer asm("r1");
-        register s32 zero asm("r3");
+        s32 zero;
         yPointer = locals.mode0HighY;
         zero = 0;
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yPointer[zero] * 4);
         {
-          register const s16 *xTable asm("r1");
+          const s16 *xTable;
           register const s16 *xPointer asm("r0");
-          register s32 xZero asm("r3");
+          s32 xZero;
 
           xTable = sUnk_83CFF38;
-          asm("" : : "r"(xTable));
           xPointer = (const s16 *)(offset48 + (s32)xTable);
           asm("" : : "r"(xTable), "r"(xPointer));
           /* agbcc otherwise assigns the signed-load zero index to r4. */
@@ -291,18 +277,17 @@ void func_804A508(void)
       else
       {
         register const s16 *yPointer asm("r4");
-        register s32 zero asm("r1");
+        s32 zero;
         yPointer = locals.mode0LowY;
         zero = 0;
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
         {
-          register const s16 *xTable asm("r4");
-          register const s16 *xPointer asm("r0");
-          register s32 xZero asm("r1");
+          const s16 *xTable;
+          const s16 *xPointer;
+          s32 xZero;
 
           xTable = sUnk_83CFED8;
-          asm("" : : "r"(xTable));
           /* agbcc cannot otherwise keep the address result in r0 and the zero index in r1. */
           asm("add r0, r3, r4\n\tmov r1, #0\n\tldrsh r0, [r0, r1]"
               : "=r"(xVelocity) : "r"(frameOffset), "r"(xTable) : "r1");
@@ -312,9 +297,8 @@ void func_804A508(void)
     }
     {
       register u8 *workPointer asm("r3");
-      register u32 work asm("r0");
+      u32 work;
       workPointer = locals.childWork1;
-      asm("" : "+r"(workPointer));
       work = *workPointer;
       if (work == 0)
       {
@@ -332,12 +316,11 @@ void func_804A508(void)
         goto checkFrame95;
       }
       {
-        register u8 value asm("r0");
-        register u8 one asm("r1");
+        u8 value;
+        u8 one;
         register u8 *framePtr asm("r4");
         value = 60;
         framePtr = &gUnk_3000A4B;
-        asm("" : "+r"(value), "+r"(framePtr));
         *framePtr = value;
         one = 1;
         flagValue = one;
@@ -356,7 +339,6 @@ void func_804A508(void)
     register u8 *flagPtr asm("r3");
     one = 1;
     flagPtr = &gUnk_3000A4D;
-    asm("" : "+r"(one), "+r"(flagPtr));
     *flagPtr = one;
   }
 
@@ -384,11 +366,11 @@ void func_804A508(void)
   {
     if (frame > 59)
     {
-      register const s16 *table asm("r0");
-      register int motionIndex asm("r2");
-      register int byteOffset asm("r1");
-      register int zero asm("r3");
-      register s32 delta asm("r0");
+      const s16 *table;
+      int motionIndex;
+      int byteOffset;
+      int zero;
+      s32 delta;
       register u32 position asm("r4");
       register struct PrimarySpriteData *storeSprite asm("r3");
       table = sUnk_83CFDE8;
@@ -403,9 +385,9 @@ void func_804A508(void)
       storeSprite = current;
       storeSprite->yPosition = delta;
       {
-        register const s16 *xPointer asm("r1");
-        register int xZero asm("r4");
-        register u32 xPosition asm("r1");
+        const s16 *xPointer;
+        int xZero;
+        u32 xPosition;
         table = sUnk_83CFD70;
         xPointer = (const s16 *) (byteOffset + ((s32) table));
         xZero = 0;
@@ -418,7 +400,7 @@ void func_804A508(void)
       angle = sUnk_83CFE9C[motionIndex];
       if (frame == 119)
       {
-        register struct PrimarySpriteData *workSprite asm("r1");
+        struct PrimarySpriteData *workSprite;
         workSprite = current;
         workSprite->work0 = 0;
       }
@@ -426,12 +408,12 @@ void func_804A508(void)
     }
     else
     {
-      register const s16 *table asm("r0");
-      register int byteOffset asm("r1");
+      const s16 *table;
+      int byteOffset;
       register int zero asm("r2");
       register short delta asm("r0");
       register u32 position asm("r3");
-      register struct PrimarySpriteData *storeSprite asm("r4");
+      struct PrimarySpriteData *storeSprite;
       table = sUnk_83CFDE8;
       byteOffset = frame << 1;
       table = (const s16 *) (byteOffset + ((s32) table));
@@ -443,7 +425,7 @@ void func_804A508(void)
       storeSprite = current;
       storeSprite->yPosition = delta;
       {
-        register const s16 *xPointer asm("r1");
+        const s16 *xPointer;
         register u32 xPosition asm("r3");
         table = sUnk_83CFCF8;
         xPointer = (const s16 *) (byteOffset + ((s32) table));
@@ -463,9 +445,9 @@ void func_804A508(void)
   else
     if (frame > 47)
   {
-    register const s16 *table asm("r0");
-    register int motionIndex asm("r2");
-    register int byteOffset asm("r1");
+    const s16 *table;
+    int motionIndex;
+    int byteOffset;
     register int zero asm("r4");
     register s32 delta asm("r0");
     register u32 position asm("r3");
@@ -484,10 +466,10 @@ void func_804A508(void)
     storeSprite = current;
     storeSprite->yPosition = delta;
     {
-      register const s16 *xPointer asm("r1");
-      register int xZero asm("r3");
-      register u32 xPosition asm("r4");
-      register struct PrimarySpriteData *xStore asm("r1");
+      const s16 *xPointer;
+      int xZero;
+      u32 xPosition;
+      struct PrimarySpriteData *xStore;
       table = sUnk_83CFBD8;
       xPointer = (const s16 *) (byteOffset + ((s32) table));
       xZero = 0;
@@ -501,7 +483,7 @@ void func_804A508(void)
     angle = sUnk_83CFCC8[motionIndex];
     if (frame == 95)
     {
-      register struct PrimarySpriteData *workSprite asm("r1");
+      struct PrimarySpriteData *workSprite;
       workSprite = current;
       workSprite->work0 = 0;
     }
@@ -509,8 +491,8 @@ void func_804A508(void)
   }
   else
   {
-    register const s16 *table asm("r0");
-    register int byteOffset asm("r1");
+    const s16 *table;
+    int byteOffset;
     register int zero asm("r2");
     register s16 delta asm("r0");
     register u32 position asm("r3");
@@ -548,24 +530,22 @@ void func_804A508(void)
 
   angleReady:
   {
-    register s32 index asm("r0");
-    register const s16 *table asm("r1");
-    register s32 zero asm("r3");
-    register s32 value asm("r2");
+    s32 index;
+    const s16 *table;
+    s32 zero;
+    s32 value;
     index = angle + ((256 / 2) / 2);
     index <<= 1;
     table = sSinCosTable;
     index += (s32) table;
-    /* Keep the zero index in r3 and the signed result in r2. */
-    asm("mov r3, #0\n\tldrsh r2, [r0, r3]"
-        : "=r"(value) : "r"(index) : "r3");
+    value = *(s16 *)index;
     cosine = value;
   }
   gCurrentSprite.affinePA = FixedMul(cosine, FixedInverse((s16) (1 * (1 << 8))));
   {
     register s32 index asm("r0");
-    register const s16 *table asm("r4");
-    register s32 zero asm("r1");
+    const s16 *table;
+    s32 zero;
     index = angle << 1;
     table = sSinCosTable;
     index += (s32) table;
@@ -582,14 +562,14 @@ void func_804A84C(void)
 {
   register u32 yDelta asm("r8");
   u32 xDelta;
-  register u32 frame asm("r5");
+  u32 frame;
   register struct PrimarySpriteData *current asm("r9");
   register struct PrimarySpriteData *sprite asm("r2");
-  register struct PrimarySpriteData *sprites asm("ip");
-  register struct WarioData *wario asm("r6");
-  register int offset60 asm("sl");
+  struct PrimarySpriteData *sprites;
+  struct WarioData *wario;
+  int offset60;
   register int frameOffset asm("r3");
-  register int offset48 asm("r4");
+  int offset48;
   struct
   {
     u32 mode;
@@ -600,28 +580,26 @@ void func_804A84C(void)
     const s16 *mode0LowY;
     u8 *childWork1;
   } locals;
-  register u32 angle asm("r4");
-  register const u8 *lowAngleTable asm("r0");
+  u32 angle;
+  const u8 *lowAngleTable;
   s32 cosine;
-  register s32 sine asm("r4");
-  register u32 flagValue asm("r1");
+  s32 sine;
+  u32 flagValue;
   yDelta = 0;
   xDelta = 0;
   sprite = &gCurrentSprite;
   {
-    register u32 frameValue asm("r0");
+    u32 frameValue;
     register u32 nextFrame asm("r1");
     {
       register u8 *frameLoad asm("r1");
       frameLoad = &gUnk_3000A4B;
-      asm("" : "+r"(frameLoad));
       frameValue = *frameLoad;
     }
     nextFrame = frameValue + 1;
     {
-      register u8 *frameStore asm("r3");
+      u8 *frameStore;
       frameStore = &gUnk_3000A4B;
-      asm("" : "+r"(frameStore));
       *frameStore = nextFrame;
     }
     frameValue <<= 24;
@@ -630,7 +608,6 @@ void func_804A84C(void)
   {
     register u8 *modePtr asm("r4");
     modePtr = ((u8 *) sprite) + 41;
-    asm("" : "+r"(modePtr));
     locals.mode = *modePtr;
   }
   {
@@ -642,10 +619,9 @@ void func_804A84C(void)
   sprite = gSpriteData;
   sprites = sprite;
   {
-    register s32 offset asm("r0");
-    register const s16 *table asm("r1");
+    s32 offset;
+    const s16 *table;
     table = sUnk_83D0370;
-    asm("" : "+r"(table));
     offset = frame;
     offset -= 60;
     offset <<= 1;
@@ -660,10 +636,9 @@ void func_804A84C(void)
   locals.childWork1 = ((u8 *) sprites) + 40;
   wario = &gWarioData;
   {
-    register s32 offset asm("r0");
-    register const s16 *table asm("r1");
+    s32 offset;
+    const s16 *table;
     table = sUnk_83D0220;
-    asm("" : "+r"(table));
     offset = frame;
     offset -= 48;
     offset48 = offset << 1;
@@ -673,7 +648,7 @@ void func_804A84C(void)
   }
   loop:
   {
-    register u32 childRoomSlot asm("r0");
+    u32 childRoomSlot;
     register u32 roomSlot asm("r1");
     childRoomSlot = sprite->roomSlot;
     roomSlot = locals.roomSlot;
@@ -697,17 +672,17 @@ void func_804A84C(void)
   if (locals.mode != 0)
   {
     {
-      register s32 xVelocity asm("r0");
+      s32 xVelocity;
       if (frame > 59)
       {
         register const s16 *yPointer asm("r1");
-        register s32 zero asm("r3");
+        s32 zero;
         yPointer = locals.mode1HighY;
         zero = 0;
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yPointer[zero] * 4);
         {
-          register s32 xZero asm("r4");
+          s32 xZero;
           xZero = 0;
           xVelocity = ((const s16 *) (((const u8 *) sUnk_83D02F8) + offset60))[xZero];
         }
@@ -715,18 +690,17 @@ void func_804A84C(void)
       else
       {
         register const s16 *yPointer asm("r1");
-        register s32 zero asm("r4");
+        s32 zero;
         yPointer = locals.mode1LowY;
         zero = 0;
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
         {
-          register const s16 *xTable asm("r1");
-          register const s16 *xPointer asm("r0");
-          register s32 xZero asm("r3");
+          const s16 *xTable;
+          const s16 *xPointer;
+          s32 xZero;
 
           xTable = sUnk_83D0280;
-          asm("" : : "r"(xTable));
           /* agbcc cannot otherwise keep the address result in r0 and the zero index in r3. */
           asm("add r0, r3, r1\n\tmov r3, #0\n\tldrsh r0, [r0, r3]"
               : "=r"(xVelocity) : "r"(frameOffset), "r"(xTable) : "r3");
@@ -738,7 +712,6 @@ void func_804A84C(void)
       register u8 *workPointer asm("r4");
       register u32 work asm("r1");
       workPointer = locals.childWork1;
-      asm("" : "+r"(workPointer));
       work = *workPointer;
       if (work != 0)
       {
@@ -754,15 +727,13 @@ void func_804A84C(void)
       else
         if (frame == 59)
       {
-        register u8 value asm("r0");
+        u8 value;
         register u8 *framePtr asm("r3");
         register u8 *flagPtr asm("r4");
         value = 48;
         framePtr = &gUnk_3000A4B;
-        asm("" : "+r"(value), "+r"(framePtr), "+r"(work));
         *framePtr = value;
         flagPtr = &gUnk_3000A4D;
-        asm("" : "+r"(flagPtr), "+r"(work));
         *flagPtr = work;
         goto applyChildMovement;
       }
@@ -780,22 +751,21 @@ void func_804A84C(void)
   else
   {
     {
-      register s32 xVelocity asm("r0");
+      s32 xVelocity;
       if (frame > 47)
       {
         register const s16 *yPointer asm("r1");
-        register s32 zero asm("r3");
+        s32 zero;
         yPointer = locals.mode0HighY;
         zero = 0;
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yPointer[zero] * 4);
         {
-          register const s16 *xTable asm("r1");
+          const s16 *xTable;
           register const s16 *xPointer asm("r0");
-          register s32 xZero asm("r3");
+          s32 xZero;
 
           xTable = sUnk_83D01C0;
-          asm("" : : "r"(xTable));
           xPointer = (const s16 *)(offset48 + (s32)xTable);
           asm("" : : "r"(xTable), "r"(xPointer));
           /* agbcc otherwise assigns the signed-load zero index to r4. */
@@ -806,18 +776,17 @@ void func_804A84C(void)
       else
       {
         register const s16 *yPointer asm("r4");
-        register s32 zero asm("r1");
+        s32 zero;
         yPointer = locals.mode0LowY;
         zero = 0;
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
         {
-          register const s16 *xTable asm("r4");
-          register const s16 *xPointer asm("r0");
-          register s32 xZero asm("r1");
+          const s16 *xTable;
+          const s16 *xPointer;
+          s32 xZero;
 
           xTable = sUnk_83D0160;
-          asm("" : : "r"(xTable));
           /* agbcc cannot otherwise keep the address result in r0 and the zero index in r1. */
           asm("add r0, r3, r4\n\tmov r1, #0\n\tldrsh r0, [r0, r1]"
               : "=r"(xVelocity) : "r"(frameOffset), "r"(xTable) : "r1");
@@ -827,9 +796,8 @@ void func_804A84C(void)
     }
     {
       register u8 *workPointer asm("r3");
-      register u32 work asm("r0");
+      u32 work;
       workPointer = locals.childWork1;
-      asm("" : "+r"(workPointer));
       work = *workPointer;
       if (work == 0)
       {
@@ -847,12 +815,11 @@ void func_804A84C(void)
         goto checkFrame95;
       }
       {
-        register u8 value asm("r0");
-        register u8 one asm("r1");
+        u8 value;
+        u8 one;
         register u8 *framePtr asm("r4");
         value = 60;
         framePtr = &gUnk_3000A4B;
-        asm("" : "+r"(value), "+r"(framePtr));
         *framePtr = value;
         one = 1;
         flagValue = one;
@@ -871,7 +838,6 @@ void func_804A84C(void)
     register u8 *flagPtr asm("r3");
     one = 1;
     flagPtr = &gUnk_3000A4D;
-    asm("" : "+r"(one), "+r"(flagPtr));
     *flagPtr = one;
   }
 
@@ -899,11 +865,11 @@ void func_804A84C(void)
   {
     if (frame > 59)
     {
-      register const s16 *table asm("r0");
-      register int motionIndex asm("r2");
-      register int byteOffset asm("r1");
-      register int zero asm("r3");
-      register s32 delta asm("r0");
+      const s16 *table;
+      int motionIndex;
+      int byteOffset;
+      int zero;
+      s32 delta;
       register u32 position asm("r4");
       register struct PrimarySpriteData *storeSprite asm("r3");
       table = sUnk_83CFDE8;
@@ -918,9 +884,9 @@ void func_804A84C(void)
       storeSprite = current;
       storeSprite->yPosition = delta;
       {
-        register const s16 *xPointer asm("r1");
-        register int xZero asm("r4");
-        register u32 xPosition asm("r1");
+        const s16 *xPointer;
+        int xZero;
+        u32 xPosition;
         table = sUnk_83CFD70;
         xPointer = (const s16 *) (byteOffset + ((s32) table));
         xZero = 0;
@@ -933,7 +899,7 @@ void func_804A84C(void)
       angle = sUnk_83CFE9C[motionIndex];
       if (frame == 119)
       {
-        register struct PrimarySpriteData *workSprite asm("r1");
+        struct PrimarySpriteData *workSprite;
         workSprite = current;
         workSprite->work0 = 0;
       }
@@ -941,12 +907,12 @@ void func_804A84C(void)
     }
     else
     {
-      register const s16 *table asm("r0");
-      register int byteOffset asm("r1");
+      const s16 *table;
+      int byteOffset;
       register int zero asm("r2");
       register short delta asm("r0");
       register u32 position asm("r3");
-      register struct PrimarySpriteData *storeSprite asm("r4");
+      struct PrimarySpriteData *storeSprite;
       table = sUnk_83CFDE8;
       byteOffset = frame << 1;
       table = (const s16 *) (byteOffset + ((s32) table));
@@ -958,7 +924,7 @@ void func_804A84C(void)
       storeSprite = current;
       storeSprite->yPosition = delta;
       {
-        register const s16 *xPointer asm("r1");
+        const s16 *xPointer;
         register u32 xPosition asm("r3");
         table = sUnk_83CFCF8;
         xPointer = (const s16 *) (byteOffset + ((s32) table));
@@ -978,9 +944,9 @@ void func_804A84C(void)
   else
     if (frame > 47)
   {
-    register const s16 *table asm("r0");
-    register int motionIndex asm("r2");
-    register int byteOffset asm("r1");
+    const s16 *table;
+    int motionIndex;
+    int byteOffset;
     register int zero asm("r4");
     register s32 delta asm("r0");
     register u32 position asm("r3");
@@ -999,10 +965,10 @@ void func_804A84C(void)
     storeSprite = current;
     storeSprite->yPosition = delta;
     {
-      register const s16 *xPointer asm("r1");
-      register int xZero asm("r3");
-      register u32 xPosition asm("r4");
-      register struct PrimarySpriteData *xStore asm("r1");
+      const s16 *xPointer;
+      int xZero;
+      u32 xPosition;
+      struct PrimarySpriteData *xStore;
       table = sUnk_83CFBD8;
       xPointer = (const s16 *) (byteOffset + ((s32) table));
       xZero = 0;
@@ -1016,7 +982,7 @@ void func_804A84C(void)
     angle = sUnk_83CFCC8[motionIndex];
     if (frame == 95)
     {
-      register struct PrimarySpriteData *workSprite asm("r1");
+      struct PrimarySpriteData *workSprite;
       workSprite = current;
       workSprite->work0 = 0;
     }
@@ -1024,8 +990,8 @@ void func_804A84C(void)
   }
   else
   {
-    register const s16 *table asm("r0");
-    register int byteOffset asm("r1");
+    const s16 *table;
+    int byteOffset;
     register int zero asm("r2");
     register s16 delta asm("r0");
     register u32 position asm("r3");
@@ -1063,24 +1029,22 @@ void func_804A84C(void)
 
   angleReady:
   {
-    register s32 index asm("r0");
-    register const s16 *table asm("r1");
-    register s32 zero asm("r3");
-    register s32 value asm("r2");
+    s32 index;
+    const s16 *table;
+    s32 zero;
+    s32 value;
     index = angle + ((256 / 2) / 2);
     index <<= 1;
     table = sSinCosTable;
     index += (s32) table;
-    /* Keep the zero index in r3 and the signed result in r2. */
-    asm("mov r3, #0\n\tldrsh r2, [r0, r3]"
-        : "=r"(value) : "r"(index) : "r3");
+    value = *(s16 *)index;
     cosine = value;
   }
   gCurrentSprite.affinePA = FixedMul(cosine, FixedInverse((s16) (1 * (1 << 8))));
   {
     register s32 index asm("r0");
-    register const s16 *table asm("r4");
-    register s32 zero asm("r1");
+    const s16 *table;
+    s32 zero;
     index = angle << 1;
     table = sSinCosTable;
     index += (s32) table;
@@ -1095,11 +1059,11 @@ void func_804A84C(void)
 
 void func_804AB90(void)
 {
-    register struct PrimarySpriteData *sprite asm("ip");
+    struct PrimarySpriteData *sprite;
     register u16 status asm("r0");
     register int statusBits asm("r2");
     register int zero asm("r3");
-    register int zero16 asm("r4");
+    int zero16;
     u16 oldStatus;
 
     sprite = &gCurrentSprite;
@@ -1120,8 +1084,8 @@ void func_804AB90(void)
     sprite->hitboxExtentLeft = 60;
     sprite->hitboxExtentRight = 56;
     {
-        register const struct AnimationFrame *oam asm("r0");
-        register struct PrimarySpriteData *storeSprite asm("r1");
+        const struct AnimationFrame *oam;
+        struct PrimarySpriteData *storeSprite;
 
         oam = sSwingingPlatformOam_83CFB68;
         storeSprite = sprite;

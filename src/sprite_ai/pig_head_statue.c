@@ -197,10 +197,8 @@ landed:
             const s16* previousEntry;
             register u16 oldY asm("r0");
             s16 previousVelocity;
-            /* agbcc otherwise subtracts in r2 instead of materializing the prior index in r1. */
-            asm("sub %0, %1, #1" : "=r"(previousTimer) : "r"(timer));
+            previousTimer = timer - 1;
             previousEntry = &sSpriteGravityVelocityTable[previousTimer];
-            asm("" : "+r"(previousEntry));
             oldY = sprite->yPosition;
             previousVelocity = *previousEntry;
             oldY += previousVelocity;

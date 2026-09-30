@@ -537,47 +537,23 @@ void InitKaentsuboThrownCommon(void)
 
 void InitKaentsuboFlame(void)
 {
-    register struct PrimarySpriteData *currentSprite asm("ip");
-    u16 currentStatus;
-    register u16 tmpStatus asm("r2");
-    register u16 newStatus asm("r0");
-    register u8 zero asm("r3");
-    s32 zero16;
-    register u8 *drawDistancePtr asm("r0");
-    struct PrimarySpriteData *writeSprite;
-    register u8 terrainCollision asm("r0");
+    struct PrimarySpriteData *sprite;
 
-    currentSprite = &gCurrentSprite;
-    currentStatus = currentSprite->status;
-    tmpStatus = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
-    newStatus = tmpStatus;
-    zero = 0;
-    zero16 = 0;
-    /* agbcc otherwise delays materializing the zero until the halfword store. */
-    asm("" : "+r"(zero16));
-    newStatus |= currentStatus;
-    newStatus &= 0xFFFB;
-    currentSprite->status = newStatus;
-    currentSprite->drawDistanceDown = 48;
-    drawDistancePtr = &currentSprite->drawDistanceUp;
-    *drawDistancePtr = zero;
-    drawDistancePtr++;
-    /* Keep the increment separate from the byte store, matching the original pointer walk. */
-    asm("" : "+r"(drawDistancePtr));
-    tmpStatus = 16;
-    *drawDistancePtr = tmpStatus;
-    currentSprite->hitboxExtentUp = 120;
-    currentSprite->hitboxExtentDown = 208;
-    currentSprite->hitboxExtentLeft = 24;
-    currentSprite->hitboxExtentRight = 20;
-    /* agbcc otherwise schedules the currentSprite-spriteData copy before this constant load. */
-    asm("mov %0, #14" : "=r"(terrainCollision));
-    writeSprite = currentSprite;
-    writeSprite->warioCollision = terrainCollision;
-    writeSprite->pOamData = sKaentsuboFlameIdleOam;
-    writeSprite->currentAnimationFrame = zero;
-    writeSprite->animationTimer = zero16;
-    writeSprite->pose = tmpStatus;
+    sprite = &gCurrentSprite;
+    sprite->status |= SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
+    sprite->status &= 0xFFFB;
+    sprite->drawDistanceDown = 48;
+    sprite->drawDistanceUp = 0;
+    sprite->drawDistanceLeftRight = 16;
+    sprite->hitboxExtentUp = 120;
+    sprite->hitboxExtentDown = 208;
+    sprite->hitboxExtentLeft = 24;
+    sprite->hitboxExtentRight = 20;
+    sprite->warioCollision = 14;
+    sprite->pOamData = sKaentsuboFlameIdleOam;
+    sprite->currentAnimationFrame = 0;
+    sprite->animationTimer = 0;
+    sprite->pose = 16;
 }
 
 void InitKaentsuboFlameIdle(void)
@@ -685,39 +661,25 @@ void UpdateKaentsuboFlamePushedLeft(u32 slot)
 
 void InitKaentsuboFireball(void)
 {
-    register struct PrimarySpriteData *currentSprite asm("ip");
-    struct PrimarySpriteData *writeSprite;
-    u16 currentStatus;
-    register u16 tmpStatus asm("r2");
-    register u16 newStatus asm("r0");
-    register u16 zero16 asm("r3");
+    struct PrimarySpriteData *sprite;
 
-    currentSprite = &gCurrentSprite;
-    currentStatus = currentSprite->status;
-    tmpStatus = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
-    newStatus = tmpStatus;
-    tmpStatus = 0;
-    zero16 = 0;
-    /* agbcc otherwise delays materializing the zero until the halfword store. */
-    asm("" : "+r"(zero16));
-    newStatus |= currentStatus;
-    newStatus &= 0xFFFB;
-    writeSprite = currentSprite;
-    writeSprite->status = newStatus;
-    currentSprite->drawDistanceDown = 32;
-    currentSprite->drawDistanceUp = tmpStatus;
-    currentSprite->drawDistanceLeftRight = 16;
-    currentSprite->hitboxExtentUp = 40;
-    currentSprite->hitboxExtentDown = tmpStatus;
-    currentSprite->hitboxExtentLeft = 24;
-    currentSprite->hitboxExtentRight = 20;
-    writeSprite->warioCollision = 14;
-    writeSprite->pOamData = sKaentsuboFireballSpawnOam;
-    writeSprite->currentAnimationFrame = tmpStatus;
-    writeSprite->animationTimer = zero16;
-    writeSprite->pose = 28;
-    currentSprite->work3 = 20;
-    writeSprite->drawPriority = tmpStatus;
+    sprite = &gCurrentSprite;
+    sprite->status |= SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
+    sprite->status &= 0xFFFB;
+    sprite->drawDistanceDown = 32;
+    sprite->drawDistanceUp = 0;
+    sprite->drawDistanceLeftRight = 16;
+    sprite->hitboxExtentUp = 40;
+    sprite->hitboxExtentDown = 0;
+    sprite->hitboxExtentLeft = 24;
+    sprite->hitboxExtentRight = 20;
+    sprite->warioCollision = 14;
+    sprite->pOamData = sKaentsuboFireballSpawnOam;
+    sprite->currentAnimationFrame = 0;
+    sprite->animationTimer = 0;
+    sprite->pose = 28;
+    sprite->work3 = 20;
+    sprite->drawPriority = 0;
     m4aSongNumStart(SOUND_54);
 }
 
@@ -1031,8 +993,7 @@ void SpriteKaentsuboFlame(void)
     spriteData = gSpriteData;
     parentOffset = sizeof(struct PrimarySpriteData);
     parentOffset *= parentSlot;
-    /* agbcc reverses this commutative add, changing the Thumb encoding. */
-    asm("add %0, %1, %2" : "=r"(parentSprite) : "r"(parentOffset), "r"(spriteData));
+    parentSprite = (struct PrimarySpriteData *)(parentOffset + (u32)spriteData);
     if (parentSprite->warioCollision != 5) {
         goto check_health;
     }

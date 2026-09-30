@@ -24,10 +24,10 @@ extern const s16 sSkeletonBirdBobYSpeed[];
 
 void UpdateSkeletonBirdFacingAndProjectile(void)
 {
-    register struct PrimarySpriteData *currentSprite asm("r4") = &gCurrentSprite;
-    register u8 *actionTimer asm("r5") = &currentSprite->work1;
+    struct PrimarySpriteData *currentSprite = &gCurrentSprite;
+    u8 *actionTimer = &currentSprite->work1;
     register u8 timer asm("r0") = *actionTimer;
-    register u16 initialTimer asm("r2") = timer;
+    u16 initialTimer = timer;
     struct PrimarySpriteData *turnSprite;
     turnSprite = currentSprite;
 
@@ -51,12 +51,11 @@ void UpdateSkeletonBirdFacingAndProjectile(void)
         }
 
         {
-            register u8 *turnTimer asm("r1") = &turnSprite->work1;
+            u8 *turnTimer = &turnSprite->work1;
             u16 zero;
-            asm("" : "=r"(zero) : "r"(turnTimer));
             zero = 0;
             {
-                register u8 turnDelay asm("r0") = 28;
+                u8 turnDelay = 28;
                 *turnTimer = turnDelay;
             }
             turnSprite->pOamData = sSkeletonBirdTurnOam;
@@ -131,10 +130,10 @@ void InitSkeletonBird(void)
 
 void UpdateSkeletonBirdMoveLeft(void)
 {
-    register struct PrimarySpriteData *bobSprite asm("r3");
-    register u8 *delayPtr asm("r1");
-    register u32 delay asm("r0");
-    register u8 *indexPtr asm("r12");
+    struct PrimarySpriteData *bobSprite;
+    u8 *delayPtr;
+    u32 delay;
+    u8 *indexPtr;
     u8 index;
     s16 delta;
 
@@ -151,31 +150,27 @@ void UpdateSkeletonBirdMoveLeft(void)
     index = *indexPtr;
     delta = sSkeletonBirdBobYSpeed[index];
     if (delta == S16_MAX) {
-        register u32 previousIndex asm("r1") = index - 1;
+        u32 previousIndex = index - 1;
         register u16 yPosition asm("r0");
-        register s16 previousSpeed asm("r1");
-        asm("" : "+r"(previousIndex));
+        s16 previousSpeed;
         previousIndex <<= 1;
         previousIndex += (u32)sSkeletonBirdBobYSpeed;
-        asm("" : "+r"(previousIndex));
         yPosition = bobSprite->yPosition;
         previousSpeed = *(const s16 *)previousIndex;
-        asm("" : "+r"(yPosition), "+r"(previousSpeed));
         yPosition += previousSpeed;
         bobSprite->yPosition = yPosition;
     } else {
-        register u8 nextIndex asm("r0") = index + 1;
-        register u8 *destination asm("r1") = indexPtr;
+        u8 nextIndex = index + 1;
+        u8 *destination = indexPtr;
         *destination = nextIndex;
         bobSprite->yPosition += delta;
     }
 
     if (!(gMainTimer & 1)) {
-        register struct PrimarySpriteData *currentSprite asm("r2") = &gCurrentSprite;
-        register u8 *distancePtr asm("r0") = &currentSprite->work2;
+        struct PrimarySpriteData *currentSprite = &gCurrentSprite;
+        u8 *distancePtr = &currentSprite->work2;
         register u8 distance asm("r1") = *distancePtr;
-        register u32 zeroOrDistance asm("r3") = distance;
-        asm("" : "+r"(distance), "+r"(zeroOrDistance));
+        u32 zeroOrDistance = distance;
 
         if (zeroOrDistance != 0) {
             distance--;
@@ -202,10 +197,10 @@ storeDelay:
 
 void UpdateSkeletonBirdMoveRight(void)
 {
-    register struct PrimarySpriteData *bobSprite asm("r3");
-    register u8 *delayPtr asm("r1");
-    register u32 delay asm("r0");
-    register u8 *indexPtr asm("r12");
+    struct PrimarySpriteData *bobSprite;
+    u8 *delayPtr;
+    u32 delay;
+    u8 *indexPtr;
     u8 index;
     s16 delta;
 
@@ -222,29 +217,25 @@ void UpdateSkeletonBirdMoveRight(void)
     index = *indexPtr;
     delta = sSkeletonBirdBobYSpeed[index];
     if (delta == S16_MAX) {
-        register u32 previousIndex asm("r1") = index - 1;
+        u32 previousIndex = index - 1;
         register u16 yPosition asm("r0");
-        register s16 previousSpeed asm("r1");
-        asm("" : "+r"(previousIndex));
+        s16 previousSpeed;
         previousIndex <<= 1;
         previousIndex += (u32)sSkeletonBirdBobYSpeed;
-        asm("" : "+r"(previousIndex));
         yPosition = bobSprite->yPosition;
         previousSpeed = *(const s16 *)previousIndex;
-        asm("" : "+r"(yPosition), "+r"(previousSpeed));
         yPosition += previousSpeed;
         bobSprite->yPosition = yPosition;
     } else {
-        register u8 nextIndex asm("r0") = index + 1;
-        register u8 *destination asm("r1") = indexPtr;
+        u8 nextIndex = index + 1;
+        u8 *destination = indexPtr;
         *destination = nextIndex;
         bobSprite->yPosition += delta;
     }
 
     {
-        register u32 timerValue asm("r0") = gMainTimer;
-        register u32 timerBit asm("r3");
-        asm("" : "+r"(timerValue));
+        u32 timerValue = gMainTimer;
+        u32 timerBit;
         timerBit = 1;
         timerBit &= timerValue;
         if (timerBit != 0) {
@@ -252,8 +243,8 @@ void UpdateSkeletonBirdMoveRight(void)
         }
 
         {
-            register struct PrimarySpriteData *currentSprite asm("r2") = &gCurrentSprite;
-            register u8 *distancePtr asm("r0") = &currentSprite->work2;
+            struct PrimarySpriteData *currentSprite = &gCurrentSprite;
+            u8 *distancePtr = &currentSprite->work2;
             register u8 distance asm("r1") = *distancePtr;
 
             if (distance <= 159) {
@@ -293,8 +284,8 @@ void InitSkeletonBirdAttackWindup(void)
 
 void UpdateSkeletonBirdAttackWindup(void)
 {
-    register struct PrimarySpriteData *currentSprite asm("r2") = &gCurrentSprite;
-    register u8 *countdown asm("r4");
+    struct PrimarySpriteData *currentSprite = &gCurrentSprite;
+    u8 *countdown;
     register u8 timer asm("r0");
     register struct PrimarySpriteData *savedSprite asm("r12");
     u8 remaining;
@@ -307,8 +298,8 @@ void UpdateSkeletonBirdAttackWindup(void)
     remaining = timer;
     savedSprite = currentSprite;
     if (remaining == 0) {
-        register u8 recoveryTimer asm("r3") = 15;
-        register u16 zero asm("r2");
+        u8 recoveryTimer = 15;
+        u16 zero;
 
         currentSprite->disableWarioCollisionTimer = recoveryTimer;
         currentSprite->pOamData = sSkeletonBirdStunnedOam;
@@ -318,11 +309,10 @@ void UpdateSkeletonBirdAttackWindup(void)
         savedSprite->animationTimer = remaining;
         {
             register u16 status asm("r1") = savedSprite->status;
-            register u16 maskedStatus asm("r0") =
+            u16 maskedStatus =
                 status & ~SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
-            register u8 *extentPtr asm("r1") = (u8 *)savedSprite;
+            u8 *extentPtr = (u8 *)savedSprite;
 
-            asm("" : "+r"(maskedStatus), "+r"(extentPtr));
             *(u16 *)extentPtr = maskedStatus;
             extentPtr += 35;
             *extentPtr = 56;
@@ -333,14 +323,12 @@ void UpdateSkeletonBirdAttackWindup(void)
             extentPtr += 2;
             *extentPtr = 32;
             extentPtr++;
-            asm("" : "+r"(extentPtr));
-            *extentPtr = 28;
+            *(volatile u8 *)extentPtr = 28;
         }
         *countdown = zero;
 
         {
-            register u8 collisionType asm("r0") = 5;
-            asm("" : "+r"(collisionType));
+            u8 collisionType = 5;
             currentSprite = savedSprite;
             currentSprite->warioCollision = collisionType;
         }
@@ -351,9 +339,8 @@ void UpdateSkeletonBirdAttackWindup(void)
         if (currentSprite->xPosition > gWarioData.xPosition) {
             currentSprite->pose = 73;
         } else {
-            register u8 leftPose asm("r0") = 71;
+            u8 leftPose = 71;
             register struct PrimarySpriteData *poseSprite asm("r4");
-            asm("" : "+r"(leftPose));
             poseSprite = savedSprite;
             poseSprite->pose = leftPose;
         }
@@ -361,22 +348,20 @@ void UpdateSkeletonBirdAttackWindup(void)
         {
             register struct PrimarySpriteData *spawnSprite asm("r5") = savedSprite;
             register u16 spriteStatus asm("r1") = spawnSprite->status;
-            register u32 spawnStatus asm("r5") = SPRITE_STATUS_FACING_RIGHT;
-            register u32 statusMask asm("r0") = spawnStatus;
+            u32 spawnStatus = SPRITE_STATUS_FACING_RIGHT;
+            u32 statusMask = spawnStatus;
             u32 facingFlag;
 
             statusMask &= spriteStatus;
-            asm("" : "+r"(statusMask));
-            statusMask <<= 16;
-            facingFlag = statusMask >> 16;
+            facingFlag = (u16)statusMask;
             if (facingFlag != 0) {
                 SpawnPrimarySpriteWithStatus(PSPRITE_SKELETON_BIRD_DEBRIS, savedSprite->roomSlot,
                              savedSprite->gfxSlot, savedSprite->yPosition,
                              savedSprite->xPosition, spawnStatus);
             } else {
                 register struct PrimarySpriteData *idSprite asm("r2") = savedSprite;
-                register u8 roomSlot asm("r1") = idSprite->roomSlot;
-                register u8 gfxSlot asm("r2") = idSprite->gfxSlot;
+                u8 roomSlot = idSprite->roomSlot;
+                u8 gfxSlot = idSprite->gfxSlot;
                 register struct PrimarySpriteData *positionSprite asm("r5") = savedSprite;
                 SpawnPrimarySpriteWithStatus(PSPRITE_SKELETON_BIRD_DEBRIS, roomSlot, gfxSlot,
                              positionSprite->yPosition, positionSprite->xPosition,

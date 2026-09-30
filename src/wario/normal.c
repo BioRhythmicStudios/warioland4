@@ -91,7 +91,7 @@ u8 UpdateNormalWarioWalking(void)
   register u16 held asm("r3");
   int dustType;
   register u16 direction asm("r2");
-  register s32 value asm("r0");
+  s32 value;
   struct WarioData **warioPointer;
   u8 frame;
   pressed = gButtonsPressed;
@@ -152,7 +152,7 @@ u8 UpdateNormalWarioWalking(void)
     direction = base->horizontalDirection;
     value = held;
     value &= direction;
-    asm("add %0, %1, #0" : "=r"(wario) : "r"(base));
+    wario = base;
   }
   if (value != 0)
 
@@ -161,7 +161,7 @@ u8 UpdateNormalWarioWalking(void)
     {
       {
         register u16 branchRawVelocity asm("r1");
-        register s32 branchVelocity asm("r2");
+        s32 branchVelocity;
 
         branchRawVelocity = wario->xVelocity;
         branchVelocity = (s16) wario->xVelocity;
@@ -193,7 +193,7 @@ u8 UpdateNormalWarioWalking(void)
       }
       {
         register u16 branchRawVelocity asm("r0");
-        register s32 branchVelocity asm("r1");
+        s32 branchVelocity;
 
         branchRawVelocity = wario->xVelocity;
         branchVelocity = (s16) wario->xVelocity;
@@ -226,8 +226,8 @@ u8 UpdateNormalWarioWalking(void)
     else
     {
       {
-        register u16 branchRawVelocity asm("r1");
-        register s32 branchVelocity asm("r2");
+        u16 branchRawVelocity;
+        s32 branchVelocity;
 
         branchRawVelocity = wario->xVelocity;
         branchVelocity = (s16) wario->xVelocity;
@@ -243,13 +243,11 @@ store_accelerated_velocity:
         {
           if (branchVelocity > (-64))
           {
-            /* agbcc otherwise inserts an unnecessary zero-extension before subtracting. */
-            asm("sub %0, %1, #6" : "=r"(value) : "r"(branchRawVelocity));
+            value = branchRawVelocity - 6;
             wario->xVelocity = value;
             goto update_animation;
           }
-          /* agbcc otherwise inserts an unnecessary zero-extension before subtracting. */
-          asm("sub %0, %1, #2" : "=r"(value) : "r"(branchRawVelocity));
+          value = branchRawVelocity - 2;
           wario->xVelocity = value;
           if (((s16) value) <= (-128))
           {
@@ -261,7 +259,7 @@ store_accelerated_velocity:
       }
       {
         register u16 branchRawVelocity asm("r0");
-        register s32 branchVelocity asm("r1");
+        s32 branchVelocity;
         register s32 velocityLimit asm("r2");
 
         branchRawVelocity = wario->xVelocity;
@@ -332,8 +330,7 @@ store_accelerated_velocity:
       }
       else
       {
-        /* agbcc otherwise compares the frame directly in r1 instead of copying it to r0. */
-        asm("add %0, %1, #0" : "=r"(value) : "r"(frame));
+        value = frame;
         if ((value == 2) || (value == 9))
         {
           m4aSongNumStart(1);
@@ -373,8 +370,8 @@ store_accelerated_velocity:
 
 u8 UpdateNormalWarioTurning(void)
 {
-    register struct WarioData* wario asm("r3");
-    register struct WarioData* data asm("r0");
+    struct WarioData* wario;
+    struct WarioData* data;
     const struct WarioAnimationFrame* animation;
     u16 pressed;
     u8 pose;
@@ -428,8 +425,8 @@ u8 UpdateNormalWarioStanding(void)
     u16 held;
     u16 direction;
     register unsigned int value asm("r0");
-    register int tile asm("r1");
-    register u8 zero asm("r1");
+    int tile;
+    u8 zero;
 
     pressed = gButtonsPressed;
     one = 1;
@@ -545,8 +542,8 @@ u8 UpdateNormalWarioJumping(void)
 {
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
-    register u16 pressed asm("r1");
-    register int value asm("r0");
+    u16 pressed;
+    int value;
 
     pressed = gButtonsPressed;
     value = B_BUTTON;
@@ -580,7 +577,7 @@ u8 UpdateNormalWarioFalling(void)
     {
         struct CarriedSprite* carried;
         register u32 input asm("r2");
-        register u16 pressed asm("r1");
+        u16 pressed;
 
         carried = &gCurrentCarriedSprite;
         test = carried->state;
@@ -616,7 +613,7 @@ u8 UpdateNormalWarioFalling(void)
     }
 
     {
-        register int temp asm("r1");
+        int temp;
 
         temp = gButtonsHeld;
         test = B_BUTTON | DPAD_UP;
@@ -637,9 +634,9 @@ u8 UpdateNormalWarioFalling(void)
     {
         u16* heldSource;
         struct WarioData* warioSource;
-        register u16 held asm("r3");
-        register u16 direction asm("r2");
-        register u16 movementResult asm("r2");
+        u16 held;
+        u16 direction;
+        u16 movementResult;
 
         heldSource = &gButtonsHeld;
         warioSource = &gWarioData;
@@ -653,8 +650,8 @@ u8 UpdateNormalWarioFalling(void)
             test = DPAD_RIGHT;
             test &= direction;
             if (test != 0) {
-                register u16 rawVelocity asm("r1");
-                register s32 signedVelocity asm("r0");
+                u16 rawVelocity;
+                s32 signedVelocity;
 
                 rawVelocity = wario->xVelocity;
                 signedVelocity = (s16)wario->xVelocity;
@@ -666,9 +663,9 @@ u8 UpdateNormalWarioFalling(void)
                     }
                 }
             } else {
-                register u16 rawVelocity asm("r2");
-                register s32 signedVelocity asm("r0");
-                register s32 velocityLimit asm("r1");
+                u16 rawVelocity;
+                s32 signedVelocity;
+                s32 velocityLimit;
 
                 rawVelocity = wario->xVelocity;
                 signedVelocity = (s16)wario->xVelocity;
@@ -682,7 +679,7 @@ u8 UpdateNormalWarioFalling(void)
                 }
             }
         } else {
-            register u16 newDirection asm("r1");
+            u16 newDirection;
 
             test = DPAD_LEFT | DPAD_RIGHT;
             newDirection = direction;
@@ -691,14 +688,13 @@ u8 UpdateNormalWarioFalling(void)
             asm("add %0, %1, #0\n\tand %0, %2"
                 : "=r"(test)
                 : "r"(newDirection), "r"(held));
-            test <<= 16;
-            movementResult = test >> 16;
+            movementResult = (s16)test;
             if (movementResult != 0) {
                 wario->horizontalDirection = newDirection;
                 wario->xVelocity = value;
             } else {
                 register u16 rawVelocity asm("r0");
-                register s32 signedVelocity asm("r1");
+                s32 signedVelocity;
 
                 rawVelocity = wario->xVelocity;
                 signedVelocity = (s16)wario->xVelocity;
@@ -720,8 +716,8 @@ u8 UpdateNormalWarioFalling(void)
     }
 
     {
-        register u16 heldInput asm("r0");
-        register int zero asm("r1");
+        u16 heldInput;
+        int zero;
 
         heldInput = *heldPtr;
         zero = A_BUTTON;
@@ -737,10 +733,10 @@ u8 UpdateNormalWarioFalling(void)
 
 u8 UpdateNormalWarioCrouching(void)
 {
-    register int collision asm("r3");
+    int collision;
     struct WarioData* wario;
-    register int value asm("r0");
-    register u32 input asm("r1");
+    int value;
+    u32 input;
 
     collision = ((int (*)(u8, u16, u8))CheckWarioVerticalCollision)(0, sWarioCollisionPointTable[2], 1);
     gCurrentCarriedSprite.state = 0;
@@ -767,8 +763,8 @@ u8 UpdateNormalWarioCrouching(void)
     }
 
     {
-        register int held asm("r2");
-        register u32 dir asm("r1");
+        int held;
+        u32 dir;
 
         value = (u32)&gButtonsHeld;
         dir = (u32)&gWarioData;
@@ -793,7 +789,7 @@ u8 UpdateNormalWarioCrouchSliding(void)
 {
     struct WarioData* wario;
     register int one asm("r3");
-    register int value asm("r0");
+    int value;
     register int input asm("r1");
     int velocity;
 
@@ -843,11 +839,11 @@ u8 UpdateNormalWarioCrouchSliding(void)
 
 u8 UpdateNormalWarioCrawling(void)
 {
-    register int value asm("r0");
+    int value;
 
     {
         register struct WarioData* wario asm("r4");
-        register int collision asm("r3");
+        int collision;
         register int one asm("r2");
         register int input asm("r1");
 
@@ -885,9 +881,9 @@ u8 UpdateNormalWarioCrawling(void)
     {
         register int held asm("r4");
         register int direction asm("r2");
-        register struct WarioData* wario asm("r3");
+        struct WarioData* wario;
         u32 heldAddress;
-        register u32 warioAddress asm("r1");
+        u32 warioAddress;
         int velocity;
 
         heldAddress = (u32)&gButtonsHeld;
@@ -955,7 +951,7 @@ u8 UpdateNormalWarioCrawling(void)
 
 u8 UpdateNormalWarioTurningCrouched(void)
 {
-    register int zero asm("r4");
+    int zero;
     register int value asm("r0");
 
     gCurrentCarriedSprite.state = 0;
@@ -1053,7 +1049,7 @@ u8 UpdateNormalWarioCrouchJump(void)
     gCurrentCarriedSprite.state = 0;
     {
         struct WarioData* wario;
-        register int input asm("r1");
+        int input;
 
         wario = &gWarioData;
         if (wario->unk_06 == 0) {
@@ -1100,7 +1096,7 @@ u8 UpdateNormalWarioSlidingOnIce(void)
 {
     int acceleration;
     register int mask asm("r5");
-    register int input asm("r2");
+    int input;
     input = gButtonsPressed;
     if (input & A_BUTTON) {
         return WPOSE_NORMAL_JUMPING;
@@ -1235,7 +1231,7 @@ u8 UpdateNormalWarioStoppingFromDash(void)
         register struct WarioData* wario asm("r2");
         wario = &gWarioData;
         if (wario->horizontalDirection & DPAD_RIGHT) {
-            register int velocity asm("r1");
+            int velocity;
 
             velocity = *(u16*)&wario->xVelocity;
             value = wario->xVelocity;
@@ -1249,8 +1245,8 @@ u8 UpdateNormalWarioStoppingFromDash(void)
                 return WPOSE_NORMAL_STANDING;
             }
         } else {
-            register int velocity asm("r3");
-            register int signedVelocity asm("r1");
+            int velocity;
+            int signedVelocity;
 
             velocity = *(u16*)&wario->xVelocity;
             signedVelocity = wario->xVelocity;
@@ -1293,7 +1289,7 @@ u8 UpdateNormalWarioStartingRoll(void)
     register u32 value asm("r0");
 
     {
-        register int input asm("r1");
+        int input;
 
         input = gButtonsPressed;
         value = A_BUTTON;
@@ -1310,7 +1306,7 @@ u8 UpdateNormalWarioStartingRoll(void)
 
     {
         struct WarioData* wario;
-        register int direction asm("r1");
+        int direction;
 
         wario = &gWarioData;
         direction = wario->horizontalDirection;
@@ -1362,7 +1358,7 @@ u8 UpdateNormalWarioJumpingOutOfRoll(void)
 {
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
-    register u32 value asm("r0");
+    u32 value;
     int frame;
 
     wario = &gWarioData;
@@ -1384,12 +1380,12 @@ u8 UpdateNormalWarioRolling(void)
     register u32 value asm("r0");
     struct WarioData* wario;
     register struct WarioData* wario2 asm("r2");
-    register int zero asm("r3");
+    int zero;
     const struct WarioAnimationFrame* animation;
     int frame;
 
     {
-        register int input asm("r1");
+        int input;
 
         input = gButtonsPressed;
         value = A_BUTTON;
@@ -1433,7 +1429,7 @@ u8 UpdateNormalWarioRollingJump(void)
     int frame;
 
     {
-        register int input asm("r1");
+        int input;
 
         input = gButtonsPressed;
         value = A_BUTTON;
@@ -1460,7 +1456,7 @@ u8 UpdateNormalWarioRollingJump(void)
 
 u8 UpdateNormalWarioStunned(void)
 {
-    register u32 value asm("r0");
+    u32 value;
     struct WarioData* wario;
 
     gCurrentCarriedSprite.unk1 = 0;
@@ -1481,7 +1477,7 @@ u8 UpdateNormalWarioStunned(void)
     }
 
     {
-        register int input asm("r1");
+        int input;
 
         input = gButtonsPressed;
         value = DPAD_UP;
@@ -1510,7 +1506,7 @@ u8 UpdateNormalWarioEnteringPipe(void)
 {
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
-    register u32 value asm("r0");
+    u32 value;
     int frame;
 
     wario = &gWarioData;
@@ -1534,7 +1530,7 @@ u8 UpdateNormalWarioTakingDamage(void)
 {
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
-    register u32 value asm("r0");
+    u32 value;
     int frame;
 
     wario = &gWarioData;
@@ -1555,7 +1551,7 @@ u8 UpdateNormalWarioRollingMidair(void)
 {
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
-    register u32 value asm("r0");
+    u32 value;
     int frame;
 
     wario = &gWarioData;
@@ -1576,10 +1572,10 @@ u8 UpdateNormalWarioRollingMidair(void)
 u8 UpdateNormalWarioShoulderBash(void)
 {
     struct WarioData* wario;
-    register int acceleration asm("r4");
+    int acceleration;
     int mask;
     register u32 value asm("r0");
-    register int input asm("r1");
+    int input;
     register int one asm("r2");
 
     {
@@ -1610,8 +1606,7 @@ u8 UpdateNormalWarioShoulderBash(void)
         }
 
         value = GetBackgroundCollisionAtPosition(wario->yPosition + 1, wario->xPosition - 30);
-        /* agbcc otherwise folds this copy into a three-operand ASR. */
-        asm("add %0, %1, #0" : "=r"(acceleration) : "r"(value));
+        acceleration = value;
         acceleration >>= 16;
         mask = 0xFF;
         acceleration &= mask;
@@ -1635,7 +1630,7 @@ u8 UpdateNormalWarioShoulderBash(void)
 
     {
         u16* heldPointer;
-        register int direction asm("r2");
+        int direction;
 
         heldPointer = &gButtonsHeld;
         direction = wario->horizontalDirection;
@@ -1691,7 +1686,7 @@ u8 UpdateNormalWarioShoulderBash(void)
 
 u8 UpdateNormalWarioDashAttack(void)
 {
-    register int zero asm("r4");
+    int zero;
     register u32 value asm("r0");
 
     value = gButtonsPressed;
@@ -1707,9 +1702,9 @@ u8 UpdateNormalWarioDashAttack(void)
     }
 
     {
-        register int held asm("r3");
+        int held;
         struct WarioData* wario;
-        register int direction asm("r1");
+        int direction;
         int velocity;
 
         value = (u32)&gButtonsHeld;
@@ -1776,7 +1771,7 @@ u8 UpdateNormalWarioShoulderBashJump(void)
     struct WarioData* wario;
 
     {
-        register int input asm("r1");
+        int input;
 
         input = gButtonsPressed;
         value = A_BUTTON;
@@ -1789,7 +1784,7 @@ u8 UpdateNormalWarioShoulderBashJump(void)
     }
 
     {
-        register int direction asm("r1");
+        int direction;
 
         direction = wario->horizontalDirection;
         value = DPAD_RIGHT;
@@ -1818,7 +1813,7 @@ u8 UpdateNormalWarioShoulderBashJump(void)
         register struct WarioData* current asm("r3");
         register int direction asm("r1");
         register int held asm("r0");
-        register int opposite asm("r2");
+        int opposite;
 
         heldPointer = &gButtonsHeld;
         current = wario;
@@ -1861,7 +1856,7 @@ u8 UpdateNormalWarioDashAttackJump(void)
 {
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
-    register int frame asm("r0");
+    int frame;
 
     wario = &gWarioData;
     animation = sWarioDashAttackAnimation;
@@ -1870,7 +1865,7 @@ u8 UpdateNormalWarioDashAttackJump(void)
         wario->unk_1E = 0;
         wario->unk_1F++;
         {
-            register int nextFrame asm("r1");
+            int nextFrame;
 
             nextFrame = wario->unk_1F;
             if (animation[nextFrame].time == 0) {
@@ -1884,8 +1879,8 @@ u8 UpdateNormalWarioDashAttackJump(void)
 u8 UpdateNormalWarioShoulderBashBonk(void)
 {
     struct WarioData* wario;
-    register int held asm("r1");
-    register u32 buttons asm("r0");
+    int held;
+    u32 buttons;
 
     wario = &gWarioData;
     if (wario->unk_1E > 59) {
@@ -1914,15 +1909,15 @@ noTransition:
 u8 UpdateNormalWarioGroundPound(void)
 {
     struct WarioData* wario;
-    register u32 value asm("r0");
+    u32 value;
     register u32 held asm("r1");
     register u32 direction asm("r2");
     register u32 zero asm("r3");
 
     {
         struct WarioData* base;
-        register int offset asm("r2");
-        register int velocity asm("r1");
+        int offset;
+        int velocity;
 
         base = &gWarioData;
         offset = 24;
@@ -1977,7 +1972,7 @@ u8 UpdateNormalWarioGroundPound(void)
     {
         register struct WarioData* animationWario asm("r2");
         const struct WarioAnimationFrame* animation;
-        register u32 frame asm("r0");
+        u32 frame;
         u32 nextFrame;
 
         animationWario = wario;
@@ -2000,9 +1995,9 @@ u8 UpdateNormalWarioGroundPound(void)
     }
 
     if (gWarioMotionAfterimage.unk0 != 0) {
-        register struct WarioAfterimage* afterimage asm("r2");
+        struct WarioAfterimage* afterimage;
         const struct WarioEffectFrame* animation;
-        register u32 frame asm("r0");
+        u32 frame;
         u32 nextFrame;
 
         afterimage = &gWarioMotionAfterimage;
@@ -2026,7 +2021,7 @@ u8 UpdateNormalWarioGroundPoundLanding(void)
 {
     struct WarioData* wario;
     register const struct WarioAnimationFrame* animation asm("r3");
-    register u32 frame asm("r0");
+    u32 frame;
 
     wario = &gWarioData;
     if (wario->pose == 29) {
@@ -2040,7 +2035,7 @@ u8 UpdateNormalWarioGroundPoundLanding(void)
         wario->unk_1E = 0;
         wario->unk_1F++;
         {
-            register u32 nextFrame asm("r1");
+            u32 nextFrame;
 
             nextFrame = wario->unk_1F;
             if (animation[nextFrame].time == 0) {
@@ -2052,7 +2047,7 @@ u8 UpdateNormalWarioGroundPoundLanding(void)
     {
         struct WarioAfterimage* afterimage;
         const struct WarioEffectFrame* afterimageAnimation;
-        register u32 afterimageFrame asm("r0");
+        u32 afterimageFrame;
 
         afterimage = &gWarioMotionAfterimage;
         afterimageAnimation = sWarioGroundPoundLandingAfterimageFrames;
@@ -2072,8 +2067,8 @@ u8 UpdateNormalWarioGroundPoundLanding(void)
 u8 UpdateNormalWarioLandingOnEnemy(void)
 {
     struct WarioData* wario;
-    register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 value;
+    u32 input;
 
     wario = &gWarioData;
     if (wario->unk_1E > 39) {
@@ -2110,7 +2105,7 @@ u8 UpdateNormalWarioLiftingSprite(void)
 {
     struct CarriedSprite* carried;
     register u32 value asm("r0");
-    register u32 zero asm("r2");
+    u32 zero;
 
     carried = &gCurrentCarriedSprite;
     if (carried->state == 0) {
@@ -2122,7 +2117,7 @@ u8 UpdateNormalWarioLiftingSprite(void)
     zero &= value;
     if (zero != 0) {
         struct WarioData* wario;
-        register u32 frame asm("r1");
+        u32 frame;
 
         value = (u32)&gWarioData;
         frame = ((struct WarioData*)value)->unk_1F;
@@ -2154,8 +2149,8 @@ u8 UpdateNormalWarioLiftingSprite(void)
             value++;
             wario->unk_1F = value;
             {
-                register const struct WarioAnimationFrame* animation asm("r2");
-                register u32 frame asm("r1");
+                const struct WarioAnimationFrame* animation;
+                u32 frame;
 
                 animation = sWarioLiftingSpriteAnimation;
                 frame = wario->unk_1F;
@@ -2173,7 +2168,7 @@ u8 UpdateNormalWarioLiftingHeavySprite(void)
 {
     struct CarriedSprite* carried;
     register u32 value asm("r0");
-    register u32 zero asm("r2");
+    u32 zero;
 
     carried = &gCurrentCarriedSprite;
     if (carried->state == 0) {
@@ -2185,7 +2180,7 @@ u8 UpdateNormalWarioLiftingHeavySprite(void)
     zero &= value;
     if (zero != 0) {
         struct WarioData* wario;
-        register u32 frame asm("r1");
+        u32 frame;
 
         value = (u32)&gWarioData;
         frame = ((struct WarioData*)value)->unk_1F;
@@ -2217,8 +2212,8 @@ u8 UpdateNormalWarioLiftingHeavySprite(void)
             value++;
             wario->unk_1F = value;
             {
-                register const struct WarioAnimationFrame* animation asm("r2");
-                register u32 frame asm("r1");
+                const struct WarioAnimationFrame* animation;
+                u32 frame;
 
                 animation = sWarioLiftingHeavySpriteAnimation;
                 frame = wario->unk_1F;
@@ -2236,7 +2231,7 @@ u8 UpdateNormalWarioChargingThrow1(void)
 {
     struct CarriedSprite* carried;
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
     u16* heldPointer;
 
     {
@@ -2288,7 +2283,7 @@ u8 UpdateNormalWarioChargingThrow1(void)
         carried->state = *(u8*)value;
         animation = sWarioChargingThrowAnimation;
         {
-            register u32 frame asm("r1");
+            u32 frame;
 
             frame = wario->unk_1F;
             value = frame << 1;
@@ -2322,7 +2317,7 @@ u8 UpdateNormalWarioChargingThrow2(void)
 {
     struct CarriedSprite* carried;
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
 
     carried = &gCurrentCarriedSprite;
     if (carried->state == 0) {
@@ -2353,7 +2348,7 @@ u8 UpdateNormalWarioChargingThrow2(void)
 
     {
         register u16* heldPointer asm("r2");
-        register u32 held asm("r2");
+        u32 held;
 
         heldPointer = &gButtonsHeld;
         input = *heldPointer;
@@ -2405,7 +2400,7 @@ u8 UpdateNormalWarioWeakThrow(void)
 
     {
         const struct WarioAnimationFrame* animation;
-        register u32 frame asm("r1");
+        u32 frame;
 
         animation = sWarioWeakThrowAnimation;
         frame = wario->unk_1F;
@@ -2459,7 +2454,7 @@ u8 UpdateNormalWarioChargedThrow(void)
 
     {
         const struct WarioAnimationFrame* animation;
-        register u32 frame asm("r1");
+        u32 frame;
 
         animation = sWarioChargedThrowAnimation;
         frame = wario->unk_1F;
@@ -2501,9 +2496,9 @@ u8 UpdateNormalWarioWeakThrowUpwards(void)
 {
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
-    register u32 value asm("r0");
-    register u32 frame asm("r1");
-    register u32 zero asm("r3");
+    u32 value;
+    u32 frame;
+    u32 zero;
 
     value = (u32)&gCurrentCarriedSprite;
     zero = 0;
@@ -2538,7 +2533,7 @@ u8 UpdateNormalWarioTurningWhileChargingThrow(void)
     struct CarriedSprite* carried;
     register struct WarioData* wario asm("r4");
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
 
     carried = &gCurrentCarriedSprite;
     if (carried->state == 0) {
@@ -2599,7 +2594,7 @@ u8 UpdateNormalWarioTurningWhileChargingThrow(void)
 
     {
         const struct WarioAnimationFrame* animation;
-        register u32 frame asm("r0");
+        u32 frame;
 
         animation = sWarioTurningThrowAnimation;
         frame = wario->unk_1F;
@@ -2607,7 +2602,7 @@ u8 UpdateNormalWarioTurningWhileChargingThrow(void)
             wario->unk_1E = 0;
             wario->unk_1F++;
             {
-                register u32 nextFrame asm("r1");
+                u32 nextFrame;
 
                 nextFrame = wario->unk_1F;
                 if (animation[nextFrame].time == 0) {
@@ -2625,7 +2620,7 @@ u8 UpdateNormalWarioClimbingLadder(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
     register u32 held asm("r2");
 
     input = (u32)&gButtonsHeld;
@@ -2675,7 +2670,7 @@ u8 UpdateNormalWarioClimbingLadder(void)
 
     {
         register struct WarioData* animationWario asm("r2");
-        register u32 frame asm("r0");
+        u32 frame;
 
         animationWario = wario;
         animation = sWarioVerticalClimbingAnimation;
@@ -2688,7 +2683,7 @@ u8 UpdateNormalWarioClimbingLadder(void)
                 m4aSongNumStart(5);
             }
             {
-                register u32 nextFrame asm("r1");
+                u32 nextFrame;
 
                 nextFrame = wario->unk_1F;
                 if (animation[nextFrame].time == 0) {
@@ -2703,8 +2698,8 @@ u8 UpdateNormalWarioClimbingLadder(void)
 
 u8 UpdateNormalWarioIdleOnLadder(void)
 {
-    register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 value;
+    u32 input;
     register u32 horizontal asm("r2");
 
     input = (u32)&gButtonsHeld;
@@ -2753,7 +2748,7 @@ u8 UpdateNormalWarioIdleOnLadder(void)
 u8 UpdateNormalWarioSlidingDownLadder(void)
 {
     struct WarioData* wario;
-    register s32 value asm("r0");
+    s32 value;
     register u32 input asm("r1");
     register u32 mask asm("r2");
 
@@ -2828,9 +2823,9 @@ updateEffect:
 
 u8 UpdateNormalWarioClimbingFenceVertical(void)
 {
-    register u32 value asm("r0");
-    register u32 input asm("r1");
-    register u32 held asm("r2");
+    u32 value;
+    u32 input;
+    u32 held;
 
     value = (u32)&gButtonsPressed;
     input = *(u16*)value;
@@ -2894,9 +2889,9 @@ u8 UpdateNormalWarioClimbingFenceVertical(void)
 
 updateAnimation:
     {
-        register struct WarioData* wario asm("r2");
+        struct WarioData* wario;
         const struct WarioAnimationFrame* animation;
-        register u32 frame asm("r0");
+        u32 frame;
 
         wario = (struct WarioData*)held;
         animation = sWarioVerticalClimbingAnimation;
@@ -2905,7 +2900,7 @@ updateAnimation:
             wario->unk_1E = 0;
             wario->unk_1F++;
             {
-                register u32 nextFrame asm("r1");
+                u32 nextFrame;
 
                 nextFrame = wario->unk_1F;
                 if (animation[nextFrame].time == 0) {
@@ -2922,7 +2917,7 @@ updateAnimation:
 u8 UpdateNormalWarioClimbingFenceHorizontal(void)
 {
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
     register u32 direction asm("r2");
 
     value = (u32)&gButtonsPressed;
@@ -2987,9 +2982,9 @@ u8 UpdateNormalWarioClimbingFenceHorizontal(void)
     }
 
     {
-        register struct WarioData* wario asm("r2");
+        struct WarioData* wario;
         const struct WarioAnimationFrame* animation;
-        register u32 frame asm("r0");
+        u32 frame;
 
         wario = (struct WarioData*)direction;
         animation = sWarioHorizontalFenceAnimation;
@@ -2998,7 +2993,7 @@ u8 UpdateNormalWarioClimbingFenceHorizontal(void)
             wario->unk_1E = 0;
             wario->unk_1F++;
             {
-                register u32 nextFrame asm("r1");
+                u32 nextFrame;
 
                 nextFrame = wario->unk_1F;
                 if (animation[nextFrame].time == 0) {
@@ -3013,9 +3008,9 @@ u8 UpdateNormalWarioClimbingFenceHorizontal(void)
 
 u8 UpdateNormalWarioIdleOnFence(void)
 {
-    register u32 value asm("r0");
-    register u32 input asm("r1");
-    register u32 held asm("r2");
+    u32 value;
+    u32 input;
+    u32 held;
 
     value = (u32)&gButtonsPressed;
     input = *(u16*)value;
@@ -3058,7 +3053,7 @@ u8 UpdateNormalWarioIdleOnFence(void)
 u8 UpdateNormalWarioUnknown46(void)
 {
     struct WarioData* wario;
-    register s32 value asm("r0");
+    s32 value;
     register u32 input asm("r1");
 
     wario = &gWarioData;
@@ -3099,8 +3094,8 @@ noTransition:
 u8 UpdateNormalWarioUnknown48(void)
 {
     struct WarioData* wario;
-    register s32 value asm("r0");
-    register u32 input asm("r1");
+    s32 value;
+    u32 input;
 
     wario = &gWarioData;
     {
@@ -3136,7 +3131,7 @@ u8 UpdateNormalWarioUnknown48(void)
 updateAnimation:
     {
         const struct WarioAnimationFrame* animation;
-        register u32 frame asm("r0");
+        u32 frame;
 
         animation = sWarioDoorAnimation;
         frame = wario->unk_1F;
@@ -3144,7 +3139,7 @@ updateAnimation:
             wario->unk_1E = 0;
             wario->unk_1F++;
             {
-                register u32 nextFrame asm("r1");
+                u32 nextFrame;
 
                 nextFrame = wario->unk_1F;
                 if (animation[nextFrame].time == 0) {
@@ -3159,7 +3154,7 @@ updateAnimation:
 
 u8 UpdateNormalWarioEnteringDoor(void)
 {
-    register u32 zero asm("r4");
+    u32 zero;
     register u32 value asm("r0");
     register u32 frame asm("r1");
     struct WarioData* wario;
@@ -3220,7 +3215,7 @@ u8 UpdateNormalWarioExitingDoor(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 frame;
 
     wario = &gWarioData;
     animation = sWarioDoorAnimation;
@@ -3245,7 +3240,7 @@ u8 UpdateNormalWarioExitingDoor(void)
 u8 UpdateNormalWarioLookingUp(void)
 {
     struct WarioData* wario;
-    register s32 value asm("r0");
+    s32 value;
     register u32 input asm("r1");
     register u32 held asm("r2");
 
@@ -3337,8 +3332,8 @@ u8 UpdateNormalWarioUnknown53(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 input asm("r1");
-    register u32 zero asm("r3");
+    u32 input;
+    u32 zero;
 
     value = (u32)&gButtonsPressed;
     input = *(u16*)value;
@@ -3378,7 +3373,7 @@ u8 UpdateNormalWarioDumbbells(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
 
     {
         struct WarioData* base;
@@ -3425,8 +3420,8 @@ u8 UpdateNormalWarioBarbell(void)
 {
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
-    register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 value;
+    u32 frame;
 
     wario = &gWarioData;
     animation = sWarioBarbellAnimation;
@@ -3447,8 +3442,8 @@ u8 UpdateNormalWarioBarbellEnding(void)
 {
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
-    register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 value;
+    u32 frame;
 
     wario = &gWarioData;
     animation = sWarioBarbellEndingAnimation;
@@ -3470,7 +3465,7 @@ u8 UpdateNormalWarioUnknown58(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
 
     {
         struct WarioData* base;
@@ -3550,8 +3545,8 @@ u8 UpdateNormalWarioJumpRope(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 input asm("r1");
-    register u32 zero asm("r3");
+    u32 input;
+    u32 zero;
 
     value = (u32)&gButtonsPressed;
     input = *(u16*)value;
@@ -3591,7 +3586,7 @@ u8 UpdateNormalWarioUnknown60(void)
     u32 timer;
     struct WarioData* wario;
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
     register u32 currentTimer asm("r2");
     struct WarioData* base;
 
@@ -3655,8 +3650,8 @@ u8 UpdateNormalWarioFlexing(void)
     u8* passage;
     struct WarioData* wario;
     register const struct WarioAnimationFrame* animation asm("r2");
-    register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 value;
+    u32 frame;
     register u32 previousFrame asm("r3");
     u8* passageBase;
 
@@ -3708,7 +3703,7 @@ u8 UpdateNormalWarioUnknown66(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 frame;
 
     wario = &gWarioData;
     animation = sWarioUnknown66Animation;
@@ -3730,7 +3725,7 @@ u8 UpdateNormalWarioUnknown67(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 frame;
 
     wario = &gWarioData;
     animation = sWarioUnknown67Animation;
@@ -3753,7 +3748,7 @@ u8 UpdateNormalWarioUnknown68(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 frame;
 
     wario = &gWarioData;
     animation = sWarioUnknown68Animation;
@@ -3775,8 +3770,8 @@ u8 UpdateNormalWarioUnknown69(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 input asm("r1");
-    register u32 zero asm("r3");
+    u32 input;
+    u32 zero;
 
     value = (u32)&gButtonsPressed;
     input = *(u16*)value;
@@ -3817,7 +3812,7 @@ u8 UpdateNormalWarioUnknown70(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 frame;
 
     wario = &gWarioData;
     animation = sWarioUnknown70Animation;
@@ -3839,7 +3834,7 @@ u8 UpdateNormalWarioUnknown71(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
 
     value = (u32)&gButtonsPressed;
     input = *(u16*)value;
@@ -3874,10 +3869,10 @@ u8 UpdateNormalWarioUnknown71(void)
 u8 UpdateNormalWarioUnknown72(void)
 {
     register u32 value asm("r0");
-    register struct WarioData* warioBase asm("r1");
+    struct WarioData* warioBase;
     struct WarioData* wario;
     register u32 input asm("r3");
-    register u32 zero asm("r4");
+    u32 zero;
 
     value = (u32)&gButtonsPressed;
     input = *(u16*)value;
@@ -3927,7 +3922,7 @@ cancel_8012914:
 
     {
         const struct WarioAnimationFrame* animation;
-        register u32 frame asm("r1");
+        u32 frame;
 
         animation = sWarioWalkingAnimation;
         value = wario->unk_1F;
@@ -3957,8 +3952,8 @@ u8 UpdateNormalWarioUnknown73(void)
 u8 UpdateNormalWarioUnknown74(void)
 {
     struct WarioData* wario;
-    register u32 value asm("r0");
-    register s32 velocity asm("r1");
+    u32 value;
+    s32 velocity;
 
     wario = &gWarioData;
     value = wario->unk_1E;
@@ -3984,10 +3979,10 @@ cancel_80129D8:
 
 u8 UpdateNormalWarioUnknown75(void)
 {
-    register struct WarioData* wario asm("r2");
-    register const struct WarioAnimationFrame* animation asm("r3");
+    struct WarioData* wario;
+    const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 frame;
 
     wario = &gWarioData;
     animation = sWarioUnknown75Animation;
@@ -4009,7 +4004,7 @@ u8 UpdateNormalWarioUnused76(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 frame asm("r1");
+    u32 frame;
 
     wario = &gWarioData;
     animation = sWarioUnusedPose76Animation;
@@ -4031,7 +4026,7 @@ u8 UpdateNormalWarioUnused77(void)
     struct WarioData* wario;
     const struct WarioAnimationFrame* animation;
     register u32 value asm("r0");
-    register u32 input asm("r1");
+    u32 input;
 
     value = (u32)&gButtonsPressed;
     input = *(u16*)value;
@@ -4071,8 +4066,8 @@ u8 UpdateNormalWarioUnused78(void)
 {
     struct WarioData* wario;
     register u32 value asm("r0");
-    register u32 input asm("r1");
-    register u32 zero asm("r4");
+    u32 input;
+    u32 zero;
 
     value = (u32)&gButtonsPressed;
     input = *(u16*)value;
@@ -4118,7 +4113,7 @@ u8 UpdateNormalWarioUnused78(void)
 
     {
         const struct WarioAnimationFrame* animation;
-        register u32 frame asm("r1");
+        u32 frame;
 
         animation = sWarioWalkingAnimation;
         value = wario->unk_1F;
@@ -4200,7 +4195,7 @@ void ResumeNormalWarioAfterCollision(void)
     struct WarioData* wario;
     struct WarioData* copy;
     register u32 value asm("r0");
-    register u32 temp asm("r1");
+    u32 temp;
     register struct CarriedSprite* carried asm("r2");
     struct WarioData* warioBase;
     struct WarioData* copyBase;
@@ -4323,7 +4318,7 @@ void ResolveNormalWarioPoseCollision(void)
     struct WarioData* copy;
     register u32 value asm("r0");
     register u32 index asm("r0");
-    register struct WarioData* wario1 asm("r1");
+    struct WarioData* wario1;
 
     {
         struct WarioDustEffect* dust;
@@ -4343,17 +4338,17 @@ void ResolveNormalWarioPoseCollision(void)
         case 20:
         {
             struct WarioData* wario;
-            register u32 leftTile asm("r4");
+            u32 leftTile;
             u32 mask;
-            register u32 input asm("r1");
+            u32 input;
 
             value = (u32)&gButtonsHeld;
             input = *(u16*)value;
             value = copy->horizontalDirection;
             value &= input;
             if (value != 0) {
-                register struct WarioData* current asm("r0");
-                register u32 zero asm("r1");
+                struct WarioData* current;
+                u32 zero;
 
                 current = &gWarioData;
                 zero = 0;
@@ -4364,8 +4359,7 @@ void ResolveNormalWarioPoseCollision(void)
                 wario = &gWarioData;
                 value = GetBackgroundCollisionAtPosition((u16)(wario->yPosition + 1),
                     (u16)(wario->xPosition - 30));
-                /* agbcc otherwise folds the required r0-to-r4 copy into ASR. */
-                asm("add %0, %1, #0" : "=r"(leftTile) : "r"(value));
+                leftTile = value;
                 leftTile = (s32)leftTile >> 16;
                 mask = 0xFF;
                 leftTile &= mask;
@@ -4393,7 +4387,7 @@ void ResolveNormalWarioPoseCollision(void)
 
         case 0:
         {
-            register u32 input asm("r1");
+            u32 input;
             struct WarioData* current;
 
             value = (u32)&gButtonsHeld;
@@ -4447,8 +4441,8 @@ copy_unk07_8012E5C:
         case 19:
         case 21:
         {
-            register u32 input asm("r1");
-            register u32 mask asm("r2");
+            u32 input;
+            u32 mask;
             struct WarioData* wario;
 
             value = (u32)&gButtonsHeld;
@@ -4534,7 +4528,7 @@ copy_unk07_8012E5C:
     {
         struct WarioData* wario;
         struct CarriedSprite* carried;
-        register u32 temp asm("r1");
+        u32 temp;
 
         wario = &gWarioData;
         value = wario->pose;
@@ -4571,7 +4565,7 @@ copy_unk07_8012E5C:
 
 void SetNormalWarioPose(u8 arg0)
 {
-    register u32 pose asm("r4");
+    u32 pose;
     register u32 value asm("r0");
     u32 index;
     struct WarioData* wario;
@@ -4634,7 +4628,7 @@ void SetNormalWarioPose(u8 arg0)
             if (((int (*)(u8, u16, u8))CheckWarioVerticalCollision)(value, index, 1) != 0) {
                 struct WarioData* current;
                 struct CarriedSprite* carried;
-                register u32 zero asm("r2");
+                u32 zero;
 
                 current = &gWarioData;
                 zero = 0;
@@ -4743,7 +4737,7 @@ store_index_801318C:
 
         case 15:
         {
-            register u32 copyValue asm("r2");
+            u32 copyValue;
 
             copyValue = (u32)&gWarioDataCopy;
             value = ((struct WarioData*)copyValue)->horizontalDirection & DPAD_RIGHT;
@@ -4833,7 +4827,7 @@ subgame_tail_801318C:
         case 25:
         {
             struct WarioData* copy;
-            register u32 zero asm("r2");
+            u32 zero;
 
             wario->unk_1F = 8;
             copy = &gWarioDataCopy;
@@ -5044,8 +5038,8 @@ void UpdateNormalWarioMovement(void)
 
     {
         struct WarioCollisionData *collision;
-        register const u8 *properties asm("r2");
-        register u32 offset asm("r0");
+        const u8 *properties;
+        u32 offset;
         register const u8 *property asm("r1");
 
         collision = &gWarioCollisionData;
@@ -5140,9 +5134,9 @@ void ResolveNormalWarioCollision(void)
 
     {
         struct WarioCollisionData *collision;
-        register const u8 *properties asm("r2");
+        const u8 *properties;
         register const u8 *property asm("r1");
-        register u32 offset asm("r0");
+        u32 offset;
 
         collision = &gWarioCollisionData;
         properties = (const u8 *)sWarioNormalPoseProperties;
@@ -5294,25 +5288,20 @@ void ResolveNormalWarioCollision(void)
 u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 *newXPosition, u16 *inWater)
 {
     u32 x;
-    register u16 y asm("r6");
+    u16 y;
     u32 collisionResult;
     u16 adjustedY;
     register u16 adjustedX asm("r3");
     u8 result;
 
     {
-        register u32 xRaw asm("r0");
-        register u32 yRaw asm("r1");
+        u32 xRaw;
+        u32 yRaw;
 
         xRaw = xPosition;
         yRaw = yPosition;
-        xRaw <<= 16;
-        /* agbcc otherwise schedules both parameter shifts before truncating x. */
-        asm(
-            "lsr %0, %1, #16\n"
-            "lsl %2, %2, #16"
-            : "=r"(x), "+r"(xRaw), "+r"(yRaw));
-        y = yRaw >> 16;
+        x = (u16)xRaw;
+        y = (u16)yRaw;
     }
     collisionResult = GetWarioBlockCollisionAtPosition(y, x);
     if (collisionResult & 0x01000000) {
@@ -5413,13 +5402,12 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
 
         case 0:
         {
-            register u32 mask asm("r2");
+            u32 mask;
             u32 lowMask;
             register u32 temp asm("r0");
 
             mask = 0xFFC0;
             adjustedY = y;
-            asm("" : "+r"(adjustedY));
             adjustedY &= mask;
             lowMask = 0x3F;
             temp = x;
@@ -5435,9 +5423,9 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
         }
 
         {
-            register u32 mask asm("r3");
+            u32 mask;
             u32 lowMask;
-            register u32 base asm("r1");
+            u32 base;
             register u32 offset asm("r0");
 
         case 3:
@@ -5478,11 +5466,10 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
             *inWater = 16;
         default:
         {
-            register u32 mask asm("r0");
+            u32 mask;
 
             mask = 0xFFC0;
             adjustedY = y;
-            asm("" : "+r"(adjustedY));
             adjustedY &= mask;
             adjustedX = x;
             adjustedX &= mask;
@@ -5501,9 +5488,9 @@ u32 CheckWarioHorizontalCollision(u32 side, u16 *newXPosition, u32 verticalOffse
         u16 *newXPosition;
         u32 verticalOffset;
     } locals;
-    register u32 normalizedSide asm("r8");
-    register u32 xPosition asm("r6");
-    register u32 yPosition asm("r5");
+    u32 normalizedSide;
+    u32 xPosition;
+    u32 yPosition;
     u32 sideTimesTwo;
     u32 verticalShifted;
     u32 result;
@@ -5523,7 +5510,7 @@ u32 CheckWarioHorizontalCollision(u32 side, u16 *newXPosition, u32 verticalOffse
         {
         register struct WarioData *wario asm("r3");
         register const u16 *points asm("r2");
-        register u32 pointOffset asm("r1");
+        u32 pointOffset;
         register u32 pointValue asm("r0");
 
         wario = &gWarioData;
@@ -5576,7 +5563,7 @@ firstProbeDone:
 
     {
         register u32 rawVertical asm("r0");
-        register u32 shiftedVertical asm("r3");
+        u32 shiftedVertical;
         register s32 comparisonVertical asm("r12");
         register const s16 *points asm("r1");
         register u32 sideValue asm("r4");
@@ -5601,17 +5588,15 @@ firstProbeDone:
         pointValue += (u32)points;
         pointValue = *(const s16 *)pointValue;
         pointValue += 64;
-        asm("" : "+r"(pointValue), "+r"(comparisonVertical), "+r"(doubledSide), "+r"(shiftedVertical));
         sideTimesTwo = doubledSide;
         verticalShifted = shiftedVertical;
         if (comparisonVertical > pointValue) {
             {
-                register u32 shiftedY asm("r0");
+                u32 shiftedY;
 
                 shiftedY = yPosition;
                 shiftedY += 64;
-                shiftedY <<= 16;
-                yPosition = shiftedY >> 16;
+                yPosition = (u16)shiftedY;
             }
             collisionResult = GetWarioBlockCollisionAtPosition(yPosition, xPosition);
             if ((collisionResult & 0x01000000) == 0)
@@ -5644,11 +5629,11 @@ secondProbeDone:
     }
 
     {
-        register const s16 *points asm("r1");
-        register u32 pointAddress asm("r0");
-        register u32 shiftedVertical asm("r2");
+        const s16 *points;
+        u32 pointAddress;
+        u32 shiftedVertical;
         register s32 signedVertical asm("r1");
-        register u32 zero asm("r4");
+        u32 zero;
 
         points = (const s16 *)sWarioCollisionPointTable;
         pointAddress = sideTimesTwo;
@@ -5665,13 +5650,12 @@ secondProbeDone:
             : "+r"(pointAddress));
         if (signedVertical > (s32)pointAddress) {
             {
-                register u32 adjustedY asm("r0");
+                u32 adjustedY;
 
                 adjustedY = gWarioData.yPosition;
                 yPosition = locals.verticalOffset;
                 adjustedY += yPosition;
-                adjustedY <<= 16;
-                yPosition = adjustedY >> 16;
+                yPosition = (u16)adjustedY;
             }
             collisionResult = GetWarioBlockCollisionAtPosition(yPosition, xPosition);
             if ((collisionResult & 0x01000000) == 0)
@@ -5704,8 +5688,8 @@ thirdProbeDone:
     }
 
     if (result != 0) {
-        register u32 adjustedX asm("r1");
-        register const u16 *points asm("r3");
+        u32 adjustedX;
+        const u16 *points;
         register struct WarioCollisionData *collisionData asm("r2");
         register u32 pointOffset asm("r0");
         u32 pointIndex;
@@ -5717,18 +5701,16 @@ thirdProbeDone:
         collisionData = &gWarioCollisionData;
         pointOffset = sideTimesTwo;
         pointOffset += normalizedSide;
-        asm volatile("ldrb %0, [%1, #4]" : "=r"(pointIndex) : "r"(collisionData));
+        pointIndex = collisionData->unk_04;
         pointOffset += pointIndex;
         pointOffset <<= 1;
         pointOffset += (u32)points;
         pointOffset = *(const u16 *)pointOffset;
-        asm("" : "+r"(adjustedX), "+r"(pointOffset));
         adjustedX -= pointOffset;
-        asm("" : "+r"(adjustedX));
         {
             register u32 collisionOffset asm("r2");
 
-            collisionOffset = *(u16 *)((u8 *)collisionData + 6);
+            collisionOffset = collisionData->unk_06;
             adjustedX += collisionOffset;
         }
         output = locals.newXPosition;
@@ -5743,8 +5725,8 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
         u32 index;
         u32 offset;
     } locals;
-    register u32 previousMask asm("sl");
-    register u32 yPosition asm("r9");
+    u32 previousMask;
+    u32 yPosition;
     register struct WarioData *previousWario asm("r8");
     register const u16 *points asm("r4");
     register u32 pointOffset asm("r5");
@@ -5753,9 +5735,7 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
     u32 collision;
 
     locals.index = (u8)index;
-    asm("" : "+r"(index) : : "memory");
     locals.offset = (u16)offset;
-    asm("" : "+r"(offset) : : "memory");
     mode <<= 24;
     gWarioCollisionData.unk_0F = 0;
     previousMask = 0;
@@ -5767,15 +5747,12 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
             u32 localOffset;
 
             previousY = gPreviousYPosition;
-            asm("" : "+r"(previousY));
             localOffset = locals.offset;
             previousY = localOffset + previousY;
             yPosition = (u16)previousY;
         }
         warioBase = &gWarioData;
-        asm("" : "+r"(warioBase));
         previousWario = warioBase;
-        asm("" : "+r"(previousWario));
         points = sWarioCollisionSideTable;
         {
             register u32 localIndex asm("r0");
@@ -5784,8 +5761,8 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
             pointOffset = localIndex << 3;
         }
         {
-            register u32 pointValue asm("r0");
-            register u32 warioX asm("r1");
+            u32 pointValue;
+            u32 warioX;
 
             pointValue = pointOffset;
             pointValue += (u32)points;
@@ -5804,7 +5781,7 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
         points += 3;
         pointOffset += (u32)points;
         {
-            register u32 pointValue asm("r0");
+            u32 pointValue;
             register struct WarioData *warioBase2 asm("r2");
             register u32 warioX asm("r2");
 
@@ -5817,10 +5794,9 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
         collision = GetWarioBlockCollisionAtPosition(yPosition, xPosition);
         collision &= result;
         if (collision != 0) {
-            register u32 eight asm("r0");
+            u32 eight;
 
             eight = 8;
-            asm("" : "+r"(previousMask));
             previousMask += eight;
         }
     }
@@ -5829,8 +5805,8 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
     {
         struct WarioData *wario;
         register u32 offsetValue asm("r2");
-        register u32 one asm("r0");
-        register u32 maskValue asm("r2");
+        u32 one;
+        u32 maskValue;
         register u32 localIndex asm("r2");
 
         wario = &gWarioData;
@@ -5838,20 +5814,18 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
             register u32 currentY asm("r0");
 
             currentY = wario->yPosition;
-            asm("" : "+r"(currentY));
             offsetValue = locals.offset;
             currentY = offsetValue + currentY;
             yPosition = (u16)currentY;
         }
         one = 1;
         maskValue = previousMask;
-        asm("" : "+r"(maskValue), "+r"(wario));
         one &= maskValue;
         localIndex = locals.index;
         pointOffset = localIndex << 3;
         if (one == 0) {
-            register u32 pointValue asm("r0");
-            register u32 warioX asm("r1");
+            u32 pointValue;
+            u32 warioX;
             register u32 collisionMask asm("r1");
 
             pointValue = (u32)sWarioCollisionSideTable;
@@ -5881,17 +5855,16 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
 
     {
         struct WarioData *wario;
-        register const u16 *pointAddress asm("r0");
+        const u16 *pointAddress;
         register u32 collisionMask asm("r1");
 
         wario = &gWarioData;
         pointAddress = sWarioCollisionSideTable;
         pointAddress = (const u16 *)((const u8 *)pointAddress + 2);
-        asm("" : "+r"(pointAddress));
         pointAddress = (const u16 *)(pointOffset + (u32)pointAddress);
         {
-            register u32 pointValue asm("r0");
-            register u32 warioX asm("r1");
+            u32 pointValue;
+            u32 warioX;
 
             pointValue = *pointAddress;
             warioX = wario->xPosition;
@@ -5918,17 +5891,16 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
 
     {
         struct WarioData *wario;
-        register const u16 *pointAddress asm("r0");
+        const u16 *pointAddress;
         register u32 collisionMask asm("r1");
 
         wario = &gWarioData;
         pointAddress = sWarioCollisionSideTable;
         pointAddress = (const u16 *)((const u8 *)pointAddress + 4);
-        asm("" : "+r"(pointAddress));
         pointAddress = (const u16 *)(pointOffset + (u32)pointAddress);
         {
-            register u32 pointValue asm("r0");
-            register u32 warioX asm("r1");
+            u32 pointValue;
+            u32 warioX;
 
             pointValue = *pointAddress;
             warioX = wario->xPosition;
@@ -5955,24 +5927,23 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
 
     {
         u32 eight;
-        register u32 masked asm("r1");
+        u32 masked;
 
         eight = 8;
         masked = previousMask;
         masked &= eight;
         if (masked == 0) {
             struct WarioData *wario;
-            register const u16 *pointAddress asm("r0");
+            const u16 *pointAddress;
             register u32 collisionMask asm("r1");
 
             wario = &gWarioData;
             pointAddress = sWarioCollisionSideTable;
             pointAddress = (const u16 *)((const u8 *)pointAddress + 6);
-            asm("" : "+r"(pointAddress));
             pointAddress = (const u16 *)(pointOffset + (u32)pointAddress);
             {
-                register u32 pointValue asm("r0");
-                register u32 warioX asm("r1");
+                u32 pointValue;
+                u32 warioX;
 
                 pointValue = *pointAddress;
                 warioX = wario->xPosition;
@@ -6007,10 +5978,10 @@ u32 CheckWarioPointCollision(u32 index, u32 yPosition, u16 *secondaryResult)
         u16 *secondaryResult;
     } locals;
     u32 normalizedIndex;
-    register u32 normalizedY asm("r8");
-    register u32 xPosition asm("r5");
-    register u32 result asm("r6");
-    register u32 secondary asm("sl");
+    u32 normalizedY;
+    u32 xPosition;
+    u32 result;
+    u32 secondary;
     u32 indexTimesTwo;
     u32 collision;
 
@@ -6024,7 +5995,7 @@ u32 CheckWarioPointCollision(u32 index, u32 yPosition, u16 *secondaryResult)
     {
         struct WarioData *wario;
         const u16 *points;
-        register u32 pointValue asm("r0");
+        u32 pointValue;
         register u32 warioX asm("r2");
 
         wario = &gWarioData;
@@ -6049,10 +6020,10 @@ u32 CheckWarioPointCollision(u32 index, u32 yPosition, u16 *secondaryResult)
     }
 
     {
-        register struct WarioData *wario asm("r2");
-        register const u16 *points asm("r1");
-        register u32 indexDouble asm("r4");
-        register u32 pointValue asm("r0");
+        struct WarioData *wario;
+        const u16 *points;
+        u32 indexDouble;
+        u32 pointValue;
         register u32 warioX asm("r2");
 
         wario = &gWarioData;
@@ -6068,7 +6039,7 @@ u32 CheckWarioPointCollision(u32 index, u32 yPosition, u16 *secondaryResult)
         xPosition = (u16)pointValue;
         collision = GetWarioBlockCollisionAtPosition(normalizedY, xPosition);
         {
-            register u32 collisionMask asm("r0");
+            u32 collisionMask;
 
             collisionMask = 0x01000000;
             collisionMask &= collision;
@@ -6093,9 +6064,9 @@ secondNotSolid:
 secondDone:
 
     {
-        register const s16 *points asm("r0");
-        register u32 pointOffset asm("r1");
-        register u32 zero asm("r2");
+        const s16 *points;
+        u32 pointOffset;
+        u32 zero;
 
         points = (const s16 *)sWarioCollisionPointTable;
         pointOffset = indexTimesTwo + normalizedIndex;
@@ -6119,7 +6090,7 @@ secondDone:
 
     {
         register u32 outputValue asm("r1");
-        register u16 *output asm("r0");
+        u16 *output;
 
         outputValue = secondary;
         output = locals.secondaryResult;
@@ -6141,13 +6112,13 @@ u8 ResolveWarioStandardCollision(void)
     volatile u32 pointOffset;
     volatile u32 sideDouble;
   } locals;
-  register struct WarioCollisionData *collisionData asm("r4");
-  register u32 flags asm("r5");
-  register u32 side asm("sl");
+  struct WarioCollisionData *collisionData;
+  u32 flags;
+  u32 side;
   register u32 leftIndex;
   register struct WarioData *wario asm("r6");
-  register u32 result asm("r2");
-  register u32 collisionFlags asm("r0");
+  u32 result;
+  u32 collisionFlags;
   collisionData = &gWarioCollisionData;
   flags = collisionData->unk_00;
   side = collisionData->unk_08;
@@ -6157,7 +6128,6 @@ u8 ResolveWarioStandardCollision(void)
     locals.side = storedSide;
   }
   leftIndex = collisionData->unk_04;
-  asm("" : "+r"(leftIndex));
   {
     register u32 storedRightIndex asm("r2");
     storedRightIndex = collisionData->unk_05;
@@ -6170,7 +6140,7 @@ u8 ResolveWarioStandardCollision(void)
     result = CheckWarioHorizontalCollision(side, (u16 *) (&locals.adjustedX), -62);
     if (wario->reaction == REACTION_NORMAL)
     {
-      register u32 pose asm("r0");
+      u32 pose;
       pose = wario->pose;
       if ((pose != WPOSE_NORMAL_WALKING) && (pose != WPOSE_NORMAL_STANDING))
       {
@@ -6186,8 +6156,8 @@ initialCollisionDone:
     if (result != 0)
     {
       register struct WarioData *collisionWario asm("r0");
-      register struct WarioCollisionData *currentCollision asm("r3");
-      register u32 collisionMode asm("r1");
+      struct WarioCollisionData *currentCollision;
+      u32 collisionMode;
       collisionWario = &gWarioData;
       collisionWario->xPosition = locals.adjustedX;
       currentCollision = &gWarioCollisionData;
@@ -6223,12 +6193,12 @@ initialCollisionDone:
     }
 
     {
-      register const u16 *points asm("r1");
-      register u32 leftOffset asm("r6");
+      const u16 *points;
+      u32 leftOffset;
       register u32 sideDouble asm("r8");
       register u32 value asm("r0");
       u32 xPosition;
-      register u32 yPosition asm("r9");
+      u32 yPosition;
       register u16 *adjustedYPtr asm("r4");
       register u16 *secondaryPtr asm("r5");
       points = sWarioCollisionPointTable;
@@ -6244,8 +6214,7 @@ initialCollisionDone:
         positionWario = &gWarioData;
         value += positionWario->xPosition;
       }
-      value <<= 16;
-      leftIndex = value >> 16;
+      leftIndex = (u16)value;
       xPosition = leftIndex;
       {
         register struct WarioData *positionWario asm("r2");
@@ -6258,7 +6227,7 @@ initialCollisionDone:
       locals.sideDouble = sideDouble;
       if (result != 0)
       {
-        register u32 secondaryValue asm("r0");
+        u32 secondaryValue;
         asm volatile(
             "mov r1, sp\n"
             "ldrh r0, [r1, #8]"
@@ -6269,8 +6238,8 @@ initialCollisionDone:
         {
           register u32 zero asm("r1");
           register struct WarioData *storeWario asm("r0");
-          register u32 storedY asm("r0");
-          register struct WarioData *storeWario2 asm("r2");
+          u32 storedY;
+          struct WarioData *storeWario2;
           zero = 0;
           storeWario = &gWarioData;
           storeWario->unk_1C = result;
@@ -6288,10 +6257,10 @@ initialCollisionDone:
       }
       {
         register struct WarioData *currentWario asm("r4");
-        register const u16 *currentPoints asm("r8");
-        register u32 localSide asm("r1");
+        const u16 *currentPoints;
+        u32 localSide;
         register u32 value2 asm("r0");
-        register u16 *secondaryOut asm("r6");
+        u16 *secondaryOut;
         register u32 rightOffset asm("r5");
 
         currentWario = &gWarioData;
@@ -6314,14 +6283,12 @@ initialCollisionDone:
           currentX = currentWario->xPosition;
           value2 += currentX;
         }
-        value2 <<= 16;
-        leftIndex = value2 >> 16;
+        leftIndex = (u16)value2;
         {
-          register u32 nextY asm("r0");
+          u32 nextY;
           nextY = yPosition;
           nextY++;
-          nextY <<= 16;
-          nextY >>= 16;
+          nextY = (u16)nextY;
           yPosition = nextY;
         }
         /* Direct C or register-bound calls make agbcc enlarge this function's
@@ -6342,7 +6309,7 @@ initialCollisionDone:
             : "r"(leftIndex), "r"(yPosition), "r"(secondaryOut)
             : "r0", "r1", "r2", "r3", "lr", "cc", "memory");
         {
-          register u32 secondaryValue asm("r0");
+          u32 secondaryValue;
           secondaryValue = *secondaryOut;
           if (secondaryValue != 0)
             goto clearCollisionAndReturnFF;
@@ -6351,7 +6318,6 @@ initialCollisionDone:
         {
           register u32 rightIndexValue asm("r0");
           rightIndexValue = locals.rightIndex;
-          asm("" : "+r"(rightIndexValue));
           rightOffset = rightIndexValue << 1;
         }
         value2 = locals.sideDouble + side;
@@ -6360,8 +6326,7 @@ initialCollisionDone:
         value2 += (u32)currentPoints;
         value2 = *(const u16 *)value2;
         value2 += currentWario->xPosition;
-        value2 <<= 16;
-        leftIndex = value2 >> 16;
+        leftIndex = (u16)value2;
         {
           register u32 callResult asm("r0");
           /* Compiler boundary: direct C changes the frame or ABI argument order. */
@@ -6380,8 +6345,8 @@ initialCollisionDone:
         }
         if (result != 0)
         {
-          register u32 zero asm("r1");
-          register u32 storedY asm("r0");
+          u32 zero;
+          u32 storedY;
           zero = 0;
           currentWario->unk_1C = result;
           asm volatile(
@@ -6398,7 +6363,6 @@ initialCollisionDone:
         {
           register u32 storedPointOffset asm("r1");
           storedPointOffset = locals.pointOffset;
-          asm("" : "+r"(storedPointOffset));
           value2 = rightOffset + storedPointOffset;
         }
         value2 += (u32)currentPoints;
@@ -6408,8 +6372,7 @@ initialCollisionDone:
           currentX = currentWario->xPosition;
           value2 += currentX;
         }
-        value2 <<= 16;
-        leftIndex = value2 >> 16;
+        leftIndex = (u16)value2;
         /* Compiler boundary: direct C changes the frame or ABI argument order. */
         asm volatile(
             "str r6, [sp, #0]\n"
@@ -6423,7 +6386,7 @@ initialCollisionDone:
             : "r"(leftIndex), "r"(yPosition), "r"(secondaryOut)
             : "r0", "r1", "r2", "r3", "lr", "cc", "memory");
         {
-          register u32 secondaryValue asm("r0");
+          u32 secondaryValue;
           secondaryValue = *secondaryOut;
           if (secondaryValue != 0)
             goto clearCollisionAndReturnFF;
@@ -6446,7 +6409,7 @@ initialCollisionDone:
             : "r"(currentWario), "r"(yPosition)
             : "r0", "r1", "r2", "r3", "lr", "cc", "memory");
         {
-          register u32 secondaryValue asm("r0");
+          u32 secondaryValue;
           asm volatile(
               "mov r2, sp\n"
               "ldrh r0, [r2, #8]"
@@ -6460,8 +6423,8 @@ initialCollisionDone:
       }
 clearCollisionAndReturnFF:
       {
-        register struct WarioData *clearWario asm("r1");
-        register u32 zero asm("r0");
+        struct WarioData *clearWario;
+        u32 zero;
         clearWario = &gWarioData;
         zero = 0;
         clearWario->unk_1A = zero;
@@ -6470,20 +6433,20 @@ clearCollisionAndReturnFF:
     }
   }
   {
-    register u32 activeFlags asm("r1");
+    u32 activeFlags;
     activeFlags = collisionFlags;
     activeFlags &= flags;
     if (activeFlags != 0)
     {
       register u32 xPosition;
       register u32 yPosition asm("r9");
-      register u16 *adjustedYPtr asm("r5");
-      register u16 *secondaryPtr asm("r4");
+      u16 *adjustedYPtr;
+      u16 *secondaryPtr;
 
       result = CheckWarioHorizontalCollision(side, (u16 *)(&locals.adjustedX), -62);
       if (result != 0)
       {
-        register u32 collisionMode asm("r0");
+        u32 collisionMode;
 
         wario->xPosition = locals.adjustedX;
         collisionMode = collisionData->unk_0B;
@@ -6497,7 +6460,7 @@ clearCollisionAndReturnFF:
           if (collisionMode == 1)
             return 0xFC;
           {
-            register u32 collisionLimit asm("r4");
+            u32 collisionLimit;
             collisionLimit = collisionData->unk_0E;
             if ((s32)result > (s32)collisionLimit)
               return 0xFC;
@@ -6507,11 +6470,11 @@ clearCollisionAndReturnFF:
 
       wario = &gWarioData;
       {
-        register const u16 *points asm("r0");
-        register u32 sideValue asm("r2");
+        const u16 *points;
+        u32 sideValue;
         register u32 address asm("r1");
-        register u32 pointValue asm("r0");
-        register u32 warioX asm("r1");
+        u32 pointValue;
+        u32 warioX;
 
         points = sWarioCollisionPointTable;
         sideValue = side;
@@ -6523,8 +6486,7 @@ clearCollisionAndReturnFF:
         pointValue = *(const u16 *)address;
         warioX = wario->xPosition;
         pointValue += warioX;
-        pointValue <<= 16;
-        xPosition = pointValue >> 16;
+        xPosition = (u16)pointValue;
       }
       asm volatile(
           "ldrh r2, [r6, #20]\n"
@@ -6552,23 +6514,22 @@ clearCollisionAndReturnFF:
       wario->unk_1C = result;
       if (result != 0)
       {
-        register u32 adjustedY asm("r0");
+        u32 adjustedY;
         adjustedY = *adjustedYPtr;
         wario->yPosition = adjustedY;
         goto returnFF;
       }
       {
-        register u32 secondaryValue asm("r0");
+        u32 secondaryValue;
         secondaryValue = *secondaryPtr;
         if (secondaryValue == 0)
           goto returnFF;
       }
       {
-        register u32 loweredY asm("r0");
+        u32 loweredY;
         loweredY = yPosition;
         loweredY -= 64;
-        loweredY <<= 16;
-        yPosition = loweredY >> 16;
+        yPosition = (u16)loweredY;
       }
       {
         register u32 callResult asm("r0");
@@ -6588,13 +6549,13 @@ clearCollisionAndReturnFF:
       wario->unk_1C = result;
       if (result != 0)
       {
-        register u32 adjustedY asm("r0");
+        u32 adjustedY;
         adjustedY = *adjustedYPtr;
         wario->yPosition = adjustedY;
       }
       else
       {
-        register u32 adjustedY asm("r0");
+        u32 adjustedY;
         adjustedY = *adjustedYPtr;
         adjustedY += 63;
         wario->yPosition = adjustedY;
@@ -6613,14 +6574,14 @@ clearCollisionAndReturnFF:
       register u32 xPosition;
       register u32 yPosition asm("r9");
       register u16 *adjustedYPtr asm("r4");
-      register u16 *secondaryPtr asm("r5");
+      u16 *secondaryPtr;
 
       {
         register u32 rightIndex asm("r0");
-        register u32 address asm("r1");
-        register u32 sideValue asm("r2");
+        u32 address;
+        u32 sideValue;
         register u32 tableBase asm("r0");
-        register u32 warioX asm("r1");
+        u32 warioX;
 
         rightIndex = locals.rightIndex;
         address = rightIndex << 1;
@@ -6635,8 +6596,7 @@ clearCollisionAndReturnFF:
         tableBase = *(const u16 *)address;
         warioX = wario->xPosition;
         tableBase += warioX;
-        tableBase <<= 16;
-        xPosition = tableBase >> 16;
+        xPosition = (u16)tableBase;
       }
       asm volatile(
           "ldrh r2, [r6, #20]\n"
@@ -6664,7 +6624,7 @@ clearCollisionAndReturnFF:
       }
       if (result != 0)
       {
-        register u32 adjustedY asm("r0");
+        u32 adjustedY;
         asm volatile(
             "mov r1, sp\n"
             "ldrh r0, [r1, #6]"
@@ -6675,17 +6635,16 @@ clearCollisionAndReturnFF:
         goto returnFF;
       }
       {
-        register u32 secondaryValue asm("r0");
+        u32 secondaryValue;
         secondaryValue = *secondaryPtr;
         if (secondaryValue != 0)
           goto returnFF;
       }
       {
-        register u32 raisedY asm("r0");
+        u32 raisedY;
         raisedY = yPosition;
         raisedY += 64;
-        raisedY <<= 16;
-        yPosition = raisedY >> 16;
+        yPosition = (u16)raisedY;
       }
       {
         register u32 callResult asm("r0");
@@ -6706,7 +6665,7 @@ clearCollisionAndReturnFF:
       wario->unk_1C = result;
       if (result != 0)
       {
-        register u32 adjustedY asm("r0");
+        u32 adjustedY;
         asm volatile(
             "mov r2, sp\n"
             "ldrh r0, [r2, #6]"
@@ -6717,26 +6676,25 @@ clearCollisionAndReturnFF:
         goto returnFF;
       }
       {
-        register u32 secondaryValue asm("r0");
+        u32 secondaryValue;
         secondaryValue = *secondaryPtr;
         if (secondaryValue == 0)
           goto returnFF;
       }
 
       {
-        register u32 direction asm("r1");
-        register u32 directionMask asm("r0");
+        u32 direction;
+        u32 directionMask;
         direction = wario->horizontalDirection;
         directionMask = 16;
         directionMask &= direction;
         if (directionMask != 0)
         {
           register u16 *adjustedXPtr asm("r0");
-          register const u16 *points asm("r1");
-          register u32 adjustedX asm("r0");
+          const u16 *points;
+          u32 adjustedX;
           adjustedXPtr = &locals.adjustedX;
           points = (const u16 *)((const u8 *)sWarioCollisionPointTable + sideOffset);
-          asm("" : "+r"(adjustedXPtr), "+r"(points));
           adjustedX = *adjustedXPtr;
           adjustedX -= *points;
           wario->xPosition = adjustedX;
@@ -6744,8 +6702,8 @@ clearCollisionAndReturnFF:
         else
         {
           register u16 *adjustedXPtr asm("r0");
-          register const u16 *points asm("r1");
-          register u32 adjustedX asm("r0");
+          const u16 *points;
+          u32 adjustedX;
           adjustedXPtr = &locals.adjustedX;
           points = sWarioCollisionPointTable;
           points += 1;
@@ -6758,8 +6716,8 @@ clearCollisionAndReturnFF:
         }
       }
       {
-        register struct WarioData *storeWario asm("r1");
-        register u32 adjustedY asm("r0");
+        struct WarioData *storeWario;
+        u32 adjustedY;
         storeWario = &gWarioData;
         asm volatile(
             "mov r2, sp\n"
@@ -6785,20 +6743,20 @@ u8 ResolveWarioLandingCollision(void)
         u16 padding;
     } locals;
     u32 savedY;
-    register u32 r4Value asm("r4");
+    u32 r4Value;
     register u32 r5Value asm("r5");
     register u32 r6Value asm("r6");
     u32 r7Value;
-    register u32 yPosition asm("r8");
+    u32 yPosition;
     register struct WarioData *wario asm("r9");
-    register const u16 *points asm("sl");
-    register u32 result asm("r1");
+    const u16 *points;
+    u32 result;
 
     r5Value = gWarioCollisionData.unk_08;
     r4Value = gWarioCollisionData.unk_09;
     {
-        register const u8 *data asm("r1");
-        register u32 address asm("r0");
+        const u8 *data;
+        u32 address;
 
         data = (const u8 *)sWarioCollisionPointTable;
         address = r5Value << 1;
@@ -6811,7 +6769,7 @@ u8 ResolveWarioLandingCollision(void)
     result = CheckWarioVerticalCollision(r4Value, result, 1);
     if (result == 1 || result == 3) {
         register struct WarioData *currentWario asm("r2");
-        register const u8 *data asm("r1");
+        const u8 *data;
         register u32 address asm("r0");
         register u32 currentX asm("r3");
 
@@ -6822,8 +6780,7 @@ u8 ResolveWarioLandingCollision(void)
         result = *(const u16 *)address;
         currentX = currentWario->xPosition;
         address = result + currentX;
-        address <<= 16;
-        r4Value = address >> 16;
+        r4Value = (u16)address;
         address = 0xFFC0;
         r4Value &= address;
         result = r4Value - result;
@@ -6832,7 +6789,7 @@ u8 ResolveWarioLandingCollision(void)
     }
     if (result == 8 || result == 12) {
         register struct WarioData *currentWario asm("r2");
-        register const u8 *data asm("r0");
+        const u8 *data;
         register u32 address asm("r0");
         register u32 currentX asm("r3");
 
@@ -6844,8 +6801,7 @@ u8 ResolveWarioLandingCollision(void)
         result = *(const u16 *)result;
         currentX = currentWario->xPosition;
         address = result + currentX;
-        address <<= 16;
-        r4Value = address >> 16;
+        r4Value = (u16)address;
         address = 0xFFC0;
         r4Value &= address;
         result = r4Value - result;
@@ -6857,7 +6813,7 @@ storeAdjustedX:
     wario = &gWarioData;
     points = sWarioCollisionPointTable;
     {
-        register u32 address asm("r0");
+        u32 address;
         register u32 currentX asm("r2");
 
         address = r5Value << 1;
@@ -6868,18 +6824,16 @@ storeAdjustedX:
         currentX = (u32)wario;
         currentX = *(u16 *)(currentX + 18);
         address += currentX;
-        address <<= 16;
-        r4Value = address >> 16;
+        r4Value = (u16)address;
     }
     {
         register struct WarioData *currentWario asm("r3");
-        register u32 currentY asm("r0");
+        u32 currentY;
 
         currentWario = wario;
         currentY = currentWario->yPosition;
         currentY += 1;
-        currentY <<= 16;
-        yPosition = currentY >> 16;
+        yPosition = (u16)currentY;
     }
     savedY = yPosition;
     r6Value = (u32)&locals.newY;
@@ -6912,7 +6866,7 @@ retryFirstPoint:
         if (result != 0) {
             storeWario->yPosition = r7Value;
         } else {
-            register struct WarioData *zeroStoreWario asm("r1");
+            struct WarioData *zeroStoreWario;
             register u32 adjustedY asm("r0");
 
             adjustedY = r7Value - 1;
@@ -6925,7 +6879,7 @@ retryFirstPoint:
 
 secondPoint:
     {
-        register u32 address asm("r0");
+        u32 address;
         register u32 currentX asm("r2");
 
         address = (u32)points;
@@ -6935,8 +6889,7 @@ secondPoint:
         currentX = (u32)wario;
         currentX = *(u16 *)(currentX + 18);
         address = r7Value + currentX;
-        address <<= 16;
-        r4Value = address >> 16;
+        r4Value = (u16)address;
     }
     result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
         r4Value, yPosition, (u16 *)&locals.newX, (u16 *)r6Value, (u16 *)r5Value);
@@ -6959,14 +6912,14 @@ retrySecondPoint:
         (u16)(r4Value - 1), (u16)(yPosition + 1), (u16 *)&locals.newX,
         (u16 *)r6Value, (u16 *)r5Value);
     {
-        register struct WarioData *storeWario asm("r0");
+        struct WarioData *storeWario;
 
         storeWario = wario;
         storeWario->unk_1C = result;
         if (result != 0) {
             storeWario->yPosition = r7Value;
         } else {
-            register struct WarioData *zeroStoreWario asm("r1");
+            struct WarioData *zeroStoreWario;
             register u32 adjustedY asm("r0");
 
             adjustedY = r7Value - 1;
@@ -6986,7 +6939,7 @@ centerPoint:
             r4Value, savedY, (u16 *)&locals.newX, (u16 *)r6Value, (u16 *)r5Value);
         if (*(u16 *)r5Value != 0) {
             register struct WarioData *storeWario asm("r3");
-            register u32 adjustedY asm("r0");
+            u32 adjustedY;
 
             storeWario = &gWarioData;
             storeWario->unk_1C = result;
@@ -7018,17 +6971,17 @@ u8 ResolveWarioCeilingCollision(void)
         u16 pointValue;
         u16 padding2;
     } locals;
-    register struct WarioCollisionData *collisionData asm("r4");
+    struct WarioCollisionData *collisionData;
     register u32 side asm("sl");
-    register u32 leftIndex asm("r5");
+    u32 leftIndex;
     register struct WarioData *wario asm("r9");
-    register u16 *adjustedYPtr asm("r5");
-    register u32 result asm("r2");
+    u16 *adjustedYPtr;
+    u32 result;
     register u32 alternateBase asm("r1");
     register u32 compareMask asm("r0");
-    register u32 compareValue asm("r3");
+    u32 compareValue;
     u32 sideTimesTwo;
-    register u32 tableOffset asm("r1");
+    u32 tableOffset;
 
     collisionData = &gWarioCollisionData;
     side = collisionData->unk_08;
@@ -7046,13 +6999,12 @@ u8 ResolveWarioCeilingCollision(void)
     if (collisionData->unk_00 != 0) {
         result = ((u32 (*)(u32, u16 *, s32))CheckWarioHorizontalCollision)(side, (u16 *)&locals.adjustedX, -22);
         if (result != 0) {
-            register struct WarioData *initialWario asm("r6");
-            register u32 adjustedX asm("r3");
-            register u32 collisionMode asm("r0");
+            struct WarioData *initialWario;
+            u32 adjustedX;
+            u32 collisionMode;
 
             initialWario = &gWarioData;
             adjustedX = locals.adjustedX;
-            asm("" : "+r"(adjustedX));
             initialWario->xPosition = adjustedX;
             collisionMode = collisionData->unk_0B;
             if (collisionMode == 0) {
@@ -7060,7 +7012,7 @@ u8 ResolveWarioCeilingCollision(void)
                 collisionData->unk_12++;
             } else {
                 if (collisionMode != 1) {
-                    register u32 collisionLimit asm("r4");
+                    u32 collisionLimit;
 
                     collisionLimit = collisionData->unk_0E;
                     if ((s32)result <= (s32)collisionLimit)
@@ -7068,11 +7020,11 @@ u8 ResolveWarioCeilingCollision(void)
                 }
                 {
                     register u32 probeX asm("r7");
-                    register u32 probeY asm("r1");
+                    u32 probeY;
                     register u16 *previousY asm("r8");
 
                     {
-                        register const u16 *points asm("r1");
+                        const u16 *points;
                         register u32 sideValue asm("r4");
                         register u32 address asm("r0");
 
@@ -7086,12 +7038,11 @@ u8 ResolveWarioCeilingCollision(void)
                         address += (u32)points;
                         address = *(const u16 *)address;
                         address = adjustedX + address;
-                        address <<= 16;
-                        probeX = address >> 16;
+                        probeX = (u16)address;
                     }
                     {
-                        register u32 average asm("r1");
-                        register u32 previous asm("r0");
+                        u32 average;
+                        u32 previous;
 
                         average = initialWario->yPosition;
                         previousY = &gPreviousYPosition;
@@ -7100,8 +7051,7 @@ u8 ResolveWarioCeilingCollision(void)
                         average = (s32)average >> 1;
                         initialWario->yPosition = average;
                         average++;
-                        average <<= 16;
-                        probeY = average >> 16;
+                        probeY = (u16)average;
                     }
                     {
                         register u16 *probeAdjustedY asm("r5");
@@ -7121,7 +7071,6 @@ u8 ResolveWarioCeilingCollision(void)
                         compareMask = 0xFFC0;
                         alternateBase = (u32)previousY;
                         compareValue = *(u16 *)alternateBase;
-                        asm("" : "+r"(compareValue));
                         goto compareGridValuesReturnFC;
                     }
                 }
@@ -7141,8 +7090,8 @@ initialCollisionDone:
     if (wario->unk_1A == 1)
         goto returnFF;
     {
-        register const u16 *points asm("r1");
-        register u32 r4Value asm("r4");
+        const u16 *points;
+        u32 r4Value;
         register u32 mainSideTimesTwo asm("r6");
         register u32 address asm("r0");
         register u32 firstX asm("r7");
@@ -7151,7 +7100,6 @@ initialCollisionDone:
 
         points = sWarioCollisionPointTable;
         r4Value = side;
-        asm("" : "+r"(r4Value));
         mainSideTimesTwo = r4Value << 1;
         address = mainSideTimesTwo + r4Value;
         address += leftIndex;
@@ -7159,9 +7107,8 @@ initialCollisionDone:
         address += (u32)points;
         address = *(const u16 *)address;
         {
-            register void *stackBase asm("r1");
+            void *stackBase;
             stackBase = (u8 *)&locals - 4;
-            asm("" : "+r"(stackBase));
             *(u16 *)((u8 *)stackBase + 24) = address;
         }
         {
@@ -7173,8 +7120,7 @@ initialCollisionDone:
             r2Value = (u32)wario;
             r2Value = *(u16 *)(r2Value + 18);
             address = pointForX + r2Value;
-            address <<= 16;
-            firstX = address >> 16;
+            firstX = (u16)address;
         }
         {
             register struct WarioData *yWario asm("r3");
@@ -7190,7 +7136,7 @@ initialCollisionDone:
         sideTimesTwo = mainSideTimesTwo;
 
         {
-            register u32 secondaryValue asm("r3");
+            u32 secondaryValue;
             secondaryValue = *(u16 *)r4Value;
             alternateBase = mainSideTimesTwo;
             if (secondaryValue != 0) {
@@ -7200,7 +7146,6 @@ initialCollisionDone:
                 {
                     register void *stackBase asm("r1");
                     stackBase = (u8 *)&locals - 4;
-                    asm("" : "+r"(stackBase));
                     address = *(u16 *)((u8 *)stackBase + 6);
                 }
                 goto storeYReturnFD;
@@ -7208,7 +7153,7 @@ initialCollisionDone:
 
             {
                 register u32 previousY asm("r0");
-                register u32 adjustedY asm("r2");
+                u32 adjustedY;
 
                 adjustedYPtr = &gPreviousYPosition;
                 previousY = *adjustedYPtr;
@@ -7250,7 +7195,6 @@ initialCollisionDone:
                         register struct WarioData *storeWario asm("r3");
 
                         stackBase = (u32)&locals - 4;
-                        asm("" : "+r"(stackBase));
                         address = *(u16 *)(stackBase + 6);
                         address += 63;
                         storeWario = wario;
@@ -7298,17 +7242,16 @@ initialCollisionDone:
                     result = callResult;
                 }
                 {
-                    register u8 *storeWario asm("r0");
+                    u8 *storeWario;
                     storeWario = (u8 *)wario;
                     *(u16 *)(storeWario + 28) = result;
                 }
                 if (result != 0) {
                     register void *stackBase asm("r1");
                     register struct WarioData *storeWario asm("r2");
-                    register u32 storedY asm("r0");
+                    u32 storedY;
 
                     stackBase = (u8 *)&locals - 4;
-                    asm("" : "+r"(stackBase));
                     storedY = *(u16 *)((u8 *)stackBase + 6);
                     storeWario = wario;
                     storeWario->yPosition = storedY;
@@ -7316,10 +7259,9 @@ initialCollisionDone:
                 }
                 {
                     register void *stackBase asm("r3");
-                    register u32 secondaryValue2 asm("r0");
+                    u32 secondaryValue2;
 
                     stackBase = (u8 *)&locals - 4;
-                    asm("" : "+r"(stackBase));
                     secondaryValue2 = *(u16 *)((u8 *)stackBase + 8);
                     if (secondaryValue2 != 0) {
                         register struct WarioData *storeWario asm("r4");
@@ -7341,7 +7283,7 @@ returnFD:
 afterStoreYReturnFD:
                 collisionData = &gWarioCollisionData;
                 {
-                    register u32 collisionMode asm("r0");
+                    u32 collisionMode;
                     collisionMode = collisionData->unk_0B;
                     if (collisionMode == 0) {
                         wario->xVelocity = result;
@@ -7349,20 +7291,18 @@ afterStoreYReturnFD:
                     }
                 }
                 result = ProcessHorizontalTileInteraction(firstY, locals.probeX);
-                asm volatile("" : "+r"(result));
                 if (result != 0 && collisionData->unk_0B != 1)
                     goto returnFF;
 
                 {
-                    register u32 callX asm("r0");
+                    u32 callX;
                     register u32 callY asm("r1");
 
                     callY = (u32)wario;
                     callX = *(u16 *)(callY + 18);
                     callY = *(u16 *)(callY + 20);
                     callY++;
-                    callY <<= 16;
-                    callY >>= 16;
+                    callY = (u16)callY;
                     /* Compiler boundary: direct C changes the frame or ABI argument order. */
                     asm volatile(
                         "add r2, sp, #8\n"
@@ -7382,7 +7322,6 @@ afterStoreYReturnFD:
 
                     stackBase = (u8 *)&locals;
                     stackBase = (u8 *)stackBase - 4;
-                    asm("" : "+r"(stackBase));
                     secondaryAfter = *(u16 *)((u8 *)stackBase + 8);
                     if (secondaryAfter == 0)
                         goto returnFC;
@@ -7412,13 +7351,12 @@ compareGridValuesReturnFC:
         goto returnFC;
 adjustYReturnFC:
     {
-        register struct WarioData *adjustWario asm("r1");
+        struct WarioData *adjustWario;
         register void *stackBase asm("r2");
-        register u32 adjustedValue asm("r0");
+        u32 adjustedValue;
 
         adjustWario = &gWarioData;
         stackBase = (u8 *)&locals - 4;
-        asm("" : "+r"(stackBase));
         adjustedValue = *(u16 *)((u8 *)stackBase + 6);
         adjustedValue -= 2;
         adjustWario->yPosition = adjustedValue;
@@ -7433,8 +7371,8 @@ alternateProbe:
         register u32 alternateY asm("r8");
         register u32 rightIndex asm("r3");
         register u32 address asm("r0");
-        register u32 r4Value asm("r4");
-        register u32 r5Value asm("r5");
+        u32 r4Value;
+        u32 r5Value;
 
         alternateWario = &gWarioData;
         rightIndex = locals.rightIndex;
@@ -7447,8 +7385,7 @@ alternateProbe:
         address += r4Value;
         address = *(const u16 *)address;
         address += alternateWario->xPosition;
-        address <<= 16;
-        alternateX = address >> 16;
+        alternateX = (u16)address;
         {
             register u32 loadedY asm("r2");
             loadedY = alternateWario->yPosition;
@@ -7468,7 +7405,7 @@ alternateProbe:
                 return 0xFD;
             }
             {
-                register u32 r1Value asm("r1");
+                u32 r1Value;
                 register u32 previous asm("r0");
                 register u16 adjusted asm("r3");
 
@@ -7493,10 +7430,9 @@ alternateProbe:
         }
 
         {
-            register u32 tableValue asm("r0");
+            u32 tableValue;
 
             tableValue = (u32)sWarioCollisionPointTable;
-            asm("" : "+r"(tableValue));
             tableValue += 2;
             tableValue += (u32)wario;
             asm volatile(
@@ -7527,8 +7463,8 @@ alternateProbe:
                     result = callResult;
                 }
                 {
-                    register u8 *stackBase asm("r1");
-                    register u32 previous asm("r0");
+                    u8 *stackBase;
+                    u32 previous;
                     register u32 adjustedAfter asm("r3");
 
                     stackBase = (u8 *)&locals - 4;
@@ -7561,16 +7497,16 @@ u8 ResolveWarioFloorCollision(void)
         u16 secondary;
     } outputs;
     u16 *adjustedXOutput;
-    register u32 index asm("r9");
-    register u32 secondaryIndex asm("r7");
-    register u32 pointIndex asm("r8");
+    u32 index;
+    u32 secondaryIndex;
+    u32 pointIndex;
     s32 result;
     s32 tile;
 
     {
-        register struct WarioCollisionData *collisionData asm("r0");
-        register u32 loadedIndex asm("r1");
-        register struct WarioData *wario asm("r4");
+        struct WarioCollisionData *collisionData;
+        u32 loadedIndex;
+        struct WarioData *wario;
 
         collisionData = &gWarioCollisionData;
         loadedIndex = collisionData->unk_08;
@@ -7589,21 +7525,21 @@ u8 ResolveWarioFloorCollision(void)
     }
 
     if (gWarioCollisionDamageFlag == 0) {
-        register const u16 *points asm("r6");
-        register u32 pointOffset asm("r4");
-        register u32 pointValue asm("r5");
-        register struct WarioCollisionData *collisionData asm("r3");
+        const u16 *points;
+        u32 pointOffset;
+        u32 pointValue;
+        struct WarioCollisionData *collisionData;
 
         points = sWarioCollisionPointTable;
         {
-            register u32 offsetTemp asm("r0");
+            u32 offsetTemp;
 
             offsetTemp = index << 1;
             offsetTemp += index;
             pointOffset = offsetTemp << 1;
         }
         {
-            register const u16 *pointPtr asm("r0");
+            const u16 *pointPtr;
 
             pointPtr = points + 2;
             pointPtr = (const u16 *)(pointOffset + (u32)pointPtr);
@@ -7613,12 +7549,12 @@ u8 ResolveWarioFloorCollision(void)
         collisionData = &gWarioCollisionData;
 
         if (collisionData->unk_0F != 0) {
-            register struct WarioData *wario asm("r1");
+            struct WarioData *wario;
             register u32 aligned asm("r4");
 
             wario = &gWarioData;
             {
-                register u32 raw asm("r0");
+                u32 raw;
 
                 raw = wario->yPosition + pointValue;
                 raw <<= 16;
@@ -7634,52 +7570,50 @@ u8 ResolveWarioFloorCollision(void)
         } else if (result != 0) {
             if (collisionData->unk_0C <= 1) {
                 if (result == 1) {
-                    register struct WarioData *wario asm("r2");
-                    register u32 aligned asm("r3");
-                    register u32 sideOffset asm("r1");
+                    struct WarioData *wario;
+                    u32 aligned;
+                    u32 sideOffset;
 
                     wario = &gWarioData;
                     {
-                        register const u16 *sidePtr asm("r0");
-                        register u32 raw asm("r0");
+                        const u16 *sidePtr;
+                        u32 raw;
 
                         sidePtr = (const u16 *)(pointOffset + (u32)points);
                         sideOffset = *sidePtr;
                         aligned = wario->xPosition;
                         raw = sideOffset + aligned;
-                        raw <<= 16;
-                        aligned = raw >> 16;
+                        aligned = (u16)raw;
                         aligned &= 0xFFC0;
                         sideOffset = aligned - sideOffset;
                         sideOffset += 0x40;
                         wario->xPosition = sideOffset;
                     }
                 } else if (result == 8) {
-                    register struct WarioData *wario asm("r2");
-                    register u32 aligned asm("r3");
-                    register u32 sideOffset asm("r1");
+                    struct WarioData *wario;
+                    u32 aligned;
+                    u32 sideOffset;
 
                     wario = &gWarioData;
                     {
-                        register const u16 *sidePtr asm("r0");
-                        register u32 raw asm("r0");
+                        const u16 *sidePtr;
+                        u32 raw;
 
                         sidePtr = points + 1;
                         sidePtr = (const u16 *)(pointOffset + (u32)sidePtr);
                         sideOffset = *sidePtr;
                         aligned = wario->xPosition;
                         raw = sideOffset + aligned;
-                        raw <<= 16;
-                        aligned = raw >> 16;
+                        aligned = (u16)raw;
                         aligned &= 0xFFC0;
                         sideOffset = aligned - sideOffset;
                         sideOffset--;
                         wario->xPosition = sideOffset;
                     }
                 } else if ((result & 6) != 0) {
-                    register struct WarioData *wario asm("r1");
+                    struct WarioData *wario;
                     register u32 aligned asm("r4");
-                    register u32 raw asm("r0");
+                    u32 raw;
 
                     wario = &gWarioData;
                     raw = wario->yPosition + pointValue;
@@ -7692,9 +7626,9 @@ u8 ResolveWarioFloorCollision(void)
                     collisionData->unk_13++;
                 }
             } else {
-                register struct WarioData *wario asm("r1");
+                struct WarioData *wario;
                 register u32 aligned asm("r4");
-                register u32 raw asm("r0");
+                u32 raw;
 
                 wario = &gWarioData;
                 raw = wario->yPosition + pointValue;
@@ -7710,7 +7644,7 @@ u8 ResolveWarioFloorCollision(void)
     }
 
     {
-        register struct WarioData *wario asm("r4");
+        struct WarioData *wario;
 
         wario = &gWarioData;
         if (*(u16 *)&wario->reaction == 0x0400 && (gButtonsHeld & 0x40) != 0 && gWarioCollisionData.unk_13 != 0) {
@@ -7728,7 +7662,7 @@ u8 ResolveWarioFloorCollision(void)
 
     {
         struct WarioCollisionData *collisionData;
-        register struct WarioCollisionData *loadedCollision asm("r0");
+        struct WarioCollisionData *loadedCollision;
 
         loadedCollision = &gWarioCollisionData;
         collisionData = loadedCollision;
@@ -7746,8 +7680,7 @@ u8 ResolveWarioFloorCollision(void)
                 register u32 rawX asm("r0");
 
                 rawX = activeWario->xPosition + pointValue;
-                rawX <<= 16;
-                xPosition = rawX >> 16;
+                xPosition = (u16)rawX;
             }
             yPosition = activeWario->yPosition;
             adjustedXOutput = &outputs.adjustedX;
@@ -7768,7 +7701,7 @@ u8 ResolveWarioFloorCollision(void)
                     adjustedValue = outputs.adjustedX;
                     currentX = pointValue;
                     asm volatile("" : "+r"(currentX));
-                    pointValue = (u16)(adjustedValue - currentX + *(u16 *)((u8 *)collisionData + 6));
+                    pointValue = (u16)(adjustedValue - currentX + collisionData->unk_06);
                     currentX = activeWario->xPosition;
                     result = ((s32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
                         currentX, yPosition, &outputs.adjustedX, adjustedYPtr, secondaryPtr);
@@ -7824,7 +7757,7 @@ u8 ResolveWarioTileEdgeCollision(void)
 
     wario = &gWarioData;
     {
-        register u32 current asm("r0");
+        u32 current;
         register u32 maskedCurrent asm("r1");
         register u32 previous asm("r2");
 
@@ -7844,9 +7777,9 @@ u8 ResolveWarioTileEdgeCollision(void)
         return 0xFF;
     }
     {
-        register u32 xPosition asm("r2");
+        u32 xPosition;
         register u32 yRaw asm("r0");
-        register u32 yPosition asm("r1");
+        u32 yPosition;
 
         xPosition = *(volatile u16 *)&wario->xPosition;
         yRaw = wario->yPosition;
@@ -7887,15 +7820,15 @@ u8 ResolveWarioLadderCollision(void)
       } locals;
       u32 probeY;
       struct WarioData *wario;
-      register u32 index asm("r8");
-      register u32 collision asm("r6");
-      register u32 yPosition asm("r5");
-      register u32 xPosition asm("r12");
+      u32 index;
+      u32 collision;
+      u32 yPosition;
+      u32 xPosition;
       register u32 rawIndex asm("r2");
       s32 tile;
     {
-      register volatile u8 *collisionData asm("r0");
-      register u16 rawCollision asm("r1");
+      volatile u8 *collisionData;
+      u16 rawCollision;
       collisionData = (volatile u8 *) (&gWarioCollisionData);
       rawIndex = collisionData[8];
       index = rawIndex;
@@ -7903,18 +7836,17 @@ u8 ResolveWarioLadderCollision(void)
       xPosition = wario->xPosition;
       rawCollision = *((volatile u16 *) (collisionData + 2));
       {
-          register u32 mask asm("r0");
+          u32 mask;
           mask = 0x40;
           mask &= rawCollision;
-          asm("" : "+r"(mask));
           collision = (u16)mask;
       }
     }
     if (collision != 0)
     {
       {
-          register u32 tableOffset asm("r0");
-          register const u8 *tableData asm("r1");
+          u32 tableOffset;
+          const u8 *tableData;
 
           tableData = (const u8 *)sWarioCollisionPointTable;
           tableOffset = rawIndex << 1;
@@ -7925,12 +7857,11 @@ u8 ResolveWarioLadderCollision(void)
           index = *(const u16 *)tableOffset;
       }
       {
-          register u32 sum asm("r0");
+          u32 sum;
 
           sum = wario->yPosition;
           sum += index;
-          sum <<= 16;
-          yPosition = sum >> 16;
+          yPosition = (u16)sum;
       }
       ;
       ((u32 (*)(u32, u32, u16 *, u16 *, u16 *)) CheckWarioTileCollision)(xPosition, yPosition, (u16 *) (&locals.newX), (u16 *) (&locals.newY), (u16 *) (&locals.water));
@@ -7941,8 +7872,8 @@ u8 ResolveWarioLadderCollision(void)
         return 0xFF;
       }
       {
-          register u32 tileY asm("r0");
-          register u32 tileX asm("r1");
+          u32 tileY;
+          u32 tileX;
 
           tileX = wario->xPosition;
           tileY = probeY;
@@ -7971,10 +7902,9 @@ u8 ResolveWarioLadderCollision(void)
     }
     *(u16 *)&locals.water = collision;
     yPosition = wario->yPosition;
-    asm("" : : "r"(yPosition));
     {
-        register u32 tileY asm("r0");
-        register u32 tileX asm("r1");
+        u32 tileY;
+        u32 tileX;
 
         tileX = wario->xPosition;
         tileY = yPosition;
@@ -7986,9 +7916,9 @@ u8 ResolveWarioLadderCollision(void)
       *(u16 *)&locals.water = 1;
     }
     {
-        register u32 tableIndex asm("r2");
-        register u32 tableValue asm("r0");
-        register const u8 *tableData asm("r1");
+        u32 tableIndex;
+        u32 tableValue;
+        const u8 *tableData;
 
         tableData = (const u8 *)sWarioCollisionPointTable;
         tableIndex = index;
@@ -7999,13 +7929,11 @@ u8 ResolveWarioLadderCollision(void)
         tableValue += (u32)tableData;
         tableValue = *(const u16 *)tableValue;
         tableValue += wario->yPosition;
-        tableValue <<= 16;
-        yPosition = tableValue >> 16;
+        yPosition = (u16)tableValue;
     }
-    asm("" : : "r"(yPosition));
     {
-        register u32 tileY asm("r0");
-        register u32 tileX asm("r1");
+        u32 tileY;
+        u32 tileX;
 
         tileX = wario->xPosition;
         tileY = yPosition;
@@ -8021,12 +7949,12 @@ u8 ResolveWarioLadderCollision(void)
 
 u8 ResolveWarioVerticalFenceCollision(void)
 {
-    register struct WarioCollisionData *collisionData asm("r4");
-    register u32 index asm("r6");
-    register u32 yPosition asm("r5");
+    struct WarioCollisionData *collisionData;
+    u32 index;
+    u32 yPosition;
     s32 tile;
-    register u16 *tableEntry asm("r8");
-    register u32 tableValue asm("r9");
+    u16 *tableEntry;
+    u32 tableValue;
     register struct WarioData *wario asm("r10");
     struct {
         u16 collision;
@@ -8044,8 +7972,8 @@ u8 ResolveWarioVerticalFenceCollision(void)
         wario = base;
     }
     {
-        register u8 *data asm("r1");
-        register u32 offset asm("r0");
+        u8 *data;
+        u32 offset;
 
         data = (u8 *)sWarioCollisionPointTable;
         offset = index << 1;
@@ -8057,24 +7985,22 @@ u8 ResolveWarioVerticalFenceCollision(void)
         tableValue = *tableEntry;
     }
     {
-        register struct WarioData *base asm("r1");
-        register u32 value asm("r0");
-        register u32 xPosition asm("r1");
+        struct WarioData *base;
+        u32 value;
+        u32 xPosition;
 
         base = wario;
         value = base->yPosition;
         value += tableValue;
-        value <<= 16;
-        yPosition = value >> 16;
+        yPosition = (u16)value;
         xPosition = base->xPosition;
-        asm("" : "+r"(xPosition));
         value = yPosition;
         tile = ((s32 (*)(u32, u32))GetBackgroundCollisionAtPosition)(value, xPosition) >> 16;
     }
 
     if (collisionData->flags & 0x40) {
-        register u32 adjusted asm("r0");
-        register u32 offset asm("r1");
+        u32 adjusted;
+        u32 offset;
 
         if (tile != 4) {
             yPosition &= 0xFFC0;
@@ -8082,9 +8008,9 @@ u8 ResolveWarioVerticalFenceCollision(void)
             adjusted = yPosition - offset;
             goto updateYPosition;
         } else {
-            register u32 tableOffset asm("r4");
-            register u32 value asm("r0");
-            register u32 argument asm("r1");
+            u32 tableOffset;
+            u32 value;
+            u32 argument;
 
             tableOffset = *tableEntry;
             value = locals.secondaryIndex;
@@ -8106,13 +8032,12 @@ updateYPosition:
 
     {
         register struct WarioData *base asm("r1");
-        register u32 value asm("r0");
+        u32 value;
 
         base = wario;
         value = base->yPosition;
         value++;
-        value <<= 16;
-        yPosition = value >> 16;
+        yPosition = (u16)value;
     }
     if (((u32 (*)(u32, u32, u16 *))CheckWarioPointCollision)(index, yPosition, &locals.collision) != 0) {
         return 2;
@@ -8125,29 +8050,28 @@ updateYPosition:
 
 u8 ResolveWarioHorizontalFenceCollision(void)
 {
-    register u32 index asm("r4");
-    register struct WarioData *wario asm("r5");
-    register u32 savedIndex asm("r6");
+    u32 index;
+    struct WarioData *wario;
+    u32 savedIndex;
     u16 newX;
     u16 collision;
 
     index = gWarioCollisionData.unk_08;
     savedIndex = index;
     if (((u32 (*)(u32, u16 *, u32))CheckWarioHorizontalCollision)(index, &newX, 0) != 0) {
-        register struct WarioData *dest asm("r0");
-        register u16 *source asm("r1");
+        struct WarioData *dest;
+        u16 *source;
 
         dest = &gWarioData;
         source = &newX;
         dest->xPosition = *source;
-        asm("");
         return 0xFF;
     }
 
     wario = &gWarioData;
     {
-        register u32 yPosition asm("r1");
-        register u16 *out asm("r2");
+        u32 yPosition;
+        u16 *out;
 
         yPosition = wario->yPosition;
         yPosition++;
@@ -8160,8 +8084,8 @@ u8 ResolveWarioHorizontalFenceCollision(void)
     }
 
     {
-        register u32 offset asm("r0");
-        register u8 *data asm("r1");
+        u32 offset;
+        u8 *data;
         s32 tile;
 
         data = (u8 *)sWarioCollisionPointTable;
@@ -8173,8 +8097,7 @@ u8 ResolveWarioHorizontalFenceCollision(void)
         offset = *(u16 *)offset;
         data = (u8 *)(u32)wario->yPosition;
         offset += (u32)data;
-        offset <<= 16;
-        offset >>= 16;
+        offset = (u16)offset;
         tile = GetBackgroundCollisionAtPosition(offset, wario->xPosition);
         tile >>= 16;
         if (tile != 4) {
@@ -8187,24 +8110,24 @@ u8 ResolveWarioHorizontalFenceCollision(void)
 
 void DrawNormalWario(u8 direction)
 {
-    register u32 directionValue asm("r6");
-    register struct WarioData *earlyWario asm("r1");
-    register struct WarioData *loadedWario asm("r0");
-    register struct WarioData *wario asm("r3");
-    register const struct WarioAnimationFrame *animation asm("r2");
-    register const u8 *graphics asm("r1");
+    u32 directionValue;
+    struct WarioData *earlyWario;
+    struct WarioData *loadedWario;
+    struct WarioData *wario;
+    const struct WarioAnimationFrame *animation;
+    const u8 *graphics;
     register const u16 *palette asm("r1");
-    register u16 *historyCounter asm("r5");
-    register struct WarioAfterimageData *history asm("r3");
-    register u32 counterValue asm("r2");
-    register u32 historyIndex asm("r0");
-    register u32 historyDestination asm("r4");
+    u16 *historyCounter;
+    struct WarioAfterimageData *history;
+    u32 counterValue;
+    u32 historyIndex;
+    u32 historyDestination;
     u32 afterimageOne;
-    register u32 earlyPose asm("r0");
+    u32 earlyPose;
     u8 damageTimer;
-    register u32 tempR0 asm("r0");
-    register u32 tempR1 asm("r1");
-    register u32 poseValue asm("r2");
+    u32 tempR0;
+    u32 tempR1;
+    u32 poseValue;
 
     directionValue = direction;
     earlyWario = &gWarioData;
@@ -8229,7 +8152,7 @@ damageFlagDone:
         case 72:
         case 73:
         {
-            register struct WarioAfterimage *afterimage asm("r1");
+            struct WarioAfterimage *afterimage;
 
             afterimage = &gWarioDashAfterimage;
             afterimageOne = 1;
@@ -8399,7 +8322,6 @@ animationSelected:
     if (wario->damageTimer != 0 && gWarioDamagePaletteActive == 0 && (gMainTimer & 7) <= 3) {
         gWarioPaletteSize = 32;
         palette = sWarioDamageFlashPalette;
-        asm("" : "+r"(palette));
         CopyWarioPalette(palette, 0, 16);
         return;
     }
@@ -8410,21 +8332,19 @@ animationSelected:
         case 26:
             gWarioPaletteSize = 96;
             palette = sWarioShoulderBashPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 0, 48);
             break;
 
         case 23:
         case 25:
         {
-            register struct WarioData *paletteWario asm("r4");
-            register u32 paletteOffset asm("r0");
+            struct WarioData *paletteWario;
+            u32 paletteOffset;
 
             tempR1 = (u32)&gWarioPaletteSize;
             tempR0 = 96;
             *(u16 *)tempR1 = tempR0;
             palette = (const u16 *)((u32)sWarioDashAttackPaletteFrames - 0x20);
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 0, 16);
             paletteWario = &gWarioData;
             paletteOffset = paletteWario->unk_0C;
@@ -8449,13 +8369,10 @@ animationSelected:
         case 30:
             gWarioPaletteSize = 96;
             palette = sWarioGroundPoundPaletteFrames[wario->unk_1F];
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 0, 16);
             palette = sWarioGroundPoundSecondaryPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 16, 16);
             palette = sWarioGroundPoundPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 32, 16);
             break;
 
@@ -8482,10 +8399,8 @@ animationSelected:
         case 59:
             gWarioPaletteSize = 64;
             palette = sWarioDefaultObjPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 0, 16);
             palette = sWarioDumbbellSecondaryPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 16, 16);
             break;
 
@@ -8495,10 +8410,8 @@ animationSelected:
         case 57:
             gWarioPaletteSize = 64;
             palette = sWarioDefaultObjPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 0, 16);
             palette = sWarioDoorAndBarbellSecondaryPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 16, 16);
             break;
 
@@ -8508,14 +8421,12 @@ animationSelected:
         case 68:
             gWarioPaletteSize = 64;
             palette = sWarioFlexingPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 0, 32);
             break;
 
         case 76:
             gWarioPaletteSize = 64;
             palette = sWarioDefaultObjPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 0, 16);
             tempR0 = (u32)&gMainTimer;
             tempR1 = *(u8 *)tempR0;
@@ -8524,14 +8435,12 @@ animationSelected:
             palette = sWarioUnusedPose76Palette;
             if (tempR0 != 0)
                 palette = sWarioUnusedPose76AlternatePalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 16, 16);
             break;
 
         default:
             gWarioPaletteSize = 32;
             palette = sWarioDefaultObjPalette;
-            asm("" : "+r"(palette));
             CopyWarioPalette(palette, 0, 16);
             break;
     }
@@ -8539,7 +8448,7 @@ animationSelected:
 
 void UpdateWarioMusicEffects(void)
 {
-    register s8 *statePtr asm("r9");
+    s8 *statePtr;
     register struct MusicPlayerInfo *player0 asm("r8");
     s32 state;
 
@@ -8549,106 +8458,83 @@ void UpdateWarioMusicEffects(void)
     statePtr = &gWarioMusicState;
     state = *statePtr;
     if (state > 4) {
-        register u32 value asm("r4");
+        u32 value;
         register u32 tempo asm("r5");
         register struct MusicPlayerInfo *resetPlayer1 asm("r6");
-        register struct MusicPlayerInfo *loadedPlayer asm("r1");
+        struct MusicPlayerInfo *loadedPlayer;
 
         value = (u32)gMPlayTable;
         loadedPlayer = ((const struct MusicPlayer *)value)[0].info;
-        asm("" : "+r"(loadedPlayer));
         player0 = loadedPlayer;
         tempo = 0x100;
         {
-            register struct MusicPlayerInfo *arg0 asm("r0");
-            register u32 arg1 asm("r1");
+            struct MusicPlayerInfo *arg0;
+            u32 arg1;
             arg0 = player0;
-            asm("" : "+r"(arg0));
             arg1 = tempo;
-            asm("" : "+r"(arg1));
             ((void (*)(struct MusicPlayerInfo *, u32))m4aMPlayTempoControl)(arg0, arg1);
         }
         resetPlayer1 = ((const struct MusicPlayer *)value)[1].info;
         {
-            register struct MusicPlayerInfo *arg0 asm("r0");
-            register u32 arg1 asm("r1");
+            struct MusicPlayerInfo *arg0;
+            u32 arg1;
             arg0 = resetPlayer1;
-            asm("" : "+r"(arg0));
             arg1 = tempo;
-            asm("" : "+r"(arg1));
             ((void (*)(struct MusicPlayerInfo *, u32))m4aMPlayTempoControl)(arg0, arg1);
         }
         value = 0xFFFF;
         {
-            register struct MusicPlayerInfo *arg0 asm("r0");
-            register u32 arg1 asm("r1");
-            register u32 arg2 asm("r2");
+            struct MusicPlayerInfo *arg0;
+            u32 arg1;
+            u32 arg2;
             arg0 = player0;
-            asm("" : "+r"(arg0));
             arg1 = value;
-            asm("" : "+r"(arg1));
             arg2 = 0;
-            asm("" : "+r"(arg2));
             ((void (*)(struct MusicPlayerInfo *, u32, u32))m4aMPlayPitchControl)(arg0, arg1, arg2);
         }
         {
-            register struct MusicPlayerInfo *arg0 asm("r0");
-            register u32 arg1 asm("r1");
-            register u32 arg2 asm("r2");
+            struct MusicPlayerInfo *arg0;
+            u32 arg1;
+            u32 arg2;
             arg0 = resetPlayer1;
-            asm("" : "+r"(arg0));
             arg1 = value;
-            asm("" : "+r"(arg1));
             arg2 = 0;
-            asm("" : "+r"(arg2));
             ((void (*)(struct MusicPlayerInfo *, u32, u32))m4aMPlayPitchControl)(arg0, arg1, arg2);
         }
         {
-            register struct MusicPlayerInfo *arg0 asm("r0");
-            register u32 arg1 asm("r1");
-            register u32 arg2 asm("r2");
+            struct MusicPlayerInfo *arg0;
+            u32 arg1;
+            u32 arg2;
             arg0 = player0;
-            asm("" : "+r"(arg0));
             arg1 = value;
-            asm("" : "+r"(arg1));
             arg2 = 0;
-            asm("" : "+r"(arg2));
             ((void (*)(struct MusicPlayerInfo *, u32, u32))m4aMPlayModDepthSet)(arg0, arg1, arg2);
         }
         {
-            register struct MusicPlayerInfo *arg0 asm("r0");
-            register u32 arg1 asm("r1");
-            register u32 arg2 asm("r2");
+            struct MusicPlayerInfo *arg0;
+            u32 arg1;
+            u32 arg2;
             arg0 = resetPlayer1;
-            asm("" : "+r"(arg0));
             arg1 = value;
-            asm("" : "+r"(arg1));
             arg2 = 0;
-            asm("" : "+r"(arg2));
             ((void (*)(struct MusicPlayerInfo *, u32, u32))m4aMPlayModDepthSet)(arg0, arg1, arg2);
         }
         {
-            register struct MusicPlayerInfo *arg0 asm("r0");
-            register u32 arg1 asm("r1");
-            register u32 arg2 asm("r2");
+            struct MusicPlayerInfo *arg0;
+            u32 arg1;
+            u32 arg2;
             arg0 = player0;
-            asm("" : "+r"(arg0));
             arg1 = value;
-            asm("" : "+r"(arg1));
             arg2 = 20;
-            asm("" : "+r"(arg2));
             ((void (*)(struct MusicPlayerInfo *, u32, u32))m4aMPlayLFOSpeedSet)(arg0, arg1, arg2);
         }
         {
-            register struct MusicPlayerInfo *arg0 asm("r0");
-            register u32 arg1 asm("r1");
-            register u32 arg2 asm("r2");
+            struct MusicPlayerInfo *arg0;
+            u32 arg1;
+            u32 arg2;
             arg0 = resetPlayer1;
-            asm("" : "+r"(arg0));
             arg1 = value;
-            asm("" : "+r"(arg1));
             arg2 = 20;
-            asm("" : "+r"(arg2));
             ((void (*)(struct MusicPlayerInfo *, u32, u32))m4aMPlayLFOSpeedSet)(arg0, arg1, arg2);
         }
         *statePtr = 0;
@@ -8695,10 +8581,10 @@ void UpdateWarioMusicEffects(void)
 
         default:
         {
-            register const struct MusicPlayer *players asm("r4");
+            const struct MusicPlayer *players;
             register struct MusicPlayerInfo *loadedPlayer asm("r1");
             register struct MusicPlayerInfo *defaultPlayer1 asm("r6");
-            register u32 defaultTempo asm("r5");
+            u32 defaultTempo;
 
             if (gWarioMusicState == 0)
                 return;
@@ -8707,16 +8593,16 @@ void UpdateWarioMusicEffects(void)
             player0 = loadedPlayer;
             defaultTempo = 0x100;
             {
-                register struct MusicPlayerInfo *arg0 asm("r0");
-                register u32 arg1 asm("r1");
+                struct MusicPlayerInfo *arg0;
+                u32 arg1;
                 arg0 = player0;
                 arg1 = defaultTempo;
                 m4aMPlayTempoControl(arg0, arg1);
             }
             defaultPlayer1 = players[1].info;
             {
-                register struct MusicPlayerInfo *arg0 asm("r0");
-                register u32 arg1 asm("r1");
+                struct MusicPlayerInfo *arg0;
+                u32 arg1;
                 arg0 = defaultPlayer1;
                 arg1 = defaultTempo;
                 m4aMPlayTempoControl(arg0, arg1);
@@ -8733,9 +8619,9 @@ void UpdateWarioMusicEffects(void)
 
 void UpdateWarioHitbox(void)
 {
-    register u8 *poseData asm("r3");
-    register struct WarioData *wario asm("r4");
-    register u8 *hitboxData asm("r2");
+    u8 *poseData;
+    struct WarioData *wario;
+    u8 *hitboxData;
     register u32 offset asm("r1");
     u32 value;
 
@@ -8750,10 +8636,10 @@ void UpdateWarioHitbox(void)
     value = offset + (u32)hitboxData;
     wario->hitboxOffsetLeft = *(u16 *)value;
     value = (u32)(hitboxData + 2);
-    asm("add %0, %1, %0" : "+r"(value) : "r"(offset));
+    value = offset + value;
     wario->hitboxOffsetTop = *(u16 *)value;
     value = (u32)(hitboxData + 4);
-    asm("add %0, %1, %0" : "+r"(value) : "r"(offset));
+    value = offset + value;
     wario->hitboxOffsetRight = *(u16 *)value;
     hitboxData += 6;
     offset += (u32)hitboxData;

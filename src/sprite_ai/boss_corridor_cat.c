@@ -109,8 +109,7 @@ void BossCorridorCatWaitToTurn(void)
     timerValue = *timerPointer;
     timerValue--;
     *timerPointer = timerValue;
-    timerValue <<= 24;
-    timer = (u32)timerValue >> 24;
+    timer = (u8)timerValue;
     if (timer == 0) {
         oldStatus = sprite->status;
         status = SPRITE_STATUS_FACING_RIGHT;
@@ -138,8 +137,7 @@ void BossCorridorCatStartFastLeftDash(void)
     timerValue = *timerPointer;
     timerValue--;
     *timerPointer = timerValue;
-    timerValue <<= 24;
-    timer = (u32)timerValue >> 24;
+    timer = (u8)timerValue;
     if (timer == 0) {
         sprite->pose = 112;
         *timerPointer = 10;
@@ -214,8 +212,7 @@ void BossCorridorCatWaitToDashRight(void)
     timerValue = *timerPointer;
     timerValue--;
     *timerPointer = timerValue;
-    timerValue <<= 24;
-    timer = (u32)timerValue >> 24;
+    timer = (u8)timerValue;
     if (timer == 0) {
         sprite->pose = 16;
         *timerPointer = 36;
@@ -238,8 +235,7 @@ void BossCorridorCatWaitToDashRightShort(void)
     timerValue = *timerPointer;
     timerValue--;
     *timerPointer = timerValue;
-    timerValue <<= 24;
-    timer = (u32)timerValue >> 24;
+    timer = (u8)timerValue;
     if (timer == 0) {
         sprite->pose = 16;
         *timerPointer = 16;

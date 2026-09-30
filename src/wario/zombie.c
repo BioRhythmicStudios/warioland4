@@ -537,8 +537,7 @@ int CheckZombieWarioFloor(void)
     wario = &gWarioData;
     yValue = wario->yPosition;
     yValue += 1;
-    yValue <<= 16;
-    yPosition = yValue >> 16;
+    yPosition = (u16)yValue;
     result = CheckWarioPointCollision(collisionOffset, yPosition, &local);
     if (result != 0) {
         if (result > local) {
@@ -556,10 +555,7 @@ void LoadZombieWarioGraphics(int variant)
     const struct ZombieWarioGraphicsFrame *frame;
     const u8 *gfx;
 
-    graphicsVariant = variant;
-    asm("" : "+r"(graphicsVariant));
-    graphicsVariant <<= 24;
-    graphicsVariant >>= 24;
+    graphicsVariant = (u8)variant;
     UpdateWarioPositionHistory();
     frame = sZombieWarioGraphicsTable[gWarioData.pose][graphicsVariant];
     frame += gWarioData.unk_1F;
@@ -588,15 +584,15 @@ void UpdateZombieWarioMusic(void)
         player0 = table[0].info;
         m4aMPlayTempoControl(player0, 200);
         player1 = table[1].info;
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player1; a1=200; m4aMPlayTempoControl(a0,a1); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=200; m4aMPlayTempoControl(a0,a1); }
         tracks = 0xFFFF;
         pitch = -256;
-        { register struct MusicPlayerInfo *a0 asm("r0"); a0=player0; m4aMPlayPitchControl(a0,tracks,pitch); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); a0=player1; m4aMPlayPitchControl(a0,tracks,pitch); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player0; a1=tracks; m4aMPlayModDepthSet(a0,a1,20); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player1; a1=tracks; m4aMPlayModDepthSet(a0,a1,20); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player0; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,50); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player1; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,50); }
+        { struct MusicPlayerInfo *a0; a0=player0; m4aMPlayPitchControl(a0,tracks,pitch); }
+        { struct MusicPlayerInfo *a0; a0=player1; m4aMPlayPitchControl(a0,tracks,pitch); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player0; a1=tracks; m4aMPlayModDepthSet(a0,a1,20); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=tracks; m4aMPlayModDepthSet(a0,a1,20); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player0; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,50); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,50); }
         gWarioMusicState = 9;
     }
 }

@@ -111,8 +111,7 @@ s32 GetAdjustedWarioXVelocity(void)
 
                 product = (s16)velocity << 2;
                 product /= 5;
-                product <<= 16;
-                velocity = (u32)product >> 16;
+                velocity = (u16)product;
             }
         } else {
             s32 sum;
@@ -128,8 +127,6 @@ s32 GetAdjustedWarioXVelocity(void)
             if (signedVelocity > 128) {
                 velocity = 128;
             } else if (signedVelocity < -128) {
-                /* The original reloads the unsigned halfword constant instead of reusing r0. */
-                asm("" : : : "r0");
                 velocity = (u16)-128;
             }
         }
@@ -416,34 +413,24 @@ void ProcessWarioInteraction(void)
 
 void FinalizeWarioUpdate(void)
 {
-    int previousReaction;
-
     if (gSwitchPressed == 0 || gWarioData.reaction == REACTION_NORMAL) {
         sUnk_82DED60[gWarioData.reaction]();
     }
 
-    previousReaction = gPreviousReaction;
-    if (previousReaction < 0) {
-        goto playBonk;
+    switch (gPreviousReaction) {
+        case REACTION_NORMAL:
+        case REACTION_WATER:
+        case REACTION_FROZEN:
+        case REACTION_ZOMBIE:
+        case REACTION_SNOWMAN:
+            break;
+        default:
+            if (gWarioData.damageTimer == 0x5F) {
+                m4aSongNumStart(SE_WARIO_BONK);
+                VoiceSetPlay(0);
+            }
+            break;
     }
-    if (previousReaction <= 1) {
-        goto end;
-    }
-    if (previousReaction > 6) {
-        goto playBonk;
-    }
-    /* agbcc canonicalizes this as cmp #3 / bgt; the target uses cmp #4 / bge. */
-    asm("cmp %0, #4\nbge 1f" : : "r"(previousReaction));
-
-playBonk:
-    if (gWarioData.damageTimer == 0x5F) {
-        m4aSongNumStart(SE_WARIO_BONK);
-        VoiceSetPlay(0);
-    }
-
-end:
-    asm("1:");
-    return;
 }
 
 void ResetWarioState(void)

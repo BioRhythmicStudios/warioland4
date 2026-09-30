@@ -473,8 +473,8 @@ void UpdateCutsceneSequence150(s32 frame)
             case 0:
                 DecreaseCutsceneBlendCoefficient(3);
                 {
-                    register u32 loadedTimer asm("r0");
-                    register u32 oldTimer asm("r1");
+                    u32 loadedTimer;
+                    u32 oldTimer;
                     loadedTimer = gUnk_3002C64;
                     oldTimer = loadedTimer;
                     loadedTimer++;
@@ -500,8 +500,8 @@ void UpdateCutsceneSequence150(s32 frame)
                     *(vu16 *)0x04000016 = gCutsceneBackgroundVerticalOffset;
                 } else {
                     {
-                        register u32 loadedTimer asm("r0");
-                        register u32 oldTimer asm("r1");
+                        u32 loadedTimer;
+                        u32 oldTimer;
                         loadedTimer = gUnk_3002C64;
                         oldTimer = loadedTimer;
                         loadedTimer++;
@@ -522,8 +522,8 @@ void UpdateCutsceneSequence150(s32 frame)
         case 0:
             DecreaseCutsceneBlendCoefficient(3);
             {
-                register u32 loadedTimer asm("r0");
-                register u32 oldTimer asm("r1");
+                u32 loadedTimer;
+                u32 oldTimer;
                 loadedTimer = gUnk_3002C64;
                 oldTimer = loadedTimer;
                 loadedTimer++;
@@ -558,8 +558,8 @@ void UpdateCutsceneSequence150(s32 frame)
                 m4aSongNumStartOrChange(0x27C);
             }
             {
-                register u32 loadedTimer asm("r0");
-                register u32 oldTimer asm("r1");
+                u32 loadedTimer;
+                u32 oldTimer;
                 loadedTimer = gUnk_3002C68;
                 oldTimer = loadedTimer;
                 loadedTimer++;
@@ -573,10 +573,9 @@ void UpdateCutsceneSequence150(s32 frame)
     }
 
     {
-        register u16 *buffer asm("r1");
+        u16 *buffer;
         register u16 *destination asm("r1");
         buffer = gOamBuffer;
-        asm("" : "+r" (buffer));
         destination = AppendCutsceneOamTemplate(oamFrame, buffer, 120, 80);
         FinalizeCutsceneOamBuffer(destination);
     }
@@ -767,9 +766,9 @@ void UpdateCutsceneBackgroundVariantTransition(s32 frame)
     case 2:
     {
       u32 eventTimer;
-      register u32 *timerPointer asm("r6");
-      register u32 *timerPointerWork asm("r2");
-      register vu16 *bg2Vertical asm("r1");
+      u32 *timerPointer;
+      u32 *timerPointerWork;
+      vu16 *bg2Vertical;
       register u32 work asm("r0");
 
       eventTimer = gUnk_3002C64;
@@ -790,18 +789,17 @@ void UpdateCutsceneBackgroundVariantTransition(s32 frame)
       }
 
       bg2Vertical = (vu16 *)0x0400001A;
-      asm("" : "+r"(bg2Vertical));
       timerPointerWork = &gUnk_3002C64;
       work = *timerPointerWork;
       work >>= 4;
       *bg2Vertical = work;
 
       {
-        register u32 horizontalAddress asm("r0");
-        register u16 horizontalValue asm("r4");
-        register u32 zero asm("r3");
-        register s32 signedValue asm("r1");
-        register s16 *horizontalPointer asm("r3");
+        u32 horizontalAddress;
+        u16 horizontalValue;
+        u32 zero;
+        s32 signedValue;
+        s16 *horizontalPointer;
 
         horizontalAddress = (u32)&gCutsceneBackgroundHorizontalOffset;
         horizontalValue = *(u16 *)horizontalAddress;
@@ -822,8 +820,8 @@ void UpdateCutsceneBackgroundVariantTransition(s32 frame)
           }
 
           {
-            register u16 middleHorizontal asm("r2");
-            register s32 middleSigned asm("r1");
+            u16 middleHorizontal;
+            s32 middleSigned;
 
             middleHorizontal = *(u16 *)horizontalPointer;
             work = 0;
@@ -846,10 +844,10 @@ storeHorizontal:
           }
 
           {
-            register vu16 *bg0Horizontal asm("r2");
-            register u32 currentHorizontal asm("r1");
-            register u32 maskedHorizontal asm("r0");
-            register vu16 *bg2Horizontal asm("r1");
+            vu16 *bg0Horizontal;
+            u32 currentHorizontal;
+            u32 maskedHorizontal;
+            vu16 *bg2Horizontal;
 
             bg0Horizontal = (vu16 *)0x04000010;
             currentHorizontal = *(u16 *)horizontalPointer;
@@ -863,13 +861,13 @@ storeHorizontal:
       }
 
       {
-        register u32 timerValue asm("r4");
+        u32 timerValue;
         timerValue = *timerPointer;
         if (timerValue > 146)
         {
-          register vu16 *blendY asm("r2");
-          register const u8 *waveTable asm("r0");
-          register u32 waveMask asm("r1");
+          vu16 *blendY;
+          const u8 *waveTable;
+          u32 waveMask;
 
           blendY = (vu16 *)0x04000012;
           waveTable = sUnk_878E6D8;
@@ -880,10 +878,10 @@ storeHorizontal:
         }
         else if (timerValue > 64)
         {
-          register vu16 *blendY asm("r3");
-          register const u8 *waveTable asm("r2");
-          register u32 waveIndex asm("r0");
-          register u32 waveMask asm("r1");
+          vu16 *blendY;
+          const u8 *waveTable;
+          u32 waveIndex;
+          u32 waveMask;
 
           blendY = (vu16 *)0x04000012;
           waveTable = sUnk_878E6D4;
@@ -950,7 +948,7 @@ void InitializeWindowedCutsceneBackgrounds(void)
 
 void UpdateLayeredBackgroundTransition(s32 inputFrame)
 {
-  register s32 frame asm("r5");
+  s32 frame;
   u8 *oam;
   u16 *destination;
   s32 count;
@@ -961,7 +959,7 @@ void UpdateLayeredBackgroundTransition(s32 inputFrame)
   s32 x;
   s16 offset;
   s16 wave;
-  register s32 waveIndex asm("r0");
+  s32 waveIndex;
   s32 range;
   frame = inputFrame;
   switch (gUnk_3002C60)
@@ -983,9 +981,9 @@ void UpdateLayeredBackgroundTransition(s32 inputFrame)
 
     case 2:
       {
-        register u16 rawOffset asm("r3");
-        register s32 signedOffset asm("r2");
-        register u16 updatedOffset asm("r0");
+        u16 rawOffset;
+        s32 signedOffset;
+        u16 updatedOffset;
 
         rawOffset = gCutsceneBackgroundHorizontalOffset;
         signedOffset = gCutsceneBackgroundHorizontalOffset;
@@ -1037,7 +1035,7 @@ void UpdateLayeredBackgroundTransition(s32 inputFrame)
       *((vu16 *) 0x04000014) = (gCutsceneBackgroundHorizontalOffset - wave) & 0x1FF;
       new_var = (u32) (((u8 *) 0x05000020) + ((frame % 13) * 32));
       {
-        register u32 dmaValue asm("r0");
+        u32 dmaValue;
         dma = (vu32 *) 0x040000D4;
         dma[0] = new_var;
         asm("" : "=r"(dmaValue) : "0"((u32)0x05000020));
@@ -1045,7 +1043,6 @@ void UpdateLayeredBackgroundTransition(s32 inputFrame)
         dmaValue = 0x84000008;
         dma[2] = dmaValue;
         dmaValue = dma[2];
-        asm("" : : "r"(dmaValue));
       }
       if (gCutsceneBackgroundHorizontalOffset == 240)
     {
@@ -1151,7 +1148,7 @@ void UpdateLayeredBackgroundTransition(s32 inputFrame)
     }
       {
         register s32 signedMax asm("r2");
-        register s32 roundedMax asm("r0");
+        s32 roundedMax;
         signedMax = gCutsceneBackgroundHorizontalOffset;
         roundedMax = signedMax;
         if (signedMax < 0)
@@ -1187,7 +1184,7 @@ void UpdateLayeredBackgroundTransition(s32 inputFrame)
     }
     else
     {
-      register s32 elseOffset asm("r2");
+      s32 elseOffset;
       asm("" : "=r"(elseOffset));
       destination = AppendCutsceneOamTemplate((u16 *) oam, destination, (-elseOffset) + 128, wave + 64);
     }
@@ -1254,7 +1251,7 @@ void InitializeScaledSpriteCutscene(void)
 
 void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
 {
-    register s32 frame asm("r8");
+    s32 frame;
     const u16 *oamA;
     const u16 *oamB;
     u16 *dst;
@@ -1278,7 +1275,7 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
         gCutsceneAnimationFinished = 280;
         gUnk_3002C9A = 144;
         {
-            register vu16 *offsetPointer asm("r1");
+            vu16 *offsetPointer;
             register s32 negativeOffset asm("r3");
             register s32 offsetValue asm("r0");
             offsetPointer = &gUnk_3002C44;
@@ -1290,7 +1287,7 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
         }
         InitCutsceneDarkenBlendFromBlack(52);
         {
-            register vu16 *displayPointer asm("r1");
+            vu16 *displayPointer;
             register s32 displayValue asm("r4");
             register s32 storedDisplayValue asm("r0");
             displayPointer = (volatile u16 *)0x04000000;
@@ -1326,9 +1323,9 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
         break;
     case 3:
         {
-            register s32 *counterPointer asm("r4");
-            register s32 counterValue asm("r1");
-            register s32 callTimer asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 callTimer;
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
             callTimer = counterValue;
@@ -1340,9 +1337,9 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
         break;
     case 4:
         {
-            register s32 *counterPointer asm("r4");
-            register s32 counterValue asm("r1");
-            register s32 callTimer asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 callTimer;
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
             callTimer = counterValue;
@@ -1376,9 +1373,9 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
     case 6:
         SelectCutsceneAnimationLoop8(frame, &oamA);
         {
-            register s32 *counterPointer asm("r6");
-            register s32 counterValue asm("r1");
-            register s32 callTimer asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 callTimer;
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
             callTimer = counterValue;
@@ -1396,9 +1393,9 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
         break;
     case 7:
         {
-            register s32 *counterPointer asm("r4");
-            register s32 counterValue asm("r1");
-            register s32 callTimer asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 callTimer;
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
             callTimer = counterValue;
@@ -1413,16 +1410,16 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
         break;
     case 8:
         {
-            register s32 *counterPointer asm("r4");
-            register s32 counterValue asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
             if ((u32)counterValue > 54) counterValue = 54;
             SelectCutsceneAnimationLoop55(counterValue, &oamB);
             if ((*counterPointer & 3) == 3) gUnk_3002C9E++;
             {
-                register s32 oldCounter asm("r1");
-                register s32 callTimer asm("r0");
+                s32 oldCounter;
+                s32 callTimer;
                 oldCounter = *counterPointer;
                 callTimer = oldCounter;
                 oldCounter++;
@@ -1435,9 +1432,9 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
     case 9:
         SelectCutsceneAnimationLoop55(54, &oamB);
         {
-            register s32 *counterPointer asm("r4");
-            register s32 counterValue asm("r1");
-            register s32 callTimer asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 callTimer;
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
             callTimer = counterValue;
@@ -1450,9 +1447,9 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
     case 10:
         SelectCutsceneAnimationLoop55(54, &oamB);
         {
-            register s32 *counterPointer asm("r2");
-            register s32 counterValue asm("r1");
-            register s32 callTimer asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 callTimer;
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
             callTimer = counterValue;
@@ -1468,12 +1465,11 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
         gUnk_3002C30++;
     }
     if (gUnk_3002C60 > 2) {
-        register s32 *loadedTimerPointer asm("r1");
-        register s32 *blendTimerPointer asm("r2");
+        s32 *loadedTimerPointer;
+        s32 *blendTimerPointer;
         loadedTimerPointer = &gUnk_3002C68;
         timer = *loadedTimerPointer;
         blendTimerPointer = loadedTimerPointer;
-        asm("" : "+r"(blendTimerPointer));
         if (timer == 15) {
             *(volatile u16 *)0x04000054 = 4;
         } else if (timer == 30) {
@@ -1629,18 +1625,17 @@ void func_8005500(s32 frame)
 
         case 2:
             if ((frame & 7) == 7) {
-                register s16 *verticalPointer asm("r2");
-                register u32 unsignedVertical asm("r3");
+                s16 *verticalPointer;
+                u32 unsignedVertical;
                 register s32 workValue asm("r0");
-                register u32 zero asm("r1");
+                u32 zero;
 
                 verticalPointer = &gCutsceneBackgroundVerticalOffset;
                 unsignedVertical = *(u16 *)verticalPointer;
-                asm("" : : : "memory");
                 zero = 0;
                 workValue = *(s16 *)((u8 *)verticalPointer + zero);
                 if (workValue > 0) {
-                    register vu16 *bg3Horizontal asm("r1");
+                    vu16 *bg3Horizontal;
 
                     bg3Horizontal = (vu16 *)0x0400001A;
                     workValue = unsignedVertical - 1;
@@ -1660,8 +1655,8 @@ void func_8005500(s32 frame)
 
         case 3:
         {
-            register u32 work asm("r0");
-            register s32 signedVertical asm("r1");
+            u32 work;
+            s32 signedVertical;
             register u32 offsetOrPointer asm("r2");
             register u32 unsignedVertical asm("r4");
 
@@ -1728,15 +1723,15 @@ storeVertical3:
 
                 timerPointer = &gUnk_3002C64;
                 if (*timerPointer < (u32)gCutsceneAnimationFinished) {
-                    register u16 **destination1Pointer asm("r6");
+                    u16 **destination1Pointer;
                     register u16 **destination2Pointer asm("r5");
 
                     destination1Pointer = &gUnk_3002C88;
                     {
-                        register u16 *destination asm("r2");
-                        register const u16 **sourcePointer asm("r3");
-                        register const u16 *source asm("r0");
-                        register u16 value asm("r1");
+                        u16 *destination;
+                        const u16 **sourcePointer;
+                        const u16 *source;
+                        u16 value;
 
                         destination = *destination1Pointer;
                         sourcePointer = &gUnk_3002C90;
@@ -1750,10 +1745,10 @@ storeVertical3:
                     }
                     destination2Pointer = &gUnk_3002C8C;
                     {
-                        register u16 *destination asm("r2");
-                        register const u16 **sourcePointer asm("r3");
-                        register const u16 *source asm("r0");
-                        register u16 value asm("r1");
+                        u16 *destination;
+                        const u16 **sourcePointer;
+                        const u16 *source;
+                        u16 value;
 
                         destination = *destination2Pointer;
                         sourcePointer = &gUnk_3002C94;
@@ -1766,9 +1761,9 @@ storeVertical3:
                         *destination2Pointer = destination;
                     }
                     if ((++*timerPointer % (u32)gUnk_3002C9A) == 0) {
-                        register s32 divisor asm("r4");
-                        register u32 adjustment asm("r1");
-                        register u16 *destination asm("r0");
+                        s32 divisor;
+                        u32 adjustment;
+                        u16 *destination;
 
                         divisor = gUnk_3002C9A;
                         adjustment = 64 - divisor;
@@ -1839,7 +1834,7 @@ void InitializeThreeLayerCutsceneBackgroundWithSprites(void)
 
 void func_80058AC(s32 frame)
 {
-    register s32 frameReg asm("r3");
+    s32 frameReg;
     u8 *mainOam;
     u8 *overlayOam;
     u16 *destination;
@@ -1870,18 +1865,17 @@ void func_80058AC(s32 frame)
 
         case 2:
             if ((frameReg & 7) == 7) {
-                register s16 *verticalPointer asm("r2");
-                register u32 unsignedVertical asm("r3");
+                s16 *verticalPointer;
+                u32 unsignedVertical;
                 register s32 workValue asm("r0");
-                register u32 zero asm("r1");
+                u32 zero;
 
                 verticalPointer = &gCutsceneBackgroundVerticalOffset;
                 unsignedVertical = *(u16 *)verticalPointer;
-                asm("" : : : "memory");
                 zero = 0;
                 workValue = *(s16 *)((u8 *)verticalPointer + zero);
                 if (workValue > 0) {
-                    register vu16 *bg3Vertical asm("r1");
+                    vu16 *bg3Vertical;
 
                     bg3Vertical = (vu16 *)0x0400001A;
                     workValue = unsignedVertical - 1;
@@ -1901,8 +1895,8 @@ void func_80058AC(s32 frame)
 
         case 3:
         {
-            register u32 work asm("r0");
-            register s32 signedVertical asm("r1");
+            u32 work;
+            s32 signedVertical;
             register u32 offsetOrPointer asm("r2");
             register u32 unsignedVertical asm("r4");
 
@@ -1969,15 +1963,15 @@ storeVertical3:
 
                 timerPointer = &gUnk_3002C64;
                 if (*timerPointer < (u32)gCutsceneAnimationFinished) {
-                    register u16 **destination1Pointer asm("r6");
+                    u16 **destination1Pointer;
                     register u16 **destination2Pointer asm("r5");
 
                     destination1Pointer = &gUnk_3002C88;
                     {
-                        register u16 *dst asm("r2");
-                        register const u16 **sourcePointer asm("r3");
-                        register const u16 *source asm("r0");
-                        register u16 value asm("r1");
+                        u16 *dst;
+                        const u16 **sourcePointer;
+                        const u16 *source;
+                        u16 value;
 
                         dst = *destination1Pointer;
                         sourcePointer = &gUnk_3002C90;
@@ -1991,10 +1985,10 @@ storeVertical3:
                     }
                     destination2Pointer = &gUnk_3002C8C;
                     {
-                        register u16 *dst asm("r2");
-                        register const u16 **sourcePointer asm("r3");
-                        register const u16 *source asm("r0");
-                        register u16 value asm("r1");
+                        u16 *dst;
+                        const u16 **sourcePointer;
+                        const u16 *source;
+                        u16 value;
 
                         dst = *destination2Pointer;
                         sourcePointer = &gUnk_3002C94;
@@ -2007,9 +2001,9 @@ storeVertical3:
                         *destination2Pointer = dst;
                     }
                     if ((++*timerPointer % (u32)gUnk_3002C9A) == 0) {
-                        register s32 divisor asm("r4");
-                        register u32 adjustment asm("r1");
-                        register u16 *dst asm("r0");
+                        s32 divisor;
+                        u32 adjustment;
+                        u16 *dst;
 
                         divisor = gUnk_3002C9A;
                         adjustment = 64 - divisor;
@@ -2102,22 +2096,18 @@ void InitializeSubGameTransitionGraphics(void)
         m4aSongNumStartOrChange(0x12B);
         m4aSongNumStartOrChange(0x27C);
     } else {
-        register u32 fillConstant asm("r3");
-        register vu32 *fillDma asm("r0");
-        register u32 fillSource asm("r1");
-        register u32 fillControl asm("r2");
+        u32 fillConstant;
+        vu32 *fillDma;
+        u32 fillSource;
+        u32 fillControl;
 
         fillConstant = 0x03FF03FF;
-        asm("" : : "r"(fillConstant));
         fillValue = fillConstant;
         fillDma = (vu32 *)REG_ADDR_DMA3;
-        asm("" : : "r"(fillDma));
         fillSource = (u32)&fillValue;
-        asm("" : : "r"(fillSource));
         fillDma[0] = fillSource;
         fillDma[1] = 0x0600A000;
         fillControl = 0x85000100;
-        asm("" : : "r"(fillControl));
         fillDma[2] = fillControl;
         fillDma[2];
 
@@ -2126,7 +2116,6 @@ void InitializeSubGameTransitionGraphics(void)
             register u32 secondSource asm("r4");
 
             secondSource = (u32)&fillValue;
-            asm("" : : "r"(secondSource));
             fillDma[0] = secondSource;
         }
         fillDma[1] = 0x0600A800;
@@ -2135,10 +2124,9 @@ void InitializeSubGameTransitionGraphics(void)
     }
 
     {
-        register vu32 *paletteDma asm("r1");
+        vu32 *paletteDma;
 
         paletteDma = (vu32 *)REG_ADDR_DMA3;
-        asm("" : : "r"(paletteDma));
         paletteDma[0] = (u32)sUnk_8298990;
         paletteDma[1] = OBJ_PLTT;
         paletteDma[2] = 0x80000060;
@@ -2174,13 +2162,12 @@ void InitializeSubGameTransitionGraphics(void)
     DecodeCutsceneTileRuns(sUnk_82958F2, (u16 *)0x0600B800);
 
     {
-        register vu16 *bgRegister asm("r1");
-        register u32 evenValue asm("r2");
+        vu16 *bgRegister;
+        u32 evenValue;
         register u32 oddValue asm("r4");
         register u16 storeValue asm("r0");
 
         bgRegister = (vu16 *)0x04000008;
-        asm("" : : "r"(bgRegister));
         evenValue = 0x5000;
         *bgRegister = (storeValue = evenValue);
         bgRegister++;
@@ -2195,12 +2182,12 @@ void InitializeSubGameTransitionGraphics(void)
     }
 
     {
-        register s16 zero asm("r2");
-        register s32 activeVariant asm("r3");
+        s16 zero;
+        s32 activeVariant;
         register s16 verticalValue asm("r1");
         register s16 negativeValue asm("r0");
-        register s16 *verticalPointer asm("r4");
-        register vu16 *scrollRegister asm("r0");
+        s16 *verticalPointer;
+        vu16 *scrollRegister;
 
         gCutsceneBackgroundHorizontalOffset = (zero = 0);
         verticalPointer = &gCutsceneBackgroundVerticalOffset;
@@ -2217,7 +2204,7 @@ void InitializeSubGameTransitionGraphics(void)
         *scrollRegister = verticalValue;
 
         {
-            register vu16 *blendRegister asm("r1");
+            vu16 *blendRegister;
             register u32 blendControl asm("r4");
             register u16 storeValue asm("r0");
 
@@ -2226,28 +2213,25 @@ void InitializeSubGameTransitionGraphics(void)
             *blendRegister = (storeValue = blendControl);
         }
         {
-            register s16 *alphaA asm("r1");
+            s16 *alphaA;
             register s16 alphaValue asm("r0");
 
             alphaA = &gUnk_3002C5A;
-            asm("" : : "r"(alphaA));
             alphaValue = 16;
             *alphaA = alphaValue;
         }
         gUnk_3002C5C = zero;
         {
-            register vu16 *alphaRegister asm("r1");
-            register u16 alphaValue asm("r0");
+            vu16 *alphaRegister;
+            u16 alphaValue;
 
             alphaRegister = (vu16 *)0x04000052;
-            asm("" : : "r"(alphaRegister));
             alphaValue = 16;
-            asm("" : : "r"(alphaValue));
             *alphaRegister = alphaValue;
         }
 
         {
-            register s16 *animationPointer asm("r1");
+            s16 *animationPointer;
             register u16 storeValue asm("r0");
 
             if (activeVariant != 0) {
@@ -2256,20 +2240,18 @@ void InitializeSubGameTransitionGraphics(void)
                 storeValue = 148;
                 goto storeAnimationPosition;
             } else {
-                register u32 animationValue asm("r2");
+                u32 animationValue;
                 register u32 positionValue asm("r4");
 
                 animationPointer = &gCutsceneAnimationFinished;
                 animationValue = 160;
                 animationValue <<= 1;
                 storeValue = animationValue;
-                asm("" : "+r"(storeValue));
                 *animationPointer = storeValue;
                 animationPointer = &gUnk_3002C9A;
                 positionValue = 174;
                 positionValue <<= 1;
                 storeValue = positionValue;
-                asm("" : "+r"(storeValue));
             }
 
         storeAnimationPosition:
@@ -2279,11 +2261,10 @@ void InitializeSubGameTransitionGraphics(void)
 
     gUnk_3002C9C = 150;
     {
-        register s16 *offsetPointer asm("r2");
-        register s16 offsetValue asm("r1");
+        s16 *offsetPointer;
+        s16 offsetValue;
 
         offsetPointer = &gLayeredCutsceneOamOffsetY;
-        asm("" : : "r"(offsetPointer));
         offsetValue = 0;
         if (gTitleScreenStyle == 1) {
             offsetValue = 1;
@@ -2295,7 +2276,7 @@ void InitializeSubGameTransitionGraphics(void)
 
 void UpdateLayeredSubGameCutscene(s32 inputFrame)
 {
-  register s32 frame asm("r6");
+  s32 frame;
   u32 fillValue;
   const u16 *oamData;
   u16 *destination;
@@ -2340,29 +2321,26 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
 
     case 2:
       {
-        register s16 *positionPointer asm("r1");
-        register u32 positionRaw asm("r2");
-        register s32 positionSigned asm("r0");
-        register s32 positionZero asm("r3");
+        s16 *positionPointer;
+        u32 positionRaw;
+        s32 positionSigned;
+        s32 positionZero;
 
         positionPointer = &gUnk_3002C9A;
-        asm(
-          "ldrh %0, [%3]\n"
-          "movs %2, #0\n"
-          "ldrsh %1, [%3, %2]"
-          : "=r"(positionRaw), "=r"(positionSigned), "=r"(positionZero)
-          : "r"(positionPointer));
+        positionRaw = *(u16 *)positionPointer;
+        positionZero = 0;
+        positionSigned = *(s16 *)((u8 *)positionPointer + positionZero);
         if (positionSigned > 148)
         {
-          register s32 positionResult asm("r0");
+          s32 positionResult;
 
           positionResult = positionRaw - 1;
           *positionPointer = positionResult;
         }
       }
       {
-        register vu16 *bg0Horizontal asm("r0");
-        register s32 bg0HorizontalValue asm("r1");
+        vu16 *bg0Horizontal;
+        s32 bg0HorizontalValue;
 
         bg0Horizontal = (vu16 *) 0x04000010;
         bg0HorizontalValue = frame << 1;
@@ -2370,20 +2348,17 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
         *bg0Horizontal = bg0HorizontalValue;
       }
       {
-        register s16 *verticalBase asm("r0");
-        register s32 initialSigned asm("r1");
-        register s16 *initialPointer asm("r2");
-        register u32 initialRaw asm("r3");
-        register s32 initialZero asm("r7");
+        s16 *verticalBase;
+        s32 initialSigned;
+        s16 *initialPointer;
+        u32 initialRaw;
+        s32 initialZero;
 
         verticalBase = &gCutsceneBackgroundVerticalOffset;
-        asm(
-          "ldrh %0, [%4]\n"
-          "movs %3, #0\n"
-          "ldrsh %1, [%4, %3]\n"
-          "mov %2, %4"
-          : "=r"(initialRaw), "=r"(initialSigned), "=r"(initialPointer), "=r"(initialZero)
-          : "r"(verticalBase));
+        initialRaw = *(u16 *)verticalBase;
+        initialZero = 0;
+        initialSigned = *(s16 *)((u8 *)verticalBase + initialZero);
+        initialPointer = verticalBase;
         rawValue = initialRaw;
         verticalValue = initialSigned;
         valuePointer = initialPointer;
@@ -2396,18 +2371,15 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
       }
       else
       {
-        register s16 *middlePointer asm("r2");
-        register u32 middleRaw asm("r1");
-        register s32 middleSigned asm("r0");
-        register s32 middleZero asm("r3");
+        s16 *middlePointer;
+        u32 middleRaw;
+        s32 middleSigned;
+        s32 middleZero;
 
         middlePointer = valuePointer;
-        asm(
-          "ldrh %0, [%3]\n"
-          "movs %2, #0\n"
-          "ldrsh %1, [%3, %2]"
-          : "=r"(middleRaw), "=r"(middleSigned), "=r"(middleZero)
-          : "r"(middlePointer));
+        middleRaw = *(u16 *)middlePointer;
+        middleZero = 0;
+        middleSigned = *(s16 *)((u8 *)middlePointer + middleZero);
         middleRawValue = middleRaw;
         middleValue = middleSigned;
         valuePointer = middlePointer;
@@ -2447,10 +2419,10 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
 
     case 3:
       {
-        register u32 *counterPointer asm("r2");
-        register u32 counterValue asm("r0");
-        register u32 destinationValue asm("r1");
-        register u32 backgroundBase asm("r7");
+        u32 *counterPointer;
+        u32 counterValue;
+        u32 destinationValue;
+        u32 backgroundBase;
 
         counterPointer = (u32 *) &gUnk_3002C64;
         counterValue = *counterPointer;
@@ -2480,7 +2452,7 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
           }
           DecodeCutsceneTileRuns(oamData, (u16 *) 0x06008000);
           {
-            register vu16 *scrollPointer asm("r0");
+            vu16 *scrollPointer;
             register s32 zeroValue asm("r2");
             register s32 negativeTwo asm("r3");
             register s32 verticalStoreValue asm("r1");
@@ -2550,7 +2522,7 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
 
     case 6:
       {
-        register s32 animationValue asm("r0");
+        s32 animationValue;
         register s32 animationZero asm("r7");
 
         animationValue = (s32) &gCutsceneAnimationFinished;
@@ -2639,9 +2611,9 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
       gUnk_3002C60++;
     }
     {
-      register const u16 *appendOamData asm("r0");
-      register s16 *appendYPointer asm("r4");
-      register s32 appendYValue asm("r2");
+      const u16 *appendOamData;
+      s16 *appendYPointer;
+      s32 appendYValue;
       register s32 appendYZero asm("r1");
 
       appendOamData = oamData;
@@ -2692,7 +2664,7 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
   *scrollRegister = -(frame >> 3);
   scrollRegister += 2;
   {
-    register s32 finalScrollValue asm("r0");
+    s32 finalScrollValue;
 
     finalScrollValue = frame >> 4;
     finalScrollValue = -finalScrollValue;
@@ -2788,9 +2760,9 @@ void func_8006680(void)
     s32 row;
 
     {
-        register vu32 *dma asm("r4");
-        register u8 *rowDestination asm("r3");
-        register const u8 *rowSource asm("r5");
+        vu32 *dma;
+        u8 *rowDestination;
+        const u8 *rowSource;
         register u32 rowControl asm("r2");
 
         dma = (vu32 *)REG_ADDR_DMA3;
@@ -2831,13 +2803,13 @@ void func_8006680(void)
     DecodeCutsceneTileRuns(sUnk_829D212, (u16 *)0x06009000);
 
     {
-        register u8 *tilemap asm("r4");
+        u8 *tilemap;
         register u8 *copySource asm("r3");
-        register vu32 *copyDma asm("r1");
-        register u32 copyControl asm("r2");
+        vu32 *copyDma;
+        u32 copyControl;
 
         {
-            register const u16 *runs asm("r0");
+            const u16 *runs;
 
             runs = sUnk_829D270;
             tilemap = (u8 *)0x06009800;
@@ -2852,7 +2824,6 @@ void func_8006680(void)
             copyDma[0] = (u32)copySource;
             offset = 0xE8;
             offset <<= 3;
-            asm("" : : "r"(offset));
             copyDma[1] = (u32)copySource + offset;
             copyControl = 0x8000001E;
             copyDma[2] = copyControl;
@@ -2861,7 +2832,6 @@ void func_8006680(void)
             copyDma[0] = (u32)copySource;
             offset = 0xF0;
             offset <<= 3;
-            asm("" : : "r"(offset));
             copyDma[1] = (u32)copySource + offset;
             copyDma[2] = copyControl;
             copyDma[2];
@@ -2869,7 +2839,6 @@ void func_8006680(void)
             copyDma[0] = (u32)copySource;
             offset = 0xF8;
             offset <<= 3;
-            asm("" : : "r"(offset));
             copyDma[1] = (u32)copySource + offset;
             copyDma[2] = copyControl;
             copyDma[2];
@@ -2877,7 +2846,7 @@ void func_8006680(void)
     }
 
     {
-        register vu16 *bgRegister asm("r1");
+        vu16 *bgRegister;
         register u32 value asm("r2");
         register u16 storeValue asm("r0");
 
@@ -2900,8 +2869,8 @@ void func_8006680(void)
 
 void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
 {
-  register s32 frame asm("r8");
-  register u16 *destination asm("r9");
+  s32 frame;
+  u16 *destination;
   const u16 *oam;
   frame = inputFrame;
   destination = gOamBuffer;
@@ -2909,14 +2878,14 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
   {
     case 0:
     {
-      register s16 *position asm("r5");
-      register s16 *particleSeed asm("r4");
-      register s32 i asm("r4");
-      register s32 spacing asm("r6");
-      register s16 *positionBase asm("r0");
-      register s32 loopValue asm("r0");
-      register s32 loopIndex asm("r2");
-      register s32 loopPrimaryY asm("r1");
+      s16 *position;
+      s16 *particleSeed;
+      s32 i;
+      s32 spacing;
+      s16 *positionBase;
+      s32 loopValue;
+      s32 loopIndex;
+      s32 loopPrimaryY;
       gUnk_3002C4E = 0;
       gUnk_3002C50 = 320;
       gUnk_3002C52 = 320;
@@ -2926,7 +2895,7 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
       gUnk_3002CA4 = 120;
       particleSeed = &gUnk_3002CA6;
       {
-        register s32 product asm("r0");
+        s32 product;
         register s32 primaryYValue asm("r5");
         product = FixedMul(16, gUnk_3002C52);
         primaryYValue = (u16)*position;
@@ -2953,7 +2922,7 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
       while (i >= 0);
       gCutsceneAnimationFinished = 0;
       {
-        register s32 negativeValue asm("r2");
+        s32 negativeValue;
         register s16 scroll asm("r1");
         gUnk_3002C9A = (scroll = (negativeValue = -24));
         *((vu16 *) 0x0400001A) = scroll;
@@ -2994,10 +2963,10 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
 
     case 2:
     {
-      register s32 i asm("r4");
+      s32 i;
       register s16 *yPosition asm("r6");
-      register s32 animationFrame asm("r5");
-      register s32 offset asm("sl");
+      s32 animationFrame;
+      s32 offset;
       s32 result;
       if ((gUnk_3002C9C > 64) && ((frame & 3) == 3))
       {
@@ -3075,7 +3044,7 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
       timer = gUnk_3002C64;
       if ((((u32) (timer - 32)) <= 63) && ((timer & 7) == 7))
       {
-        register vu16 *scrollRegister asm("r2");
+        vu16 *scrollRegister;
         register u16 *valuePointer asm("r1");
         register s32 value asm("r0");
         scrollRegister = (vu16 *) 0x04000016;
@@ -3099,7 +3068,7 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
       }
       gUnk_3002C64++;
       {
-        register u16 *alphaAPointer asm("r4");
+        u16 *alphaAPointer;
         register u16 alphaA asm("r3");
         alphaAPointer = &gUnk_3002C5A;
         alphaA = *alphaAPointer;
@@ -3107,12 +3076,12 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
         {
           if ((frame & 7) == 7)
           {
-            register vu16 *blendRegister asm("r2");
+            vu16 *blendRegister;
             register u16 alphaB asm("r1");
             register u16 alphaResult asm("r0");
             blendRegister = (vu16 *) 0x04000052;
             {
-              register u16 *alphaBPointer asm("r0");
+              u16 *alphaBPointer;
               alphaBPointer = &gUnk_3002C5C;
               alphaB = (*alphaBPointer) + 1;
               *alphaBPointer = alphaB;
@@ -3135,9 +3104,9 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
 
     case 4:
     {
-      register u32 *timerPointer asm("r5");
-      register u32 timer asm("r1");
-      register u32 oldTimer asm("r0");
+      u32 *timerPointer;
+      u32 timer;
+      u32 oldTimer;
       register s32 result asm("r4");
       timerPointer = &gUnk_3002C64;
       timer = *timerPointer;
@@ -3192,17 +3161,17 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
       }
       if (SelectCutsceneBgAnimation24Frame(frame, &oam) != 0)
       {
-        register s16 *particlePointer asm("r4");
-        register s32 particleY asm("r0");
+        s16 *particlePointer;
+        s32 particleY;
         particlePointer = &gUnk_3002CA6;
         particleY = FixedMul(16, gUnk_3002C52);
         particleY += (u16)gCutscenePrimaryObjectY;
         *particlePointer = particleY;
       }
       {
-        register u16 *attribute asm("r5");
+        u16 *attribute;
         register u16 mask asm("r4");
-        register u16 attributeValue asm("r0");
+        u16 attributeValue;
         attribute = destination + 2;
         destination = AppendCutsceneOamTemplate(oam, destination, gUnk_3002CA4, gUnk_3002CA6);
         attributeValue = *attribute;
@@ -3313,7 +3282,7 @@ void InitializeLayeredWarioCutscene(void)
 void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
 {
     register s32 frame asm("r6");
-    register s32 effectMode asm("r9");
+    s32 effectMode;
     const u16 *stateOam;
     const u16 *effectOam;
     u16 *destination;
@@ -3331,10 +3300,10 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
     case 0:
         DecreaseCutsceneBlendCoefficient(3);
         {
-            register s16 *horizontalPointer asm("r1");
+            s16 *horizontalPointer;
             register u16 horizontalValue asm("r2");
             register vu16 *backgroundRegister asm("r0");
-            register vu16 *verticalRegister asm("r3");
+            vu16 *verticalRegister;
             s16 *verticalPointer;
             s32 verticalValue;
 
@@ -3362,7 +3331,7 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
         if (gCutscenePrimaryObjectY > 112)
             gCutscenePrimaryObjectY--;
         if (gCutscenePrimaryObjectX <= 119) {
-            register s32 modeValue asm("r4");
+            s32 modeValue;
 
             modeValue = 16;
             effectMode = modeValue;
@@ -3437,8 +3406,8 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
     case 5:
         effectMode = 16;
         {
-            register s32 *counterPointer asm("r4");
-            register s32 counterValue asm("r3");
+            s32 *counterPointer;
+            s32 counterValue;
             register s32 halfTimer asm("r5");
 
             counterPointer = &gUnk_3002C64;
@@ -3476,9 +3445,9 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
 
     case 7:
         {
-            register s32 *counterPointer asm("r4");
-            register s32 counterValue asm("r1");
-            register s32 oldCounter asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 oldCounter;
 
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
@@ -3496,9 +3465,9 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
 
     case 8:
         {
-            register s32 *counterPointer asm("r2");
-            register s32 counterValue asm("r1");
-            register s32 oldCounter asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 oldCounter;
 
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
@@ -3508,7 +3477,7 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
             CutsceneWarioSelectEffectBAnimOam(oldCounter, &stateOam);
         }
         {
-            register s16 *animationPointer asm("r1");
+            s16 *animationPointer;
             register u16 animationValue asm("r0");
 
             animationPointer = &gCutsceneAnimationFinished;
@@ -3556,9 +3525,9 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
         if (gCutscenePrimaryObjectX == 46)
             CutsceneWarioSetPose(0, 2, 16);
         {
-            register s32 *counterPointer asm("r4");
-            register s32 counterValue asm("r1");
-            register s32 oldCounter asm("r0");
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 oldCounter;
 
             counterPointer = &gUnk_3002C64;
             counterValue = *counterPointer;
@@ -3587,8 +3556,8 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
 
     case 13:
         {
-            register s16 *xPointer asm("r2");
-            register u16 xValue asm("r0");
+            s16 *xPointer;
+            u16 xValue;
             register s32 signedX asm("r0");
             register s32 parabolaOffset asm("r5");
 
@@ -3599,17 +3568,16 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
             signedX = *xPointer;
             asm("" : "+r"(signedX));
             parabolaOffset = signedX;
-            asm("" : "+r"(parabolaOffset));
             parabolaOffset -= 104;
             gCutscenePrimaryObjectY = (parabolaOffset * parabolaOffset) / 8 + 136;
             if (gCutscenePrimaryObjectY > 200)
                 gUnk_3002C60++;
             {
-                register s32 finalLoadOffset asm("r3");
+                s32 finalLoadOffset;
 
                 finalLoadOffset = 0;
                 if (*(s16 *)((u8 *)xPointer + finalLoadOffset) <= 103) {
-                    register s32 modeValue asm("r4");
+                    s32 modeValue;
 
                     modeValue = 16;
                     effectMode = modeValue;
@@ -3638,8 +3606,8 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
         destination = AppendCutsceneOamTemplate(stateOam, destination, 152, 144);
 
     if (gUnk_3002C60 > 10) {
-        register s32 loopIndex asm("r5");
-        register s32 tableOffset asm("r4");
+        s32 loopIndex;
+        s32 tableOffset;
 
         loopIndex = 0;
         do {
@@ -3652,8 +3620,8 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
             loopIndex++;
         } while (loopIndex <= 7);
     } else if (gUnk_3002C60 > 3) {
-        register s32 loopIndex asm("r5");
-        register s32 tableOffset asm("r4");
+        s32 loopIndex;
+        s32 tableOffset;
 
         loopIndex = 0;
         do {
@@ -3669,7 +3637,7 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
         } while (loopIndex <= 11);
     } else {
         register s32 loopIndex asm("r5");
-        register s32 tableOffset asm("r4");
+        s32 tableOffset;
 
         loopIndex = 0;
         do {
@@ -3686,13 +3654,12 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
     }
 
     {
-        register s32 modeValue asm("r0");
+        s32 modeValue;
 
         modeValue = effectMode;
-        asm("" : "+r"(modeValue));
         if (modeValue == 16) {
             register s32 oldOffset asm("r0");
-            register s32 updatedOffset asm("r1");
+            s32 updatedOffset;
             s16 *offsetPointer;
 
             offsetPointer = &gLayeredCutsceneOamOffsetX;
@@ -3714,17 +3681,17 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
     FinalizeCutsceneOamBuffer(destination);
 
     if ((u16)(gUnk_3002C60 - 4) <= 5) {
-        register s32 timelineValue asm("r2");
+        s32 timelineValue;
         s32 pitchBits;
-        register s32 depth asm("r9");
-        register s32 lfoSpeed asm("r8");
+        s32 depth;
+        s32 lfoSpeed;
         register s32 tempo asm("r6");
         MusicPlayerInfo *player;
         u32 mask;
 
         {
-            register s32 *timelinePointer asm("r1");
-            register s32 oldTimeline asm("r0");
+            s32 *timelinePointer;
+            s32 oldTimeline;
 
             timelinePointer = &gUnk_3002C68;
             oldTimeline = *timelinePointer;
@@ -4004,9 +3971,9 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
     u8 *gfxOam;
     u8 *objectOam;
     u16 *destination;
-    register s32 frame asm("r8");
+    s32 frame;
     u16 verticalWave;
-    register s32 treasureCount asm("sl");
+    s32 treasureCount;
     u16 fillValue;
     vu32 *dma;
 
@@ -4031,37 +3998,31 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             ConfigureLayeredCutsceneOamOffsets(SelectLayeredCutsceneOamSequence03);
         }
         {
-            register s16 *animationPointer asm("r5");
-            register s32 animationValue asm("r0");
-            register s32 zero asm("r6");
-            register s32 threshold asm("r4");
-            register s32 *counterPointer asm("r2");
-            register s32 counterValue asm("r0");
-            register s32 bitValue asm("r1");
+            s16 *animationPointer;
+            s32 animationValue;
+            s32 zero;
+            s32 threshold;
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 bitValue;
             register s32 animationTimer asm("r3");
             s16 *secondaryPointer;
 
             if ((frame & 1) != 0) {
-                register s16 *decrementPointer asm("r1");
-                register u16 decrementValue asm("r0");
+                s16 *decrementPointer;
+                u16 decrementValue;
 
                 decrementPointer = &gCutscenePrimaryObjectY;
-                asm("" : "+r"(decrementPointer));
                 decrementValue = *decrementPointer;
                 decrementValue--;
                 *decrementPointer = decrementValue;
             }
             animationPointer = &gCutscenePrimaryObjectY;
-            asm("" : "+r"(animationPointer));
             zero = 0;
-            asm("" : "+r"(zero));
             animationValue = *animationPointer;
-            asm("" : "+r"(animationValue));
             threshold = 64;
             threshold = -threshold;
-            asm("" : "+r"(threshold));
             counterPointer = &gUnk_3002C64;
-            asm("" : "+r"(counterPointer));
             if (animationValue < threshold) {
                 *counterPointer = 0;
                 gUnk_3002C60++;
@@ -4098,9 +4059,9 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
         if (!DecreaseCutsceneBlendCoefficient(1))
             break;
         {
-            register s16 *animationPointer asm("r1");
-            register u16 animationValue asm("r2");
-            register s32 signedValue asm("r0");
+            s16 *animationPointer;
+            u16 animationValue;
+            s32 signedValue;
             register s32 deltaValue asm("r3");
             register s32 animationTimer asm("r3");
 
@@ -4109,7 +4070,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             signedValue = *animationPointer;
             if (signedValue > 88) {
                 if ((frame & 1) != 0) {
-                    register s16 *secondaryYPointer asm("r1");
+                    s16 *secondaryYPointer;
 
                     signedValue = animationValue - 1;
                     *animationPointer = signedValue;
@@ -4125,7 +4086,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     *secondaryYPointer = (signedValue >> 3) + 112;
                 }
                 {
-                    register s16 *reloadPointer asm("r0");
+                    s16 *reloadPointer;
 
                     reloadPointer = &gCutsceneAnimationFinished;
                     signedValue = *reloadPointer;
@@ -4135,9 +4096,9 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     animationTimer = 10;
                 SelectLayeredCutsceneOamSequence13(animationTimer, &centerOam);
             } else {
-                register s32 *counterPointer asm("r4");
-                register s32 counterValue asm("r1");
-                register s32 oldCounter asm("r0");
+                s32 *counterPointer;
+                s32 counterValue;
+                s32 oldCounter;
 
                 counterPointer = &gUnk_3002C64;
                 counterValue = *counterPointer;
@@ -4156,10 +4117,10 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
 
     case 3:
         {
-            register u32 *counterPointer asm("r2");
-            register u32 counterValue asm("r0");
-            register u32 oldCounter asm("r1");
-            register s16 *secondaryXPointer asm("r4");
+            u32 *counterPointer;
+            u32 counterValue;
+            u32 oldCounter;
+            s16 *secondaryXPointer;
 
             SelectLayeredCutsceneOamSequence14(100, &centerOam);
             counterPointer = (u32 *)&gUnk_3002C64;
@@ -4168,15 +4129,15 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             counterValue++;
             *counterPointer = counterValue;
             if (oldCounter > 160) {
-                register s32 zero asm("r3");
-                register s32 secondaryX asm("r0");
+                s32 zero;
+                s32 secondaryX;
 
                 secondaryXPointer = &gUnk_3002C9C;
                 zero = 0;
                 secondaryX = *(s16 *)secondaryXPointer;
                 if (secondaryX <= 119) {
                     register s32 parabolaDelta asm("r3");
-                    register s16 *secondaryYPointer asm("r2");
+                    s16 *secondaryYPointer;
                     register s32 parabolaValue asm("r0");
 
                     SelectLayeredCutsceneOamSequence19(0, &secondaryOam);
@@ -4188,14 +4149,13 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     parabolaDelta = secondaryX;
                     parabolaDelta -= 116;
                     secondaryYPointer = &gUnk_3002C9E;
-                    asm("" : "+r"(secondaryYPointer), "+r"(parabolaDelta));
                     parabolaValue = parabolaDelta;
                     parabolaValue *= parabolaDelta;
                     *secondaryYPointer = parabolaValue / 2 + 136;
                 } else if (secondaryX <= 151) {
                     register s32 parabolaDelta asm("r3");
-                    register s16 *secondaryYPointer asm("r1");
-                    register s32 parabolaValue asm("r0");
+                    s16 *secondaryYPointer;
+                    s32 parabolaValue;
 
                     SelectLayeredCutsceneOamSequence19(8, &secondaryOam);
                     (*secondaryXPointer)++;
@@ -4205,7 +4165,6 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     parabolaDelta = secondaryX;
                     parabolaDelta -= 136;
                     secondaryYPointer = &gUnk_3002C9E;
-                    asm("" : "+r"(secondaryYPointer), "+r"(parabolaDelta));
                     parabolaValue = parabolaDelta;
                     parabolaValue *= parabolaDelta;
                     *secondaryYPointer = parabolaValue / 16 + 128;
@@ -4225,9 +4184,9 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             }
         }
         {
-            register s16 *secondaryXPointer asm("r4");
-            register s32 zero asm("r5");
-            register s32 secondaryX asm("r0");
+            s16 *secondaryXPointer;
+            s32 zero;
+            s32 secondaryX;
 
             secondaryXPointer = &gUnk_3002C9C;
             zero = 0;
@@ -4247,7 +4206,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     ConfigureLayeredCutsceneOamOffsets(SelectLayeredCutsceneOamSequence05);
                 }
                 {
-                    register s16 *primaryYPointer asm("r0");
+                    s16 *primaryYPointer;
                     register u16 primaryYValue asm("r1");
 
                     primaryYPointer = &gCutscenePrimaryObjectY;
@@ -4265,8 +4224,8 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
 
     case 4:
         {
-            register u32 *counterPointer asm("r4");
-            register u32 counterValue asm("r2");
+            u32 *counterPointer;
+            u32 counterValue;
 
             SelectLayeredCutsceneOamSequence14(28, &centerOam);
             counterPointer = (u32 *)&gUnk_3002C64;
@@ -4303,12 +4262,12 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
     case 5:
         SelectLayeredCutsceneOamSequence14(100, &centerOam);
         if (gUnk_3002C9C > 88) {
-            register s16 *secondaryXPointer asm("r4");
-            register s32 zero asm("r1");
+            s16 *secondaryXPointer;
+            s32 zero;
             register s32 secondaryX asm("r0");
             register s32 parabolaDelta asm("r3");
-            register s16 *secondaryYPointer asm("r2");
-            register s32 squareValue asm("r1");
+            s16 *secondaryYPointer;
+            s32 squareValue;
             register s32 parabolaValue asm("r0");
 
             secondaryXPointer = &gUnk_3002C9C;
@@ -4320,7 +4279,6 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             parabolaDelta = secondaryX;
             parabolaDelta -= 120;
             secondaryYPointer = &gUnk_3002C9E;
-            asm("" : "+r"(secondaryYPointer), "+r"(parabolaDelta));
             squareValue = parabolaDelta;
             squareValue *= parabolaDelta;
             parabolaValue = squareValue << 1;
@@ -4354,13 +4312,13 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 SelectLayeredCutsceneOamSequence12(frame, &primaryOam);
             }
             {
-                register s16 *primaryXPointer asm("r0");
+                s16 *primaryXPointer;
                 register u16 primaryXValue asm("r1");
-                register s32 zero asm("r6");
+                s32 zero;
                 register s32 primaryXSigned asm("r0");
                 register s32 parabolaDelta asm("r3");
-                register s16 *primaryYPointer asm("r2");
-                register s32 parabolaValue asm("r0");
+                s16 *primaryYPointer;
+                s32 parabolaValue;
 
                 primaryXPointer = &gCutscenePrimaryObjectX;
                 primaryXValue = *primaryXPointer;
@@ -4372,7 +4330,6 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 parabolaDelta = primaryXSigned;
                 parabolaDelta -= 104;
                 primaryYPointer = &gCutscenePrimaryObjectY;
-                asm("" : "+r"(primaryYPointer), "+r"(parabolaDelta));
                 parabolaValue = parabolaDelta;
                 parabolaValue *= parabolaDelta;
                 if (parabolaValue < 0)
@@ -4384,10 +4341,10 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             }
             SelectLayeredCutsceneOamSequence14(100, &centerOam);
         } else {
-            register s32 hasTreasure asm("r0");
-            register s32 *counterPointer asm("r4");
-            register s32 counterValue asm("r1");
-            register s32 oldCounter asm("r0");
+            s32 hasTreasure;
+            s32 *counterPointer;
+            s32 counterValue;
+            s32 oldCounter;
 
             hasTreasure = treasureCount;
             if (hasTreasure != 0) {
@@ -4441,33 +4398,27 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             break;
         LZ77UnCompVram(sUnk_82A229C, (void *)0x06008000);
         {
-            register s16 *objectPointer asm("r0");
-            register vu16 *backgroundRegisterPointer asm("r0");
-            register s16 *animationPointer asm("r2");
+            s16 *objectPointer;
+            vu16 *backgroundRegisterPointer;
+            s16 *animationPointer;
             register s32 horizontalBase asm("r5");
             register s32 horizontalValue asm("r1");
-            register s32 verticalValue asm("r2");
+            s32 verticalValue;
             register s32 animationOffset asm("r6");
             register s32 animationValue asm("r0");
             register s32 primaryOffset asm("r3");
             register s32 objectY asm("r2");
 
             objectPointer = &gCutsceneBackgroundHorizontalOffset;
-            asm("" : "+r"(objectPointer));
             horizontalBase = 136;
-            asm("" : "+r"(horizontalBase));
             horizontalBase <<= 1;
             asm("" : "+r"(horizontalBase));
             horizontalValue = horizontalBase;
-            asm("" : "+r"(horizontalValue));
             *objectPointer = horizontalValue;
             objectPointer = &gCutsceneBackgroundVerticalOffset;
-            asm("" : "+r"(objectPointer));
             verticalValue = 56;
-            asm("" : "+r"(verticalValue));
             *objectPointer = verticalValue;
             backgroundRegisterPointer = (vu16 *)0x04000010;
-            asm("" : "+r"(backgroundRegisterPointer));
             *backgroundRegisterPointer = horizontalValue;
             backgroundRegisterPointer++;
             *backgroundRegisterPointer = verticalValue;
@@ -4476,35 +4427,26 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             backgroundRegisterPointer++;
             *backgroundRegisterPointer = verticalValue;
             animationPointer = &gCutsceneAnimationFinished;
-            asm("" : "+r"(animationPointer));
             animationOffset = 128;
-            asm("" : "+r"(animationOffset));
             animationOffset <<= 1;
             asm("" : "+r"(animationOffset));
             animationValue = horizontalValue + animationOffset;
-            asm("" : "+r"(animationValue));
             *animationPointer = animationValue;
             objectPointer = &gUnk_3002C9A;
-            asm("" : "+r"(objectPointer));
             objectY = 200;
-            asm("" : "+r"(objectY));
             *objectPointer = objectY;
             objectPointer = &gCutscenePrimaryObjectX;
-            asm("" : "+r"(objectPointer));
             primaryOffset = 148;
-            asm("" : "+r"(primaryOffset));
             primaryOffset <<= 1;
             asm("" : "+r"(primaryOffset));
             horizontalValue += primaryOffset;
-            asm("" : "+r"(horizontalValue));
             *objectPointer = horizontalValue;
             objectPointer = &gCutscenePrimaryObjectY;
-            asm("" : "+r"(objectPointer));
             *objectPointer = objectY;
         }
         WaitForVBlankInterrupt();
         {
-            register vu16 *displayControl asm("r1");
+            vu16 *displayControl;
             register s32 displayValue asm("r4");
             register s32 displayCopy asm("r0");
 
@@ -4521,10 +4463,10 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
     case 9:
         DecreaseCutsceneBlendCoefficient(1);
         {
-            register s16 *horizontalPointer asm("r3");
-            register u16 horizontalValue asm("r2");
-            register s32 decrementedValue asm("r1");
-            register u32 unsignedDifference asm("r0");
+            s16 *horizontalPointer;
+            u16 horizontalValue;
+            s32 decrementedValue;
+            u32 unsignedDifference;
 
             horizontalPointer = &gCutsceneBackgroundHorizontalOffset;
             horizontalValue = *horizontalPointer;
@@ -4532,8 +4474,8 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             unsignedDifference = (u16)decrementedValue;
             if (unsignedDifference <= 54) {
                 if ((frame & 1) != 0) {
-                    register s16 *verticalPointer asm("r1");
-                    register u16 verticalValue asm("r0");
+                    s16 *verticalPointer;
+                    u16 verticalValue;
 
                     *horizontalPointer = decrementedValue;
                     verticalPointer = &gCutsceneBackgroundVerticalOffset;
@@ -4542,12 +4484,11 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     *verticalPointer = verticalValue;
                 }
             } else {
-                register s32 signedHorizontal asm("r0");
+                s32 signedHorizontal;
 
                 signedHorizontal = (s16)horizontalValue;
                 if (signedHorizontal > 0)
                     *horizontalPointer = decrementedValue;
-                asm("" : : "r"(horizontalValue));
             }
         }
         if (treasureCount != 0) {
@@ -4558,10 +4499,10 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             SelectLayeredCutsceneOamSequence10(frame, &primaryOam);
         }
         {
-            register s16 *primaryXPointer asm("r2");
-            register u16 primaryXValue asm("r3");
-            register s32 zero asm("r0");
-            register s32 signedPrimaryX asm("r1");
+            s16 *primaryXPointer;
+            u16 primaryXValue;
+            s32 zero;
+            s32 signedPrimaryX;
             register s32 negativeLimit asm("r0");
 
             primaryXPointer = &gCutscenePrimaryObjectX;
@@ -4578,9 +4519,9 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             }
         }
         {
-            register s16 *primaryXPointer asm("r2");
-            register u16 primaryXValue asm("r1");
-            register u32 rangeValue asm("r0");
+            s16 *primaryXPointer;
+            u16 primaryXValue;
+            u32 rangeValue;
 
             primaryXPointer = &gCutscenePrimaryObjectX;
             primaryXValue = *primaryXPointer;
@@ -4588,9 +4529,9 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             rangeValue -= 64;
             rangeValue = (u16)rangeValue;
             if (rangeValue <= 103) {
-                register s16 *primaryYPointer asm("r4");
-                register s32 zero asm("r3");
-                register s32 signedValue asm("r1");
+                s16 *primaryYPointer;
+                s32 zero;
+                s32 signedValue;
                 register s32 result asm("r0");
 
                 rangeValue = primaryXValue + 1;
@@ -4609,10 +4550,10 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
         }
         SelectLayeredCutsceneOamSequence13(frame, &centerOam);
         {
-            register s16 *animationPointer asm("r2");
-            register u16 animationValue asm("r3");
-            register s32 zero asm("r4");
-            register s32 signedAnimation asm("r1");
+            s16 *animationPointer;
+            u16 animationValue;
+            s32 zero;
+            s32 signedAnimation;
             register s32 negativeLimit asm("r0");
 
             animationPointer = &gCutsceneAnimationFinished;
@@ -4625,17 +4566,17 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 *animationPointer = negativeLimit;
             }
             {
-                register u16 animationValue2 asm("r1");
-                register u32 rangeValue asm("r0");
+                u16 animationValue2;
+                u32 rangeValue;
 
                 animationValue2 = *animationPointer;
                 rangeValue = animationValue2;
                 rangeValue -= 64;
                 rangeValue = (u16)rangeValue;
                 if (rangeValue <= 103) {
-                    register s16 *secondaryYPointer asm("r4");
-                    register s32 zero2 asm("r5");
-                    register s32 signedValue asm("r1");
+                    s16 *secondaryYPointer;
+                    s32 zero2;
+                    s32 signedValue;
                     register s32 result asm("r0");
 
                     rangeValue = animationValue2 + 1;
@@ -4659,9 +4600,9 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
         if (!IncreaseCutsceneBlendCoefficient(1))
             break;
         {
-            register vu32 *fillDma asm("r4");
-            register u32 fillConstant asm("r6");
-            register u32 fillControl asm("r5");
+            vu32 *fillDma;
+            u32 fillConstant;
+            u32 fillControl;
 
             {
                 register u16 *fillPointer asm("r0");
@@ -4670,7 +4611,6 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 fillLoad = 0x03FF;
                 asm("" : "+r"(fillPointer), "+r"(fillLoad));
                 fillConstant = fillLoad;
-                asm("" : "+r"(fillConstant));
                 *fillPointer = fillConstant;
                 fillDma = (vu32 *)0x040000D4;
                 fillDma[0] = (u32)fillPointer;
@@ -4689,7 +4629,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             DecodeCutsceneTileRuns(sUnk_82A1E7A, (u16 *)0x06009000);
 
             {
-                register u16 *fillPointer asm("r1");
+                u16 *fillPointer;
                 register u32 thirdFill asm("r0");
                 register u32 thirdConstant asm("r2");
 
@@ -4706,25 +4646,20 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             DecodeCutsceneTileRuns(sUnk_82A1FBC, (u16 *)0x0600A000);
         }
         {
-            register s16 *objectPointer asm("r0");
-            register vu16 *backgroundRegisterPointer asm("r0");
-            register s16 *primaryXPointer asm("r1");
-            register s32 horizontalValue asm("r1");
-            register s32 zero asm("r2");
-            register s32 primaryXValue asm("r0");
+            s16 *objectPointer;
+            vu16 *backgroundRegisterPointer;
+            s16 *primaryXPointer;
+            s32 horizontalValue;
+            s32 zero;
+            s32 primaryXValue;
 
             objectPointer = &gCutsceneBackgroundHorizontalOffset;
-            asm("" : "+r"(objectPointer));
             horizontalValue = 16;
-            asm("" : "+r"(horizontalValue));
             *objectPointer = horizontalValue;
             objectPointer = &gCutsceneBackgroundVerticalOffset;
-            asm("" : "+r"(objectPointer));
             zero = 0;
-            asm("" : "+r"(zero));
             *objectPointer = zero;
             backgroundRegisterPointer = (vu16 *)0x04000010;
-            asm("" : "+r"(backgroundRegisterPointer));
             *backgroundRegisterPointer = horizontalValue;
             backgroundRegisterPointer++;
             *backgroundRegisterPointer = zero;
@@ -4733,39 +4668,29 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             backgroundRegisterPointer++;
             *backgroundRegisterPointer = zero;
             objectPointer = &gCutsceneAnimationFinished;
-            asm("" : "+r"(objectPointer));
             horizontalValue += 240;
             *objectPointer = horizontalValue;
             objectPointer = &gUnk_3002C9A;
-            asm("" : "+r"(objectPointer));
             zero = 112;
-            asm("" : "+r"(zero));
             *objectPointer = zero;
             primaryXPointer = &gCutscenePrimaryObjectX;
-            asm("" : "+r"(primaryXPointer));
             primaryXValue = 148;
-            asm("" : "+r"(primaryXValue));
             primaryXValue <<= 1;
-            asm("" : "+r"(primaryXValue));
             *primaryXPointer = primaryXValue;
             objectPointer = &gCutscenePrimaryObjectY;
-            asm("" : "+r"(objectPointer));
             *objectPointer = zero;
         }
         WaitForVBlankInterrupt();
         {
-            register vu16 *displayControl asm("r1");
+            vu16 *displayControl;
             register s32 displayValue asm("r3");
             register s32 displayCopy asm("r0");
 
             displayControl = (vu16 *)0x04000000;
-            asm("" : "+r"(displayControl));
             displayValue = 184;
-            asm("" : "+r"(displayValue));
             displayValue <<= 5;
             asm("" : "+r"(displayValue));
             displayCopy = displayValue;
-            asm("" : "+r"(displayCopy));
             *displayControl = displayCopy;
         }
         gUnk_3002C60++;
@@ -4782,7 +4707,6 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             register s32 guard3 asm("r3");
             asm("" : "=r"(guard6), "=r"(guard0), "=r"(guard1), "=r"(guard2), "=r"(guard3));
             if (treasureCount != 0) {
-                asm("" : : "r"(guard6), "r"(guard0), "r"(guard1), "r"(guard2), "r"(guard3));
                 SelectLayeredCutsceneOamSequence00(frame, &primaryOam);
                 SelectLayeredCutsceneOamSequence01(frame, &offsetOam);
                 ConfigureLayeredCutsceneOamOffsets(SelectLayeredCutsceneOamSequence01);
@@ -4820,9 +4744,9 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
 
     destination = (u16 *)gOamBuffer;
     if (gUnk_3002C60 <= 10) {
-        register u16 *xPositions asm("r5");
-        register u16 *yPositions asm("r6");
-        register u8 **objectPointer asm("r4");
+        u16 *xPositions;
+        u16 *yPositions;
+        u8 **objectPointer;
 
         xPositions = (u16 *)gCutsceneObjectXPositions;
         yPositions = (u16 *)gCutsceneObjectYPositions;
@@ -4857,10 +4781,10 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
         destination = AppendCutsceneOamTemplate((const u16 *)gfxOam, destination, 216, 88);
 
     {
-        register const u16 *selectedOam asm("r0");
+        const u16 *selectedOam;
         s32 centerX;
-        register s32 centerY asm("r3");
-        register s32 backgroundY asm("r1");
+        s32 centerY;
+        s32 backgroundY;
 
         selectedOam = (const u16 *)centerOam;
         centerX = gCutsceneAnimationFinished - gCutsceneBackgroundHorizontalOffset;
@@ -4882,28 +4806,24 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
     }
     {
         register const u16 *selectedOam asm("r0");
-        register s16 *primaryXPointer asm("r6");
+        s16 *primaryXPointer;
         register s16 *primaryYPointer asm("r8");
-        register s16 *primaryYLoadPointer asm("r1");
-        register s32 primaryYLoaded asm("r1");
+        s16 *primaryYLoadPointer;
+        s32 primaryYLoaded;
         s32 primaryXPosition;
-        register s32 primaryYPosition asm("r3");
+        s32 primaryYPosition;
         register s32 primaryYCopy asm("ip");
 
         selectedOam = (const u16 *)primaryOam;
-        asm("" : "+r"(selectedOam));
         primaryXPointer = &gCutscenePrimaryObjectX;
-        asm("" : "+r"(primaryXPointer));
         primaryXPosition = *primaryXPointer;
         primaryYLoaded = gCutsceneBackgroundHorizontalOffset;
         primaryXPosition -= primaryYLoaded;
         primaryYLoadPointer = &gCutscenePrimaryObjectY;
         primaryYPointer = primaryYLoadPointer;
-        asm("" : "+r"(primaryYLoadPointer), "+r"(primaryYPointer));
         primaryYLoaded = *primaryYLoadPointer;
         asm("" : "+r"(primaryYLoaded));
         primaryYCopy = primaryYLoaded;
-        asm("" : "+r"(primaryYCopy));
         primaryYLoaded = gCutsceneBackgroundVerticalOffset;
         primaryYPosition = primaryYCopy;
         asm("" : "+r"(primaryYLoaded), "+r"(primaryYPosition));
@@ -4917,13 +4837,11 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
             register s16 *primaryYLowPointer asm("r4");
 
             selectedOam = (const u16 *)offsetOam;
-            asm("" : "+r"(selectedOam));
             primaryXPosition = *primaryXPointer - gCutsceneBackgroundHorizontalOffset;
             primaryXPosition += gLayeredCutsceneOamOffsetX;
             primaryYLowPointer = primaryYPointer;
-            asm("" : "+r"(primaryYLowPointer));
             {
-                register s32 backgroundYLoaded asm("r1");
+                s32 backgroundYLoaded;
 
                 primaryYPosition = *primaryYLowPointer;
                 backgroundYLoaded = gCutsceneBackgroundVerticalOffset;
@@ -4999,7 +4917,7 @@ void InitializeEndingTreasureCutscene(void)
     InitCutsceneBrightenBlendFromWhite(63);
 
     {
-        register s32 negativeValue asm("r2");
+        s32 negativeValue;
         register s16 initialScroll asm("r1");
 
         gCutsceneAnimationFinished = (initialScroll = (negativeValue = -16));
@@ -5213,11 +5131,11 @@ void func_8008B20(u32 frame)
     }
 
     {
-        register u16 *oamDest asm("r9") = (u16 *)gOamBuffer;
+        u16 *oamDest = (u16 *)gOamBuffer;
         register u16 *yOut asm("r5") = &outputs[1];
 
         {
-        register s32 renderCheck asm("r7") = renderPaths;
+        s32 renderCheck = renderPaths;
         if (renderCheck) {
         pathBase = gUnk_3002C64;
         pathFrame = pathBase - 1;
@@ -5330,10 +5248,10 @@ void InitializeEndingBackgroundSetup(void)
     u32 firstBgControlValue;
 
     {
-        register vu32 *dma asm("r0");
-        register u32 tier asm("r3");
-        register u16 *primaryTilemap asm("r4");
-        register u32 control asm("r2");
+        vu32 *dma;
+        u32 tier;
+        u16 *primaryTilemap;
+        u32 control;
 
         tier = *(u16 *)&gUnk_3002C84;
         fillValue = 0x03FF03FF;
@@ -5379,7 +5297,7 @@ void InitializeEndingBackgroundSetup(void)
     }
 
     {
-        register vu32 *dma asm("r4");
+        vu32 *dma;
 
         dma = (vu32 *)REG_ADDR_DMA3;
         dma[0] = (u32)sUnk_82C9FCC;
@@ -5400,8 +5318,8 @@ void InitializeEndingBackgroundSetup(void)
     LZ77UnCompVram(sUnk_82D24B0, (void *)OBJ_VRAM0);
 
     {
-        register vu16 *bgRegister asm("r1");
-        register u32 registerValue asm("r2");
+        vu16 *bgRegister;
+        u32 registerValue;
         register u16 storeValue asm("r0");
 
         bgRegister = (vu16 *)REG_ADDR_BG0CNT;
@@ -5426,7 +5344,7 @@ void InitializeEndingBackgroundSetup(void)
     CalculateCutsceneScrollPath01((s16)gUnk_3002C84, 0, &gUnk_3002C9C, &gUnk_3002C9E);
 
     {
-        register vu16 *scroll asm("r1");
+        vu16 *scroll;
         register u16 value asm("r0");
 
         scroll = (vu16 *)REG_ADDR_BG0HOFS;
@@ -5903,7 +5821,7 @@ void func_800A43C(s32 inputFrame)
     case 4:
     {
         register s32 frameCheck asm("r2");
-        register s32 mask asm("r0");
+        s32 mask;
         mask = 15;
         frameCheck = frame;
         asm("" : "+r"(mask), "+r"(frameCheck));
@@ -5957,7 +5875,7 @@ void func_800A43C(s32 inputFrame)
             if (gUnk_3002C64 == 312)
                 m4aSongNumStartOrChange(422);
             {
-                register s32 selectorFrame asm("r0");
+                s32 selectorFrame;
                 register s32 selectorOffset asm("r3");
                 selectorFrame = gUnk_3002C64;
                 selectorOffset = -312;
@@ -6013,8 +5931,8 @@ void func_800A43C(s32 inputFrame)
             {
                 gUnk_3002C9C = sUnk_878E770[gUnk_3002C84];
                 {
-                    register u16 *destinationY asm("r3") = (u16 *)&gUnk_3002C9E;
-                    register u16 *tableY asm("r1") = (u16 *)sUnk_878E778;
+                    u16 *destinationY = (u16 *)&gUnk_3002C9E;
+                    u16 *tableY = (u16 *)sUnk_878E778;
                     *destinationY = tableY[gUnk_3002C84];
                 }
             }
@@ -6079,11 +5997,11 @@ void func_800A43C(s32 inputFrame)
             if (SelectEndingCutsceneOamSequence27(frame + (0), &particleOam) != 0)
             {
                 s16 *randomPointer;
-                register s32 value asm("r0");
-                register s32 multiplier asm("r5");
-                register s32 constantValue asm("r4");
-                register s32 product asm("r2");
-                register s32 sum asm("r1");
+                s32 value;
+                s32 multiplier;
+                s32 constantValue;
+                s32 product;
+                s32 sum;
                 register s32 remainderBase asm("r0");
                 register s16 *yStore asm("r3");
                 randomPointer = &gUnk_3002CA6;
@@ -6108,7 +6026,7 @@ void func_800A43C(s32 inputFrame)
                 remainderBase = sum;
                 if (sum < 0)
                 {
-                    register s32 negativeBase asm("r3");
+                    s32 negativeBase;
                     negativeBase = 1084;
                     remainderBase = product + negativeBase;
                 }
@@ -6127,9 +6045,9 @@ void func_800A43C(s32 inputFrame)
             }
             {
                 register s16 xStep asm("r3");
-                register s32 yStep asm("r5");
+                s32 yStep;
                 destination = AppendCutsceneOamTemplate(particleOam, destination,
-                                                        ({ register s16 *xPointer asm("r1"); u32 xValue; xPointer = xPositions; xValue = ((u16)*xPointer) >> 8; xStep = 2; xPositions = (s16 *)((u8 *)xPositions + xStep); xValue; }),
+                                                        ({ s16 *xPointer; u32 xValue; xPointer = xPositions; xValue = ((u16)*xPointer) >> 8; xStep = 2; xPositions = (s16 *)((u8 *)xPositions + xStep); xValue; }),
                                                         ({ register s16 *yPointer asm("r4"); u32 yValue; yPointer = yPositions; yValue = (u16)*yPointer; yStep = 2; yPositions = (s16 *)((u8 *)yPositions + yStep); yValue; }));
             }
         } while (0);
@@ -6140,10 +6058,10 @@ void func_800A43C(s32 inputFrame)
             {
                 s16 *randomPointer;
                 register s32 value asm("r0");
-                register s32 multiplier asm("r5");
+                s32 multiplier;
                 register s32 constantValue asm("r4");
-                register s32 product asm("r2");
-                register s32 sum asm("r1");
+                s32 product;
+                s32 sum;
                 register s32 remainderBase asm("r0");
                 register s16 *yStore asm("r2");
                 randomPointer = &gUnk_3002CA6;
@@ -6200,10 +6118,10 @@ void func_800A43C(s32 inputFrame)
             {
                 s16 *randomPointer;
                 register s32 value asm("r0");
-                register s32 multiplier asm("r5");
+                s32 multiplier;
                 register s32 constantValue asm("r4");
-                register s32 product asm("r2");
-                register s32 sum asm("r1");
+                s32 product;
+                s32 sum;
                 register s32 remainderBase asm("r0");
                 register s16 *yStore asm("r2");
                 randomPointer = &gUnk_3002CA6;
@@ -6266,10 +6184,10 @@ void func_800A43C(s32 inputFrame)
             {
                 s16 *randomPointer;
                 register s32 value asm("r0");
-                register s32 multiplier asm("r5");
+                s32 multiplier;
                 register s32 constantValue asm("r4");
-                register s32 product asm("r2");
-                register s32 sum asm("r1");
+                s32 product;
+                s32 sum;
                 register s32 remainderBase asm("r0");
                 register s16 *yStore asm("r2");
                 randomPointer = &gUnk_3002CA6;
@@ -6332,10 +6250,10 @@ void func_800A43C(s32 inputFrame)
             {
                 s16 *randomPointer;
                 register s32 value asm("r0");
-                register s32 multiplier asm("r5");
+                s32 multiplier;
                 register s32 constantValue asm("r4");
-                register s32 product asm("r2");
-                register s32 sum asm("r1");
+                s32 product;
+                s32 sum;
                 register s32 remainderBase asm("r0");
                 register s16 *yStore asm("r2");
                 randomPointer = &gUnk_3002CA6;
@@ -6398,10 +6316,10 @@ void func_800A43C(s32 inputFrame)
             {
                 s16 *randomPointer;
                 register s32 value asm("r0");
-                register s32 multiplier asm("r5");
+                s32 multiplier;
                 register s32 constantValue asm("r4");
-                register s32 product asm("r2");
-                register s32 sum asm("r1");
+                s32 product;
+                s32 sum;
                 register s32 remainderBase asm("r0");
                 register s16 *yStore asm("r2");
                 randomPointer = &gUnk_3002CA6;
@@ -6464,10 +6382,10 @@ void func_800A43C(s32 inputFrame)
             {
                 s16 *randomPointer;
                 register s32 value asm("r0");
-                register s32 multiplier asm("r5");
+                s32 multiplier;
                 register s32 constantValue asm("r4");
-                register s32 product asm("r2");
-                register s32 sum asm("r1");
+                s32 product;
+                s32 sum;
                 register s32 remainderBase asm("r0");
                 register s16 *yStore asm("r2");
                 randomPointer = &gUnk_3002CA6;
@@ -6530,10 +6448,10 @@ void func_800A43C(s32 inputFrame)
             {
                 s16 *randomPointer;
                 register s32 value asm("r0");
-                register s32 multiplier asm("r5");
+                s32 multiplier;
                 register s32 constantValue asm("r4");
-                register s32 product asm("r2");
-                register s32 sum asm("r1");
+                s32 product;
+                s32 sum;
                 register s32 remainderBase asm("r0");
                 register s16 *yStore asm("r2");
                 randomPointer = &gUnk_3002CA6;
@@ -6590,9 +6508,9 @@ void func_800A43C(s32 inputFrame)
 
     {
         register s32 renderPathsCheck asm("r5");
-        register u32 *timerPointer asm("r9");
-        register u32 *timerPointerLow asm("r0");
-        register u16 **pathOamAddress asm("r8");
+        u32 *timerPointer;
+        u32 *timerPointerLow;
+        u16 **pathOamAddress;
         register u16 **pathOamAddressLow asm("r1");
         renderPathsCheck = renderTreasurePaths;
         if (renderPathsCheck != 0)
@@ -6608,7 +6526,7 @@ void func_800A43C(s32 inputFrame)
             pathOamAddress = pathOamAddressLow;
             SelectEndingCutsceneOamSequence38(pathFrame, pathOamAddressLow);
             {
-                register s32 *readPointer asm("r2");
+                s32 *readPointer;
                 readPointer = (s32 *)timerPointer;
                 timer = *readPointer;
             }
@@ -6617,7 +6535,7 @@ void func_800A43C(s32 inputFrame)
 
             SelectEndingCutsceneOamSequence37(pathFrame + 7, pathOamAddress);
             {
-                register s32 *readPointer asm("r1");
+                s32 *readPointer;
                 readPointer = (s32 *)timerPointer;
                 timer = *readPointer;
             }
@@ -6626,7 +6544,7 @@ void func_800A43C(s32 inputFrame)
 
             SelectEndingCutsceneOamSequence39(pathFrame, pathOamAddress);
             {
-                register s32 *readPointer asm("r2");
+                s32 *readPointer;
                 readPointer = (s32 *)timerPointer;
                 timer = *readPointer;
             }
@@ -6635,7 +6553,7 @@ void func_800A43C(s32 inputFrame)
 
             SelectEndingCutsceneOamSequence40(pathFrame + 7, pathOamAddress);
             {
-                register s32 *readPointer asm("r2");
+                s32 *readPointer;
                 readPointer = (s32 *)timerPointer;
                 timer = *readPointer;
             }

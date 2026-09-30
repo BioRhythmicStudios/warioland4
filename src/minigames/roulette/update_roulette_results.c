@@ -23,7 +23,6 @@ int UpdateRouletteResults(void)
                 u8 *reload;
                 u32 value;
                 reload = &gMinigameSequenceState;
-                asm volatile("" : "+r"(reload));
                 value = *reload;
                 value++;
                 *reload = value;
@@ -58,12 +57,7 @@ int UpdateRouletteResults(void)
             {
                 u16 zero;
                 zero = 0;
-                /* A one-instruction store boundary keeps this delay state from
-                 * being tail-merged with state 4 by agbcc. */
-                asm volatile("strh %1, [%0]"
-                             :
-                             : "r"(timer), "r"(zero)
-                             : "memory");
+                *timer = zero;
             }
         }
         goto advanceState;
@@ -83,7 +77,6 @@ int UpdateRouletteResults(void)
             u8 *reload;
             u32 value;
             reload = &gMinigameSequenceState;
-            asm volatile("" : "+r"(reload));
             value = *reload;
             value++;
             *reload = value;
@@ -127,7 +120,6 @@ int UpdateRouletteResults(void)
                     register u8 *blendPtr asm("r0");
                     u32 blendValue;
                     blendPtr = &gRouletteBlendEva;
-                    asm volatile("" : "+r"(blendPtr));
                     blendValue = *blendPtr;
                     blendValue++;
                     *blendPtr = blendValue;
@@ -146,7 +138,6 @@ advanceState:
             u8 *reload;
             u32 value;
             reload = &gMinigameSequenceState;
-            asm volatile("" : "+r"(reload));
             value = *reload;
             value++;
             *reload = value;
@@ -184,7 +175,6 @@ advanceState:
                 register u8 *blendPtr asm("r0");
                 u32 blendValue;
                 blendPtr = &gRouletteBlendEva;
-                asm volatile("" : "+r"(blendPtr));
                 blendValue = *blendPtr;
                 blendValue--;
                 *blendPtr = blendValue;

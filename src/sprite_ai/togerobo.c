@@ -146,9 +146,9 @@ void func_80357B8(void)
 
     {
         struct PrimarySpriteData *sprite;
-        register u8 *work0 asm("r3");
-        register u32 next asm("r0");
-        register u32 timer asm("r1");
+        u8 *work0;
+        u32 next;
+        u32 timer;
 
         sprite = &gCurrentSprite;
         work0 = &sprite->work0;
@@ -156,8 +156,7 @@ void func_80357B8(void)
         if (next != 0) {
             next -= 1;
             *work0 = next;
-            next <<= 24;
-            timer = next >> 24;
+            timer = (u8)next;
             if (timer == 0) {
                 sprite->pOamData = sTogeroboOam_83BCEFC;
                 sprite->currentAnimationFrame = timer;
@@ -204,9 +203,9 @@ void func_8035978(void)
 void func_8035998(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *work0 asm("r3");
-    register u32 next asm("r0");
-    register u32 timer asm("r1");
+    u8 *work0;
+    u32 next;
+    u32 timer;
 
     func_80238A4();
     func_8023B88();
@@ -218,8 +217,7 @@ void func_8035998(void)
         next = *work0;
         next -= 1;
         *work0 = next;
-        next <<= 24;
-        timer = next >> 24;
+        timer = (u8)next;
         if (timer == 0) {
             switch (sprite->pose) {
                 case 18:
@@ -233,8 +231,6 @@ void func_8035998(void)
                         u8 *hitbox;
                         hitbox = &sprite->hitboxExtentLeft;
                         *hitbox++ = 28;
-                        /* Preserve the required post-increment addressing form. */
-                        asm("" : "+r"(hitbox));
                         *hitbox = 24;
                     }
                     break;
@@ -308,7 +304,7 @@ void func_8035AE0(void)
 void func_8035B00(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *work0 asm("r3");
+    u8 *work0;
     register u32 old asm("r0");
     register u32 next asm("r1");
     register u32 check asm("r0");
@@ -350,7 +346,7 @@ void func_8035B5C(void)
 void func_8035B88(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *work0 asm("r3");
+    u8 *work0;
     register u32 old asm("r0");
     register u32 next asm("r1");
     register u32 check asm("r0");
@@ -392,7 +388,7 @@ void func_8035BE8(void)
 void func_8035C0C(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *work0 asm("r5");
+    u8 *work0;
     u8 timer;
 
     sprite = &gCurrentSprite;
@@ -409,7 +405,7 @@ void func_8035C0C(void)
         if (gSpriteCollisionResult == 0) {
             sprite->pose = 27;
         } else {
-            register u32 next asm("r0");
+            u32 next;
             next = *work0;
             next -= 1;
             *work0 = next;
@@ -752,9 +748,9 @@ void func_803622C(void)
 
 void func_8036274(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register u8 *work0 asm("r1");
-    register u32 timer asm("r0");
+    struct PrimarySpriteData *sprite;
+    u8 *work0;
+    u32 timer;
 
     sprite = &gCurrentSprite;
     work0 = &sprite->work0;
@@ -768,12 +764,12 @@ void func_8036274(void)
         if (gSpriteCollisionTileType & 0xF) {
             sprite->pose = 29;
         } else {
-            register u8 *work3 asm("r12");
-            register u32 index asm("r2");
-            register const s16 *velocities asm("r5");
-            register u32 velocityAddress asm("r0");
-            register u32 rawVelocity asm("r3");
-            register u32 zero asm("r6");
+            u8 *work3;
+            u32 index;
+            const s16 *velocities;
+            u32 velocityAddress;
+            u32 rawVelocity;
+            u32 zero;
             s16 velocity;
 
             work3 = &sprite->work3;
@@ -785,7 +781,7 @@ void func_8036274(void)
             zero = 0;
             velocity = *(const s16 *)(velocityAddress + zero);
             if (velocity == 0x7FFF) {
-                register u32 previous asm("r1");
+                u32 previous;
                 register u32 yPosition asm("r0");
                 previous = index - 1;
                 previous <<= 1;
@@ -794,7 +790,7 @@ void func_8036274(void)
                 yPosition += *(const u16 *)previous;
                 sprite->yPosition = yPosition;
             } else {
-                register u32 nextIndex asm("r0");
+                u32 nextIndex;
                 u8 *storeWork3;
                 nextIndex = index + 1;
                 storeWork3 = work3;
@@ -850,7 +846,7 @@ void func_8036370(void)
 
 void func_8036384(void)
 {
-    register struct PrimarySpriteData *sprite asm("r12");
+    struct PrimarySpriteData *sprite;
     register u16 status asm("r2");
     register u32 zeroByte asm("r3");
     u32 zeroHalf;
@@ -861,12 +857,10 @@ void func_8036384(void)
     status = 0xA0;
     zeroByte = 0;
     zeroHalf = 0;
-    /* Keep the zero halfword in r4 until the animation timer store. */
-    asm("" : : "r"(zeroHalf));
     status |= oldStatus;
     status &= ~SPRITE_STATUS_HIDDEN;
     {
-        register u8 *fields asm("r1");
+        u8 *fields;
         fields = (u8 *)sprite;
         *(u16 *)fields = status;
         fields += 32;
@@ -877,7 +871,6 @@ void func_8036384(void)
         *fields++ = 140;
         *fields++ = 40;
         /* Preserve the post-increment form required by agbcc for the final extent. */
-        asm("" : "+r"(fields));
         *fields = 36;
     }
     {
@@ -894,7 +887,7 @@ void func_8036384(void)
     if (status & SPRITE_STATUS_FACING_RIGHT) {
         sprite->pose = 51;
     } else {
-        register u32 pose asm("r0");
+        u32 pose;
         pose = 53;
         sprite->pose = pose;
     }
@@ -938,7 +931,7 @@ void func_803645C(void)
 void func_80364A4(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *work0 asm("r2");
+    u8 *work0;
     register u32 old asm("r0");
     register u32 next asm("r1");
     register u32 check asm("r0");
@@ -984,7 +977,7 @@ void func_8036528(void)
 
 void SpriteTogerobo(void)
 {
-    register struct PrimarySpriteData *sprite asm("r2");
+    struct PrimarySpriteData *sprite;
 
     sprite = &gCurrentSprite;
     if (sprite->status & SPRITE_STATUS_UNDERWATER)

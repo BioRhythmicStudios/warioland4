@@ -6,8 +6,8 @@
 #include "wario.h"
 
 
-/* Untyped alias prevents agbcc from re-normalizing an already-clean r5 argument. */
-void BubbleCollisionCheck() asm("func_8023BFC");
+/* Untyped function-pointer view prevents agbcc from re-normalizing an already-clean r5 argument. */
+#define BubbleCollisionCheck ((void (*)())func_8023BFC)
 
 
 void InitBubbleSpawner(void)
@@ -43,8 +43,7 @@ void InitBubbleSpawner(void)
     bounds++;
     *bounds = one;
     bounds++;
-    asm("" : "+r"(bounds));
-    *bounds = one;
+    *(volatile u8 *)bounds = one;
     oam = sBubbleSpawnerOam;
     postSprite = sprite;
     postSprite->pOamData = oam;
@@ -67,8 +66,7 @@ void BubbleSpawnerIdle(void)
     timerValue = *timerPointer;
     timerValue--;
     *timerPointer = timerValue;
-    timerValue <<= 24;
-    timer = (u32)timerValue >> 24;
+    timer = (u8)timerValue;
     if (timer == 0) {
         SpawnPrimarySpriteWithStatus(PSPRITE_9B, sprite->roomSlot, sprite->gfxSlot,
                      sprite->yPosition, sprite->xPosition, timer);
@@ -85,8 +83,7 @@ void StartBubblePop(void)
     temp = 0;
     sprite->pose = 50;
     sprite->pOamData = sBubblePopOam;
-    /* agbcc otherwise inserts a move before this byte store. */
-    asm("strb %0, [%1, #22]" : : "r"(temp), "r"(sprite));
+    sprite->currentAnimationFrame = temp;
     sprite->animationTimer = temp;
     temp = (int)sprite;
     temp += 39;
@@ -96,18 +93,19 @@ void StartBubblePop(void)
 
 void MoveBubble(void)
 {
-    register const u16 *velocityTable asm("r2");
-    register struct PrimarySpriteData *current asm("r1");
+    const u16 *velocityTable;
+    struct PrimarySpriteData *current;
     struct PrimarySpriteData *sprite;
     register struct PrimarySpriteData *movementSprite asm("r4");
     u8 *phasePointer;
     u8 *directionPointer;
     int direction;
-    register u16 velocity asm("r2");
+    u16 velocity;
     u8 *phaseIncrementPointer;
     int phaseValue;
     int zero;
-    register struct PrimarySpriteData *wallHitSprite asm("r0");
+    register u32 r0Work asm("r0");
+    register u32 collisionWork asm("r6");
 
     velocityTable = sHorizontalOscillationVelocity;
     current = &gCurrentSprite;
@@ -117,7 +115,9 @@ void MoveBubble(void)
     direction = *directionPointer;
     sprite = current;
     if (direction != 0) {
-        sprite->xPosition += velocity;
+        u16 xPosition = sprite->xPosition;
+        xPosition += velocity;
+        sprite->xPosition = xPosition;
     } else {
         sprite->xPosition -= velocity;
     }
@@ -144,7 +144,6 @@ void MoveBubble(void)
         register u8 *wallCooldownPointer;
         register u8 *wallCollisionResult asm("r9");
         register int wallCollisionValue asm("r1");
-        register int wallCollisionMask asm("r6");
         int maskedCollision;
 
         oldY = movementSprite->yPosition;
@@ -159,33 +158,33 @@ void MoveBubble(void)
                          movementSprite->xPosition - movementSprite->hitboxExtentLeft);
             wallCollisionResult = &gSpriteCollisionTileType;
             wallCollisionValue = *wallCollisionResult;
-            wallCollisionMask = 15;
-            maskedCollision = wallCollisionMask;
+            collisionWork = 15;
+            maskedCollision = collisionWork;
             maskedCollision &= wallCollisionValue;
             if (maskedCollision != 0) {
-                wallHitSprite = movementSprite;
+                r0Work = (u32)movementSprite;
                 goto wallCollision;
             }
 
             func_8023BFC(sprite->yPosition - 64,
                          sprite->xPosition + sprite->hitboxExtentRight);
             wallCollisionValue = *wallCollisionResult;
-            maskedCollision = wallCollisionMask;
+            maskedCollision = collisionWork;
             maskedCollision &= wallCollisionValue;
             if (maskedCollision != 0) {
-                wallHitSprite = sprite;
+                r0Work = (u32)sprite;
 wallCollision:
                 {
                     u8 *hitDirectionPointer;
                     int hitDirection;
                     int one;
-                    hitDirectionPointer = &wallHitSprite->work1;
+                    hitDirectionPointer = &((struct PrimarySpriteData *)r0Work)->work1;
                     hitDirection = *hitDirectionPointer;
                     one = 1;
                     hitDirection ^= one;
                     *hitDirectionPointer = hitDirection;
                 }
-                *wallCooldownPointer = wallCollisionMask;
+                *wallCooldownPointer = collisionWork;
                 zeroSource = zero;
                 {
                     u8 *phaseStorePointer;
@@ -201,55 +200,50 @@ wallCollision:
     }
 
     {
-        register struct PrimarySpriteData *groundSprite asm("r4");
         u8 *extentPointer;
         int extent;
-        register int yValue asm("r0");
         register int topY asm("r5");
         int xValue;
-        register u8 *groundCollisionResult asm("r6");
         int groundCollisionValue;
         register int groundCollisionMask;
-        register int maskedCollision asm("r0");
 
-        groundSprite = &gCurrentSprite;
-        extentPointer = &groundSprite->hitboxExtentUp;
+        movementSprite = &gCurrentSprite;
+        extentPointer = &movementSprite->hitboxExtentUp;
         extent = *extentPointer;
-        yValue = groundSprite->yPosition;
-        yValue -= extent;
-        yValue <<= 16;
-        topY = (u32)yValue >> 16;
-        xValue = groundSprite->xPosition;
+        r0Work = movementSprite->yPosition;
+        r0Work -= extent;
+        topY = (u16)r0Work;
+        xValue = movementSprite->xPosition;
         xValue -= 28;
         xValue <<= 16;
         xValue = (u32)xValue >> 16;
         BubbleCollisionCheck(topY, xValue);
-        groundCollisionResult = &gSpriteCollisionTileType;
-        groundCollisionValue = *groundCollisionResult;
+        collisionWork = (u32)&gSpriteCollisionTileType;
+        groundCollisionValue = *(u8 *)collisionWork;
         groundCollisionMask = 15;
         asm("" : "+r"(groundCollisionMask));
-        maskedCollision = groundCollisionMask;
-        maskedCollision &= groundCollisionValue;
-        if (maskedCollision != 0) {
+        r0Work = groundCollisionMask;
+        r0Work &= groundCollisionValue;
+        if (r0Work != 0) {
             StartBubblePop();
             goto end;
         }
 
-        xValue = groundSprite->xPosition;
+        xValue = movementSprite->xPosition;
         xValue += 28;
         xValue <<= 16;
         xValue = (u32)xValue >> 16;
         BubbleCollisionCheck(topY, xValue);
-        groundCollisionValue = *groundCollisionResult;
+        groundCollisionValue = *(u8 *)collisionWork;
         asm("" : "+r"(groundCollisionMask));
-        maskedCollision = groundCollisionMask;
-        maskedCollision &= groundCollisionValue;
-        if (maskedCollision != 0) {
+        r0Work = groundCollisionMask;
+        r0Work &= groundCollisionValue;
+        if (r0Work != 0) {
             StartBubblePop();
             goto end;
         }
 
-        func_8023BFC(groundSprite->yPosition - 40, groundSprite->xPosition);
+        func_8023BFC(movementSprite->yPosition - 40, movementSprite->xPosition);
         if (gBackgroundCollisionData.waterType != 1) {
             StartBubblePop();
         }
@@ -270,8 +264,7 @@ void UpdateBubblePop(void)
     timer = *timerPointer;
     timer--;
     *timerPointer = timer;
-    timer <<= 24;
-    timer = (u32)timer >> 24;
+    timer = (u8)timer;
     if (timer != 0) {
         sprite->disableWarioCollisionTimer = 1;
     } else {
@@ -301,8 +294,7 @@ void InitBubble(void)
     bounds = (u8 *)sprite + 32;
     *bounds = 32;
     bytePointer = (u8 *)sprite + 33;
-    /* Preserve the original byte store directly from the long-lived zero register. */
-    asm("strb r4, [%0]" : : "r"(bytePointer));
+    *bytePointer = zero;
     bounds += 2;
     *bounds = 16;
     bounds++;
@@ -312,8 +304,7 @@ void InitBubble(void)
     bounds++;
     *bounds = 48;
     bounds++;
-    asm("" : "+r"(bounds));
-    *bounds = 44;
+    *(volatile u8 *)bounds = 44;
     sprite->warioCollision = 74;
     one = 1;
     sprite->drawPriority = one;
@@ -328,16 +319,15 @@ void InitBubble(void)
         StartBubblePop();
     } else {
         sprite->pOamData = sBubbleIdleOam;
-        /* Preserve the original byte store directly from r4. */
-        asm("strb r4, [r3, #22]" : : "r"(sprite), "r"(zero));
+        /* This byte-lvalue form lets agbcc store the pinned zero directly from r4. */
+        *(u8 *)&sprite->currentAnimationFrame = zero;
         sprite->animationTimer = status;
         sprite->pose = 111;
         sprite->work0 = 26;
         bytePointer = (u8 *)sprite + 41;
-        /* agbcc otherwise copies zero before these adjacent byte stores. */
-        asm("strb r4, [%0]" : : "r"(bytePointer));
+        *bytePointer = zero;
         bytePointer++;
-        asm("strb r4, [%0]" : : "r"(bytePointer));
+        *bytePointer = zero;
         if (sprite->xPosition > gWarioData.xPosition) {
             bytePointer = (u8 *)sprite + 40;
             *bytePointer = zero;
@@ -360,8 +350,7 @@ void BubbleWaitBeforeMoving(void)
     timerValue = *timerPointer;
     timerValue--;
     *timerPointer = timerValue;
-    timerValue <<= 24;
-    timer = (u32)timerValue >> 24;
+    timer = (u8)timerValue;
     if (timer != 0) {
         sprite->disableWarioCollisionTimer = 1;
     } else {

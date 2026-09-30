@@ -143,10 +143,10 @@ void StopDominoActivator(void)
 
 void WakeDominoGoals(void)
 {
-    register struct PrimarySpriteData *sprite asm("r2");
-    register struct PrimarySpriteData *end asm("r5");
-    register int one asm("r4");
-    register int pose asm("r3");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *end;
+    int one;
+    int pose;
 
     sprite = gSpriteData;
     end = (struct PrimarySpriteData *)((u32)sprite + (253 << 2));
@@ -169,14 +169,14 @@ void WakeDominoGoals(void)
 
 void AdvanceDominoAtTile(int yArg, int xArg)
 {
-    register int y asm("r5");
-    register int x asm("r4");
-    register int found asm("r6");
-    register int i asm("r3");
+    int y;
+    int x;
+    int found;
+    int i;
     register u8 *data asm("r1");
     register u8 *address asm("r0");
-    register u8 *persistentBase asm("r1");
-    register int value asm("r1");
+    u8 *persistentBase;
+    int value;
     int offset;
 
     y = yArg;
@@ -239,8 +239,8 @@ void InitDominoActivator(void)
 
 void WaitForDominoActivator(void)
 {
-    register int warioY asm("r5");
-    register struct PrimarySpriteData *sprite asm("r4");
+    int warioY;
+    struct PrimarySpriteData *sprite;
     int warioX;
     int spriteY;
     int spriteX;
@@ -269,10 +269,10 @@ void WaitForDominoActivator(void)
 
 void UpdateDominoActivatorTrail(void)
 {
-    register int y asm("r4");
-    register int x asm("r5");
-    register u8 *counter asm("r1");
-    register u32 value asm("r0");
+    int y;
+    int x;
+    u8 *counter;
+    u32 value;
     int collision;
 
     if (gCurrentSprite.work1 == 255)
@@ -285,7 +285,6 @@ void UpdateDominoActivatorTrail(void)
     case 9:
     case 10:
         value = (u32)&gCurrentSprite;
-        asm("" : "+r"(value));
         counter = (u8 *)value;
         counter += 40;
         value = *counter;
@@ -295,7 +294,6 @@ void UpdateDominoActivatorTrail(void)
     case 11:
     case 12:
         value = (u32)&gCurrentSprite;
-        asm("" : "+r"(value));
         counter = (u8 *)value;
         counter += 40;
         value = *counter;
@@ -305,7 +303,6 @@ void UpdateDominoActivatorTrail(void)
     case 13:
     case 14:
         value = (u32)&gCurrentSprite;
-        asm("" : "+r"(value));
         counter = (u8 *)value;
         counter += 40;
         value = *counter;
@@ -323,7 +320,6 @@ increment10:
     case 17:
     case 18:
         value = (u32)&gCurrentSprite;
-        asm("" : "+r"(value));
         counter = (u8 *)value;
         counter += 40;
         value = *counter;
@@ -356,12 +352,12 @@ void UpdateDominoChain(void)
 
     switch (GetBg2CollisionTypeAtTile(yTile, xTile)) {
     case 9: {
-        register struct PrimarySpriteData *sprite asm("r5");
-        register u8 *timerPtr asm("r9");
+        struct PrimarySpriteData *sprite;
+        u8 *timerPtr;
         register u32 timer asm("r4");
-        register u32 remainder asm("r8");
-        register u32 value asm("r0");
-        register u8 *storePtr asm("r1");
+        u32 remainder;
+        u32 value;
+        u8 *storePtr;
         int collision;
 
         sprite = &gCurrentSprite;
@@ -383,9 +379,9 @@ void UpdateDominoChain(void)
         }
         {
             register u32 previous asm("r0");
-            register u8 *work1Ptr asm("r1");
-            register u32 storedRemainder asm("r1");
-            register u8 *timerStore asm("r0");
+            u8 *work1Ptr;
+            u32 storedRemainder;
+            u8 *timerStore;
 
             previous = timer - 1;
             work1Ptr = &sprite->work1;
@@ -402,25 +398,24 @@ void UpdateDominoChain(void)
         else
             sprite->xPosition += 256;
         {
-            register struct PrimarySpriteData *callSprite asm("r1");
-            register u32 callY asm("r0");
-            register u32 callX asm("r1");
+            struct PrimarySpriteData *callSprite;
+            u32 callY;
+            u32 callX;
 
             callSprite = &gCurrentSprite;
             callY = callSprite->yPosition >> 6;
             callX = callSprite->xPosition;
-            asm volatile("" : "+r"(callX));
             AdvanceDominoAtTile(callY, callX >> 6);
         }
         break;
     }
     case 10: {
-        register struct PrimarySpriteData *sprite asm("r5");
-        register u8 *timerPtr asm("r9");
+        struct PrimarySpriteData *sprite;
+        u8 *timerPtr;
         register u32 timer asm("r4");
-        register u32 remainder asm("r8");
-        register u32 value asm("r0");
-        register u8 *storePtr asm("r1");
+        u32 remainder;
+        u32 value;
+        u8 *storePtr;
         int collision;
 
         sprite = &gCurrentSprite;
@@ -442,9 +437,9 @@ void UpdateDominoChain(void)
         }
         {
             register u32 previous asm("r1");
-            register u8 *work1Ptr asm("r0");
-            register u32 storedRemainder asm("r1");
-            register u8 *timerStore asm("r0");
+            u8 *work1Ptr;
+            u32 storedRemainder;
+            u8 *timerStore;
 
             previous = timer - 1;
             work1Ptr = &sprite->work1;
@@ -461,25 +456,24 @@ void UpdateDominoChain(void)
         else
             sprite->xPosition -= 256;
         {
-            register struct PrimarySpriteData *callSprite asm("r1");
-            register u32 callY asm("r0");
-            register u32 callX asm("r1");
+            struct PrimarySpriteData *callSprite;
+            u32 callY;
+            u32 callX;
 
             callSprite = &gCurrentSprite;
             callY = callSprite->yPosition >> 6;
             callX = callSprite->xPosition;
-            asm volatile("" : "+r"(callX));
             AdvanceDominoAtTile(callY, callX >> 6);
         }
         break;
     }
     case 11: {
-        register struct PrimarySpriteData *sprite asm("r5");
-        register u8 *timerPtr asm("r9");
+        struct PrimarySpriteData *sprite;
+        u8 *timerPtr;
         register u32 timer asm("r4");
-        register u32 remainder asm("r8");
-        register u32 value asm("r0");
-        register u8 *storePtr asm("r1");
+        u32 remainder;
+        u32 value;
+        u8 *storePtr;
 
         sprite = &gCurrentSprite;
         timerPtr = &sprite->work0;
@@ -500,9 +494,9 @@ void UpdateDominoChain(void)
         }
         {
             register u32 previous asm("r1");
-            register u8 *work1Ptr asm("r0");
-            register u32 storedRemainder asm("r1");
-            register u8 *timerStore asm("r0");
+            u8 *work1Ptr;
+            u32 storedRemainder;
+            u8 *timerStore;
 
             previous = timer - 1;
             work1Ptr = &sprite->work1;
@@ -516,24 +510,23 @@ void UpdateDominoChain(void)
         sprite->xPosition += 320;
         sprite->yPosition += 64;
         {
-            register u32 callY asm("r0");
-            register u32 callX asm("r1");
+            u32 callY;
+            u32 callX;
 
             asm volatile("" : "+r"(sprite));
             callY = sprite->yPosition >> 6;
             callX = sprite->xPosition;
-            asm volatile("" : "+r"(callX));
             AdvanceDominoAtTile(callY, callX >> 6);
         }
         break;
     }
     case 12: {
-        register struct PrimarySpriteData *sprite asm("r5");
-        register u8 *timerPtr asm("r9");
+        struct PrimarySpriteData *sprite;
+        u8 *timerPtr;
         register u32 timer asm("r4");
-        register u32 remainder asm("r8");
-        register u32 value asm("r0");
-        register u8 *storePtr asm("r1");
+        u32 remainder;
+        u32 value;
+        u8 *storePtr;
 
         sprite = &gCurrentSprite;
         timerPtr = &sprite->work0;
@@ -554,9 +547,9 @@ void UpdateDominoChain(void)
         }
         {
             register u32 previous asm("r1");
-            register u8 *work1Ptr asm("r0");
-            register u32 storedRemainder asm("r1");
-            register u8 *timerStore asm("r0");
+            u8 *work1Ptr;
+            u32 storedRemainder;
+            u8 *timerStore;
 
             previous = timer - 1;
             work1Ptr = &sprite->work1;
@@ -570,24 +563,23 @@ void UpdateDominoChain(void)
         sprite->xPosition -= 320;
         sprite->yPosition += 64;
         {
-            register u32 callY asm("r0");
-            register u32 callX asm("r1");
+            u32 callY;
+            u32 callX;
 
             asm volatile("" : "+r"(sprite));
             callY = sprite->yPosition >> 6;
             callX = sprite->xPosition;
-            asm volatile("" : "+r"(callX));
             AdvanceDominoAtTile(callY, callX >> 6);
         }
         break;
     }
     case 13: {
-        register struct PrimarySpriteData *sprite asm("r5");
-        register u8 *timerPtr asm("r9");
+        struct PrimarySpriteData *sprite;
+        u8 *timerPtr;
         register u32 timer asm("r4");
-        register u32 remainder asm("r8");
-        register u32 value asm("r0");
-        register u8 *storePtr asm("r1");
+        u32 remainder;
+        u32 value;
+        u8 *storePtr;
 
         sprite = &gCurrentSprite;
         timerPtr = &sprite->work0;
@@ -608,9 +600,9 @@ void UpdateDominoChain(void)
         }
         {
             register u32 previous asm("r1");
-            register u8 *work1Ptr asm("r0");
-            register u32 storedRemainder asm("r1");
-            register u8 *timerStore asm("r0");
+            u8 *work1Ptr;
+            u32 storedRemainder;
+            u8 *timerStore;
 
             previous = timer - 1;
             work1Ptr = &sprite->work1;
@@ -624,24 +616,23 @@ void UpdateDominoChain(void)
         sprite->xPosition += 320;
         sprite->yPosition -= 64;
         {
-            register u32 callY asm("r0");
-            register u32 callX asm("r1");
+            u32 callY;
+            u32 callX;
 
             asm volatile("" : "+r"(sprite));
             callY = sprite->yPosition >> 6;
             callX = sprite->xPosition;
-            asm volatile("" : "+r"(callX));
             AdvanceDominoAtTile(callY, callX >> 6);
         }
         break;
     }
     case 14: {
-        register struct PrimarySpriteData *sprite asm("r5");
-        register u8 *timerPtr asm("r9");
+        struct PrimarySpriteData *sprite;
+        u8 *timerPtr;
         register u32 timer asm("r4");
-        register u32 remainder asm("r8");
-        register u32 value asm("r0");
-        register u8 *storePtr asm("r1");
+        u32 remainder;
+        u32 value;
+        u8 *storePtr;
 
         sprite = &gCurrentSprite;
         timerPtr = &sprite->work0;
@@ -662,9 +653,9 @@ void UpdateDominoChain(void)
         }
         {
             register u32 previous asm("r1");
-            register u8 *work1Ptr asm("r0");
-            register u32 storedRemainder asm("r1");
-            register u8 *timerStore asm("r0");
+            u8 *work1Ptr;
+            u32 storedRemainder;
+            u8 *timerStore;
 
             previous = timer - 1;
             work1Ptr = &sprite->work1;
@@ -678,20 +669,19 @@ void UpdateDominoChain(void)
         sprite->xPosition -= 320;
         sprite->yPosition -= 64;
         {
-            register u32 callY asm("r0");
-            register u32 callX asm("r1");
+            u32 callY;
+            u32 callX;
 
             asm volatile("" : "+r"(sprite));
             callY = sprite->yPosition >> 6;
             callX = sprite->xPosition;
-            asm volatile("" : "+r"(callX));
             AdvanceDominoAtTile(callY, callX >> 6);
         }
         break;
     }
     case 15: {
-        register u32 timer asm("r4");
-        register u32 value asm("r0");
+        u32 timer;
+        u32 value;
         register struct PrimarySpriteData *base asm("r0");
         register u8 *timerPtr asm("r1");
 
@@ -717,10 +707,10 @@ void UpdateDominoChain(void)
         }
         {
             register struct PrimarySpriteData *sprite asm("r3");
-            register u32 previous asm("r1");
-            register u8 *workPtr asm("r0");
-            register u32 zero asm("r2");
-            register u32 position asm("r0");
+            u32 previous;
+            u8 *workPtr;
+            u32 zero;
+            u32 position;
 
             sprite = &gCurrentSprite;
             previous = timer - 1;
@@ -746,8 +736,8 @@ void UpdateDominoChain(void)
         break;
     }
     case 16: {
-        register u32 timer asm("r4");
-        register u32 value asm("r0");
+        u32 timer;
+        u32 value;
         register struct PrimarySpriteData *base asm("r0");
         register u8 *timerPtr asm("r1");
 
@@ -773,10 +763,10 @@ void UpdateDominoChain(void)
         }
         {
             register struct PrimarySpriteData *sprite asm("r3");
-            register u32 previous asm("r1");
-            register u8 *workPtr asm("r0");
-            register u32 zero asm("r2");
-            register u32 position asm("r0");
+            u32 previous;
+            u8 *workPtr;
+            u32 zero;
+            u32 position;
 
             sprite = &gCurrentSprite;
             previous = timer - 1;
@@ -802,8 +792,8 @@ void UpdateDominoChain(void)
         break;
     }
     case 17: {
-        register u32 timer asm("r4");
-        register u32 value asm("r0");
+        u32 timer;
+        u32 value;
         register struct PrimarySpriteData *base asm("r0");
         register u8 *timerPtr asm("r1");
 
@@ -829,10 +819,10 @@ void UpdateDominoChain(void)
         }
         {
             register struct PrimarySpriteData *sprite asm("r3");
-            register u32 previous asm("r1");
-            register u8 *workPtr asm("r0");
-            register u32 zero asm("r2");
-            register u32 position asm("r0");
+            u32 previous;
+            u8 *workPtr;
+            u32 zero;
+            u32 position;
 
             sprite = &gCurrentSprite;
             previous = timer - 1;
@@ -858,8 +848,8 @@ void UpdateDominoChain(void)
         break;
     }
     case 18: {
-        register u32 timer asm("r4");
-        register u32 value asm("r0");
+        u32 timer;
+        u32 value;
         register struct PrimarySpriteData *base asm("r0");
         register u8 *timerPtr asm("r1");
 
@@ -883,10 +873,10 @@ void UpdateDominoChain(void)
             goto callOriginalPosition;
         {
             register struct PrimarySpriteData *sprite asm("r3");
-            register u32 previous asm("r1");
-            register u8 *workPtr asm("r0");
-            register u32 zero asm("r2");
-            register u32 position asm("r0");
+            u32 previous;
+            u8 *workPtr;
+            u32 zero;
+            u32 position;
 
             sprite = &gCurrentSprite;
             previous = timer - 1;
@@ -929,8 +919,8 @@ void FinishDominoChain(void)
     struct PrimarySpriteData *current;
     register int y asm("r6");
     register int x asm("r4");
-    register int found asm("r5");
-    register int index asm("r2");
+    int found;
+    int index;
     register int coordinate asm("r0");
 
     current = &gCurrentSprite;
@@ -949,8 +939,8 @@ void FinishDominoChain(void)
         {
             register u8 *data asm("r0");
             register u8 *base asm("r3");
-            register int shift asm("r0");
-            register int offset asm("r1");
+            int shift;
+            int offset;
 
             data = gRoomSpriteData;
             if (y != data[0] || x != data[1]) {
@@ -976,15 +966,16 @@ roomSearchDone:
         }
 
         {
-            register u8 *persistent asm("r0");
-            register u8 *persistentBase asm("r1");
-            register int value asm("r1");
-            register int mask asm("r0");
+            u8 *persistent;
+            u8 *persistentBase;
+            u32 persistentOffset;
+            int value;
+            int mask;
 
             persistentBase = &gPersistentSpriteData[0][0];
-            persistent = (u8 *)(gCurrentRoom << 6);
-            persistent = (u8 *)(index + (u32)persistent);
-            persistent += (u32)persistentBase;
+            persistentOffset = index;
+            persistentOffset += gCurrentRoom << 6;
+            persistent = persistentBase + persistentOffset;
             value = *persistent;
             mask = 0xF0;
             mask &= value;
@@ -995,12 +986,12 @@ roomSearchDone:
         found = 0xFF;
         index = 0;
         {
-            register u8 *baseLoad asm("r0");
-            register struct PrimarySpriteData *sprites asm("r3");
-            register struct PrimarySpriteData *sprite asm("r1");
-            register int id asm("r1");
-            register int offset asm("r0");
-            register int one asm("r0");
+            u8 *baseLoad;
+            struct PrimarySpriteData *sprites;
+            struct PrimarySpriteData *sprite;
+            int id;
+            int offset;
+            int one;
 
             baseLoad = (u8 *)gSpriteData;
             id = baseLoad[23];
@@ -1166,13 +1157,13 @@ void InitDominoGoalOpenRight(void)
 
 void UpdateDominoGoalClosed(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
-    register u8 *persistent asm("r0");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
+    u8 *persistent;
     register int room asm("r0");
-    register u32 temp asm("r3");
-    register int value asm("r0");
-    register int zero asm("r1");
+    u32 temp;
+    int value;
+    int zero;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -1188,8 +1179,7 @@ void UpdateDominoGoalClosed(void)
         value = *(u8 *)temp;
         value--;
         *(u8 *)temp = value;
-        value <<= 24;
-        zero = (u32)value >> 24;
+        zero = (u8)value;
         if (zero == 0) {
             sprite->pOamData = sDominoGoalOpeningAnimationOam;
             sprite->currentAnimationFrame = zero;
@@ -1223,12 +1213,12 @@ void UpdateDominoGoalOpenLeft(void)
 
 void StartDominoGoalOpening(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
-    register u8 *persistent asm("r0");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
+    u8 *persistent;
     register int room asm("r0");
-    register u32 temp asm("r3");
-    register int value asm("r1");
+    u32 temp;
+    int value;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -1239,7 +1229,6 @@ void StartDominoGoalOpening(void)
     persistent = (u8 *)room;
     persistent += (u32)persistentBase;
     temp = 0;
-    asm("" : "+r"(temp));
     value = 33;
     *persistent = value;
     gSwitchStates[1] = 3;
@@ -1485,11 +1474,11 @@ void InitDominoTile9(void)
 
 void SelectDominoTile0Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    int pose;
+    const struct AnimationFrame *oam;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -1499,9 +1488,7 @@ void SelectDominoTile0Animation(void)
     value += (u32)persistentBase;
     value = *(u8 *)value;
     pose = 0xF0;
-    asm("" : "+r"(pose), "+r"(value));
     pose &= value;
-    asm("" : "+r"(pose));
     value = pose;
 
     if (pose == 0x40)
@@ -1537,32 +1524,24 @@ greater60:
 
 case10:
     oam = sDominoTile0Animation1Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x10));
     goto store;
 case20:
     oam = sDominoTile0Animation2Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x20));
     goto store;
 case30:
     oam = sDominoTile0Animation3Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x30));
     goto store;
 case40:
     oam = sDominoTile0Animation4Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x40));
     goto store;
 case50:
     oam = sDominoTile0Animation5Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x50));
     goto store;
 case60:
     oam = sDominoTile0Animation6Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x60));
     goto store;
 case70:
-    asm("" : : "r"(value));
     oam = sDominoTile0Animation7Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x70));
     goto store;
 useDefault:
     oam = sDominoTile0Animation0Oam;
@@ -1572,11 +1551,11 @@ store:
 
 void SelectDominoTile1Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    int pose;
+    const struct AnimationFrame *oam;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -1586,9 +1565,7 @@ void SelectDominoTile1Animation(void)
     value += (u32)persistentBase;
     value = *(u8 *)value;
     pose = 0xF0;
-    asm("" : "+r"(pose), "+r"(value));
     pose &= value;
-    asm("" : "+r"(pose));
     value = pose;
 
     if (pose == 0x40)
@@ -1624,32 +1601,24 @@ greater60:
 
 case10:
     oam = sDominoTile1Animation1Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x10));
     goto store;
 case20:
     oam = sDominoTile1Animation2Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x20));
     goto store;
 case30:
     oam = sDominoTile1Animation3Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x30));
     goto store;
 case40:
     oam = sDominoTile1Animation4Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x40));
     goto store;
 case50:
     oam = sDominoTile1Animation5Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x50));
     goto store;
 case60:
     oam = sDominoTile1Animation6Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x60));
     goto store;
 case70:
-    asm("" : : "r"(value));
     oam = sDominoTile1Animation7Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x70));
     goto store;
 useDefault:
     oam = sDominoTile1Animation0Oam;
@@ -1659,11 +1628,11 @@ store:
 
 void SelectDominoTile2Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    int pose;
+    const struct AnimationFrame *oam;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -1673,9 +1642,7 @@ void SelectDominoTile2Animation(void)
     value += (u32)persistentBase;
     value = *(u8 *)value;
     pose = 0xF0;
-    asm("" : "+r"(pose), "+r"(value));
     pose &= value;
-    asm("" : "+r"(pose));
     value = pose;
 
     if (pose == 0x50)
@@ -1715,40 +1682,30 @@ greater70:
 
 case10:
     oam = sDominoTile2Animation1Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x10));
     goto store;
 case20:
     oam = sDominoTile2Animation2Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x20));
     goto store;
 case30:
     oam = sDominoTile2Animation3Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x30));
     goto store;
 case40:
     oam = sDominoTile2Animation4Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x40));
     goto store;
 case50:
     oam = sDominoTile2Animation5Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x50));
     goto store;
 case60:
     oam = sDominoTile2Animation6Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x60));
     goto store;
 case70:
     oam = sDominoTile2Animation7Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x70));
     goto store;
 case80:
     oam = sDominoTile2Animation8Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x80));
     goto store;
 case90:
-    asm("" : : "r"(value));
     oam = sDominoTile2Animation9Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x90));
     goto store;
 useDefault:
     oam = sDominoTile2Animation0Oam;
@@ -1758,11 +1715,11 @@ store:
 
 void SelectDominoTile3Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    int pose;
+    const struct AnimationFrame *oam;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -1772,9 +1729,7 @@ void SelectDominoTile3Animation(void)
     value += (u32)persistentBase;
     value = *(u8 *)value;
     pose = 0xF0;
-    asm("" : "+r"(pose), "+r"(value));
     pose &= value;
-    asm("" : "+r"(pose));
     value = pose;
 
     if (pose == 0x50)
@@ -1814,40 +1769,30 @@ greater70:
 
 case10:
     oam = sDominoTile3Animation1Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x10));
     goto store;
 case20:
     oam = sDominoTile3Animation2Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x20));
     goto store;
 case30:
     oam = sDominoTile3Animation3Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x30));
     goto store;
 case40:
     oam = sDominoTile3Animation4Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x40));
     goto store;
 case50:
     oam = sDominoTile3Animation5Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x50));
     goto store;
 case60:
     oam = sDominoTile3Animation6Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x60));
     goto store;
 case70:
     oam = sDominoTile3Animation7Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x70));
     goto store;
 case80:
     oam = sDominoTile3Animation8Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x80));
     goto store;
 case90:
-    asm("" : : "r"(value));
     oam = sDominoTile3Animation9Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x90));
     goto store;
 useDefault:
     oam = sDominoTile3Animation0Oam;
@@ -1857,11 +1802,11 @@ store:
 
 void SelectDominoTile4Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    int pose;
+    const struct AnimationFrame *oam;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -1871,9 +1816,7 @@ void SelectDominoTile4Animation(void)
     value += (u32)persistentBase;
     value = *(u8 *)value;
     pose = 0xF0;
-    asm("" : "+r"(pose), "+r"(value));
     pose &= value;
-    asm("" : "+r"(pose));
     value = pose;
 
     if (pose == 0x40)
@@ -1911,36 +1854,27 @@ greater60:
 
 case10:
     oam = sDominoTile4Animation1Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x10));
     goto store;
 case20:
     oam = sDominoTile4Animation2Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x20));
     goto store;
 case30:
     oam = sDominoTile4Animation3Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x30));
     goto store;
 case40:
     oam = sDominoTile4Animation4Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x40));
     goto store;
 case50:
     oam = sDominoTile4Animation5Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x50));
     goto store;
 case60:
     oam = sDominoTile4Animation6Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x60));
     goto store;
 case70:
     oam = sDominoTile4Animation7Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x70));
     goto store;
 case80:
-    asm("" : : "r"(value));
     oam = sDominoTile4Animation8Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x80));
     goto store;
 useDefault:
     oam = sDominoTile4Animation0Oam;
@@ -1950,11 +1884,11 @@ store:
 
 void SelectDominoTile5Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    int pose;
+    const struct AnimationFrame *oam;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -1964,9 +1898,7 @@ void SelectDominoTile5Animation(void)
     value += (u32)persistentBase;
     value = *(u8 *)value;
     pose = 0xF0;
-    asm("" : "+r"(pose), "+r"(value));
     pose &= value;
-    asm("" : "+r"(pose));
     value = pose;
 
     if (pose == 0x40)
@@ -2004,36 +1936,27 @@ greater60:
 
 case10:
     oam = sDominoTile5Animation1Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x10));
     goto store;
 case20:
     oam = sDominoTile5Animation2Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x20));
     goto store;
 case30:
     oam = sDominoTile5Animation3Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x30));
     goto store;
 case40:
     oam = sDominoTile5Animation4Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x40));
     goto store;
 case50:
     oam = sDominoTile5Animation5Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x50));
     goto store;
 case60:
     oam = sDominoTile5Animation6Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x60));
     goto store;
 case70:
     oam = sDominoTile5Animation7Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x70));
     goto store;
 case80:
-    asm("" : : "r"(value));
     oam = sDominoTile5Animation8Oam;
-    asm volatile("" : "+r"(oam) : "i"(0x80));
     goto store;
 useDefault:
     oam = sDominoTile5Animation0Oam;
@@ -2043,10 +1966,10 @@ store:
 
 void SelectDominoTile6Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
+    int pose;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -2164,10 +2087,10 @@ useDefault:
 
 void SelectDominoTile7Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
+    int pose;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -2285,10 +2208,10 @@ useDefault:
 
 void SelectDominoTile8Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
+    int pose;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -2406,10 +2329,10 @@ useDefault:
 
 void SelectDominoTile9Animation(void)
 {
-    register u8 *persistentBase asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
+    u8 *persistentBase;
+    struct PrimarySpriteData *sprite;
     register int value asm("r0");
-    register int pose asm("r1");
+    int pose;
 
     persistentBase = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -2567,9 +2490,9 @@ void SpriteDominoGoal(void)
 
 void SpriteDominoTile0(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register struct PrimarySpriteData *target asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *target;
+    const struct AnimationFrame *oam;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -2578,37 +2501,30 @@ void SpriteDominoTile0(void)
     case 1:
         target = &gCurrentSprite;
         oam = sDominoTile0Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(1));
         goto commonUpdate;
     case 2:
         target = &gCurrentSprite;
         oam = sDominoTile0Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(2));
         goto commonUpdate;
     case 3:
         target = &gCurrentSprite;
         oam = sDominoTile0Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(3));
         goto commonUpdate;
     case 4:
         target = &gCurrentSprite;
         oam = sDominoTile0Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(4));
         goto commonUpdate;
     case 5:
         target = &gCurrentSprite;
         oam = sDominoTile0Animation5Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(5));
         goto commonUpdate;
     case 6:
         target = &gCurrentSprite;
         oam = sDominoTile0Animation6Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(6));
         goto commonUpdate;
     case 7:
         target = &gCurrentSprite;
         oam = sDominoTile0Animation7Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(7));
         goto commonUpdate;
     case 16:
         goto selectAnimation;
@@ -2637,9 +2553,9 @@ end:
 
 void SpriteDominoTile1(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register struct PrimarySpriteData *target asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *target;
+    const struct AnimationFrame *oam;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -2648,37 +2564,30 @@ void SpriteDominoTile1(void)
     case 1:
         target = &gCurrentSprite;
         oam = sDominoTile1Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(1));
         goto commonUpdate;
     case 2:
         target = &gCurrentSprite;
         oam = sDominoTile1Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(2));
         goto commonUpdate;
     case 3:
         target = &gCurrentSprite;
         oam = sDominoTile1Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(3));
         goto commonUpdate;
     case 4:
         target = &gCurrentSprite;
         oam = sDominoTile1Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(4));
         goto commonUpdate;
     case 5:
         target = &gCurrentSprite;
         oam = sDominoTile1Animation5Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(5));
         goto commonUpdate;
     case 6:
         target = &gCurrentSprite;
         oam = sDominoTile1Animation6Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(6));
         goto commonUpdate;
     case 7:
         target = &gCurrentSprite;
         oam = sDominoTile1Animation7Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(7));
         goto commonUpdate;
     case 16:
         goto selectAnimation;
@@ -2707,9 +2616,9 @@ end:
 
 void SpriteDominoTile2(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register struct PrimarySpriteData *target asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *target;
+    const struct AnimationFrame *oam;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -2718,47 +2627,38 @@ void SpriteDominoTile2(void)
     case 1:
         target = &gCurrentSprite;
         oam = sDominoTile2Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(1));
         goto commonUpdate;
     case 2:
         target = &gCurrentSprite;
         oam = sDominoTile2Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(2));
         goto commonUpdate;
     case 3:
         target = &gCurrentSprite;
         oam = sDominoTile2Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(3));
         goto commonUpdate;
     case 4:
         target = &gCurrentSprite;
         oam = sDominoTile2Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(4));
         goto commonUpdate;
     case 5:
         target = &gCurrentSprite;
         oam = sDominoTile2Animation5Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(5));
         goto commonUpdate;
     case 6:
         target = &gCurrentSprite;
         oam = sDominoTile2Animation6Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(6));
         goto commonUpdate;
     case 7:
         target = &gCurrentSprite;
         oam = sDominoTile2Animation7Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(7));
         goto commonUpdate;
     case 8:
         target = &gCurrentSprite;
         oam = sDominoTile2Animation8Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(8));
         goto commonUpdate;
     case 9:
         target = &gCurrentSprite;
         oam = sDominoTile2Animation9Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(9));
         goto commonUpdate;
     case 16:
         goto selectAnimation;
@@ -2787,9 +2687,9 @@ end:
 
 void SpriteDominoTile3(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register struct PrimarySpriteData *target asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *target;
+    const struct AnimationFrame *oam;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -2798,47 +2698,38 @@ void SpriteDominoTile3(void)
     case 1:
         target = &gCurrentSprite;
         oam = sDominoTile3Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(1));
         goto commonUpdate;
     case 2:
         target = &gCurrentSprite;
         oam = sDominoTile3Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(2));
         goto commonUpdate;
     case 3:
         target = &gCurrentSprite;
         oam = sDominoTile3Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(3));
         goto commonUpdate;
     case 4:
         target = &gCurrentSprite;
         oam = sDominoTile3Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(4));
         goto commonUpdate;
     case 5:
         target = &gCurrentSprite;
         oam = sDominoTile3Animation5Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(5));
         goto commonUpdate;
     case 6:
         target = &gCurrentSprite;
         oam = sDominoTile3Animation6Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(6));
         goto commonUpdate;
     case 7:
         target = &gCurrentSprite;
         oam = sDominoTile3Animation7Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(7));
         goto commonUpdate;
     case 8:
         target = &gCurrentSprite;
         oam = sDominoTile3Animation8Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(8));
         goto commonUpdate;
     case 9:
         target = &gCurrentSprite;
         oam = sDominoTile3Animation9Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(9));
         goto commonUpdate;
     case 16:
         goto selectAnimation;
@@ -2867,7 +2758,7 @@ end:
 
 void SpriteDominoTile4(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
+    struct PrimarySpriteData *sprite;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -2917,7 +2808,7 @@ void SpriteDominoTile4(void)
 
 void SpriteDominoTile5(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
+    struct PrimarySpriteData *sprite;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -2967,9 +2858,9 @@ void SpriteDominoTile5(void)
 
 void SpriteDominoTile6(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register struct PrimarySpriteData *target asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *target;
+    const struct AnimationFrame *oam;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -2978,12 +2869,10 @@ void SpriteDominoTile6(void)
     case 1:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation0Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(1));
         goto commonUpdate;
     case 2:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(2));
         goto commonUpdate;
     case 3:
         target = &gCurrentSprite;
@@ -2993,7 +2882,6 @@ void SpriteDominoTile6(void)
     case 4:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(4));
         goto commonUpdate;
     case 5:
         target = &gCurrentSprite;
@@ -3003,7 +2891,6 @@ void SpriteDominoTile6(void)
     case 6:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(6));
         goto commonUpdate;
     case 7:
         target = &gCurrentSprite;
@@ -3013,7 +2900,6 @@ void SpriteDominoTile6(void)
     case 8:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(8));
         goto commonUpdate;
     case 9:
         target = &gCurrentSprite;
@@ -3023,27 +2909,22 @@ void SpriteDominoTile6(void)
     case 10:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation5Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(10));
         goto commonUpdate;
     case 11:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation6Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(11));
         goto commonUpdate;
     case 12:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation7Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(12));
         goto commonUpdate;
     case 13:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation8Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(13));
         goto commonUpdate;
     case 14:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation9Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(14));
         goto commonUpdate;
     case 16:
         goto selectAnimation;
@@ -3072,9 +2953,9 @@ end:
 
 void SpriteDominoTile7(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register struct PrimarySpriteData *target asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *target;
+    const struct AnimationFrame *oam;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -3083,12 +2964,10 @@ void SpriteDominoTile7(void)
     case 1:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation0Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(1));
         goto commonUpdate;
     case 2:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(2));
         goto commonUpdate;
     case 3:
         target = &gCurrentSprite;
@@ -3098,7 +2977,6 @@ void SpriteDominoTile7(void)
     case 4:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(4));
         goto commonUpdate;
     case 5:
         target = &gCurrentSprite;
@@ -3108,7 +2986,6 @@ void SpriteDominoTile7(void)
     case 6:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(6));
         goto commonUpdate;
     case 7:
         target = &gCurrentSprite;
@@ -3118,7 +2995,6 @@ void SpriteDominoTile7(void)
     case 8:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(8));
         goto commonUpdate;
     case 9:
         target = &gCurrentSprite;
@@ -3128,27 +3004,22 @@ void SpriteDominoTile7(void)
     case 10:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation5Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(10));
         goto commonUpdate;
     case 11:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation6Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(11));
         goto commonUpdate;
     case 12:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation7Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(12));
         goto commonUpdate;
     case 13:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation8Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(13));
         goto commonUpdate;
     case 14:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation9Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(14));
         goto commonUpdate;
     case 16:
         goto selectAnimation;
@@ -3177,9 +3048,9 @@ end:
 
 void SpriteDominoTile8(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register struct PrimarySpriteData *target asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *target;
+    const struct AnimationFrame *oam;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -3188,12 +3059,10 @@ void SpriteDominoTile8(void)
     case 1:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation0Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(1));
         goto commonUpdate;
     case 2:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(2));
         goto commonUpdate;
     case 3:
         target = &gCurrentSprite;
@@ -3203,7 +3072,6 @@ void SpriteDominoTile8(void)
     case 4:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(4));
         goto commonUpdate;
     case 5:
         target = &gCurrentSprite;
@@ -3213,7 +3081,6 @@ void SpriteDominoTile8(void)
     case 6:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(6));
         goto commonUpdate;
     case 7:
         target = &gCurrentSprite;
@@ -3223,7 +3090,6 @@ void SpriteDominoTile8(void)
     case 8:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(8));
         goto commonUpdate;
     case 9:
         target = &gCurrentSprite;
@@ -3233,27 +3099,22 @@ void SpriteDominoTile8(void)
     case 10:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation5Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(10));
         goto commonUpdate;
     case 11:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation6Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(11));
         goto commonUpdate;
     case 12:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation7Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(12));
         goto commonUpdate;
     case 13:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation8Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(13));
         goto commonUpdate;
     case 14:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation9Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(14));
         goto commonUpdate;
     case 16:
         goto selectAnimation;
@@ -3282,9 +3143,9 @@ end:
 
 void SpriteDominoTile9(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register struct PrimarySpriteData *target asm("r1");
-    register const struct AnimationFrame *oam asm("r0");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *target;
+    const struct AnimationFrame *oam;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -3293,12 +3154,10 @@ void SpriteDominoTile9(void)
     case 1:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation0Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(1));
         goto commonUpdate;
     case 2:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(2));
         goto commonUpdate;
     case 3:
         target = &gCurrentSprite;
@@ -3308,7 +3167,6 @@ void SpriteDominoTile9(void)
     case 4:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(4));
         goto commonUpdate;
     case 5:
         target = &gCurrentSprite;
@@ -3318,7 +3176,6 @@ void SpriteDominoTile9(void)
     case 6:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(6));
         goto commonUpdate;
     case 7:
         target = &gCurrentSprite;
@@ -3328,7 +3185,6 @@ void SpriteDominoTile9(void)
     case 8:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(8));
         goto commonUpdate;
     case 9:
         target = &gCurrentSprite;
@@ -3338,27 +3194,22 @@ void SpriteDominoTile9(void)
     case 10:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation5Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(10));
         goto commonUpdate;
     case 11:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation6Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(11));
         goto commonUpdate;
     case 12:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation7Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(12));
         goto commonUpdate;
     case 13:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation8Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(13));
         goto commonUpdate;
     case 14:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation9Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(14));
         goto commonUpdate;
     case 16:
         goto selectAnimation;

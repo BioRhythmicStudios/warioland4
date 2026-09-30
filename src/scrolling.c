@@ -134,18 +134,17 @@ void PrepareVerticalScrollingTileUploads(s32 scrollDelta)
     register u32 scratch0 asm("r0");
     register u32 scratch1 asm("r1");
     register u32 scratch2 asm("r2");
-    register s32 signedRow asm("r3");
-    register u32 xPositionOrTileIndex asm("r4");
-    register u32 layerOrBackground asm("r5");
+    s32 signedRow;
+    u32 xPositionOrTileIndex;
+    u32 layerOrBackground;
     s32 copiedTiles;
     u32 background;
-    register s32 tileCount asm("r8");
-    register VerticalScrollingTileUpload *nextUpload asm("r9");
-    register s32 nextLayer asm("sl");
+    s32 tileCount;
+    VerticalScrollingTileUpload *nextUpload;
+    s32 nextLayer;
     register VerticalScrollingTileUpload *upload asm("ip");
     u16 *destination;
 
-    asm("" : : "m"(scrollDelta));
     upload = gVerticalScrollingTileUploads;
     layerOrBackground = 0;
 
@@ -164,7 +163,6 @@ layer_loop:
     scratch1 = layerOrBackground + 1;
     nextLayer = scratch1;
     scratch2 = sizeof(*upload);
-    asm("" : "+r"(scratch2));
     scratch2 += (u32)upload;
     nextUpload = (VerticalScrollingTileUpload *)scratch2;
 
@@ -214,7 +212,6 @@ layer_loop:
     scratch0 = layerOrBackground << 3;
     layerOrBackground = scratch0 + scratch1;
     scratch0 = *(u16 *)(layerOrBackground + 6);
-    asm("" : "+r"(scratch0));
     if (signedRow > (s32)scratch0)
         goto next_layer;
 
@@ -233,7 +230,6 @@ layer_loop:
 
     copiedTiles = 19;
     scratch1 = 19;
-    asm("" : "+r"(scratch1));
     tileCount = scratch1;
     scratch0 = *(u16 *)(layerOrBackground + 4);
     if ((s32)scratch0 < copiedTiles)
@@ -323,7 +319,7 @@ next_layer:
 
 void ApplyVerticalScrollingTileUploads(void)
 {
-    register VerticalScrollingTileUpload *upload asm("sl");
+    VerticalScrollingTileUpload *upload;
     VerticalScrollingTileUpload *descriptor;
     VerticalScrollingTileUpload *nextUpload;
     register VerticalScrollingTileUpload *fieldDescriptor asm("r2");
@@ -336,11 +332,11 @@ void ApplyVerticalScrollingTileUploads(void)
     u32 destinationBlock;
     u8 tileCount;
     s32 copiedTiles;
-    register u32 blockMask asm("r9");
+    u32 blockMask;
     register u32 rowBit asm("r8");
     register u32 rowOffset asm("ip");
     u32 tileOffset;
-    register s32 uploadIndex asm("r0");
+    s32 uploadIndex;
     s32 nextUploadIndex;
 
     upload = gVerticalScrollingTileUploads;
@@ -374,10 +370,9 @@ outer_loop_vertical:
                 rowBit = constant;
             }
             {
-                register u32 constant asm("r2");
+                u32 constant;
                 constant = 0x80;
                 constant <<= 3;
-                asm("" : "+r"(constant));
                 rowOffset = constant;
             }
 copy_loop_vertical:
@@ -391,7 +386,6 @@ copy_loop_vertical:
             destination = (volatile u16 *)((tileOffset << 1) + vramBase);
             sourceOffset = copiedTiles << 1;
             source = (u16 *)upload;
-            asm("" : "+r"(source));
             source += 3;
             destination[0] = *(u16 *)((u32)source + sourceOffset);
             copiedTiles++;
@@ -487,18 +481,17 @@ void PrepareHorizontalScrollingTileUploads(s32 scrollDelta)
     register u32 scratch0 asm("r0");
     register u32 scratch1 asm("r1");
     register u32 scratch2 asm("r2");
-    register s32 signedColumn asm("r3");
-    register u32 yPositionOrTileIndex asm("r4");
-    register u32 layerOrBackground asm("r5");
+    s32 signedColumn;
+    u32 yPositionOrTileIndex;
+    u32 layerOrBackground;
     s32 copiedTiles;
     u32 background;
-    register s32 tileCount asm("r8");
-    register HorizontalScrollingTileUpload *nextUpload asm("r9");
-    register s32 nextLayer asm("sl");
-    register HorizontalScrollingTileUpload *upload asm("ip");
+    s32 tileCount;
+    HorizontalScrollingTileUpload *nextUpload;
+    s32 nextLayer;
+    HorizontalScrollingTileUpload *upload;
     u16 *destination;
 
-    asm("" : : "m"(scrollDelta));
     upload = gHorizontalScrollingTileUploads;
     layerOrBackground = 0;
 
@@ -517,7 +510,6 @@ layer_loop:
     scratch1 = layerOrBackground + 1;
     nextLayer = scratch1;
     scratch2 = sizeof(*upload);
-    asm("" : "+r"(scratch2));
     scratch2 += (u32)upload;
     nextUpload = (HorizontalScrollingTileUpload *)scratch2;
 
@@ -675,16 +667,16 @@ next_layer:
 
 void ApplyHorizontalScrollingTileUploads(void)
 {
-    register HorizontalScrollingTileUpload *upload asm("r1");
-    register HorizontalScrollingTileUpload *nextUpload asm("r9");
-    register u16 *source asm("r3");
+    HorizontalScrollingTileUpload *upload;
+    HorizontalScrollingTileUpload *nextUpload;
+    u16 *source;
     register volatile u16 *destination asm("r0");
     u32 vramBase;
     u16 destinationFlags;
     u32 destinationBlock;
     u8 tileCount;
     s32 copiedTiles;
-    register u32 mask asm("ip");
+    u32 mask;
     s32 uploadIndex;
     register s32 nextUploadIndex asm("r8");
 
@@ -779,13 +771,12 @@ descriptor_done:
 }
 void WaitForDma3Transfer(void)
 {
-    register volatile u32 *dma asm("r2");
+    volatile u32 *dma;
     register u32 enableMask asm("r1");
-    register s32 status asm("r0");
+    s32 status;
 
     dma = (volatile u32 *)0x040000D4;
     status = (s32)dma[2];
-    asm("" : "+r"(status) : "r"(dma));
     enableMask = 0x80;
     enableMask <<= 24;
     if (status < 0)

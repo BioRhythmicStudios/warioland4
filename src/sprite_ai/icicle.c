@@ -7,15 +7,15 @@
 
 void InitIcicle(void)
 {
-    register struct PrimarySpriteData *current asm("ip");
-    register struct PrimarySpriteData *sprite asm("r4");
+    struct PrimarySpriteData *current;
+    struct PrimarySpriteData *sprite;
     u16 oldStatus;
     register u16 status asm("r0");
     register int zeroByte asm("r2");
     int zeroHalf;
-    register u8 *bounds asm("r1");
+    u8 *bounds;
     u8 *rightExtent;
-    register int extentValue asm("r1");
+    int extentValue;
 
     current = &gCurrentSprite;
     oldStatus = current->status;
@@ -36,7 +36,6 @@ void InitIcicle(void)
     bounds++;
     *bounds = 140;
     bounds++;
-    asm("" : "+r"(bounds));
     *bounds = 20;
     rightExtent = (u8 *)current + 38;
     extentValue = 16;
@@ -77,13 +76,12 @@ void IcicleWaitToFall(void)
             }
         }
     } else {
-        register int zero asm("r1");
+        int zero;
         u8 *work3Pointer;
         sprite->pOamData = sIcicleFallingOam;
         sprite->currentAnimationFrame = timer;
         zero = 0;
-        /* agbcc otherwise redundantly zero-extends the already-clean byte in r2. */
-        asm("strh %0, [%1, #20]" : : "r"(timer), "r"(sprite));
+        sprite->animationTimer = timer;
         sprite->pose = 28;
         work3Pointer = &sprite->work3;
         *work3Pointer = zero;
@@ -129,9 +127,7 @@ void IcicleFall(void)
             s32 previousVelocity;
 
             previousOffset = index - 1;
-            asm("" : "+r"(previousOffset));
             previousOffset <<= 1;
-            asm("" : "+r"(previousOffset));
             previousOffset += (u32)velocities;
             currentY = sprite->yPosition;
             previousVelocity = *(const u16 *)previousOffset;
@@ -221,7 +217,6 @@ void InitIcicleWarning(void)
     bounds++;
     *bounds = 24;
     bounds++;
-    asm("" : "+r"(bounds));
     *bounds = 24;
     hitbox = (u8 *)current + 35;
     one = 1;
@@ -231,7 +226,6 @@ void InitIcicleWarning(void)
     hitbox++;
     *hitbox = one;
     hitbox++;
-    asm("" : "+r"(hitbox));
     *hitbox = one;
     sprite->pOamData = sIcicleWarningOam;
     sprite->currentAnimationFrame = zeroByte;

@@ -68,7 +68,7 @@ void SetMagicCarpetMovementState(void)
     register struct PrimarySpriteData* sprite asm("r2");
     register u16 status asm("r3");
     u8* work2;
-    register u16 newStatus asm("r0");
+    u16 newStatus;
 
     sprite = &gCurrentSprite;
     sprite->currentAnimationFrame = 0;
@@ -141,7 +141,7 @@ void MagicCarpetHandleStandingWario(void)
   u16 status;
   u16 standing;
   register u16 buttons asm("r1");
-  register u8 *work2 asm("r1");
+  u8 *work2;
   register u16 newStatus asm("r0");
   u8 zero;
   func_8023B88();
@@ -244,15 +244,10 @@ void MagicCarpetRiseAndMove(void)
                                 : "=r"(previousVelocity)
                                 : "r"(index), "r"(sMagicCarpetVerticalVelocity));
                             yPosition = sprite->yPosition;
-                            asm volatile("" : "+r"(yPosition), "+r"(previousVelocity));
                             {
                                 register s16 previousValue asm("r1");
                                 previousValue = *previousVelocity;
-                                /* agbcc reverses the commutative add operands here; preserve the
-                                 * target destination/source order with this single instruction. */
-                                asm volatile("add %0, %0, %1"
-                                             : "+r"(yPosition)
-                                             : "r"(previousValue));
+                                yPosition += previousValue;
                             }
                             sprite->yPosition = yPosition;
                         } else {
@@ -387,16 +382,16 @@ void MagicCarpetMoveUnridden(void)
 
 void MagicCarpetMoveWithWario(void)
 {
-    register struct PrimarySpriteData* sprite asm("r4");
+    struct PrimarySpriteData* sprite;
     register u16 groundY asm("r3");
     u16 status;
     register u16 statusCopy asm("r3");
-    register u16 standing asm("r0");
+    u16 standing;
     u16 buttons;
     register u16 buttonMask asm("r0");
     register u32 direction asm("r2");
     u8* work2;
-    register struct PrimarySpriteData* loadedSprite asm("r0");
+    struct PrimarySpriteData* loadedSprite;
 
     sprite = &gCurrentSprite;
     groundY = func_8023A60(sprite->yPosition, sprite->xPosition);
@@ -448,8 +443,8 @@ void MagicCarpetMoveWithWario(void)
                 gWarioData.xPosition -= 4;
             }
             {
-                register struct WarioData* wario asm("r2");
-                register u16 warioX asm("r1");
+                struct WarioData* wario;
+                u16 warioX;
                 register s32 limit asm("r0");
 
                 wario = &gWarioData;
@@ -467,8 +462,8 @@ void MagicCarpetMoveWithWario(void)
                 gWarioData.xPosition += 4;
             }
             {
-                register struct WarioData* wario asm("r2");
-                register u16 warioX asm("r1");
+                struct WarioData* wario;
+                u16 warioX;
                 register s32 limit asm("r0");
 
                 wario = &gWarioData;
@@ -481,8 +476,8 @@ void MagicCarpetMoveWithWario(void)
             }
         }
     } else {
-        register u8* work0 asm("r1");
-        register u32 value asm("r0");
+        u8* work0;
+        u32 value;
 
         work0 = &sprite->work0;
         value = *work0;
@@ -491,10 +486,10 @@ void MagicCarpetMoveWithWario(void)
     }
 
     {
-        register u8* work0 asm("r3");
-        register u32 timer asm("r2");
-        register u32 zero asm("r1");
-        register u8* work3 asm("r0");
+        u8* work0;
+        u32 timer;
+        u32 zero;
+        u8* work3;
 
         /* agbcc speculatively computes this field address in both movement branches;
          * keeping the two-instruction address formation here matches the shared tail. */
@@ -508,7 +503,6 @@ void MagicCarpetMoveWithWario(void)
             sprite->pOamData = sMagicCarpetFlyingOam;
             sprite->currentAnimationFrame = timer;
             zero = 0;
-            asm volatile("" : "+r"(timer), "+r"(zero));
             sprite->animationTimer = timer;
             *work0 = 36;
             work3 = &sprite->work3;
@@ -520,7 +514,7 @@ void MagicCarpetMoveWithWario(void)
 
 void SpriteMagicCarpet(void)
 {
-    register struct PrimarySpriteData* sprite asm("r2");
+    struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
     if (sprite->status & SPRITE_STATUS_UNDERWATER) {

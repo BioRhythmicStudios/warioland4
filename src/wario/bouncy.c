@@ -261,8 +261,7 @@ void UpdateBouncyWarioMovement(void)
         velocity = wario->yVelocity;
         temp = (u32)(u16)velocity << 16;
         temp = (s32)temp >> 19;
-        temp <<= 16;
-        movement = temp >> 16;
+        movement = (u16)temp;
         if (wario->pose != WPOSE_BOUNCY_JUMPING) {
             temp = velocity;
             temp -= 8;

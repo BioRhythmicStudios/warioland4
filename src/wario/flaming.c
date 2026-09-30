@@ -19,8 +19,8 @@ u8 FlamingWarioBlue(void)
 {
     struct WarioData *wario;
     const struct FlamingWarioGraphicsFrame *frames;
-    register u16 pressed asm("r1");
-    register u32 active asm("r0");
+    u16 pressed;
+    u32 active;
     u8 zero;
 
     {
@@ -30,7 +30,6 @@ u8 FlamingWarioBlue(void)
     }
     active = A_BUTTON;
     active &= pressed;
-    asm("" : "+r"(active));
     wario = &gWarioData;
     if ((active) || wario->unk_07 != 0) {
         wario->unk_08 = 1;
@@ -59,8 +58,8 @@ u8 FlamingWarioBlueMidair(void)
 {
     struct WarioData *wario;
     const struct FlamingWarioGraphicsFrame *frames;
-    register u16 pressed asm("r1");
-    register u32 active asm("r0");
+    u16 pressed;
+    u32 active;
     u8 zero;
 
     {
@@ -70,7 +69,6 @@ u8 FlamingWarioBlueMidair(void)
     }
     active = A_BUTTON;
     active &= pressed;
-    asm("" : "+r"(active));
     wario = &gWarioData;
     if (active) {
         wario->unk_07 = 1;
@@ -96,8 +94,8 @@ u8 FlamingWarioGreen(void)
 {
     struct WarioData *wario;
     const struct FlamingWarioGraphicsFrame *frames;
-    register u16 pressed asm("r1");
-    register u32 active asm("r0");
+    u16 pressed;
+    u32 active;
     u8 zero;
 
     {
@@ -107,7 +105,6 @@ u8 FlamingWarioGreen(void)
     }
     active = A_BUTTON;
     active &= pressed;
-    asm("" : "+r"(active));
     wario = &gWarioData;
     if ((active) || wario->unk_07 != 0) {
         wario->unk_08 = 1;
@@ -134,8 +131,8 @@ u8 FlamingWarioGreenMidair(void)
 {
     struct WarioData *wario;
     const struct FlamingWarioGraphicsFrame *frames;
-    register u16 pressed asm("r1");
-    register u32 active asm("r0");
+    u16 pressed;
+    u32 active;
     u8 zero;
 
     {
@@ -145,7 +142,6 @@ u8 FlamingWarioGreenMidair(void)
     }
     active = A_BUTTON;
     active &= pressed;
-    asm("" : "+r"(active));
     wario = &gWarioData;
     if (active) {
         wario->unk_07 = 1;
@@ -171,8 +167,8 @@ u8 FlamingWarioRed(void)
 {
     struct WarioData *wario;
     const struct FlamingWarioGraphicsFrame *frames;
-    register u16 pressed asm("r1");
-    register u32 active asm("r0");
+    u16 pressed;
+    u32 active;
     u8 zero;
 
     {
@@ -182,7 +178,6 @@ u8 FlamingWarioRed(void)
     }
     active = A_BUTTON;
     active &= pressed;
-    asm("" : "+r"(active));
     wario = &gWarioData;
     if ((active) || wario->unk_07 != 0) {
         wario->unk_08 = 1;
@@ -209,8 +204,8 @@ u8 FlamingWarioRedMidair(void)
 {
     struct WarioData *wario;
     const struct FlamingWarioGraphicsFrame *frames;
-    register u16 pressed asm("r1");
-    register u32 active asm("r0");
+    u16 pressed;
+    u32 active;
     u8 zero;
 
     {
@@ -220,7 +215,6 @@ u8 FlamingWarioRedMidair(void)
     }
     active = A_BUTTON;
     active &= pressed;
-    asm("" : "+r"(active));
     wario = &gWarioData;
     if (active) {
         wario->unk_07 = 1;
@@ -270,7 +264,7 @@ u8 FlamingWarioEngulfed(void)
             wario->xVelocity = -0x20;
         }
     } else {
-        register u32 test asm("r0");
+        u32 test;
 
         direction ^= DPAD_LEFT | DPAD_RIGHT;
         test = direction & held;
@@ -348,14 +342,14 @@ u8 FlamingWarioRecovering(void)
 void SetFlamingWarioPose(u8 pose)
 {
     int newPose;
-    register int originalPose asm("r5");
+    int originalPose;
     struct WarioData *wario;
 
     newPose = pose;
     originalPose = newPose;
     wario = &gWarioData;
     if (wario->pose == 9) {
-        register u32 test asm("r0");
+        u32 test;
 
         test = newPose + 3;
         test <<= 24;
@@ -392,11 +386,11 @@ void SetFlamingWarioPose(u8 pose)
     switch (newPose) {
     case 0xFE:
         {
-            register const u8 *config asm("r0");
-            register struct WarioData *target asm("r3");
-            register u8 currentPose asm("r2");
-            register u32 tableOffset asm("r1");
-            register struct WarioData *copy asm("r1");
+            const u8 *config;
+            struct WarioData *target;
+            u8 currentPose;
+            u32 tableOffset;
+            struct WarioData *copy;
 
             config = &sFlamingWarioPoseProperties[0][0];
             target = (struct WarioData *)0x03001898;
@@ -422,11 +416,11 @@ void SetFlamingWarioPose(u8 pose)
 
     case 0xFD:
         {
-            register const u8 *config asm("r0");
-            register struct WarioData *target asm("r2");
-            register u8 currentPose asm("r3");
+            const u8 *config;
+            struct WarioData *target;
+            u8 currentPose;
             register u32 tableOffset asm("r1");
-            register struct WarioData *copy asm("r1");
+            struct WarioData *copy;
 
             config = &sFlamingWarioPoseProperties[0][0];
             target = (struct WarioData *)0x03001898;
@@ -452,8 +446,8 @@ void SetFlamingWarioPose(u8 pose)
     case 3:
     case 5:
         {
-            register struct WarioData *target asm("r0");
-            register struct WarioData *copy asm("r1");
+            struct WarioData *target;
+            struct WarioData *copy;
 
             target = &gWarioData;
             target->pose = newPose;
@@ -466,8 +460,8 @@ void SetFlamingWarioPose(u8 pose)
     case 4:
     case 6:
         {
-            register struct WarioData *target asm("r1");
-            register struct WarioData *copy asm("r2");
+            struct WarioData *target;
+            struct WarioData *copy;
 
             target = &gWarioData;
             target->pose = newPose;
@@ -480,8 +474,8 @@ void SetFlamingWarioPose(u8 pose)
     case 7:
     case 8:
         {
-            register struct WarioData *target asm("r1");
-            register struct WarioData *copy asm("r0");
+            struct WarioData *target;
+            struct WarioData *copy;
 
             target = &gWarioData;
             target->pose = newPose;
@@ -496,7 +490,7 @@ void SetFlamingWarioPose(u8 pose)
         /* fall through */
     default:
         {
-            register struct WarioData *target asm("r0");
+            struct WarioData *target;
 
             target = &gWarioData;
             target->pose = newPose;
@@ -510,9 +504,9 @@ end:
 
 void UpdateFlamingWarioMotion(void)
 {
-    register struct WarioCollisionData *collision asm("r3");
-    register const u8 *config asm("r2");
-    register struct WarioData *wario asm("r4");
+    struct WarioCollisionData *collision;
+    const u8 *config;
+    struct WarioData *wario;
     u16 yOffset;
 
     collision = &gWarioCollisionData;
@@ -520,8 +514,8 @@ void UpdateFlamingWarioMotion(void)
     wario = (struct WarioData *)0x03001898;
 
     {
-        register u32 poseOffset asm("r0");
-        register const u8 *field asm("r1");
+        u32 poseOffset;
+        const u8 *field;
         poseOffset = wario->pose;
         poseOffset <<= 3;
         field = config + 1;
@@ -529,8 +523,8 @@ void UpdateFlamingWarioMotion(void)
         collision->unk_08 = *(const u8 *)poseOffset;
     }
     {
-        register u32 poseOffset asm("r0");
-        register const u8 *field asm("r1");
+        u32 poseOffset;
+        const u8 *field;
         poseOffset = wario->pose;
         poseOffset <<= 3;
         field = config + 2;
@@ -538,7 +532,7 @@ void UpdateFlamingWarioMotion(void)
         collision->unk_09 = *(const u8 *)poseOffset;
     }
     {
-        register u32 poseOffset asm("r0");
+        u32 poseOffset;
         poseOffset = wario->pose;
         poseOffset <<= 3;
         config += 3;
@@ -549,21 +543,20 @@ void UpdateFlamingWarioMotion(void)
     UpdateWarioHorizontalCollisionOffset();
     yOffset = 0;
     if (wario->unk_1A == 2) {
-        register u16 velocity asm("r1");
-        register u32 shifted asm("r0");
+        u16 velocity;
+        u32 shifted;
 
         velocity = wario->yVelocity;
         shifted = velocity;
         shifted <<= 16;
         shifted = (s32)shifted >> 19;
-        shifted <<= 16;
-        yOffset = shifted >> 16;
+        yOffset = (u16)shifted;
         velocity -= 8;
         wario->yVelocity = velocity;
     }
 
     {
-        register struct WarioData *clampWario asm("r4");
+        struct WarioData *clampWario;
         clampWario = wario;
         if (clampWario->yVelocity < -128) {
             clampWario->yVelocity = -128;
@@ -572,7 +565,7 @@ void UpdateFlamingWarioMotion(void)
 
     wario->yPosition -= yOffset;
     {
-        register u32 xVelocity asm("r0");
+        u32 xVelocity;
         if (wario->unk_1A == 0) {
             xVelocity = GetAdjustedWarioXVelocity();
         } else {
@@ -584,7 +577,7 @@ void UpdateFlamingWarioMotion(void)
         xVelocity >>= 16;
         {
             register u32 delta asm("r2");
-            register struct WarioData *positionWario asm("r1");
+            struct WarioData *positionWario;
             u16 xPosition;
 
             delta = xVelocity;
@@ -599,9 +592,9 @@ void UpdateFlamingWarioMotion(void)
 
 void ProcessFlamingWarioCollision(void)
 {
-    register struct WarioCollisionData *collision asm("r4");
-    register const u8 *config asm("r2");
-    register struct WarioData *wario asm("r3");
+    struct WarioCollisionData *collision;
+    const u8 *config;
+    struct WarioData *wario;
     u8 movementResult;
     u16 flags;
     int collisionResult;
@@ -611,8 +604,8 @@ void ProcessFlamingWarioCollision(void)
     wario = (struct WarioData *)0x03001898;
 
     {
-        register u32 poseOffset asm("r0");
-        register const u8 *field asm("r1");
+        u32 poseOffset;
+        const u8 *field;
         poseOffset = wario->pose;
         poseOffset <<= 3;
         field = config + 4;
@@ -620,8 +613,8 @@ void ProcessFlamingWarioCollision(void)
         collision->unk_0B = *(const u8 *)poseOffset;
     }
     {
-        register u32 poseOffset asm("r0");
-        register const u8 *field asm("r1");
+        u32 poseOffset;
+        const u8 *field;
         poseOffset = wario->pose;
         poseOffset <<= 3;
         field = config + 5;
@@ -629,8 +622,8 @@ void ProcessFlamingWarioCollision(void)
         collision->unk_0C = *(const u8 *)poseOffset;
     }
     {
-        register u32 poseOffset asm("r0");
-        register const u8 *field asm("r1");
+        u32 poseOffset;
+        const u8 *field;
         poseOffset = wario->pose;
         poseOffset <<= 3;
         field = config + 6;
@@ -638,7 +631,7 @@ void ProcessFlamingWarioCollision(void)
         collision->unk_0D = *(const u8 *)poseOffset;
     }
     {
-        register u32 poseOffset asm("r0");
+        u32 poseOffset;
         poseOffset = wario->pose;
         poseOffset <<= 3;
         config += 7;
@@ -672,7 +665,7 @@ void ProcessFlamingWarioCollision(void)
     }
 
     {
-        register struct WarioData *currentWario asm("r4");
+        struct WarioData *currentWario;
         u8 pose;
 
         currentWario = &gWarioData;
@@ -683,29 +676,23 @@ void ProcessFlamingWarioCollision(void)
             currentWario->damageTimer = 0x60;
             SetWarioWaterPose(0);
         } else {
-            register int currentPose asm("r0");
+            switch (currentWario->pose) {
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    if (gWarioCollisionData.unk_12 != 0) {
+                        int nextPose;
 
-            currentPose = currentWario->pose;
-            if (currentPose > 6) {
-                goto noDirectionChange;
+                        currentWario->horizontalDirection ^= DPAD_LEFT | DPAD_RIGHT;
+                        nextPose = *(volatile u8 *)&currentWario->pose;
+                        nextPose += 2;
+                        movementResult = nextPose;
+                    }
+                    break;
             }
-            /* agbcc canonicalizes this as cmp #0 / ble; preserve the target's cmp #1 / blt. */
-            asm volatile(
-                "cmp %0, #1\n"
-                "blt 1f"
-                :
-                : "r"(currentPose)
-                : "cc");
-            if (gWarioCollisionData.unk_12 != 0) {
-                register int nextPose asm("r0");
-
-                currentWario->horizontalDirection ^= DPAD_LEFT | DPAD_RIGHT;
-                nextPose = *(volatile u8 *)&currentWario->pose;
-                nextPose += 2;
-                movementResult = nextPose;
-            }
-            asm volatile("1:");
-noDirectionChange:
             if (movementResult != 0xFF) {
                 SetFlamingWarioPose(movementResult);
             }
@@ -715,15 +702,12 @@ noDirectionChange:
 
 void LoadFlamingWarioGraphics(int variant)
 {
-    register u32 graphicsVariant asm("r4");
+    u32 graphicsVariant;
     register const u8 *palette asm("r5");
     const struct FlamingWarioGraphicsFrame *frame;
     const u8 *gfx;
 
-    graphicsVariant = variant;
-    asm("" : "+r"(graphicsVariant));
-    graphicsVariant <<= 24;
-    graphicsVariant >>= 24;
+    graphicsVariant = (u8)variant;
     UpdateWarioPositionHistory();
     frame = sFlamingWarioGraphicsTable[gWarioData.pose][graphicsVariant];
     frame += gWarioData.unk_1F;
@@ -768,7 +752,7 @@ void LoadFlamingWarioGraphics(int variant)
         break;
     case 9:
         {
-            register u8 frameIndex asm("r0");
+            u8 frameIndex;
 
             frameIndex = gWarioData.unk_1F;
             palette = sFlamingWarioRecoveringPalette;
@@ -787,42 +771,42 @@ void UpdateFlamingWarioMusic(void)
 {
     register struct MusicPlayerInfo *player0 asm("r8");
     register struct MusicPlayerInfo *player1 asm("r6");
-    register const struct MusicPlayer *table asm("r4");
+    const struct MusicPlayer *table;
     register int tracks asm("r4");
-    register int value asm("r5");
+    int value;
 
     if (gWarioMusicState != 6) {
         table = gMPlayTable;
         player0 = table[0].info;
         value = 350;
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player0; a1=value; m4aMPlayTempoControl(a0,a1); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player0; a1=value; m4aMPlayTempoControl(a0,a1); }
         player1 = table[1].info;
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player1; a1=value; m4aMPlayTempoControl(a0,a1); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=value; m4aMPlayTempoControl(a0,a1); }
         tracks = 0xFFFF;
         value -= 94;
-        { register struct MusicPlayerInfo *a0 asm("r0"); a0=player0; m4aMPlayPitchControl(a0, tracks, value); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); a0=player1; m4aMPlayPitchControl(a0, tracks, value); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player0; a1=tracks; m4aMPlayModDepthSet(a0,a1,20); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player1; a1=tracks; m4aMPlayModDepthSet(a0,a1,20); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player0; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,20); }
-        { register struct MusicPlayerInfo *a0 asm("r0"); register int a1 asm("r1"); a0=player1; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,20); }
+        { struct MusicPlayerInfo *a0; a0=player0; m4aMPlayPitchControl(a0, tracks, value); }
+        { struct MusicPlayerInfo *a0; a0=player1; m4aMPlayPitchControl(a0, tracks, value); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player0; a1=tracks; m4aMPlayModDepthSet(a0,a1,20); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=tracks; m4aMPlayModDepthSet(a0,a1,20); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player0; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,20); }
+        { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=tracks; m4aMPlayLFOSpeedSet(a0,a1,20); }
         gWarioMusicState = 6;
     }
 }
 
 void UpdateFlamingWarioHitbox(void)
 {
-    register const u8 *config asm("r3");
-    register struct WarioData *wario asm("r4");
-    register const u8 *hitboxes asm("r2");
-    register u32 hitboxOffset asm("r1");
+    const u8 *config;
+    struct WarioData *wario;
+    const u8 *hitboxes;
+    u32 hitboxOffset;
     u8 direction;
 
     config = &sFlamingWarioPoseProperties[0][0];
     wario = (struct WarioData *)0x03001898;
 
     {
-        register u32 poseOffset asm("r0");
+        u32 poseOffset;
         poseOffset = wario->pose;
         poseOffset <<= 3;
         poseOffset += (u32)config;
@@ -831,7 +815,7 @@ void UpdateFlamingWarioHitbox(void)
     hitboxes = (const u8 *)&sWarioHitboxes[0][0];
     hitboxOffset <<= 3;
     {
-        register const u8 *address asm("r0");
+        const u8 *address;
         address = (const u8 *)(hitboxOffset + (u32)hitboxes);
         wario->hitboxOffsetLeft = *(const s16 *)address;
         address = hitboxes + 2;
@@ -846,7 +830,7 @@ void UpdateFlamingWarioHitbox(void)
     wario->hitboxOffsetBottom = *(const s16 *)hitboxOffset;
 
     {
-        register u32 poseOffset asm("r0");
+        u32 poseOffset;
         poseOffset = wario->pose;
         poseOffset <<= 3;
         config += 7;

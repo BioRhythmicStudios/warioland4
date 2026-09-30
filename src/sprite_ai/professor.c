@@ -97,7 +97,7 @@ void ProfessorPatrolAndSpawnProjectiles(void)
     } else {
         func_8023BFC(sprite->yPosition - 32, sprite->xPosition - 48);
         if (gSpriteCollisionTileType & 0xF) {
-            register u32 updatedStatus asm("r0");
+            u32 updatedStatus;
             u32 facingRightFlag;
 
             updatedStatus = sprite->status;
@@ -113,11 +113,11 @@ void ProfessorPatrolAndSpawnProjectiles(void)
     }
 
     {
-        register struct PrimarySpriteData* movingSprite asm("r2");
-        register const u16* verticalOffsetTable asm("r5");
-        register u16 verticalOffset asm("r4");
-        register u32 verticalOffsetIndex asm("r3");
-        register u8* verticalOffsetIndexPointer asm("r12");
+        struct PrimarySpriteData* movingSprite;
+        const u16* verticalOffsetTable;
+        u16 verticalOffset;
+        u32 verticalOffsetIndex;
+        u8* verticalOffsetIndexPointer;
         const u16* verticalOffsetEntry;
         s16 signedVerticalOffset;
 
@@ -132,7 +132,7 @@ void ProfessorPatrolAndSpawnProjectiles(void)
         verticalOffset = *verticalOffsetEntry;
         signedVerticalOffset = *(const s16*)verticalOffsetEntry;
         if (signedVerticalOffset == 0x7FFF) {
-            register u32 updatedYPosition asm("r0");
+            u32 updatedYPosition;
             register const u16* previousOffsetEntry asm("r1");
 
             previousOffsetEntry = (const u16*)(((verticalOffsetIndex - 1) << 1) + (u32)verticalOffsetTable);
@@ -140,13 +140,18 @@ void ProfessorPatrolAndSpawnProjectiles(void)
             updatedYPosition += *previousOffsetEntry;
             movingSprite->yPosition = updatedYPosition;
         } else {
-            register u32 nextOffsetIndex asm("r0");
-            register u8* offsetIndexStore asm("r1");
+            u32 nextOffsetIndex;
+            u8* offsetIndexStore;
 
             nextOffsetIndex = verticalOffsetIndex + 1;
             offsetIndexStore = verticalOffsetIndexPointer;
             *offsetIndexStore = nextOffsetIndex;
-            movingSprite->yPosition += verticalOffset;
+            {
+                u16 yPosition;
+                yPosition = movingSprite->yPosition;
+                yPosition += verticalOffset;
+                movingSprite->yPosition = yPosition;
+            }
         }
     }
     SpriteUtilMoveForward1Subpixel();
@@ -475,11 +480,11 @@ void ProfessorLiftedInit(void)
 
 void ProfessorLifted(void)
 {
-    register struct PrimarySpriteData* sprite asm("r4");
-    register const u16* gravityTable asm("r5");
-    register u16 verticalOffset asm("r3");
-    register u32 gravityIndex asm("r2");
-    register u8* gravityIndexPointer asm("r12");
+    struct PrimarySpriteData* sprite;
+    const u16* gravityTable;
+    u16 verticalOffset;
+    u32 gravityIndex;
+    u8* gravityIndexPointer;
     const u16* gravityEntry;
     s16 signedVerticalOffset;
     u8* liftTimerPointer;
@@ -499,7 +504,7 @@ void ProfessorLifted(void)
             verticalOffset = *gravityEntry;
             signedVerticalOffset = *(const s16*)gravityEntry;
             if (signedVerticalOffset == 0x7FFF) {
-                register u32 updatedYPosition asm("r0");
+                u32 updatedYPosition;
                 register const u16* previousGravityEntry asm("r1");
 
                 previousGravityEntry = (const u16*)(((gravityIndex - 1) << 1) + (u32)gravityTable);
@@ -507,13 +512,18 @@ void ProfessorLifted(void)
                 updatedYPosition += *previousGravityEntry;
                 sprite->yPosition = updatedYPosition;
             } else {
-                register u32 nextGravityIndex asm("r0");
-                register u8* gravityIndexStore asm("r1");
+                u32 nextGravityIndex;
+                u8* gravityIndexStore;
 
                 nextGravityIndex = gravityIndex + 1;
                 gravityIndexStore = gravityIndexPointer;
                 *gravityIndexStore = nextGravityIndex;
-                sprite->yPosition += verticalOffset;
+                {
+                    u16 yPosition;
+                    yPosition = sprite->yPosition;
+                    yPosition += verticalOffset;
+                    sprite->yPosition = yPosition;
+                }
             }
         }
     } else {
@@ -563,8 +573,8 @@ void ProfessorCarriedLeftInit(void)
 }
 void SpriteProfessor(void)
 {
-    register struct PrimarySpriteData* sprite asm("r3");
-    register struct PrimarySpriteData* currentSprite asm("r2");
+    struct PrimarySpriteData* sprite;
+    struct PrimarySpriteData* currentSprite;
     struct PrimarySpriteData* damagedSprite;
     u8 collisionState;
 
@@ -939,8 +949,8 @@ clearUnderwaterAndCall4C00:
 
 afterPose:
     {
-        register struct PrimarySpriteData* spriteAfterState asm("r5");
-        register u32 healthFlags asm("r2");
+        struct PrimarySpriteData* spriteAfterState;
+        u32 healthFlags;
         register u32 healthState asm("r0");
 
         spriteAfterState = &gCurrentSprite;
@@ -948,7 +958,7 @@ afterPose:
         healthState = 0xF;
         healthState &= healthFlags;
         if (healthState == 1) {
-            register u32 zeroValue asm("r4");
+            u32 zeroValue;
             u16 status;
 
             status = spriteAfterState->status;
@@ -970,7 +980,7 @@ afterPose:
             healthState |= status;
             spriteAfterState->status = healthState;
             if (spriteAfterState->pose == 28) {
-                register u8* work3 asm("r1");
+                u8* work3;
 
                 spriteAfterState->pose = 30;
                 work3 = &spriteAfterState->work3;
@@ -1011,8 +1021,8 @@ afterPose:
 void SpriteProfessorProjectile(void)
 {
     register struct PrimarySpriteData* projectile asm("r12");
-    register u32 collisionDisableDuration asm("r0");
-    register struct PrimarySpriteData* projectileState asm("r1");
+    u32 collisionDisableDuration;
+    struct PrimarySpriteData* projectileState;
     u8 initialPose;
 
     projectile = &gCurrentSprite;
@@ -1021,13 +1031,13 @@ void SpriteProfessorProjectile(void)
     projectileState->disableWarioCollisionTimer = collisionDisableDuration;
     initialPose = projectileState->pose;
     if (initialPose == 0) {
-        register u32 spriteStatus asm("r1");
+        u32 spriteStatus;
         register u32 ignoreCollisionFlag asm("r2");
         register u32 statusWithIgnoredCollision asm("r0");
         register u32 zeroValue asm("r3");
-        register const struct AnimationFrame* projectileOam asm("r0");
-        register u32 largeExtent asm("r1");
-        register u32 smallExtent asm("r2");
+        const struct AnimationFrame* projectileOam;
+        u32 largeExtent;
+        u32 smallExtent;
         u8* extentField;
 
         spriteStatus = projectileState->status;
@@ -1069,7 +1079,7 @@ void SpriteProfessorProjectile(void)
     }
 
     {
-        register u32 lifetime asm("r0");
+        u32 lifetime;
         register u8* lifetimePointer asm("r1");
 
         lifetimePointer = &projectile->work0;

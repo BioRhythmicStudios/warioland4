@@ -45,13 +45,13 @@ void func_8028148(void)
 
 void func_802822C(void)
 {
-    register u32 temp asm("r0");
+    u32 temp;
     register u16 status asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
-    register struct PrimarySpriteData *current asm("r3");
-    register s32 i asm("r4");
-    register u8 roomSlot asm("r5");
-    register u32 exists asm("r6");
+    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData *current;
+    s32 i;
+    u8 roomSlot;
+    u32 exists;
     struct PrimarySpriteData *sprites;
 
     temp = (u32)&gCurrentSprite;
@@ -191,8 +191,8 @@ void func_8028400(void)
 void func_80284BC(void)
 {
     s32 block;
-    register struct PrimarySpriteData *caseSprite asm("r2");
-    register u8 *caseWork asm("r0");
+    struct PrimarySpriteData *caseSprite;
+    u8 *caseWork;
     register u32 caseDirection asm("r1");
 
     block = GetBg2CollisionTypeAtTile(
@@ -239,7 +239,7 @@ setDirection:
 updateExisting:
     {
         register struct PrimarySpriteData *current asm("r4");
-        register u8 *work asm("r0");
+        u8 *work;
         register u32 direction asm("r1");
 
         current = &gCurrentSprite;
@@ -283,8 +283,8 @@ void func_8028578(void)
 void func_80285A4(void)
 {
     s32 block;
-    register struct PrimarySpriteData *caseSprite asm("r2");
-    register u8 *caseWork asm("r0");
+    struct PrimarySpriteData *caseSprite;
+    u8 *caseWork;
     register u32 caseDirection asm("r1");
 
     block = GetBg2CollisionTypeAtTile(
@@ -331,7 +331,7 @@ setDirection:
 updateExisting:
     {
         register struct PrimarySpriteData *current asm("r4");
-        register u8 *work asm("r0");
+        u8 *work;
         register u32 direction asm("r1");
 
         current = &gCurrentSprite;
@@ -363,7 +363,7 @@ done:
 
 void func_8028660(void)
 {
-    register struct PrimarySpriteData *current asm("r2");
+    struct PrimarySpriteData *current;
     register u8 *work asm("r1");
     register u32 value asm("r0");
 
@@ -539,12 +539,12 @@ void func_80288EC(void)
 
 void func_8028914(void)
 {
-    register u32 temp asm("r0");
-    register struct PrimarySpriteData *sprite asm("r1");
-    register s32 i asm("r2");
-    register struct PrimarySpriteData *current asm("r3");
-    register u8 roomSlot asm("r4");
-    register struct PrimarySpriteData *sprites asm("r5");
+    u32 temp;
+    struct PrimarySpriteData *sprite;
+    s32 i;
+    struct PrimarySpriteData *current;
+    u8 roomSlot;
+    struct PrimarySpriteData *sprites;
     register u32 zero asm("r6");
 
     temp = (u32)&gCurrentSprite;
@@ -594,12 +594,12 @@ done:
 
 void func_8028970(void)
 {
-    register u32 temp asm("r0");
-    register struct PrimarySpriteData *sprite asm("r1");
-    register s32 i asm("r2");
-    register struct PrimarySpriteData *current asm("r3");
-    register u8 roomSlot asm("r4");
-    register struct PrimarySpriteData *sprites asm("r5");
+    u32 temp;
+    struct PrimarySpriteData *sprite;
+    s32 i;
+    struct PrimarySpriteData *current;
+    u8 roomSlot;
+    struct PrimarySpriteData *sprites;
     register u32 zero asm("r6");
 
     temp = (u32)&gCurrentSprite;
@@ -649,12 +649,12 @@ done:
 
 void func_80289CC(void)
 {
-    register u32 temp asm("r0");
+    u32 temp;
     register u16 status asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
-    register s32 i asm("r3");
-    register struct PrimarySpriteData *current asm("r4");
-    register u32 zero asm("r5");
+    struct PrimarySpriteData *sprite;
+    s32 i;
+    struct PrimarySpriteData *current;
+    u32 zero;
     register u8 roomSlot asm("r6");
     register u8 *work3 asm("r12");
     struct PrimarySpriteData *sprites;
@@ -712,11 +712,11 @@ done:
 
 void func_8028A38(void)
 {
-    register u32 temp asm("r0");
+    u32 temp;
     register u16 status asm("r1");
-    register struct PrimarySpriteData *sprite asm("r2");
-    register s32 i asm("r3");
-    register struct PrimarySpriteData *current asm("r4");
+    struct PrimarySpriteData *sprite;
+    s32 i;
+    struct PrimarySpriteData *current;
     register u32 zero asm("r5");
     register u8 roomSlot asm("r6");
     register u8 *work3 asm("r12");
@@ -799,12 +799,12 @@ void SpriteRotatingPlatform(void)
     }
 
     {
-        register const s16 *table asm("r8");
+        const s16 *table;
         register struct PrimarySpriteData *current asm("r6");
         register s32 trig asm("r4");
-        register s32 scale asm("r5");
-        register u32 index asm("r0");
-        register s32 inverse asm("r1");
+        s32 scale;
+        u32 index;
+        s32 inverse;
         register u8 *angle asm("r7");
 
         table = sSinCosTable;
@@ -987,13 +987,13 @@ void SpriteRotatingPlatform2(void)
         gCurrentSprite.work0 += 2;
     }
     {
-        register struct PrimarySpriteData *current asm("r6");
+        struct PrimarySpriteData *current;
         register s32 angleOrSine asm("r4");
-        register const s16 *table asm("r8");
-        register s32 cosine asm("r9");
-        register s32 scale asm("r5");
-        register u32 index asm("r0");
-        register s32 inverse asm("r1");
+        const s16 *table;
+        s32 cosine;
+        s32 scale;
+        u32 index;
+        s32 inverse;
 
         current = &gCurrentSprite;
         angleOrSine = current->work0;
@@ -1033,13 +1033,13 @@ void SpriteRotatingPlatform3(void)
         gCurrentSprite.work0 -= 2;
     }
     {
-        register struct PrimarySpriteData *current asm("r6");
+        struct PrimarySpriteData *current;
         register s32 angleOrSine asm("r4");
-        register const s16 *table asm("r8");
-        register s32 cosine asm("r9");
-        register s32 scale asm("r5");
-        register u32 index asm("r0");
-        register s32 inverse asm("r1");
+        const s16 *table;
+        s32 cosine;
+        s32 scale;
+        u32 index;
+        s32 inverse;
 
         current = &gCurrentSprite;
         angleOrSine = current->work0;

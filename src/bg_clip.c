@@ -332,12 +332,10 @@ s32 GetBg2CollisionTypeAtTile(s32 y, s32 x)
     register const u16 *tileMap asm("r1");
     u16 tile;
 
-    y <<= 16;
-    y = (u32)y >> 16;
+    y = (u16)y;
     asm("" : "+r"(y));
     yCoord = y;
-    x <<= 16;
-    xCoord = (u32)x >> 16;
+    xCoord = (u16)x;
     xSaved = xCoord;
     collisionTemp = &gBackgroundCollisionData;
     zero = 0;
@@ -410,9 +408,7 @@ s32 TryTriggerRoomTransitionAtTile(s32 y, s32 x)
     asm("" : "+r"(temporary));
     temporary <<= 16;
     yCoord = (u32)temporary >> 16;
-    x <<= 16;
-    asm("" : "+r"(x));
-    xCoord = (u32)x >> 16;
+    xCoord = (u16)x;
     result = 0;
     {
         register s16 *modePointer asm("r1");
@@ -420,8 +416,7 @@ s32 TryTriggerRoomTransitionAtTile(s32 y, s32 x)
 
         modePointer = &gSubGameMode;
         offset = 0;
-        /* agbcc otherwise materializes an unnecessary scaled pointer for this signed halfword load. */
-        asm("ldrsh %0, [%1, %2]" : "=r"(temporary) : "r"(modePointer), "r"(offset));
+        temporary = *(s16 *)((u8 *)modePointer + offset);
         modeState = modePointer;
     }
 
@@ -503,7 +498,7 @@ void ApplyRoomTransitionTileOffset(u8 value)
 {
     struct BackgroundInfo *background;
     struct BackgroundInfo *widthBackground;
-    register u16 *loadedMap asm("r1");
+    u16 *loadedMap;
     s32 firstIndex;
     register s32 secondIndex asm("r4");
     register s32 temporary asm("r0");
@@ -519,9 +514,7 @@ void ApplyRoomTransitionTileOffset(u8 value)
     if (count != 0)
     {
         background = &gBackgroundInfo;
-        asm("" : : "r"(background));
         loadedMap = background->pBg1Data;
-        asm("" : : "r"(loadedMap));
         map = loadedMap;
         data = (u16 *)0x02039F80 + count;
         do
@@ -536,8 +529,7 @@ void ApplyRoomTransitionTileOffset(u8 value)
             widthBackground = background;
             temporary = widthBackground->bg1Width;
             temporary = firstIndex + temporary;
-            temporary <<= 16;
-            secondIndex = (u32)temporary >> 16;
+            secondIndex = (u16)temporary;
             tile += value;
             i = 1;
             do
@@ -545,16 +537,11 @@ void ApplyRoomTransitionTileOffset(u8 value)
                 map[firstIndex] = tile;
                 map[secondIndex] = tile + 4;
                 temporary = tile + 2;
-                temporary <<= 16;
-                tile = temporary >> 16;
+                tile = (s16)temporary;
                 temporary = firstIndex + 1;
-                asm("" : "+r"(temporary));
-                temporary <<= 16;
-                firstIndex = (u32)temporary >> 16;
+                firstIndex = (u16)temporary;
                 temporary = secondIndex + 1;
-                asm("" : "+r"(temporary));
-                temporary <<= 16;
-                secondIndex = (u32)temporary >> 16;
+                secondIndex = (u16)temporary;
                 i--;
             }
             while (i >= 0);
@@ -573,24 +560,21 @@ void SetRoomTransitionTileValues(s32 value)
     struct BackgroundInfo *background;
     s32 count;
     u32 mask;
-    register u32 descriptor asm("r2");
+    u32 descriptor;
     u32 packed;
     u32 index;
     u32 width;
     u16 *map;
 
-    value <<= 16;
-    tileValue = (u32)value >> 16;
+    tileValue = (u16)value;
     data = (const u16 *)0x02039F00;
     background = &gBackgroundInfo;
     count = 63;
     mask = 0xFF;
     do
     {
-        /* agbcc otherwise allocates the packed descriptor in r0. */
-        asm("ldrh %0, [%1]" : "=r"(descriptor) : "r"(data));
+        descriptor = *data;
         packed = descriptor << 16;
-        asm("" : "+r"(packed));
         if (packed != 0)
         {
             width = background->bg1Width;
@@ -600,7 +584,6 @@ void SetRoomTransitionTileValues(s32 value)
             width = packed >> 24;
             index += width;
             map = background->pBg1Data;
-            asm("" : : "r"(map));
             map[index] = tileValue;
         }
         data++;

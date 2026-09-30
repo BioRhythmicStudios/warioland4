@@ -212,8 +212,8 @@ void CreditsVCountUpdateBgOffset(void)
 
 void InitializeCredits(void)
 {
-    register vu32 *dma asm("r3");
-    register u32 paletteDest asm("r4");
+    vu32 *dma;
+    u32 paletteDest;
     struct CreditsTreasureState *state;
     struct CreditsTreasureAnim *anim;
     const u8 *src;
@@ -285,9 +285,9 @@ void InitializeCredits(void)
         dma[2];
         {
             register const u8 *gfxBase asm("r2");
-            register u32 smallDmaCount asm("r1");
+            u32 smallDmaCount;
             register u32 gfxOffset asm("r5");
-            register u32 dmaSource asm("r0");
+            u32 dmaSource;
 
             gfxBase = sCreditsNormalDifficultyExtraTiles;
             dma[0] = (u32)gfxBase;
@@ -302,7 +302,6 @@ void InitializeCredits(void)
             dma[2] = smallDmaCount;
             dma[2];
             gfxOffset = 0x100;
-            COMPILER_BARRIER(gfxOffset);
             dmaSource = (u32)gfxBase + gfxOffset;
             dma[0] = dmaSource;
             dma[1] = 0x06010B80;
@@ -350,7 +349,6 @@ void InitializeCredits(void)
     gBlendAlphaEva = (zeroByte = 0);
     COMPILER_BARRIER(zeroByte);
     gBlendAlphaEvb = (sixteen = 16);
-    COMPILER_BARRIER(sixteen);
     gBldy = sixteen;
     REG_BLDALPHA = sixteen << 8;
     REG_BLDCNT = 0x1FDF;
@@ -379,7 +377,6 @@ void InitializeCredits(void)
         register u8 *acc asm("r1");
 
         acc = gCreditsDifficultyLabelSpriteState.bytes;
-        COMPILER_BARRIER(acc);
         *(u32 *)(acc + 0) = tmp0;
         *(u32 *)(acc + 4) = tmp1;
         *(u16 *)(acc + 6) = 0x9B;
@@ -425,10 +422,9 @@ void InitializeCredits(void)
     if (gCollectedSWJewelPiece != 0) { gCreditsTreasureAnim.collectedMask |= 4; count++; }
     if (gCollectedNWJewelPiece != 0) { gCreditsTreasureAnim.collectedMask |= 8; count++; }
     if (gHasBossTreasure5 != 0) {
-        register u16 collectedMask asm("r0");
+        u16 collectedMask;
 
         collectedMask = gCreditsTreasureAnim.collectedMask;
-        COMPILER_BARRIER(collectedMask);
         collectedMask |= sixteen;
         gCreditsTreasureAnim.collectedMask = collectedMask;
         count++;
@@ -486,12 +482,11 @@ void InitializeCredits(void)
     }
 
     {
-        register u16 finalZero asm("r4");
+        u16 finalZero;
         struct CreditsTreasureDrop *drop;
 
         drop = &gCreditsTreasureDrop;
         finalZero = 0;
-        COMPILER_BARRIER(finalZero);
         drop->state = finalZero;
         RenderCreditsOam();
         ResetFreeOam();
@@ -569,9 +564,9 @@ void RenderCreditsOam(void)
   dest = (u16 *) gOamBuffer;
   nextSlot = 0;
   {
-    register struct CreditsSpriteState *initialState asm("r1");
+    struct CreditsSpriteState *initialState;
     register s32 wrapOffset asm("r2");
-    register u32 wrappedX asm("r0");
+    u32 wrappedX;
     register u32 stateX asm("r3");
     initialState = &gCreditsBannerSpriteState.sprite;
     wrapOffset = -448;
@@ -616,10 +611,9 @@ void RenderCreditsOam(void)
   }
   animation = sCreditsBannerAnimation;
   {
-    register u32 frameOffset asm("r0");
+    u32 frameOffset;
     frameOffset = state->frame;
     frameOffset <<= 3;
-    asm("" : "+r"(frameOffset), "+r"(animation));
     animation = (const struct AnimationFrame *) (frameOffset + (u32) animation);
   }
   src = animation->oam;
@@ -644,11 +638,11 @@ void RenderCreditsOam(void)
   {
     register const struct AnimationFrame *localTable asm("r0");
     register const struct AnimationFrame *tableCopy asm("r3");
-    register struct CreditsSpriteState *localState asm("r2");
+    struct CreditsSpriteState *localState;
     localTable = sCreditsEasyDifficultyLabelAnimation;
     localState = secondState;
     {
-      register u32 frameOffset asm("r1");
+      u32 frameOffset;
       register u32 timer asm("r2");
       frameOffset = localState->frame;
       frameOffset <<= 3;
@@ -658,7 +652,7 @@ void RenderCreditsOam(void)
       if (timer >= frameData->time)
       {
         register struct CreditsSpriteState *updateState asm("r4");
-        register u32 zero asm("r0");
+        u32 zero;
         zero = 0;
         updateState = secondState;
         updateState->timer = zero;
@@ -680,11 +674,11 @@ void RenderCreditsOam(void)
   {
     register const struct AnimationFrame *localTable asm("r0");
     register const struct AnimationFrame *tableCopy asm("r3");
-    register struct CreditsSpriteState *localState asm("r2");
+    struct CreditsSpriteState *localState;
     localTable = sCreditsHardDifficultyLabelAnimation;
     localState = secondState;
     {
-      register u32 frameOffset asm("r1");
+      u32 frameOffset;
       register u32 timer asm("r2");
       frameOffset = localState->frame;
       frameOffset <<= 3;
@@ -694,7 +688,7 @@ void RenderCreditsOam(void)
       if (timer >= frameData->time)
       {
         register struct CreditsSpriteState *updateState asm("r4");
-        register u32 zero asm("r0");
+        u32 zero;
         zero = 0;
         updateState = secondState;
         updateState->timer = zero;
@@ -717,7 +711,7 @@ void RenderCreditsOam(void)
   if (gCreditsAnchorSpriteState.sprite.x <= 319)
   {
     register u32 stateY asm("r4");
-    register u32 frameOffset asm("r0");
+    u32 frameOffset;
     stateY = state->y;
     asm("" : "+r"(stateY));
     yOffset = stateY;
@@ -741,11 +735,11 @@ void RenderCreditsOam(void)
 
   }
   {
-    register struct CreditsSpriteState *effectCheck asm("r1");
+    struct CreditsSpriteState *effectCheck;
     effectCheck = effectState;
     if ((effectCheck->active != 0) && (gDifficulty <= 1))
     {
-      register const struct AnimationFrame *localTable asm("r0");
+      const struct AnimationFrame *localTable;
       register const struct AnimationFrame *tableCopy asm("r3");
       register u32 frameOffset asm("r1");
       register u32 timer asm("r2");
@@ -761,8 +755,8 @@ void RenderCreditsOam(void)
       tableCopy = localTable;
       if (timer >= frameData->time)
       {
-        register u32 zero asm("r0");
-        register struct CreditsSpriteState *updateState asm("r4");
+        u32 zero;
+        struct CreditsSpriteState *updateState;
         zero = 0;
         updateState = effectState;
         updateState->timer = zero;
@@ -772,7 +766,6 @@ void RenderCreditsOam(void)
           register u32 endTime asm("r1");
           updatedFrame = updateState->frame;
           endTime = tableCopy[updatedFrame].time;
-          asm("" : "+r"(endTime));
           if (endTime == 0)
           {
             register u32 lastFrame asm("r0");
@@ -783,7 +776,7 @@ void RenderCreditsOam(void)
         }
       }
       {
-        register struct CreditsSpriteState *tickState asm("r1");
+        struct CreditsSpriteState *tickState;
         register u32 effectX asm("r2");
         register u32 effectY asm("r4");
         register u32 outputFrame asm("r0");
@@ -813,26 +806,22 @@ void RenderCreditsOam(void)
       }
       if (currentSlot < nextSlot)
       {
-        register CreditsOamData *oamBase asm("r1");
+        CreditsOamData *oamBase;
         register u32 xMaskLoad asm("r2");
-        register u32 preservedMaskLoad asm("r3");
-        register u32 xMask asm("sl");
-        register u32 preservedMask asm("ip");
-        register s32 priorityMask asm("r5");
-        register CreditsOamData *effectOam asm("r3");
-        register u32 oamOffset asm("r0");
+        u32 preservedMaskLoad;
+        u32 xMask;
+        u32 preservedMask;
+        s32 priorityMask;
+        CreditsOamData *effectOam;
+        u32 oamOffset;
         oamBase = (CreditsOamData *) gOamBuffer;
         asm("" : "+r"(oamBase));
         xMaskLoad = 0x1FF;
         asm("" : "+r"(xMaskLoad));
         xMask = xMaskLoad;
-        asm("" : "+r"(xMask));
         preservedMaskLoad = ~0x1FF;
-        asm("" : "+r"(preservedMaskLoad));
         preservedMask = preservedMaskLoad;
-        asm("" : "+r"(preservedMask));
         priorityMask = -13;
-        asm("" : "+r"(priorityMask));
         oamOffset = currentSlot;
         oamOffset <<= 3;
         effectOam = (CreditsOamData *) (oamOffset + (u32) oamBase);
@@ -840,10 +829,10 @@ void RenderCreditsOam(void)
         currentSlot = nextSlot - currentSlot;
         do
         {
-          register u32 newX asm("r1");
+          u32 newX;
           register u32 oldAttr asm("r2");
           register u32 mergedAttr asm("r0");
-          register u32 priorityByte asm("r1");
+          u32 priorityByte;
           register u32 priorityOutput asm("r0");
           attr = *(src++);
           *(dest++) = attr;
@@ -874,36 +863,36 @@ void RenderCreditsOam(void)
     }
   }
   {
-    register struct CreditsSpriteState *effectCheck asm("r1");
+    struct CreditsSpriteState *effectCheck;
     effectCheck = &gCreditsTreasureBurstSpriteState.sprite;
     if (effectCheck->active != 0)
     {
       register const struct AnimationFrame *localTable asm("r0");
-      register const struct AnimationFrame *tableCopy asm("r3");
-      register u32 frameOffset asm("r1");
+      const struct AnimationFrame *tableCopy;
+      u32 frameOffset;
       register u32 timer asm("r2");
       localTable = sCreditsHardTreasureBurstAnimation;
       frameOffset = effectCheck->frame;
       frameOffset <<= 3;
       frameData = (const struct AnimationFrame *) (frameOffset + (u32) localTable);
       {
-        register struct CreditsSpriteState *timerState asm("r3");
+        struct CreditsSpriteState *timerState;
         timerState = &gCreditsTreasureBurstSpriteState.sprite;
         timer = timerState->timer;
       }
       tableCopy = localTable;
       if (timer >= frameData->time)
       {
-        register u32 zero asm("r0");
+        u32 zero;
         register struct CreditsSpriteState *updateState asm("r4");
         zero = 0;
         updateState = &gCreditsTreasureBurstSpriteState.sprite;
         updateState->timer = zero;
         updateState->frame++;
         {
-          register u32 updatedFrame asm("r2");
-          register u32 endTime asm("r1");
-          register u32 lastFrame asm("r0");
+          u32 updatedFrame;
+          u32 endTime;
+          u32 lastFrame;
           updatedFrame = updateState->frame;
           endTime = tableCopy[updatedFrame].time;
           if (endTime == 0)
@@ -951,7 +940,7 @@ void RenderCreditsOam(void)
 
   {
     register const u8 *difficultyPtr asm("r1");
-    register u32 difficulty asm("r3");
+    u32 difficulty;
     difficultyPtr = &gDifficulty;
     difficulty = *difficultyPtr;
     if (difficulty == 0)
@@ -959,7 +948,7 @@ void RenderCreditsOam(void)
       register const struct AnimationFrame *localTable asm("r0");
       register const struct AnimationFrame *tableCopy asm("r4");
       register struct CreditsSpriteState *localState asm("r2");
-      register u32 frameOffset asm("r1");
+      u32 frameOffset;
       register u32 timer asm("r2");
       localTable = sCreditsEasyAnchorAnimation;
       localState = &gCreditsAnchorSpriteState.sprite;
@@ -978,7 +967,6 @@ void RenderCreditsOam(void)
           nextFrame = timerState->frame;
         }
         nextFrame++;
-        asm("" : "+r"(nextFrame));
         {
           register struct CreditsSpriteState *frameState asm("r1");
           frameState = &gCreditsAnchorSpriteState.sprite;
@@ -996,7 +984,7 @@ void RenderCreditsOam(void)
       register const struct AnimationFrame *localTable asm("r0");
       register const struct AnimationFrame *tableCopy asm("r3");
       register struct CreditsSpriteState *localState asm("r2");
-      register u32 frameOffset asm("r1");
+      u32 frameOffset;
       register u32 timer asm("r2");
       if (difficulty == 1)
       {
@@ -1014,7 +1002,7 @@ void RenderCreditsOam(void)
       tableCopy = localTable;
       if (timer >= frameData->time)
       {
-        register u32 zero asm("r0");
+        u32 zero;
         register struct CreditsSpriteState *updateState asm("r4");
         zero = 0;
         updateState = &gCreditsAnchorSpriteState.sprite;
@@ -1029,10 +1017,10 @@ void RenderCreditsOam(void)
     }
   }
   {
-    register struct CreditsSpriteState *outputState asm("r1");
-    register u32 outputX asm("r2");
-    register u32 outputY asm("r4");
-    register u32 outputFrame asm("r0");
+    struct CreditsSpriteState *outputState;
+    u32 outputX;
+    u32 outputY;
+    u32 outputFrame;
     outputState = &gCreditsAnchorSpriteState.sprite;
     outputState->timer++;
     outputX = outputState->x;
@@ -1065,10 +1053,9 @@ void RenderCreditsOam(void)
     yOffset = 144;
     animation = sCreditsEasyAnchorCompanionAnimation;
     {
-      register u32 frameOffset asm("r0");
+      u32 frameOffset;
       frameOffset = anchor->frame;
       frameOffset <<= 3;
-      asm("" : "+r"(frameOffset), "+r"(animation));
       animation = (const struct AnimationFrame *) (frameOffset + (u32) animation);
     }
     for (i = 0; i < 2; i++)
@@ -1081,20 +1068,17 @@ void RenderCreditsOam(void)
       }
       else
       {
-        register struct CreditsSpriteState *xState asm("r2");
+        struct CreditsSpriteState *xState;
         xState = &gCreditsAnchorSpriteState.sprite;
         xOffset = xState->x - 36;
       }
       src = animation->oam;
       {
-        register s32 easyNextSlot asm("r3");
-        register u32 objectCount asm("r0");
+        s32 easyNextSlot;
+        u32 objectCount;
         objectCount = *src;
-        asm("" : "+r"(objectCount));
         easyNextSlot = nextSlot;
-        asm("" : "+r"(easyNextSlot));
         easyNextSlot += objectCount;
-        asm("" : "+r"(easyNextSlot));
         nextSlot = easyNextSlot;
         src++;
       }
@@ -1122,10 +1106,9 @@ void RenderCreditsOam(void)
     yOffset = 144;
     animation = sCreditsNormalAnchorCompanionAnimation;
     {
-      register u32 frameOffset asm("r0");
+      u32 frameOffset;
       frameOffset = anchor->frame;
       frameOffset <<= 3;
-      asm("" : "+r"(frameOffset), "+r"(animation));
       animation = (const struct AnimationFrame *) (frameOffset + (u32) animation);
     }
     for (i = 0; i < 2; i++)
@@ -1161,7 +1144,7 @@ void RenderCreditsOam(void)
     xOffset = anchor->x + 42;
     yOffset = 144;
     {
-      register u32 affineFrameOffset asm("r0");
+      u32 affineFrameOffset;
       affineFrameOffset = anchor->frame;
       affineFrameOffset <<= 3;
       asm("" : "+r"(affineFrameOffset), "+r"(animation));
@@ -1188,32 +1171,28 @@ void RenderCreditsOam(void)
   }
   if (gDifficulty <= 1)
   {
-    register s16 *rotationPb asm("sl");
+    s16 *rotationPb;
     register s16 *rotationPc asm("r9");
     gCreditsTreasureAffineAngle = (gCreditsTreasureAffineAngle + 16) & 0xFF;
     affine[0] = FixedMul(sSinCosTable[gCreditsTreasureAffineAngle + 64], (s16) FixedInverse(256));
     {
-      register s32 affineValue asm("r0");
+      s32 affineValue;
       affineValue = FixedMul(sSinCosTable[gCreditsTreasureAffineAngle], (s16) FixedInverse(256));
-      asm("" : "+r"(affineValue));
       {
-        register u32 pbAddress asm("r2");
+        u32 pbAddress;
         pbAddress = 2;
-        asm("" : "+r"(pbAddress));
         pbAddress += (u32) affine;
         rotationPb = (s16 *) pbAddress;
         *(s16 *) pbAddress = affineValue;
       }
     }
     {
-      register s32 affineValue asm("r0");
+      s32 affineValue;
       register s32 sineValue asm("r4");
       sineValue = (u16) sSinCosTable[gCreditsTreasureAffineAngle];
       sineValue = -sineValue;
       sineValue = (s16) sineValue;
-      asm("" : "+r"(sineValue));
       affineValue = FixedMul(sineValue, (s16) FixedInverse(256));
-      asm("" : "+r"(affineValue));
       {
         register s16 *pcAddress asm("r3");
         pcAddress = &affine[2];
@@ -1222,27 +1201,25 @@ void RenderCreditsOam(void)
       }
     }
     {
-      register u32 affinePdValue asm("r0");
-      register s16 *rotationPd asm("r1");
-      register OamData *oamBase asm("r2");
-      register s16 affineOutput asm("r1");
+      u32 affinePdValue;
+      s16 *rotationPd;
+      OamData *oamBase;
+      s16 affineOutput;
       {
         register u32 holdR2 asm("r2");
         register u32 holdR3 asm("r3");
-        register s32 cosineValue asm("r4");
-        asm("" : "=r"(holdR2), "=r"(holdR3));
+        s32 cosineValue;
         cosineValue = sSinCosTable[gCreditsTreasureAffineAngle + 64];
         asm("" : "+r"(cosineValue) : "r"(holdR2), "r"(holdR3));
         affinePdValue = (u16) FixedMul(cosineValue, (s16) FixedInverse(256));
       }
-      asm("" : "+r"(affinePdValue));
       rotationPd = &affine[3];
       *rotationPd = affinePdValue;
       oamBase = gOamBuffer;
       affineOutput = affine[0];
       oamBase[0].all.affineParam = affineOutput;
       {
-        register s16 *pbPointer asm("r3");
+        s16 *pbPointer;
         pbPointer = rotationPb;
         affineOutput = *pbPointer;
       }
@@ -1258,54 +1235,48 @@ void RenderCreditsOam(void)
   }
   {
   struct CreditsTreasureAnim *treasureState;
-  register struct CreditsTreasureAnim *typeState asm("r0");
-  register u32 treasureType asm("r1");
+  struct CreditsTreasureAnim *typeState;
+  u32 treasureType;
   typeState = &gCreditsTreasureAnim;
   treasureType = typeState->type;
   treasureState = typeState;
-  asm("" : "+r"(treasureType), "+r"(treasureState));
   if (treasureType <= 3)
   {
     animation = sCreditsTreasureSparkleAnimation;
     {
-      register u32 treasureY asm("r0");
+      u32 treasureY;
       treasureY = typeState->dropY;
-      asm("" : "+r"(treasureY));
       yOffset = treasureY;
     }
     {
-      register const u8 *difficultyPtr asm("r1");
+      const u8 *difficultyPtr;
       difficultyPtr = &gDifficulty;
-      asm("" : "+r"(difficultyPtr));
       if (*difficultyPtr <= 1)
     {
       {
         register struct CreditsSpriteState *frameState asm("r1");
-        register u32 frameOffset asm("r0");
+        u32 frameOffset;
         frameState = &gCreditsAnchorSpriteState.sprite;
         frameOffset = frameState->frame;
         frameOffset <<= 3;
-        asm("" : "+r"(frameOffset), "+r"(animation));
         animation = (const struct AnimationFrame *) (frameOffset + (u32) animation);
       }
     }
     else
     {
-      register struct CreditsSpriteState *frameState asm("r0");
+      struct CreditsSpriteState *frameState;
       register s32 frame asm("r2");
       frameState = &gCreditsAnchorSpriteState.sprite;
       frame = frameState->frame;
       if (frame == 1)
       {
         frame = -1;
-        asm("" : "+r"(frame));
         yOffset += frame;
       }
       else if (frame == 3)
       {
-        register u32 increment asm("r3");
+        u32 increment;
         increment = 1;
-        asm("" : "+r"(increment));
         yOffset += increment;
       }
     }
@@ -1342,23 +1313,21 @@ void RenderCreditsOam(void)
       scaleState->scaleX;
     })));
     {
-      register const s16 *sineBase asm("r2");
-      register s32 sineValue asm("r4");
+      const s16 *sineBase;
+      s32 sineValue;
       sineBase = sSinCosTable;
-      asm("" : "+r"(sineBase));
       sineValue = sineBase[0];
       *pbPtr = FixedMul(sineValue, (s16) FixedInverse((s16) treasureState->scaleX));
     }
     {
-      register s16 sineZero asm("r4");
-      asm("" : "=r"(sineZero));
+      s16 sineZero;
       sineZero = -sSinCosTable[0];
       *pcPtr = FixedMul(sineZero, (s16) FixedInverse((s16) treasureState->scaleY));
     }
     {
-      register s32 affinePdValue asm("r0");
-      register OamData *oamBase asm("r2");
-      register s16 affineOutput asm("r1");
+      s32 affinePdValue;
+      OamData *oamBase;
+      s16 affineOutput;
       affinePdValue = FixedMul(sSinCosTable[64], (s16) FixedInverse((s16) ({
         register struct CreditsTreasureAnim *scaleState asm("r4");
         scaleState = treasureState;
@@ -1370,7 +1339,7 @@ void RenderCreditsOam(void)
       affineOutput = affine[0];
       oamBase[4].all.affineParam = affineOutput;
       {
-        register s16 *pbPointer asm("r3");
+        s16 *pbPointer;
         pbPointer = pbPtr;
         affineOutput = *pbPointer;
       }
@@ -1389,13 +1358,12 @@ void RenderCreditsOam(void)
   if (gCreditsTreasureDrop.state != 0)
   {
     {
-      register struct CreditsSpriteState *xState asm("r0");
+      struct CreditsSpriteState *xState;
       xState = &gCreditsAnchorSpriteState.sprite;
       xOffset = xState->x - gCreditsTreasureAnim.xOffset;
     }
     yOffset = gCreditsTreasureDrop.y;
     animation = sCreditsTreasureDropAnimation;
-    asm("" : "+r"(animation));
     src = animation->oam;
     nextSlot += *(src++);
     pbPtr = &affine[1];
@@ -1426,8 +1394,7 @@ void RenderCreditsOam(void)
       *pbPointer = affinePbValue;
     }
     {
-      register s16 sineZero asm("r4");
-      asm("" : "=r"(sineZero));
+      s16 sineZero;
       sineZero = -sSinCosTable[0];
       *pcPtr = FixedMul(sineZero, (s16) FixedInverse((s16) gCreditsTreasureDrop.scale));
     }
@@ -1457,7 +1424,7 @@ void RenderCreditsOam(void)
   {
     animation = sCreditsNormalForegroundLayerAnimation;
     {
-      register struct CreditsSpriteState *foregroundState asm("r0");
+      struct CreditsSpriteState *foregroundState;
       register u32 foregroundY asm("r1");
       foregroundState = &gCreditsAnchorSpriteState.sprite;
       foregroundY = foregroundState->y;
@@ -1474,7 +1441,6 @@ void RenderCreditsOam(void)
       asm("" : "=r"(holdR3));
       foregroundY = anchor->y;
       asm("" : : "r"(holdR3));
-      asm("" : "+r"(foregroundY));
       yOffset = foregroundY;
     }
   }
@@ -1482,15 +1448,12 @@ void RenderCreditsOam(void)
     register struct CreditsSpriteState *scrollXState asm("r3");
     register struct CreditsSpriteState *scrollFrameState asm("r4");
     scrollXState = &gCreditsAnchorSpriteState.sprite;
-    asm("" : "+r"(scrollXState));
     xOffset = scrollXState->x;
-    asm("" : "=r"(scrollFrameState));
     scrollFrameState = &gCreditsAnchorSpriteState.sprite;
     animation = &animation[scrollFrameState->frame];
     src = animation->oam;
   }
   nextSlot += *(src++);
-  asm("" : "=r"(secondState));
   secondState = &gCreditsForegroundLayerSpriteState.sprite;
   animation = (const struct AnimationFrame *) (&gCreditsClosingSpriteState.sprite);
   for (; currentSlot < nextSlot; currentSlot++)
@@ -1517,7 +1480,6 @@ void RenderCreditsOam(void)
     positionMask = 0x1FF;
     asm("" : "+r"(positionMask));
     maskCopy = positionMask;
-    asm("" : "+r"(maskCopy));
     position &= maskCopy;
     scrollState->x = position;
     {
@@ -1540,14 +1502,12 @@ void RenderCreditsOam(void)
   {
     register const struct AnimationFrame *stripAnimation asm("r1");
     stripAnimation = sCreditsForegroundStripAnimation;
-    asm("" : "+r"(stripAnimation));
     src = stripAnimation->oam;
   }
   {
-    register u32 stripObjectCount asm("r0");
+    u32 stripObjectCount;
     register s32 stripNextSlot asm("r2");
     stripObjectCount = *src;
-    asm("" : "+r"(stripObjectCount));
     stripNextSlot = nextSlot;
     asm("" : "+r"(stripNextSlot));
     stripNextSlot += stripObjectCount;
@@ -1646,7 +1606,6 @@ void RenderCreditsOam(void)
     usedSlots = nextSlot;
     asm("" : "+r"(usedSlots));
     usedSlotsPtr = &gOamSlotsUsed;
-    asm("" : "+r"(usedSlotsPtr));
     *usedSlotsPtr = usedSlots;
   }
 }
@@ -1655,15 +1614,15 @@ u32 UpdateCreditsSequence(void)
 {
     struct CreditsTreasureState *state;
     struct CreditsObjectState *object;
-    register u32 completed asm("r8");
+    u32 completed;
     int musicState;
     const u8 *fadeInTargets;
     register u8 *phasePtr asm("r4");
     register u8 *videoModePtr asm("r6");
     register u8 *videoModeSource asm("r0");
-    register u8 mode asm("r1");
+    u8 mode;
     register u8 *phaseSource asm("r0");
-    register u8 phaseValue asm("r1");
+    u8 phaseValue;
 
     completed = 0;
     musicState = gMPlayMemAccArea[0];
@@ -1714,9 +1673,9 @@ u32 UpdateCreditsSequence(void)
         }
         break;
     case 2: {
-        register struct CreditsTreasureState *stateSource asm("r0");
+        struct CreditsTreasureState *stateSource;
         u8 timerValue;
-        register struct CreditsTreasureState *caseState asm("r5");
+        struct CreditsTreasureState *caseState;
 
         stateSource = &gCreditsTreasureState;
         timerValue = stateSource->timer;
@@ -1724,7 +1683,7 @@ u32 UpdateCreditsSequence(void)
         if (timerValue <= 59) {
             caseState->timer = timerValue + 1;
         } else {
-            register u8 *modePtr asm("r1");
+            u8 *modePtr;
             u8 modeValue;
 
             modePtr = &gVideoMode;
@@ -1760,9 +1719,9 @@ u32 UpdateCreditsSequence(void)
                 caseState->timer = timerZero;
                 caseState->sequenceTimer = phaseZero;
                 {
-                    register u8 *templateDestination asm("r3");
-                    register const u8 *templateSource asm("r0");
-                    register u32 templateHigh asm("r1");
+                    u8 *templateDestination;
+                    const u8 *templateSource;
+                    u32 templateHigh;
 
                     templateDestination = gCreditsTreasureBurstSpriteState.bytes;
                     templateSource = sCreditsSpriteStateTemplate;
@@ -1821,14 +1780,14 @@ u32 UpdateCreditsSequence(void)
     }
 
     {
-        register u32 done asm("r3");
+        u32 done;
 
         done = 0;
         switch (*videoModePtr) {
         case 1: {
             {
-                register struct CreditsTreasureAnim *caseAnim asm("r0");
-                register struct CreditsTreasureState *caseState asm("r2");
+                struct CreditsTreasureAnim *caseAnim;
+                struct CreditsTreasureState *caseState;
 
                 caseAnim = &gCreditsTreasureAnim;
                 caseState = &gCreditsTreasureState;
@@ -1837,15 +1796,14 @@ u32 UpdateCreditsSequence(void)
                 } else if (caseState->treasureIndex > 11) {
                     if (caseState->sequenceTimer > 168) {
                         done++;
-                        COMPILER_BARRIER(done);
                     }
                 } else {
                     done = UpdateCreditsTreasureDrop();
                 }
             }
             if (done != 0) {
-                register vu32 *caseDma asm("r1");
-                register const u8 *const *caseTable asm("r2");
+                vu32 *caseDma;
+                const u8 *const *caseTable;
                 register struct CreditsTreasureState *dmaState asm("r3");
 
                 caseDma = (vu32 *)REG_ADDR_DMA3;
@@ -1863,26 +1821,25 @@ u32 UpdateCreditsSequence(void)
                 REG_DISPCNT = 0x1E00;
                 REG_BLDCNT = 0x1844;
                 {
-                    register u8 *nextModePtr asm("r1");
-                    register u8 nextMode asm("r0");
+                    u8 *nextModePtr;
+                    u8 nextMode;
 
                     nextModePtr = &gVideoMode;
                     nextMode = *nextModePtr;
                     nextMode++;
                     *nextModePtr = nextMode;
-                    COMPILER_BARRIER_INPUT(nextModePtr);
                 }
             }
             break;
         }
     case 2: {
-        register u16 *fadeIn asm("r5");
-        register u16 *fadeOut asm("r3");
-        register u32 stateOrIndex asm("r1");
-        register u32 scratch asm("r0");
+        u16 *fadeIn;
+        u16 *fadeOut;
+        u32 stateOrIndex;
+        u32 scratch;
         register u32 fadeInValue asm("r2");
         register u32 fadeOutValue asm("r2");
-        register u32 fadeOutTarget asm("r4");
+        u32 fadeOutTarget;
 
         if (gMainTimer & 1) {
             fadeIn = &gBlendAlphaEva;
@@ -1922,8 +1879,8 @@ u32 UpdateCreditsSequence(void)
     case 3: {
         register struct CreditsTreasureState *stateSource asm("r0");
         register struct CreditsTreasureState *caseState asm("r5");
-        register u16 sequenceTimer asm("r2");
-        register u32 threshold asm("r1");
+        u16 sequenceTimer;
+        u32 threshold;
 
         stateSource = &gCreditsTreasureState;
         sequenceTimer = stateSource->sequenceTimer;
@@ -1947,8 +1904,8 @@ u32 UpdateCreditsSequence(void)
         break;
     }
     case 4: {
-        register u32 animValue asm("r0");
-        register s32 maskOrTarget asm("r1");
+        u32 animValue;
+        s32 maskOrTarget;
         register struct CreditsTreasureState *stateSource asm("r2");
         register struct CreditsTreasureState *caseState asm("r5");
 
@@ -1963,7 +1920,7 @@ u32 UpdateCreditsSequence(void)
             maskOrTarget = 480;
         }
         if ((s32)caseState->sequenceTimer > maskOrTarget) {
-                register vu32 *caseDma asm("r1");
+                vu32 *caseDma;
                 register const u8 *const *caseTable asm("r2");
                 u16 dmaFill;
 

@@ -50,8 +50,8 @@ void BackupPalettesForColorFade(void)
 
 void BackupPalettesToSecondaryBuffers(void)
 {
-    register vu32 *dma asm("r4");
-    register u32 control asm("r5");
+    vu32 *dma;
+    u32 control;
 
     dma = (vu32 *)0x040000D4;
     dma[0] = 0x05000000;
@@ -67,8 +67,8 @@ void BackupPalettesToSecondaryBuffers(void)
 
 void BackupPalettesToPrimaryBuffers(void)
 {
-    register vu32 *dma asm("r4");
-    register u32 control asm("r5");
+    vu32 *dma;
+    u32 control;
 
     dma = (vu32 *)0x040000D4;
     dma[0] = 0x05000000;
@@ -84,8 +84,8 @@ void BackupPalettesToPrimaryBuffers(void)
 
 void CopySecondaryPalettesToPrimaryBuffers(void)
 {
-    register vu32 *dma asm("r4");
-    register u32 control asm("r5");
+    vu32 *dma;
+    u32 control;
 
     dma = (vu32 *)0x040000D4;
     dma[0] = 0x02020400;
@@ -101,8 +101,8 @@ void CopySecondaryPalettesToPrimaryBuffers(void)
 
 void CopyAlternatePalettesToPrimaryBuffers(void)
 {
-    register vu32 *dma asm("r4");
-    register u32 control asm("r5");
+    vu32 *dma;
+    u32 control;
 
     dma = (vu32 *)0x040000D4;
     dma[0] = 0x02020800;
@@ -118,8 +118,8 @@ void CopyAlternatePalettesToPrimaryBuffers(void)
 
 void CopyAlternateBgAndSecondaryObjPalettesToPrimaryBuffers(void)
 {
-    register vu32 *dma asm("r4");
-    register u32 control asm("r5");
+    vu32 *dma;
+    u32 control;
 
     dma = (vu32 *)0x040000D4;
     dma[0] = 0x02020800;
@@ -136,12 +136,12 @@ void CopyAlternateBgAndSecondaryObjPalettesToPrimaryBuffers(void)
 void BuildGrayscaleBgPaletteBuffer(void)
 {
     struct GrayscaleWeights weights;
-    register s32 redWeight asm("sl");
-    register s32 greenWeight asm("r9");
-    register s32 blueWeight asm("r8");
+    s32 redWeight;
+    s32 greenWeight;
+    s32 blueWeight;
     u16 *destination;
-    register const u16 *source asm("r6");
-    register s32 remaining asm("r5");
+    const u16 *source;
+    s32 remaining;
 
     weights = sGrayscaleWeights;
     destination = (u16 *)0x02020800;
@@ -152,8 +152,8 @@ void BuildGrayscaleBgPaletteBuffer(void)
     remaining = 255;
     do
     {
-        register u32 color asm("r1");
-        register s32 red asm("r3");
+        u32 color;
+        s32 red;
         register s32 green asm("r2");
         register s32 blue asm("r4");
         register s32 value asm("r0");
@@ -180,7 +180,7 @@ void BuildGrayscaleBgPaletteBuffer(void)
         value = redWeight;
         value *= red;
         {
-            register s32 addend asm("r1");
+            s32 addend;
 
             addend = greenWeight;
             addend *= green;
@@ -211,9 +211,9 @@ void BuildGrayscaleBgPaletteBuffer(void)
 
 void UploadColorFadePalettes(void)
 {
-    register struct ColorFading *fade asm("r3");
-    register u32 flags asm("r2");
-    register vu32 *dma asm("r1");
+    struct ColorFading *fade;
+    u32 flags;
+    vu32 *dma;
     register u32 value asm("r0");
 
     fade = &gColorFading;
@@ -248,9 +248,9 @@ void UploadColorFadePalettes(void)
 
 void ColorFadingProcess(void)
 {
-    register u8 *fade asm("r3");
-    register u32 flags asm("r2");
-    register vu32 *dmaSmall asm("r1");
+    u8 *fade;
+    u32 flags;
+    vu32 *dmaSmall;
     register u32 value asm("r0");
 
     fade = (u8 *)&gColorFading;
@@ -286,11 +286,11 @@ void ColorFadingProcess(void)
     }
     else
     {
-        register u8 *timer asm("r4");
+        u8 *timer;
         register u32 timerFlags asm("r3");
         register vu32 *dma asm("r2");
         register u32 timerValue asm("r0");
-        register u32 base asm("r1");
+        u32 base;
 
         timer = gBossDefeatTimer;
         timerFlags = timer[4];
@@ -349,11 +349,11 @@ clear_timer_flag:
 
 void UploadBossColorFadePalettes(void)
 {
-    register u8 *timer asm("r4");
-    register u32 flags asm("r3");
+    u8 *timer;
+    u32 flags;
     register vu32 *dma asm("r2");
     register u32 value asm("r0");
-    register u32 base asm("r1");
+    u32 base;
 
     timer = gBossDefeatTimer;
     flags = timer[4];
@@ -410,14 +410,13 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
 {
     register u32 mode asm("r9");
     register u32 amount asm("r4");
-    register u32 bank asm("r2");
+    u32 bank;
     register struct ColorFading *fade asm("sl");
     register u16 *destination asm("r8");
     register u16 *source asm("r6");
     volatile struct PaletteFadeLoopState state;
 
     mode = (u8)arg0;
-    COMPILER_BARRIER(mode);
     amount = (u8)arg1;
     bank = 0;
     fade = &gColorFading;
@@ -427,9 +426,9 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
         if (bank == 0)
         {
             register struct ColorFading *fadeLow asm("r3");
-            register u32 flags asm("r1");
-            register u32 test asm("r0");
-            register u16 *sourceInit asm("r6");
+            u32 flags;
+            u32 test;
+            u16 *sourceInit;
 
             {
                 register u16 *destinationInit asm("r1");
@@ -453,10 +452,10 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
         else
         {
             register u16 *destinationInit asm("r7");
-            register struct ColorFading *fadeLow asm("r0");
-            register u32 flags asm("r1");
-            register u32 test asm("r0");
-            register u16 *sourceInit asm("r6");
+            struct ColorFading *fadeLow;
+            u32 flags;
+            u32 test;
+            u16 *sourceInit;
 
             destinationInit = (u16 *)0x02020200;
             destination = destinationInit;
@@ -496,7 +495,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
                 register u32 red asm("r2");
                 register u32 green asm("r3");
                 register s32 temporary asm("r0");
-                register u32 bits asm("r0");
+                u32 bits;
                 register u32 type asm("r0");
 
                 color = *source;
@@ -516,13 +515,13 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
                 COMPILER_BARRIER_INPUT(fadeInner);
                 if (type == 1)
                 {
-                    register u32 modeLow asm("r0");
+                    u32 modeLow;
 
                     modeLow = mode;
                     if (modeLow == 0)
                     {
-                        register s32 whiteRed asm("r2");
-                        register s32 whiteGreen asm("r3");
+                        s32 whiteRed;
+                        s32 whiteGreen;
                         register s32 whiteBlue asm("r7");
 
                         temporary = maximum - red;
@@ -567,7 +566,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
                 }
                 else
                 {
-                    register u32 modeLow asm("r0");
+                    u32 modeLow;
 
                     modeLow = mode;
                     if (modeLow == 0)
@@ -623,7 +622,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
 
                 {
                     register s32 count asm("r2");
-                    register s32 increment asm("r3");
+                    s32 increment;
 
                     count = state.count;
                     count--;
@@ -642,15 +641,13 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
             register u32 narrowed asm("r0");
 
             nextBankLow = state.nextBank;
-            COMPILER_BARRIER(nextBankLow);
             narrowed = nextBankLow;
-            narrowed <<= 24;
-            bank = narrowed >> 24;
+            bank = (u8)narrowed;
         }
     } while (bank <= 1);
 
     {
-        register u32 value asm("r0");
+        u32 value;
         register struct ColorFading *fadeLow asm("r1");
 
         value = 3;
@@ -661,19 +658,18 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
 
 u32 UpdatePaletteInterpolation(u32 arg0, u32 arg1)
 {
-    register u32 paletteSet asm("r3");
+    u32 paletteSet;
     register struct ColorFading *fade asm("r9");
     register s32 step asm("ip");
     register s32 interval asm("r8");
     volatile struct PaletteBufferPair pointers;
 
     paletteSet = (u8)arg0;
-    COMPILER_BARRIER(paletteSet);
 
     {
-        register u32 rawSpeed asm("r2");
+        u32 rawSpeed;
         struct ColorFading *fadeAddress;
-        register u32 pending asm("r1");
+        u32 pending;
 
         rawSpeed = (u8)arg1;
         fadeAddress = &gColorFading;
@@ -681,7 +677,7 @@ u32 UpdatePaletteInterpolation(u32 arg0, u32 arg1)
         fade = fadeAddress;
         if (pending != 0)
         {
-            register u32 zero asm("r0");
+            u32 zero;
             register struct ColorFading *fadeLow asm("r1");
 
             zero = 0;
@@ -701,7 +697,7 @@ u32 UpdatePaletteInterpolation(u32 arg0, u32 arg1)
         }
 
         {
-            register s32 signedSpeed asm("r0");
+            s32 signedSpeed;
 
             signedSpeed = (s8)rawSpeed;
             step = signedSpeed;
@@ -711,11 +707,10 @@ u32 UpdatePaletteInterpolation(u32 arg0, u32 arg1)
     }
 
     {
-        register s32 inverted asm("r0");
+        s32 inverted;
         register s32 stepCopy asm("r2");
 
         inverted = 255;
-        COMPILER_BARRIER(inverted);
         stepCopy = step;
         COMPILER_BARRIER(stepCopy);
         inverted ^= stepCopy;
@@ -723,10 +718,9 @@ u32 UpdatePaletteInterpolation(u32 arg0, u32 arg1)
         step = inverted;
     }
     {
-        register s32 one asm("r0");
+        s32 one;
 
         one = 1;
-        COMPILER_BARRIER(one);
         interval = one;
     }
     goto speed_ready;
@@ -744,7 +738,7 @@ nonnegative_speed:
 speed_ready:
     {
         register struct ColorFading *fadeLow asm("r2");
-        register u32 timer asm("r0");
+        u32 timer;
 
         fadeLow = fade;
         timer = fadeLow->timer;
@@ -757,8 +751,8 @@ speed_ready:
 
     {
         register u32 zero asm("r0");
-        register struct ColorFading *fadeLow asm("r1");
-        register u32 level asm("r0");
+        struct ColorFading *fadeLow;
+        u32 level;
 
         zero = 0;
         fadeLow = fade;
@@ -773,9 +767,9 @@ speed_ready:
 
     {
         register struct ColorFading *fadeLow asm("r2");
-        register u32 factor asm("r8");
+        u32 factor;
         register u16 *srcA asm("sl");
-        register s32 count asm("ip");
+        s32 count;
 
         fadeLow = fade;
         factor = fadeLow->progress;
@@ -794,38 +788,36 @@ speed_ready:
         }
         else
         {
-            register u16 *srcBInit asm("r0");
-            register u16 *srcAInit asm("r1");
+            u16 *srcBInit;
+            u16 *srcAInit;
 
             srcBInit = (u16 *)0x02020400;
             pointers.srcB = srcBInit;
             srcAInit = (u16 *)0x02020800;
-            COMPILER_BARRIER(srcAInit);
             srcA = srcAInit;
         }
 
         {
-            register s32 countInit asm("r2");
+            s32 countInit;
 
             countInit = 255;
-            COMPILER_BARRIER(countInit);
             count = countInit;
         }
 
         do
         {
             {
-                register u16 color asm("r1");
-                register u32 redA asm("r3");
-                register u32 greenA asm("r5");
+                u16 color;
+                u32 redA;
+                u32 greenA;
                 u32 blueA;
-                register u32 redB asm("r2");
+                u32 redB;
                 register u32 greenB asm("r4");
-                register u32 blueB asm("r6");
+                u32 blueB;
                 register s32 temp asm("r0");
                 register u32 bits asm("r0");
-                register u32 redOut asm("r1");
-                register u32 greenOut asm("r3");
+                u32 redOut;
+                u32 greenOut;
                 register u32 blueOut asm("r2");
                 register u16 *srcB asm("r2");
 
@@ -856,7 +848,7 @@ speed_ready:
 
                 if (redB > redA)
                 {
-                    register u32 multiplier asm("r1");
+                    u32 multiplier;
 
                     temp = redB - redA;
                     multiplier = factor;
@@ -867,7 +859,7 @@ speed_ready:
                 }
                 else
                 {
-                    register u32 multiplier asm("r2");
+                    u32 multiplier;
 
                     temp = redA - redB;
                     multiplier = factor;
@@ -880,7 +872,7 @@ speed_ready:
 
                 if (greenB > greenA)
                 {
-                    register u32 multiplier asm("r2");
+                    u32 multiplier;
 
                     temp = greenB - greenA;
                     multiplier = factor;
@@ -891,7 +883,7 @@ speed_ready:
                 }
                 else
                 {
-                    register u32 multiplier asm("r2");
+                    u32 multiplier;
 
                     temp = greenA - greenB;
                     multiplier = factor;
@@ -904,7 +896,7 @@ speed_ready:
 
                 if (blueB > blueA)
                 {
-                    register u32 multiplier asm("r2");
+                    u32 multiplier;
 
                     temp = blueB - blueA;
                     multiplier = factor;
@@ -915,7 +907,7 @@ speed_ready:
                 }
                 else
                 {
-                    register u32 multiplier asm("r2");
+                    u32 multiplier;
 
                     temp = blueA - blueB;
                     multiplier = factor;
@@ -951,7 +943,7 @@ speed_ready:
     }
 
     {
-        register u32 one asm("r0");
+        u32 one;
         register struct ColorFading *fadeLow asm("r2");
 
         one = 1;
@@ -973,7 +965,7 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
     paletteIndex = arg0;
     {
         register u32 offset asm("r0");
-        register u32 base asm("r1");
+        u32 base;
 
         offset = paletteIndex << 5;
         base = 0x05000200;
@@ -984,18 +976,17 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
     {
         do
         {
-            register u32 color asm("r2");
+            u32 color;
             register s32 red asm("r0");
             register s32 green asm("r3");
             register u32 bits asm("r1");
-            register s32 gray asm("r2");
+            s32 gray;
 
             color = *palette;
             red = 0x1F;
             red &= color;
             green = 0xF8;
             green <<= 2;
-            COMPILER_BARRIER(green);
             bits = green;
             asm("" : : "r"(bits), "r"(green));
             green = color;
@@ -1004,16 +995,13 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
             asm volatile("" : "+r"(r7Value));
             r7Value = 0xF8;
             r7Value <<= 7;
-            COMPILER_BARRIER(r7Value);
             bits = r7Value;
             asm("" : : "r"(bits), "r"(r7Value));
             color &= bits;
-            COMPILER_BARRIER_INPUT(r7Value);
             color >>= 10;
             red += green;
             red += color;
             gray = red / 3;
-            COMPILER_BARRIER_INPUT(r7Value);
             if (gray > 0x1F)
             {
                 gray = 0x1F;
@@ -1029,9 +1017,9 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
     }
 
     {
-        register vu32 *dma asm("r2");
+        vu32 *dma;
         register u32 offset asm("r1");
-        register u32 base asm("r3");
+        u32 base;
         register u32 value asm("r0");
 
         dma = (vu32 *)0x040000D4;
@@ -1056,25 +1044,19 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
 void LoadBossSpriteGraphics(u32 arg0, u32 arg1, u32 arg2)
 {
     register u32 value asm("r0");
-    register u8 *state asm("r1");
+    u8 *state;
     register u32 paletteOffset asm("r2");
-    register u32 type asm("r3");
-    register s32 mode asm("r4");
-    register u32 palette asm("r5");
-    register u32 count asm("r6");
+    u32 type;
+    s32 mode;
+    u32 palette;
+    u32 count;
     u32 copyBack;
     register vu32 *dma asm("r1");
-    register u16 *dst asm("r1");
+    u16 *dst;
 
-    arg0 <<= 24;
-    type = arg0 >> 24;
-    COMPILER_BARRIER(type);
-    arg1 <<= 24;
-    palette = arg1 >> 24;
-    COMPILER_BARRIER(palette);
-    arg2 <<= 24;
-    count = arg2 >> 24;
-    COMPILER_BARRIER(count);
+    type = (u8)arg0;
+    palette = (u8)arg1;
+    count = (u8)arg2;
     if (type == 0)
         return;
 
@@ -1185,23 +1167,21 @@ copy_palette:
 
 void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
 {
-    register u32 type asm("r3");
-    register u32 paletteIndex asm("r5");
-    register u32 tileCount asm("r6");
+    u32 type;
+    u32 paletteIndex;
+    u32 tileCount;
     register s32 mode asm("r4");
-    register u32 uploadAgain asm("r3");
-    register vu32 *reg asm("r2");
-    register u32 offset asm("r1");
+    u32 uploadAgain;
+    vu32 *reg;
+    u32 offset;
     register u32 value asm("r0");
-    register u8 *timer asm("r1");
+    u8 *timer;
 
     value = arg0;
-    value <<= 24;
-    type = value >> 24;
+    type = (u8)value;
 
     offset = arg1;
-    offset <<= 24;
-    paletteIndex = offset >> 24;
+    paletteIndex = (u8)offset;
 
     reg = (vu32 *)arg2;
     reg = (vu32 *)((u32)reg << 24);
@@ -1233,10 +1213,9 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
 
     uploadAgain = 0;
     {
-        register s32 zero asm("r2");
+        s32 zero;
         zero = 0;
         value = gSubGameMode;
-        COMPILER_BARRIER(zero);
     }
 
     if (gSubGameMode == 2 || gSubGameMode == 6)
@@ -1281,7 +1260,7 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
     if (mode == 1)
     {
         register u32 base asm("r1");
-        register u16 *ptr asm("r1");
+        u16 *ptr;
         register u32 fill asm("r2");
 
         base = 0x05000000;
@@ -1310,8 +1289,8 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
     else if (mode == 3)
     {
         register u32 base asm("r1");
-        register u16 *ptr asm("r1");
-        register u32 fill asm("r2");
+        u16 *ptr;
+        u32 fill;
 
         base = 0x05000000;
         COMPILER_BARRIER(base);
@@ -1428,18 +1407,18 @@ void UpdateGoldenDivaPaletteFade(void)
 
 void ApplyTimedPaletteFade(s16 *arg0, u16 *arg1, u8 *arg2)
 {
-    register s16 *dst asm("r8");
+    s16 *dst;
     u16 *src;
-    register u8 *timer asm("r5");
+    u8 *timer;
     register s32 i asm("r6");
-    register ColorBlendFunction *table asm("r9");
+    ColorBlendFunction *table;
     register u16 color asm("r2");
-    register u32 red asm("r0");
-    register u32 green asm("r1");
-    register u32 blue asm("r2");
-    register u32 amount asm("r3");
-    register u32 index asm("r4");
-    register ColorBlendFunction func asm("r4");
+    u32 red;
+    u32 green;
+    u32 blue;
+    u32 amount;
+    u32 index;
+    ColorBlendFunction func;
     u32 count;
 
     dst = arg0;
@@ -1465,7 +1444,6 @@ void ApplyTimedPaletteFade(s16 *arg0, u16 *arg1, u8 *arg2)
             *dst = func(red, green, blue, amount);
             i++;
             amount = 2;
-            COMPILER_BARRIER(amount);
             dst = (s16 *)((u32)dst + amount);
             src++;
         } while (i < (s32)(timer[2] << 4));
@@ -1474,9 +1452,9 @@ void ApplyTimedPaletteFade(s16 *arg0, u16 *arg1, u8 *arg2)
 
 s32 BlendColorFromWhite(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
 {
-    register s32 max1 asm("r6");
+    s32 max1;
     register s32 max2 asm("r5");
-    register s32 greenValue asm("r4");
+    s32 greenValue;
     register s32 temp asm("r1");
     s32 red;
 
@@ -1513,11 +1491,11 @@ s32 BlendColorFromWhite(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
 
 s32 BlendColorToWhite(u32 arg0, u32 arg1, u32 arg2, u32 arg3)
 {
-    register s32 red asm("r0");
-    register s32 green asm("r1");
-    register s32 blue asm("r2");
-    register s32 amount asm("r3");
-    register s32 maximum asm("r5");
+    s32 red;
+    s32 green;
+    s32 blue;
+    s32 amount;
+    s32 maximum;
     register s32 delta asm("r4");
     register s32 mask asm("r6");
 
@@ -1551,10 +1529,10 @@ s32 BlendColorToWhite(u32 arg0, u32 arg1, u32 arg2, u32 arg3)
 
 s32 BlendColorFromBlack(u32 arg0, u32 arg1, u32 arg2, u32 arg3)
 {
-    register s32 red asm("r0");
-    register s32 green asm("r1");
-    register s32 blue asm("r2");
-    register s32 amount asm("r3");
+    s32 red;
+    s32 green;
+    s32 blue;
+    s32 amount;
     register s32 temporary asm("r4");
     register s32 mask asm("r5");
 
@@ -1562,7 +1540,6 @@ s32 BlendColorFromBlack(u32 arg0, u32 arg1, u32 arg2, u32 arg3)
     green = (u8)arg1;
     COMPILER_BARRIER(green);
     blue = (u8)arg2;
-    COMPILER_BARRIER(blue);
     amount = (u8)arg3;
     red *= amount;
     red >>= 5;
@@ -1585,18 +1562,16 @@ s32 BlendColorFromBlack(u32 arg0, u32 arg1, u32 arg2, u32 arg3)
 
 s32 BlendColorToBlack(u32 arg0, u32 arg1, u32 arg2, u32 arg3)
 {
-    register s32 red asm("r0");
-    register s32 green asm("r1");
-    register s32 blue asm("r2");
-    register s32 amount asm("r3");
-    register s32 temporary asm("r4");
+    s32 red;
+    s32 green;
+    s32 blue;
+    s32 amount;
+    s32 temporary;
     register s32 mask asm("r5");
 
     red = (u8)arg0;
     green = (u8)arg1;
-    COMPILER_BARRIER(green);
     blue = (u8)arg2;
-    COMPILER_BARRIER(blue);
     amount = (u8)arg3;
     temporary = red;
     temporary *= amount;
@@ -1622,11 +1597,11 @@ s32 BlendColorToBlack(u32 arg0, u32 arg1, u32 arg2, u32 arg3)
 
 void UpdateEscapePaletteFadeSequence(void)
 {
-  register u8 *state asm("r2");
-  register s32 step asm("r3");
-  register u8 *stateBase asm("r0");
-  register u32 callArg0 asm("r0");
-  register u32 callArg1 asm("r1");
+  u8 *state;
+  s32 step;
+  u8 *stateBase;
+  u32 callArg0;
+  u32 callArg1;
   u8 initialState;
   if (gSubGameMode != 2)
   {
@@ -1707,7 +1682,7 @@ void UpdateEscapePaletteFadeSequence(void)
 
     case 12:
     {
-      register struct ColorFading *fade asm("r1");
+      struct ColorFading *fade;
       fade = &gColorFading;
       fade->timer = 0;
       fade->progress = 0;
@@ -1721,7 +1696,6 @@ void UpdateEscapePaletteFadeSequence(void)
     case 13:
       callArg1 = step;
       callArg0 = 1;
-      COMPILER_BARRIER2(callArg0, callArg1);
       if (UpdatePaletteInterpolation(callArg0, callArg1) != 0)
     {
       gColorFading.timer = 0;
@@ -1906,7 +1880,7 @@ void InitializeColorFadeEffect(void)
             BackupPalettesToSecondaryBuffers();
             if (HandleSwitchColorFade() != 0)
             {
-                register vu32 *dma asm("r1");
+                vu32 *dma;
                 register u32 value asm("r0");
                 dma = (vu32 *)0x040000D4;
                 value = 0x02020800;
@@ -1937,13 +1911,13 @@ void PrepareColorFadeBuffers(void)
 
 void FillColorFadePalettes(void)
 {
-    register u8 *fade asm("r4");
-    register u16 *dst0 asm("r5");
-    register u16 *dst1 asm("r4");
-    register u16 *dst2 asm("r3");
-    register u16 *dst3 asm("r2");
-    register s32 count asm("r0");
-    register u32 color asm("r1");
+    u8 *fade;
+    u16 *dst0;
+    u16 *dst1;
+    u16 *dst2;
+    u16 *dst3;
+    s32 count;
+    u32 color;
 
     fade = (u8 *)&gColorFading;
     fade[2] = 0;
@@ -1974,9 +1948,9 @@ void FillColorFadePalettes(void)
 
 s32 HandleSwitchColorFade(void)
 {
-    register u32 result asm("r2");
-    register u8 *timer asm("r1");
-    register u8 *fade asm("r0");
+    u32 result;
+    u8 *timer;
+    u8 *fade;
 
     if (gSwitchPressed == 0)
     {
@@ -2002,11 +1976,11 @@ s32 HandleSwitchColorFade(void)
 
 s32 ExpandColorFadeWindow(void)
 {
-    register struct Window *window asm("r4");
-    register struct Window *rest asm("r3");
-    register s32 step asm("r1");
+    struct Window *window;
+    struct Window *rest;
+    s32 step;
     register s32 current asm("r2");
-    register s32 completed asm("r5");
+    s32 completed;
     register s32 value asm("r0");
 
     window = &gWindow;
@@ -2086,12 +2060,12 @@ s32 CollapseColorFadeWindowAroundWario(void)
 {
     s32 distances[4];
     struct Window *window;
-    register s32 targetX asm("r6");
-    register s32 targetY asm("r5");
+    s32 targetX;
+    s32 targetY;
     s32 result;
 
     {
-        register struct Window *first asm("r4");
+        struct Window *first;
 
         register s32 content asm("r0");
 
@@ -2107,18 +2081,17 @@ s32 CollapseColorFadeWindowAroundWario(void)
     }
 
     {
-        register u8 *wario asm("r3");
-        register u16 *bgX asm("r2");
-        register u16 *bgY asm("r4");
-        register s32 zero asm("r1");
-        register s32 *clear asm("r0");
+        u8 *wario;
+        u16 *bgX;
+        u16 *bgY;
+        s32 zero;
+        s32 *clear;
 
         wario = (u8 *)&gWarioData;
         bgX = &gBg1XPosition;
         bgY = &gBg1YPosition;
         zero = 0;
         clear = &distances[3];
-        COMPILER_BARRIER5(wario, bgX, bgY, zero, clear);
         do
         {
             *clear = zero;
@@ -2126,8 +2099,8 @@ s32 CollapseColorFadeWindowAroundWario(void)
         } while ((s32)clear >= (s32)distances);
 
         {
-            register s32 warioPosition asm("r1");
-            register s32 backgroundPosition asm("r0");
+            s32 warioPosition;
+            s32 backgroundPosition;
 
             warioPosition = *(u16 *)(wario + 18);
             backgroundPosition = *bgX;
@@ -2145,8 +2118,8 @@ s32 CollapseColorFadeWindowAroundWario(void)
         }
 
         {
-            register s32 warioPosition asm("r1");
-            register s32 backgroundPosition asm("r0");
+            s32 warioPosition;
+            s32 backgroundPosition;
 
             warioPosition = *(u16 *)(wario + 20);
             backgroundPosition = *bgY;
@@ -2171,9 +2144,9 @@ s32 CollapseColorFadeWindowAroundWario(void)
     distances[3] = window->bottom - targetY;
 
     {
-        register s32 selected asm("r3");
+        s32 selected;
         register s32 i asm("r4");
-        register s32 *scan asm("r2");
+        s32 *scan;
 
         selected = 0;
         i = 0;
@@ -2187,11 +2160,11 @@ s32 CollapseColorFadeWindowAroundWario(void)
         } while (i <= 3);
 
         {
-            register s32 amount asm("r4");
+            s32 amount;
             register s32 zero asm("r2");
             register s32 *current asm("r1");
             register s32 count asm("r3");
-            register s32 value asm("r0");
+            s32 value;
             register s32 reduced asm("r1");
 
             value = selected;
@@ -2219,8 +2192,8 @@ s32 CollapseColorFadeWindowAroundWario(void)
 
     {
         register s32 step asm("r3");
-        register s32 current asm("r1");
-        register s32 limit asm("r0");
+        s32 current;
+        s32 limit;
 
         step = distances[0];
         if (step != 0)
@@ -2309,13 +2282,13 @@ s32 CollapseColorFadeWindowVertically(void)
 {
     s8 steps[17];
     s32 padding[4];
-    register struct Window *first asm("r4");
-    register struct Window *window asm("r3");
-    register s32 value asm("r0");
+    struct Window *first;
+    struct Window *window;
+    s32 value;
     register s32 content asm("r1");
-    register s32 step asm("r2");
-    register s32 center asm("r4");
-    register s32 result asm("r2");
+    s32 step;
+    s32 center;
+    s32 result;
     u8 contentValue;
 
     memcpy(steps, sVerticalWindowFadeSteps, 17);
@@ -2328,8 +2301,8 @@ s32 CollapseColorFadeWindowVertically(void)
 
     window = first;
     {
-        register s32 *start asm("r1");
-        register s32 *current asm("r0");
+        s32 *start;
+        s32 *current;
 
         start = &padding[0];
         step = 0;
@@ -2376,11 +2349,9 @@ s32 CollapseColorFadeWindowVertically(void)
     result = 0;
     content = (s32)window;
     value = ((struct Window *)content)->top;
-    COMPILER_BARRIER2(value, content);
     if (value != center)
         goto done;
     value = ((struct Window *)content)->bottom;
-    COMPILER_BARRIER2(value, content);
     if (value != center)
         goto done;
     contentValue = ((struct Window *)content)->content;

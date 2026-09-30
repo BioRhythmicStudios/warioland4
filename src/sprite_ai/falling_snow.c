@@ -184,62 +184,25 @@ void FallingSnowResetAfterImpact(void)
 
 void InitFallingSnowChild(void)
 {
-    struct PrimarySpriteData* sprite;
-    u8 zero;
-    u16 zero16;
-    struct PrimarySpriteData* storeSprite;
-    u8 one;
-    u8* ptr;
-    u8* ptr32;
+    struct PrimarySpriteData *sprite;
 
     sprite = &gCurrentSprite;
-    {
-        u16 oldStatus;
-        u32 statusBits;
-        register u16 status asm("r0");
-        oldStatus = sprite->status;
-        statusBits = 0x400;
-        status = statusBits;
-        asm("mov %0, #0" : "=r"(zero));
-        asm("mov %0, #0" : "=r"(zero16));
-        status |= oldStatus;
-        status &= 0xFFFB;
-        storeSprite = sprite;
-        storeSprite->status = status;
-    }
-    ptr32 = (u8*)sprite + 32;
-    *ptr32 = 24;
-    ptr32++;
-    asm volatile("" : "+r"(ptr32));
-    *ptr32 = 24;
-    ptr32++;
-    asm volatile("" : "+r"(ptr32));
-    *ptr32 = 24;
-    ptr = (u8*)sprite + 35;
-    one = 1;
-    *ptr = one;
-    ptr++;
-    asm volatile("" : "+r"(ptr));
-    *ptr = one;
-    ptr++;
-    asm volatile("" : "+r"(ptr));
-    *ptr = one;
-    ptr++;
-    asm volatile("" : "+r"(ptr));
-    *ptr = one;
-    storeSprite->pOamData = sFallingSnowChildOam;
-    storeSprite->currentAnimationFrame = zero;
-    storeSprite->animationTimer = zero16;
-    {
-        u8* work0;
-        u8 timer;
-        work0 = (u8*)sprite + 39;
-        timer = 68;
-        *work0 = timer;
-    }
-    storeSprite->pose = 16;
-    storeSprite->warioCollision = 18;
-    storeSprite->drawPriority = one;
+    sprite->status |= 0x400;
+    sprite->status &= 0xFFFB;
+    sprite->drawDistanceDown = 24;
+    sprite->drawDistanceUp = 24;
+    sprite->drawDistanceLeftRight = 24;
+    sprite->hitboxExtentUp = 1;
+    sprite->hitboxExtentDown = 1;
+    sprite->hitboxExtentLeft = 1;
+    sprite->hitboxExtentRight = 1;
+    sprite->pOamData = sFallingSnowChildOam;
+    sprite->currentAnimationFrame = 0;
+    sprite->animationTimer = 0;
+    sprite->work0 = 68;
+    sprite->pose = 16;
+    sprite->warioCollision = 18;
+    sprite->drawPriority = 1;
 }
 
 void FallingSnowChildExpire(void)
@@ -272,7 +235,7 @@ void InitFallingSnowFragment(void)
         statusBits = 0x400;
         base = statusBits;
         asm("mov %0, #0" : "=r"(zero));
-        asm("mov %0, #0" : "=r"(zero16));
+        zero16 = 0;
         status = base;
         status |= oldStatus;
         mask = 0xFFFB;
@@ -283,24 +246,19 @@ void InitFallingSnowFragment(void)
     ptr32 = (u8*)sprite + 32;
     *ptr32 = 24;
     ptr32++;
-    asm volatile("" : "+r"(ptr32));
     *ptr32 = 24;
     ptr32++;
-    asm volatile("" : "+r"(ptr32));
-    *ptr32 = 24;
+    *(volatile u8 *)ptr32 = 24;
 
     ptr = (u8*)sprite + 35;
     one = 1;
     *ptr = one;
     ptr++;
-    asm volatile("" : "+r"(ptr));
     *ptr = one;
     ptr++;
-    asm volatile("" : "+r"(ptr));
     *ptr = one;
     ptr++;
-    asm volatile("" : "+r"(ptr));
-    *ptr = one;
+    *(volatile u8 *)ptr = one;
 
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero16;
@@ -308,7 +266,6 @@ void InitFallingSnowFragment(void)
         u8 collision;
         struct PrimarySpriteData* store;
         collision = 18;
-        asm volatile("" : "+r"(collision));
         store = sprite;
         store->warioCollision = collision;
         store->drawPriority = one;
@@ -327,7 +284,6 @@ void InitFallingSnowFragment(void)
             const struct AnimationFrame* oam;
             register struct PrimarySpriteData* dst asm("r1");
             oam = sFallingSnowFragmentRightOam;
-            asm volatile("" : "+r"(oam));
             dst = sprite;
             dst->pOamData = oam;
         }

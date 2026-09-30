@@ -44,10 +44,9 @@ void AnimateRouletteResultTiles(void)
 
             offset = i << 10;
             {
-                register u8 *base asm("r4");
+                u8 *base;
                 base = source0;
-                /* agbcc reverses this commutative add; preserve the target offset+base register order. */
-                asm volatile("add %0, %1, %2" : "=r"(address) : "r"(offset), "r"(base));
+                address = (u8 *)(offset + (u32)base);
             }
             dmaRegs[0] = (u32)address;
             {
@@ -71,17 +70,15 @@ void AnimateRouletteResultTiles(void)
             }
 
             {
-                register u8 *base asm("r3");
+                u8 *base;
                 base = source1;
-                /* agbcc reverses this commutative add; preserve the target offset+base register order. */
-                asm volatile("add %0, %1, %2" : "=r"(address) : "r"(offset), "r"(base));
+                address = (u8 *)(offset + (u32)base);
             }
             dmaRegs[0] = (u32)address;
             {
-                register u8 *base asm("r4");
+                u8 *base;
                 base = (u8 *)0x06017100;
-                /* Keep the destination base in r4 after the preceding source-order boundary. */
-                asm volatile("add %0, %1, %2" : "=r"(address) : "r"(offset), "r"(base));
+                address = offset + base;
             }
             dmaRegs[1] = (u32)address;
             dmaRegs[2] = control;
@@ -104,15 +101,13 @@ void AnimateRouletteResultTiles(void)
             {
                 register u8 *base asm("r3");
                 base = source2;
-                /* agbcc reverses this commutative add; preserve the target offset+base register order. */
-                asm volatile("add %0, %1, %2" : "=r"(address) : "r"(offset), "r"(base));
+                address = (u8 *)(offset + (u32)base);
             }
             dmaRegs[0] = (u32)address;
             {
-                register u8 *base asm("r4");
+                u8 *base;
                 base = (u8 *)0x06017200;
-                /* Keep the destination base in r4 after the preceding source-order boundary. */
-                asm volatile("add %0, %1, %2" : "=r"(address) : "r"(offset), "r"(base));
+                address = offset + base;
             }
             dmaRegs[1] = (u32)address;
             dmaRegs[2] = control;

@@ -300,15 +300,15 @@ void MinigameFadeVBlankCallback(void)
 
 void DrawMinigameHighScore(u32 value, const u16 *tiles, u32 destination)
 {
-    register u32 currentValue asm("r5");
-    register const u16 *tileBase asm("r6");
+    u32 currentValue;
+    const u16 *tileBase;
     u32 destinationBase;
     register s32 hundreds asm("r4");
-    register s32 tens asm("r8");
-    register s32 ones asm("r3");
-    register vu32 *dma asm("r1");
+    s32 tens;
+    s32 ones;
+    vu32 *dma;
     u32 control;
-    register u32 busy asm("r2");
+    u32 busy;
     register u32 source asm("r0");
 
     currentValue = value;
@@ -413,8 +413,8 @@ s32 ContractMinigameWindow(void)
 
 u32 PrepareMinigameSave(void)
 {
-    register u8 *flag asm("r2");
-    register u8 value asm("r1");
+    u8 *flag;
+    u8 value;
     u32 result;
 
     result = ((u32 (*)(void))BuildMainSaveWorkingBuffer)();
@@ -426,7 +426,7 @@ u32 PrepareMinigameSave(void)
 
 s32 UpdateMinigameMenu(void)
 {
-    register s32 result asm("r5");
+    s32 result;
 
     result = 0;
     switch (gMinigameState) {
@@ -435,14 +435,14 @@ s32 UpdateMinigameMenu(void)
             gSoundRoomMessageTimer++;
         }
         if (HandleMinigameMenuInput() != 0) {
-            register u8 selected asm("r4");
+            u8 selected;
 
             selected = gSelectedMinigame;
             if (selected == 3) {
-                register const struct MusicPlayer *players asm("r2");
-                register const u8 *songAddress asm("r0");
-                register u32 songOffset asm("r1");
-                register u16 playerIndex asm("r1");
+                const struct MusicPlayer *players;
+                const u8 *songAddress;
+                u32 songOffset;
+                u16 playerIndex;
 
                 players = gMPlayTable;
                 songAddress = (const u8 *)gSongTable;
@@ -452,10 +452,10 @@ s32 UpdateMinigameMenu(void)
                 m4aMPlayFadeOut(players[playerIndex].info, 8);
                 gMinigameState = selected;
             } else {
-                register const struct MusicPlayer *players asm("r2");
-                register const u8 *songAddress asm("r0");
-                register u32 songOffset asm("r1");
-                register u16 playerIndex asm("r1");
+                const struct MusicPlayer *players;
+                const u8 *songAddress;
+                u32 songOffset;
+                u16 playerIndex;
 
                 gMinigamePlayedFlag = 1;
                 players = gMPlayTable;
@@ -486,11 +486,11 @@ s32 UpdateMinigameMenu(void)
 
     case 3:
     {
-        register u8 *base asm("r2");
-        register u8 *selected asm("r0");
-        register u8 selectedValue asm("r1");
-        register u32 index asm("r0");
-        register u8 *item asm("r1");
+        u8 *base;
+        u8 *selected;
+        u8 selectedValue;
+        u32 index;
+        u8 *item;
 
         if (gSoundRoomMessageTimer <= 26) {
             gSoundRoomMessageTimer++;
@@ -511,11 +511,11 @@ s32 UpdateMinigameMenu(void)
 
     case 4:
     {
-        register u8 *base asm("r2");
-        register u8 *selected asm("r0");
-        register u8 selectedValue asm("r1");
-        register u32 index asm("r0");
-        register u8 *item asm("r1");
+        u8 *base;
+        u8 *selected;
+        u8 selectedValue;
+        u32 index;
+        u8 *item;
 
         base = gMinigameMenuItems;
         selected = &gSelectedMinigame;
@@ -542,11 +542,11 @@ void InitMinigameMenu(void)
     register const u8 *tilesC asm("r6");
     register const u8 *totalScoreTiles asm("r8");
     register const u8 *scoreLabelTiles asm("r9");
-    register const u8 *medalTiles asm("r10");
+    const u8 *medalTiles;
     register const u8 *medalCopy asm("r3");
-    register u8 *messageDuration asm("r12");
+    u8 *messageDuration;
     register vu32 *dma asm("r1");
-    register u32 control asm("r0");
+    u32 control;
     register u32 busy asm("r2");
     register vu16 *bgControl asm("r2");
     u16 *scores;
@@ -685,7 +685,7 @@ void InitMinigameMenu(void)
     }
 
     {
-        register const u8 *collection asm("r4");
+        const u8 *collection;
         register u8 collectionFlags asm("r1");
         collection = (const u8 *)gCurrentCollection;
         collectionFlags = collection[16];
@@ -697,8 +697,8 @@ void InitMinigameMenu(void)
     goto durationDone;
 setDuration50:
     {
-        register u8 value asm("r0");
-        register u8 *duration asm("r1");
+        u8 value;
+        u8 *duration;
         value = 50;
         duration = messageDuration;
         *duration = value;
@@ -706,12 +706,11 @@ setDuration50:
 durationDone:;
 
     {
-        register u32 keepR1 asm("r1");
-        register u32 keepR2 asm("r2");
+        u32 keepR1;
+        u32 keepR2;
         u32 totalScore;
         asm volatile("" : "=r"(keepR1), "=r"(keepR2));
         totalScore = gTotalScore;
-        asm volatile("" : : "r"(keepR1), "r"(keepR2));
         UploadTallFiveDigitNumberTiles(totalScore, totalScoreTiles, 0x59A0);
     }
     DrawMinigameNumber(gMedalCount, (const u16 *)totalScoreTiles, 0x50E0);
@@ -727,7 +726,7 @@ durationDone:;
     } while (i >= 0);
 
     {
-        register vu16 *scroll asm("r0");
+        vu16 *scroll;
         register u16 zero asm("r2");
 
         scroll = (vu16 *)0x04000012;
@@ -756,12 +755,12 @@ durationDone:;
     }
 
     {
-        register u16 *smallData asm("r0");
-        register u16 entryZero asm("r3");
-        register u16 *selectionData asm("r1");
+        u16 *smallData;
+        u16 entryZero;
+        u16 *selectionData;
         register const u32 *table asm("r2");
-        register u8 *selected asm("r4");
-        register u32 index asm("r0");
+        u8 *selected;
+        u32 index;
 
         smallData = (u16 *)gMinigameSparkleAnimationState;
         entryZero = 0;
@@ -781,10 +780,10 @@ durationDone:;
 
     gMinigameCursorAnimation = sMinigameCursorIdleAnimation;
     {
-        register u16 *timer asm("r2");
-        register u16 loopZero asm("r1");
-        register u8 *entry asm("r0");
-        register s32 count asm("r4");
+        u16 *timer;
+        u16 loopZero;
+        u8 *entry;
+        s32 count;
 
         timer = &gSoundRoomMessageTimer;
         loopZero = 0;
@@ -807,11 +806,11 @@ durationDone:;
 
 void InitMinigameMenuSelection(void)
 {
-    register u8 *selected asm("r9");
+    u8 *selected;
     u8 *substate;
     u8 *state;
     u8 *sequenceFlag;
-    register u8 *message asm("r8");
+    u8 *message;
     u8 *destination;
     u8 *base;
     u8 *entry;
@@ -821,8 +820,8 @@ void InitMinigameMenuSelection(void)
     s32 i;
 
     {
-        register u8 *address asm("r0");
-        register u32 value asm("r1");
+        u8 *address;
+        u32 value;
         address = &gSelectedMinigame;
         value = 3;
         *address = value;
@@ -832,13 +831,11 @@ void InitMinigameMenuSelection(void)
     state = &gMinigameState;
     sequenceFlag = &gMinigamePlayedFlag;
     {
-        register u8 *messageAddress asm("r1");
+        u8 *messageAddress;
         messageAddress = &gMinigameMessageId;
-        asm("" : "+r"(messageAddress));
         message = messageAddress;
     }
     base = gMinigameMenuItems;
-    asm("" : "+r"(base));
     zero = 0;
     y = 72;
     entry = base + 4;
@@ -853,21 +850,19 @@ void InitMinigameMenuSelection(void)
     } while (i >= 0);
     *substate = 0;
     {
-        register u8 stateValue asm("r0");
+        u8 stateValue;
         stateValue = 4;
         *state = stateValue;
         destination = sequenceFlag;
         *destination = 0;
-        asm("" : : "r"(stateValue));
     }
     {
-        register u8 *source asm("r1");
-        register u8 value asm("r0");
+        u8 *source;
+        u8 value;
         source = selected;
         value = *source;
         destination = message;
         *destination = value;
-        asm("" : : "r"(source));
     }
     *(vu16 *)0x04000000 = 0x1700;
     InitMinigameMenu();
@@ -875,12 +870,12 @@ void InitMinigameMenuSelection(void)
 
 void InitMinigameResultsMenu(void)
 {
-    register s32 i asm("r3");
-    register u8 *base asm("r0");
-    register u8 *entry asm("r1");
-    register const u32 *positions asm("r2");
-    register u32 selectedY asm("r5");
-    register u8 *selected asm("r4");
+    s32 i;
+    u8 *base;
+    u8 *entry;
+    const u32 *positions;
+    u32 selectedY;
+    u8 *selected;
 
     PrepareMinigameSave();
     i = 0;
@@ -891,7 +886,7 @@ void InitMinigameResultsMenu(void)
     selected = &gSelectedMinigame;
     do {
         if (i == *selected) {
-            register u32 value asm("r0");
+            u32 value;
             value = 4;
             entry[4] = value;
             value = *positions;
@@ -920,9 +915,9 @@ void InitMinigameResultsMenu(void)
         gMinigameMessageId = 9;
     }
     {
-        register const u8 *songs asm("r1");
-        register u8 *selectedPtr asm("r0");
-        register u32 index asm("r0");
+        const u8 *songs;
+        u8 *selectedPtr;
+        u32 index;
         songs = (const u8 *)sMinigameResultSongIds;
         selectedPtr = &gSelectedMinigame;
         index = *selectedPtr;
@@ -934,9 +929,9 @@ void InitMinigameResultsMenu(void)
 
 void ApplyMinigameMenuVBlank(void)
 {
-    register vu16 *window asm("r2");
-    register const u16 *const *table asm("r1");
-    register u32 index asm("r0");
+    vu16 *window;
+    const u16 *const *table;
+    u32 index;
 
     window = (vu16 *)0x04000040;
     window[0] = (gStageEntryWindowLeft << 8) | gStageEntryWindowRight;
@@ -960,22 +955,21 @@ void ApplyMinigameMenuVBlank(void)
 s32 HandleMinigameMenuInput(void)
 {
     register u32 direction asm("r4");
-    register u16 *buttonsPointer asm("r1");
+    u16 *buttonsPointer;
     register u16 buttons asm("r2");
-    register u16 *savedButtonsPointer asm("r3");
+    u16 *savedButtonsPointer;
 
     direction = 4;
     buttonsPointer = &gButtonsPressed;
     buttons = *buttonsPointer;
     {
-        register u32 pressedA asm("r0");
+        u32 pressedA;
 
         pressedA = 1;
         pressedA &= buttons;
-        asm("" : "+r"(pressedA));
         savedButtonsPointer = buttonsPointer;
         if (pressedA != 0) {
-        register u8 *selected asm("r5");
+        u8 *selected;
 
         selected = &gSelectedMinigame;
         if (*selected == 3) {
@@ -983,11 +977,11 @@ s32 HandleMinigameMenuInput(void)
             goto return_one;
         }
         {
-            register s32 *score asm("r2");
-            register u8 *requiredScoreSource asm("r0");
-            register u8 requiredScoreByte asm("r1");
-            register u32 requiredScore asm("r0");
-            register s32 scoreValue asm("r1");
+            s32 *score;
+            u8 *requiredScoreSource;
+            u8 requiredScoreByte;
+            u32 requiredScore;
+            s32 scoreValue;
 
             score = &gTotalScore;
             requiredScoreSource = &gMinigameCostUnits;
@@ -996,14 +990,14 @@ s32 HandleMinigameMenuInput(void)
             requiredScore *= 2;
             scoreValue = *score;
             if (scoreValue >= (s32)requiredScore) {
-                register const u8 **animation asm("r1");
-                register const u8 *animationTable asm("r0");
-                register u8 *coords asm("r0");
-                register u32 zero asm("r3");
-                register u8 *entries asm("r2");
-                register u8 selectedValue asm("r1");
-                register u32 index asm("r0");
-                register u8 *entry asm("r0");
+                const u8 **animation;
+                const u8 *animationTable;
+                u8 *coords;
+                u32 zero;
+                u8 *entries;
+                u8 selectedValue;
+                u32 index;
+                u8 *entry;
 
                 m4aSongNumStart(0x126);
                 animation = (const u8 **)&gMinigameCursorAnimation;
@@ -1050,11 +1044,11 @@ s32 HandleMinigameMenuInput(void)
     }
 
     if (direction != 4) {
-        register const u32 *navigation asm("r2");
-        register u32 navigationIndex asm("r1");
+        const u32 *navigation;
+        u32 navigationIndex;
         register u8 *selected asm("r4");
-        register u8 selectedValue asm("r0");
-        register u32 nextSelection asm("r1");
+        u8 selectedValue;
+        u32 nextSelection;
 
         navigation = sMinigameNavigationTable;
         navigationIndex = direction * 4;
@@ -1063,16 +1057,16 @@ s32 HandleMinigameMenuInput(void)
         navigationIndex += selectedValue * 16;
         nextSelection = navigation[navigationIndex / 4];
         if (nextSelection != 4) {
-            register u8 *coords asm("r2");
+            u8 *coords;
             register const u32 *positions asm("r1");
-            register u32 index asm("r0");
-            register u32 position asm("r0");
-            register s32 i asm("r5");
-            register u8 *loopSelected asm("r6");
+            u32 index;
+            u32 position;
+            s32 i;
+            u8 *loopSelected;
             s32 *score;
-            register u8 *message asm("r3");
-            register u8 *entry asm("r2");
-            register u32 zero asm("r4");
+            u8 *message;
+            u8 *entry;
+            u32 zero;
 
             *selected = nextSelection;
             coords = gMinigameCursorAnimationState;
@@ -1095,10 +1089,10 @@ s32 HandleMinigameMenuInput(void)
             entry = gMinigameMenuItems;
             do {
                 if (*loopSelected == 3) {
-                    register u8 *requiredScoreSource asm("r0");
-                    register u8 requiredScoreByte asm("r1");
-                    register u32 requiredScore asm("r0");
-                    register s32 scoreValue asm("r1");
+                    u8 *requiredScoreSource;
+                    u8 requiredScoreByte;
+                    u32 requiredScore;
+                    s32 scoreValue;
 
                     entry[8] = zero;
                     requiredScoreSource = &gMinigameCostUnits;
@@ -1114,7 +1108,7 @@ s32 HandleMinigameMenuInput(void)
                         *message = 11;
                     }
                 } else {
-                    register s32 currentSelectionValue asm("r0");
+                    s32 currentSelectionValue;
 
                     currentSelectionValue = *loopSelected;
                     if (currentSelectionValue == i) {
@@ -1148,7 +1142,7 @@ return_one:
 
 s32 UpdateMinigameStartSequence(void)
 {
-    register u8 *state asm("r6");
+    u8 *state;
 
     state = &gMinigameSequenceState;
     switch (*state) {
@@ -1159,8 +1153,8 @@ s32 UpdateMinigameStartSequence(void)
 
     case 1:
     {
-        register s32 *score asm("r4");
-        register u16 *timer asm("r5");
+        s32 *score;
+        u16 *timer;
 
         score = &gTotalScore;
         *score -= 10;
@@ -1169,9 +1163,9 @@ s32 UpdateMinigameStartSequence(void)
         if ((*timer % 5) == 0)
             m4aSongNumStart(0x222);
         {
-            register s32 scoreValue asm("r0");
-            register const void *tiles asm("r1");
-            register u32 destination asm("r2");
+            s32 scoreValue;
+            const void *tiles;
+            u32 destination;
 
             scoreValue = *score;
             tiles = sMinigameTotalScoreDigitTiles;
@@ -1187,11 +1181,11 @@ s32 UpdateMinigameStartSequence(void)
 
     case 2:
         if (MinigameWaitForFrames(60) != 0) {
-            register const u8 *songTable asm("r1");
-            register u8 *selected asm("r4");
-            register u8 *base asm("r2");
-            register u32 index asm("r0");
-            register u32 zero asm("r3");
+            const u8 *songTable;
+            u8 *selected;
+            u8 *base;
+            u32 index;
+            u32 zero;
             register u8 *item asm("r0");
 
             songTable = (const u8 *)sMinigameStartSongIds;
@@ -1201,16 +1195,13 @@ s32 UpdateMinigameStartSequence(void)
             *(vu16 *)0x04000000 = 0x3400;
             base = gMinigameMenuItems;
             index = *selected * 12;
-            asm("" : "+r"(index));
             item = (u8 *)(index + (u32)base);
             zero = 0;
             item[8] = 3;
             index = *selected * 12;
-            asm("" : "+r"(index));
             item = (u8 *)(index + (u32)base);
             *(u16 *)(item + 0) = zero;
             index = *selected * 12;
-            asm("" : "+r"(index));
             item = (u8 *)(index + (u32)base);
             *(u16 *)(item + 2) = zero;
         }
@@ -1218,24 +1209,22 @@ s32 UpdateMinigameStartSequence(void)
 
     case 3:
     {
-        register u8 *base asm("r3");
-        register u8 *selected asm("r2");
-        register u8 selectedIndex asm("r0");
+        u8 *base;
+        u8 *selected;
+        u8 selectedIndex;
         register u32 index asm("r1");
-        register u8 *item asm("r1");
-        register s32 offset asm("r2");
+        u8 *item;
+        s32 offset;
 
         base = gMinigameMenuItems;
         selected = &gSelectedMinigame;
         selectedIndex = *selected;
         index = selectedIndex * 12;
-        asm("" : "+r"(index));
         item = (u8 *)(index + (u32)base);
         if (item[8] == 4)
             *(u16 *)(item + 6) -= 2;
         selectedIndex = *selected;
         index = selectedIndex * 12;
-        asm("" : "+r"(index));
         item = (u8 *)(index + (u32)base);
         offset = 6;
         if (*(s16 *)(item + offset) <= 19)
@@ -1248,44 +1237,39 @@ s32 UpdateMinigameStartSequence(void)
 
 s32 UpdateMinigameResultSequence(void)
 {
-    register u8 *state asm("r5");
+    u8 *state;
     state = &gMinigameSequenceState;
     switch (*state) {
     case 0:
     {
-        register u8 *base asm("r4");
-        register u8 *selected asm("r3");
-        register u8 *address0 asm("r0");
-        register u32 index0 asm("r0");
+        u8 *base;
+        u8 *selected;
+        u8 *address0;
+        u32 index0;
         register u16 value1 asm("r1");
         u8 *address1;
-        register s32 offset asm("r6");
+        s32 offset;
 
         base = gMinigameMenuItems;
         selected = &gSelectedMinigame;
         index0 = *selected * 12;
-        asm("" : "+r"(index0));
         address0 = (u8 *)(index0 + (u32)base);
         value1 = *(u16 *)(address0 + 6);
         value1 += 2;
         *(u16 *)(address0 + 6) = value1;
         index0 = *selected * 12;
-        asm("" : "+r"(index0));
         address1 = (u8 *)(index0 + (u32)base);
         offset = 6;
         if (*(s16 *)(address1 + offset) > 40) {
             *(u16 *)(address1 + 6) = 72;
             index0 = *selected * 12;
-        asm("" : "+r"(index0));
         address0 = (u8 *)(index0 + (u32)base);
             value1 = 5;
             address0[8] = value1;
             index0 = *selected * 12;
-        asm("" : "+r"(index0));
         address0 = (u8 *)(index0 + (u32)base);
             *(u16 *)(address0 + 0) = 0;
             index0 = *selected * 12;
-        asm("" : "+r"(index0));
         address0 = (u8 *)(index0 + (u32)base);
             *(u16 *)(address0 + 2) = 0;
             (*state)++;
@@ -1294,17 +1278,16 @@ s32 UpdateMinigameResultSequence(void)
     }
     case 1:
     {
-        register u8 *base asm("r2");
-        register u8 *selected asm("r0");
-        register u8 selectedIndex asm("r1");
-        register u32 index asm("r0");
-        register u8 *address asm("r0");
+        u8 *base;
+        u8 *selected;
+        u8 selectedIndex;
+        u32 index;
+        u8 *address;
 
         base = gMinigameMenuItems;
         selected = &gSelectedMinigame;
         selectedIndex = *selected;
         index = selectedIndex * 12;
-        asm("" : "+r"(index));
         address = (u8 *)(index + (u32)base);
         if (address[8] == 1) {
             if (gMinigameNewHighScore != 0)
@@ -1322,9 +1305,9 @@ s32 UpdateMinigameResultSequence(void)
 
 void DrawMinigameMenuSprites(void)
 {
-    register s32 processed asm("r8");
+    s32 processed;
     s32 slots;
-    register u16 *append asm("r5");
+    u16 *append;
     const u16 *source;
     u8 *adjust;
     u16 attr;
@@ -1333,11 +1316,11 @@ void DrawMinigameMenuSprites(void)
     processed = 0;
     {
         register u8 *slotsPointer asm("r3");
-        register u32 offset asm("r0");
-        register u8 *oamBase asm("r4");
-        register u8 *entries asm("r2");
-        register u8 *selectedPointer asm("r0");
-        register u8 selected asm("r1");
+        u32 offset;
+        u8 *oamBase;
+        u8 *entries;
+        u8 *selectedPointer;
+        u8 selected;
         slotsPointer = &gOamSlotsUsed;
         slots = *slotsPointer;
         offset = slots << 3;
@@ -1350,9 +1333,8 @@ void DrawMinigameMenuSprites(void)
         offset <<= 2;
         selectedPointer = (u8 *)(offset + (u32)entries);
         if ((u8)(selectedPointer[8] - 3) > 2) {
-        register const u8 *collection asm("r0");
+        const u8 *collection;
         collection = (const u8 *)gCurrentCollection;
-        asm volatile("" : "+r"(collection));
         if ((collection[16] & 0x20) == 0) {
             source = *(const u16 *const *)sMinigameLockedIconAnimation;
             slots += *source++;
@@ -1360,10 +1342,10 @@ void DrawMinigameMenuSprites(void)
                 return;
 
             if (processed < slots) {
-                register u8 *firstAdjust asm("r4");
-                register u32 xMask asm("r9");
+                u8 *firstAdjust;
+                u32 xMask;
                 register u32 attr1Mask asm("r10");
-                register s32 clearMask asm("r6");
+                s32 clearMask;
                 firstAdjust = (u8 *)gOamBuffer;
                 xMask = 0x1FF;
                 attr1Mask = 0xFFFFFE00;
@@ -1384,9 +1366,7 @@ void DrawMinigameMenuSprites(void)
                         register u32 oldAttr asm("r2");
                         register u32 maskedAttr asm("r0");
                         oldAttr = ((u16 *)adjust)[1];
-                        asm volatile("" : "+r"(oldAttr));
                         maskedAttr = attr1Mask;
-                        asm volatile("" : "+r"(maskedAttr));
                         maskedAttr &= oldAttr;
                         maskedAttr |= value;
                         ((u16 *)adjust)[1] = maskedAttr;
@@ -1405,13 +1385,11 @@ void DrawMinigameMenuSprites(void)
                     append += 2;
                     adjust += 8;
                     {
-                        register s32 decrement asm("r1");
-                        register s32 test asm("r2");
+                        s32 decrement;
+                        s32 test;
                         decrement = -1;
-                        asm volatile("" : "+r"(decrement));
                         processed += decrement;
                         test = processed;
-                        asm volatile("" : "+r"(test));
                         if (test == 0)
                             break;
                     }
@@ -1421,8 +1399,8 @@ void DrawMinigameMenuSprites(void)
         }
 
         {
-            register u8 *coords asm("r2");
-            register const u8 **animationPointer asm("r3");
+            u8 *coords;
+            const u8 **animationPointer;
             register const u8 *currentAnimation asm("r4");
             register u32 timer asm("r1");
             register u16 frame asm("r0");
@@ -1435,9 +1413,8 @@ void DrawMinigameMenuSprites(void)
             animationPointer = (const u8 **)&gMinigameCursorAnimation;
             currentAnimation = *animationPointer;
             {
-                register u32 duration asm("r0");
+                u32 duration;
                 duration = ((const struct AnimationFrame *)currentAnimation)[frame].time;
-                asm volatile("" : "+r"(duration));
                 timer = (u16)timer;
                 if (duration < timer) {
                 timer = 1;
@@ -1457,9 +1434,8 @@ void DrawMinigameMenuSprites(void)
 
             frame = *(u16 *)(coords + 2);
             {
-                register const u8 *reloadedAnimation asm("r1");
+                const u8 *reloadedAnimation;
                 reloadedAnimation = *animationPointer;
-                asm volatile("" : "+r"(reloadedAnimation));
                 source = ((const struct AnimationFrame *)reloadedAnimation)[frame].oam;
             }
             slots += *source++;
@@ -1467,24 +1443,21 @@ void DrawMinigameMenuSprites(void)
                 return;
 
             if (processed < slots) {
-                register u8 *copyCoords asm("r6");
-                register u8 *copyAdjust asm("r4");
+                u8 *copyCoords;
+                u8 *copyAdjust;
                 register u8 *oamBase asm("r1");
                 register u32 maskTemp asm("r4");
                 register u32 attrMaskTemp asm("r0");
-                register s32 clearTemp asm("r2");
+                s32 clearTemp;
                 register u32 xMask asm("r10");
-                register u32 attr1Mask asm("r12");
-                register s32 clearMask asm("r9");
+                u32 attr1Mask;
+                s32 clearMask;
                 oamBase = (u8 *)gOamBuffer;
-                asm volatile("" : "+r"(oamBase));
                 copyCoords = coords;
-                asm volatile("" : "+r"(copyCoords));
                 maskTemp = 0x1FF;
                 asm volatile("" : "+r"(maskTemp));
                 xMask = maskTemp;
                 attrMaskTemp = 0xFFFFFE00;
-                asm volatile("" : "+r"(attrMaskTemp));
                 attr1Mask = attrMaskTemp;
                 clearTemp = 13;
                 clearTemp = -clearTemp;
@@ -1496,9 +1469,8 @@ void DrawMinigameMenuSprites(void)
                 copyAdjust = (u8 *)((u32)attrMaskTemp + (u32)oamBase);
                 adjust = copyAdjust;
                 {
-                    register s32 previousProcessed asm("r0");
+                    s32 previousProcessed;
                     previousProcessed = processed;
-                    asm volatile("" : "+r"(previousProcessed));
                     processed = slots - previousProcessed;
                 }
                 do {
@@ -1516,11 +1488,9 @@ void DrawMinigameMenuSprites(void)
                     }
                     {
                         register u32 oldAttr asm("r2");
-                        register u32 maskedAttr asm("r0");
+                        u32 maskedAttr;
                         oldAttr = ((u16 *)adjust)[1];
-                        asm volatile("" : "+r"(oldAttr));
                         maskedAttr = attr1Mask;
-                        asm volatile("" : "+r"(maskedAttr));
                         maskedAttr &= oldAttr;
                         maskedAttr |= value;
                         ((u16 *)adjust)[1] = maskedAttr;
@@ -1528,10 +1498,9 @@ void DrawMinigameMenuSprites(void)
 
                     *append = *source++;
                     {
-                        register u32 oldFlags asm("r1");
-                        register u32 maskedFlags asm("r0");
+                        u32 oldFlags;
+                        u32 maskedFlags;
                         oldFlags = adjust[5];
-                        asm volatile("" : "+r"(oldFlags));
                         maskedFlags = clearMask;
                         asm volatile("" : "+r"(maskedFlags));
                         maskedFlags &= oldFlags;
@@ -1540,13 +1509,11 @@ void DrawMinigameMenuSprites(void)
                     append += 2;
                     adjust += 8;
                     {
-                        register s32 decrement asm("r0");
-                        register s32 test asm("r1");
+                        s32 decrement;
+                        s32 test;
                         decrement = -1;
-                        asm volatile("" : "+r"(decrement));
                         processed += decrement;
                         test = processed;
-                        asm volatile("" : "+r"(test));
                         if (test == 0)
                             break;
                     }
@@ -1558,18 +1525,17 @@ void DrawMinigameMenuSprites(void)
     }
 
     {
-        register u32 index asm("r12");
+        u32 index;
         register u32 r0v asm("r0");
         register u32 r1v asm("r1");
         register u32 r2v asm("r2");
-        register u32 r3v asm("r3");
+        u32 r3v;
         register u32 r4v asm("r4");
         register u32 r6v asm("r6");
         register u32 nextIndex asm("r9");
         register u32 clearMask asm("r10");
 
         r2v = 0;
-        asm volatile("" : "+r"(r2v));
         index = r2v;
 mainItemLoop:
         r4v = index;
@@ -1663,7 +1629,6 @@ loadItemAnimation:
             asm volatile("" : "+r"(r1v));
             clearMask = r1v;
             r2v = processed;
-            asm volatile("" : "+r"(r2v));
             r2v = slots - r2v;
             processed = r2v;
 itemCopyLoop:
@@ -1712,14 +1677,14 @@ itemCopyLoop:
 
     {
         register u32 index asm("r12");
-        register u32 r0v asm("r0");
+        u32 r0v;
         register u32 r1v asm("r1");
         register u32 r2v asm("r2");
-        register u32 r3v asm("r3");
+        u32 r3v;
         register u32 r4v asm("r4");
-        register u32 r6v asm("r6");
-        register u32 nextIndex asm("r9");
-        register u32 statePointer asm("r10");
+        u32 r6v;
+        u32 nextIndex;
+        u32 statePointer;
 
         r2v = (u32)gMinigameSparkleAnimationState;
         r1v = *(u16 *)(r2v + 0);
@@ -1831,7 +1796,6 @@ finalCopyLoop:
     {
         register u8 *slotsPointer asm("r2");
         slotsPointer = &gOamSlotsUsed;
-        asm volatile("" : "+r"(slotsPointer));
         *slotsPointer = slots;
     }
 }

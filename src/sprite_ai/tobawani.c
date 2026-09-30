@@ -62,9 +62,9 @@ void TobawaniPatrol(void)
 
     sprite = &gCurrentSprite;
     {
-        register u8* timerPointer asm("r2");
-        register u32 timer asm("r1");
-        register u32 newTimer asm("r0");
+        u8* timerPointer;
+        u32 timer;
+        u32 newTimer;
 
         timerPointer = &sprite->work0;
         timer = *timerPointer;
@@ -80,7 +80,7 @@ void TobawaniPatrol(void)
     }
 
     {
-        register u32 xPosition asm("r0");
+        u32 xPosition;
 
         if (sprite->status & SPRITE_STATUS_FACING_RIGHT) {
             if (horizontal == 8) {
@@ -223,9 +223,9 @@ void TobawaniKnockback(void)
     u8* indexPointer;
     s16 index;
     u16 velocity;
-    register int zero asm("r5");
-    register u8 nextIndex asm("r0");
-    register u8* storePointer asm("r1");
+    int zero;
+    u8 nextIndex;
+    u8* storePointer;
     const s16* table;
     const s16* entry;
     u16 y;
@@ -261,11 +261,11 @@ void TobawaniFall(void)
 {
     struct PrimarySpriteData* sprite;
     const s16* table;
-    register int zero asm("r6");
-    register u32 temp asm("r0");
-    register u32 auxiliary asm("r1");
-    register u32 index asm("r2");
-    register u32 velocity asm("r3");
+    int zero;
+    u32 temp;
+    u32 auxiliary;
+    u32 index;
+    u32 velocity;
     u8* indexPointer;
 
     sprite = &gCurrentSprite;
@@ -362,11 +362,11 @@ void TobawaniWallFall(void)
 {
     struct PrimarySpriteData* sprite;
     const s16* table;
-    register int zero asm("r6");
-    register u32 temp asm("r0");
-    register u32 auxiliary asm("r1");
-    register u32 index asm("r2");
-    register u32 velocity asm("r3");
+    int zero;
+    u32 temp;
+    u32 auxiliary;
+    u32 index;
+    u32 velocity;
     u8* indexPointer;
 
     sprite = &gCurrentSprite;

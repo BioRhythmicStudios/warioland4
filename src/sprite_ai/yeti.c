@@ -8,12 +8,12 @@
 
 void YetiInit(void)
 {
-    register struct PrimarySpriteData *sprite asm("ip");
-    register u32 status asm("r0");
+    struct PrimarySpriteData *sprite;
+    u32 status;
     register u32 heavy asm("r3");
-    register u8 zero8 asm("r2");
-    register u16 zero16 asm("r4");
-    register u32 stateOrPriority asm("r1");
+    u8 zero8;
+    u16 zero16;
+    u32 stateOrPriority;
 
     sprite = &gCurrentSprite;
     status = sprite->status;
@@ -32,11 +32,10 @@ void YetiInit(void)
     sprite->hitboxExtentLeft = 44;
     sprite->hitboxExtentRight = 40;
     {
-        register const struct AnimationFrame *oam asm("r0");
+        const struct AnimationFrame *oam;
 
         oam = sYetiIdleOam;
         stateOrPriority = (u32)sprite;
-        asm("" : "+r"(oam), "+r"(stateOrPriority));
         ((struct PrimarySpriteData *)stateOrPriority)->pOamData = oam;
         ((struct PrimarySpriteData *)stateOrPriority)->currentAnimationFrame = zero8;
         ((struct PrimarySpriteData *)stateOrPriority)->animationTimer = zero16;
@@ -44,7 +43,7 @@ void YetiInit(void)
         stateOrPriority = ((struct PrimarySpriteData *)stateOrPriority)->drawPriority;
     }
     if (stateOrPriority & 0x80) {
-        register u32 maskedPriority asm("r0");
+        u32 maskedPriority;
 
         maskedPriority = 0x7F;
         maskedPriority &= stateOrPriority;
@@ -212,7 +211,7 @@ void YetiAttack(void)
 {
     register int shifted asm("r0");
     register int timer asm("r1");
-    register u8 *work0 asm("r2");
+    u8 *work0;
     struct PrimarySpriteData *sprite;
 
     sprite = &gCurrentSprite;
@@ -245,8 +244,8 @@ void YetiAttack(void)
 
 void YetiAttackRecoverInit(void)
 {
-    register u8 zero8 asm("r2");
-    register u16 zero16 asm("r1");
+    u8 zero8;
+    u16 zero16;
 
     gCurrentSprite.pOamData = sYetiAttackRecoverOam;
     zero8 = 0;
@@ -306,12 +305,11 @@ void YetiFallingInit(void)
 
 void YetiStunnedFallingInit(void)
 {
-    register u8 zero8 asm("r2");
+    u8 zero8;
 
     gCurrentSprite.pOamData = sYetiStunnedOam;
     gCurrentSprite.currentAnimationFrame = 0;
     zero8 = 0;
-    asm("" : "+r"(zero8));
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
     gCurrentSprite.work3 = zero8;
@@ -332,7 +330,7 @@ void YetiTackledInit(void)
     sprite->health = zero;
     sprite->work2 = 4;
     {
-        register u8 *work3 asm("r0");
+        u8 *work3;
 
         work3 = &sprite->work3;
         *work3 = zero;
@@ -342,14 +340,13 @@ void YetiTackledInit(void)
     SpawnSecondarySprite(sprite->yPosition - 32, sprite->xPosition, 6);
     {
         register u16 oldStatus asm("r1");
-        register u16 newStatus asm("r0");
+        u16 newStatus;
         u16 deadBit;
 
         oldStatus = sprite->status;
         newStatus = oldStatus & (u16)~SPRITE_STATUS_CAN_HIT_OTHER_SPRITES;
         deadBit = SPRITE_STATUS_MAYBE_DEAD;
         oldStatus = deadBit;
-        asm("" : "+r"(oldStatus));
         newStatus |= oldStatus;
         sprite->status = newStatus;
     }
@@ -370,19 +367,18 @@ void YetiTackledLeftInit(void)
 
 void YetiDefeatedInit(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
-    register u8 zero asm("r1");
+    struct PrimarySpriteData *sprite;
+    u8 zero;
 
     sprite = &gCurrentSprite;
     sprite->pOamData = sYetiTackledOrDefeatedOam;
     sprite->currentAnimationFrame = 0;
     zero = 0;
     sprite->animationTimer = 0;
-    asm("" : "+r"(zero));
     sprite->health = zero;
     {
-        register u8 *work2 asm("r2");
-        register u8 *work3 asm("r0");
+        u8 *work2;
+        u8 *work3;
 
         work2 = &sprite->work2;
         *work2 = 3;
@@ -452,45 +448,41 @@ void YetiPose2DInit(void)
 
 void YetiCrushed(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
+    struct PrimarySpriteData *sprite;
     register u8 *current asm("r1");
 
     {
-        register u32 collision asm("r0");
+        u32 collision;
 
         current = (u8 *)&gCurrentSprite;
         collision = ((struct PrimarySpriteData *)current)->warioCollision;
         sprite = (struct PrimarySpriteData *)current;
         if (collision == 5) {
             sprite->pOamData = sYetiCrushedWhileStunnedOam;
-            /* Prevent agbcc from merging this branch's OAM store into the common tail. */
-            asm("" ::: "memory");
         } else {
             sprite->pOamData = sYetiCrushedOam;
             current = (u8 *)sprite;
         }
     }
     {
-        register u32 zero asm("r0");
+        u32 zero;
 
         current += 39;
         *current = 9;
         zero = 0;
-        asm("" : "+r"(zero));
         sprite->currentAnimationFrame = zero;
         sprite->animationTimer = zero;
     }
     sprite->pose = SPOSE_CRUSHED_OR_COLLECTED;
     {
         register u16 oldStatus asm("r1");
-        register u16 newStatus asm("r0");
+        u16 newStatus;
         u16 deadBit;
 
         oldStatus = sprite->status;
         newStatus = oldStatus & (u16)~SPRITE_STATUS_CAN_HIT_OTHER_SPRITES;
         deadBit = SPRITE_STATUS_MAYBE_DEAD;
         oldStatus = deadBit;
-        asm("" : "+r"(oldStatus));
         newStatus |= oldStatus;
         sprite->status = newStatus;
     }
@@ -500,7 +492,7 @@ void YetiCrushed(void)
 
 void YetiInstantlyKill(void)
 {
-    register struct PrimarySpriteData *sprite asm("r4");
+    struct PrimarySpriteData *sprite;
 
     sprite = &gCurrentSprite;
     SpawnEnemyScoreDrop(sprite->globalID, sprite->yPosition, sprite->xPosition, 5);
@@ -510,9 +502,9 @@ void YetiInstantlyKill(void)
 
 void YetiStunnedWithoutTimerInit(void)
 {
-    register struct PrimarySpriteData *sprite asm("r2");
-    register u8 zero8 asm("r1");
-    register u16 zero16 asm("r0");
+    struct PrimarySpriteData *sprite;
+    u8 zero8;
+    u16 zero16;
 
     sprite = &gCurrentSprite;
     sprite->pOamData = sYetiStunnedOam;
@@ -550,8 +542,8 @@ void YetiAirborneInit(void)
 
 void YetiAirborne(void)
 {
-    register u8 *indexPointer asm("ip");
-    register u32 index asm("r2");
+    u8 *indexPointer;
+    u32 index;
     s16 velocity;
 
     gCurrentSprite.work0--;
@@ -563,29 +555,24 @@ void YetiAirborne(void)
         } else {
             indexPointer = &gCurrentSprite.work3;
             index = *indexPointer;
-            /* Keep the work index and its address live so agbcc delays the table load. */
-            asm("" : "+r"(indexPointer), "+r"(index));
             velocity = sUnk_8352B2C[index];
             if (velocity == 0x7FFF) {
-                register u32 previousVelocityAddress asm("r1");
+                u32 previousVelocityAddress;
                 register u16 yPosition asm("r0");
 
                 previousVelocityAddress = index - 1;
                 previousVelocityAddress <<= 1;
                 previousVelocityAddress += (u32)sUnk_8352B2C;
-                /* Preserve agbcc's original address calculation and halfword load order. */
-                asm("" : "+r"(previousVelocityAddress));
                 yPosition = gCurrentSprite.yPosition;
                 asm("" : "+r"(yPosition), "+r"(previousVelocityAddress));
                 gCurrentSprite.yPosition = yPosition + *(const s16 *)previousVelocityAddress;
             } else {
-                register u32 nextIndex asm("r0");
-                register u8 *storePointer asm("r1");
+                u32 nextIndex;
+                u8 *storePointer;
 
                 nextIndex = index + 1;
                 storePointer = indexPointer;
                 /* Keep the incremented index in r0 and the destination pointer in r1. */
-                asm("" : "+r"(nextIndex), "+r"(storePointer));
                 *storePointer = nextIndex;
                 gCurrentSprite.yPosition += velocity;
             }
@@ -637,14 +624,14 @@ void YetiCarriedLeftInit(void)
 
 void YetiSnowballInit(void)
 {
-    register struct PrimarySpriteData *sprite asm("ip");
-    register u8 *fieldPointer asm("r4");
-    register u8 zero8 asm("r2");
-    register u16 zero16 asm("r3");
+    struct PrimarySpriteData *sprite;
+    u8 *fieldPointer;
+    u8 zero8;
+    u16 zero16;
 
     sprite = &gCurrentSprite;
     {
-        register u16 originalStatus asm("r1");
+        u16 originalStatus;
         register u16 status asm("r0");
 
         originalStatus = sprite->status;
@@ -658,15 +645,14 @@ void YetiSnowballInit(void)
         *(u16 *)fieldPointer = status;
     }
     {
-        register u8 *extentPointer asm("r0");
-        register u8 extent asm("r1");
+        u8 *extentPointer;
+        u8 extent;
 
         sprite->drawDistanceDown = 32;
         extentPointer = &sprite->drawDistanceUp;
         extent = 16;
         *extentPointer = extent;
         extentPointer++;
-        asm("" : "+r"(extentPointer));
         *extentPointer = extent;
         fieldPointer += 35;
         *fieldPointer = 64;
@@ -675,14 +661,12 @@ void YetiSnowballInit(void)
         fieldPointer += 2;
         *fieldPointer = 40;
         fieldPointer++;
-        asm("" : "+r"(fieldPointer));
-        *fieldPointer = 36;
+        *(volatile u8 *)fieldPointer = 36;
         {
-            register const struct AnimationFrame *oam asm("r0");
+            const struct AnimationFrame *oam;
 
             oam = sYetiSnowballOam;
             fieldPointer = (u8 *)sprite;
-            asm("" : "+r"(oam), "+r"(fieldPointer));
             ((struct PrimarySpriteData *)fieldPointer)->pOamData = oam;
         }
         ((struct PrimarySpriteData *)fieldPointer)->currentAnimationFrame = zero8;
@@ -696,10 +680,10 @@ void YetiSnowballInit(void)
 
 void YetiSnowballMove(void)
 {
-    register struct PrimarySpriteData *loaded asm("r0");
-    register u8 *timerPointer asm("r2");
-    register u32 timer asm("r1");
-    register struct PrimarySpriteData *sprite asm("r5");
+    struct PrimarySpriteData *loaded;
+    u8 *timerPointer;
+    u32 timer;
+    struct PrimarySpriteData *sprite;
     register struct PrimarySpriteData *current asm("r4");
 
     loaded = &gCurrentSprite;
@@ -707,12 +691,11 @@ void YetiSnowballMove(void)
     timer = *timerPointer;
     sprite = loaded;
     if (timer != 0) {
-        register u32 nextTimer asm("r0");
+        u32 nextTimer;
 
         nextTimer = timer - 1;
         *timerPointer = nextTimer;
-        nextTimer <<= 24;
-        timer = nextTimer >> 24;
+        timer = (u8)nextTimer;
         if (timer == 0) {
             sprite->pOamData = sYetiSnowballMovingOam;
             sprite->currentAnimationFrame = timer;

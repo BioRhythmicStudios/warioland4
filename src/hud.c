@@ -540,13 +540,13 @@ void DrawGameplayHudOam(void)
   else
     if (gTimerState <= 2)
   {
-    register u32 xMask asm("r4");
+    u32 xMask;
 
     {
       u8 *oam;
       {
         register u32 tempCount asm("r2");
-        asm volatile("" : "=r"(tempCount) : "0"(count));
+        tempCount = count;
         *(dest++) = tempCount;
         stage = 6;
         new_var = stage;
@@ -555,10 +555,10 @@ void DrawGameplayHudOam(void)
         *(dest++) = tempCount;
       }
       {
-        register u32 result asm("r0");
+        u32 result;
         register u16 oldAttr asm("r1");
         register u8 *storeOam asm("r2");
-        register u32 hardMask asm("r4");
+        u32 hardMask;
 
         oldAttr = *(u16 *)(base + 2);
         hardMask = 0xFFFFFE00;
@@ -572,7 +572,7 @@ void DrawGameplayHudOam(void)
         oam = storeOam;
       }
       {
-        register u32 storeCount asm("r0");
+        u32 storeCount;
         asm volatile("" : "=r"(storeCount) : "0"(count));
         *dest = storeCount;
       }
@@ -582,7 +582,7 @@ void DrawGameplayHudOam(void)
     }
     count = 2;
     {
-      register u32 zero asm("r1");
+      u32 zero;
       zero = 0;
       *(dest++) = zero;
     }
@@ -590,7 +590,7 @@ void DrawGameplayHudOam(void)
       u8 *oam;
       oam = base + 8;
       {
-        register int yValue asm("r1");
+        int yValue;
         yValue = new_var;
         *(base + 8) = yValue;
       }
@@ -705,14 +705,13 @@ void DrawGameplayHudOam(void)
 
 void UpdateBigBoardSecondarySprite(void)
 {
-    register struct SecondarySprite *source asm("r0");
-    register struct SecondarySprite *sprite asm("r2");
-    register u32 pose asm("r3");
+    struct SecondarySprite *source;
+    struct SecondarySprite *sprite;
+    u32 pose;
     u32 switchPose;
 
     source = &gCurrentSecondarySprite;
     pose = source->pose;
-    asm volatile("" : "+r"(pose));
     sprite = source;
     switchPose = pose;
     switch (switchPose) {
@@ -725,7 +724,7 @@ void UpdateBigBoardSecondarySprite(void)
             if (sprite->work0 == 0)
                 break;
             {
-                register u32 timer asm("r0");
+                u32 timer;
                 timer = sprite->timer;
                 timer--;
                 sprite->timer = timer;
@@ -735,9 +734,9 @@ void UpdateBigBoardSecondarySprite(void)
             }
             {
                 register u32 frame asm("r0");
-                register u32 nextFrame asm("r3");
-                register u32 value asm("r1");
-                register u32 four asm("r4");
+                u32 nextFrame;
+                u32 value;
+                u32 four;
                 frame = sprite->animationTimer;
                 nextFrame = frame + 1;
                 sprite->animationTimer = nextFrame;
@@ -768,7 +767,7 @@ void UpdateBigBoardSecondarySprite(void)
             break;
         case 2:
             {
-                register u32 value asm("r0");
+                u32 value;
                 register u32 mask asm("r1");
                 value = sprite->animationTimer;
                 value -= 7;
@@ -798,7 +797,7 @@ void UpdateBigBoardSecondarySprite(void)
             if (sprite->work0 == 0)
                 break;
             {
-                register u32 timer asm("r0");
+                u32 timer;
                 timer = sprite->timer;
                 timer--;
                 sprite->timer = timer;
@@ -807,9 +806,9 @@ void UpdateBigBoardSecondarySprite(void)
                     break;
             }
             {
-                register u32 frame asm("r0");
+                u32 frame;
                 register u32 four asm("r4");
-                register u32 oldX asm("r3");
+                u32 oldX;
                 register u32 value asm("r1");
                 frame = sprite->animationTimer;
                 frame--;
@@ -832,7 +831,7 @@ void UpdateBigBoardSecondarySprite(void)
         case 4:
             {
                 register struct SecondarySprite *current asm("r1");
-                register u32 value asm("r0");
+                u32 value;
                 register u32 mask asm("r3");
                 current = sprite;
                 value = current->timer;
@@ -875,11 +874,11 @@ playStopSound:
     if (gUnk_3000038 == 0 || gCurrentSecondarySprite.pose == 2) {
         gCurrentSecondarySpriteOamData = sUnk_83BF986;
     } else {
-        register struct SecondarySprite *current asm("r4");
-        register const u8 **destination asm("r3");
-        register const u8 *table asm("r2");
-        register const u8 *spaces asm("r1");
-        register u32 index asm("r0");
+        struct SecondarySprite *current;
+        const u8 **destination;
+        const u8 *table;
+        const u8 *spaces;
+        u32 index;
 
         current = &gCurrentSecondarySprite;
         destination = &gCurrentSecondarySpriteOamData;

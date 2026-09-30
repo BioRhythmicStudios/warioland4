@@ -140,16 +140,15 @@ void MarumenGetUp(void)
 {
     {
     struct PrimarySpriteData *sprite;
-    register u8 *indexPointer asm("ip");
+    u8 *indexPointer;
     u32 index;
-    register const s16 *table asm("r5");
+    const s16 *table;
     s16 velocity;
 
     sprite = &gCurrentSprite;
     indexPointer = &sprite->work3;
     index = *indexPointer;
     table = sMarumenGettingUpYVelocity;
-    asm("" : "+r"(sprite), "+r"(indexPointer), "+r"(index), "+r"(table));
     velocity = table[index];
     if (velocity == 0x7FFF) {
         u32 previousVelocityAddress;
@@ -158,7 +157,6 @@ void MarumenGetUp(void)
         previousVelocityAddress = index - 1;
         previousVelocityAddress <<= 1;
         previousVelocityAddress += (u32)table;
-        asm("" : "+r"(previousVelocityAddress));
         yPosition = sprite->yPosition;
         asm("" : "+r"(yPosition), "+r"(previousVelocityAddress));
         sprite->yPosition = yPosition + *(const s16 *)previousVelocityAddress;
@@ -168,14 +166,13 @@ void MarumenGetUp(void)
 
         nextIndex = index + 1;
         storePointer = indexPointer;
-        asm("" : "+r"(nextIndex), "+r"(storePointer));
         *storePointer = nextIndex;
         sprite->yPosition += velocity;
     }
     }
 
     {
-        register struct PrimarySpriteData *current asm("r4");
+        struct PrimarySpriteData *current;
         u8 work0;
 
         current = &gCurrentSprite;
@@ -222,7 +219,6 @@ void MarumenFallingInit(void)
     gCurrentSprite.pOamData = sMarumenFallingOam;
     gCurrentSprite.currentAnimationFrame = 0;
     zero8 = 0;
-    asm("" : "+r"(zero8));
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
     gCurrentSprite.work3 = zero8;
@@ -236,7 +232,6 @@ void MarumenStunnedFallingInit(void)
     gCurrentSprite.pOamData = sMarumenStunnedOam;
     gCurrentSprite.currentAnimationFrame = 0;
     zero8 = 0;
-    asm("" : "+r"(zero8));
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
     gCurrentSprite.work3 = zero8;
@@ -390,7 +385,6 @@ void MarumenCrushed(void)
             u32 zero;
 
             zero = 0;
-            asm("" : "+r"(zero), "+r"(state));
             state->currentAnimationFrame = zero;
             state->animationTimer = zero;
             state->pose = SPOSE_CRUSHED_OR_COLLECTED;
@@ -404,7 +398,6 @@ void MarumenCrushed(void)
             newStatus = oldStatus & (u16)~SPRITE_STATUS_CAN_HIT_OTHER_SPRITES;
             deadBit = SPRITE_STATUS_MAYBE_DEAD;
             oldStatus = deadBit;
-            asm("" : "+r"(oldStatus));
             newStatus |= oldStatus;
             state->status = newStatus;
         }
@@ -516,16 +509,15 @@ void MarumenAirborne(void)
 {
     {
     struct PrimarySpriteData *sprite;
-    register u8 *indexPointer asm("ip");
+    u8 *indexPointer;
     u32 index;
-    register const s16 *table asm("r5");
+    const s16 *table;
     s16 velocity;
 
     sprite = &gCurrentSprite;
     indexPointer = &sprite->work3;
     index = *indexPointer;
     table = sMarumenAirborneYVelocity;
-    asm("" : "+r"(sprite), "+r"(indexPointer), "+r"(index), "+r"(table));
     velocity = table[index];
     if (velocity == 0x7FFF) {
         u32 previousVelocityAddress;
@@ -534,7 +526,6 @@ void MarumenAirborne(void)
         previousVelocityAddress = index - 1;
         previousVelocityAddress <<= 1;
         previousVelocityAddress += (u32)table;
-        asm("" : "+r"(previousVelocityAddress));
         yPosition = sprite->yPosition;
         asm("" : "+r"(yPosition), "+r"(previousVelocityAddress));
         sprite->yPosition = yPosition + *(const s16 *)previousVelocityAddress;
@@ -544,14 +535,13 @@ void MarumenAirborne(void)
 
         nextIndex = index + 1;
         storePointer = indexPointer;
-        asm("" : "+r"(nextIndex), "+r"(storePointer));
         *storePointer = nextIndex;
         sprite->yPosition += velocity;
     }
     }
 
     {
-        register struct PrimarySpriteData *current asm("r4");
+        struct PrimarySpriteData *current;
         u8 work0;
 
         current = &gCurrentSprite;

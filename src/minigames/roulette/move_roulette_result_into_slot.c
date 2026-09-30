@@ -37,28 +37,18 @@ int MoveRouletteResultIntoSlot(void)
         case 10:
             {
                 register s16 *base asm("r2");
-                u16 zero;
-                register s32 baseValue asm("r1");
+                s32 baseValue;
                 base = (s16 *)yBasePtr;
-                zero = 0;
-                /* Preserve the target's r2 base/r0 zero signed load. */
-                asm volatile("ldrsh %0, [%1, %2]"
-                             : "=r"(baseValue)
-                             : "r"(base), "r"(zero));
+                baseValue = *base;
                 *yStepPtr = __divsi3((106 - baseValue) << 5, 30);
             }
             break;
         case 12:
             {
                 register s16 *base asm("r2");
-                u16 zero;
-                register s32 baseValue asm("r1");
+                s32 baseValue;
                 base = (s16 *)yBasePtr;
-                zero = 0;
-                /* Preserve the target's r2 base/r0 zero signed load. */
-                asm volatile("ldrsh %0, [%1, %2]"
-                             : "=r"(baseValue)
-                             : "r"(base), "r"(zero));
+                baseValue = *base;
                 *yStepPtr = __divsi3((116 - baseValue) << 5, 30);
             }
             break;
@@ -105,14 +95,11 @@ int MoveRouletteResultIntoSlot(void)
 
         item = refs[0];
         {
-            register s16 *stepBase asm("r4");
+            s16 *stepBase;
             u16 zero;
             stepBase = yStepPtr;
             zero = 0;
-            /* Preserve the target's r4 base/r0 zero signed load. */
-            asm volatile("ldrsh %0, [%1, %2]"
-                         : "=r"(step)
-                         : "r"(stepBase), "r"(zero));
+            step = *(s16 *)((u8 *)stepBase + zero);
         }
         value = *progressPtr;
         value *= step;
@@ -187,7 +174,7 @@ int MoveRouletteResultIntoSlot(void)
                 {
                     register struct RouletteItem **refsLow asm("r1");
                     struct RouletteItem *first;
-                    register int clear asm("r1");
+                    int clear;
                     register u8 *selectedLow asm("r2");
                     register u8 *sequenceLow asm("r4");
 
@@ -195,12 +182,7 @@ int MoveRouletteResultIntoSlot(void)
                     first = refsLow[0];
                     clear = 0;
                     first->x = 1000;
-                    /* agbcc inserts a redundant r7-to-r0 copy for this store;
-                     * constrain only the target strb instruction. */
-                    asm volatile("strb %1, [%0]"
-                                 :
-                                 : "r"(resetProgress), "r"(clear)
-                                 : "memory");
+                    *resetProgress = clear;
                     selectedLow = selectedPtr;
                     *selectedLow = clear;
                     sequenceLow = sequencePtr;

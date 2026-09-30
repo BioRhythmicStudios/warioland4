@@ -26,7 +26,6 @@ void SetCrumblingBlockCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -36,7 +35,6 @@ void SetCrumblingBlockCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -46,7 +44,6 @@ void SetCrumblingBlockCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -74,7 +71,6 @@ void ClearCrumblingBlockCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -84,7 +80,6 @@ void ClearCrumblingBlockCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -94,7 +89,6 @@ void ClearCrumblingBlockCollision(void)
         s8 value;
         s8 *pointer;
         value = action;
-        asm("" : "+r"(value));
         pointer = blockAction;
         *pointer = value;
     }
@@ -135,27 +129,23 @@ void StartCrumblingBlockCollapse(void)
 void CrumblingBlockCollapse(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *timerPointer asm("ip");
+    u8 *timerPointer;
     register s32 nextTimer asm("r2");
     u8 timer;
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
     {
-        register u32 address asm("r0");
+        u32 address;
 
         address = 39;
-        asm("" : "+r"(address));
         address += (u32)sprite;
         timerPointer = (u8 *)address;
         {
             register int oldTimer asm("r0");
-            register u8 *storePointer asm("r1");
-
             oldTimer = *(u8 *)address;
             nextTimer = oldTimer - 1;
-            storePointer = timerPointer;
-            *storePointer = nextTimer;
+            *timerPointer = nextTimer;
         }
     }
     {
@@ -180,11 +170,8 @@ void CrumblingBlockCollapse(void)
         sprite->pose = SPOSE_12;
         {
             int resetTimer;
-            register u8 *resetPointer asm("r1");
-
             resetTimer = 120;
-            resetPointer = timerPointer;
-            *resetPointer = resetTimer;
+            *timerPointer = resetTimer;
         }
     }
 }

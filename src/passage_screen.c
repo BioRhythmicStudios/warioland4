@@ -123,10 +123,9 @@ void InitializePassageScreen(void)
 {
   InitializeVideoMemory();
   {
-    register vu16 *ime asm("r3");
+    vu16 *ime;
     register u32 zero asm("r4");
     ime = (vu16 *)0x04000208;
-    asm("" : "+r"(ime));
     zero = 0;
     *ime = zero;
     *((vu16 *) 0x04000004) &= 0xFFEF;
@@ -142,19 +141,19 @@ void InitializePassageScreen(void)
     }
   }
   {
-    register u16 *mainSpriteState asm("r8");
+    u16 *mainSpriteState;
     {
       register u8 *currentPassagePointer asm("r4");
-      register const u32 *passagePaletteTable asm("r12");
+      const u32 *passagePaletteTable;
       register const u8 *blankScoreTiles asm("r9");
       register const u32 *passageGraphicsTable asm("r6");
       u8 *selectedStagePointer;
       register u8 *selectedStageIndexPointer asm("r5");
       register u8 *collectionData asm("r10");
       {
-        register vu32 *dma asm("r1");
-        register u32 control asm("r0");
-        register u32 busyMask asm("r2");
+        vu32 *dma;
+        u32 control;
+        u32 busyMask;
         dma = (vu32 *) 0x040000D4;
         dma[0] = (u32) sUnk_86A11C8;
         dma[1] = 0x05000200;
@@ -165,9 +164,8 @@ void InitializePassageScreen(void)
         currentPassagePointer = &gCurrentPassage;
         passagePaletteTable = sUnk_863C494;
         {
-          register const u8 *blankTilesTemp asm("r3");
+          const u8 *blankTilesTemp;
           blankTilesTemp = sUnk_869CE48;
-          asm("" : "+r"(blankTilesTemp));
           blankScoreTiles = blankTilesTemp;
         }
         passageGraphicsTable = sUnk_863C434;
@@ -186,10 +184,10 @@ void InitializePassageScreen(void)
         }
       }
       {
-        register vu32 *dma asm("r1");
-        register u32 source asm("r0");
-        register u32 control asm("r0");
-        register u32 busyMask asm("r2");
+        vu32 *dma;
+        u32 source;
+        u32 control;
+        u32 busyMask;
         dma = (vu32 *) 0x040000D4;
         source = *currentPassagePointer;
         source <<= 5;
@@ -211,10 +209,10 @@ void InitializePassageScreen(void)
         }
       }
       {
-        register vu32 *dma asm("r1");
-        register u32 source asm("r0");
-        register u32 control asm("r0");
-        register u32 busyMask asm("r2");
+        vu32 *dma;
+        u32 source;
+        u32 control;
+        u32 busyMask;
         dma = (vu32 *) 0x040000D4;
         source = *currentPassagePointer;
         source <<= 2;
@@ -241,8 +239,8 @@ void InitializePassageScreen(void)
         passageFlag = &gUnk_3003C4A;
         if (*passageFlag == 0)
         {
-        register vu32 *dma asm("r2");
-        register u32 source asm("r0");
+        vu32 *dma;
+        u32 source;
         dma = (vu32 *) 0x040000D4;
         source = *currentPassagePointer;
         source--;
@@ -256,10 +254,10 @@ void InitializePassageScreen(void)
       }
       *((vu16 *) 0x05000000) = 0;
       {
-        register vu32 *dma asm("r1");
-        register u32 source asm("r0");
-        register u32 control asm("r0");
-        register u32 busyMask asm("r2");
+        vu32 *dma;
+        u32 source;
+        u32 control;
+        u32 busyMask;
         dma = (vu32 *) 0x040000D4;
         source = (u32) blankScoreTiles;
         dma[0] = source;
@@ -279,10 +277,10 @@ void InitializePassageScreen(void)
         }
       }
       {
-        register vu32 *dma asm("r1");
+        vu32 *dma;
         register const u8 *source asm("r2");
-        register u32 control asm("r0");
-        register u32 busyMask asm("r2");
+        u32 control;
+        u32 busyMask;
         dma = (vu32 *) 0x040000D4;
         source = sUnk_86A13C8;
         dma[0] = (u32) source;
@@ -302,11 +300,11 @@ void InitializePassageScreen(void)
         }
       }
       {
-        register vu32 *dma asm("r1");
-        register u32 passageOffset asm("r0");
-        register u32 source asm("r0");
-        register u32 control asm("r0");
-        register u32 busyMask asm("r2");
+        vu32 *dma;
+        u32 passageOffset;
+        u32 source;
+        u32 control;
+        u32 busyMask;
         dma = (vu32 *) 0x040000D4;
         passageOffset = *currentPassagePointer;
         passageOffset <<= 4;
@@ -329,12 +327,12 @@ void InitializePassageScreen(void)
         }
       }
       {
-        register vu32 *dma asm("r2");
-        register u32 passageOffset asm("r0");
-        register u32 tableOffset asm("r1");
-        register u32 source asm("r0");
-        register u32 control asm("r0");
-        register u32 busyMask asm("r1");
+        vu32 *dma;
+        u32 passageOffset;
+        u32 tableOffset;
+        u32 source;
+        u32 control;
+        u32 busyMask;
         dma = (vu32 *) 0x040000D4;
         passageOffset = *currentPassagePointer;
         passageOffset <<= 4;
@@ -359,12 +357,12 @@ void InitializePassageScreen(void)
         }
       }
       {
-        register vu32 *dma asm("r2");
-        register u32 passageOffset asm("r0");
-        register u32 tableOffset asm("r1");
-        register u32 source asm("r0");
-        register u32 control asm("r0");
-        register u32 busyMask asm("r1");
+        vu32 *dma;
+        u32 passageOffset;
+        u32 tableOffset;
+        u32 source;
+        u32 control;
+        u32 busyMask;
         dma = (vu32 *) 0x040000D4;
         passageOffset = *currentPassagePointer;
         passageOffset <<= 4;
@@ -389,10 +387,10 @@ void InitializePassageScreen(void)
         }
       }
       {
-        register vu32 *dma asm("r2");
-        register u32 passageOffset asm("r0");
+        vu32 *dma;
+        u32 passageOffset;
         register u32 tableOffset asm("r1");
-        register u32 source asm("r0");
+        u32 source;
         dma = (vu32 *) 0x040000D4;
         passageOffset = *currentPassagePointer;
         passageOffset <<= 4;
@@ -406,7 +404,7 @@ void InitializePassageScreen(void)
         dma[2];
       }
       {
-        register vu16 *bgControl asm("r1");
+        vu16 *bgControl;
         register u32 value asm("r0");
         register u32 oddValue asm("r2");
         register u32 evenValue asm("r3");
@@ -414,60 +412,53 @@ void InitializePassageScreen(void)
         evenValue = 0x1800;
         asm("" : "+r"(evenValue));
         value = evenValue;
-        asm("" : "+r"(value));
         *bgControl++ = value;
         oddValue = 0x1A01;
         asm("" : "+r"(oddValue));
         value = oddValue;
-        asm("" : "+r"(value));
         *bgControl++ = value;
         evenValue = 0x5C02;
         asm("" : "+r"(evenValue));
         value = evenValue;
-        asm("" : "+r"(value));
         *bgControl++ = value;
         oddValue = 0x1E03;
         asm("" : "+r"(oddValue));
         value = oddValue;
-        asm("" : "+r"(value));
         *bgControl = value;
       }
-      asm("" : "+r"(selectedStagePointer));
       *selectedStagePointer = 0;
       {
-        register u32 one asm("r3");
+        u32 one;
         register u8 *passageFlag asm("r1");
         one = 1;
         *selectedStageIndexPointer = one;
         passageFlag = &gUnk_3003C4A;
         if (*passageFlag != 0)
         {
-          register const u8 *collection asm("r2");
-          register u32 passage asm("r1");
-          register u32 address asm("r0");
-          register s32 collected asm("r0");
+          const u8 *collection;
+          u32 passage;
+          u32 address;
+          s32 collected;
           collection = gCurrentCollection;
           passage = *currentPassagePointer;
           address = passage << 1;
           address += passage;
           address <<= 3;
-          asm("" : "+r"(address));
           address += (u32)collection;
           collected = *(u8 *)address;
           collected <<= 26;
           if (collected >= 0)
           {
-            asm("" : "+r"(selectedStagePointer));
             *selectedStagePointer = one;
           }
           goto passage_selection_done;
         }
         else
         {
-          register s32 stageIndex asm("r3");
-          register u32 passage asm("r0");
+          s32 stageIndex;
+          u32 passage;
           register u32 address asm("r1");
-          register s32 collected asm("r0");
+          s32 collected;
           register u32 selected asm("r0");
           register u32 stageOffset asm("r2");
           stageIndex = 0;
@@ -475,7 +466,6 @@ void InitializePassageScreen(void)
           address = passage << 1;
           address += passage;
           address <<= 3;
-          asm("" : "+r"(address));
           address += (u32)collectionData;
           collected = *(u8 *)address;
           collected <<= 26;
@@ -492,15 +482,14 @@ passage_selection_loop:
             goto passage_selection_done;
           stageOffset = stageIndex << 2;
           {
-            register u32 loopPassage asm("r1");
-            register u32 loopAddress asm("r0");
+            u32 loopPassage;
+            u32 loopAddress;
             loopPassage = *currentPassagePointer;
             loopAddress = loopPassage << 1;
             loopAddress += loopPassage;
             loopAddress <<= 3;
             stageOffset += loopAddress;
           }
-          asm("" : "+r"(stageOffset));
           stageOffset += (u32)collectionData;
           collected = *(u8 *)stageOffset;
           collected <<= 26;
@@ -516,16 +505,16 @@ passage_selection_done:;
       }
       {
         register u32 scrollValue asm("r0");
-        register u32 zeroByte asm("r3");
+        u32 zeroByte;
         register u32 zeroHalf asm("r4");
         u32 offset;
         u32 x;
         {
           register u8 *passageFlag asm("r2");
-          register u32 flag asm("r1");
-          register u32 tableIndex asm("r0");
-          register u32 selectedStage asm("r7");
-          register const u32 *scrollTable asm("r3");
+          u32 flag;
+          u32 tableIndex;
+          u32 selectedStage;
+          const u32 *scrollTable;
           register u32 base asm("r2");
           passageFlag = &gUnk_3003C4A;
           flag = *passageFlag;
@@ -546,25 +535,25 @@ passage_selection_done:;
         zeroByte = 0;
         zeroHalf = 0;
         {
-          register s16 *horizontalScroll asm("r1");
+          s16 *horizontalScroll;
           horizontalScroll = &gStageEntryHorizontalScroll;
           *horizontalScroll = scrollValue;
         }
       {
-        register u16 *state asm("r2");
+        u16 *state;
         state = mainSpriteState;
         state[0] = zeroHalf;
         state[1] = zeroHalf;
       }
       {
-        register u8 *currentStagePointer asm("r0");
-        register u32 stageOffset asm("r1");
-        register u8 *passageFlag asm("r0");
-        register u32 flag asm("r2");
-        register u32 flagOffset asm("r0");
-        register const u32 *xTable asm("r2");
-        register u32 *entry asm("r1");
-        register u32 xValue asm("r0");
+        u8 *currentStagePointer;
+        u32 stageOffset;
+        u8 *passageFlag;
+        u32 flag;
+        u32 flagOffset;
+        const u32 *xTable;
+        u32 *entry;
+        u32 xValue;
         register u16 *state asm("r1");
         currentStagePointer = &gCurrentStageNumber;
         stageOffset = *currentStagePointer;
@@ -602,10 +591,10 @@ passage_selection_done:;
   }
   }
   {
-    register u32 *scorePointer asm("r3");
-    register u32 score asm("r0");
-    register const u8 *numberTiles asm("r1");
-    register u32 position asm("r2");
+    u32 *scorePointer;
+    u32 score;
+    const u8 *numberTiles;
+    u32 position;
     scorePointer = &gTotalScore;
     score = *scorePointer;
     position = 0x2980;
@@ -613,10 +602,10 @@ passage_selection_done:;
     UploadTallFiveDigitNumberTiles(score, numberTiles, position);
   }
   {
-    register u16 *medalPointer asm("r0");
-    register u32 medalCount asm("r0");
-    register const u8 *numberTiles asm("r1");
-    register u32 position asm("r2");
+    u16 *medalPointer;
+    u32 medalCount;
+    const u8 *numberTiles;
+    u32 position;
     medalPointer = &gMedalCount;
     medalCount = *medalPointer;
     position = 0x20E0;
@@ -624,9 +613,9 @@ passage_selection_done:;
     DrawMinigameNumber(medalCount, numberTiles, position);
   }
   {
-    register s32 i asm("r3");
-    register const u8 *collection asm("r6");
-    register u16 zero asm("r5");
+    s32 i;
+    const u8 *collection;
+    u16 zero;
     register struct PassageIconState *icon asm("r4");
     i = 0;
     collection = gCurrentCollection;
@@ -634,17 +623,16 @@ passage_selection_done:;
     icon = gUnk_3004708;
     do
     {
-      register u32 bits asm("r2");
-      register u32 passage asm("r1");
-      register u32 passageOffset asm("r0");
-      register u32 test asm("r0");
+      u32 bits;
+      u32 passage;
+      u32 passageOffset;
+      u32 test;
       bits = i << 2;
       passage = gCurrentPassage;
       passageOffset = passage << 1;
       passageOffset += passage;
       passageOffset <<= 3;
       bits += passageOffset;
-      asm("" : "+r"(bits));
       bits += (u32)collection;
       bits = *(u8 *)bits;
       test = bits << 31;
@@ -671,7 +659,7 @@ icon_frame_reset:
     } while (i <= 3);
   }
   {
-    register u32 zero asm("r4");
+    u32 zero;
     zero = 0;
     LoadPassageStageDisplayGraphics();
     DrawPassageStageScore();
@@ -686,7 +674,7 @@ icon_frame_reset:
     *((vu16 *) 0x0400001C) = zero;
     *((vu16 *) 0x04000054) = zero;
     {
-      register vu16 *displayControl asm("r2");
+      vu16 *displayControl;
       displayControl = (vu16 *)0x04000000;
       {
         register u32 displayBase asm("r1");
@@ -694,7 +682,6 @@ icon_frame_reset:
         displayBase = 0x1F00;
         asm("" : "+r"(displayBase));
         value = displayBase;
-        asm("" : "+r"(value));
         *displayControl = value;
       }
       *displayControl |= 0x2000;
@@ -725,13 +712,13 @@ void BeginPassageStageCursorArrival(void)
 
 void BeginPassageStageSwitch(void)
 {
-    register s16 *scroll asm("r4");
+    s16 *scroll;
     const u32 *table;
     u32 passage;
     u32 stage;
     u32 value;
     register u32 work asm("r2");
-    register u32 result asm("r0");
+    u32 result;
 
     gStageEntryStageVariant = gCurrentStageNumber;
     gUnk_3003C45 = 0;
@@ -779,12 +766,12 @@ void BeginPassageScreenWindowClose(void)
 
 void UpdatePassageStageCursorMovement(void)
 {
-    register const u32 *table asm("r3");
-    register s32 target asm("r5");
-    register s32 previous asm("r4");
+    const u32 *table;
+    s32 target;
+    s32 previous;
     register u32 stage asm("r0");
-    register u32 passage asm("r2");
-    register u32 offset asm("r1");
+    u32 passage;
+    u32 offset;
 
     table = sUnk_863C52C;
     stage = gCurrentStageNumber;
@@ -803,8 +790,8 @@ void UpdatePassageStageCursorMovement(void)
     UpdatePassageStageCursorSound();
 
     if (target > previous) {
-        register u16 *state asm("r2");
-        register s32 position asm("r1");
+        u16 *state;
+        s32 position;
         register s32 current asm("r0");
         state = gStageEntryMainSpriteState;
         current = state[4];
@@ -817,8 +804,8 @@ void UpdatePassageStageCursorMovement(void)
             return;
         state[4] = position;
     } else {
-        register u16 *state asm("r2");
-        register s32 position asm("r1");
+        u16 *state;
+        s32 position;
         register s32 current asm("r0");
         state = gStageEntryMainSpriteState;
         current = state[4];
@@ -840,12 +827,11 @@ void UpdatePassageStageCursorMovement(void)
 
 void UpdatePassageStageCursorSound(void)
 {
-    register u8 *counter asm("r1");
-    register u32 value asm("r0");
+    u8 *counter;
+    u32 value;
 
     counter = &gUnk_3003C55;
     (*counter)++;
-    asm("" : : : "memory");
     value = *counter;
     value &= 7;
     if (value == 0)
@@ -854,14 +840,14 @@ void UpdatePassageStageCursorSound(void)
 
 s32 HandlePassageScreenInput(void)
 {
-    register u32 r4Value asm("r4");
-    register u32 r5Value asm("r5");
-    register u32 direction asm("r6");
+    u32 r4Value;
+    u32 r5Value;
+    u32 direction;
     u32 oldFalling;
-    register u32 pressedPtrSaved asm("r12");
-    register u8 *fallingInitial asm("r2");
-    register u16 *pressedPtr asm("r1");
-    register u32 pressed asm("r3");
+    u32 pressedPtrSaved;
+    u8 *fallingInitial;
+    u16 *pressedPtr;
+    u32 pressed;
     register u32 mask asm("r0");
     u16 held;
     u32 nextStage;
@@ -908,13 +894,11 @@ s32 HandlePassageScreenInput(void)
 
     {
         register u32 heldValue asm("r1");
-        register u16 rightMask asm("r2");
+        u16 rightMask;
         heldValue = gButtonsHeld;
         mask = 32;
         mask &= heldValue;
-        asm("" : "+r"(mask));
-        mask <<= 16;
-        rightMask = mask >> 16;
+        rightMask = (u16)mask;
         if (rightMask != 0) {
             gUnk_3003C54++;
             if (gUnk_3003C54 > 10) {
@@ -924,8 +908,7 @@ s32 HandlePassageScreenInput(void)
         } else {
             mask = 16;
             mask &= heldValue;
-            mask <<= 16;
-            heldValue = mask >> 16;
+            heldValue = (u16)mask;
             if (heldValue != 0) {
                 gUnk_3003C54++;
                 if (gUnk_3003C54 > 10) {
@@ -938,13 +921,11 @@ s32 HandlePassageScreenInput(void)
         }
 
         {
-            register u32 pressedAgain asm("r1");
+            u32 pressedAgain;
             pressedAgain = *(u16 *)pressedPtrSaved;
             mask = 32;
             mask &= pressedAgain;
-            asm("" : "+r"(mask));
-            mask <<= 16;
-            rightMask = mask >> 16;
+            rightMask = (u16)mask;
             if (rightMask != 0) {
                 direction = 0;
                 mask = 1;
@@ -965,8 +946,8 @@ s32 HandlePassageScreenInput(void)
 
     r5Value = (u32)&gCurrentStageNumber;
     {
-        register u32 current asm("r2");
-        register u32 compareValue asm("r1");
+        u32 current;
+        u32 compareValue;
         current = *(u8 *)r5Value;
         compareValue = current + 1;
         mask = gStageEntrySelectedStage;
@@ -976,9 +957,9 @@ s32 HandlePassageScreenInput(void)
             goto invalid;
 
         {
-            register const u8 *table asm("r3");
-            register u32 offset asm("r1");
-            register u32 passageValue asm("r2");
+            const u8 *table;
+            u32 offset;
+            u32 passageValue;
             table = (const u8 *)sUnk_863C4CC;
             offset = direction << 2;
             mask = current << 3;
@@ -1040,14 +1021,14 @@ void BeginPassageBossStageEntry(void)
 void LoadPassageStageDisplayGraphics(void)
 {
     register u32 passage asm("r12");
-    register u32 stage asm("r6");
-    register u32 paletteVariant asm("r8");
+    u32 stage;
+    u32 paletteVariant;
     register u32 graphicsIndex asm("r5");
     u32 passageTimesFour;
     register vu32 *dma asm("r4");
 
     {
-        register u32 value asm("r0");
+        u32 value;
         value = gUnk_3003C45;
         if (value != 0) {
             value = 5;
@@ -1059,7 +1040,7 @@ void LoadPassageStageDisplayGraphics(void)
 
     {
         register u8 *stagePointer asm("r1");
-        register u32 currentStage asm("r0");
+        u32 currentStage;
         stagePointer = &gCurrentStageNumber;
         currentStage = *stagePointer;
         if (currentStage == 5) {
@@ -1071,12 +1052,12 @@ void LoadPassageStageDisplayGraphics(void)
             goto zeroPaletteVariant;
         }
         if (currentStage == 4) {
-            register u8 *collection asm("r2");
-            register u32 stageValue asm("r4");
-            register u32 collectionOffset asm("r1");
-            register u8 *passagePointer asm("r0");
-            register u32 passageValue asm("r3");
-            register s32 flag asm("r0");
+            u8 *collection;
+            u32 stageValue;
+            u32 collectionOffset;
+            u8 *passagePointer;
+            u32 passageValue;
+            s32 flag;
 
             collection = gCurrentCollection;
             stageValue = *stagePointer;
@@ -1099,20 +1080,18 @@ void LoadPassageStageDisplayGraphics(void)
             stage = stageValue;
 clearPaletteVariant:
             {
-                register u32 zero asm("r1");
+                u32 zero;
                 zero = 0;
-                asm("" : "+r"(zero));
                 paletteVariant = zero;
-                asm("" : "+r"(paletteVariant));
             }
             goto copyGraphics;
         }
 
         {
-            register u8 *passagePointer asm("r0");
-            register u32 passageValue asm("r0");
-            register u8 *collection asm("r2");
-            register u32 collectionOffset asm("r1");
+            u8 *passagePointer;
+            u32 passageValue;
+            u8 *collection;
+            u32 collectionOffset;
             register s32 flag asm("r0");
             register u32 one asm("r3");
 
@@ -1138,19 +1117,18 @@ clearPaletteVariant:
     }
 zeroPaletteVariant:
     {
-        register u32 zero asm("r0");
+        u32 zero;
         zero = 0;
-        asm("" : "+r"(zero));
         paletteVariant = zero;
     }
 
 copyGraphics:
     graphicsIndex = 0;
     {
-        register u32 stageTimesFour asm("r0");
-        register u32 passageValue asm("r1");
-        register u32 source asm("r2");
-        register u32 temp asm("r0");
+        u32 stageTimesFour;
+        u32 passageValue;
+        u32 source;
+        u32 temp;
 
         stageTimesFour = stage << 2;
         passageValue = passage;
@@ -1165,10 +1143,10 @@ copyGraphics:
         source += stageTimesFour;
 
         do {
-            register u32 graphicsOffset asm("r1");
-            register u32 sourceAddress asm("r0");
+            u32 graphicsOffset;
+            u32 sourceAddress;
             register u32 destinationBase asm("r3");
-            register u32 control asm("r0");
+            u32 control;
             register u32 busyMask asm("r3");
             register u32 nextIndex asm("r1");
 
@@ -1200,11 +1178,11 @@ copyGraphics:
         variant = paletteVariant;
         asm("" : "+r"(variant));
         if (variant != 0) {
-            register vu32 *paletteDma asm("r3");
-            register u32 stageOffset asm("r2");
-            register u32 passageValue asm("r1");
-            register u32 passageOffset asm("r0");
-            register u32 paletteBase asm("r1");
+            vu32 *paletteDma;
+            u32 stageOffset;
+            u32 passageValue;
+            u32 passageOffset;
+            u32 paletteBase;
 
             paletteDma = (vu32 *)0x040000D4;
             stageOffset = stage << 5;
@@ -1219,12 +1197,12 @@ copyGraphics:
             paletteDma[2] = 0x80000010;
             paletteDma[2];
         } else {
-            register u32 currentStage asm("r0");
-            register vu32 *paletteDma asm("r3");
-            register u32 stageOffset asm("r2");
-            register u32 passageValue asm("r1");
-            register u32 passageOffset asm("r0");
-            register u32 paletteBase asm("r1");
+            u32 currentStage;
+            vu32 *paletteDma;
+            u32 stageOffset;
+            u32 passageValue;
+            u32 passageOffset;
+            u32 paletteBase;
 
             currentStage = gCurrentStageNumber;
             if (currentStage == 4)
@@ -1255,11 +1233,10 @@ void DrawPassageStageScore(void)
         goto drawBlankScores;
 
     {
-        register u8 *stageLoad asm("r0");
-        register u32 stageValue asm("r1");
+        u8 *stageLoad;
+        u32 stageValue;
         stageLoad = &gCurrentStageNumber;
         stageValue = *stageLoad;
-        asm("" : "+r"(stageLoad), "+r"(stageValue));
         stagePointer = stageLoad;
         if (stageValue <= 3)
             goto drawScore;
@@ -1267,18 +1244,18 @@ void DrawPassageStageScore(void)
 
 drawBlankScores:
     {
-        register s32 row asm("r2");
+        s32 row;
         register vu32 *dma asm("r3");
-        register const u8 *source asm("r5");
-        register u32 destination asm("r4");
+        const u8 *source;
+        u32 destination;
 
         row = 0;
         dma = (vu32 *)0x040000D4;
         source = sUnk_869CE48;
         destination = 0x06002580;
         do {
-            register u32 offset asm("r0");
-            register u32 control asm("r0");
+            u32 offset;
+            u32 control;
             register u32 busyMask asm("r1");
 
             dma[0] = (u32)source;
@@ -1304,12 +1281,12 @@ drawBlankScores:
 drawScore:
     {
         register vu32 *dma asm("r1");
-        register const u8 *source asm("r2");
+        const u8 *source;
         register u32 control asm("r0");
         register u32 busyMask asm("r3");
-        register s32 (*scores)[4] asm("r6");
-        register u8 *passagePointer asm("r5");
-        register const u8 *digitTiles asm("r4");
+        s32 (*scores)[4];
+        u8 *passagePointer;
+        const u8 *digitTiles;
         register const u8 *savedDigitTiles asm("r8");
         s32 score;
 
@@ -1324,7 +1301,6 @@ drawScore:
         scores = gHighScoreTable;
         passagePointer = &gCurrentPassage;
         digitTiles = (const u8 *)(132 << 4);
-        asm("" : "+r"(digitTiles));
         digitTiles += (u32)source;
         savedDigitTiles = digitTiles;
         if ((s32)control < 0) {
@@ -1338,8 +1314,8 @@ drawScore:
 
         {
             u32 scoreAddress;
-            register u32 passageOffset asm("r1");
-            register s32 scoreArgument asm("r0");
+            u32 passageOffset;
+            s32 scoreArgument;
 
             scoreAddress = *stagePointer;
             scoreAddress <<= 2;
@@ -1349,15 +1325,14 @@ drawScore:
             scoreAddress += (u32)scores;
             scoreArgument = *(s32 *)scoreAddress;
             digitTiles = savedDigitTiles;
-            asm("" : "+r"(digitTiles));
             UploadFiveDigitNumberTiles(scoreArgument, digitTiles, 0x26A0);
         }
 
         {
             u32 scoreAddress;
-            register u32 passageOffset asm("r1");
-            register s32 scoreValue asm("r1");
-            register vu32 *copyDma asm("r1");
+            u32 passageOffset;
+            s32 scoreValue;
+            vu32 *copyDma;
             register u32 copySource asm("r0");
 
             scoreAddress = *stagePointer;
@@ -1368,16 +1343,14 @@ drawScore:
             scoreAddress += (u32)scores;
             scoreValue = *(s32 *)scoreAddress;
             if (scoreValue > 999) {
-                register s32 sourceOffset asm("r2");
+                s32 sourceOffset;
                 copyDma = (vu32 *)0x040000D4;
                 sourceOffset = -0xC60;
-                asm("" : "+r"(sourceOffset));
                 copySource = (u32)digitTiles + sourceOffset;
             } else if (scoreValue > 799) {
-                register s32 sourceOffset asm("r2");
+                s32 sourceOffset;
                 copyDma = (vu32 *)0x040000D4;
                 sourceOffset = -0xBE0;
-                asm("" : "+r"(sourceOffset));
                 copySource = (u32)digitTiles + sourceOffset;
             } else if (scoreValue > 599) {
                 copyDma = (vu32 *)0x040000D4;
@@ -1387,7 +1360,6 @@ drawScore:
                 goto end;
             }
 
-            asm("" : "+r"(copyDma), "+r"(copySource));
             copyDma[0] = copySource;
             copyDma[1] = 0x06002580;
             copyDma[2] = 0x80000040;
@@ -1408,8 +1380,8 @@ s32 UpdatePassageStageCursorArrival(void)
     {
         case 0:
         {
-            register u16 *state asm("r3");
-            register s32 current asm("r2");
+            u16 *state;
+            s32 current;
             state = gStageEntryMainSpriteState;
             state[4] += 60;
             current = (s16)state[4];
@@ -1422,8 +1394,8 @@ s32 UpdatePassageStageCursorArrival(void)
         }
         case 1:
         {
-            register u16 *state asm("r6");
-            register s32 current asm("r1");
+            u16 *state;
+            s32 current;
             state = gStageEntryMainSpriteState;
             state[4] += 60;
             delta = sUnk_863C42C[gUnk_3003C4A] - sUnk_863C424[gUnk_3003C4A];
@@ -1431,7 +1403,7 @@ s32 UpdatePassageStageCursorArrival(void)
             current = (s16)state[4];
             target = sUnk_863C42C[gUnk_3003C4A] << 5;
             if (current > target) {
-                register u32 finalSpeed asm("r0");
+                u32 finalSpeed;
                 state[4] = target;
                 finalSpeed = 2560;
                 state[5] = finalSpeed;
@@ -1441,12 +1413,12 @@ s32 UpdatePassageStageCursorArrival(void)
         }
         case 2:
         {
-            register u16 *state asm("r5");
-            register s32 current asm("r4");
-            register const u32 *table asm("r3");
-            register u32 stage asm("r1");
-            register u32 passage asm("r2");
-            register u32 offset asm("r0");
+            u16 *state;
+            s32 current;
+            const u32 *table;
+            u32 stage;
+            u32 passage;
+            u32 offset;
             state = gStageEntryMainSpriteState;
             state[4] += 60;
             current = (s16)state[4];
@@ -1511,11 +1483,11 @@ s32 UpdatePassageStageSwitch(void)
       DrawPassageStageScore();
       gStageEntryStageVariant = gCurrentStageNumber;
       {
-        register u8 *currentStage asm("r4");
-        register const u8 *table2 asm("r3");
-        register u32 stageOffset asm("r1");
-        register u32 passageValue asm("r2");
-        register u32 passageOffset asm("r0");
+        u8 *currentStage;
+        const u8 *table2;
+        u32 stageOffset;
+        u32 passageValue;
+        u32 passageOffset;
         currentStage = &gCurrentStageNumber;
         table2 = (const u8 *)sUnk_863C4CC;
         stageOffset = *currentStage;
@@ -1575,7 +1547,7 @@ s32 UpdatePassageScreenExitMovement(void)
       delta = sUnk_863C42C[gUnk_3003C4A] - sUnk_863C424[gUnk_3003C4A];
       state[5] -= __divsi3(960, delta);
       {
-        register s32 branchCurrent asm("r1");
+        s32 branchCurrent;
         branchCurrent = (s16) state[4];
         target = sUnk_863C424[gUnk_3003C4A] << 5;
         if (branchCurrent < target)
@@ -1608,10 +1580,10 @@ s32 UpdatePassageScreenExitMovement(void)
 
 void DrawPassageScreenSprites(void)
 {
-  register u16 *copy asm("r5");
-  register s32 used asm("r6");
+  u16 *copy;
+  s32 used;
   s32 drawn;
-  register u32 tableOffset asm("r8");
+  u32 tableOffset;
   struct {
     s32 index;
     s32 count;
@@ -1621,7 +1593,7 @@ void DrawPassageScreenSprites(void)
   drawn = 0;
   {
     register u8 *slots asm("r2");
-    register u32 offset asm("r0");
+    u32 offset;
     register u8 *oam asm("r3");
     slots = &gOamSlotsUsed;
     used = *slots;
@@ -1631,8 +1603,8 @@ void DrawPassageScreenSprites(void)
     copy = (u16 *) offset;
   }
   {
-    register u8 *modePtr asm("r0");
-    register u32 mode asm("r1");
+    u8 *modePtr;
+    u32 mode;
     register s32 four asm("r4");
     modePtr = &gUnk_3003C4A;
     mode = *modePtr;
@@ -1655,30 +1627,28 @@ void DrawPassageScreenSprites(void)
       tableOffset = zero;
       stateZero = 0;
       locals.stateOffset = stateZero;
-      asm("" : "+m"(locals.index), "+m"(locals.count), "+m"(locals.stateOffset));
       do
       {
         register const struct AnimationFrame *animation asm("r3");
         register u8 *stateBase asm("r0");
-        register s32 stateIndex asm("r1");
-        register struct PassageIconState *iconState asm("r2");
+        s32 stateIndex;
+        struct PassageIconState *iconState;
         stateBase = (u8 *) gUnk_3004708;
         stateIndex = locals.stateOffset;
-        asm("" : "+r"(stateIndex));
         iconState = (struct PassageIconState *) stateIndex;
         iconState = (struct PassageIconState *) (((u32) iconState) + ((u32) stateBase));
         if (iconState->active != 0)
         {
           {
-            register struct PassageIconState *state asm("r2");
+            struct PassageIconState *state;
             state = iconState;
             animation = *((const struct AnimationFrame * const *) (((const u8 *) sUnk_863C4AC) + tableOffset));
             do
             {
-              register struct PassageIconState *advanceState asm("r2");
+              struct PassageIconState *advanceState;
               register const struct AnimationFrame *advanceAnimation asm("r3");
-              register u32 advanceTimer asm("r1");
-              register u32 advanceFrame asm("r0");
+              u32 advanceTimer;
+              u32 advanceFrame;
               advanceState = state;
               advanceAnimation = animation;
               advanceTimer = advanceState->timer + 1;
@@ -1701,7 +1671,7 @@ void DrawPassageScreenSprites(void)
             register s32 stateOffset2 asm("r2");
             register u8 *stateBase2 asm("r4");
             register u32 frameAddress asm("r0");
-            register const u16 *frameOam asm("r3");
+            const u16 *frameOam;
             stateOffset2 = locals.stateOffset;
             stateBase2 = (u8 *) gUnk_3004708;
             frameAddress = stateOffset2 + ((u32) stateBase2);
@@ -1711,7 +1681,7 @@ void DrawPassageScreenSprites(void)
             frameOam = *((const u16 **) frameAddress);
             do
             {
-              register const u16 *drawFrame asm("r3");
+              const u16 *drawFrame;
               drawFrame = frameOam;
               used += *(drawFrame++);
               if (used > 128)
@@ -1720,7 +1690,7 @@ void DrawPassageScreenSprites(void)
               }
               if (drawn < used)
               {
-                register u32 coordinateOffset asm("r12");
+                u32 coordinateOffset;
                 register u32 clearMask asm("r10");
                 register u32 byteMask asm("r9");
                 register u32 screenOffset asm("r0");
@@ -1737,7 +1707,7 @@ void DrawPassageScreenSprites(void)
                 drawn = used - drawn;
                 do
                 {
-                  register u32 attr asm("r2");
+                  u32 attr;
                   register u32 value asm("r0");
                   register u32 x asm("r1");
                   attr = *(drawFrame++);
@@ -1753,7 +1723,6 @@ void DrawPassageScreenSprites(void)
                   x = *((const s32 *) (((const u8 *) sUnk_863C584) + value));
                   x = attr + x;
                   attr = 0x1FF;
-                  asm("" : "+r"(attr));
                   x &= attr;
                   attr = *((u16 *) (screen + 2));
                   value = clearMask;
@@ -1765,7 +1734,7 @@ void DrawPassageScreenSprites(void)
                   drawFrame++;
                   {
                     register u32 oldByte asm("r1");
-                    register u32 mergedByte asm("r0");
+                    u32 mergedByte;
                     oldByte = screen[5];
                     mergedByte = byteMask;
                     mergedByte &= oldByte;
@@ -1794,8 +1763,8 @@ void DrawPassageScreenSprites(void)
             if (drawn < used)
             {
               register u8 *passagePtr asm("r12");
-              register const s32 *xTable asm("r10");
-              register u32 byteMask asm("r9");
+              const s32 *xTable;
+              u32 byteMask;
               register u32 screenOffset asm("r0");
               register u8 *screenBase asm("r1");
               register u8 *screen asm("r4");
@@ -1803,7 +1772,6 @@ void DrawPassageScreenSprites(void)
               asm("" : "+r"(screen));
               passagePtr = screen;
               screenOffset = (u32) sUnk_863C5A4;
-              asm("" : "+r"(screenOffset));
               xTable = (const s32 *) screenOffset;
               screenOffset = drawn << 3;
               screenBase = gOamBuffer;
@@ -1819,15 +1787,14 @@ void DrawPassageScreenSprites(void)
               drawn = used - drawn;
               do
               {
-                register u32 attr asm("r2");
-                register u32 value asm("r0");
+                u32 attr;
+                u32 value;
                 register u32 x asm("r1");
                 attr = *(drawFrame++);
                 *(copy++) = attr;
                 {
                   register u8 *lowPtr asm("r1");
                   lowPtr = passagePtr;
-                  asm("" : "+r"(lowPtr));
                   value = *lowPtr;
                 }
                 value = sUnk_863C5AC[value];
@@ -1838,13 +1805,11 @@ void DrawPassageScreenSprites(void)
                 {
                   register u8 *lowPtr asm("r1");
                   lowPtr = passagePtr;
-                  asm("" : "+r"(lowPtr));
                   value = *lowPtr;
                 }
                 x = xTable[value];
                 x = attr + x;
                 attr = 0x1FF;
-                asm("" : "+r"(attr));
                 x &= attr;
                 attr = *((u16 *) (screen + 2));
                 value = 0xFFFFFE00;
@@ -1856,7 +1821,7 @@ void DrawPassageScreenSprites(void)
                 drawFrame++;
                 {
                   register u32 oldByte asm("r1");
-                  register u32 mergedByte asm("r0");
+                  u32 mergedByte;
                   oldByte = screen[5];
                   mergedByte = byteMask;
                   mergedByte &= oldByte;
@@ -1877,8 +1842,8 @@ void DrawPassageScreenSprites(void)
         {
           {
             register u8 *passagePtr asm("r2");
-            register u32 passage asm("r1");
-            register u32 offset asm("r0");
+            u32 passage;
+            u32 offset;
             register u8 *collection asm("r3");
             passagePtr = &gCurrentPassage;
             passage = *passagePtr;
@@ -1903,12 +1868,12 @@ void DrawPassageScreenSprites(void)
                 }
                 if (drawn < used)
                 {
-                  register u32 coordinateOffset asm("r12");
-                  register u32 clearMask asm("r10");
+                  u32 coordinateOffset;
+                  u32 clearMask;
                   register u32 byteMask asm("r9");
-                  register u32 screenOffset asm("r0");
+                  u32 screenOffset;
                   register u8 *screenBase asm("r1");
-                  register u8 *screen asm("r4");
+                  u8 *screen;
                   coordinateOffset = tableOffset;
                   {
                     register union { unsigned long long q; struct { u32 lo; u32 hi; } w; } p34 asm("r3");
@@ -1923,7 +1888,7 @@ void DrawPassageScreenSprites(void)
                   drawn = used - drawn;
                   do
                   {
-                    register u32 attr asm("r2");
+                    u32 attr;
                     register u32 value asm("r0");
                     register u32 x asm("r1");
                     attr = *(drawFrame++);
@@ -1950,7 +1915,7 @@ void DrawPassageScreenSprites(void)
                     drawFrame++;
                     {
                       register u32 oldByte asm("r1");
-                      register u32 mergedByte asm("r0");
+                      u32 mergedByte;
                       oldByte = screen[5];
                       mergedByte = byteMask;
                       mergedByte &= oldByte;
@@ -1969,7 +1934,7 @@ void DrawPassageScreenSprites(void)
           }
           {
             register u8 *passagePtr asm("r3");
-            register u32 passage asm("r0");
+            u32 passage;
             register u32 offset asm("r1");
             register u8 *collection asm("r4");
             passagePtr = &gCurrentPassage;
@@ -1986,7 +1951,7 @@ void DrawPassageScreenSprites(void)
             {
               do
               {
-                register const u16 *drawFrame asm("r3");
+                const u16 *drawFrame;
                 drawFrame = sUnk_864133C[0].oam;
                 used += *(drawFrame++);
                 if (used > 128)
@@ -1995,12 +1960,12 @@ void DrawPassageScreenSprites(void)
                 }
                 if (drawn < used)
                 {
-                  register u32 coordinateOffset asm("r12");
+                  u32 coordinateOffset;
                   register u32 clearMask asm("r10");
                   register u32 byteMask asm("r9");
-                  register u32 screenOffset asm("r0");
+                  u32 screenOffset;
                   register u8 *screenBase asm("r2");
-                  register u8 *screen asm("r4");
+                  u8 *screen;
                   coordinateOffset = tableOffset;
                   clearMask = 0xFFFFFE00;
                   byteMask = (u32) (-13);
@@ -2011,7 +1976,7 @@ void DrawPassageScreenSprites(void)
                   drawn = used - drawn;
                   do
                   {
-                    register u32 attr asm("r2");
+                    u32 attr;
                     register u32 value asm("r0");
                     register u32 x asm("r1");
                     attr = *(drawFrame++);
@@ -2038,7 +2003,7 @@ void DrawPassageScreenSprites(void)
                     drawFrame++;
                     {
                       register u32 oldByte asm("r1");
-                      register u32 mergedByte asm("r0");
+                      u32 mergedByte;
                       oldByte = screen[5];
                       mergedByte = byteMask;
                       mergedByte &= oldByte;
@@ -2057,7 +2022,7 @@ void DrawPassageScreenSprites(void)
           }
           {
             register u8 *passagePtr asm("r3");
-            register u32 passage asm("r0");
+            u32 passage;
             register u32 offset asm("r1");
             register u8 *collection asm("r4");
             passagePtr = &gCurrentPassage;
@@ -2074,7 +2039,7 @@ void DrawPassageScreenSprites(void)
             {
               do
               {
-                register const u16 *drawFrame asm("r3");
+                const u16 *drawFrame;
                 drawFrame = sUnk_864132C[0].oam;
                 used += *(drawFrame++);
                 if (used > 128)
@@ -2083,12 +2048,12 @@ void DrawPassageScreenSprites(void)
                 }
                 if (drawn < used)
                 {
-                  register u32 coordinateOffset asm("r12");
+                  u32 coordinateOffset;
                   register u32 clearMask asm("r10");
                   register u32 byteMask asm("r9");
-                  register u32 screenOffset asm("r0");
+                  u32 screenOffset;
                   register u8 *screenBase asm("r2");
-                  register u8 *screen asm("r4");
+                  u8 *screen;
                   coordinateOffset = tableOffset;
                   clearMask = 0xFFFFFE00;
                   byteMask = (u32) (-13);
@@ -2099,7 +2064,7 @@ void DrawPassageScreenSprites(void)
                   drawn = used - drawn;
                   do
                   {
-                    register u32 attr asm("r2");
+                    u32 attr;
                     register u32 value asm("r0");
                     register u32 x asm("r1");
                     attr = *(drawFrame++);
@@ -2126,7 +2091,7 @@ void DrawPassageScreenSprites(void)
                     drawFrame++;
                     {
                       register u32 oldByte asm("r1");
-                      register u32 mergedByte asm("r0");
+                      u32 mergedByte;
                       oldByte = screen[5];
                       mergedByte = byteMask;
                       mergedByte &= oldByte;
@@ -2145,7 +2110,7 @@ void DrawPassageScreenSprites(void)
           }
           {
             register u8 *passagePtr asm("r3");
-            register u32 passage asm("r0");
+            u32 passage;
             register u32 offset asm("r1");
             register u8 *collection asm("r4");
             passagePtr = &gCurrentPassage;
@@ -2171,7 +2136,7 @@ void DrawPassageScreenSprites(void)
                 }
                 if (drawn < used)
                 {
-                  register u32 coordinateOffset asm("r12");
+                  u32 coordinateOffset;
                   register u32 clearMask asm("r10");
                   register u32 byteMask asm("r9");
                   register u32 screenOffset asm("r0");
@@ -2187,7 +2152,7 @@ void DrawPassageScreenSprites(void)
                   drawn = used - drawn;
                   do
                   {
-                    register u32 attr asm("r2");
+                    u32 attr;
                     register u32 value asm("r0");
                     register u32 x asm("r1");
                     attr = *(drawFrame++);
@@ -2214,7 +2179,7 @@ void DrawPassageScreenSprites(void)
                     drawFrame++;
                     {
                       register u32 oldByte asm("r1");
-                      register u32 mergedByte asm("r0");
+                      u32 mergedByte;
                       oldByte = screen[5];
                       mergedByte = byteMask;
                       mergedByte &= oldByte;
@@ -2234,7 +2199,7 @@ void DrawPassageScreenSprites(void)
         }
         {
           register union { unsigned long long q; struct { u32 lo; u32 hi; } w; } pair34 asm("r3");
-          register s32 index asm("r0");
+          s32 index;
           register s32 count asm("r1");
           pair34.w.lo = 4;
           tableOffset += pair34.w.lo;
@@ -2256,7 +2221,7 @@ void DrawPassageScreenSprites(void)
   }
   {
     register u8 *modePtr asm("r2");
-    register u32 mode asm("r0");
+    u32 mode;
     modePtr = &gUnk_3003C4A;
     mode = *modePtr;
     if (mode == 0)
@@ -2268,10 +2233,10 @@ void DrawPassageScreenSprites(void)
       do
       {
         register u8 *passagePtr asm("r4");
-        register u32 passage asm("r0");
+        u32 passage;
         register u32 collectionOffset asm("r1");
         register u8 *collection asm("r0");
-        register u32 flags asm("r0");
+        u32 flags;
         passagePtr = &gCurrentPassage;
         passage = *passagePtr;
         collectionOffset = passage << 1;
@@ -2299,12 +2264,12 @@ void DrawPassageScreenSprites(void)
             }
             if (drawn < used)
             {
-              register u32 coordinateOffset asm("r12");
-              register u32 byteMask asm("r10");
+              u32 coordinateOffset;
+              u32 byteMask;
               register u32 coordinateMask asm("r9");
-              register u32 screenOffset asm("r0");
+              u32 screenOffset;
               register u8 *screenBase asm("r2");
-              register u8 *screen asm("r4");
+              u8 *screen;
               coordinateOffset = tableOffset;
               {
                 register union { unsigned long long q; struct { u32 lo; u32 hi; } w; } p01 asm("r0");
@@ -2320,7 +2285,7 @@ void DrawPassageScreenSprites(void)
               do
               {
                 register u32 attr asm("r2");
-                register u32 value asm("r0");
+                u32 value;
                 register u32 x asm("r1");
                 attr = *(drawFrame++);
                 *(copy++) = attr;
@@ -2351,7 +2316,7 @@ void DrawPassageScreenSprites(void)
                 drawFrame++;
                 {
                   register u32 oldByte asm("r1");
-                  register u32 mergedByte asm("r0");
+                  u32 mergedByte;
                   oldByte = screen[5];
                   mergedByte = byteMask;
                   mergedByte &= oldByte;
@@ -2397,7 +2362,7 @@ void DrawPassageScreenSprites(void)
       {
         register u8 *selectedPtr2 asm("r2");
         register u32 selected2 asm("r1");
-        register s32 limit asm("r0");
+        s32 limit;
         register s32 index asm("r3");
         selectedPtr2 = &gStageEntrySelectedStage;
         selected2 = *selectedPtr2;
@@ -2408,10 +2373,10 @@ void DrawPassageScreenSprites(void)
         {
           do
           {
-            register s32 nextIndex asm("r8");
+            s32 nextIndex;
             do
             {
-              register const u16 *drawFrame asm("r3");
+              const u16 *drawFrame;
               register s32 indexTemp asm("r4");
               drawFrame = sUnk_86413CC[0].oam;
               used += *(drawFrame++);
@@ -2426,10 +2391,10 @@ void DrawPassageScreenSprites(void)
               {
                 register u32 coordinateOffset asm("r12");
                 register u32 clearMask asm("r10");
-                register u32 coordinateMask asm("r9");
+                u32 coordinateMask;
                 register u32 screenOffset asm("r0");
                 register u8 *screenBase asm("r2");
-                register u8 *screen asm("r4");
+                u8 *screen;
                 screenOffset = locals.index;
                 screenOffset <<= 2;
                 coordinateOffset = screenOffset;
@@ -2443,7 +2408,7 @@ void DrawPassageScreenSprites(void)
                 do
                 {
                   register u32 attr asm("r2");
-                  register u32 value asm("r0");
+                  u32 value;
                   register u32 x asm("r1");
                   attr = *(drawFrame++);
                   *(copy++) = attr;
@@ -2473,8 +2438,8 @@ void DrawPassageScreenSprites(void)
                   *copy = value;
                   drawFrame++;
                   {
-                    register u32 oldByte asm("r1");
-                    register u32 mergedByte asm("r0");
+                    u32 oldByte;
+                    u32 mergedByte;
                     oldByte = screen[5];
                     mergedByte = (u32) (-13);
                     mergedByte &= oldByte;
@@ -2495,7 +2460,7 @@ void DrawPassageScreenSprites(void)
               register s32 storeIndex asm("r3");
               register u8 *selectedPtr3 asm("r4");
               register u32 selected3 asm("r1");
-              register s32 limit3 asm("r0");
+              s32 limit3;
               storeIndex = nextIndex;
               locals.index = storeIndex;
               selectedPtr3 = &gStageEntrySelectedStage;
@@ -2517,7 +2482,7 @@ void DrawPassageScreenSprites(void)
   {
     do
     {
-      register const u16 *drawFrame asm("r3");
+      const u16 *drawFrame;
       drawFrame = sUnk_86413CC[0].oam;
       used += *(drawFrame++);
       if (used > 128)
@@ -2526,13 +2491,13 @@ void DrawPassageScreenSprites(void)
       }
       if (drawn < used)
       {
-        register u8 *screenBase asm("r1");
-        register u32 byteMask asm("r12");
-        register u8 *yPosition asm("r10");
-        register u8 *reverseIndex asm("r9");
+        u8 *screenBase;
+        u32 byteMask;
+        u8 *yPosition;
+        u8 *reverseIndex;
         register u32 screenOffset asm("r0");
-        register u8 *screen asm("r4");
-        register u32 coordinateMask asm("r8");
+        u8 *screen;
+        u32 coordinateMask;
         register u32 lowValue asm("r0");
         register u8 *lowPointer asm("r2");
         screenBase = gOamBuffer;
@@ -2563,7 +2528,7 @@ void DrawPassageScreenSprites(void)
           attr = *(drawFrame++);
           *(copy++) = attr;
           {
-            register u8 *positionLow asm("r1");
+            u8 *positionLow;
             positionLow = yPosition;
             value = positionLow[0];
           }
@@ -2572,7 +2537,7 @@ void DrawPassageScreenSprites(void)
           attr = *(drawFrame++);
           *(copy++) = attr;
           {
-            register u8 *reverseLow asm("r1");
+            u8 *reverseLow;
             reverseLow = reverseIndex;
             value = reverseLow[0];
           }
@@ -2581,7 +2546,7 @@ void DrawPassageScreenSprites(void)
           x <<= 2;
           locals.scratch = x;
           {
-            register u8 *modePtr asm("r1");
+            u8 *modePtr;
             modePtr = &gUnk_3003C4A;
             value = modePtr[0];
           }
@@ -2589,7 +2554,7 @@ void DrawPassageScreenSprites(void)
           x = locals.scratch;
           value = x + value;
           {
-            register const s32 *coordinateTable asm("r1");
+            const s32 *coordinateTable;
             coordinateTable = sUnk_863C5B4;
             value += (u32) coordinateTable;
           }
@@ -2608,7 +2573,7 @@ void DrawPassageScreenSprites(void)
           *copy = value;
           drawFrame++;
           {
-            register u32 oldByte asm("r1");
+            u32 oldByte;
             register u32 mergedByte asm("r0");
             oldByte = screen[5];
             mergedByte = byteMask;
@@ -2628,26 +2593,24 @@ void DrawPassageScreenSprites(void)
     while (0);
   }
   {
-    register u16 *state asm("r2");
+    u16 *state;
     register u32 timer asm("r1");
-    register u32 frame asm("r0");
+    u32 frame;
     register const struct AnimationFrame **animationPointer asm("r3");
-    register const struct AnimationFrame *animation asm("r4");
-    register const struct AnimationFrame **savedAnimationPointer asm("r8");
+    const struct AnimationFrame *animation;
+    const struct AnimationFrame **savedAnimationPointer;
     state = gStageEntryMainSpriteState;
     timer = state[0];
     timer++;
     state[0] = timer;
     frame = state[1];
-    asm("" : "+r"(frame));
     animationPointer = &gUnk_3003C40;
     animation = *animationPointer;
     {
-      register u32 frameTime asm("r0");
+      u32 frameTime;
       frameTime = animation[frame].time;
       timer = (u16) timer;
       savedAnimationPointer = animationPointer;
-      asm("" : "+r"(savedAnimationPointer));
       if (frameTime < timer)
       {
         state[0] = 1;
@@ -2666,15 +2629,14 @@ void DrawPassageScreenSprites(void)
       }
     }
     frame = state[1];
-    asm("" : "+r"(frame));
     {
-      register const struct AnimationFrame **pointerLow asm("r3");
+      const struct AnimationFrame **pointerLow;
       register const struct AnimationFrame *animationLow asm("r1");
       pointerLow = savedAnimationPointer;
       animationLow = *pointerLow;
       do
       {
-        register const u16 *drawFrame asm("r3");
+        const u16 *drawFrame;
         drawFrame = animationLow[frame].oam;
         used += *(drawFrame++);
         if (used > 128)
@@ -2683,13 +2645,13 @@ void DrawPassageScreenSprites(void)
         }
         if (drawn < used)
         {
-          register u8 *screenBase asm("r1");
-          register const u16 *mainState asm("r8");
+          u8 *screenBase;
+          const u16 *mainState;
           register u32 clearMask asm("r10");
           register u32 screenOffset asm("r0");
-          register u8 *screen asm("r4");
-          register u32 coordinateMask asm("r9");
-          register u32 lowValue asm("r0");
+          u8 *screen;
+          u32 coordinateMask;
+          u32 lowValue;
           screenBase = gOamBuffer;
           mainState = state;
           {
@@ -2703,12 +2665,11 @@ void DrawPassageScreenSprites(void)
           screen = (u8 *) screenOffset;
           screen += (u32) screenBase;
           lowValue = 0x1FF;
-          asm("" : "+r"(lowValue));
           coordinateMask = lowValue;
           drawn = used - drawn;
           do
           {
-            register u32 attr asm("r2");
+            u32 attr;
             register s32 value asm("r0");
             register s32 x asm("r1");
             register const u16 *stateLow asm("r1");
@@ -2751,7 +2712,6 @@ void DrawPassageScreenSprites(void)
       while (0);
     }
   }
-  asm("" : : : "r3");
   {
     register u8 *slots asm("r3");
     slots = &gOamSlotsUsed;
@@ -2765,11 +2725,11 @@ void DrawPassageScreenSprites(void)
 
 s32 ClosePassageScreenWindow(void)
 {
-    register u16 *leftPtr asm("r4");
-    register u16 *rightPtr asm("r3");
-    register u16 *bottomPtr asm("r2");
+    u16 *leftPtr;
+    u16 *rightPtr;
+    u16 *bottomPtr;
     register s32 left asm("r1");
-    register s32 value asm("r0");
+    s32 value;
 
     leftPtr = &gStageEntryWindowLeft;
     left = *leftPtr;
@@ -2784,7 +2744,7 @@ s32 ClosePassageScreenWindow(void)
     left = (s16)left;
     bottomPtr = &gStageEntryWindowBottom;
     if (left > 40) {
-        register u16 *topPtr asm("r0");
+        u16 *topPtr;
         topPtr = &gStageEntryWindowTop;
         left = *topPtr;
         left += 10;

@@ -68,7 +68,6 @@ void MoveCameraTowardTarget(s32 x, s32 y)
         /* Preserve the original pointer register lifetime across this smoothing path. */
         asm volatile("" : "+r"(pointer));
         positionY = pointer;
-        asm volatile("" : "+r"(positionY));
         if (targetY != *positionY) {
             movement = gWarioData.yPosition - gPreviousYPosition;
             delta = targetY - *positionY;
@@ -101,7 +100,6 @@ void MoveCameraTowardTarget(s32 x, s32 y)
         /* Preserve the original pointer register lifetime across this smoothing path. */
         asm volatile("" : "+r"(pointer));
         positionX = pointer;
-        asm volatile("" : "+r"(positionX));
         if (targetX != *positionX) {
             movement = gWarioData.xPosition - gPreviousXPosition;
             delta = targetX - *positionX;
@@ -386,8 +384,6 @@ void BuildBottomRoomCameraControlAreas(void)
     areas[1].mode = 0;
     index = 0;
     temp = gWarioData.yPosition >> 6;
-    /* Preserve the original temporary before assigning warioY. */
-    asm volatile("" : "+r"(temp));
     warioY = temp;
 
     boundary = gBackgroundInfo.bg1Height - 12;
@@ -724,8 +720,6 @@ void UpdateBg0CameraPosition(const struct CameraTargetPosition *unusedPosition)
         output = &gBg0XPosition;
         scroll = &gUnk_300003A;
         bounds = gRoomCameraBounds;
-        /* Preserve agbcc's original argument-allocation for these pointers. */
-        asm volatile("" : "+r"(output), "+r"(scroll), "+r"(bounds));
         *output = *scroll + bounds[1] - 32;
         gBg0YPosition = (u16)-32 + bounds[2];
         return;

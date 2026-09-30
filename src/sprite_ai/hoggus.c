@@ -345,67 +345,25 @@ void HoggusEscape(void)
 
 void InitHoggusEgg(void)
 {
-    register struct PrimarySpriteData* sprite asm("r12");
-    struct PrimarySpriteData* setupSprite;
-    register struct PrimarySpriteData* finalSprite asm("r4");
-    register u32 zeroByte asm("r2");
-    u32 zeroHalf;
-    register u16 status asm("r0");
+    struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
-    {
-        register u16 originalStatus asm("r1");
-
-        originalStatus = sprite->status;
-        status = originalStatus & 0xFFFB;
-    }
-    zeroByte = 0;
-    zeroHalf = 0;
-    status |= 0x400;
-    setupSprite = sprite;
-    setupSprite->status = status;
-    setupSprite->drawPriority = zeroByte;
-    setupSprite->warioCollision = zeroByte;
-    {
-        register u8* distance asm("r1");
-
-        distance = &setupSprite->drawDistanceDown;
-        *distance = 32;
-        distance++;
-        *distance = 32;
-        distance++;
-        asm("" : "+r"(distance));
-        *distance = 32;
-    }
-    {
-        u8* hitbox;
-
-        hitbox = &sprite->hitboxExtentUp;
-        *hitbox = 4;
-        hitbox++;
-        *hitbox = 4;
-        hitbox++;
-        *hitbox = 4;
-        hitbox++;
-        asm("" : "+r"(hitbox));
-        *hitbox = 4;
-    }
-    {
-        const struct AnimationFrame* oam;
-
-        oam = sHoggusEggOam;
-        finalSprite = sprite;
-        finalSprite->pOamData = oam;
-    }
-    finalSprite->currentAnimationFrame = zeroByte;
-    finalSprite->animationTimer = zeroHalf;
-    finalSprite->pose = 15;
-    {
-        u8* timer;
-
-        timer = &sprite->work0;
-        *timer = 36;
-    }
+    sprite->status &= 0xFFFB;
+    sprite->status |= 0x400;
+    sprite->drawPriority = 0;
+    sprite->warioCollision = 0;
+    sprite->drawDistanceDown = 32;
+    sprite->drawDistanceUp = 32;
+    sprite->drawDistanceLeftRight = 32;
+    sprite->hitboxExtentUp = 4;
+    sprite->hitboxExtentDown = 4;
+    sprite->hitboxExtentLeft = 4;
+    sprite->hitboxExtentRight = 4;
+    sprite->pOamData = sHoggusEggOam;
+    sprite->currentAnimationFrame = 0;
+    sprite->animationTimer = 0;
+    sprite->pose = 15;
+    sprite->work0 = 36;
 }
 
 void HoggusEggUpdate(void)
@@ -434,8 +392,7 @@ void HoggusEggUpdate(void)
         int roomSlot;
         int gfxSlot;
 
-        /* agbcc otherwise hoists this register copy before the room-slot comparison. */
-        asm("mov %0, %1" : "=r"(roomSlot) : "r"(value));
+        roomSlot = value;
         gfxSlot = sprite->gfxSlot + 3;
         SpriteSpawnAsChildWide(PSPRITE_DENDEN, roomSlot, gfxSlot,
             sprite->yPosition + 16, sprite->xPosition);
@@ -445,8 +402,7 @@ void HoggusEggUpdate(void)
         int roomSlot;
         int gfxSlot;
 
-        /* Preserve the original post-branch room-slot reload into r1. */
-        asm("ldrb %0, [%1, #24]" : "=r"(roomSlot) : "r"(sprite));
+        roomSlot = *(volatile u8 *)((u8 *)(sprite) + (24));
         gfxSlot = sprite->gfxSlot + 5;
         SpriteSpawnAsChildWide(PSPRITE_BUTATABI, roomSlot, gfxSlot,
             sprite->yPosition + 16, sprite->xPosition);

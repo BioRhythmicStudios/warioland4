@@ -12,14 +12,14 @@
 
 void SwitchSetCommonProperties(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
-    register u16 oldStatus asm("r1");
+    struct PrimarySpriteData* sprite;
+    u16 oldStatus;
     register u16 status asm("r0");
-    register u32 statusValue asm("r2");
-    register u8 zero asm("r2");
-    register u16 zero16 asm("r3");
-    register u8* ptr asm("r1");
-    register u8* temp asm("r0");
+    u32 statusValue;
+    u8 zero;
+    u16 zero16;
+    u8* ptr;
+    u8* temp;
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
@@ -31,7 +31,7 @@ void SwitchSetCommonProperties(void)
     ptr = (u8*)sprite;
     *(u16*)ptr = status;
     {
-        register u8 oldPriority asm("r1");
+        u8 oldPriority;
         register u8 priority asm("r0");
 
         oldPriority = ptr[26];
@@ -50,8 +50,7 @@ void SwitchSetCommonProperties(void)
     *ptr = 208;
     ptr++;
     *ptr = 24;
-    /* agbcc otherwise folds this required pointer increment into indexed addressing. */
-    asm("add %0, #1" : "+r"(ptr));
+    ptr += 1;
     *ptr = 20;
     temp = (u8*)sprite;
     temp[22] = zero;
@@ -140,7 +139,7 @@ void EscapeSwitchActivate(void)
     u8* persistent;
     u8* persistentEntry;
     struct PrimarySpriteData* sprite;
-    register u32 zero asm("r3");
+    u32 zero;
 
     persistent = &gPersistentSpriteData[0][0];
     sprite = &gCurrentSprite;
@@ -149,9 +148,8 @@ void EscapeSwitchActivate(void)
     *persistentEntry = 33;
     sprite->warioCollision = 29;
     sprite->pOamData = sEscapeSwitchPressedOam;
-    /* agbcc otherwise inserts a move before these zero stores. */
-    asm("strb %1, [%0, #22]\n"
-        "strh %1, [%0, #20]" : : "r"(sprite), "r"(zero));
+    sprite->currentAnimationFrame = zero;
+    sprite->animationTimer = zero;
     sprite->pose = 18;
     sprite->work0 = 13;
     gSwitchPressed = 1;
@@ -163,16 +161,16 @@ void EscapeSwitchActivate(void)
     gStageTimerColonState = 2;
     SpawnSecondarySprite(200, 384, 78);
     {
-        register struct WarioData* wario asm("r2");
-        register u32 y asm("r0");
-        register u32 x asm("r1");
+        struct WarioData* wario;
+        u32 y;
+        u32 x;
 
         wario = &gWarioData;
         y = wario->yPosition;
         y -= gBg1YPosition;
         x = wario->xPosition;
         {
-            register u32 bgX asm("r2");
+            u32 bgX;
 
             bgX = gBg1XPosition;
             bgX += 64;
@@ -185,8 +183,8 @@ void EscapeSwitchActivate(void)
 
 void EscapeSwitchCountdown(void)
 {
-    register struct PrimarySpriteData* sprite asm("r3");
-    register u8* timerPtr asm("ip");
+    struct PrimarySpriteData* sprite;
+    u8* timerPtr;
     register u8 oldTimer asm("r0");
     register u8 timer asm("r2");
     register u32 shiftedTimer asm("r0");
@@ -197,7 +195,7 @@ void EscapeSwitchCountdown(void)
     oldTimer = *timerPtr;
     timer = oldTimer - 1;
     {
-        register u8* storePtr asm("r1");
+        u8* storePtr;
 
         storePtr = timerPtr;
         *storePtr = timer;
@@ -213,8 +211,8 @@ void EscapeSwitchCountdown(void)
             VoiceSetPlay(5);
         }
     } else {
-        register u8 resetTimer asm("r0");
-        register u8* storePtr asm("r1");
+        u8 resetTimer;
+        u8* storePtr;
 
         sprite->pOamData = sEscapeSwitchActiveOam;
         /* agbcc otherwise re-normalizes the zero before the halfword store. */
@@ -247,9 +245,9 @@ void SwitchReleaseDelay(void)
 void SwitchRespawnDelay(void)
 {
     register struct PrimarySpriteData* sprite asm("ip");
-    register u8* timerPtr asm("r4");
+    u8* timerPtr;
     register u8 rawTimer asm("r0");
-    register u32 shiftedTimer asm("r0");
+    u32 shiftedTimer;
     register u8 timer asm("r1");
 
     sprite = &gCurrentSprite;
@@ -260,8 +258,8 @@ void SwitchRespawnDelay(void)
     shiftedTimer = rawTimer << 24;
     timer = shiftedTimer >> 24;
     if (timer == 0) {
-        register u8* hitboxPtr asm("r2");
-        register const struct AnimationFrame* oam asm("r0");
+        u8* hitboxPtr;
+        const struct AnimationFrame* oam;
         register struct PrimarySpriteData* work asm("r2");
         register struct PrimarySpriteData* callSprite asm("r5");
 
@@ -270,18 +268,16 @@ void SwitchRespawnDelay(void)
         oam = sSwitchPressedOam;
         work = sprite;
         work->pOamData = oam;
-        /* Keep the already-normalized zero in r1 for both animation fields. */
-        asm("strb %1, [%0, #22]\n"
-            "strh %1, [%0, #20]" : : "r"(work), "r"(timer));
+        work->currentAnimationFrame = timer;
+        work->animationTimer = timer;
         work->pose = 48;
         {
-            register u8 roomSlot asm("r1");
-            register u8 gfxSlot asm("r2");
+            u8 roomSlot;
+            u8 gfxSlot;
 
             roomSlot = work->roomSlot;
             gfxSlot = work->gfxSlot;
-            /* Place the preserved sprite pointer after both byte argument loads. */
-            asm("mov %0, %1" : "=r"(callSprite) : "r"(sprite));
+            callSprite = sprite;
             SpawnHighPriorityPrimarySprite(170, roomSlot, gfxSlot, callSprite->yPosition, callSprite->xPosition);
         }
         *timerPtr = 33;
@@ -335,16 +331,16 @@ void SwitchUpdateActivationEffects(void)
 void SwitchEffectInit(void)
 {
     register struct PrimarySpriteData* sprite asm("ip");
-    register u16 oldStatus asm("r1");
+    u16 oldStatus;
     register u16 status asm("r0");
     register u32 statusBits asm("r2");
-    register u8 zero asm("r2");
-    register u16 zero16 asm("r4");
-    register u8 value16 asm("r3");
-    register u8 value4 asm("r1");
-    register u8* ptr asm("r0");
-    register u8* drawPtr asm("r1");
-    register const struct AnimationFrame* oam asm("r0");
+    u8 zero;
+    u16 zero16;
+    u8 value16;
+    u8 value4;
+    u8* ptr;
+    u8* drawPtr;
+    const struct AnimationFrame* oam;
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
@@ -371,9 +367,9 @@ void SwitchEffectInit(void)
     *ptr = value4;
     ptr++;
     *ptr = value4;
-    /* agbcc otherwise folds this required increment into indexed addressing. */
-    asm("add %0, #1" : "+r"(ptr));
-    *ptr = value4;
+    /* Volatile keeps the final byte store separate from the pointer increment. */
+    ptr++;
+    *(volatile u8 *)ptr = value4;
     oam = sSwitchEffectIdleOam;
     drawPtr = (u8*)sprite;
     *(const struct AnimationFrame**)(drawPtr + 4) = oam;

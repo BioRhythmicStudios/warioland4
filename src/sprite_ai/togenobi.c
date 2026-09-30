@@ -77,7 +77,6 @@ void InitTogenobiOuterPart(void)
     ptr1++;
     *ptr1 = (u32)ptr0;
     ptr1++;
-    asm("" : "+r"(ptr1));
     *ptr1 = (u32)ptr0;
     ptr0 = (u8*)current + 35;
     ptr1 = (u8*)4;
@@ -87,7 +86,6 @@ void InitTogenobiOuterPart(void)
     ptr0++;
     *ptr0 = (u32)ptr1;
     ptr0++;
-    asm("" : "+r"(ptr0));
     *ptr0 = (u32)ptr1;
     *(volatile u8*)((u8*)current + 22) = zero;
     current->animationTimer = zeroTimer;
@@ -140,7 +138,7 @@ void UpdateTogenobiOuterPartPosition(void)
     struct PrimarySpriteData* data;
     u8* parentSlot;
     int spriteSize;
-    register int radius asm("r6");
+    int radius;
     u32 dataBase;
     register struct PrimarySpriteData* currentIp asm("r12");
     const s16* table;
@@ -215,8 +213,7 @@ void UpdateTogenobiOuterPartPosition(void)
     value <<= 1;
     value += (u32)table2;
     other = 0;
-    /* agbcc otherwise chooses the signed-load destination as the address register. */
-    asm("ldrsh %0, [%0, %1]" : "+r"(value) : "r"(other));
+    value = *(s16 *)(value + other);
     if (value < 0) {
         value = -value;
         value *= radius;
@@ -315,7 +312,7 @@ void InitTogenobiInnerPart(void)
     u8* work1;
     u32 workValue;
     u8 distance;
-    register u8 extentUp asm("r3");
+    u8 extentUp;
     u8* property;
 
     current = &gCurrentSprite;
@@ -344,8 +341,7 @@ void InitTogenobiInnerPart(void)
     property++;
     *property = extentUp;
     property++;
-    asm("" : "+r"(property));
-    *property = 28;
+    *(volatile u8 *)property = 28;
     current->pOamData = sTogenobiInnerPartOam;
     *(volatile u8*)((u8*)current + 22) = zero;
     current->animationTimer = zeroTimer;
@@ -399,10 +395,10 @@ void UpdateTogenobiInnerPartPosition(void)
     register s32 value asm("r0");
     s32 reg1;
     s32 reg2;
-    register s32 reg3 asm("r3");
-    register s32 preservedRadius asm("r4");
-    register u32 dataBase asm("r5");
-    register const s16* tableBase asm("r6");
+    s32 reg3;
+    s32 preservedRadius;
+    u32 dataBase;
+    const s16* tableBase;
 
     current = &gCurrentSprite;
     reg2 = (u32)gSpriteData;
@@ -471,8 +467,7 @@ void UpdateTogenobiInnerPartPosition(void)
     value <<= 1;
     value += reg1;
     reg3 = 0;
-    /* agbcc otherwise chooses the signed-load destination as the address register. */
-    asm("ldrsh %0, [%0, %1]" : "+r"(value) : "r"(reg3));
+    value = *(s16 *)(value + reg3);
     tableBase = (const s16*)reg1;
 
     if (value < 0) {
@@ -522,8 +517,7 @@ void UpdateTogenobiInnerPartPosition(void)
     value <<= 1;
     value += (u32)tableBase;
     reg2 = 0;
-    /* agbcc otherwise loads through the signed-result register. */
-    asm("ldrsh %0, [%1, %2]" : "=r"(reg1) : "r"(value), "r"(reg2));
+    reg1 = *(s16 *)(value + reg2);
 
     if (reg1 < 0) {
         reg1 = -reg1;
@@ -568,11 +562,11 @@ void InitTogenobiCenterPart(void)
 {
     register struct PrimarySpriteData* sprite asm("r12");
     register u16 status asm("r0");
-    register u16 oldStatus asm("r1");
-    register int zero asm("r2");
+    u16 oldStatus;
+    int zero;
     register int zeroTimer asm("r3");
-    register u8* ptr asm("r1");
-    register u8* hitbox asm("r0");
+    u8* ptr;
+    u8* hitbox;
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
@@ -589,8 +583,7 @@ void InitTogenobiCenterPart(void)
     ptr++;
     *ptr = 40;
     ptr++;
-    asm("" : "+r"(ptr));
-    *ptr = 40;
+    *(volatile u8 *)ptr = 40;
     hitbox = (u8*)sprite + 35;
     *hitbox = 4;
     hitbox++;
@@ -598,13 +591,12 @@ void InitTogenobiCenterPart(void)
     hitbox++;
     *hitbox = 4;
     hitbox++;
-    asm("" : "+r"(hitbox));
-    *hitbox = 4;
+    *(volatile u8 *)hitbox = 4;
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zeroTimer;
     {
-        register const struct AnimationFrame* oam asm("r0");
-        register struct PrimarySpriteData* destination asm("r1");
+        const struct AnimationFrame* oam;
+        struct PrimarySpriteData* destination;
         oam = sTogenobiCenterPartOam;
         destination = sprite;
         destination->pOamData = oam;
@@ -615,7 +607,7 @@ void InitTogenobiCenterPart(void)
 void SpriteTogenobi(void)
 {
     register s32 value asm("r4");
-    register s32 scale asm("r5");
+    s32 scale;
 
     if (gCurrentSprite.pose == 0) {
         InitTogenobi();
@@ -642,7 +634,7 @@ void SpriteTogenobi(void)
 void SpriteTogenobiOuterPart(void)
 {
     register s32 value asm("r4");
-    register s32 scale asm("r5");
+    s32 scale;
 
     gCurrentSprite.disableWarioCollisionTimer = 1;
     if (gCurrentSprite.pose == 0) {
@@ -665,7 +657,7 @@ void SpriteTogenobiOuterPart(void)
 void SpriteTogenobiInnerPart(void)
 {
     register s32 value asm("r4");
-    register s32 scale asm("r5");
+    s32 scale;
 
     if (gCurrentSprite.pose == 0) {
         InitTogenobiInnerPart();
