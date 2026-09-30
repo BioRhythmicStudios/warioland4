@@ -11,14 +11,53 @@
 #include "gba/m4a.h"
 #include "gba/syscall.h"
 
+struct BossTreasureItem
+{
+    s16 x;
+    s16 y;
+    s16 scale;
+    u8 active;
+    u8 unused;
+};
+
+struct BossTreasureUnlockIcon
+{
+    u8 x;
+    u8 y;
+    u8 active;
+    u8 unused;
+};
+
+struct BossTreasureSparkleSlot
+{
+    u8 x;
+    u8 y;
+    u8 active;
+    u8 unused;
+};
+
+struct BossTreasureParticle
+{
+    s16 x;
+    s16 y;
+    u8 scaleIndex;
+    s8 xVelocity;
+    s8 yVelocity;
+    u8 unused7;
+    u16 animationTimer;
+    u16 animationFrame;
+    u8 active;
+    u8 unusedD[3];
+};
+
 extern u16 gStageEntryHorizontalScroll[];
 extern u16 gStageEntrySequenceTimer;
 extern s16 gBossTreasureAffineScale;
-extern s16 gBossTreasureItems[];
+extern struct BossTreasureItem gBossTreasureItems[];
 extern u8 gBossTreasureLastItemIndex;
-extern u8 gBossTreasureUnlockIcons[];
-extern u8 gBossTreasureUnlockSparkles[];
-extern u8 gBossTreasureParticles[];
+extern struct BossTreasureUnlockIcon gBossTreasureUnlockIcons[];
+extern struct BossTreasureSparkleSlot gBossTreasureUnlockSparkles[];
+extern struct BossTreasureParticle gBossTreasureParticles[][20];
 extern u8 gBossTreasureParticleRingIndex;
 extern u8 gBossTreasureActivePassage;
 extern u16 gBossTreasurePaletteFlashTimer;
@@ -80,44 +119,6 @@ extern const u16 *const sBossTreasureSparkleOamFrames[];
 extern const u16 sBossTreasureItemOamFrame[];
 extern const struct AnimationFrame sBossTreasureParticleAnimation[];
 
-struct BossTreasureItem
-{
-    s16 x;
-    s16 y;
-    s16 scale;
-    u8 active;
-    u8 unused;
-};
-
-struct BossTreasureUnlockIcon
-{
-    u8 x;
-    u8 y;
-    u8 active;
-    u8 unused;
-};
-
-struct BossTreasureSparkleSlot
-{
-    u8 x;
-    u8 y;
-    u8 active;
-    u8 unused;
-};
-
-struct BossTreasureParticle
-{
-    s16 x;
-    s16 y;
-    u8 scaleIndex;
-    s8 xVelocity;
-    s8 yVelocity;
-    u8 unused7;
-    u16 animationTimer;
-    u16 animationFrame;
-    u8 active;
-    u8 unusedD[3];
-};
 
 int UpdateBossTreasureCutscene(void)
 {
@@ -322,7 +323,7 @@ int UpdateBossTreasureCutscene(void)
         treasureIndex = 0;
         state3Counter = &gStageEntrySequenceTimer;
         asm("" : : "r"(state3Counter));
-        icon = gBossTreasureUnlockIcons;
+        icon = (u8 *) gBossTreasureUnlockIcons;
         iconTrigger = 34;
         {
           register s32 holdR7 asm("r7");
@@ -501,7 +502,7 @@ void InitializeBossTreasureCutscene(void)
     while (((s32) current) >= ((s32) base));
     if (((s32) current) < ((s32) base))
     {
-      base = gBossTreasureUnlockIcons;
+      base = (u8 *) gBossTreasureUnlockIcons;
     }
     loopZero = 0;
     current = base + 16;
@@ -514,7 +515,7 @@ void InitializeBossTreasureCutscene(void)
     zeroHalf = ((s32) current) < ((s32) base);
     if (zeroHalf)
     {
-      base = gBossTreasureUnlockSparkles;
+      base = (u8 *) gBossTreasureUnlockSparkles;
     }
     loopZero = 0;
     current = base + 40;
@@ -554,7 +555,7 @@ void UpdateBossTreasureFirstPhaseTreasureItems(void)
         timer = &gStageEntrySequenceTimer;
         yPositions = sBossTreasureFirstPhaseYPositions;
         tileValues = sBossTreasureFirstPhaseTileValues;
-        treasure = gBossTreasureItems;
+        treasure = (s16 *) gBossTreasureItems;
         do {
             baseIndex = i << 3;
             if (*((u8 *)treasure + 6) != 0) {
@@ -588,7 +589,7 @@ void UpdateBossTreasureSecondPhaseTreasureItems(void)
         timer = &gStageEntrySequenceTimer;
         yPositions = sBossTreasureSecondPhaseYPositions;
         tileValues = sBossTreasureSecondPhaseTileValues;
-        treasure = gBossTreasureItems;
+        treasure = (s16 *) gBossTreasureItems;
         baseIndex = 14;
         do {
             if (*((u8 *)treasure + 6) != 0) {
@@ -621,7 +622,7 @@ void UpdateBossTreasureUnlockIcons(void)
     passageIcons = (u32)sBossTreasurePassageIconTiles;
     unlockedTiles = (u32)sBossTreasureUnlockedIconTiles;
     lockedTiles = (u32)sBossTreasureLockedIconTiles;
-    icon = gBossTreasureUnlockIcons;
+    icon = (u8 *) gBossTreasureUnlockIcons;
     do {
         if (icon[2] != 0) {
             threshold = ((4 - iconIndex) * 5) + 14;
@@ -656,7 +657,7 @@ void UpdateBossTreasureUnlockSparkles(void)
   s32 sparkleOffset;
   u8 *sparkleBase;
   sparkleIndex = 0;
-  sparkleBase = gBossTreasureUnlockSparkles;
+  sparkleBase = (u8 *) gBossTreasureUnlockSparkles;
   do
   {
     sparkleOffset = sparkleIndex << 2;
@@ -740,7 +741,7 @@ void SpawnBossTreasureParticles(void)
   int zero;
   s32 scale;
   s32 particleGroupOffset;
-  particleArray = &gBossTreasureParticles;
+  particleArray = (u8 (*)[]) &gBossTreasureParticles;
   treasureIndex = 0;
   if (treasureIndex <= gBossTreasureLastItemIndex)
   {
@@ -901,7 +902,7 @@ void UpdateBossTreasureParticles(void)
     group = 0;
     initialEndGroup = gBossTreasureLastItemIndex + 1;
     if (group < initialEndGroup) {
-        particleBase = gBossTreasureParticles;
+        particleBase = (u8 *) gBossTreasureParticles;
         endGroup = initialEndGroup;
         do {
             offsetBase = group << 2;
@@ -940,7 +941,7 @@ void ClearBossTreasureParticles(void)
 
     gBossTreasureParticleRingIndex = 0;
     group = 0;
-    particleBase = gBossTreasureParticles;
+    particleBase = (u8 *) gBossTreasureParticles;
     byteZero = 0;
     halfwordZero = 0;
     particleTailBase = particleBase + 6;
@@ -1108,767 +1109,322 @@ void UpdateBossTreasurePaletteFlash(void)
     dma[2];
 }
 
-#ifndef NONMATCHING
-ASM_INCLUDE("asm/disasm_boss_treasure_cutscene_DrawBossTreasureCutsceneSprites.s");
-#else
-/* WIP C for DrawBossTreasureCutsceneSprites: 23505 / 95000 (75.26%),
- * size 0x7A0 vs target 0x7F0; no instruction-emitting asm. Rescore:
- * bash decomp_work_v2/tools/score_all.sh Boss
- * Full history/notes: decomp_work_v2/NOTES.md */
 void DrawBossTreasureCutsceneSprites(void)
 {
-  int groupIndex;
-  unsigned int new_var36;
-  u16 affine_[4];
-  const u16 *new_var3;
-  u16 *affine2_;
-  const s16 *new_var29;
-  volatile long pad2;
-  struct BossTreasureParticle *particles;
-  s32 iconIndex;
-  struct BossTreasureParticle **new_var18;
-  OamData *new_var66;
-  u8 new_var11;
-  long long new_var81;
-  s32 new_var38;
-  OamData *new_var63;
-  short new_var52;
-  const s16 new_var80;
-  u16 *new_var91;
-  const s16 *new_var21;
-  const s16 *new_var77;
-  struct BossTreasureItem *new_var9;
-  const u16 new_var58;
-  int new_var68;
-  struct BossTreasureParticle *particle;
-  long new_var64;
-  const u16 *new_var69;
-  const s16 new_var83;
-  u8 new_var79;
-  u16 *new_var43;
-  struct BossTreasureItem *items;
-  struct BossTreasureUnlockIcon *icons;
-  u16 *new_var44;
-  struct BossTreasureSparkleSlot *sparkles;
-  u16 new_var35;
-  s32 new_var;
-  const struct AnimationFrame *animation;
-  u8 new_var56;
-  const struct AnimationFrame *new_var22;
-  struct BossTreasureParticle *new_var7;
-  int new_var78;
-  const u16 new_var82;
-  const s16 **new_var51;
-  u16 *new_var59;
-  OamData *new_var72;
-  u16 *new_var57;
-  unsigned short new_var76;
-  int new_var37;
-  int new_var16;
-  OamData *new_var92;
-  const u16 *new_var33;
-  const u16 *frame;
-  int new_var12;
-  u8 new_var17;
-  u16 *new_var42;
-  unsigned int new_var14;
-  OamData *new_var28;
-  struct BossTreasureItem *new_var87;
-  s32 itemIndex;
-  u16 *new_var39;
-  struct BossTreasureSparkleSlot *new_var85;
-  u16 *new_var54;
-  s32 sparkleIndex;
-  s32 x;
-  u16 new_var90;
-  u16 *new_var34;
-  u32 new_var6;
-  s32 y;
-  s16 *new_var62;
-  const s16 affineCosine;
-  struct BossTreasureUnlockIcon *new_var25;
-  const u16 new_var89;
-  OamData *new_var46;
-  u16 *new_var75;
-  int new_var15;
-  u8 new_var8;
-  const s16 *new_var24;
-  const s16 *sharedSinCosTable;
-  u16 *new_var71;
-  const u16 *new_var40;
-  u16 new_var65;
-  u8 affineMode;
-  int objectCount;
-  volatile int new_var13;
-  struct BossTreasureParticle *new_var45;
-  u16 *affine3_;
-  const u16 *new_var47;
-  u16 new_var73;
-  char new_var50;
-  const u16 *new_var70;
-  s16 new_var10;
-  u16 *new_var61;
-  const u16 * const *new_var23;
-  int new_var31;
-  int new_var74;
-  const u16 *new_var27;
-  s16 new_var55;
-  u16 *new_var60;
-  s32 new_var19;
-  OamData *oam;
-  struct BossTreasureItem *new_var26;
-  s32 *new_var2;
-  struct BossTreasureItem *new_var53;
-  u16 new_var88;
+  typedef union
+  {
+    struct
+    {
+      u32 y : 8;
+      u32 affineMode : 2;
+      u32 objMode : 2;
+      u32 mosaic : 1;
+      u32 bpp : 1;
+      u32 shape : 2;
+
+      u32 x : 9;
+      u32 affineIndex : 3;
+      u32 preserved : 2;
+      u32 size : 2;
+
+      u16 tileNum : 10;
+      u16 priority : 2;
+      u16 paletteNum : 4;
+
+      u16 fractional : 8;
+      u16 integer : 7;
+      u16 sign : 1;
+    } split;
+
+    struct
+    {
+      u16 attr0;
+      u16 attr1;
+      u16 attr2;
+      u16 affineParam;
+    } all;
+  } BossTreasureOamData;
+
+  const u16 *src;
+  u16 *dest;
+  u16 affine[4];
+  u16 attr;
+  u16 matrixPd;
+  s16 scale;
+  s32 currentSlot;
+  s32 matrixSlot;
+  s32 nextSlot;
   s32 particleIndex;
-  int new_var49;
-  u16 *rawOut;
-  const s16 *new_var84;
-  u16 *new_var48;
-  u16 attr0;
-  const u16 new_var20;
-  u16 attr1;
-  short attr2;
-  register s32 drawn asm("r9");
-  s32 new_var41;
-  unsigned long long new_var5;
-  register volatile int next asm("r8");
-  const u16 *new_var67;
-  OamData *new_var32;
-  int new_var86;
-  int new_var4;
-  drawn = 0;
-  next = gOamSlotsUsed;
-  new_var44 = (u16 *) (&gOamBuffer[next]);
-  rawOut = new_var44;
-  new_var87 = (struct BossTreasureItem *) gBossTreasureItems;
-  new_var7 = (struct BossTreasureParticle *) gBossTreasureParticles;
-  particles = new_var7;
-  items = new_var87;
-  icons = (struct BossTreasureUnlockIcon *) gBossTreasureUnlockIcons;
-  new_var64 = (groupIndex = 0);
-  sparkles = (struct BossTreasureSparkleSlot *) gBossTreasureUnlockSparkles;
-  while (groupIndex <= gBossTreasureLastItemIndex)
+  s32 i;
+
+  currentSlot = 0;
+  nextSlot = gOamSlotsUsed;
+  dest = (u16 *) &gOamBuffer[nextSlot];
+
+  for (i = 0; i <= gBossTreasureLastItemIndex; i++)
   {
-    particleIndex = 0;
-    while (particleIndex < 20)
+    for (particleIndex = 0; particleIndex < 20; particleIndex++)
     {
-      particle = &particles[particleIndex + ((2 * groupIndex) * 10)];
-      if (particle->active != 0)
+      if (gBossTreasureParticles[i][particleIndex].active != 0)
       {
-        particle->animationTimer++;
-        new_var22 = sBossTreasureParticleAnimation;
-        animation = &sBossTreasureParticleAnimation[particle->animationFrame];
-        if (animation->time < particle->animationTimer)
+        gBossTreasureParticles[i][particleIndex].animationTimer++;
+        if (sBossTreasureParticleAnimation[gBossTreasureParticles[i][particleIndex].animationFrame].time < gBossTreasureParticles[i][particleIndex].animationTimer)
         {
-          particle->animationTimer = 0;
-          particle->animationFrame++;
-          if (new_var22[particle->animationFrame].time == 0)
+          gBossTreasureParticles[i][particleIndex].animationTimer = 0;
+          gBossTreasureParticles[i][particleIndex].animationFrame++;
+          if (sBossTreasureParticleAnimation[gBossTreasureParticles[i][particleIndex].animationFrame].time == 0)
           {
-            particle->animationFrame--;
-            if (0 == new_var87[groupIndex].active)
+            gBossTreasureParticles[i][particleIndex].animationFrame--;
+            if (gBossTreasureItems[i].active == 0)
             {
-              (new_var45 = particle)->active = 0;
+              gBossTreasureParticles[i][particleIndex].active = 0;
             }
           }
         }
-        do
+        src = sBossTreasureParticleAnimation[gBossTreasureParticles[i][particleIndex].animationFrame].oam;
+        nextSlot += *(src++);
+        if (nextSlot > 128)
         {
-          frame = sBossTreasureParticleAnimation[particle->animationFrame].oam;
-          if (1)
-          {
-              new_var82 = *frame;
-            do
-            {
-              objectCount = new_var82;
-              next += objectCount;
-              frame++;
-            }
-            while (0);
-            if (next > 128)
-            {
-              return;
-            }
-            if (drawn < next)
-            {
-              oam = &gOamBuffer[drawn];
-              new_var69 = frame++;
-              drawn = next - drawn;
-              do
-              {
-                attr0 = *new_var69;
-                *(rawOut++) = attr0;
-                if (particle->scaleIndex <= 1)
-                {
-                  oam->split.y = attr0 + (particle->y >> 4);
-                  oam->split.affineMode = 1;
-                }
-                else
-                {
-                  oam->split.y = (attr0 + (particle->y >> 4)) - 8;
-                  oam->split.affineMode = 3;
-                }
-                attr1 = *(frame++);
-                *(rawOut++) = attr1;
-                if (particle->scaleIndex < (1 + 1))
-                {
-                  oam->split.x = (attr1 + (new_var55 = (*(new_var18 = &particle))->x >> 4)) & 0x1FF;
-                }
-                else
-                {
-                  oam->split.x = ((attr1 + (((particle->x >> 1) >> 1) >> 2)) - 8) & 0x1FF;
-                }
-                new_var52 = particle->scaleIndex;
-                ((u8 *) oam)[3] = (((4 + new_var52) & 7) << 1)
-                    | (((u8 *) oam)[3] & -15);
-                new_var40 = &(*(frame++));
-                ;
-                new_var33 = new_var40;
-                frame = new_var33;
-                *rawOut = *frame;
-                new_var5 = 13;
-                ((u8 *) oam)[5] &= (u8) (-new_var5);
-                rawOut += 2;
-                oam++;
-                drawn--;
-              }
-              while (drawn != 0);
-              drawn = next;
-            }
-
-          }
+          return;
         }
-        while (particle->y * 0);
-      }
-      particleIndex++;
-    }
-
-    groupIndex++;
-  }
-
-  new_var74 = (new_var16 = 0);
-  if (1 != 0U)
-  {
-    particleIndex = 0;
-    groupIndex = particleIndex + 4;
-    new_var21 = sSinCosTable;
-    new_var24 = new_var21;
-    while ((particleIndex < 4) != 0)
-    {
-      do
-      {
-        u8 matrixNum_ = groupIndex;
-        s16 scale_ = 32 * (3 * (particleIndex + 1));
-        OamData *matrix_;
-        const s16 *sinCosTable_;
-        u16 *affine3_;
-        u16 *affine1_;
-        objectCount = FixedInverse(scale_);
-        sharedSinCosTable = new_var24;
-        new_var20 = objectCount;
-        new_var14 = (s16) new_var20;
-        sinCosTable_ = sharedSinCosTable;
-        new_var44 = &affine_[1];
-        affine1_ = new_var44;
-        new_var54 = &affine_[2];
-        affine2_ = new_var54;
-        new_var80 = sinCosTable_[0x40];
-        affine3_ = &affine_[3];
-        matrix_ = &gOamBuffer[matrixNum_ * 4];
-        affine_[0] = FixedMul(new_var80, new_var14);
-        new_var4 = sinCosTable_[0];
-        new_var31 = -new_var4;
-        new_var41 = FixedInverse(scale_);
-        new_var88 = (*affine1_ = FixedMul(new_var4, (s16) new_var41));
-        matrix_[1].all.affineParam = new_var88;
-        *affine2_ = FixedMul(new_var31, (s16) FixedInverse(scale_));
-        new_var38 = FixedInverse(scale_);
-        new_var78 = (s16) new_var38;
-        new_var76 = FixedMul(sinCosTable_[0x40], new_var78);
-        *affine3_ = (matrix_[3].all.affineParam = new_var76);
-        matrix_[0].all.affineParam = affine_[0];
-        (*(matrix_ + 2)).all.affineParam = *affine2_;
-      }
-      while (0);
-      particleIndex++;
-    }
-
-  }
-  if ((float) (gStageEntrySequenceStep == 0))
-  {
-    if (1)
-    {
-      itemIndex = 0;
-    }
-    while (itemIndex <= gBossTreasureLastItemIndex)
-    {
-      new_var53 = &items[itemIndex];
-        new_var2 = &itemIndex;
-      if ((*new_var53).active != 0)
-      {
-        new_var10 = items[itemIndex].scale;
-        if (itemIndex == 0)
+        for (; currentSlot < nextSlot; currentSlot++)
         {
-          frame = sBossTreasureItemOamFramesByPassage[gCurrentPassageTemp - 1];
+          attr = *(src++);
+          *(dest++) = attr;
+          if (gBossTreasureParticles[i][particleIndex].scaleIndex <= 1)
+          {
+            gOamBuffer[currentSlot].split.y = (gBossTreasureParticles[i][particleIndex].y >> 4) + attr;
+            gOamBuffer[currentSlot].split.affineMode = 1;
+          }
+          else
+          {
+            gOamBuffer[currentSlot].split.y = (gBossTreasureParticles[i][particleIndex].y >> 4) + attr - 8;
+            gOamBuffer[currentSlot].split.affineMode = 3;
+          }
+          attr = *(src++);
+          *(dest++) = attr;
+          if (gBossTreasureParticles[i][particleIndex].scaleIndex <= 1)
+          {
+            gOamBuffer[currentSlot].split.x = (attr + (gBossTreasureParticles[i][particleIndex].x >> 4)) & 0x1FF;
+          }
+          else
+          {
+            gOamBuffer[currentSlot].split.x = (attr + (gBossTreasureParticles[i][particleIndex].x >> 4) - 8) & 0x1FF;
+          }
+          ((BossTreasureOamData *) gOamBuffer)[currentSlot].split.affineIndex = gBossTreasureParticles[i][particleIndex].scaleIndex + 4;
+          *(dest++) = *(src++);
+          gOamBuffer[currentSlot].split.priority = 0;
+          dest++;
+        }
+      }
+    }
+  }
+
+  /* Matrices 4..7 are fixed unrotated scales used by the burst particles. */
+  matrixSlot = 17;
+  for (i = 0; i < 4; i++)
+  {
+    u16 *pbPtr;
+    u16 *pcPtr;
+    u16 *pdPtr;
+
+    pbPtr = &affine[1];
+    pcPtr = &affine[2];
+    pdPtr = &affine[3];
+    scale = (i + 1) * 96;
+    affine[0] = FixedMul(sSinCosTable[64], (s16) FixedInverse(scale));
+    *pbPtr = FixedMul(sSinCosTable[0], (s16) FixedInverse(scale));
+    *pcPtr = FixedMul((s16) -(u16) sSinCosTable[0], (s16) FixedInverse(scale));
+    matrixPd = FixedMul(sSinCosTable[64], (s16) FixedInverse(scale));
+    *pdPtr = matrixPd;
+    gOamBuffer[i * 4 + 16].all.affineParam = affine[0];
+    gOamBuffer[matrixSlot].all.affineParam = *pbPtr;
+    gOamBuffer[matrixSlot + 1].all.affineParam = *pcPtr;
+    gOamBuffer[matrixSlot + 2].all.affineParam = matrixPd;
+    matrixSlot += 4;
+  }
+
+  if (gStageEntrySequenceStep == 0)
+  {
+    for (i = 0; i <= gBossTreasureLastItemIndex; i++)
+    {
+      u16 *pdPtr;
+      s32 itemPd;
+
+      if (gBossTreasureItems[i].active != 0)
+      {
+        if (i == 0)
+        {
+          src = sBossTreasureItemOamFramesByPassage[gCurrentPassageTemp - 1];
         }
         else
         {
-          if ((char) 1)
-          {
-            do
-            {
-            }
-            while (0);
-          }
-          frame = sBossTreasureItemOamFrame;
+          src = sBossTreasureItemOamFrame;
         }
-        do
+        nextSlot += *(src++);
+        if (nextSlot > 128)
         {
-          do
-          {
-            if (1)
-            {
-              frame = frame;
-              if (1)
-              {
-                do
-                {
-                }
-                while (0);
-                if (1)
-                {
-                  if (1)
-                  {
-                    new_var20 = *(frame++);
-                    objectCount = new_var20;
-                    do
-                    {
-                      next += objectCount;
-                      if (next > 128)
-                      {
-                        return;
-                      }
-                      oam = &gOamBuffer[drawn];
-                      while (drawn < next)
-                      {
-                        new_var27 = frame++;
-                        attr0 = *new_var27;
-                        new_var72 = oam;
-                        if (1)
-                        {
-                          new_var26 = &items[itemIndex];
-                          new_var70 = &(*(frame++));
-                          *(rawOut++) = attr0;
-                          oam->split.y = (attr0 + (*new_var26).y) - 16;
-                          new_var67 = new_var70;
-                          attr1 = *new_var67;
-                          oam->split.affineMode = 3;
-                          x = *(frame++);
-                          *(rawOut++) = x;
-                          oam->split.x = ((attr1 + (*new_var26).x) - 16) & 0x1FF;
-                          oam->split.matrixNum = itemIndex;
-                        }
-                        attr2 = (*rawOut = *(frame++));
-                        new_var86 = ((u8 *) oam)[5];
-                        ((u8 *) new_var72)[5] = new_var86 & ((u8) (-13));
-                        rawOut += 2;
-                        oam++;
-                        drawn++;
-                      }
-                    }
-                    while (0);
-                  }
-                }
-              }
-            }
-          }
-          while (0);
+          return;
         }
-        while (0);
-        iconIndex = new_var10;
-        do
+        for (; currentSlot < nextSlot; currentSlot++)
         {
-          int matrixNum_ = itemIndex;
-          s16 scale_ = iconIndex;
-          OamData *matrix_;
-          const s16 *sinCosTable_;
-          u16 *affine1_;
-          u16 *affine2_;
-          u16 *affine3_;
-          new_var60 = &affine_[3];
-          new_var43 = &affine_[2];
-          new_var91 = new_var43;
-          sinCosTable_ = (const s16 *) sSinCosTable;
-          new_var75 = new_var91;
-          new_var78 = matrixNum_ * 4;
-          new_var39 = &affine_[1];
-          affine1_ = new_var39;
-          new_var59 = new_var75;
-          new_var48 = new_var59;
-          affine2_ = new_var48;
-          affine3_ = new_var60;
-          matrix_ = &gOamBuffer[new_var78];
-          new_var84 = sinCosTable_;
-          affine_[0] = FixedMul(sinCosTable_[0x40], (s16) FixedInverse(scale_));
-          *affine1_ = FixedMul(sinCosTable_[0], (s16) FixedInverse(scale_));
-          new_var50 = 0;
-          new_var35 = affine_[new_var50];
-          *affine2_ = FixedMul((-new_var84[0]) ^ 0, (s16) FixedInverse(scale_));
-          *affine3_ = FixedMul(new_var84[0x40], (s16) FixedInverse(scale_));
-          new_var65 = *affine3_;
-          matrix_[0].all.affineParam = new_var35;
-          matrix_[1].all.affineParam = *affine1_;
-          matrix_[2].all.affineParam = *affine2_;
-          (matrix_ + 3)->all.affineParam = new_var65;
+          attr = *(src++);
+          *(dest++) = attr;
+          gOamBuffer[currentSlot].split.y = (u8) gBossTreasureItems[i].y + attr - 16;
+          gOamBuffer[currentSlot].split.affineMode = 3;
+          attr = *(src++);
+          *(dest++) = attr;
+          gOamBuffer[currentSlot].split.x = (attr + gBossTreasureItems[i].x - 16) & 0x1FF;
+          ((BossTreasureOamData *) gOamBuffer)[currentSlot].split.affineIndex = i;
+          *(dest++) = *(src++);
+          gOamBuffer[currentSlot].split.priority = 0;
+          dest++;
         }
-        while (0);
+        pdPtr = &affine[3];
+        affine[0] = FixedMul(sSinCosTable[64], (s16) FixedInverse(gBossTreasureItems[i].scale));
+        {
+          u16 *pbPtr;
+          u16 *pcPtr;
+
+          pbPtr = &affine[1];
+          *pbPtr = FixedMul(sSinCosTable[0], (s16) FixedInverse(gBossTreasureItems[i].scale));
+          pcPtr = &affine[2];
+          *pcPtr = FixedMul((s16) -(u16) sSinCosTable[0], (s16) FixedInverse(gBossTreasureItems[i].scale));
+          itemPd = FixedMul(sSinCosTable[64], (s16) FixedInverse(gBossTreasureItems[i].scale));
+          *pdPtr = itemPd;
+          gOamBuffer[i * 4].all.affineParam = affine[0];
+          gOamBuffer[i * 4 + 1].all.affineParam = *pbPtr;
+          gOamBuffer[i * 4 + 2].all.affineParam = *pcPtr;
+          gOamBuffer[i * 4 + 3].all.affineParam = itemPd;
+        }
       }
-      goto dummy_label_914316;
-      dummy_label_914316:
-      ;
-
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      ;
-      itemIndex++;
-    }
-
-    if (1)
-    {
     }
   }
   else
   {
-    itemIndex = gBossTreasureLastItemIndex;
-    new_var62 = gBossTreasureItems;
-    new_var68 = ((u16) items[itemIndex].scale) > 0xFF;
-    while (itemIndex >= 0)
+    for (i = gBossTreasureLastItemIndex; i >= 0; i--)
     {
-      if (((struct BossTreasureItem *) new_var62)[itemIndex].active != 0)
+      u16 *pdPtr;
+      s32 itemPd;
+
+      if (gBossTreasureItems[i].active != 0)
       {
-        new_var36 = drawn;
-        if (itemIndex == 0)
+        if (i == 0)
         {
-          frame = sBossTreasureItemOamFramesByPassage[gCurrentPassageTemp - 1];
+          src = sBossTreasureItemOamFramesByPassage[gCurrentPassageTemp - 1];
         }
         else
         {
-          frame = sBossTreasureItemOamFrame;
+          src = sBossTreasureItemOamFrame;
         }
-        new_var17 = next;
-        affineMode = 1;
-        if (new_var68)
+        nextSlot += *(src++);
+        if (nextSlot > 128)
         {
-          affineMode = 3;
+          return;
         }
-        do
+        for (; currentSlot < nextSlot; currentSlot++)
         {
-          if (1)
+          attr = *(src++);
+          *(dest++) = attr;
+          if ((u16) gBossTreasureItems[i].scale <= 255)
           {
-            frame = frame;
-            if (1)
-            {
-              new_var58 = *(frame++);
-              objectCount = new_var58;
-              ;
-              next += objectCount;
-              oam = &gOamBuffer[new_var36];
-              if (next >= (128 + 1))
-              {
-                return;
-              }
-              while (drawn < next)
-              {
-                attr0 = *(frame++);
-                *(rawOut++) = attr0;
-                new_var9 = &items[itemIndex];
-                new_var46 = oam;
-                new_var32 = oam;
-                if (((u16) items[itemIndex].scale) <= 0xFF)
-                {
-                  ((u8 *) new_var46)[0] = attr0 + items[itemIndex].y;
-                  new_var5 = 4;
-                  new_var5 = -new_var5;
-                  ((u8 *) new_var46)[1] = (((u8 *) new_var46)[1] & new_var5) | 1;
-                }
-                else
-                {
-                  ((u8 *) new_var46)[0] = attr0 + items[itemIndex].y - 16;
-                  ((u8 *) new_var46)[1] |= 3;
-                }
-                attr1 = *(frame++);
-                new_var63 = new_var32;
-                *(rawOut++) = attr1;
-                new_var81 = 16;
-                new_var90 = (u16) ((0, items))[itemIndex].scale;
-                new_var47 = frame++;
-                if (new_var90 <= 0xFF)
-                {
-                  new_var63->split.x = attr1 + (*new_var9).x;
-                }
-                else
-                {
-                  iconIndex = attr1;
-                  new_var46->split.x = (iconIndex + (*new_var9).x) - new_var81;
-                }
-                new_var46->split.matrixNum = itemIndex;
-                attr2 = (*rawOut = *new_var47);
-                new_var20 = -13;
-                new_var81 = (u8) (new_var64 = new_var20);
-                ((u8 *) new_var46)[5] &= new_var81;
-                rawOut += 2;
-                oam++;
-                drawn++;
-              }
-            }
+            gOamBuffer[currentSlot].split.y = (u8) gBossTreasureItems[i].y + attr;
+            gOamBuffer[currentSlot].split.affineMode = 1;
           }
+          else
+          {
+            gOamBuffer[currentSlot].split.y = (u8) gBossTreasureItems[i].y + attr - 16;
+            gOamBuffer[currentSlot].split.affineMode = 3;
+          }
+          attr = *(src++);
+          *(dest++) = attr;
+          if ((u16) gBossTreasureItems[i].scale <= 255)
+          {
+            gOamBuffer[currentSlot].split.x = (attr + gBossTreasureItems[i].x) & 0x1FF;
+          }
+          else
+          {
+            gOamBuffer[currentSlot].split.x = (attr + gBossTreasureItems[i].x - 16) & 0x1FF;
+          }
+          ((BossTreasureOamData *) gOamBuffer)[currentSlot].split.affineIndex = i;
+          *(dest++) = *(src++);
+          gOamBuffer[currentSlot].split.priority = 0;
+          dest++;
         }
-        while (0);
-        do
+        pdPtr = &affine[3];
+        affine[0] = FixedMul(sSinCosTable[64], (s16) FixedInverse(gBossTreasureItems[i].scale));
         {
-          unsigned int matrixNum_ = itemIndex;
-          unsigned int scale_ = (items + itemIndex)->scale;
-          OamData *matrix_;
-          const s16 *sinCosTable_;
-          u16 *affine1_;
-          u16 *affine2_;
-          new_var71 = &affine_[2];
-          new_var61 = new_var71;
-          new_var57 = new_var61;
-          new_var77 = sharedSinCosTable;
-          sinCosTable_ = new_var77;
-          new_var34 = (affine1_ = &affine_[1]);
-          affine2_ = new_var57;
-          new_var51 = &sinCosTable_;
-          affineCosine = *(new_var29 = &sinCosTable_[0x40]);
-          new_var42 = &(*affine2_);
-          affine3_ = &affine_[3];
-          iconIndex = FixedMul(affineCosine, (s16) FixedInverse(scale_));
-          new_var83 = sinCosTable_[0];
-          *affine1_ = FixedMul(new_var83, (s16) FixedInverse(items[itemIndex].scale));
-          matrix_ = (0, &gOamBuffer[matrixNum_ * 4]);
-          *affine2_ = FixedMul(new_var80 = -new_var83, (s16) FixedInverse(items[itemIndex].scale));
-          *affine3_ = FixedMul(sinCosTable_[0x40], (s16) FixedInverse(items[itemIndex].scale));
-          new_var73 = *affine3_;
-          matrix_[0].all.affineParam = iconIndex;
-          matrix_[1].all.affineParam = *affine1_;
-          matrix_[2].all.affineParam = *new_var42;
-          matrix_[3].all.affineParam = new_var73;
-        }
-        while (0);
-      }
-      itemIndex--;
-    }
+          u16 *pbPtr;
+          u16 *pcPtr;
 
+          pbPtr = &affine[1];
+          *pbPtr = FixedMul(sSinCosTable[0], (s16) FixedInverse(gBossTreasureItems[i].scale));
+          pcPtr = &affine[2];
+          *pcPtr = FixedMul((s16) -(u16) sSinCosTable[0], (s16) FixedInverse(gBossTreasureItems[i].scale));
+          itemPd = FixedMul(sSinCosTable[64], (s16) FixedInverse(gBossTreasureItems[i].scale));
+          *pdPtr = itemPd;
+          gOamBuffer[i * 4].all.affineParam = affine[0];
+          gOamBuffer[i * 4 + 1].all.affineParam = *pbPtr;
+          gOamBuffer[i * 4 + 2].all.affineParam = *pcPtr;
+          gOamBuffer[i * 4 + 3].all.affineParam = itemPd;
+        }
+      }
+    }
   }
-  pad2 = new_var74;
-  sparkleIndex = 0;
-  while (sparkleIndex <= 10)
+
+  for (i = 0; i < 11; i++)
   {
-    new_var56 = sparkles[sparkleIndex].active;
-    if (new_var56 != 0)
+    if (gBossTreasureUnlockSparkles[i].active != 0)
     {
-      if (1)
+      src = sBossTreasureSparkleOamFrames[i];
+      nextSlot += *(src++);
+      if (nextSlot > 128)
       {
-        do
-        {
-          frame = sBossTreasureSparkleOamFrames[sparkleIndex];
-          if (1)
-          {
-            do
-            {
-            }
-            while (0);
-            if (1)
-            {
-            }
-          }
-          if (1)
-          {
-            new_var89 = *frame;
-            objectCount = new_var89;
-            next += objectCount;
-            frame++;
-            if (next > 128)
-            {
-              return;
-            }
-            if (drawn < next)
-            {
-              new_var85 = &sparkles[sparkleIndex];
-              oam = &gOamBuffer[drawn];
-              objectCount = next - drawn;
-              while (objectCount != 0)
-              {
-                attr0 = *(frame++);
-                *(rawOut++) = attr0;
-                ;
-                new_var66 = oam;
-                new_var79 = (u8) (-13);
-                new_var66->split.y = (*new_var85).y;
-                new_var66->split.y = attr0 + new_var66->split.y;
-                new_var66->split.objMode = 0;
-                attr1 = *(frame++);
-                new_var28 = new_var66;
-                *(rawOut++) = attr1;
-                new_var17 = (new_var35 = new_var79);
-                (*(new_var92 = new_var28)).split.x = attr1 + (*new_var85).x;
-                attr2 = (*rawOut = *(frame++));
-                new_var49 = 5;
-                ((u8 *) new_var92)[new_var49] &= new_var35;
-                rawOut += 2;
-                oam++;
-                drawn++;
-              }
-              objectCount--;
-            }
-          }
-        }
-        while (0);
+        return;
+      }
+      for (; currentSlot < nextSlot; currentSlot++)
+      {
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.y = gBossTreasureUnlockSparkles[i].y + attr;
+        gOamBuffer[currentSlot].split.objMode = 0;
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.x = (attr + gBossTreasureUnlockSparkles[i].x) & 0x1FF;
+        *(dest++) = *(src++);
+        gOamBuffer[currentSlot].split.priority = 0;
+        dest++;
       }
     }
-    sparkleIndex++;
   }
 
-  iconIndex = 4;
-  while (iconIndex >= 0)
+  for (i = 4; i >= 0; i--)
   {
-    if (icons[iconIndex].active != 0)
+    if (gBossTreasureUnlockIcons[i].active != 0)
     {
-      register int new_var30 asm("r6");
-      new_var86 = gCurrentPassageTemp;
-      new_var86 = new_var86 - 1;
-      do
+      src = sBossTreasureUnlockIconOamFrames[gCurrentPassageTemp - 1];
+      nextSlot += *(src++);
+      if (nextSlot > 128)
       {
-        new_var23 = &sBossTreasureUnlockIconOamFrames[new_var86];
-        frame = *new_var23;
-        if (1)
-        {
-          new_var3 = frame++;
-          new_var27 = new_var3;
-          objectCount = *new_var3;
-          next += objectCount;
-          if ((128 + 1) <= next)
-          {
-            return;
-          }
-          oam = &gOamBuffer[drawn];
-          drawn = next - drawn;
-          new_var30 = 13;
-          new_var30 = -new_var30;
-          do
-          {
-            attr0 = *(frame++);
-            new_var25 = &icons[iconIndex];
-            *(rawOut++) = attr0;
-            oam->split.y = (*new_var25).y;
-            if (1)
-            {
-              new_var = iconIndex;
-              oam->split.y = oam->split.y;
-              oam->split.y = attr0 + oam->split.y;
-            }
-            if (1)
-            {
-              oam->split.objMode = 1;
-              attr1 = *(frame++);
-            }
-            *(rawOut++) = attr1;
-            oam->split.x = (attr1 + icons[new_var].x) & 0x1FF;
-            *rawOut = (attr2 = *(frame++));
-            ((u8 *) oam)[5] &= new_var30;
-            rawOut += 2;
-            oam++;
-            drawn--;
-          }
-          while (drawn != 0);
-          attr0 = *new_var27;
-          drawn = next;
-
-        }
+        return;
       }
-      while (0);
+      for (; currentSlot < nextSlot; currentSlot++)
+      {
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.y = gBossTreasureUnlockIcons[i].y + attr;
+        gOamBuffer[currentSlot].split.objMode = 1;
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.x = (attr + gBossTreasureUnlockIcons[i].x) & 0x1FF;
+        *(dest++) = *(src++);
+        gOamBuffer[currentSlot].split.priority = 0;
+        dest++;
+      }
     }
-    iconIndex--;
   }
-
-  gOamSlotsUsed = next;
+  gOamSlotsUsed = nextSlot;
 }
-#endif
 
 void ApplyBossTreasureAffineRegisters(void)
 {

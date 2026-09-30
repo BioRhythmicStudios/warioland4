@@ -17,6 +17,12 @@ struct PassageClearParticle {
     u8 padding[3];
 };
 
+/* Both coordinates are 12.4 fixed point. */
+struct PassageClearBonusItem {
+    s16 x;
+    s16 y;
+};
+
 s32 UpdatePassageClearSequence(void);
 void InitializePassageClear(void);
 void UpdatePassageClearBanner(void);
@@ -27,9 +33,9 @@ void RenderPassageClearOam(void);
 
 extern u8 gPassageClearBlendFadeActive;
 extern u8 gPassageClearPaletteCycleState;
-extern u8 gPassageClearMainAnimationState[];
-extern u8 gPassageClearSecondaryAnimationState[];
-extern u16 gPassageClearBonusItemPositions[];
+extern struct PassageClearAnimationState gPassageClearMainAnimationState;
+extern struct PassageClearAnimationState gPassageClearSecondaryAnimationState;
+extern struct PassageClearBonusItem gPassageClearBonusItemPositions[];
 extern u8 gPassageClearBonusAnimationActive;
 extern u16 gPassageClearBonusAnimationTimer;
 extern u16 gPassageClearBonusAnimationFrame;

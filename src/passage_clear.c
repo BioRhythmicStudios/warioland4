@@ -89,13 +89,13 @@ s32 UpdatePassageClearSequence(void)
         UpdatePassageClearPaletteCycle();
 
     if (gStageEntrySequenceTimer == 22)
-        gPassageClearSecondaryAnimationState[4] = 1;
+        gPassageClearSecondaryAnimationState.state = 1;
     if (gStageEntrySequenceTimer == 45)
-        gPassageClearSecondaryAnimationState[4] = 1;
+        gPassageClearSecondaryAnimationState.state = 1;
     if (gStageEntrySequenceTimer == 152)
-        gPassageClearMainAnimationState[4] = 1;
+        gPassageClearMainAnimationState.state = 1;
     if (gStageEntrySequenceTimer == 267)
-        gPassageClearMainAnimationState[4] = 2;
+        gPassageClearMainAnimationState.state = 2;
 
     if (gStageEntrySequenceTimer == 252)
     {
@@ -104,8 +104,8 @@ s32 UpdatePassageClearSequence(void)
         VoiceSetPlay(2);
         for (i = 0; i <= 5; i++)
         {
-            gPassageClearBonusItemPositions[i * 2] = (gStageEntryMainSpriteState[2] + sPassageClearBonusItemInitialXOffsets[i]) << 4;
-            gPassageClearBonusItemPositions[i * 2 + 1] = (gStageEntryMainSpriteState[3] + sPassageClearBonusItemInitialYOffsets[i]) << 4;
+            gPassageClearBonusItemPositions[i].x = (gStageEntryMainSpriteState[2] + sPassageClearBonusItemInitialXOffsets[i]) << 4;
+            gPassageClearBonusItemPositions[i].y = (gStageEntryMainSpriteState[3] + sPassageClearBonusItemInitialYOffsets[i]) << 4;
         }
     }
 
@@ -234,12 +234,12 @@ void InitializePassageClear(void)
     gStageEntryMainSpriteState[2] = 0x1E5;
     gStageEntryMainSpriteState[3] = 0x8C;
     UpdatePassageClearBanner();
-    *(u16 *)&gPassageClearMainAnimationState[0] = zero16;
-    *(u16 *)&gPassageClearMainAnimationState[2] = zero16;
-    gPassageClearMainAnimationState[4] = zero8;
-    *(u16 *)&gPassageClearSecondaryAnimationState[0] = zero16;
-    *(u16 *)&gPassageClearSecondaryAnimationState[2] = zero16;
-    gPassageClearSecondaryAnimationState[4] = zero8;
+    gPassageClearMainAnimationState.timer = zero16;
+    gPassageClearMainAnimationState.frame = zero16;
+    gPassageClearMainAnimationState.state = zero8;
+    gPassageClearSecondaryAnimationState.timer = zero16;
+    gPassageClearSecondaryAnimationState.frame = zero16;
+    gPassageClearSecondaryAnimationState.state = zero8;
     gPassageClearBonusAnimationActive = zero8;
     gPassageClearBonusAnimationTimer = zero16;
     gPassageClearBonusAnimationFrame = zero16;
@@ -407,121 +407,104 @@ void SpawnPassageClearParticles(void)
     }
 }
 
-#ifndef NONMATCHING
-ASM_INCLUDE("asm/disasm_passage_clear_RenderPassageClearOam.s");
-#else
-/* Semantically audited WIP C for RenderPassageClearOam: 21475 / 99200
- * (78.35%), EXACT size 0x814. Rescore:
- * bash decomp_work_v2/tools/score_all.sh Passage
- * Full history/notes: decomp_work_v2/NOTES.md */
 void RenderPassageClearOam(void)
 {
-  register s32 slot asm("r9");
-  register u16 *rawDst asm("r6");
-  register int total asm("r8");
-  register const u16 *src asm("r4");
-  register OamData *oam asm("r5");
-  s32 i;
-  register struct PassageClearAnimationState *secondaryAnim;
-  s16 affine[4];
-  s32 angle;
-  s32 sine;
-  s32 inverse;
-  s32 attr2High;
-  u16 savedAttr1;
-  int unitScale;
-  int attr1Bits;
-  u8 attr3Mask;
-  u8 matrixBits;
-  int attr1Mask;
-  attr1Mask = 0xFE00;
-  slot = 0;
-  total = gOamSlotsUsed;
-  { register u32 initOff asm("r0"); initOff = ((u32) total) << 3; rawDst = (u16 *) ((u32) gOamBuffer + initOff); }
+  typedef union
   {
-    struct PassageClearAnimationState *mainAnim;
-    const struct AnimationFrame *animation;
-
-    mainAnim = (struct PassageClearAnimationState *) gPassageClearMainAnimationState;
-    if (mainAnim->state == 2)
+    struct
     {
-      mainAnim->timer++;
-      animation = sPassageClearMainAnimation;
-      if (animation[mainAnim->frame].time < mainAnim->timer)
+      u32 y : 8;
+      u32 affineMode : 2;
+      u32 objMode : 2;
+      u32 mosaic : 1;
+      u32 bpp : 1;
+      u32 shape : 2;
+
+      u32 x : 9;
+      u32 affineIndex : 3;
+      u32 preserved : 2;
+      u32 size : 2;
+
+      u16 tileNum : 10;
+      u16 priority : 2;
+      u16 paletteNum : 4;
+
+      u16 fractional : 8;
+      u16 integer : 7;
+      u16 sign : 1;
+    } split;
+
+    struct
+    {
+      u16 attr0;
+      u16 attr1;
+      u16 attr2;
+      u16 affineParam;
+    } all;
+  } PassageClearOamData;
+
+  struct PassageClearAnimationState *secondaryState;
+  const u16 *src;
+  u16 *dest;
+  u16 *pbPtr;
+  u16 *pcPtr;
+  u16 *pdPtr;
+  u16 affine[4];
+  u16 attr;
+  u16 particlePd;
+  s32 currentSlot;
+  s32 nextSlot;
+  s32 i;
+
+  currentSlot = 0;
+  nextSlot = gOamSlotsUsed;
+  dest = (u16 *) &gOamBuffer[nextSlot];
+
+  if (gPassageClearMainAnimationState.state == 2)
+  {
+    gPassageClearMainAnimationState.timer++;
+    if (sPassageClearMainAnimation[gPassageClearMainAnimationState.frame].time < gPassageClearMainAnimationState.timer)
+    {
+      gPassageClearMainAnimationState.timer = 1;
+      gPassageClearMainAnimationState.frame++;
+      if (sPassageClearMainAnimation[gPassageClearMainAnimationState.frame].time == 0)
       {
-        mainAnim->timer = 1;
-        mainAnim->frame++;
-        if (animation[mainAnim->frame].time == 0)
-        {
-          /* slot is still 0 here; the target reuses its register for the reset. */
-          mainAnim->timer = slot;
-          mainAnim->frame = slot;
-          mainAnim->state = 0;
-        }
+        gPassageClearMainAnimationState.timer = 0;
+        gPassageClearMainAnimationState.frame = 0;
+        gPassageClearMainAnimationState.state = 0;
       }
-      if (mainAnim->state == 2)
+    }
+    if (gPassageClearMainAnimationState.state == 2)
+    {
+      src = sPassageClearMainAnimation[gPassageClearMainAnimationState.frame].oam;
+      nextSlot += *(src++);
+      if (nextSlot > 128)
       {
-        src = animation[mainAnim->frame].oam;
-        total += *(src++);
-        if (total > 128)
-          goto finish;
-        if (slot < total)
-        {
-          u16 *mainState;
-          register s32 attr2Mask asm("r12");
-          register s32 coordMask asm("sl");
-
-          mainState = gStageEntryMainSpriteState;
-          attr2Mask = -13;
-          do
-          {
-            coordMask = 0x1FF;
-            oam = &gOamBuffer[slot];
-            slot = total - slot;
-            do
-            {
-              u16 value;
-              s32 coord;
-              value = *(src++);
-              savedAttr1 = oam->all.attr1;
-              *(rawDst++) = value;
-              ((u8 *)oam)[0] = value + ((u8 *)mainState)[6] - 4;
-              value = *(src++);
-              *(rawDst++) = value;
-              coord = value + mainState[2] - 2;
-              {
-                s32 preservedAttr1;
-
-                preservedAttr1 = savedAttr1;
-                coord &= coordMask;
-                preservedAttr1 &= 0xFFFFFE00;
-                oam->all.attr1 = preservedAttr1 | coord;
-              }
-              *rawDst = *(src++);
-              ((u8 *)oam)[5] &= (u8)attr2Mask;
-              rawDst += 2;
-              oam++;
-              slot--;
-            }
-            while (slot != 0);
-          }
-          while (0);
-          slot = total;
-        }
+        return;
+      }
+      for (; currentSlot < nextSlot; currentSlot++)
+      {
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.y = (u8) gStageEntryMainSpriteState[3] + attr - 4;
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.x = (attr + gStageEntryMainSpriteState[2] - 2) & 0x1FF;
+        *(dest++) = *(src++);
+        gOamBuffer[currentSlot].split.priority = 0;
+        dest++;
       }
     }
   }
+
   if (gPassageClearBonusAnimationActive != 0)
   {
-    const struct AnimationFrame *animation;
-
     gPassageClearBonusAnimationTimer++;
-    animation = sPassageClearBonusItemAnimation;
-    if (animation[gPassageClearBonusAnimationFrame].time < gPassageClearBonusAnimationTimer)
+    if (sPassageClearBonusItemAnimation[gPassageClearBonusAnimationTimer].time < gPassageClearBonusAnimationTimer)
     {
       gPassageClearBonusAnimationTimer = 1;
       gPassageClearBonusAnimationFrame++;
-      if (animation[gPassageClearBonusAnimationFrame].time == 0)
+      if (sPassageClearBonusItemAnimation[gPassageClearBonusAnimationFrame].time == 0)
       {
         gPassageClearBonusAnimationTimer = 0;
         gPassageClearBonusAnimationFrame = 0;
@@ -530,405 +513,239 @@ void RenderPassageClearOam(void)
     }
     if (gPassageClearBonusAnimationActive != 0)
     {
-      i = 0;
-      do
+      for (i = 0; i < 6; i++)
       {
-        register s32 bonusOffset asm("r12") = i << 2;
-        register s32 nextBonus asm("sl") = i + 1;
-        src = animation[gPassageClearBonusAnimationFrame].oam;
-        total += *(src++);
-        if (total > 128)
+        src = sPassageClearBonusItemAnimation[gPassageClearBonusAnimationFrame].oam;
+        nextSlot += *(src++);
+        if (nextSlot > 128)
         {
-          goto finish;
+          return;
         }
-        if (slot < total)
+        for (; currentSlot < nextSlot; currentSlot++)
         {
-          s16 *position = (s16 *)((u8 *)gPassageClearBonusItemPositions + bonusOffset);
-          oam = &gOamBuffer[slot];
-          slot = total - slot;
-          do
-          {
-            u16 value;
-            s32 coord;
-
-            value = *(src++);
-            *(rawDst++) = value;
-            ((u8 *) oam)[0] = value + ((s16) position[1] >> 4);
-            attr1Bits = oam->all.attr1;
-            value = *(src++);
-            *(rawDst++) = value;
-            coord = value + ((s16) position[0] >> 4);
-            oam->all.attr1 = (attr1Bits & 0xFE00) | (coord & 0x1FF);
-            *rawDst = *(src++);
-            ((u8 *) oam)[5] &= (u8) -13;
-            rawDst += 2;
-            oam++;
-            slot--;
-          }
-          while (slot != 0);
-          slot = total;
+          attr = *(src++);
+          *(dest++) = attr;
+          gOamBuffer[currentSlot].split.y = (gPassageClearBonusItemPositions[i].y >> 4) + attr;
+          attr = *(src++);
+          *(dest++) = attr;
+          gOamBuffer[currentSlot].split.x = (attr + (gPassageClearBonusItemPositions[i].x >> 4)) & 0x1FF;
+          *(dest++) = *(src++);
+          gOamBuffer[currentSlot].split.priority = 0;
+          dest++;
         }
-        {
-          s16 *position = (s16 *)((u8 *)gPassageClearBonusItemPositions + bonusOffset);
-          position[0] += *(const s32 *)((const u8 *)sPassageClearBonusItemXVelocities + bonusOffset);
-          position[1] += *(const s32 *)((const u8 *)sPassageClearBonusItemYVelocities + bonusOffset);
-        }
-        i = nextBonus;
+        gPassageClearBonusItemPositions[i].x += sPassageClearBonusItemXVelocities[i];
+        gPassageClearBonusItemPositions[i].y += sPassageClearBonusItemYVelocities[i];
       }
-      while (i <= 5);
     }
-  }
-  src = (const u16 *) gPassageClearBannerOam;
-  total += *(src++);
-  if (total > 128)
-  {
-    goto finish;
   }
 
-  secondaryAnim = (struct PassageClearAnimationState *) gPassageClearSecondaryAnimationState;
-  if (slot < total)
+  src = gPassageClearBannerOam;
+  nextSlot += *(src++);
+  if (nextSlot > 128)
   {
-    OamData *oamBase;
-    u16 *mainState;
-    u8 *mainStateBytes;
-    s32 attr2Mask;
-    oamBase = gOamBuffer;
-    mainState = gStageEntryMainSpriteState;
-    attr2Mask = -13;
-    oam = &oamBase[slot];
-    slot = total - slot;
-    mainStateBytes = (u8 *) mainState;
-    do
-    {
-      u16 value;
-      s32 coord;
-      value = *(src++);
-      *(rawDst++) = value;
-      ((u8 *) oam)[0] = value + mainStateBytes[6];
-      value = *(src++);
-      *(rawDst++) = value;
-      coord = value + mainState[2];
-      {
-        s32 preservedAttr1;
-        preservedAttr1 = oam->all.attr1;
-        coord &= 0x1FF;
-        preservedAttr1 &= 0xFFFFFE00;
-        oam->all.attr1 = preservedAttr1 | coord;
-      }
-      *rawDst = *(src++);
-      ((u8 *) oam)[5] &= (u8) attr2Mask;
-      rawDst += 2;
-      oam++;
-      slot--;
-    }
-    while (slot != 0);
-    slot = total;
+    return;
   }
-  if (secondaryAnim->state != 0)
+  secondaryState = &gPassageClearSecondaryAnimationState;
+  for (; currentSlot < nextSlot; currentSlot++)
   {
-    const struct AnimationFrame *animation;
+    attr = *(src++);
+    *(dest++) = attr;
+    gOamBuffer[currentSlot].split.y = (u8) gStageEntryMainSpriteState[3] + attr;
+    attr = *(src++);
+    *(dest++) = attr;
+    gOamBuffer[currentSlot].split.x = (attr + gStageEntryMainSpriteState[2]) & 0x1FF;
+    *(dest++) = *(src++);
+    gOamBuffer[currentSlot].split.priority = 0;
+    dest++;
+  }
 
-    secondaryAnim->timer++;
-    animation = sPassageClearSecondaryAltAnimation;
-    if (animation[(*secondaryAnim).frame].time < secondaryAnim->timer)
+  if (secondaryState->state != 0)
+  {
+    secondaryState->timer++;
+    if (sPassageClearSecondaryAltAnimation[secondaryState->frame].time < secondaryState->timer)
     {
-      secondaryAnim->timer = 1;
-      secondaryAnim->frame++;
-      if (animation[secondaryAnim->frame].time == 0)
+      secondaryState->timer = 1;
+      secondaryState->frame++;
+      if (sPassageClearSecondaryAltAnimation[secondaryState->frame].time == 0)
       {
-        ((struct PassageClearAnimationState *) gPassageClearMainAnimationState)->timer = 0;
-        secondaryAnim->frame = 0;
-        secondaryAnim->state = 0;
+        /* The original clears the main timer here rather than the secondary
+           one; the secondary timer is reset by the branch above instead. */
+        gPassageClearMainAnimationState.timer = 0;
+        secondaryState->frame = 0;
+        secondaryState->state = 0;
       }
     }
-    if (secondaryAnim->state != 0)
+    if (secondaryState->state != 0)
     {
-      src = animation[secondaryAnim->frame].oam;
-      total += *(src++);
-      if (total > 128)
+      src = sPassageClearSecondaryAltAnimation[secondaryState->frame].oam;
+      nextSlot += *(src++);
+      if (nextSlot > 128)
       {
-        goto finish;
+        return;
       }
-      if (slot < total)
+      for (; currentSlot < nextSlot; currentSlot++)
       {
-        oam = &gOamBuffer[slot];
-        slot = total - slot;
-        do
-        {
-          u16 value;
-          s32 coord;
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.y = (u8) gStageEntryMainSpriteState[3] + attr;
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.x = (attr + gStageEntryMainSpriteState[2] - 16) & 0x1FF;
+        *(dest++) = *(src++);
+        gOamBuffer[currentSlot].split.priority = 0;
+        dest++;
+      }
+    }
+  }
 
-          value = *(src++);
-          *(rawDst++) = value;
-          ((u8 *) oam)[0] = value + ((u8 *) gStageEntryMainSpriteState)[6];
-          value = *(src++);
-          do
-          {
-            *(rawDst++) = value;
-            coord = value + gStageEntryMainSpriteState[2] - 16;
-            oam->all.attr1 = (oam->all.attr1 & 0xFE00) | (coord & 0x1FF);
-            *rawDst = *(src++);
-          }
-          while (0);
-          ((u8 *) oam)[5] &= (u8) -13;
-          rawDst += 2;
-          oam++;
-          slot--;
-        }
-        while (slot != 0);
-        slot = total;
+  if (gPassageClearMainAnimationState.state == 1)
+  {
+    gPassageClearMainAnimationState.timer++;
+    if (sPassageClearSecondaryAnimation[gPassageClearMainAnimationState.frame].time < gPassageClearMainAnimationState.timer)
+    {
+      gPassageClearMainAnimationState.timer = 1;
+      gPassageClearMainAnimationState.frame++;
+      if (sPassageClearSecondaryAnimation[gPassageClearMainAnimationState.frame].time == 0)
+      {
+        gPassageClearMainAnimationState.timer = 0;
+        gPassageClearMainAnimationState.frame = 0;
+        gPassageClearMainAnimationState.state = 0;
+      }
+    }
+    if (gPassageClearMainAnimationState.state == 1)
+    {
+      src = sPassageClearSecondaryAnimation[gPassageClearMainAnimationState.frame].oam;
+      nextSlot += *(src++);
+      if (nextSlot > 128)
+      {
+        return;
+      }
+      for (; currentSlot < nextSlot; currentSlot++)
+      {
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.y = (u8) gStageEntryMainSpriteState[3] + attr - 4;
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.x = (attr + gStageEntryMainSpriteState[2]) & 0x1FF;
+        *(dest++) = *(src++);
+        gOamBuffer[currentSlot].split.priority = 0;
+        dest++;
       }
     }
   }
-  {
-    struct PassageClearAnimationState *mainAnim;
-    const struct AnimationFrame *animation;
 
-    mainAnim = (struct PassageClearAnimationState *) gPassageClearMainAnimationState;
-    if (mainAnim->state == 1)
-    {
-      mainAnim->timer++;
-      animation = sPassageClearSecondaryAnimation;
-      if (animation[mainAnim->frame].time < mainAnim->timer)
-      {
-        mainAnim->timer = 1;
-        mainAnim->frame++;
-        if (animation[mainAnim->frame].time == 0)
-        {
-          mainAnim->timer = 0;
-          mainAnim->frame = 0;
-          mainAnim->state = 0;
-        }
-      }
-      if (mainAnim->state == 1)
-      {
-        src = animation[mainAnim->frame].oam;
-        total += *(src++);
-        if (total > 128)
-        {
-          goto finish;
-        }
-        if (slot < total)
-        {
-          u16 *mainState = gStageEntryMainSpriteState;
-          oam = &gOamBuffer[slot];
-          slot = total - slot;
-          do
-          {
-            u16 value;
-            value = *(src++);
-            *(rawDst++) = value;
-            ((u8 *) oam)[0] = value + ((u8 *) mainState)[6] - 4;
-            value = *(src++);
-            *(rawDst++) = value;
-            attr1Bits = oam->all.attr1;
-            oam->all.attr1 = (attr1Bits & 0xFE00) | ((mainState[2] + value) & 0x1FF);
-            *rawDst = *(src++);
-            ((u8 *) oam)[5] &= (u8) -13;
-            rawDst += 2;
-            oam++;
-            slot--;
-          }
-          while (slot != 0);
-          slot = total;
-        }
-      }
-    }
-  }
-  i = 0;
+  for (i = 0; i < 5; i++)
   {
-    register struct PassageClearParticle *particle asm("sl") = gPassageClearFastParticles;
-    do
+    if (gPassageClearFastParticles[i].type != 0)
     {
-      if (particle->type != 0)
+      src = sPassageClearFastParticleOamFrames[gPassageClearFastParticles[i].type - 1];
+      nextSlot += *(src++);
+      if (nextSlot > 128)
       {
-        src = sPassageClearFastParticleOamFrames[particle->type - 1];
-        total += *(src++);
-        if (total > 128)
-        {
-          goto finish;
-        }
-        if (slot < total)
-        {
-          oam = &gOamBuffer[slot];
-          slot = total - slot;
-          do
-          {
-            u16 value;
-            s32 coord;
-            u8 matrix;
-            value = *(src++);
-            *(rawDst++) = value;
-            ((u8 *) oam)[0] = value + (particle->y >> 4);
-            ((u8 *) oam)[1] = (((u8 *) oam)[1] & (u8) -4) | 1;
-            value = *(src++);
-            *(rawDst++) = value;
-            coord = value + particle->x;
-            oam->all.attr1 = (oam->all.attr1 & attr1Mask) | (coord & 0x1FF);
-            matrix = (((particle->type - 1) / 3) + 4) & 7;
-            ((u8 *) oam)[3] = (((u8 *) oam)[3] & (u8) -15) | (matrix << 1);
-            *rawDst = *(src++);
-            ((u8 *) oam)[5] = (((u8 *) oam)[5] & (u8) -13) | 8;
-            rawDst += 2;
-            oam++;
-            slot--;
-          }
-          while (slot != 0);
-          slot = total;
-        }
-        particle->y += 60;
-        if (particle->y > 0xAA0)
-        {
-          particle->type = 0;
-        }
+        return;
       }
-      particle++;
-      i++;
-    }
-    while (i <= 4);
-  }
-  i = 0;
-  attr3Mask = (u8) -15;
-  {
-    register struct PassageClearParticle *particle asm("sl") = gPassageClearMediumParticles;
-    struct PassageClearParticle *activeParticle;
-    do
-    {
-      if (particle->type != 0)
+      for (; currentSlot < nextSlot; currentSlot++)
       {
-        src = sPassageClearMediumParticleOamFrames[particle->type - 1];
-        total += *(src++);
-        if (total > 128)
-        {
-          goto finish;
-        }
-        activeParticle = particle;
-        if (slot < total)
-        {
-          oam = &gOamBuffer[slot];
-          slot = total - slot;
-          do
-          {
-            u16 value;
-            s32 coord;
-            u8 matrix;
-            value = *(src++);
-            *(rawDst++) = value;
-            ((u8 *) oam)[0] = value + (activeParticle->y >> 4);
-            ((u8 *) oam)[1] |= 3;
-            value = *(src++);
-            *(rawDst++) = value;
-            coord = value + activeParticle->x;
-            oam->all.attr1 = (oam->all.attr1 & 0xFE00) | (coord & 0x1FF);
-            matrix = (((activeParticle->type - 1) / 3) + 2) & 7;
-            ((u8 *) oam)[3] = (((u8 *) oam)[3] & attr3Mask) | (matrix << 1);
-            *rawDst = *(src++);
-            ((u8 *) oam)[5] = (((u8 *) oam)[5] & (u8) -13) | 8;
-            rawDst += 2;
-            oam++;
-            slot--;
-          }
-          while (slot != 0);
-          slot = total;
-        }
-        activeParticle->y += 52;
-        if (activeParticle->y > 0xAA0)
-        {
-          activeParticle->type = 0;
-        }
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.y = (gPassageClearFastParticles[i].y >> 4) + attr;
+        gOamBuffer[currentSlot].split.affineMode = 1;
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.x = (attr + gPassageClearFastParticles[i].x) & 0x1FF;
+        ((PassageClearOamData *) gOamBuffer)[currentSlot].split.affineIndex = (gPassageClearFastParticles[i].type - 1) / 3 + 4;
+        *(dest++) = *(src++);
+        gOamBuffer[currentSlot].split.priority = 2;
+        dest++;
       }
-      particle++;
-      i++;
-    }
-    while (i <= 4);
-  }
-  i = 0;
-  {
-    register struct PassageClearParticle *particle asm("sl") = gPassageClearSlowParticles;
-    do
-    {
-      if (particle->type != 0)
+      gPassageClearFastParticles[i].y += 60;
+      if (gPassageClearFastParticles[i].y > 0xAA0)
       {
-        src = ((const u16 * const *) sPassageClearSlowParticleOamFrames)[particle->type - 1];
-        total += *(src++);
-        if (total > 128)
-        {
-          goto finish;
-        }
-        if (slot < total)
-        {
-          oam = &gOamBuffer[slot];
-          slot = total - slot;
-          do
-          {
-            u16 value;
-            s32 coord;
-            u8 matrix;
-            value = *(src++);
-            *(rawDst++) = value;
-            ((u8 *) oam)[0] = value + (particle->y >> 4);
-            ((u8 *) oam)[1] = (((u8 *) oam)[1] & (u8) (-4)) | 1;
-            value = *(src++);
-            *(rawDst++) = value;
-            coord = value + particle->x;
-            oam->all.attr1 = (oam->all.attr1 & 0xFE00) | (coord & 0x1FF);
-            matrix = ((particle->type - 1) / 3) & 7;
-            matrixBits = matrix << 1;
-            ((u8 *) oam)[3] = (((u8 *) oam)[3] & attr3Mask) | matrixBits;
-            *rawDst = *(src++);
-            attr2High = ((u8 *) oam)[5];
-            ((u8 *) oam)[5] = (attr2High & (u8) (-13)) | 8;
-            rawDst += 2;
-            oam++;
-            slot--;
-          }
-          while (slot != 0);
-          slot = total;
-        }
-        particle->y += 32;
-        if (particle->y > 0xAA0)
-        {
-          particle->type = 0;
-        }
+        gPassageClearFastParticles[i].type = 0;
       }
-      particle++;
-      i++;
     }
-    while (i <= 4);
   }
-  i = 0;
+
+  for (i = 0; i < 5; i++)
   {
-    register const s16 *sinTable asm("r9") = sSinCosTable;
-    register s16 *affine2 asm("sl") = &affine[2];
-    s16 *affine3 = &affine[3];
-    register OamData *affineOam asm("r6") = gOamBuffer;
-    do
+    if (gPassageClearMediumParticles[i].type != 0)
     {
-      gPassageClearParticleAffineAngles[i] += ((const s32 *) sPassageClearParticleAngleSteps)[i];
-      sine = sinTable[gPassageClearParticleAffineAngles[i] + 64];
-      inverse = FixedInverse(0x100);
-      unitScale = 0x100;
-      affine[0] = FixedMul(sine, (s16) inverse);
-      sine = sinTable[gPassageClearParticleAffineAngles[i]];
-      inverse = FixedInverse(0x100);
-      affine[1] = FixedMul(sine, (s16) inverse);
-      sine = -(u16) sinTable[gPassageClearParticleAffineAngles[i]];
-      inverse = FixedInverse(0x100);
-      *affine2 = FixedMul((s16) sine, (s16) inverse);
-      sine = sinTable[gPassageClearParticleAffineAngles[i] + 64];
-      inverse = FixedInverse(unitScale);
-      *affine3 = FixedMul(sine, (s16) inverse);
-      affineOam[0].all.affineParam = affine[0];
-      affineOam[1].all.affineParam = affine[1];
-      affineOam[2].all.affineParam = *affine2;
-      affineOam[3].all.affineParam = *affine3;
-      affineOam += 4;
-      i++;
+      src = sPassageClearMediumParticleOamFrames[gPassageClearMediumParticles[i].type - 1];
+      nextSlot += *(src++);
+      if (nextSlot > 128)
+      {
+        return;
+      }
+      for (; currentSlot < nextSlot; currentSlot++)
+      {
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.y = (gPassageClearMediumParticles[i].y >> 4) + attr;
+        gOamBuffer[currentSlot].split.affineMode = 3;
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.x = (attr + gPassageClearMediumParticles[i].x) & 0x1FF;
+        ((PassageClearOamData *) gOamBuffer)[currentSlot].split.affineIndex = (gPassageClearMediumParticles[i].type - 1) / 3 + 2;
+        *(dest++) = *(src++);
+        gOamBuffer[currentSlot].split.priority = 2;
+        dest++;
+      }
+      gPassageClearMediumParticles[i].y += 52;
+      if (gPassageClearMediumParticles[i].y > 0xAA0)
+      {
+        gPassageClearMediumParticles[i].type = 0;
+      }
     }
-    while (i <= 5);
   }
-  gOamSlotsUsed = total;
-  finish:
-  return;
+
+  for (i = 0; i < 5; i++)
+  {
+    if (gPassageClearSlowParticles[i].type != 0)
+    {
+      src = sPassageClearSlowParticleOamFrames[gPassageClearSlowParticles[i].type - 1];
+      nextSlot += *(src++);
+      if (nextSlot > 128)
+      {
+        return;
+      }
+      for (; currentSlot < nextSlot; currentSlot++)
+      {
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.y = (gPassageClearSlowParticles[i].y >> 4) + attr;
+        gOamBuffer[currentSlot].split.affineMode = 1;
+        attr = *(src++);
+        *(dest++) = attr;
+        gOamBuffer[currentSlot].split.x = (attr + gPassageClearSlowParticles[i].x) & 0x1FF;
+        ((PassageClearOamData *) gOamBuffer)[currentSlot].split.affineIndex = (gPassageClearSlowParticles[i].type - 1) / 3;
+        *(dest++) = *(src++);
+        gOamBuffer[currentSlot].split.priority = 2;
+        dest++;
+      }
+      gPassageClearSlowParticles[i].y += 32;
+      if (gPassageClearSlowParticles[i].y > 0xAA0)
+      {
+        gPassageClearSlowParticles[i].type = 0;
+      }
+    }
+  }
+
+  for (i = 0; i < 6; i++)
+  {
+    pdPtr = &affine[3];
+    gPassageClearParticleAffineAngles[i] += sPassageClearParticleAngleSteps[i];
+    affine[0] = FixedMul(sSinCosTable[gPassageClearParticleAffineAngles[i] + 64], (s16) FixedInverse(0x100));
+    pbPtr = &affine[1];
+    *pbPtr = FixedMul(sSinCosTable[gPassageClearParticleAffineAngles[i]], (s16) FixedInverse(0x100));
+    pcPtr = &affine[2];
+    *pcPtr = FixedMul((s16) -(u16) sSinCosTable[gPassageClearParticleAffineAngles[i]], (s16) FixedInverse(0x100));
+    particlePd = FixedMul(sSinCosTable[gPassageClearParticleAffineAngles[i] + 64], (s16) FixedInverse(0x100));
+    *pdPtr = particlePd;
+    gOamBuffer[i * 4].all.affineParam = affine[0];
+    gOamBuffer[i * 4 + 1].all.affineParam = *pbPtr;
+    gOamBuffer[i * 4 + 2].all.affineParam = *pcPtr;
+    gOamBuffer[i * 4 + 3].all.affineParam = particlePd;
+  }
+  gOamSlotsUsed = nextSlot;
 }
-#endif

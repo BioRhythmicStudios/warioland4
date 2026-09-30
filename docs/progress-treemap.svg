@@ -13,8 +13,8 @@
 </defs>
 <rect width="100%" height="100%" fill="#0d1117"/>
 <text x="24" y="42" class="title">Wario Land 4 Decompilation Progress</text>
-<text x="24" y="68" class="mono">Functions  ██████████████████████████████  99.9%   3,993 / 3,995</text>
-<text x="24" y="88" class="mono">Code size  ██████████████████████████████  99.3%   599,018 / 603,118 bytes</text>
+<text x="24" y="68" class="mono">Functions  ██████████████████████████████ 100.0%   3,995 / 3,995</text>
+<text x="24" y="88" class="mono">Code size  ██████████████████████████████ 100.0%   603,118 / 603,118 bytes</text>
 <text x="1256" y="68" text-anchor="end" class="sub">green = matched C</text>
 <text x="1256" y="88" text-anchor="end" class="sub">byte sizes: mixed/estimated (3,987 / 3,995 exact)</text>
 <rect x="6.00" y="112.00" width="1268.00" height="742.00" fill="#05080d" stroke="#000000" stroke-width="1"/>
@@ -1823,13 +1823,13 @@
 <rect x="800.38" y="201.10" width="5.48" height="7.17" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>passage_screen/UpdatePassageStageCursorSound: 36 bytes, matched, size=symbol</title></rect>
 </g>
 <g>
-<title>boss_treasure_cutscene: 66.2% matched, 6,004 bytes</title>
+<title>boss_treasure_cutscene: 100.0% matched, 6,004 bytes</title>
 <rect x="807.21" y="113.00" width="95.92" height="96.01" fill="#10151c" stroke="#000000" stroke-width="1"/>
 <clipPath id="moduleLabelClip22"><rect x="809.21" y="114.00" width="92.52" height="17.39"/></clipPath>
 <rect x="808.21" y="114.00" width="94.52" height="17.39" fill="#05080d"/>
 <text x="809.71" y="127.00" clip-path="url(#moduleLabelClip22)" fill="#e2e8f0" font-family="Inter, Segoe UI, sans-serif" font-size="11" font-weight="800">boss_treasur…</text>
-<text x="900.73" y="126.00" text-anchor="end" clip-path="url(#moduleLabelClip22)" fill="#94a3b8" font-family="Inter, Segoe UI, sans-serif" font-size="10" font-weight="700">66%</text>
-<rect x="808.21" y="131.39" width="47.83" height="50.93" fill="url(#unmatchedGrad)" stroke="#393b3f" stroke-opacity="0.72" stroke-width="0.45"><title>boss_treasure_cutscene/DrawBossTreasureCutsceneSprites: 2,032 bytes, not matched, size=symbol</title></rect>
+<text x="900.73" y="126.00" text-anchor="end" clip-path="url(#moduleLabelClip22)" fill="#94a3b8" font-family="Inter, Segoe UI, sans-serif" font-size="10" font-weight="700">100%</text>
+<rect x="808.21" y="131.39" width="47.83" height="50.93" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>boss_treasure_cutscene/DrawBossTreasureCutsceneSprites: 2,032 bytes, matched, size=symbol</title></rect>
 <rect x="808.21" y="182.67" width="47.83" height="25.59" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>boss_treasure_cutscene/UpdateBossTreasureCutscene: 1,028 bytes, matched, size=symbol</title></rect>
 <rect x="856.38" y="131.39" width="46.00" height="23.68" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>boss_treasure_cutscene/UpdateBossTreasureUnlockSparkles: 916 bytes, matched, size=symbol</title></rect>
 <rect x="856.38" y="155.42" width="23.97" height="20.84" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>boss_treasure_cutscene/InitializeBossTreasureCutscene: 424 bytes, matched, size=symbol</title></rect>
@@ -2843,13 +2843,13 @@
 <rect x="757.04" y="771.12" width="11.14" height="3.83" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>spoiled_rotten/func_803B13C: 40 bytes, matched, size=symbol</title></rect>
 </g>
 <g>
-<title>passage_clear: 43.7% matched, 3,672 bytes</title>
+<title>passage_clear: 100.0% matched, 3,672 bytes</title>
 <rect x="695.17" y="776.30" width="73.76" height="76.10" fill="#10151c" stroke="#000000" stroke-width="1"/>
 <clipPath id="moduleLabelClip47"><rect x="697.17" y="777.30" width="70.36" height="13.81"/></clipPath>
 <rect x="696.17" y="777.30" width="72.36" height="13.81" fill="#05080d"/>
 <text x="697.67" y="787.30" clip-path="url(#moduleLabelClip47)" fill="#e2e8f0" font-family="Inter, Segoe UI, sans-serif" font-size="8" font-weight="800">passage_cle…</text>
-<text x="766.52" y="786.30" text-anchor="end" clip-path="url(#moduleLabelClip47)" fill="#94a3b8" font-family="Inter, Segoe UI, sans-serif" font-size="7" font-weight="700">44%</text>
-<rect x="696.17" y="791.10" width="40.40" height="60.55" fill="url(#unmatchedGrad)" stroke="#393b3f" stroke-opacity="0.72" stroke-width="0.45"><title>passage_clear/RenderPassageClearOam: 2,068 bytes, not matched, size=symbol</title></rect>
+<text x="766.52" y="786.30" text-anchor="end" clip-path="url(#moduleLabelClip47)" fill="#94a3b8" font-family="Inter, Segoe UI, sans-serif" font-size="7" font-weight="700">100%</text>
+<rect x="696.17" y="791.10" width="40.40" height="60.55" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>passage_clear/RenderPassageClearOam: 2,068 bytes, matched, size=symbol</title></rect>
 <rect x="736.92" y="791.10" width="31.26" height="24.10" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>passage_clear/InitializePassageClear: 644 bytes, matched, size=symbol</title></rect>
 <rect x="736.92" y="815.55" width="15.64" height="24.86" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>passage_clear/UpdatePassageClearSequence: 336 bytes, matched, size=symbol</title></rect>
 <rect x="752.91" y="815.55" width="15.26" height="24.86" fill="url(#matchedGrad)" stroke="#2c7a41" stroke-opacity="0.72" stroke-width="0.45"><title>passage_clear/SpawnPassageClearParticles: 328 bytes, matched, size=symbol</title></rect>
