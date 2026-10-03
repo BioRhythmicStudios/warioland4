@@ -1,7 +1,4 @@
-#include "soft_reset.h"
 
-#include "gba.h"
-#include "global_data.h"
 #include "init_helpers.h"
 #include "input.h"
 #include "interrupt_callbacks.h"

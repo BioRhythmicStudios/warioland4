@@ -2,7 +2,6 @@
 
 #include "color_effects.h"
 #include "game_screen_helpers.h"
-#include "global_data.h"
 #include "main.h"
 
 

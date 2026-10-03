@@ -1,6 +1,4 @@
-#include "sprite_ai/keyzer.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"

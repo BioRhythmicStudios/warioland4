@@ -1,8 +1,6 @@
 #include "demo.h"
 
 #include "demo_input.h"
-#include "game_screen_helpers.h"
-#include "global_data.h"
 #include "interrupt_callbacks.h"
 #include "main.h"
 #include "save_file.h"

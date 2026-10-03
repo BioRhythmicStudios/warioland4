@@ -84,3 +84,5 @@ asm_cleaning*
 .asmclean_local/
 .asmclean_smart/
 *.json*
+.asmclean_autoapply
+experiments/

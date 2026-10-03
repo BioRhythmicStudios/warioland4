@@ -8,7 +8,6 @@
 #include "wario.h"
 #include "wario/swimming.h"
 #include "wario_palette.h"
-#include "global_data.h"
 #include "gba/m4a.h"
 
 u8 UpdateBouncyWario(void)

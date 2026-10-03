@@ -1,13 +1,10 @@
 #include "sprite_ai/rotating_platform.h"
 
 #include "bg_clip.h"
-#include "global_data.h"
 #include "fixed_point.h"
-#include "oam.h"
 #include "sprite.h"
 #include "sprite_util.h"
 #include "sound.h"
-#include "types.h"
 #include "wario.h"
 
 void func_8028148(void)
@@ -231,8 +228,7 @@ setDirection:
     *caseWork = caseDirection;
     caseWork++;
     /* Prevent agbcc from folding the second byte store into an offset store. */
-    asm("" : "+r"(caseWork));
-    *caseWork = caseDirection;
+    *(volatile u8 *)caseWork = caseDirection;
     caseSprite->pose = 18;
     goto done;
 
@@ -323,8 +319,7 @@ setDirection:
     *caseWork = caseDirection;
     caseWork++;
     /* Prevent agbcc from folding the second byte store into an offset store. */
-    asm("" : "+r"(caseWork));
-    *caseWork = caseDirection;
+    *(volatile u8 *)caseWork = caseDirection;
     caseSprite->pose = 20;
     goto done;
 
@@ -800,55 +795,47 @@ void SpriteRotatingPlatform(void)
 
     {
         const s16 *table;
-        register struct PrimarySpriteData *current asm("r6");
-        register s32 trig asm("r4");
+        struct PrimarySpriteData *current;
+        s32 trig0;
+        s32 trig1;
+        s32 trig2;
+        s32 trig3;
         s32 scale;
         u32 index;
         s32 inverse;
-        register u8 *angle asm("r7");
+        u8 *angle;
 
         table = sSinCosTable;
         current = &gCurrentSprite;
         angle = (u8 *)current;
         angle += 39;
-        /* agbcc otherwise copies the fixed r7 pointer before each byte load. */
-        asm("ldrb %0, [%1]" : "=r"(index) : "r"(angle));
+        index = *angle;
         index += ANGLE_HALF_PI;
         index <<= 1;
         index += (u32)table;
-        trig = *(s16 *)index;
+        trig0 = *(s16 *)index;
         scale = 256;
         inverse = FixedInverse(scale);
-        current->affinePA = FixedMul(trig, inverse);
-        asm("ldrb %0, [%1]" : "=r"(index) : "r"(angle));
+        current->affinePA = FixedMul(trig0, inverse);
+        index = *angle;
         index <<= 1;
         index += (u32)table;
-        trig = *(s16 *)index;
+        trig1 = *(s16 *)index;
         inverse = FixedInverse(scale);
-        current->affinePB = FixedMul(trig, inverse);
-        asm("ldrb %0, [%1]" : "=r"(index) : "r"(angle));
+        current->affinePB = FixedMul(trig1, inverse);
+        index = *angle;
         index <<= 1;
         index += (u32)table;
-        trig = -*(s16 *)index;
+        trig2 = -*(s16 *)index;
         inverse = FixedInverse(scale);
-        current->affinePC = FixedMul(trig, inverse);
-        asm("ldrb %0, [%1]" : "=r"(index) : "r"(angle));
+        current->affinePC = FixedMul(trig2, inverse);
+        index = *angle;
         index += ANGLE_HALF_PI;
         index <<= 1;
         index += (u32)table;
-        trig = *(s16 *)index;
+        trig3 = *(s16 *)index;
         inverse = FixedInverse(scale);
-        current->affinePD = FixedMul(trig, inverse);
-    }
-    {
-        u32 live0, live1, live2, live3, live4, live5, live6, live7;
-
-        /*
-         * This emits no instructions. It makes agbcc preserve the fixed r7
-         * angle pointer in the function prologue and epilogue.
-         */
-        asm volatile("" : "=l"(live0), "=l"(live1), "=l"(live2), "=l"(live3),
-                         "=l"(live4), "=l"(live5), "=l"(live6), "=l"(live7));
+        current->affinePD = FixedMul(trig3, inverse);
     }
 }
 

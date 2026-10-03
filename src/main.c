@@ -1,9 +1,6 @@
 #include "main.h"
 
-#include "gba.h"
-#include "types.h"
 
-#include "global_data.h"
 #include "init_helpers.h"
 #include "input.h"
 #include "interrupt_callbacks.h"

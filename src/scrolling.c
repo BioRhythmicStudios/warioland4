@@ -131,7 +131,7 @@ void PrepareVerticalScrollingTileUploads(s32 scrollDelta)
         gCurrentRoomHeader.bg1Param,
         gCurrentRoomHeader.bg2Param,
     };
-    register u32 scratch0 asm("r0");
+    u32 scratch0;
     register u32 scratch1 asm("r1");
     register u32 scratch2 asm("r2");
     s32 signedRow;
@@ -193,7 +193,7 @@ layer_loop:
     scratch0 = scratch2 << 16;
     scratch2 = scratch0 >> 16;
     scratch0 = scratch1 >> 6;
-    scratch0 = scratch2 + scratch0;
+    scratch0 = (scratch2) - (-(scratch0));
     scratch0 <<= 16;
     scratch2 = scratch0 >> 16;
     signedRow = (s32)scratch0 >> 16;
@@ -325,7 +325,7 @@ void ApplyVerticalScrollingTileUploads(void)
     register VerticalScrollingTileUpload *fieldDescriptor asm("r2");
     register u16 *source asm("r4");
     u32 sourceOffset;
-    register u32 firstTileOffset asm("r0");
+    u32 firstTileOffset;
     u32 firstMask;
     register volatile u16 *destination asm("r1");
     u32 vramBase;
@@ -333,7 +333,7 @@ void ApplyVerticalScrollingTileUploads(void)
     u8 tileCount;
     s32 copiedTiles;
     u32 blockMask;
-    register u32 rowBit asm("r8");
+    u32 rowBit;
     register u32 rowOffset asm("ip");
     u32 tileOffset;
     s32 uploadIndex;
@@ -378,7 +378,6 @@ outer_loop_vertical:
 copy_loop_vertical:
             firstTileOffset = destinationBlock;
             firstMask = blockMask;
-            asm("" : "+r"(firstTileOffset), "+r"(firstMask) : : "r2");
             firstTileOffset &= firstMask;
             tileOffset = firstTileOffset << 1;
             if ((destinationBlock & rowBit) != 0)
@@ -478,7 +477,7 @@ void PrepareHorizontalScrollingTileUploads(s32 scrollDelta)
         gCurrentRoomHeader.bg1Param,
         gCurrentRoomHeader.bg2Param,
     };
-    register u32 scratch0 asm("r0");
+    u32 scratch0;
     register u32 scratch1 asm("r1");
     register u32 scratch2 asm("r2");
     s32 signedColumn;
@@ -540,7 +539,7 @@ layer_loop:
     scratch0 = scratch2 << 16;
     scratch2 = scratch0 >> 16;
     scratch0 = scratch1 >> 6;
-    scratch0 = scratch2 + scratch0;
+    scratch0 = (scratch2) - (-(scratch0));
     scratch0 <<= 16;
     scratch2 = scratch0 >> 16;
     signedColumn = (s32)scratch0 >> 16;

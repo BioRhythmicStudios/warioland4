@@ -430,13 +430,12 @@ void PetbottomAirborne(void)
             velocity = sUnk_8352B18[index];
             if (velocity == 0x7FFF) {
                 u32 previousVelocityAddress;
-                register u16 yPosition asm("r0");
+                u16 yPosition;
 
                 previousVelocityAddress = index - 1;
                 previousVelocityAddress <<= 1;
                 previousVelocityAddress += (u32) sUnk_8352B18;
-                yPosition = gCurrentSprite.yPosition;
-                asm("" : "+r" (yPosition), "+r" (previousVelocityAddress));
+                yPosition = *(volatile u16 *)&gCurrentSprite.yPosition;
                 gCurrentSprite.yPosition = yPosition + *(const s16 *) previousVelocityAddress;
             } else {
                 u32 nextIndex;

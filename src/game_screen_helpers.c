@@ -500,10 +500,8 @@ void LoadRoom(void)
 
             overlayBuffer = (u8 *)0x0201F840;
             asm volatile("" : "+r"(overlayBuffer));
-            DecompressRoomBackground(0, selectedData, overlayBuffer);
-            /* Preserve the decompressed size in the target register before setting up DMA. */
-            /* agbcc otherwise reloads this half-size from memory instead of preserving r0. */
-            asm("mov %0, r0" : "=r"(transferSize));
+            transferSize = DecompressRoomBackground(0, selectedData, overlayBuffer);
+            asm("" : "+r"(transferSize));
             overlayDma = (struct DmaRegisters *)0x040000D4;
             overlayDma->source = (void *)0x0201F840;
             overlayDma->destination = (void *)0x06003800;
@@ -718,10 +716,11 @@ void InitializeRoomState(void)
 
     {
         u16 *tile;
-        u32 index;
-        register u8 *stageFlags asm("r6");
-        struct WarioData *wario;
+        register u32 index asm("r1");
+        u8 *stageFlags;
+        register struct WarioData *wario asm("r4");
         u16 zero;
+        register u16 nextIndex asm("r0");
         u16 music;
         u32 xPosition;
         u32 yOffset;
@@ -735,8 +734,8 @@ void InitializeRoomState(void)
         zero = 0;
         do {
             *tile++ = zero;
-            /* agbcc otherwise increments in r1 and omits the target halfword normalization through r0. */
-            asm("add r0, %0, #1\n\tlsl r0, r0, #16\n\tlsr %0, r0, #16" : "+r"(index) : : "r0");
+            nextIndex = index + 1;
+            index = nextIndex;
         } while (index <= 63);
 
         music = roomData->music;
@@ -1458,17 +1457,15 @@ void ProcessWarioTransformationMusic(void)
 
 void SelectWarioTransformationMusic(void)
 {
-    const u8 *musicIndexPointer;
+    register const u8 *musicIndexPointer asm("r1");
     u32 currentMusicIndex;
-    register u32 index asm("r3");
+    u32 index;
     struct GameMusicState *musicState;
     const u32 *specialMusicTable;
-    register u32 tableOffset asm("r0");
+    u32 tableOffset;
 
     musicIndexPointer = &gUnk_3000C36;
-    /* agbcc otherwise chooses the wrong base register for this byte load. */
-    /* agbcc otherwise emits a word load and masks it instead of the target byte load. */
-    asm("ldrb %0, [%1]" : "=r"(currentMusicIndex) : "r"(musicIndexPointer));
+    currentMusicIndex = *(volatile const u8 *)musicIndexPointer;
     index = 0;
     if (currentMusicIndex <= 16)
         index = currentMusicIndex;
@@ -1721,8 +1718,11 @@ void ProcessRoomWindowEffect(void)
                 *statePointer = 0;
             } else {
                 *timerPointer = 2;
-                /* Keep agbcc from carrying the 0x80 mask in r5 across both branches. */
-                asm("mov r0, #128\n\torr %0, r0" : "+r"(nextState) : : "r0");
+                {
+                    register u32 highBit asm("r0");
+                    highBit = 0x80;
+                    nextState |= highBit;
+                }
                 *statePointer = nextState;
             }
         }

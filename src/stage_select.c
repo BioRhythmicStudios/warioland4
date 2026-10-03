@@ -1,4 +1,3 @@
-#include "global_data.h"
 #include "background_registers.h"
 #include "color_effects.h"
 #include "stage_select.h"
@@ -16,12 +15,7 @@
 #include "game_screen_helpers.h"
 #include "interrupt_callbacks.h"
 #include "init_helpers.h"
-#include "gba/m4a.h"
-#include "gba/io_reg.h"
 
-extern void UploadColorFadePalettes(void);
-extern void FillColorFadePalettes(void);
-extern void RenderStageEntrySprites(void);
 extern void UpdateBossDoorOpeningDisplay(void);
 extern void UpdateBossDoorOpeningSprites(void);
 extern void PrepareBossDoorOpeningResult(void);

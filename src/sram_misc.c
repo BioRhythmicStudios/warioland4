@@ -1,6 +1,4 @@
-#include "sram_misc.h"
 
-#include "global_data.h"
 #include "save_file.h"
 #include "sram.h"
 

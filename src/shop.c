@@ -4,16 +4,11 @@
 #include "color_effects.h"
 #include "init_helpers.h"
 #include "interrupt_callbacks.h"
-#include "main.h"
 #include "minigame.h"
 #include "stage_select.h"
-#include "gba/m4a.h"
 
 extern s16 gUnk_3000000;
 extern s8 gUnk_3000C37;
-extern u8 gCurrentPassage;
-extern u8 gDifficulty;
-extern u8 gLanguage;
 extern u16 gMedalCount;
 extern u16 gSoundRoomMessageTimer;
 extern u16 gStageEntryWindowLeft;
@@ -62,9 +57,6 @@ extern const u8 sFileSelectBackgroundTiles[];
 extern const u8 sUnk_873D438[];
 
 void VoiceSetPlay(u16 voice);
-u32 __umodsi3(u32, u32);
-void UploadColorFadePalettes(void);
-void FillColorFadePalettes(void);
 
 u32 ItemShopSubroutine(void)
 {
@@ -354,7 +346,7 @@ void InitializeItemShop(void)
   messagePtr = &gItemShopMessageId;
   fadePtr = &gColorFading;
   availabilityAlias = gItemShopItemAvailability;
-  { register u16 * medalHint asm("r7") = &gMedalCount; asm("" : : "r"(medalHint)); }
+  { register u16 * medalHint asm("r7") = &gMedalCount; (void)medalHint; }
   prices = (const u16 (*)[9]) sUnk_872FF64;
   for (; i <= 9; i++)
   {
@@ -745,7 +737,7 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
             const u8 *blank = sUnk_873D438;
 
             do {
-                register u32 value asm("r0");
+                u32 value;
                 register u32 busy asm("r1");
                 register s32 next asm("r5");
 
@@ -753,7 +745,7 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
                 value = index << 5;
                 busy = 0x06000000;
                 value += busy;
-                value = destinationBase + value;
+                value = (destinationBase) - (-(value));
                 dma[1] = value;
                 value = 0x80000010;
                 dma[2] = value;
@@ -890,7 +882,7 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
             u32 character;
             register vu32 *dma asm("r2");
             u32 sourceOffset;
-            register u32 sourceHigh asm("r0");
+            u32 sourceHigh;
             register u32 sourceBase asm("r3");
             u32 status;
             u32 busy;
@@ -911,7 +903,7 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
             sourceHigh <<= 6;
             sourceOffset = 0x05FFFFC0;
             sourceHigh += sourceOffset;
-            sourceHigh = destinationBase + sourceHigh;
+            sourceHigh = (destinationBase) - (-(sourceHigh));
             dma[1] = sourceHigh;
             status = 0x80000010;
             dma[2] = status;
@@ -1087,13 +1079,13 @@ void DrawItemShopSprites(void)
 
         {
             const struct AnimationFrame **animationPointer;
-            register const struct AnimationFrame *animation asm("r2");
+            const struct AnimationFrame *animation;
             u16 animationFrame;
 
             {
                 register u16 timer asm("r0") = cursor->animationTimer;
                 u16 frame;
-                register const struct AnimationFrame **ap asm("r3");
+                const struct AnimationFrame **ap;
                 timer++;
                 cursor->animationTimer = timer;
                 frame = cursor->animationFrame;
@@ -1116,7 +1108,7 @@ void DrawItemShopSprites(void)
 
             {
                 u16 finalFrame = cursor->animationFrame;
-                register const struct AnimationFrame **finalPointer asm("r2") = &gItemShopCursorAnimation;
+                const struct AnimationFrame **finalPointer = &gItemShopCursorAnimation;
                 const struct AnimationFrame *finalAnimation = *finalPointer;
                 frameData = finalAnimation[finalFrame].oam;
             }
@@ -1153,7 +1145,7 @@ void DrawItemShopSprites(void)
             {
                 u32 attr;
                 register u32 temp0 asm("r0");
-                register u32 temp1 asm("r1");
+                u32 temp1;
 
                 attr = *frameData++;
                 *rawDestination++ = attr;
@@ -1165,7 +1157,7 @@ void DrawItemShopSprites(void)
                 *rawDestination++ = attr;
                 temp0 = 4;
                 temp1 = *(s16 *)((u8 *)cursor + temp0);
-                temp1 = attr + temp1;
+                temp1 = (attr) - (-(temp1));
                 attr = lowMask;
                 temp1 &= attr;
                 attr = destination->all.attr1;
@@ -1268,7 +1260,7 @@ void DrawItemShopSprites(void)
                 do
                 {
                     register u32 yOffset asm("r0");
-                    register u32 xOffset asm("r1");
+                    u32 xOffset;
                     register u32 attr asm("r2");
                     OamData *destination;
 
@@ -1299,7 +1291,7 @@ void DrawItemShopSprites(void)
 
                     attr = *frameData++;
                     *rawDestination++ = attr;
-                    xOffset = attr + xOffset;
+                    xOffset = (attr) - (-(xOffset));
                     {
                         u32 mask = 0x1FF;
                         xOffset &= mask;

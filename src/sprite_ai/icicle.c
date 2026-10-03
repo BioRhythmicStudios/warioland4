@@ -103,39 +103,38 @@ void IcicleFall(void)
         sprite->yPosition = yPosition;
         sprite->pose = 23;
     } else {
-        register u8 *indexPointer asm("ip");
+        u8 *indexPointer;
         u8 index;
         const s16 *velocities;
-        register const s16 *entry asm("r0");
+        const s16 *entry;
         s32 velocityRaw;
-        register s32 velocity asm("r1");
-        register u32 tempR6 asm("r6");
+        s32 velocity;
+        u32 tempR6;
 
-        /* agbcc otherwise forms this address with mov r6, r4; add #42. */
-        asm("mov %0, #42\n\tadd %0, %0, %1" : "=r"(tempR6) : "r"(sprite));
+        tempR6 = 42;
+        tempR6 = (u32)(tempR6 + (u8 *)sprite);
         indexPointer = (u8 *)tempR6;
         index = *(u8 *)tempR6;
         velocities = sSpriteGravityVelocityTable;
         entry = (const s16 *)((index << 1) + (u32)velocities);
         velocityRaw = *(const u16 *)entry;
         tempR6 = 0;
-        /* agbcc otherwise reuses the unsigned load instead of emitting the target ldrsh. */
-        asm("ldrsh %0, [%1, %2]" : "=r"(velocity) : "r"(entry), "r"(tempR6));
+        velocity = *(s16 *)((u8 *)entry + tempR6);
         if (velocity == 0x7FFF) {
             u32 previousOffset;
-            register u16 currentY asm("r0");
+            u16 currentY;
             s32 previousVelocity;
 
             previousOffset = index - 1;
             previousOffset <<= 1;
             previousOffset += (u32)velocities;
-            currentY = sprite->yPosition;
+            currentY = *(volatile u16 *)&sprite->yPosition;
             previousVelocity = *(const u16 *)previousOffset;
             currentY += previousVelocity;
             sprite->yPosition = currentY;
         } else {
             u8 nextIndex;
-            register u8 *pointer asm("r1");
+            u8 *pointer;
             nextIndex = index + 1;
             pointer = indexPointer;
             *pointer = nextIndex;

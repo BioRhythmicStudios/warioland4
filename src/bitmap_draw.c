@@ -1,4 +1,3 @@
-#include "bitmap_draw.h"
 #include "global_data.h"
 
 void SetBgTileColor(s32 x, s32 y, s32 color)

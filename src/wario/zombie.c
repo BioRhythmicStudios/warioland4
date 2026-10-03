@@ -362,7 +362,7 @@ void UpdateZombieWarioMotion(void)
 {
     struct WarioCollisionData *collision;
     const u8 *config;
-    register struct WarioData *wario asm("r4");
+    struct WarioData *wario;
     u16 yOffset;
     collision = &gWarioCollisionData;
     config = &sZombieWarioPoseProperties[0][0];
@@ -394,7 +394,7 @@ void UpdateZombieWarioMotion(void)
         velocity -= 8; wario->yVelocity = velocity;
     }
     {
-        register struct WarioData *clampWario asm("r4");
+        struct WarioData *clampWario;
         clampWario = wario;
         if (clampWario->yVelocity < -128) clampWario->yVelocity = -128;
     }

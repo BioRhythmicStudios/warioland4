@@ -1,9 +1,6 @@
-#include "autosave.h"
 
-#include "main.h"
 #include "save_file.h"
 #include "score.h"
-#include "types.h"
 #include "wario.h"
 
 void AutosaveStageClear(void)

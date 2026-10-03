@@ -1,8 +1,6 @@
 #include "global_data.h"
-#include "gba/m4a.h"
 #include "sound.h"
 #include "sprite.h"
-#include "sprite_ai/deburina.h"
 #include "sprite_util.h"
 #include "wario.h"
 
@@ -17,10 +15,8 @@ extern const struct AnimationFrame sDeburinaTumbleOam[];
 extern const struct AnimationFrame sDeburinaSpawnOam[];
 extern const struct AnimationFrame sDeburinaAlertOam[];
 extern const struct AnimationFrame sDeburinaLeapWindupOam[];
-extern const struct AnimationFrame sDeburinaLeapOam[];
 extern const struct AnimationFrame sDeburinaCarriedOam[];
 extern const struct AnimationFrame sDeburinaAirborneOam[];
-extern const s16 sUnk_8352B18[];
 
 void SpawnEnemyScoreDrop(u32 globalID, u32 yPosition, u32 xPosition, u32 effect);
 void SpawnSecondarySprite(u32 yPosition, u32 xPosition, u32 type);
@@ -541,7 +537,7 @@ void UpdateDeburinaThrownCrash(void)
         if (signedVelocity == threshold) {
             int previousIndexRegister;
             const u16 *previousEntry;
-            register u16 previousVelocity asm("r1");
+            u32 previousVelocity;
 
             previousIndexRegister = index - 1;
             previousIndexRegister <<= 1;
@@ -630,7 +626,12 @@ void InitDeburinaChild(void)
         flags = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
         flagsCopy = flags;
         /* Keep the zero values scheduled before the status update, as in the original. */
-        asm("movs %0, #0\n\tmovs %1, #0" : "=r"(zeroByte), "=r"(zeroHalf));
+        {
+            register u8 zeroTemp asm("r2");
+            zeroTemp = 0;
+            zeroByte = zeroTemp;
+        }
+        zeroHalf = 0;
         statusValue = flagsCopy | status;
     }
     finalStatus = statusValue & ~SPRITE_STATUS_HIDDEN;
@@ -708,7 +709,7 @@ void UpdateDeburinaChild(void)
                 {
                     struct PrimarySpriteData *currentSprite;
                     u16 currentStatus;
-                    register u16 hiddenStatus asm("r0");
+                    u32 hiddenStatus;
 
                     currentSprite = &gCurrentSprite;
                     currentSprite->disableWarioCollisionTimer = 2;

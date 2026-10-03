@@ -1,6 +1,4 @@
 #include "background_registers.h"
-#include "global_data.h"
-#include "main.h"
 #include "score.h"
 #include "sprite.h"
 #include "sprite_ai/boss_treasure.h"

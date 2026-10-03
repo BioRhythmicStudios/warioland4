@@ -528,7 +528,6 @@ void UpdateStageTimerAndScoreDrain(void)
 
 u8 LoadStageCollectiblesFromSave(void)
 {
-  register s32 reservedR0 asm("r0");
   u32 reservedR5;
   s32 passage;
   u32 stage;
@@ -743,7 +742,6 @@ u8 LoadStageCollectiblesFromSave(void)
     gCollectedKeyzer = 0;
   }
   function_end:
-  asm("" : : "r"(reservedR0));
 
 }
 
@@ -1116,7 +1114,6 @@ void DrawCurrentSecondarySprite(u32 index)
     {
         u32 currentSlot;
         /* Reserve the later loop counter across this branch so agbcc does not reuse r6 for the zero value. */
-        asm("" : "=r"(count));
         if (gUnk_3000034 != 0)
         {
             matrixBits = 0;

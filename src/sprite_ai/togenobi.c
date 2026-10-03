@@ -1,7 +1,6 @@
 #include "sprite_ai/togenobi.h"
 
 #include "fixed_point.h"
-#include "global_data.h"
 #include "main.h"
 #include "sound.h"
 #include "sprite.h"
@@ -71,14 +70,14 @@ void InitTogenobiOuterPart(void)
     status &= 0xFFFB;
     current->status = status;
     *(volatile u8*)((u8*)current + 30) = zero;
-    ptr1 = (u8*)current + 32;
+    ptr1 = (u8*)&current->drawDistanceDown;
     ptr0 = (u8*)32;
     *ptr1 = (u32)ptr0;
     ptr1++;
     *ptr1 = (u32)ptr0;
     ptr1++;
     *ptr1 = (u32)ptr0;
-    ptr0 = (u8*)current + 35;
+    ptr0 = (u8*)&current->hitboxExtentUp;
     ptr1 = (u8*)4;
     *ptr0 = (u32)ptr1;
     ptr0++;
@@ -99,19 +98,19 @@ void InitTogenobiOuterPart(void)
     temp = sizeof(struct PrimarySpriteData);
     temp *= index;
     temp += (u32)sprites;
-    parentY = *(u16*)(temp + 8);
-    parentX = *(u16*)(temp + 10);
+    parentY = ((struct PrimarySpriteData *)temp)->yPosition;
+    parentX = ((struct PrimarySpriteData *)temp)->xPosition;
     currentY = current->yPosition;
 
     if (currentY == parentY) {
         current->pOamData = sTogenobiOuterPartHorizontalOam;
         if (current->xPosition > parentX) {
-            ptr0 = (u8*)current + 40;
+            ptr0 = (u8*)&current->work1;
             *ptr0 = zero;
             ptr0--;
             *ptr0 = zero;
         } else {
-            ptr1 = (u8*)current + 40;
+            ptr1 = (u8*)&current->work1;
             *ptr1 = 2;
             ptr1--;
             *ptr1 = 128;
@@ -119,12 +118,12 @@ void InitTogenobiOuterPart(void)
     } else {
         current->pOamData = sTogenobiOuterPartVerticalOam;
         if (currentY > parentY) {
-            ptr1 = (u8*)current + 40;
+            ptr1 = (u8*)&current->work1;
             *ptr1 = 3;
             ptr1--;
             *ptr1 = 64;
         } else {
-            ptr1 = (u8*)current + 40;
+            ptr1 = (u8*)&current->work1;
             *ptr1 = 1;
             ptr1--;
             *ptr1 = 192;
@@ -149,7 +148,7 @@ void UpdateTogenobiOuterPartPosition(void)
 
     current = &gCurrentSprite;
     data = gSpriteData;
-    parentSlot = (u8*)current + 42;
+    parentSlot = (u8*)&current->work3;
     value = *parentSlot;
     asm("" : "+r"(value));
     spriteSize = sizeof(struct PrimarySpriteData);
@@ -170,11 +169,17 @@ void UpdateTogenobiOuterPartPosition(void)
     radius = 192;
     table = sSinCosTable;
     /* agbcc does not otherwise account for the fixed r7 temporary in the prologue. */
-    asm("mov r7, %1\n\tldrb %0, [r7]" : "=r"(value) : "r"(currentIp) : "r7");
+    {
+        register u8 *bytePtr asm("r7") = (u8 *)currentIp;
+        asm("ldrb %0, [r7]" : "=r"(value) : "r"(bytePtr), "r"(currentIp));
+    }
     value <<= 1;
     value += (u32)table;
     /* agbcc otherwise chooses the signed-load destination as the address register. */
-    asm("movs r7, #0\n\tldrsh %0, [%0, r7]" : "+r"(value) : : "r7");
+    {
+        register u32 zeroIndex asm("r7") = 0;
+        asm("ldrsh %0, [%0, r7]" : "+r"(value) : "r"(zeroIndex));
+    }
     currentIp = current;
     dataBase = (u32)data;
     table2 = table;
@@ -190,7 +195,7 @@ void UpdateTogenobiOuterPartPosition(void)
         value = *parentSlot;
         value *= spriteSize;
         value += dataBase;
-        value = *(u16*)(value + 8);
+        value = ((struct PrimarySpriteData *)value)->yPosition;
         value -= other;
     } else {
         value *= radius;
@@ -202,7 +207,7 @@ void UpdateTogenobiOuterPartPosition(void)
         other *= spriteSize;
         other += dataBase;
         value = (u32)value >> 16;
-        other = *(u16*)(other + 8);
+        other = ((struct PrimarySpriteData *)other)->yPosition;
         value += other;
     }
     currentIp->yPosition = value;
@@ -227,7 +232,7 @@ void UpdateTogenobiOuterPartPosition(void)
         value = sizeof(struct PrimarySpriteData);
         value *= other;
         value += dataBase;
-        value = *(u16*)(value + 10);
+        value = ((struct PrimarySpriteData *)value)->xPosition;
         value -= offsetX;
         current->xPosition = value;
     } else {
@@ -242,10 +247,13 @@ void UpdateTogenobiOuterPartPosition(void)
         value *= offsetX;
         value += dataBase;
         other = (u32)other >> 16;
-        value = *(u16*)(value + 10);
+        value = ((struct PrimarySpriteData *)value)->xPosition;
         other += value;
         /* agbcc otherwise materializes the offset address instead of using strh #10. */
-        asm("mov r7, %1\n\tstrh %0, [r7, #10]" : : "r"(other), "r"(currentIp) : "r7");
+        {
+            register u8 *currentStore asm("r7") = (u8 *)&currentIp->status;
+            asm("strh %0, [r7, #10]" : : "r"(other), "r"(currentStore));
+        }
     }
 }
 
@@ -346,7 +354,7 @@ void InitTogenobiInnerPart(void)
     *(volatile u8*)((u8*)current + 22) = zero;
     current->animationTimer = zeroTimer;
     current->pose = distance;
-    work0 = (u8*)current + 39;
+    work0 = (u8*)&current->work0;
     *work0 = zero;
 
     FindTogenobiPartSlot(PSPRITE_TOGENOBI_OUTER_PART);
@@ -358,30 +366,30 @@ void InitTogenobiInnerPart(void)
     temp = sizeof(struct PrimarySpriteData);
     temp *= index;
     temp += (u32)sprites;
-    parentY = *(u16*)(temp + 8);
-    parentX = *(u16*)(temp + 10);
+    parentY = ((struct PrimarySpriteData *)temp)->yPosition;
+    parentX = ((struct PrimarySpriteData *)temp)->xPosition;
     currentY = current->yPosition;
 
     if (currentY == parentY) {
         if (current->xPosition > parentX) {
-            work1 = (u8*)current + 40;
+            work1 = (u8*)&current->work1;
             *work1 = zero;
             *work0 = zero;
         } else {
-            work1 = (u8*)current + 40;
+            work1 = (u8*)&current->work1;
             workValue = 2;
             *work1 = workValue;
             temp = 128;
             *work0 = temp;
         }
     } else if (currentY > parentY) {
-        work1 = (u8*)current + 40;
+        work1 = (u8*)&current->work1;
         workValue = 3;
         *work1 = workValue;
         temp = 192;
         *work0 = temp;
     } else {
-        work1 = (u8*)current + 40;
+        work1 = (u8*)&current->work1;
         workValue = 1;
         *work1 = workValue;
         temp = 64;
@@ -426,7 +434,7 @@ void UpdateTogenobiInnerPartPosition(void)
     value = *(u8*)value;
     value *= reg3;
     value += reg2;
-    value = *(u16*)(value + 20);
+    value = ((struct PrimarySpriteData *)value)->animationTimer;
     value--;
     dataBase = reg2;
 
@@ -485,10 +493,10 @@ void UpdateTogenobiInnerPartPosition(void)
         value = sizeof(struct PrimarySpriteData);
         value *= reg1;
         value += dataBase;
-        value = *(u16*)(value + 8);
+        value = ((struct PrimarySpriteData *)value)->yPosition;
         value -= reg2;
         reg1 = (u32)current;
-        *(u16*)(reg1 + 8) = value;
+        ((struct PrimarySpriteData *)reg1)->yPosition = value;
     } else {
         value *= reg2;
         preservedRadius = reg2 << 16;
@@ -503,10 +511,10 @@ void UpdateTogenobiInnerPartPosition(void)
         value *= reg2;
         value += dataBase;
         reg1 = (u32)reg1 >> 16;
-        value = *(u16*)(value + 8);
+        value = ((struct PrimarySpriteData *)value)->yPosition;
         reg1 += value;
         reg2 = (u32)current;
-        *(u16*)(reg2 + 8) = reg1;
+        ((struct PrimarySpriteData *)reg2)->yPosition = reg1;
     }
 
     reg3 = (u32)current;
@@ -534,9 +542,9 @@ void UpdateTogenobiInnerPartPosition(void)
         value = sizeof(struct PrimarySpriteData);
         value *= reg1;
         value += dataBase;
-        value = *(u16*)(value + 10);
+        value = ((struct PrimarySpriteData *)value)->xPosition;
         value -= reg2;
-        *(u16*)(reg3 + 10) = value;
+        ((struct PrimarySpriteData *)reg3)->xPosition = value;
     } else {
         value = preservedRadius >> 16;
         value *= reg1;
@@ -551,10 +559,10 @@ void UpdateTogenobiInnerPartPosition(void)
         value *= reg2;
         value += dataBase;
         reg1 = (u32)reg1 >> 16;
-        value = *(u16*)(value + 10);
+        value = ((struct PrimarySpriteData *)value)->xPosition;
         reg1 += value;
         reg3 = (u32)current;
-        *(u16*)(reg3 + 10) = reg1;
+        ((struct PrimarySpriteData *)reg3)->xPosition = reg1;
     }
 }
 
@@ -577,14 +585,14 @@ void InitTogenobiCenterPart(void)
     status &= 0xFFFB;
     ptr = (u8*)sprite;
     *(u16*)ptr = status;
-    ptr[30] = zero;
+    ((struct PrimarySpriteData *)ptr)->warioCollision = zero;
     ptr += 32;
     *ptr = 40;
     ptr++;
     *ptr = 40;
     ptr++;
     *(volatile u8 *)ptr = 40;
-    hitbox = (u8*)sprite + 35;
+    hitbox = (u8*)&sprite->hitboxExtentUp;
     *hitbox = 4;
     hitbox++;
     *hitbox = 4;

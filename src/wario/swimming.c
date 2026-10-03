@@ -2,9 +2,6 @@
 
 #include "bg_clip.h"
 #include "door.h"
-#include "gba/m4a.h"
-#include "global_data.h"
-#include "input.h"
 #include "main.h"
 #include "score.h"
 #include "screen_shake.h"
@@ -1194,7 +1191,6 @@ handleStateResult:
     }
 
 stateHandled:
-    asm("" : "=r"(wario));
     filterWario = &gWarioData;
     poseValue = filterWario->pose;
     wario = filterWario;
@@ -1211,7 +1207,6 @@ greaterPose:
         goto collisionDone;
 
 processCollision:
-    asm("" : "=r"(collisionWario));
     collisionWario = wario;
     groundResult = GetBackgroundCollisionAtPosition(collisionWario->yPosition - 0x30, collisionWario->xPosition);
     groundResult &= 0xFF;

@@ -1,12 +1,10 @@
 #include "sprite_ai/beezley.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_collision.h"
 #include "sprite_util.h"
-#include "types.h"
 #include "wario.h"
 
 s32 func_804012C(void)

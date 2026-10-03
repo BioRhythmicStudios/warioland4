@@ -1,16 +1,12 @@
 #include "cutscenes.h"
-#include "gba/m4a.h"
 #include "global_data.h"
-#include "input.h"
 #include "interrupt_callbacks.h"
-#include "main.h"
 #include "minigame_transition.h"
 
 #define DMA_COPY_32(count) (((DMA_ENABLE | DMA_32BIT) << 16) | (count))
 
 void UpdateAffineCutsceneBackground(u16 frame);
 void UpdateCutsceneSequence150(u16 frame);
-void UpdateCutsceneDisplayTimeline(u16 frame);
 void UpdateCutsceneBackgroundVariantTransition(u16 frame);
 void UpdateLayeredBackgroundTransition(u16 frame);
 void UpdateLayeredSpriteCutsceneSequence(u16 frame);
@@ -19,10 +15,7 @@ void func_80058AC(u16 frame);
 void UpdateLayeredSubGameCutscene(u16 frame);
 void UpdateLayeredEndingCutsceneSequence(u16 frame);
 void UpdateLayeredWarioCutsceneSequence(u16 frame);
-void UpdateAffineWarioCutscene(u16 frame);
 void UpdateEndingScrollCutscene(u16 frame);
-void UpdateTitleScreenLogoCutscene(u16 frame);
-void CountEndingTreasuresAndSelectTier(void);
 void BuildCutsceneBackgroundAffineMatrix(u16 *affineRegisters, u16 rotation, u16 scaleX, u16 scaleY, s32 centerX, s32 centerY);
 
 void ResetPrimaryCutsceneAffineState(void)

@@ -1,6 +1,5 @@
 #include "block.h"
 #include "global_data.h"
-#include "gba/m4a.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_ai/crumbling_block.h"

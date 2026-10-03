@@ -1,11 +1,7 @@
-#include "fixed_point.h"
-#include "global_data.h"
-#include "gba/m4a.h"
 #include "main.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"
-#include "sprite_ai/skeleton_bird.h"
 #include "sprite_util.h"
 #include "wario.h"
 
@@ -151,11 +147,11 @@ void UpdateSkeletonBirdMoveLeft(void)
     delta = sSkeletonBirdBobYSpeed[index];
     if (delta == S16_MAX) {
         u32 previousIndex = index - 1;
-        register u16 yPosition asm("r0");
+        u16 yPosition;
         s16 previousSpeed;
         previousIndex <<= 1;
         previousIndex += (u32)sSkeletonBirdBobYSpeed;
-        yPosition = bobSprite->yPosition;
+        yPosition = *(volatile u16 *)&bobSprite->yPosition;
         previousSpeed = *(const s16 *)previousIndex;
         yPosition += previousSpeed;
         bobSprite->yPosition = yPosition;
@@ -218,11 +214,11 @@ void UpdateSkeletonBirdMoveRight(void)
     delta = sSkeletonBirdBobYSpeed[index];
     if (delta == S16_MAX) {
         u32 previousIndex = index - 1;
-        register u16 yPosition asm("r0");
+        u16 yPosition;
         s16 previousSpeed;
         previousIndex <<= 1;
         previousIndex += (u32)sSkeletonBirdBobYSpeed;
-        yPosition = bobSprite->yPosition;
+        yPosition = *(volatile u16 *)&bobSprite->yPosition;
         previousSpeed = *(const s16 *)previousIndex;
         yPosition += previousSpeed;
         bobSprite->yPosition = yPosition;
@@ -286,7 +282,7 @@ void UpdateSkeletonBirdAttackWindup(void)
 {
     struct PrimarySpriteData *currentSprite = &gCurrentSprite;
     u8 *countdown;
-    register u8 timer asm("r0");
+    u32 timer;
     register struct PrimarySpriteData *savedSprite asm("r12");
     u8 remaining;
 

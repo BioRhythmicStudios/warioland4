@@ -1,6 +1,5 @@
 #include "sprite_ai/pencil.h"
 
-#include "gba/m4a.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_util.h"
@@ -103,12 +102,9 @@ startMoving:
 void PencilMoveRight(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *timer asm("r1");
-
     sprite = &gCurrentSprite;
     sprite->xPosition += 8;
-    timer = &sprite->work0;
-    if ((*timer = *timer - 1) == 0) {
+    if (--sprite->work0 == 0) {
         sprite->pose = PENCIL_POSE_IDLE;
         sprite->warioCollision = PENCIL_COLLISION_IDLE;
     }
@@ -159,12 +155,9 @@ startMoving:
 void PencilMoveLeft(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *timer asm("r1");
-
     sprite = &gCurrentSprite;
     sprite->xPosition -= 8;
-    timer = &sprite->work0;
-    if ((*timer = *timer - 1) == 0) {
+    if (--sprite->work0 == 0) {
         sprite->pose = PENCIL_POSE_IDLE;
         sprite->warioCollision = PENCIL_COLLISION_IDLE;
     }

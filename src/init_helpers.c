@@ -1,6 +1,4 @@
-#include "init_helpers.h"
 
-#include "input.h"
 #include "interrupts.h"
 #include "oam.h"
 

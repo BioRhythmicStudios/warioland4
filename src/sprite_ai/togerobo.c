@@ -1,12 +1,9 @@
 #include "sprite_ai/togerobo.h"
 
-#include "global_data.h"
 #include "fixed_point.h"
 #include "score.h"
 #include "sound.h"
-#include "sprite.h"
 #include "sprite_util.h"
-#include "types.h"
 #include "wario.h"
 
 void func_8035668(void)

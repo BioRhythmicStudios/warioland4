@@ -669,7 +669,11 @@ void InitHomerunDerby(void)
             pitchLevelOutput = pitchLevelPointer;
             *pitchLevelOutput = dmaStatus;
         } else {
-            asm("mov r7, %0\n\tstrb r1, [r7]" : : "r"(pitchLevelPointer));
+            {
+                register u8 *pitchLevelStore asm("r7") = pitchLevelPointer;
+
+                asm("strb r1, [r7]" : : "r"(pitchLevelStore) : "memory");
+            }
         }
     }
 
@@ -997,7 +1001,7 @@ done:
 s32 UpdateHomerunHitBall(void)
 {
     struct HomerunBallState *ballState;
-    s32 xPosition;
+    register s32 xPosition asm("r4");
     s32 yPosition;
     register s32 nextXPosition asm("r3");
     s32 nextYPosition;
@@ -1067,7 +1071,8 @@ s32 UpdateHomerunHitBall(void)
 
                     xPosition = 0xC0;
                     xPosition <<= 1;
-                    asm("add %0, %1, #0" : "=r"(screenOffset) : "r"(xPosition));
+                    asm("" : "+r"(xPosition));
+                    screenOffset = xPosition;
                     backgroundY += screenOffset;
                     backgroundY &= coordinateMask;
                     *backgroundYRegister = backgroundY;
@@ -1191,7 +1196,7 @@ void DrawHomerunDerby(void)
   register u8 *stackFrame asm("sp");
   u32 animationCounterLimit;
   register u32 oamXMask asm("sl");
-  register s32 oamAttributeMask asm("ip");
+  s32 oamAttributeMask;
   register long preservedOamBits;
   register OamByte *dataPointer asm("r2");
   OamByte *oamBuffer;
@@ -1667,12 +1672,22 @@ void DrawHomerunDerby(void)
     if (((s32) firstOamIndex) < nextOamIndex)
     {
       positionValue = (s32) ((OamByte *) gOamBuffer);
-      asm("ldr r2, [pc, #356]\nmov ip, r2");
+      {
+        register u32 maskSeed asm("r2");
+        asm("ldr %0, [pc, #356]" : "=r"(maskSeed));
+        oamAttributeMask = maskSeed;
+      }
       workingOffset = firstOamIndex << 3;
       staticOamBytes = (OamByte *) (workingOffset + positionValue);
       objectState = (OamByte *) oamXMaskValue;
-      asm("movs r0, #15\nneg r0, r0\nmov sl, r0");
-      asm("mov r1, r8\nsub r7, r1, r7");
+      {
+        register u8 negativeMaskSeed asm("r0") = 15;
+        oamByteMask = -(int)negativeMaskSeed;
+      }
+      {
+        register s32 nextCount asm("r1") = nextOamIndex;
+        asm("sub %0, %1, %0" : "+r"(firstOamIndex) : "r"(nextCount) : "cc");
+      }
       do
       {
         oamCoordinate12 = *(frameData++);
@@ -2172,7 +2187,7 @@ s32 UpdateHomerunBonusAnimation(void)
 void StartHomerunBonusAnimation(void)
 {
     struct HomerunBonusState *bonusState;
-    register s32 evenRandomBase asm("r1");
+    s32 evenRandomBase;
     s32 direction;
     u32 randomValue;
     u8 cycleIndex;
@@ -2181,7 +2196,7 @@ void StartHomerunBonusAnimation(void)
     randomValue = MinigameRandom();
     bonusState = (struct HomerunBonusState *)gHomerunBonusAnimation;
     evenRandomBase = randomValue >> 0x1F;
-    evenRandomBase = randomValue + evenRandomBase;
+    evenRandomBase = (randomValue) - (-(evenRandomBase));
     evenRandomBase = evenRandomBase >> 1;
     evenRandomBase <<= 1;
     direction = randomValue - evenRandomBase;

@@ -3,20 +3,17 @@
 #include "background_registers.h"
 #include "color_effects.h"
 #include "fixed_point.h"
-#include "global_data.h"
 #include "hblank.h"
 #include "interrupt_callbacks.h"
 #include "main.h"
 #include "score.h"
 
-#include "gba/m4a.h"
 
 s32 RunCurrentPassageStageEnd(void);
 
 void UpdateStageEndAffineTransform(void);
 void UpdateStageEndScale(void);
 void InitStageEndAffine(void);
-void StageEndVBlank(void);
 void InitStageEndVBlank(void);
 void UpdateStageEndBlend(void);
 

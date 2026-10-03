@@ -1,6 +1,5 @@
 #include "sprite_ai/spiky.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sprite.h"
 #include "sprite_util.h"

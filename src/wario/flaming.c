@@ -241,7 +241,7 @@ u8 FlamingWarioEngulfed(void)
     struct WarioData *wario;
     const struct FlamingWarioGraphicsFrame *frames;
     register u16 held asm("r3");
-    register u16 active asm("r4");
+    u32 active;
     register u16 direction asm("r1");
     u16 timer;
     u8 zero;
@@ -400,7 +400,7 @@ void SetFlamingWarioPose(u8 pose)
             config += 7;
             tableOffset += (u32)config;
             if (*(const u8 *)tableOffset != 2) {
-                register u8 nextPose asm("r0");
+                u32 nextPose;
 
                 nextPose = currentPose + 1;
                 target->pose = nextPose;
@@ -419,7 +419,7 @@ void SetFlamingWarioPose(u8 pose)
             const u8 *config;
             struct WarioData *target;
             u8 currentPose;
-            register u32 tableOffset asm("r1");
+            u32 tableOffset;
             struct WarioData *copy;
 
             config = &sFlamingWarioPoseProperties[0][0];
@@ -430,7 +430,7 @@ void SetFlamingWarioPose(u8 pose)
             config += 7;
             tableOffset += (u32)config;
             if (*(const u8 *)tableOffset == 2) {
-                register u8 previousPose asm("r0");
+                u32 previousPose;
 
                 previousPose = currentPose - 1;
                 target->pose = previousPose;
@@ -648,7 +648,7 @@ void ProcessFlamingWarioCollision(void)
     if (flags & 0x40) {
         movementResult = ResolveWarioFloorCollision();
     } else {
-        register u16 mask asm("r0");
+        u32 mask;
         mask = 0x80;
         mask &= flags;
         if (mask != 0) {

@@ -1,10 +1,7 @@
-#include "sprite_ai/glass_bird.h"
 
-#include "global_data.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_util.h"
-#include "types.h"
 
 extern const struct AnimationFrame sGlassBirdOam[];
 extern const struct AnimationFrame sGlassBirdFragmentOam[];

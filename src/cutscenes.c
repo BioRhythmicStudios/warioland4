@@ -2185,7 +2185,7 @@ void InitializeSubGameTransitionGraphics(void)
         s16 zero;
         s32 activeVariant;
         register s16 verticalValue asm("r1");
-        register s16 negativeValue asm("r0");
+        s32 negativeValue;
         s16 *verticalPointer;
         vu16 *scrollRegister;
 
@@ -2526,10 +2526,10 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
         register s32 animationZero asm("r7");
 
         animationValue = (s32) &gCutsceneAnimationFinished;
-        asm(
-          "movs %1, #0\n"
-          "ldrsh %0, [%0, %1]"
-          : "+r"(animationValue), "=r"(animationZero));
+        asm("" : "+r"(animationValue));
+        animationZero = 0;
+        asm("" : "+r"(animationZero));
+        asm("ldrsh %0, [%0, %1]" : "+r"(animationValue) : "r"(animationZero));
         if (animationValue == 109)
         {
           InitCutsceneDarkenBlend(63);
@@ -2618,11 +2618,8 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
 
       appendOamData = oamData;
       appendYPointer = &gUnk_3002C9E;
-      asm(
-        "movs %1, #0\n"
-        "ldrsh %0, [%2, %1]"
-        : "=r"(appendYValue), "=r"(appendYZero)
-        : "r"(appendYPointer));
+      appendYZero = 0;
+      asm("ldrsh %0, [%1, %2]" : "=r"(appendYValue) : "r"(appendYPointer), "r"(appendYZero));
       destination = AppendCutsceneOamTemplate(appendOamData, destination, appendYValue, gLayeredCutsceneOamOffsetX);
       (*appendYPointer)++;
     }
@@ -3077,7 +3074,7 @@ void UpdateLayeredEndingCutsceneSequence(s32 inputFrame)
           if ((frame & 7) == 7)
           {
             vu16 *blendRegister;
-            register u16 alphaB asm("r1");
+            u32 alphaB;
             register u16 alphaResult asm("r0");
             blendRegister = (vu16 *) 0x04000052;
             {

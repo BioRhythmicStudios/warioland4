@@ -2,14 +2,10 @@
 
 #include "background_registers.h"
 #include "fixed_point.h"
-#include "global_data.h"
 #include "init_helpers.h"
 #include "minigame.h"
 #include "score.h"
 #include "stage_select.h"
-#include "gba/io_reg.h"
-#include "gba/m4a.h"
-#include "gba/syscall.h"
 
 struct BossTreasureItem
 {

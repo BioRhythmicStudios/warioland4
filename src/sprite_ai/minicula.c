@@ -1,4 +1,3 @@
-#include "sprite_ai/minicula.h"
 
 #include "sprite.h"
 
@@ -7,18 +6,22 @@ void func_8026450(void);
 
 void InitMinicula(void)
 {
-    int zero;
+    register int zero asm("r3");
     int zeroHalfword;
     u16 status;
-    int statusMask;
-    int newStatus;
+    register int statusMask asm("r2");
+    register int newStatus asm("r0");
     struct PrimarySpriteData *sprite;
 
     sprite = &gCurrentSprite;
     status = sprite->status;
     statusMask = 0x80;
     statusMask <<= 3;
-    asm("add r0, r2, #0\n\tmov r3, #0\n\tmov r4, #0" : "=r" (newStatus), "=r" (zero), "=r" (zeroHalfword) : "r" (statusMask));
+    asm("" : : "r"(statusMask));
+    newStatus = statusMask;
+    asm("" : : "r"(newStatus));
+    zero = 0;
+    zeroHalfword = 0;
     newStatus |= status;
     sprite->status = newStatus;
     sprite->warioCollision = 19;

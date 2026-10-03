@@ -1,11 +1,9 @@
 #include "sprite_ai/goggley_blade.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_util.h"
-#include "wario.h"
 
 
 void InitGoggleyBlade(void)

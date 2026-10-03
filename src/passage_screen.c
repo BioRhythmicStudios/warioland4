@@ -1629,7 +1629,7 @@ void DrawPassageScreenSprites(void)
       locals.stateOffset = stateZero;
       do
       {
-        register const struct AnimationFrame *animation asm("r3");
+        const struct AnimationFrame *animation;
         register u8 *stateBase asm("r0");
         s32 stateIndex;
         struct PassageIconState *iconState;
@@ -1646,7 +1646,7 @@ void DrawPassageScreenSprites(void)
             do
             {
               struct PassageIconState *advanceState;
-              register const struct AnimationFrame *advanceAnimation asm("r3");
+              const struct AnimationFrame *advanceAnimation;
               u32 advanceTimer;
               u32 advanceFrame;
               advanceState = state;
@@ -1709,7 +1709,7 @@ void DrawPassageScreenSprites(void)
                 {
                   u32 attr;
                   register u32 value asm("r0");
-                  register u32 x asm("r1");
+                  u32 x;
                   attr = *(drawFrame++);
                   *(copy++) = attr;
                   value = attr;
@@ -1721,7 +1721,7 @@ void DrawPassageScreenSprites(void)
                   value <<= 4;
                   value += coordinateOffset;
                   x = *((const s32 *) (((const u8 *) sUnk_863C584) + value));
-                  x = attr + x;
+                  x = (attr) - (-(x));
                   attr = 0x1FF;
                   x &= attr;
                   attr = *((u16 *) (screen + 2));
@@ -1890,7 +1890,7 @@ void DrawPassageScreenSprites(void)
                   {
                     u32 attr;
                     register u32 value asm("r0");
-                    register u32 x asm("r1");
+                    u32 x;
                     attr = *(drawFrame++);
                     *(copy++) = attr;
                     value = attr;
@@ -1902,7 +1902,7 @@ void DrawPassageScreenSprites(void)
                     value <<= 4;
                     value += coordinateOffset;
                     x = *((const s32 *) (((const u8 *) sUnk_863C584) + value));
-                    x = attr + x;
+                    x = (attr) - (-(x));
                     attr = 0x1FF;
                     x &= attr;
                     attr = *((u16 *) (screen + 2));
@@ -1978,7 +1978,7 @@ void DrawPassageScreenSprites(void)
                   {
                     u32 attr;
                     register u32 value asm("r0");
-                    register u32 x asm("r1");
+                    u32 x;
                     attr = *(drawFrame++);
                     *(copy++) = attr;
                     value = attr;
@@ -1990,7 +1990,7 @@ void DrawPassageScreenSprites(void)
                     value <<= 4;
                     value += coordinateOffset;
                     x = *((const s32 *) (((const u8 *) sUnk_863C584) + value));
-                    x = attr + x;
+                    x = (attr) - (-(x));
                     attr = 0x1FF;
                     x &= attr;
                     attr = *((u16 *) (screen + 2));
@@ -2066,7 +2066,7 @@ void DrawPassageScreenSprites(void)
                   {
                     u32 attr;
                     register u32 value asm("r0");
-                    register u32 x asm("r1");
+                    u32 x;
                     attr = *(drawFrame++);
                     *(copy++) = attr;
                     value = attr;
@@ -2078,7 +2078,7 @@ void DrawPassageScreenSprites(void)
                     value <<= 4;
                     value += coordinateOffset;
                     x = *((const s32 *) (((const u8 *) sUnk_863C584) + value));
-                    x = attr + x;
+                    x = (attr) - (-(x));
                     attr = 0x1FF;
                     x &= attr;
                     attr = *((u16 *) (screen + 2));
@@ -2154,7 +2154,7 @@ void DrawPassageScreenSprites(void)
                   {
                     u32 attr;
                     register u32 value asm("r0");
-                    register u32 x asm("r1");
+                    u32 x;
                     attr = *(drawFrame++);
                     *(copy++) = attr;
                     value = attr;
@@ -2166,7 +2166,7 @@ void DrawPassageScreenSprites(void)
                     value <<= 4;
                     value += coordinateOffset;
                     x = *((const s32 *) (((const u8 *) sUnk_863C584) + value));
-                    x = attr + x;
+                    x = (attr) - (-(x));
                     attr = 0x1FF;
                     x &= attr;
                     attr = *((u16 *) (screen + 2));
@@ -2251,7 +2251,7 @@ void DrawPassageScreenSprites(void)
         {
           do
           {
-            register const u16 *drawFrame asm("r3");
+            const u16 *drawFrame;
             register u32 frameValue asm("r0");
             frameValue = (u32)sUnk_86413BC;
             drawFrame = *(const u16 **)frameValue;
@@ -2333,7 +2333,7 @@ void DrawPassageScreenSprites(void)
           while (0);
         }
         {
-          register union { unsigned long long q; struct { u32 lo; u32 hi; } w; } pair23 asm("r2");
+          union { unsigned long long q; struct { u32 lo; u32 hi; } w; } pair23;
           register s32 nextIndex asm("r4");
           pair23.w.hi = 4;
           tableOffset += pair23.w.hi;
@@ -2523,7 +2523,7 @@ void DrawPassageScreenSprites(void)
         do
         {
           register u32 attr asm("r2");
-          register u32 value asm("r0");
+          u32 value;
           register u32 x asm("r1");
           attr = *(drawFrame++);
           *(copy++) = attr;
@@ -2552,7 +2552,7 @@ void DrawPassageScreenSprites(void)
           }
           value <<= 4;
           x = locals.scratch;
-          value = x + value;
+          value = (x) - (-(value));
           {
             const s32 *coordinateTable;
             coordinateTable = sUnk_863C5B4;
@@ -2671,7 +2671,7 @@ void DrawPassageScreenSprites(void)
           {
             u32 attr;
             register s32 value asm("r0");
-            register s32 x asm("r1");
+            s32 x;
             register const u16 *stateLow asm("r1");
             attr = *(drawFrame++);
             *(copy++) = attr;
@@ -2686,7 +2686,7 @@ void DrawPassageScreenSprites(void)
             x = stateLow[4];
             x <<= 16;
             x >>= 21;
-            x = attr + x;
+            x = (attr) - (-(x));
             attr = coordinateMask;
             asm("" : "+r"(attr));
             x &= attr;
@@ -2769,7 +2769,6 @@ s32 ClosePassageScreenWindow(void)
     value = 0;
     goto done;
 finished:
-    asm("" : : : "memory");
     value = 120;
     *leftPtr = value;
     *rightPtr = value;
@@ -2802,13 +2801,13 @@ s32 OpenPassageScreenWindow(void)
 
 #define DRAW_PASSAGE_NAME_TEXT(tableValue) \
     do { \
-        register const u8 *const *nameTable asm("r3"); \
-        register u8 *stagePointer asm("r0"); \
-        register u32 stageOffset asm("r1"); \
-        register u8 *passagePointer asm("r0"); \
-        register u32 passageValue asm("r2"); \
-        register u32 passageOffset asm("r0"); \
-        register const u8 *text asm("r0"); \
+        const u8 *const *nameTable; \
+        u8 *stagePointer; \
+        u32 stageOffset; \
+        u8 *passagePointer; \
+        u32 passageValue; \
+        u32 passageOffset; \
+        const u8 *text; \
         nameTable = (tableValue); \
         stagePointer = &gCurrentStageNumber; \
         stageOffset = *stagePointer; \

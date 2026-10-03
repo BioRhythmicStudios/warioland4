@@ -289,7 +289,8 @@ void InitBubble(void)
     zero = 0;
     status |= SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
     /* agbcc otherwise removes the required zero OR used by the original register flow. */
-    asm("orr %0, %1" : "+r"(status) : "r"(zero));
+    asm volatile("" : "+r"(zero));
+    status |= zero;
     sprite->status = status;
     bounds = (u8 *)sprite + 32;
     *bounds = 32;

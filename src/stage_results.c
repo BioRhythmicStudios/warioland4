@@ -1,8 +1,4 @@
-#include "gba/io_reg.h"
-#include "gba/m4a.h"
 #include "color_effects.h"
-#include "global_data.h"
-#include "input.h"
 #include "score.h"
 #include "sound.h"
 #include "stage_results.h"

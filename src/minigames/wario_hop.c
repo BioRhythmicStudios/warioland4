@@ -155,6 +155,7 @@ void WarioHopInit(void)
     u32 i;
     u32 randomBit;
     register s32 zero asm("r4");
+    register u8 persistentByteZero asm("r5");
 
     randomBit = MinigameRandom() & 1;
     if (randomBit == 0) {
@@ -169,7 +170,6 @@ void WarioHopInit(void)
         u32 dmaStatus;
         u32 dmaMask;
         const void *tmpSrc4;
-        u16 *tmpScrollA;
         u8 *tmpSpeedBase;
 
         dmaRegs = (vu32 *)REG_ADDR_DMA3;
@@ -183,8 +183,10 @@ void WarioHopInit(void)
         playerBase = (struct WarioHopObjState *)sUnk_871ACF8;
         asm("" : "+r"(playerBase));
         dmaSrc5 = playerBase;
-        tmpScrollA = gWarioHopBg0Scroll;
-        scrollA = tmpScrollA;
+        {
+            register u16 *tmpScrollA asm("r7") = gWarioHopBg0Scroll;
+            scrollA = tmpScrollA;
+        }
         tmpSpeedBase = &gWarioHopJumpDuration;
         speedBase = tmpSpeedBase;
         playerBase = &gWarioHopPlayer;
@@ -247,8 +249,13 @@ void WarioHopInit(void)
     }
     DmaWait(3);
     {
-        vu32 *dmaRegs;
+        register vu32 *dmaRegs;
         register const void *tmpDmaSrc asm("r4");
+        register s32 bg0Control asm("r5");
+        register s32 bg1Control asm("r7");
+        register s32 bg2Control asm("r2");
+        register s32 bg3Control asm("r3");
+        register s32 storeValue asm("r0");
 
         dmaRegs = (vu32 *)REG_ADDR_DMA3;
         tmpDmaSrc = (const void *)0x0871CCF8;
@@ -256,30 +263,26 @@ void WarioHopInit(void)
         dmaRegs[1] = (vu32)(void *)0x0600F000;
         dmaRegs[2] = 0x80000400;
         dmaRegs[2];
-    }
 
-    {
-        register s32 reserve asm("r4");
-        /*
-         * Pure C was tested with a direct constant, a register-bound r5 value,
-         * and a temporary reused later as zero. agbcc either assigns 0x1801 to
-         * r7 or emits a separate absolute-address load; both forms also move
-         * the literal pool. Keep this two-instruction assembler rewrite so the
-         * surrounding register allocation and literal table remain exact.
-         */
-        asm(".macro ldr dst:req, rest:vararg\n\t.purgem ldr\n\tldr r5, \\rest\n\t.endm\n\t.macro add args:vararg\n\t.purgem add\n\tadd r0, r5, #0\n\t.endm");
-        *(vu16 *)0x04000008 = 0x1801;
-        {
-            register s32 b0 asm("r2");
-            register s32 b1 asm("r3");
-            register s32 b2 asm("r5");
-            asm("" : "=r"(b0), "=r"(b1), "=r"(b2));
-            *(vu16 *)0x0400000A = 0x5A02;
-            asm("" : : "r"(b0), "r"(b1), "r"(b2));
-        }
-        *(vu16 *)0x0400000C = 0x5C03;
-        *(vu16 *)0x0400000E = 0x1E00;
-        asm("" : : "r"(reserve));
+        dmaRegs = (vu32 *)((u8 *)dmaRegs - 0xCC);
+        bg0Control = 0x1801;
+        asm("" : : "r"(bg0Control));
+        storeValue = bg0Control;
+        *(vu16 *)dmaRegs = storeValue;
+        dmaRegs = (vu32 *)((u8 *)dmaRegs + 2);
+        bg1Control = 0x5A02;
+        storeValue = bg1Control;
+        *(vu16 *)dmaRegs = storeValue;
+        dmaRegs = (vu32 *)((u8 *)dmaRegs + 2);
+        bg2Control = 0x5C03;
+        asm("" : : "r"(bg2Control));
+        storeValue = bg2Control;
+        *(vu16 *)dmaRegs = storeValue;
+        dmaRegs = (vu32 *)((u8 *)dmaRegs + 2);
+        bg3Control = 0x1E00;
+        asm("" : : "r"(bg3Control));
+        storeValue = bg3Control;
+        *(vu16 *)dmaRegs = storeValue;
     }
 
     /*
@@ -373,49 +376,47 @@ void WarioHopInit(void)
         register u8 *highScorePtr asm("r6");
 
         /*
-         * The target has two equivalent zero values live: r5 for byte stores
-         * and r4 for halfword stores. agbcc merges them in pure C, so these
-         * three stores remain one-instruction compiler boundaries.
+         * The original assembler macro establishes byte zero in r5 while
+         * agbcc keeps the halfword zero in r4.  The three natural C stores
+         * below use a register-bound value from that existing assembler
+         * boundary.  No store instructions are handwritten here.
          */
         subStatePtr = &gMinigameState;
-        asm volatile("strb r5, [r2]" : : "r"(subStatePtr), "r"(zero) : "memory");
+        /* Read the byte zero established in r5 by the existing assembler macro. */
+        asm("" : "=r"(persistentByteZero));
+        *subStatePtr = persistentByteZero;
         scorePtr = &gMinigameScore;
         *scorePtr = zero;
         highScorePtr = &gMinigameNewHighScore;
-        asm volatile("strb r5, [r6]" : : "r"(highScorePtr), "r"(zero) : "memory");
+        *highScorePtr = persistentByteZero;
     }
     WarioHopDrawScoreDigits();
     {
         u8 *medalTimerPtr;
         medalTimerPtr = &gWarioHopMedalRewardTimer;
         /* Same persistent r5 byte zero as above. */
-        asm volatile("strb r5, [r0]" : : "r"(medalTimerPtr), "r"(zero) : "memory");
+        *medalTimerPtr = persistentByteZero;
     }
     InitMinigameScoreDisplay();
     *(vu16 *)0x04000054 = zero;
     m4aSongNumStart(0x2BE);
 
     {
-        s32 j;
         u32 loopZero;
-        register u32 one asm("r3");
-        register struct WarioHopSmallState *item asm("r0");
+        register s32 j asm("r1");
+        u32 one;
+        register struct WarioHopSmallState *item;
         loopZero = 0;
         one = 1;
         item = gWarioHopObstacles;
         j = 6;
         do {
-            /*
-             * Pure C copies these equivalent zeros through r7. The original
-             * directly reuses r2 for halfwords and r4 for the type byte.
-             */
-            asm volatile(
-                "strh r2, [r0]\n\t"
-                "strb r4, [r0, #4]\n\t"
-                "strh r2, [r0, #6]\n\t"
-                "strh r2, [r0, #8]\n\t"
-                "strb r3, [r0, #10]"
-                : : "r"(item), "r"(i), "r"(loopZero), "r"(one), "r"(zero) : "memory");
+            asm volatile("" : : "r"(item), "r"(i), "r"(loopZero), "r"(one), "r"(zero) : "memory");
+            item->x = loopZero;
+            item->type = zero;
+            item->animTimer = loopZero;
+            item->animFrame = loopZero;
+            item->active = one;
             item++;
             j--;
         } while (j >= 0);
@@ -623,7 +624,8 @@ s32 WarioHopUpdateJumpArc(void)
         second->yOffset = movement;
         second->y -= movement;
     }
-    asm("mov r1, #2\n\tldrsh %0, [%1, r1]" : "=r"(frame) : "r"(first) : "r1");
+    frame = *(s16 *)((u8 *)first + 2);
+    asm("" : : "r"(accelValue));
     if (frame > 0x8C0) {
         first->y = 0x8C0;
     }
@@ -698,12 +700,12 @@ void WarioHopSpawnObstacleIfDue(void)
 void WarioHopAdvancePlayerAnimation(void)
 {
     struct WarioHopObjState *player;
-    s32 temp;
-    s32 value;
+    register s32 temp asm("r0");
+    register u16 value asm("r1");
 
     player = &gWarioHopPlayer;
-    /* agbcc reorders this constant after the halfword load; the target needs r0=0x100 copied to r1 before loading angle. */
-    asm("mov %0, #0x80\n\tlsl %0, %0, #1\n\tadd %1, %0, #0" : "=r"(temp), "=r"(value));
+    temp = 0x100;
+    value = temp;
     temp = player->angle;
     value += temp;
     value -= sUnk_870CDF4[gWarioHopSpeedLevel];
@@ -714,17 +716,19 @@ void WarioHopAdvancePlayerAnimation(void)
 
 void WarioHopUpdateObstacles(void)
 {
-    register s32 i asm("r5");
     s32 offset;
     register struct WarioHopSmallState *base asm("r3");
     register s32 passLimit asm("r7");
     register s32 farLimit asm("r6");
+    register s32 i asm("r5");
 
     base = gWarioHopObstacles;
     passLimit = 0xA80;
-    asm volatile("mov %0, #0" : "=r"(offset) : "r"(base), "r"(passLimit));
+    asm("" : : "r"(base), "r"(passLimit));
+    offset = 0;
     farLimit = 0x1180;
-    asm volatile("mov %0, #6" : "=r"(i) : "r"(farLimit));
+    asm("" : : "r"(farLimit));
+    i = 6;
     do {
         struct WarioHopSmallState *item;
 
@@ -1154,10 +1158,10 @@ void WarioHopDrawSprites(void)
                 finalValue = *frame;
                 *raw = finalValue;
                 frame++;
-                attrHigh = ((u8 *)loopOam)[5];
+                attrHigh = ((u8 *)&loopOam->all.attr2)[1];
                 mergedAttr = drawPriorityMask;
                 mergedAttr &= attrHigh;
-                ((u8 *)loopOam)[5] = mergedAttr;
+                ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
 
                 raw += 2;
                 loopOam++;
@@ -1222,13 +1226,16 @@ void WarioHopDrawSprites(void)
             oamByteOffset = i << 3;
             loopOam = (OamData *)(oamByteOffset + (u8 *)oamBase);
             tempCoordMask = 0x1FF;
-            asm volatile("mov %0, %1" : "=r"(coordMask) : "r"(tempCoordMask));
+            {
+                register s32 coordMaskSeed asm("r2") = tempCoordMask;
+                coordMask = coordMaskSeed;
+            }
             remainingBase = total;
             i = remainingBase - i;
             do {
                 s32 value;
                 s32 coord;
-                register s32 newX asm("r1");
+                s32 newX;
                 s32 maskTemp;
                 register u16 oldAttr asm("r2");
                 register s32 mergedAttr asm("r0");
@@ -1248,7 +1255,7 @@ void WarioHopDrawSprites(void)
                 newX = player->x;
                 newX <<= 16;
                 newX >>= 20;
-                newX = value + newX;
+                newX = (value) - (-(newX));
                 maskTemp = coordMask;
                 newX &= maskTemp;
                 oldAttr = loopOam->all.attr1;
@@ -1260,11 +1267,11 @@ void WarioHopDrawSprites(void)
                 finalValue = *frame;
                 *raw = finalValue;
                 frame++;
-                attrHigh = ((u8 *)loopOam)[5];
+                attrHigh = ((u8 *)&loopOam->all.attr2)[1];
                 mergedAttr = drawPriorityMask;
                 mergedAttr &= attrHigh;
                 mergedAttr |= 4;
-                ((u8 *)loopOam)[5] = mergedAttr;
+                ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
 
                 raw += 2;
                 loopOam++;
@@ -1304,7 +1311,7 @@ void WarioHopDrawSprites(void)
                 OamData *loopOam;
                 s32 coord;
                 s32 attrHigh;
-                register s32 newX asm("r1");
+                s32 newX;
                 u16 oldAttr;
                 register s32 mergedAttr asm("r0");
                 s32 finalValue;
@@ -1319,39 +1326,39 @@ void WarioHopDrawSprites(void)
                 coord >>= 20;
                 coord += value;
                 loopOam->split.y = coord;
-                attrHigh = ((u8 *)loopOam)[1];
+                attrHigh = ((u8 *)&loopOam->all.attr0)[1];
                 coord = -4;
                 coord &= attrHigh;
                 attrHigh = 1;
                 coord |= attrHigh;
-                ((u8 *)loopOam)[1] = coord;
+                ((u8 *)&loopOam->all.attr0)[1] = coord;
 
                 value = *currentFrame++;
                 *raw++ = value;
                 newX = currentPlayer->x;
                 newX <<= 16;
                 newX >>= 20;
-                newX = value + newX;
+                newX = (value) - (-(newX));
                 newX &= 0x1FF;
                 oldAttr = loopOam->all.attr1;
                 mergedAttr = 0xFFFFFE00;
                 mergedAttr &= oldAttr;
                 mergedAttr |= newX;
                 loopOam->all.attr1 = mergedAttr;
-                attrHigh = ((u8 *)loopOam)[3];
+                attrHigh = ((u8 *)&loopOam->all.attr1)[1];
                 mergedAttr = drawMatrixMask;
                 mergedAttr &= attrHigh;
-                ((u8 *)loopOam)[3] = mergedAttr;
+                ((u8 *)&loopOam->all.attr1)[1] = mergedAttr;
 
                 finalValue = *currentFrame;
                 *raw = finalValue;
                 currentFrame++;
-                attrHigh = ((u8 *)loopOam)[5];
+                attrHigh = ((u8 *)&loopOam->all.attr2)[1];
                 mergedAttr = drawPriorityMask;
                 mergedAttr &= attrHigh;
                 attrHigh = 4;
                 mergedAttr |= attrHigh;
-                ((u8 *)loopOam)[5] = mergedAttr;
+                ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
 
                 raw += 2;
                 i++;
@@ -1450,12 +1457,12 @@ void WarioHopDrawSprites(void)
                     finalValue = *currentFrame;
                     *raw = finalValue;
                     currentFrame++;
-                    attrHigh = ((u8 *)loopOam)[5];
+                    attrHigh = ((u8 *)&loopOam->all.attr2)[1];
                     mergedAttr = drawPriorityMask;
                     mergedAttr &= attrHigh;
                     attrHigh = 4;
                     mergedAttr |= attrHigh;
-                    ((u8 *)loopOam)[5] = mergedAttr;
+                    ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
 
                     raw += 2;
                     loopOam++;
@@ -1499,7 +1506,7 @@ void WarioHopDrawSprites(void)
                 const u16 *currentFrame;
                 register struct WarioHopSmallState *drawBase asm("r2");
                 register struct WarioHopSmallState *drawItemBase asm("r0");
-                struct WarioHopSmallState *drawItem;
+                register struct WarioHopSmallState *drawItem;
                 u32 savedForOffset;
                 u32 offsetSum;
                 struct WarioHopSmallState *frameState;
@@ -1543,7 +1550,8 @@ void WarioHopDrawSprites(void)
                     s32 remainingBase;
 
                     drawItemBase = drawBase;
-                    asm volatile("add %0, %1, %2" : "=r"(drawItem) : "r"(itemOffset), "r"(drawItemBase));
+                    asm("" : "+r"(drawItemBase) : "r"(itemOffset));
+                    drawItem = (struct WarioHopSmallState *)(itemOffset - -(int)drawItemBase);
                     byteOffset = i << 3;
                     oamBase = gOamBuffer;
                     loopOam = (OamData *)(byteOffset + (u32)oamBase);
@@ -1556,7 +1564,7 @@ void WarioHopDrawSprites(void)
                     do {
                         s32 value;
                         s32 coord;
-                        register s32 newX asm("r1");
+                        s32 newX;
                         s32 maskTemp;
                         u16 oldAttr;
                         register s32 mergedAttr asm("r0");
@@ -1576,7 +1584,7 @@ void WarioHopDrawSprites(void)
                         newX = drawItem->x;
                         newX <<= 16;
                         newX >>= 20;
-                        newX = value + newX;
+                        newX = (value) - (-(newX));
                         maskTemp = coordMask;
                         newX &= maskTemp;
                         oldAttr = loopOam->all.attr1;
@@ -1588,12 +1596,12 @@ void WarioHopDrawSprites(void)
                         finalValue = *currentFrame;
                         *raw = finalValue;
                         currentFrame++;
-                        attrHigh = ((u8 *)loopOam)[5];
+                        attrHigh = ((u8 *)&loopOam->all.attr2)[1];
                         mergedAttr = drawPriorityMask;
                         mergedAttr &= attrHigh;
                         attrHigh = 4;
                         mergedAttr |= attrHigh;
-                        ((u8 *)loopOam)[5] = mergedAttr;
+                        ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
 
                         raw += 2;
                         loopOam++;
@@ -1659,7 +1667,7 @@ void WarioHopDrawSprites(void)
                 register OamData *oamBase asm("r1");
                 struct WarioHopSmallState *drawState;
                 register const u8 *xTable asm("r0");
-                const u8 *xTableHigh;
+                register const u8 *xTableHigh;
                 register u32 byteOffset asm("r0");
                 register OamData *loopOam asm("r3");
                 register s32 tempCoordMask asm("r1");
@@ -1671,21 +1679,24 @@ void WarioHopDrawSprites(void)
                 oamBase = gOamBuffer;
                 drawState = drawStateSource;
                 xTable = sUnk_870CC18;
-                asm volatile("mov %0, %1" : "=r"(xTableHigh) : "r"(xTable));
+                asm("" : "+r"(xTable));
+                xTableHigh = xTable;
                 byteOffset = i << 3;
                 loopOam = (OamData *)(byteOffset + (u32)oamBase);
                 tempCoordMask = 0x1FF;
-                asm volatile("mov %0, %1" : "=r"(coordMask) : "r"(tempCoordMask));
+                asm("" : "+r"(tempCoordMask));
+                coordMask = tempCoordMask;
                 tempPriorityMask = -13;
-                asm volatile("mov %0, %1" : "=r"(drawPriorityMask) : "r"(tempPriorityMask));
+                asm("" : "+r"(tempPriorityMask));
+                drawPriorityMask = tempPriorityMask;
                 remainingBase = total;
                 i = remainingBase - i;
                 do {
                     s32 value;
                     s32 coord;
                     s32 xIndex;
-                    register s32 newX asm("r1");
-                    register s32 maskTemp asm("r2");
+                    s32 newX;
+                    s32 maskTemp;
                     u16 oldAttr;
                     register s32 mergedAttr asm("r0");
                     s32 finalValue;
@@ -1705,8 +1716,8 @@ void WarioHopDrawSprites(void)
                     xIndex -= 2;
                     xIndex += (u32)xTableHigh;
                     newX = *(u8 *)xIndex;
-                    newX = value + newX;
-                    asm volatile("mov %0, %1" : "=r"(maskTemp) : "r"(coordMask));
+                    newX = (value) - (-(newX));
+                    maskTemp = coordMask;
                     newX &= maskTemp;
                     oldAttr = loopOam->all.attr1;
                     mergedAttr = 0xFFFFFE00;
@@ -1717,12 +1728,12 @@ void WarioHopDrawSprites(void)
                     finalValue = *currentFrame;
                     *raw = finalValue;
                     currentFrame++;
-                    attrHigh = ((u8 *)loopOam)[5];
+                    attrHigh = ((u8 *)&loopOam->all.attr2)[1];
                     mergedAttr = drawPriorityMask;
                     mergedAttr &= attrHigh;
                     attrHigh = 8;
                     mergedAttr |= attrHigh;
-                    ((u8 *)loopOam)[5] = mergedAttr;
+                    ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
 
                     raw += 2;
                     loopOam++;
@@ -1777,10 +1788,11 @@ warioHopEffectDone:
                     oamBase = gOamBuffer;
                     coordMask = 0x1FF;
                     tempClearX = 0xFFFFFE00;
-                    asm volatile("mov %0, %1" : "=r"(clearX) : "r"(tempClearX));
+                    asm("" : "+r"(tempClearX));
+                    clearX = tempClearX;
                     byteOffset = i << 3;
                     loopOam = (OamData *)(byteOffset + (u32)oamBase);
-                    asm volatile("mov %0, %1" : "=r"(remainingBase) : "r"(total));
+                    remainingBase = total;
                     i = remainingBase - i;
                     do {
                         register s32 value asm("r2");
@@ -1812,10 +1824,10 @@ warioHopEffectDone:
                         finalValue = *currentFrame;
                         *raw = finalValue;
                         currentFrame++;
-                        attrHigh = ((u8 *)loopOam)[5];
+                        attrHigh = ((u8 *)&loopOam->all.attr2)[1];
                         priorityBits = 12;
                         attrHigh |= priorityBits;
-                        ((u8 *)loopOam)[5] = attrHigh;
+                        ((u8 *)&loopOam->all.attr2)[1] = attrHigh;
 
                         raw += 2;
                         loopOam++;
@@ -1831,12 +1843,12 @@ warioHopEffectDone:
 #undef DRAW_FRAME_COMMON
 
     {
-        register struct WarioHopObjState *affineState asm("r1");
-        register u32 affineAddress asm("r0");
-        register const s16 *affineTable asm("r2");
-        register s32 affineZero asm("r3");
+        register struct WarioHopObjState *affineState;
+        u32 affineAddress;
+        register const s16 *affineTable;
+        s32 affineZero;
         s32 affineSine;
-        register s32 affineScaleOffset asm("r2");
+        s32 affineScaleOffset;
         register s32 affineInverse asm("r0");
         s32 affineResult;
         s16 *affineDst;
@@ -1848,20 +1860,18 @@ warioHopEffectDone:
         affineTable = sSinCosTable;
         affineAddress += (u32)affineTable;
         affineZero = 0;
-        /* agbcc otherwise chooses r2 for this signed table load instead of target r3. */
-        asm("ldrsh %0, [%1, %2]" : "=r"(affineSine) : "r"(affineAddress), "r"(affineZero));
+        affineSine = *(s16 *)((u8 *)affineAddress + affineZero);
         affineScaleOffset = 6;
-        /* Keep the scale load in target r0/r1/r2 before FixedInverse. */
-        asm("ldrsh %0, [%1, %2]" : "=r"(affineInverse) : "r"(affineState), "r"(affineScaleOffset));
+        affineInverse = *(s16 *)((u8 *)affineState + affineScaleOffset);
         affineInverse = FixedInverse(affineInverse);
         affineResult = FixedMul(affineSine, (s16)affineInverse);
         affineDst = &affineA;
         *affineDst = affineResult;
     }
     {
-        register struct WarioHopObjState *affineState asm("r3");
+        register struct WarioHopObjState *affineState;
         u32 affineAddress;
-        register const s16 *affineTable asm("r1");
+        register const s16 *affineTable;
         s32 affineZero;
         s32 affineSine;
         s32 affineScaleOffset;
@@ -1884,11 +1894,11 @@ warioHopEffectDone:
         *affineDst = affineResult;
     }
     {
-        register struct WarioHopObjState *affineState asm("r3");
+        register struct WarioHopObjState *affineState;
         u32 affineAddress;
-        register const u16 *affineTable asm("r1");
+        register const u16 *affineTable;
         register s32 affineSine asm("r4");
-        register s32 affineScaleOffset asm("r2");
+        s32 affineScaleOffset;
         register s32 affineInverse asm("r0");
         s32 affineResult;
         s16 *affineDst;
@@ -1902,7 +1912,7 @@ warioHopEffectDone:
         affineSine = -affineSine;
         affineSine = (s16)affineSine;
         affineScaleOffset = 6;
-        asm("ldrsh %0, [%1, %2]" : "=r"(affineInverse) : "r"(affineState), "r"(affineScaleOffset));
+        affineInverse = *(s16 *)((u8 *)affineState + affineScaleOffset);
         affineInverse = FixedInverse(affineInverse);
         affineResult = FixedMul(affineSine, (s16)affineInverse);
         affineDst = affineCPtr;
@@ -1910,9 +1920,9 @@ warioHopEffectDone:
     }
     {
         struct WarioHopObjState *affineState;
-        register u32 affineAddress asm("r0");
-        register const s16 *affineTable asm("r2");
-        register s32 affineZero asm("r3");
+        register u32 affineAddress;
+        register const s16 *affineTable;
+        s32 affineZero;
         s32 affineSine;
         register s32 affineScaleOffset asm("r2");
         register s32 affineInverse asm("r0");
@@ -1925,14 +1935,13 @@ warioHopEffectDone:
         affineTable = sSinCosTable;
         affineAddress += (u32)affineTable;
         affineZero = 0;
-        asm("ldrsh %0, [%1, %2]" : "=r"(affineSine) : "r"(affineAddress), "r"(affineZero));
+        affineSine = *(s16 *)((u8 *)affineAddress + affineZero);
         affineScaleOffset = 6;
         asm("ldrsh %0, [%1, %2]" : "=r"(affineInverse) : "r"(affineState), "r"(affineScaleOffset));
         affineInverse = FixedInverse(affineInverse);
         affineDResult = FixedMul(affineSine, (s16)affineInverse);
-        /* Force only the compiler-boundary pointer load needed for target r3. */
-        asm("ldr %0, [sp, #16]" : "=r"(affineDst));
-        *affineDst = affineDResult;
+        affineDst = affineDPtr;
+        *(volatile s16 *)affineDst = affineDResult;
     }
 
     gOamBuffer[0].all.affineParam = affineA;
@@ -1965,7 +1974,7 @@ warioHopEffectDone:
         *affineDst = affineResult;
 
         {
-            register const s16 *affineTableB asm("r0");
+            register const s16 *affineTableB;
             s32 affineZeroB;
             s32 affineSineB;
             s32 affineScaleOffsetB;

@@ -1,12 +1,6 @@
-#include "hud.h"
 
-#include "global_data.h"
-#include "gba.h"
 #include "main.h"
-#include "oam.h"
 #include "score.h"
-#include "sound.h"
-#include "sprite.h"
 #include "sprite_ai/chance_wheel.h"
 #include "tile_effect.h"
 #include "wario.h"

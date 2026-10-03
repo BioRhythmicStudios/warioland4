@@ -2,7 +2,6 @@
 
 #include "global_data.h"
 #include "sound.h"
-#include "sprite.h"
 
 void InitBossCorridorCat(void)
 {

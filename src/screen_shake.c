@@ -1,4 +1,3 @@
-#include "screen_shake.h"
 
 #include "global_data.h"
 

@@ -1,10 +1,7 @@
 #include "background_registers.h"
-#include "global_data.h"
-#include "sound.h"
 #include "sprite.h"
 #include "sprite_util.h"
 #include "transparency.h"
-#include "wario.h"
 #include "sprite_ai/hoggus.h"
 
 void SpriteSpawnAsChildWide(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosition, u32 xPosition) asm("SpriteSpawnAsChild");
@@ -81,11 +78,10 @@ void UpdateHoggusPosition(void)
             velocity = 2;
     }
 
-    asm("" : : : "memory");
     if (spriteCoordinate > targetCoordinate)
-        sprite->yPosition -= velocity;
+        (*(volatile u16 *)&sprite->yPosition) -= velocity;
     else if (spriteCoordinate < targetCoordinate)
-        sprite->yPosition += velocity;
+        (*(volatile u16 *)&sprite->yPosition) += velocity;
 }
 
 void InitHoggus(void)

@@ -1,4 +1,3 @@
-#include "types.h"
 #include "oam.h"
 /* Boss-treasure OAM forward declarations (definitions remain in ROM order below). */
 extern const u16 sBossTreasureItemOamFrame[];

@@ -1,7 +1,6 @@
 #include "sprite_ai/dice_block.h"
 
 #include "block.h"
-#include "gba/m4a.h"
 #include "global_data.h"
 #include "sprite.h"
 #include "sprite_util.h"

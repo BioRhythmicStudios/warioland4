@@ -1,9 +1,7 @@
 #include "sprite_ai/tobawani.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
-#include "sprite.h"
 #include "sprite_util.h"
 #include "wario.h"
 

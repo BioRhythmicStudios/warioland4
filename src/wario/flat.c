@@ -182,7 +182,6 @@ u8 FlatWarioFloating(void)
     return 0xFE;
 
 decrementFrame:
-    asm volatile(".LflatDecrementFrame:");
     {
         register int finalFrame asm("r1");
         register int decrementedFrame asm("r0");
@@ -481,5 +480,4 @@ void UpdateFlatWarioHitbox(void)
     }
 }
 
-/* Preserve the original zero-filled final text alignment. */
-asm(".align 2, 0");
+

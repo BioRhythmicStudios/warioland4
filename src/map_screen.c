@@ -1432,12 +1432,8 @@ void DrawMapScreenSprites(void)
   {
     register u8 *slotsRead asm("r4") = &gOamSlotsUsed;
     u32 oamByteOffset;
-    // Couldn't reproduce this part in pure C, so I had to use inline assembly to get the same result.
-    asm(
-        "ldrb %0, [%2]\n"
-        "lsl %1, %0, #3"
-        : "=r"(used), "=r"(oamByteOffset)
-        : "r"(slotsRead));
+    used = *(volatile u8 *)slotsRead;
+    oamByteOffset = (u32)used << 3;
     {
       register OamData *oamStart asm("r0") = gOamBuffer;
       copyRaw = (u16 *)(oamByteOffset + (u32)oamStart);
@@ -1456,7 +1452,7 @@ void DrawMapScreenSprites(void)
     }
   }
   {
-    register u16 *frameState asm("r1");
+    u16 *frameState;
     frameState = gUnk_3003C74;
     frame = sUnk_863FFAC[frameState[1]].oam;
   }
@@ -1475,15 +1471,14 @@ void DrawMapScreenSprites(void)
       OamData *oamBase;
       oamBase = gOamBuffer;
       {
-        register u32 xMaskLoad asm("r2") = 0x1FF;
-        // Couldn't reproduce this part in pure C, so I had to use inline assembly to get the same result.
-        asm("mov %0, %1" : "=r"(xMask) : "r"(xMaskLoad));
+        u32 xMaskLoad = 0x1FF;
+        xMask = xMaskLoad;
       }
       highMask = 0xFFFFFE00;
       {
         s32 modeMaskLoad = -13;
         // Couldn't reproduce this part in pure C, so I had to use inline assembly to get the same result.
-        asm("mov %0, %1" : "=r"(modeMask) : "r"(modeMaskLoad));
+        modeMask = modeMaskLoad;
       }
       screenDst = (OamData *)(((u32)drawn << 3) + (u32)oamBase);
       remaining = used - drawn;
@@ -1684,12 +1679,10 @@ void DrawMapScreenSprites(void)
               yValue = *(const u32 *)((const u8 *)yTable + tableOffset);
               {
                 u32 oamOffset;
-                OamData *oamBaseLocal;
+                register OamData *oamBaseLocal asm("r2");
                 oamOffset = drawn << 3;
                 oamBaseLocal = gOamBuffer;
-                asm("add %0, %1, %2"
-                    : "=r"(screenDst)
-                    : "r"(oamOffset), "r"(oamBaseLocal));
+                screenDst = (OamData *)(oamOffset - -(int)oamBaseLocal);
               }
               xValue = *(const u32 *)((const u8 *)sUnk_86395A4 + tableOffset);
             }
@@ -2040,8 +2033,6 @@ void DrawMapScreenSprites(void)
           OamData *oamBaseMode2;
           oamBaseMode2 = gOamBuffer;
           {
-            u32 reservedR2;
-            asm("" : "=r"(reservedR2));
             highMask = 0xFFFFFE00;
           }
           modeMask = -13;

@@ -1477,7 +1477,8 @@ void UpdateCractusBossPose18(void)
     slot219 = (u8)SpriteUtilFindSprite(219, 0);
     sprite = &gCurrentSprite;
     indexOffset = 42;
-    asm("add %0, %0, %1" : "+r"(indexOffset) : "r"(sprite));
+    asm("" : "+r"(indexOffset));
+    indexOffset += (u32)sprite;
     indexAddress = (u8 *)indexOffset;
     indexPtr = indexAddress;
     index = *indexAddress;
@@ -1637,11 +1638,13 @@ void UpdateCractusBossPose19(void)
         if (value != 0xFF) {
             {
                 u32 y;
-                u32 offset;
+                register u32 offset asm("r1");
                 register u32 coordinate asm("r3");
                 offset = 230;
                 offset <<= 2;
-                asm("mov %0, %1" : "=r"(y) : "r"(offset));
+                asm("" : "+r"(offset));
+                y = offset;
+                asm("" : "+r"(y));
                 coordinate = sprite->yPosition;
                 y += coordinate;
                 y = (u16)y;
@@ -1649,10 +1652,10 @@ void UpdateCractusBossPose19(void)
             }
             if (gSpriteCollisionTileType != 0) {
                 u32 index;
-                register const s16 *table asm("r8");
+                register const s16 *table;
                 u32 address;
                 u32 velocity;
-                register u32 loadZero asm("r3");
+                u32 loadZero;
                 register s32 signedLoad asm("r1");
                 register s32 signedVelocity asm("r12");
                 register struct PrimarySpriteData *current asm("r1");
@@ -1666,10 +1669,10 @@ void UpdateCractusBossPose19(void)
                 address = (u32)(address + (u8 *)table);
                 velocity = *(const u16 *)address;
                 loadZero = 0;
-                asm("ldrsh %0, [%1, %2]"
-                    : "=r"(signedLoad)
-                    : "r"(address), "r"(loadZero));
-                asm("mov %0, %1" : "=r"(signedVelocity) : "r"(signedLoad));
+                signedLoad = *(const s16 *)((const u8 *)address + loadZero);
+                asm("" : "+r"(signedLoad));
+                signedVelocity = signedLoad;
+                asm("" : "+r"(signedVelocity));
                 if (signedVelocity == 0x7FFF) {
                     address = (index - 1) << 1;
                     address = (u32)(address + (u8 *)table);
@@ -1703,7 +1706,7 @@ void UpdateCractusBossPose19(void)
     }
 
     {
-        register struct PrimarySpriteData *sprite asm("r5");
+        register struct PrimarySpriteData *sprite;
         u8 *work3;
         u32 value;
 
@@ -1740,7 +1743,7 @@ void UpdateCractusBossPose19(void)
 
         {
             struct WarioData *wario;
-            register u32 warioReaction asm("r1");
+            register u32 warioReaction;
 
             wario = &gWarioData;
             warioReaction = wario->reaction;
@@ -1867,7 +1870,7 @@ be50_reaction:
             stride += 41;
             *(u8 *)stride = clearZero;
             {
-                register u8 *work asm("r0");
+                register u8 *work;
                 work = &sprite->work0;
                 *work = clearZero;
                 work++;
@@ -1930,8 +1933,12 @@ void UpdateCractusBossPose114(void)
 
         current = &gCurrentSprite;
         work3 = &current->work3;
-        /* agbcc otherwise builds -1 directly in the destination and drops the copy. */
-        asm("mov r1, #1\n\tneg r1, r1\n\tadd %0, r1, #0" : "=r"(mask) : : "r1");
+        {
+            register s32 maskSeed asm("r1");
+            maskSeed = -1;
+            asm("" : : "r"(maskSeed));
+            mask = maskSeed;
+        }
         *work3 = 255;
         gCuckooCondorMoveRight = 1;
         global58 = (u8*)&gBossState;
@@ -3278,15 +3285,15 @@ void UpdateCractusArmSegmentPose24(void)
     if (sprite->globalID == 219) {
         u32 pointer;
         pointer = 41;
-        /* Preserve the target's constant-plus-base operand order. */
-        asm("add %0, %0, %1" : "+r"(pointer) : "r"(sprite));
+        asm("" : "+r"(pointer));
+        pointer += (u32)sprite;
         indexPtr = (u8 *)pointer;
         index = *(u8 *)pointer;
         table = sCractusArmPose24XVelocityA;
     } else {
         register u32 pointer asm("r7");
         pointer = 41;
-        asm("add %0, %0, %1" : "+r"(pointer) : "r"(sprite));
+        pointer -= -(int)sprite;
         indexPtr = (u8 *)pointer;
         /* Keep the byte load based directly on r7 without an intermediate copy. */
         asm("ldrb %0, [%1, #0]" : "=r"(index) : "r"(pointer));
@@ -3364,36 +3371,40 @@ void UpdateCractusArmSegmentPose24(void)
     {
         struct PrimarySpriteData *current;
         register u8 *field asm("r6");
-        register u8 *destination asm("r12");
+        register u8 *destination;
         const s16 *verticalTable;
         u32 verticalIndex;
         u32 verticalVelocity;
-        register s32 signedVertical asm("r1");
+        s32 signedVertical;
         const s16 *entry;
 
         current = &gCurrentSprite;
         field = (u8 *)42;
-        asm("add %0, %0, %1" : "+r"(field) : "r"(current));
+        asm("" : "+r"(field));
+        field = (u8 *)((u32)field + (u32)current);
         destination = field;
         verticalIndex = *field;
         verticalTable = sCractusBossIntroYVelocity;
         {
-            register u32 offset asm("r0");
+            u32 offset;
             offset = verticalIndex << 1;
             offset += (u32)verticalTable;
             entry = (const s16 *)offset;
         }
         verticalVelocity = *(const u16 *)entry;
-        /* Reuse the callee-saved zero index selected in the first table load. */
-        asm("mov r7, #0\n\tldrsh %0, [%1, r7]"
-            : "=r"(signedVertical) : "r"(entry) : "r7");
+        {
+            u32 loadZero;
+            loadZero = 0;
+            signedVertical = *(const s16 *)((const u8 *)entry + loadZero);
+            asm("" : : "r"(field));
+        }
         if (signedVertical == 0x7FFF) {
             verticalVelocity = *(const u16 *)verticalTable;
             verticalIndex = 0;
         }
         {
             u32 nextIndex;
-            register u8 *target asm("r1");
+            register u8 *target;
             nextIndex = verticalIndex + 1;
             target = destination;
             *target = nextIndex;
@@ -3542,43 +3553,41 @@ void UpdateCractusArmSegmentPose15(void)
         gCurrentSprite.work2 = delta;
 
     if (spriteY > warioY) {
-        register u32 shifted asm("r0");
-        register u32 yDelta asm("r2");
+        register u32 shifted;
+        u32 yDelta;
 
         shifted = (u16)(spriteY - warioY);
         shifted <<= 16;
         yDelta = shifted >> 20;
-        if (yDelta > gSpriteAiDynamicGraphicsTimer)
-            gCurrentSprite.work3 = gSpriteAiDynamicGraphicsTimer;
-        else {
-            /* agbcc otherwise uses r0 for this field pointer instead of r1. */
-            asm("add r1, r3, #0\n"
-                "add r1, #42\n"
-                "strb r2, [r1, #0]"
-                :
-                : "r"(yDelta)
-                : "r1", "memory");
+        {
+            register u32 timerValue asm("r0");
+            timerValue = gSpriteAiDynamicGraphicsTimer;
+            if (yDelta > timerValue)
+                gCurrentSprite.work3 = timerValue;
+            else {
+                gCurrentSprite.work3 = yDelta;
+                asm("" : : "r"(timerValue));
+            }
         }
         gCurrentSprite.work1 = gBgAnimationTimer + gBgAnimationFrame;
         gCurrentSprite.pose = 110;
         m4aSongNumStart(SE_CRACTUS_ARM_AIM);
     } else {
-        register u32 shifted asm("r0");
-        register u32 yDelta asm("r2");
+        register u32 shifted;
+        u32 yDelta;
 
         shifted = (u16)(warioY - spriteY);
         shifted <<= 16;
         yDelta = shifted >> 20;
-        if (yDelta > gSpriteAiDynamicGraphicsTimer)
-            gCurrentSprite.work3 = gSpriteAiDynamicGraphicsTimer;
-        else {
-            /* agbcc otherwise uses r0 for this field pointer instead of r1. */
-            asm("add r1, r3, #0\n"
-                "add r1, #42\n"
-                "strb r2, [r1, #0]"
-                :
-                : "r"(yDelta)
-                : "r1", "memory");
+        {
+            register u32 timerValue asm("r0");
+            timerValue = gSpriteAiDynamicGraphicsTimer;
+            if (yDelta > timerValue)
+                gCurrentSprite.work3 = timerValue;
+            else {
+                gCurrentSprite.work3 = yDelta;
+                asm("" : : "r"(timerValue));
+            }
         }
         gCurrentSprite.work1 = gBgAnimationTimer + gBgAnimationFrame;
         gCurrentSprite.pose = 112;
@@ -3897,7 +3906,7 @@ void InitCractusStemTip(void)
     fieldR1 = (u8 *)sprite;
     *(u32 *)(fieldR1 + 4) = value;
     fieldR1[22] = zeroByte;
-    *(u16 *)(fieldR1 + 20) = zeroHalf;
+    ((struct PrimarySpriteData *)fieldR1)->animationTimer = zeroHalf;
     value = 16;
     fieldR1[28] = value;
     SpriteUtilFindSpriteWork3(217, 4);
@@ -3977,12 +3986,12 @@ void InitCractusDefeatPiece(void)
     fieldR1 = (u8 *)sprite;
     *(u32 *)(fieldR1 + 4) = value;
     fieldR1[22] = zeroByte;
-    *(u16 *)(fieldR1 + 20) = zeroHalf;
+    ((struct PrimarySpriteData *)fieldR1)->animationTimer = zeroHalf;
     value = 24;
     fieldR1[28] = value;
-    value = *(u16 *)(fieldR1 + 10);
+    value = ((struct PrimarySpriteData *)fieldR1)->xPosition;
     value += 128;
-    *(u16 *)(fieldR1 + 10) = value;
+    ((struct PrimarySpriteData *)fieldR1)->xPosition = value;
     fieldR0 = (u8 *)sprite + 42;
     *fieldR0 = zeroByte;
     fieldR0 -= 3;
@@ -4127,7 +4136,7 @@ void InitCractusDefeatAttachment(void)
     zeroHalf = 0;
     value = 1;
     temp = (u32)sprite;
-    *(u8 *)(temp + 26) = value;
+    ((struct PrimarySpriteData *)temp)->drawPriority = value;
     temp = *(u16 *)temp;
     collision = 0x400;
     asm("" : "+r"(collision));
@@ -4164,9 +4173,9 @@ void InitCractusDefeatAttachment(void)
     value = (u32)sCractusSegmentOam;
     temp = (u32)sprite;
     *(u32 *)(temp + 4) = value;
-    *(u8 *)(temp + 22) = zeroByte;
-    *(u16 *)(temp + 20) = zeroHalf;
-    *(u8 *)(temp + 28) = collision;
+    ((struct PrimarySpriteData *)temp)->currentAnimationFrame = zeroByte;
+    ((struct PrimarySpriteData *)temp)->animationTimer = zeroHalf;
+    ((struct PrimarySpriteData *)temp)->pose = collision;
     SpriteUtilFindSpriteSlotWork3(221);
 }
 
@@ -4301,8 +4310,8 @@ void UpdateCractusProjectilePose16(void)
     }
 
     value = 42;
-    /* Preserve the target's constant-plus-base operand order. */
-    asm("add %0, %0, %1" : "+r"(value) : "r"(current));
+    asm("" : "+r"(value));
+    value += (u32)current;
     indexPtr = (u8 *)value;
     index = *(u8 *)value;
     table = sCractusProjectileYVelocity;
@@ -4311,6 +4320,7 @@ void UpdateCractusProjectilePose16(void)
     velocity = *(const u16 *)value;
     zero = 0;
     signedVelocity = *(const s16 *)((const u8 *)value + zero);
+    asm("" : : "r"(sprite));
     if (signedVelocity == 0x7FFF) {
         u32 offset;
         register u32 yPosition asm("r0");
@@ -4791,8 +4801,8 @@ void SpriteCractusImpactEffect(void)
     sprite = (u8 *)&gCurrentSprite;
     value = 1;
     temp = (u32)sprite;
-    *(u8 *)(temp + 31) = value;
-    pose = *(u8 *)(temp + 28);
+    ((struct PrimarySpriteData *)temp)->disableWarioCollisionTimer = value;
+    pose = ((struct PrimarySpriteData *)temp)->pose;
     if (pose == 0) {
         temp = *(u16 *)temp;
         extent = 128;
@@ -4829,13 +4839,13 @@ void SpriteCractusImpactEffect(void)
         value = (u32)sCractusImpactEffectOam;
         temp = (u32)sprite;
         *(u32 *)(temp + 4) = value;
-        *(u8 *)(temp + 22) = zero;
-        *(u16 *)(temp + 20) = pose;
+        ((struct PrimarySpriteData *)temp)->currentAnimationFrame = zero;
+        ((struct PrimarySpriteData *)temp)->animationTimer = pose;
         temp += 39;
         value = 56;
         *(u8 *)temp = value;
         value = (u32)sprite;
-        *(u8 *)(value + 28) = extent;
+        ((struct PrimarySpriteData *)value)->pose = extent;
     }
 
     timer = sprite + 39;

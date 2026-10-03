@@ -8,7 +8,7 @@ int MoveRouletteResultIntoSlot(void)
     register s16 *xStepPtr asm("r6");
     register u16 *xBasePtr asm("r8");
     s16 *yStepPtr;
-    register u16 *yBasePtr asm("sl");
+    u16 *yBasePtr;
     u8 progress;
 
     {
@@ -36,7 +36,7 @@ int MoveRouletteResultIntoSlot(void)
             break;
         case 10:
             {
-                register s16 *base asm("r2");
+                s16 *base;
                 s32 baseValue;
                 base = (s16 *)yBasePtr;
                 baseValue = *base;
@@ -45,7 +45,7 @@ int MoveRouletteResultIntoSlot(void)
             break;
         case 12:
             {
-                register s16 *base asm("r2");
+                s16 *base;
                 s32 baseValue;
                 base = (s16 *)yBasePtr;
                 baseValue = *base;
@@ -77,12 +77,10 @@ int MoveRouletteResultIntoSlot(void)
         item = refs[0];
         {
             register s32 zero asm("r4");
+
+            asm volatile("" : "=r"(zero));
             zero = 0;
-            /* agbcc normally uses r0 as the signed-load offset here. Keep the
-             * target's already-dead r4 zero for this single ldrsh. */
-            asm volatile("ldrsh %0, [%1, %2]"
-                         : "=r"(step)
-                         : "r"(xStepPtr), "r"(zero));
+            step = *(s16 *)((u8 *)xStepPtr + zero);
         }
         value = *progressPtr;
         value *= step;
@@ -95,17 +93,18 @@ int MoveRouletteResultIntoSlot(void)
 
         item = refs[0];
         {
-            s16 *stepBase;
+            register s16 *stepBase asm("r4");
             u16 zero;
+
             stepBase = yStepPtr;
             zero = 0;
+            asm volatile("" : : "r"(stepBase));
             step = *(s16 *)((u8 *)stepBase + zero);
         }
         value = *progressPtr;
         value *= step;
         value >>= 5;
         /* Prevent agbcc from moving the sl pointer copy before the shift. */
-        asm volatile("" : "+r"(value));
         step = *yBasePtr;
         value += step;
         item->y = value;
@@ -132,22 +131,17 @@ int MoveRouletteResultIntoSlot(void)
                 int yForState8;
                 int yForState10;
                 register int count asm("r3");
-                register struct RouletteItem **refsLoad asm("r2");
-                register u8 *selectedLoad asm("r4");
-                register u8 *sequenceLoad asm("r0");
+                struct RouletteItem **refsLoad;
+                u8 *selectedLoad;
+                u8 *sequenceLoad;
                 register struct RouletteItem *itemBase asm("r0");
 
                 resetProgress = &gRouletteMoveProgress;
                 refsLoad = gRouletteItemDrawOrder;
-                /* These empty boundaries keep the two literal loads in the
-                 * target low registers before they are copied to ip/r8. */
-                asm volatile("" : "+r"(refsLoad));
                 resetRefs = refsLoad;
                 selectedLoad = &gRouletteSelectedItemIndex;
-                asm volatile("" : "+r"(selectedLoad));
                 selectedPtr = selectedLoad;
                 sequenceLoad = &gRouletteValueSequenceIndex;
-                asm volatile("" : "+r"(sequenceLoad));
                 sequencePtr = sequenceLoad;
                 itemBase = gRouletteItems;
                 zero = 0;

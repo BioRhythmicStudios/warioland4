@@ -1,11 +1,8 @@
 #include "sprite_ai/spear_mask.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite_util.h"
-#include "types.h"
-#include "wario.h"
 
 const u16 sSpearMaskWalkingOam_Frame1[] = {
     3,

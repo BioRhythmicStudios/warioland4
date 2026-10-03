@@ -222,9 +222,11 @@ x_calc2:
     r2 = r0 >> 16;
 x_speed_done2:
     if (r4 < r1) {
-        r0 = *(volatile u16*)((u8*)r3 + 10);
+        r0 = *(volatile u16 *)&r3->xPosition;
         /* Pure C changes the operand order and therefore the Thumb encoding. */
-        asm volatile("add %0, %1, %0" : "+r"(r0) : "r"(r2));
+        asm("" : "+r"(r0) : "r"(r2));
+        r0 = r2 - -(int)r0;
+
         goto x_store;
     }
     if (r4 <= r1) {
@@ -249,7 +251,7 @@ x_done:
     /*
      * A C assignment emits mov r0, r1; the original uses add r0, r1, #0.
      */
-    asm volatile("add %0, %1, #0" : "=r"(r0) : "r"(r1));
+    asm volatile("" : "=r"(r0) : "0"(r1));
     r5 = *(u16*)(r5 + 20);
     r0 += r5;
     r1 = (u16)r0;
@@ -277,18 +279,20 @@ y_calc:
     r2 = 2;
 y_speed_done:
     if (r4 > r1) {
-        r0 = *(volatile u16*)((u8*)r3 + 8);
+        r0 = *(volatile u16 *)&r3->yPosition;
         r0 -= r2;
         goto y_store;
     }
     if (r4 >= r1) {
         goto y_done;
     }
-    r0 = *(volatile u16*)((u8*)r3 + 8);
+    r0 = *(volatile u16 *)&r3->yPosition;
     /*
      * Pure C commutes the operands, producing a different Thumb encoding.
      */
-    asm volatile("add %0, %1, %0" : "+r"(r0) : "r"(r2));
+    asm("" : "+r"(r0) : "r"(r2));
+    r0 = r2 - -(int)r0;
+
 y_store:
     r3->yPosition = r0;
 y_done:;
@@ -346,13 +350,13 @@ found:
     r0 <<= 2;
     asm volatile("" : "+r"(r0));
     r1 = r0;
-    r3 = *(u16*)(r2 + 10);
+    r3 = *(u16 *)&((struct PrimarySpriteData *)r2)->xPosition;
     r0 = r1 + r3;
     r4 = (u16)r0;
     r0 = 44;
     r0 *= r5;
     r0 += (u32)r6;
-    r0 = *(u16*)(r0 + 10);
+    r0 = ((struct PrimarySpriteData*)r0)->xPosition;
     r1 += r0;
     r3 = (u16)r1;
     r0 = r4 - r3;
@@ -392,7 +396,7 @@ x_speed_done1:
     if (r4 >= r3) {
         goto x_done;
     }
-    r0 = r1 + *(u16*)(r2 + 10);
+    r0 = r1 + *(u16 *)&((struct PrimarySpriteData *)r2)->xPosition;
     goto x_store;
 
 x_other_side:
@@ -427,26 +431,28 @@ x_calc2:
     r1 = r0 >> 16;
 x_speed_done2:
     if (r4 < r3) {
-        r0 = *(volatile u16*)(r2 + 10);
+        r0 = *(volatile u16 *)&((struct PrimarySpriteData *)r2)->xPosition;
         /* Pure C changes the operand order and therefore the Thumb encoding. */
-        asm volatile("add %0, %1, %0" : "+r"(r0) : "r"(r1));
+        asm("" : "+r"(r0) : "r"(r1));
+        r0 = r1 - -(int)r0;
+
         goto x_store;
     }
     if (r4 <= r3) {
         goto x_done;
     }
 x_sub:
-    r0 = *(u16*)(r2 + 10);
+    r0 = *(u16 *)&((struct PrimarySpriteData *)r2)->xPosition;
     r0 -= r1;
 x_store:
-    *(u16*)(r2 + 10) = r0;
+    *(u16 *)&((struct PrimarySpriteData *)r2)->xPosition = r0;
 x_done:
     r1 = 128;
     r1 <<= 2;
     asm volatile("" : "+r"(r1));
     r0 = r1;
     asm volatile("" : "+r"(r0));
-    r3 = *(u16*)(r2 + 8);
+    r3 = *(u16 *)&((struct PrimarySpriteData *)r2)->yPosition;
     r0 += r3;
     r4 = (u16)r0;
     r0 = 44;
@@ -463,7 +469,8 @@ x_done:
      * agbcc changes the operand order for the equivalent C addition; retain
      * the target add r0, r0, r1 instruction.
      */
-    asm volatile("add %0, %0, %1" : "+r"(r0) : "r"(r1));
+    asm("" : "+r"(r0) : "r"(r1));
+    r0 += r1;
     r3 = (u16)r0;
     if (r4 <= r3) {
         goto y_abs_left;
@@ -489,20 +496,22 @@ y_calc:
     r1 = 2;
 y_speed_done:
     if (r4 > r3) {
-        r0 = *(volatile u16*)(r2 + 8);
+        r0 = *(volatile u16 *)&((struct PrimarySpriteData *)r2)->yPosition;
         r0 -= r1;
         goto y_store;
     }
     if (r4 >= r3) {
         goto end;
     }
-    r0 = *(volatile u16*)(r2 + 8);
+    r0 = *(volatile u16 *)&((struct PrimarySpriteData *)r2)->yPosition;
     /*
      * Pure C commutes the operands, producing a different Thumb encoding.
      */
-    asm volatile("add %0, %1, %0" : "+r"(r0) : "r"(r1));
+    asm("" : "+r"(r0) : "r"(r1));
+    r0 = r1 - -(int)r0;
+
 y_store:
-    *(u16*)(r2 + 8) = r0;
+    *(u16 *)&((struct PrimarySpriteData *)r2)->yPosition = r0;
 end:;
 }
 
@@ -1843,9 +1852,9 @@ void MoveShopkeeperBlastCannonIntoPosition(void)
             temp = slot;
             temp *= value;
             temp += (u32)base;
-            value = *(u16*)(temp + 10);
+            value = ((struct PrimarySpriteData*)temp)->xPosition;
             value += 2;
-            *(u16*)(temp + 10) = value;
+            ((struct PrimarySpriteData*)temp)->xPosition = value;
         }
         PlayShopkeeperCarrySoundCue();
     } else {
@@ -1998,9 +2007,9 @@ void MoveShopkeeperAppleBombIntoPosition(void)
             temp = slot;
             temp *= value;
             temp += (u32)base;
-            value = *(u16*)(temp + 10);
+            value = ((struct PrimarySpriteData*)temp)->xPosition;
             value += 2;
-            *(u16*)(temp + 10) = value;
+            ((struct PrimarySpriteData*)temp)->xPosition = value;
         }
         PlayShopkeeperCarrySoundCue();
     } else {
@@ -2024,7 +2033,7 @@ void MoveShopkeeperAppleBombIntoPosition(void)
             value *= slot;
             value += (u32)base;
             temp = 17;
-            *(u8*)(value + 28) = temp;
+            ((struct PrimarySpriteData*)value)->pose = temp;
         }
     }
 }
@@ -4115,14 +4124,14 @@ void UpdateBugleAttack(void)
         value += 1;
         zero = 0;
         *ptr = value;
-        value = *(u8*)(temp + 40);
+        value = ((struct PrimarySpriteData*)temp)->work1;
         if (value == 10) {
             value = 24;
-            *(u8*)(temp + 28) = value;
+            ((struct PrimarySpriteData*)temp)->pose = value;
             value = (u32)sBugleIdleOam;
             *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
-            *(u8*)(temp + 22) = zero;
-            *(u16*)(temp + 20) = zero;
+            ((struct PrimarySpriteData*)temp)->currentAnimationFrame = zero;
+            ((struct PrimarySpriteData*)temp)->animationTimer = zero;
         }
     }
 }
@@ -4334,11 +4343,18 @@ scale_ready:
         r0 = r5;
         r0 = FixedMul(r0, r1);
         r6->affinePA = r0;
-        /*
-         * Pure C rematerializes the zero in another register. The target needs
-         * mov r2, #0 followed by ldrsh r4, [r4, r2].
-         */
-        asm volatile("mov r2, #0\n\tldrsh r4, [r4, r2]" : "+r"(r4), "=r"(r2));
+        /* The original signed halfword ASM load is now C. Register-lifetime
+         * constraints preserve the target's zero-index register allocation. */
+        r2 = 0;
+        {
+            register u32 r0Live asm("r0");
+            register u32 r1Live asm("r1");
+
+            /* Both registers must be unavailable for the C signed load to use r2. */
+            asm("" : "=r"(r0Live), "=r"(r1Live));
+            r4 = *(const s16 *)r4;
+            asm("" : : "r"(r0Live), "r"(r1Live));
+        }
         r0 = r7;
         r0 = FixedInverse(r0);
         r1 = r0;
@@ -4380,7 +4396,14 @@ scale_ready:
         r0 <<= 1;
         r0 += r5;
         r1 = 0;
-        r4 = *(s16*)(r0 + r1);
+        {
+            register u32 r2Live asm("r2");
+
+            /* Preserve r1 as the index register for this existing C read. */
+            asm("" : "=r"(r2Live));
+            r4 = *(s16 *)(r0 + r1);
+            asm("" : : "r"(r2Live));
+        }
         r0 = r7;
         r0 = FixedInverse(r0);
         r1 = r0;
@@ -4392,7 +4415,14 @@ scale_ready:
         r0 <<= 1;
         r0 += r5;
         r1 = 0;
-        r4 = *(s16*)(r0 + r1);
+        {
+            register u32 r2Live asm("r2");
+
+            /* Preserve r1 as the index register for this existing C read. */
+            asm("" : "=r"(r2Live));
+            r4 = *(s16 *)(r0 + r1);
+            asm("" : : "r"(r2Live));
+        }
         r4 = -r4;
         r0 = r7;
         r0 = FixedInverse(r0);
@@ -4406,7 +4436,14 @@ scale_ready:
         r0 <<= 1;
         r0 += r5;
         r1 = 0;
-        r4 = *(s16*)(r0 + r1);
+        {
+            register u32 r2Live asm("r2");
+
+            /* Preserve r1 as the index register for this existing C read. */
+            asm("" : "=r"(r2Live));
+            r4 = *(s16 *)(r0 + r1);
+            asm("" : : "r"(r2Live));
+        }
         r0 = r7;
         r0 = FixedInverse(r0);
         r1 = r0;
@@ -4864,63 +4901,31 @@ void FinishBlackDogAttack(void)
 void SpriteBlackDog(void)
 {
     struct PrimarySpriteData* s;
-    register s32 v asm("r0");
     s = &gCurrentSprite;
-    v = 1;
-    s->disableWarioCollisionTimer = v;
-    v = s->pose;
-    asm volatile("" : : "X"(&&case21));
-    if (v == 20) {
-        goto case20;
+    s->disableWarioCollisionTimer = 1;
+    switch (s->pose) {
+    case 0:
+        InitBlackDog();
+        break;
+    case 16:
+        ShopItemFollowShopkeeper();
+        break;
+    case 18:
+        StartBlackDogAttack();
+        break;
+    case 20:
+        UpdateBlackDogAttack();
+        break;
+    case 21:
+        UpdateBlackDogCollision();
+        break;
+    case 22:
+        FinishBlackDogAttack();
+        break;
+    /* Empty, but it keeps the switch sparse enough to compile as a compare tree. */
+    case 92:
+        break;
     }
-    if (v > 20) {
-        goto above20;
-    }
-    if (v == 16) {
-        goto case16;
-    }
-    if (v > 16) {
-        goto above16;
-    }
-    if (v == 0) {
-        goto case0;
-    }
-    goto end;
-above16:
-    if (v == 18) {
-        goto case18;
-    }
-    goto end;
-above20:
-    if (v == 22) {
-        goto case22;
-    }
-    /*
-     * switch and if/else C forms were tested; agbcc lays out a different
-     * comparison tree. This boundary preserves only the target cmp/blt pair.
-     */
-    asm volatile("cmp r0, #22\n\tblt .L_testc1_case21");
-    goto end;
-case0:
-    InitBlackDog();
-    goto end;
-case16:
-    ShopItemFollowShopkeeper();
-    goto end;
-case18:
-    StartBlackDogAttack();
-    goto end;
-case20:
-    UpdateBlackDogAttack();
-    goto end;
-case21:
-    /* Target of the localized dispatcher branch above; emits no instruction. */
-    asm volatile(".L_testc1_case21:");
-    UpdateBlackDogCollision();
-    goto end;
-case22:
-    FinishBlackDogAttack();
-end:;
 }
 
 void InitLargeLips(void)
@@ -5254,7 +5259,7 @@ countdown:
     r4[28] = r0;
     *(const struct AnimationFrame**)(r4 + 4) = sLargeLipsIdleOam;
     r4[22] = r1;
-    *(u16*)(r4 + 20) = r2;
+    ((struct PrimarySpriteData*)r4)->animationTimer = r2;
     r0 = 112;
     *(u8*)r3 = r0;
     r0 = (u32)r4;
@@ -5649,7 +5654,7 @@ void MoveLargeLipsKissEffect(void)
 void FadeLargeLipsKissEffect(void)
 {
     struct PrimarySpriteData* s;
-    register u32 r0 asm("r0");
+    register u32 r0;
     register u32 r1 asm("r1");
     u32 r2;
     register u32 r3 asm("r3");
@@ -5716,8 +5721,9 @@ void FadeLargeLipsKissEffect(void)
     r4 = (s32)sSinCosTable;
     r0 = r4 + 128;
     r3 = 0;
-    /* Pure C selects a different zero-index register for this signed load. */
-    asm("ldrsh %0, [%1, %2]" : "=r"(r5) : "r"(r0), "r"(r3));
+    /* Keep the existing r1 and r2 values live so the signed load uses r3. */
+    r5 = *(const s16 *)r0;
+    asm("" : : "r"(r1), "r"(r2));
     r0 = scale;
     r0 = FixedInverse(r0);
     r1 = r0;
@@ -5990,14 +5996,14 @@ void StartBigFistAttack(void)
                 break;
         }
         r0 = (u32)&gCurrentSprite;
-        r1 = *(u8*)(r0 + 24);
+        r1 = ((struct PrimarySpriteData*)r0)->roomSlot;
         s3 = (struct PrimarySpriteData*)r0;
         s3 = (struct PrimarySpriteData*)((u32)s3);
         {
             u32 y;
-            y = *(u16*)(r0 + 8);
+            y = ((struct PrimarySpriteData*)r0)->yPosition;
             y += 64;
-            r0 = *(u16*)(r0 + 10);
+            r0 = ((struct PrimarySpriteData*)r0)->xPosition;
             r0 -= 64;
             SpawnHighPriorityPrimarySprite(11, r1, 0, y, r0);
         }
@@ -6311,7 +6317,7 @@ affine:
     r0 = (s32)r6;
     r0 = FixedMul(r0, r1);
     r5 = (u32)&gCurrentSprite;
-    *(u16*)(r5 + 12) = r0;
+    ((struct PrimarySpriteData*)r5)->affinePA = r0;
     r0 = 0;
     r4 = (struct PrimarySpriteData*)(s32) * (s16*)r4;
     r0 = scale;
@@ -6319,20 +6325,20 @@ affine:
     r1 = r0;
     r0 = (s32)r4;
     r0 = FixedMul(r0, r1);
-    *(u16*)(r5 + 14) = r0;
+    ((struct PrimarySpriteData*)r5)->affinePB = r0;
     r4 = (struct PrimarySpriteData*)(-(s32)r4);
     r0 = scale;
     r0 = FixedInverse(r0);
     r1 = r0;
     r0 = (s32)r4;
     r0 = FixedMul(r0, r1);
-    *(u16*)(r5 + 16) = r0;
+    ((struct PrimarySpriteData*)r5)->affinePC = r0;
     r0 = scale;
     r0 = FixedInverse(r0);
     r1 = r0;
     r0 = (s32)r6;
     r0 = FixedMul(r0, r1);
-    *(u16*)(r5 + 18) = r0;
+    ((struct PrimarySpriteData*)r5)->affinePD = r0;
 end:;
 }
 
@@ -6555,7 +6561,8 @@ void MoveBlackDragonIntoAttackPosition(void)
         temp = 0;
         sprite->currentAnimationFrame = temp;
         /* agbcc reuses r0 here; this single move preserves the required second zero before strh. */
-        asm("mov r0, #0");
+        asm volatile("" : "=r"(temp));
+        temp = 0;
         sprite->animationTimer = 0;
     }
 
@@ -7016,7 +7023,7 @@ void UpdateBlackDragonFireCollision(void)
     value = 44;
     value *= counter;
     value += (u32)data;
-    value = *(volatile u16*)(value + 8);
+    value = ((volatile struct PrimarySpriteData *)(u32)value)->yPosition;
     *(volatile u16*)(sprite + 8) = value;
 
     data = sprite;
@@ -7036,16 +7043,16 @@ void UpdateBlackDragonFireCollision(void)
         counter = 1;
         value &= counter;
         if (value != 0) {
-            value = *(volatile u16*)(sprite + 8);
+            value = ((volatile struct PrimarySpriteData *)sprite)->yPosition;
             value += 32;
-            counter = *(volatile u16*)(sprite + 10);
+            counter = ((volatile struct PrimarySpriteData *)sprite)->xPosition;
             counter -= 32;
             data = (volatile u8*)51;
             SpawnSecondarySprite(value, counter, (u8)(u32)data);
         } else {
-            value = *(volatile u16*)(sprite + 8);
+            value = ((volatile struct PrimarySpriteData *)sprite)->yPosition;
             value -= 32;
-            counter = *(volatile u16*)(sprite + 10);
+            counter = ((volatile struct PrimarySpriteData *)sprite)->xPosition;
             counter += 32;
             data = (volatile u8*)51;
             SpawnSecondarySprite(value, counter, (u8)(u32)data);
@@ -7053,9 +7060,9 @@ void UpdateBlackDragonFireCollision(void)
     }
 
     sprite = (volatile u8*)&gCurrentSprite;
-    value = *(volatile u8*)(sprite + 24);
+    value = ((volatile struct PrimarySpriteData *)sprite)->roomSlot;
     if (value == 4) {
-        value = *(volatile u16*)(sprite + 8);
+        value = ((volatile struct PrimarySpriteData *)sprite)->yPosition;
         value -= 72;
         *(volatile u16*)(sprite + 8) = value;
         data = (volatile u8*)gSpriteData;
@@ -7065,7 +7072,7 @@ void UpdateBlackDragonFireCollision(void)
         value = 44;
         value *= counter;
         value += (u32)data;
-        value = *(volatile u8*)(value + 28);
+        value = ((volatile struct PrimarySpriteData *)(u32)value)->pose;
         if (value == 19) {
             value = 22;
             *(volatile u8*)(sprite + 28) = value;

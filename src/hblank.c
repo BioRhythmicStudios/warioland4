@@ -929,7 +929,10 @@ void UpdateEscapeRippleHBlank(u8 arg0)
                 idx = scroll_r6->bg3Vertical + i_r1;
 
                 // agbcc compiler boundary
-                asm("mov %0, %1\n\tldrb %0, [%0]" : "=r"(phaseval_r7) : "r"(phase_ip));
+                {
+                    register u8 *phaseBase asm("r7") = phase_ip;
+                    asm("ldrb r7, [r7]" : "=r"(phaseval_r7) : "r"(phaseBase));
+                }
 
                 idx += phaseval_r7;
                 idx &= mask_r5;

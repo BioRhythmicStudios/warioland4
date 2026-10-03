@@ -7,66 +7,59 @@
 
 volatile long UpdateMagicCarpetCollisionTimer(void)
 {
-  struct PrimarySpriteData *currentLoad;
-  struct PrimarySpriteData *current;
-  u8 roomSlot;
-  int i;
-  u16 status;
-  currentLoad = &gCurrentSprite;
-  roomSlot = currentLoad->roomSlot;
-  i = 0;
-  current = currentLoad;
-  for (; i < 24; i++)
-  {
-    if (gSpriteData[i].globalID == PSPRITE_MAGIC_CARPET)
-    {
-      ;
-      if (gSpriteData[i].status & SPRITE_STATUS_EXISTS)
-      {
-        if (roomSlot != gSpriteData[i].roomSlot)
-        {
-          if (gSpriteData[i].work1 != 0)
-          {
-            current->disableWarioCollisionTimer = 1;
-            break;
-          }
+    struct PrimarySpriteData* currentLoad;
+    struct PrimarySpriteData* current;
+    u8 roomSlot;
+    int i;
+    u16 status;
+    currentLoad = &gCurrentSprite;
+    roomSlot = currentLoad->roomSlot;
+    i = 0;
+    current = currentLoad;
+    for (; i < 24; i++) {
+        if (gSpriteData[i].globalID == PSPRITE_MAGIC_CARPET) {
+            if (gSpriteData[i].status & SPRITE_STATUS_EXISTS) {
+                if (roomSlot != gSpriteData[i].roomSlot) {
+                    if (gSpriteData[i].work1 != 0) {
+                        current->disableWarioCollisionTimer = 1;
+                        break;
+                    }
+                }
+            }
         }
-      }
     }
-  }
-
 }
 
 void InitMagicCarpet(void)
 {
-  struct PrimarySpriteData *sprite;
-  const struct AnimationFrame *new_var;
-  struct PrimarySpriteData **new_var2;
-  new_var2 = &sprite;
-  sprite = &gCurrentSprite;
-  (*new_var2)->status |= SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
-  sprite->warioCollision = 29;
-  (*new_var2)->drawDistanceDown = 16;
-  (*new_var2)->drawDistanceUp = 16;
-  sprite->drawDistanceLeftRight = 32;
-  (*new_var2)->hitboxExtentUp = 4;
-  (*new_var2)->hitboxExtentDown = 64;
-  (*new_var2)->hitboxExtentLeft = 68;
-  (*new_var2)->hitboxExtentRight = 64;
-  new_var = sMagicCarpetIdleOam;
-  (*new_var2)->pOamData = new_var;
-  (*new_var2)->currentAnimationFrame = 0;
-  (*new_var2)->animationTimer = 0;
-  sprite->pose = 24;
-  (*new_var2)->yPosition -= 12;
-  sprite->work2 = 0;
-  (*new_var2)->work1 = 0;
+    struct PrimarySpriteData* sprite;
+    const struct AnimationFrame* new_var;
+    struct PrimarySpriteData** new_var2;
+    new_var2 = &sprite;
+    sprite = &gCurrentSprite;
+    (*new_var2)->status |= SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
+    sprite->warioCollision = 29;
+    (*new_var2)->drawDistanceDown = 16;
+    (*new_var2)->drawDistanceUp = 16;
+    sprite->drawDistanceLeftRight = 32;
+    (*new_var2)->hitboxExtentUp = 4;
+    (*new_var2)->hitboxExtentDown = 64;
+    (*new_var2)->hitboxExtentLeft = 68;
+    (*new_var2)->hitboxExtentRight = 64;
+    new_var = sMagicCarpetIdleOam;
+    (*new_var2)->pOamData = new_var;
+    (*new_var2)->currentAnimationFrame = 0;
+    (*new_var2)->animationTimer = 0;
+    sprite->pose = 24;
+    (*new_var2)->yPosition -= 12;
+    sprite->work2 = 0;
+    (*new_var2)->work1 = 0;
 }
 
 void SetMagicCarpetMovementState(void)
 {
-    register struct PrimarySpriteData* sprite asm("r2");
-    register u16 status asm("r3");
+    struct PrimarySpriteData* sprite;
+    u32 status;
     u8* work2;
     u16 newStatus;
 
@@ -80,7 +73,9 @@ void SetMagicCarpetMovementState(void)
         sprite->work0 = 4;
         if (gWarioData.horizontalDirection & 0x20) {
             sprite->work2 = 1;
-            sprite->status = status & ~SPRITE_STATUS_FACING_RIGHT;
+            newStatus = ~SPRITE_STATUS_FACING_RIGHT;
+            newStatus &= status;
+            sprite->status = newStatus;
         } else {
             sprite->work2 = 2;
             newStatus = SPRITE_STATUS_FACING_RIGHT;
@@ -93,10 +88,11 @@ void SetMagicCarpetMovementState(void)
         sprite->pose = 20;
         work2 = &sprite->work2;
         if (*work2 == 0) {
-            if (gWarioData.horizontalDirection & 0x20)
+            if (gWarioData.horizontalDirection & 0x20) {
                 *work2 = 1;
-            else
+            } else {
                 *work2 = 2;
+            }
         }
     }
 }
@@ -104,9 +100,9 @@ void SetMagicCarpetMovementState(void)
 void MagicCarpetWaitForWario(void)
 {
     struct PrimarySpriteData* sprite;
-    register u16 status asm("r3");
+    u32 status;
     u16 newStatus;
-    register u8* work2 asm("r1");
+    u8* work2;
 
     sprite = &gCurrentSprite;
     status = sprite->status;
@@ -116,7 +112,8 @@ void MagicCarpetWaitForWario(void)
         sprite->animationTimer = 0;
         sprite->pose = 16;
         if (gWarioData.horizontalDirection & 0x20) {
-            newStatus = status & ~SPRITE_STATUS_FACING_RIGHT;
+            newStatus = ~SPRITE_STATUS_FACING_RIGHT;
+            newStatus &= status;
             sprite->status = newStatus;
             work2 = &sprite->work2;
             *work2 = 1;
@@ -129,72 +126,65 @@ void MagicCarpetWaitForWario(void)
         }
     } else {
         func_8023BFC(sprite->yPosition + 12, sprite->xPosition);
-        if (gSpriteCollisionTileType == 0)
+        if (gSpriteCollisionTileType == 0) {
             SetMagicCarpetMovementState();
+        }
     }
 }
 
 void MagicCarpetHandleStandingWario(void)
 {
-  struct PrimarySpriteData **new_var;
-  struct PrimarySpriteData *sprite;
-  u16 status;
-  u16 standing;
-  register u16 buttons asm("r1");
-  u8 *work2;
-  register u16 newStatus asm("r0");
-  u8 zero;
-  func_8023B88();
-  if (gSpriteCollisionResult == 0)
-  {
-    SetMagicCarpetMovementState();
-  }
-  else
-  {
-    sprite = &gCurrentSprite;
-    status = sprite->status;
-    standing = status & SPRITE_STATUS_WARIO_STANDING_ON;
-    if (standing != 0)
-    {
-      buttons = gButtonsPressed;
-      if (buttons & 0x20)
-      {
-        work2 = &sprite->work2;
-        *work2 = 1;
-        newStatus = status & (~SPRITE_STATUS_FACING_RIGHT);
-        sprite->status = newStatus;
-      }
-      else
-        if (buttons & 0x10)
-      {
-        work2 = &sprite->work2;
-        *work2 = 2;
-        newStatus = SPRITE_STATUS_FACING_RIGHT;
-        newStatus |= status;
-        sprite->status = newStatus;
-      }
+    struct PrimarySpriteData** new_var;
+    struct PrimarySpriteData* sprite;
+    u16 status;
+    u16 standing;
+    u16 buttons;
+    u8* work2;
+    u16 newStatus;
+    u8 zero;
+    func_8023B88();
+    if (gSpriteCollisionResult == 0) {
+        SetMagicCarpetMovementState();
+    } else {
+        sprite = &gCurrentSprite;
+        status = sprite->status;
+        standing = status & SPRITE_STATUS_WARIO_STANDING_ON;
+        if (standing != 0) {
+            buttons = gButtonsPressed;
+            if (buttons & 0x20) {
+                work2 = &sprite->work2;
+                *work2 = 1;
+                newStatus = ~SPRITE_STATUS_FACING_RIGHT;
+                newStatus &= status;
+                sprite->status = newStatus;
+            } else if (buttons & 0x10) {
+                work2 = &sprite->work2;
+                *work2 = 2;
+                newStatus = SPRITE_STATUS_FACING_RIGHT;
+                newStatus += (u16)((u32)buttons * 0x10000u);
+                newStatus |= status;
+                sprite->status = newStatus;
+            }
+        } else {
+            zero = 0;
+            sprite->disableWarioCollisionTimer = 6;
+            new_var = &sprite;
+            (*new_var)->pOamData = sMagicCarpetFlyingOam;
+            (*new_var)->currentAnimationFrame = standing;
+            sprite->animationTimer = standing;
+            sprite->work0 = 36;
+            (*new_var)->work3 = zero;
+            sprite->pose = 18;
+        }
     }
-    else
-    {
-      zero = 0;
-      sprite->disableWarioCollisionTimer = 6;
-      new_var = &sprite;
-      (*new_var)->pOamData = sMagicCarpetFlyingOam;
-      (*new_var)->currentAnimationFrame = standing;
-      sprite->animationTimer = standing;
-      sprite->work0 = 36;
-      (*new_var)->work3 = zero;
-      sprite->pose = 18;
-    }
-  }
 }
 
 void MagicCarpetRiseAndMove(void)
 {
     struct PrimarySpriteData* sprite;
     struct PrimarySpriteData** new_var;
-    register u16 newStatus asm("r0");
-    register u16 status asm("r2");
+    u16 newStatus;
+    u32 status;
     u8 timer;
     u8 index;
     s16 velocity;
@@ -209,11 +199,13 @@ void MagicCarpetRiseAndMove(void)
         sprite->work0 = 4;
         if (gWarioData.horizontalDirection & 0x20) {
             sprite->work2 = 1;
-            newStatus = status & ~SPRITE_STATUS_FACING_RIGHT;
+            newStatus = ~SPRITE_STATUS_FACING_RIGHT;
+            newStatus &= status;
             sprite->status = newStatus;
         } else {
             sprite->work2 = 2;
-            newStatus = status | SPRITE_STATUS_FACING_RIGHT;
+            newStatus = SPRITE_STATUS_FACING_RIGHT;
+            newStatus |= status;
             sprite->status = newStatus;
         }
     } else {
@@ -237,15 +229,10 @@ void MagicCarpetRiseAndMove(void)
                             const s16* previousVelocity;
                             u16 yPosition;
 
-                            asm volatile(
-                                "sub %0, %1, #1\n\t"
-                                "lsl %0, %0, #1\n\t"
-                                "add %0, %0, %2"
-                                : "=r"(previousVelocity)
-                                : "r"(index), "r"(sMagicCarpetVerticalVelocity));
-                            yPosition = sprite->yPosition;
+                            previousVelocity = (const s16*)((u8*)sMagicCarpetVerticalVelocity + ((index - 1) << 1));
+                            yPosition = *(volatile u16*)&sprite->yPosition;
                             {
-                                register s16 previousValue asm("r1");
+                                s16 previousValue;
                                 previousValue = *previousVelocity;
                                 yPosition += previousValue;
                             }
@@ -285,111 +272,99 @@ void MagicCarpetRiseAndMove(void)
 
 void MagicCarpetMoveUnridden(void)
 {
-  struct PrimarySpriteData *sprite;
-  unsigned int groundY;
-  u16 status;
-  register u16 statusCopy asm("r3");
-  u16 standing;
-  u16 y;
-  u8 *work2;
-  struct PrimarySpriteData **new_var;
-  u8 *work0;
-  sprite = &gCurrentSprite;
-  groundY = func_8023A60(sprite->yPosition, sprite->xPosition);
-  if (gBackgroundCollisionData.waterType == 1)
-  {
-    sprite->status |= SPRITE_STATUS_UNDERWATER;
-  }
-  if (gSpriteCollisionResult != 0)
-  {
-    u8 zeroByte;
-    u16 zeroHalf;
-    s32 yPosition;
-    zeroByte = 0;
-    zeroHalf = 0;
-    asm volatile("" : "+r"(zeroByte), "+r"(zeroHalf));
-    sprite->pOamData = sMagicCarpetIdleOam;
-    sprite->currentAnimationFrame = zeroByte;
-    sprite->animationTimer = zeroHalf;
-    sprite->pose = 24;
-    yPosition = groundY;
-    yPosition -= 12;
-    sprite->yPosition = yPosition;
-    return;
-  }
-  status = sprite->status;
-  standing = status & SPRITE_STATUS_WARIO_STANDING_ON;
-  statusCopy = status;
-  if (standing != 0)
-  {
-    sprite->currentAnimationFrame = 0;
-    (*(new_var = &sprite))->animationTimer = 0;
-    sprite->pOamData = sMagicCarpetRiddenOam;
-    sprite->pose = 22;
-    sprite->work0 = 4;
-    if (gWarioData.horizontalDirection & 0x20)
-    {
-      sprite->work2 = 1;
-      sprite->status = statusCopy & (~SPRITE_STATUS_FACING_RIGHT);
+    struct PrimarySpriteData* sprite;
+    unsigned int groundY;
+    u32 status;
+    u16 statusCopy;
+    u32 standing;
+    u16 y;
+    u8* work2;
+    struct PrimarySpriteData** new_var;
+    u8* work0;
+    sprite = &gCurrentSprite;
+    groundY = func_8023A60(sprite->yPosition, sprite->xPosition);
+    if (gBackgroundCollisionData.waterType == 1) {
+        sprite->status |= SPRITE_STATUS_UNDERWATER;
     }
-    else
-    {
-      register u16 newStatus asm("r0");
-      sprite->work2 = 2;
-      newStatus = status | SPRITE_STATUS_FACING_RIGHT;
-      sprite->status = newStatus;
+    if (gSpriteCollisionResult != 0) {
+        u8 zeroByte;
+        u16 zeroHalf;
+        s32 yPosition;
+        zeroByte = (u8)(groundY << 8);
+        zeroHalf = (u16)(groundY * 0x10000);
+        sprite->pOamData = sMagicCarpetIdleOam;
+        sprite->currentAnimationFrame = zeroByte;
+        sprite->animationTimer = zeroHalf;
+        sprite->pose = 24;
+        yPosition = groundY;
+        yPosition -= 12;
+        sprite->yPosition = yPosition;
+        return;
     }
-    return;
-  }
-  y = sprite->yPosition;
-  sprite->yPosition = y + 4;
-  work2 = &sprite->work2;
-  if ((*work2) == 1)
-  {
-    func_8023BFC((u16) (y - 28), (u16) (sprite->xPosition - 80));
-    if ((gSpriteCollisionTileType & 0xF) == 0)
-    {
-      sprite->xPosition -= 3;
+    status = sprite->status;
+    standing = status & SPRITE_STATUS_WARIO_STANDING_ON;
+    statusCopy = status;
+    if (standing != 0) {
+        u16 newStatus;
+        sprite->currentAnimationFrame = 0;
+        (*(new_var = &sprite))->animationTimer = 0;
+        sprite->pOamData = sMagicCarpetRiddenOam;
+        sprite->pose = 22;
+        sprite->work0 = 4;
+        if (gWarioData.horizontalDirection & 0x20) {
+            sprite->work2 = 1;
+            newStatus = ~SPRITE_STATUS_FACING_RIGHT;
+            newStatus &= statusCopy;
+            sprite->status = newStatus;
+        } else {
+            u8* work2Pointer;
+            work2Pointer = &sprite->work2;
+            newStatus = 2;
+            *work2Pointer = newStatus;
+            newStatus <<= 5;
+            newStatus |= status;
+            sprite->status = newStatus;
+        }
+        return;
     }
-    else
-    {
-      sprite->work0 = 30;
-      *work2 = 2;
+    y = sprite->yPosition;
+    sprite->yPosition = y + 4;
+    work2 = &sprite->work2;
+    if ((*work2) == 1) {
+        func_8023BFC((u16)(y - 28), (u16)(sprite->xPosition - 80));
+        if ((gSpriteCollisionTileType & 0xF) == 0) {
+            sprite->xPosition -= 3;
+        } else {
+            sprite->work0 = 30;
+            *work2 = 2;
+        }
+    } else {
+        func_8023BFC((u16)(y - 28), (u16)(sprite->xPosition + 76));
+        if ((gSpriteCollisionTileType & 0xF) == 0) {
+            sprite->xPosition += 3;
+        } else {
+            sprite->work0 = 30;
+            *work2 = 1;
+        }
     }
-  }
-  else
-  {
-    func_8023BFC((u16) (y - 28), (u16) (sprite->xPosition + 76));
-    if ((gSpriteCollisionTileType & 0xF) == 0)
-    {
-      sprite->xPosition += 3;
+    sprite = &gCurrentSprite;
+    work0 = &sprite->work0;
+    (*work0)--;
+    if ((*work0) == 0) {
+        *work0 = 30;
+        sprite->work2 ^= 3;
     }
-    else
-    {
-      sprite->work0 = 30;
-      *work2 = 1;
-    }
-  }
-  sprite = &gCurrentSprite;
-  work0 = &sprite->work0;
-  (*work0)--;
-  if ((*work0) == 0)
-  {
-    *work0 = 30;
-    sprite->work2 ^= 3;
-  }
 }
 
 void MagicCarpetMoveWithWario(void)
 {
     struct PrimarySpriteData* sprite;
-    register u16 groundY asm("r3");
-    u16 status;
-    register u16 statusCopy asm("r3");
-    u16 standing;
+    u32 groundY;
+    u32 status;
+    u16 statusCopy;
+    u32 standing;
     u16 buttons;
-    register u16 buttonMask asm("r0");
-    register u32 direction asm("r2");
+    u32 buttonMask;
     u8* work2;
     struct PrimarySpriteData* loadedSprite;
 
@@ -415,28 +390,32 @@ void MagicCarpetMoveWithWario(void)
         gWarioData.yPosition += 2;
         sprite->work0 = 4;
         buttons = gButtonsHeld;
-        buttonMask = buttons & 0x20;
+        buttonMask = 0x20;
+        buttonMask &= buttons;
         if (buttonMask != 0) {
             work2 = &sprite->work2;
             *work2 = 1;
             sprite->status = statusCopy & ~SPRITE_STATUS_FACING_RIGHT;
         } else {
-            buttonMask = buttons & 0x10;
+            buttonMask = 0x10;
+            buttonMask &= buttons;
             if (buttonMask != 0) {
-                register u16 newStatus asm("r0");
+                u32 newStatus;
                 work2 = &sprite->work2;
-                *work2 = 2;
-                newStatus = status | SPRITE_STATUS_FACING_RIGHT;
+                newStatus = 2;
+                *work2 = newStatus;
+                newStatus <<= 5;
+                newStatus |= status;
                 sprite->status = newStatus;
             }
         }
 
         loadedSprite = &gCurrentSprite;
-        direction = (u32)loadedSprite;
-        direction += 41;
-        direction = *(u8*)direction;
+        status = (u32)&loadedSprite->work2;
+        status += (u16)(statusCopy * 0x10000u);
+        status = *(u8*)status;
         sprite = loadedSprite;
-        if (direction == 1) {
+        if (status == 1) {
             func_8023BFC((u16)(sprite->yPosition - 32), (u16)(sprite->xPosition - 80));
             if ((gSpriteCollisionTileType & 0xF) == 0) {
                 sprite->xPosition -= 4;
@@ -445,17 +424,16 @@ void MagicCarpetMoveWithWario(void)
             {
                 struct WarioData* wario;
                 u16 warioX;
-                register s32 limit asm("r0");
+                s32 limit;
 
                 wario = &gWarioData;
                 warioX = wario->xPosition;
-                limit = sprite->xPosition;
-                limit -= 33;
+                limit = (s32)sprite->xPosition - 33;
                 if (warioX < limit) {
                     wario->xPosition = limit;
                 }
             }
-        } else if (direction == 2) {
+        } else if (status == 2) {
             func_8023BFC((u16)(sprite->yPosition - 32), (u16)(sprite->xPosition + 76));
             if ((gSpriteCollisionTileType & 0xF) == 0) {
                 sprite->xPosition += 4;
@@ -464,12 +442,11 @@ void MagicCarpetMoveWithWario(void)
             {
                 struct WarioData* wario;
                 u16 warioX;
-                register s32 limit asm("r0");
+                s32 limit;
 
                 wario = &gWarioData;
                 warioX = wario->xPosition;
-                limit = sprite->xPosition;
-                limit += 33;
+                limit = (s32)sprite->xPosition + 33;
                 if (warioX > limit) {
                     wario->xPosition = limit;
                 }
@@ -491,13 +468,8 @@ void MagicCarpetMoveWithWario(void)
         u32 zero;
         u8* work3;
 
-        /* agbcc speculatively computes this field address in both movement branches;
-         * keeping the two-instruction address formation here matches the shared tail. */
-        asm volatile(
-            "add %0, %1, #0\n\t"
-            "add %0, #39"
-            : "=r"(work0)
-            : "r"(sprite));
+        sprite = &gCurrentSprite;
+        work0 = &sprite->work0;
         timer = *work0;
         if (timer == 0) {
             sprite->pOamData = sMagicCarpetFlyingOam;

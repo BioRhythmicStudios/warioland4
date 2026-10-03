@@ -227,14 +227,15 @@ void InitFallingSnowFragment(void)
     sprite = &gCurrentSprite;
     {
         s32 oldStatus;
-        register u32 statusBits asm("r2");
+        u32 statusBits;
         register u16 base asm("r0");
         u32 mask;
 
         oldStatus = sprite->status;
         statusBits = 0x400;
         base = statusBits;
-        asm("mov %0, #0" : "=r"(zero));
+        zero = 0;
+        asm volatile("" : "+r"(zero));
         zero16 = 0;
         status = base;
         status |= oldStatus;

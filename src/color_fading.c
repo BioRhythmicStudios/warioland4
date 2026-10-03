@@ -1259,14 +1259,14 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
 
     if (mode == 1)
     {
-        register u32 base asm("r1");
+        u32 base;
         u16 *ptr;
         register u32 fill asm("r2");
 
         base = 0x05000000;
         COMPILER_BARRIER(base);
         value = paletteIndex << 5;
-        base = value + base;
+        base = (value) - (-(base));
         ptr = (u16 *)base;
         value = tileCount << 4;
         if (value != 0)
@@ -1288,14 +1288,14 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
     }
     else if (mode == 3)
     {
-        register u32 base asm("r1");
+        u32 base;
         u16 *ptr;
         u32 fill;
 
         base = 0x05000000;
         COMPILER_BARRIER(base);
         value = paletteIndex << 5;
-        base = value + base;
+        base = (value) - (-(base));
         ptr = (u16 *)base;
         value = tileCount << 4;
         if (value != 0)

@@ -1,7 +1,6 @@
 #include "sprite_ai/denden.h"
 
 #include "fixed_point.h"
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"

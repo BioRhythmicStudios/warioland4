@@ -1,8 +1,5 @@
 
 #include "bg_clip.h"
-#include "gba/m4a.h"
-#include "global_data.h"
-#include "main.h"
 #include "score.h"
 #include "sound.h"
 #include "voice_set.h"

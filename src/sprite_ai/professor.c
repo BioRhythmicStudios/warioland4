@@ -1,13 +1,9 @@
-#include "sprite_ai/professor.h"
 
-#include "global_data.h"
 #include "main.h"
-#include "oam.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_util.h"
-#include "types.h"
 #include "wario.h"
 
 extern const struct AnimationFrame sProfessorWalkOam[];
@@ -1066,8 +1062,7 @@ void SpriteProfessorProjectile(void)
         *extentField++ = largeExtent;
         *extentField++ = largeExtent;
         /* Preserve the final extent pointer increment instead of folding it into [extentField, #1]. */
-        asm("" : "+r"(extentField));
-        *extentField = largeExtent;
+        *(volatile u8 *)extentField = largeExtent;
 
         projectileOam = sProfessorProjectileOam;
         projectileState = projectile;

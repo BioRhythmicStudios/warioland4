@@ -108,7 +108,7 @@ void func_804A508(void)
   }
   {
     register u8 *modePtr asm("r4");
-    modePtr = ((u8 *) sprite) + 41;
+    modePtr = &sprite->work2;
     locals.mode = *modePtr;
   }
   {
@@ -134,7 +134,7 @@ void func_804A508(void)
     table = (const s16 *) (frameOffset + ((s32) table));
     locals.mode1LowY = table;
   }
-  locals.childWork1 = ((u8 *) sprites) + 40;
+  locals.childWork1 = &sprites->work1;
   wario = &gWarioData;
   {
     s32 offset;
@@ -197,14 +197,13 @@ void func_804A508(void)
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
         {
-          const s16 *xTable;
-          const s16 *xPointer;
-          s32 xZero;
-
+          register const s16 *xTable;
+          register u32 xAddress asm("r0");
+          register u32 xZero;
           xTable = sUnk_83CFFF8;
-          /* agbcc cannot otherwise keep the address result in r0 and the zero index in r3. */
-          asm("add r0, r3, r1\n\tmov r3, #0\n\tldrsh r0, [r0, r3]"
-              : "=r"(xVelocity) : "r"(frameOffset), "r"(xTable) : "r3");
+          xAddress = frameOffset + (u32)xTable;
+          xZero = 0;
+          asm("" : "+r"(xAddress)); xVelocity = ((const s16 *)xAddress)[xZero]; asm("" : : "r"(xTable));
         }
       }
       xDelta = (u16) (xDelta + (xVelocity * 4));
@@ -218,9 +217,9 @@ void func_804A508(void)
       {
         wario->yPosition += yDelta;
         {
-          register u32 xPosition asm("r0");
+          u32 xPosition;
           xPosition = wario->xPosition;
-          xPosition = xDelta + xPosition;
+          xPosition = (xDelta) - (-(xPosition));
           wario->xPosition = xPosition;
         }
         goto applyChildMovement;
@@ -263,15 +262,16 @@ void func_804A508(void)
         yDelta = (u16) (yPointer[zero] * 4);
         {
           const s16 *xTable;
-          register const s16 *xPointer asm("r0");
-          s32 xZero;
+          register const s16 *xPointer;
 
           xTable = sUnk_83CFF38;
           xPointer = (const s16 *)(offset48 + (s32)xTable);
-          asm("" : : "r"(xTable), "r"(xPointer));
-          /* agbcc otherwise assigns the signed-load zero index to r4. */
-          asm("mov r3, #0\n\tldrsh r0, [r0, r3]"
-              : "=r"(xVelocity) : "r"(xPointer) : "r3");
+          {
+            register u32 xZero;
+            xZero = 0;
+            xVelocity = xPointer[xZero];
+            asm("" : : "r"(offset48), "r"(xTable));
+          }
         }
       }
       else
@@ -283,14 +283,13 @@ void func_804A508(void)
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
         {
-          const s16 *xTable;
-          const s16 *xPointer;
-          s32 xZero;
-
+          register const s16 *xTable asm("r4");
+          register u32 xAddress;
+          register u32 xZero;
           xTable = sUnk_83CFED8;
-          /* agbcc cannot otherwise keep the address result in r0 and the zero index in r1. */
-          asm("add r0, r3, r4\n\tmov r1, #0\n\tldrsh r0, [r0, r1]"
-              : "=r"(xVelocity) : "r"(frameOffset), "r"(xTable) : "r1");
+          xAddress = frameOffset + (u32)xTable;
+          xZero = 0;
+          xVelocity = ((const s16 *)xAddress)[xZero]; asm("" : : "r"(frameOffset), "r"(xTable));
         }
       }
       xDelta = (u16) (xDelta + (xVelocity * 4));
@@ -306,9 +305,9 @@ void func_804A508(void)
       }
       wario->yPosition += yDelta;
       {
-        register u32 xPosition asm("r0");
+        u32 xPosition;
         xPosition = wario->xPosition;
-        xPosition = xDelta + xPosition;
+        xPosition = (xDelta) - (-(xPosition));
         wario->xPosition = xPosition;
       }
       if (frame != 47)
@@ -346,9 +345,9 @@ void func_804A508(void)
   sprite->yPosition += yDelta;
 
   {
-    register u32 xPosition asm("r0");
+    u32 xPosition;
     xPosition = sprite->xPosition;
-    xPosition = xDelta + xPosition;
+    xPosition = (xDelta) - (-(xPosition));
     sprite->xPosition = xPosition;
   }
   goto afterLoop;
@@ -380,7 +379,7 @@ void func_804A508(void)
       zero = 0;
       delta = table[zero] * 4;
       position = (u32) current;
-      position = *((u16 *) (position + 8));
+      position = ((struct PrimarySpriteData *)position)->yPosition;
       delta += position;
       storeSprite = current;
       storeSprite->yPosition = delta;
@@ -420,7 +419,7 @@ void func_804A508(void)
       zero = 0;
       delta = table[zero] * 4;
       position = (u32) current;
-      position = *((u16 *) (position + 8));
+      position = ((struct PrimarySpriteData *)position)->yPosition;
       delta += position;
       storeSprite = current;
       storeSprite->yPosition = delta;
@@ -432,8 +431,9 @@ void func_804A508(void)
         asm("" : : "r"(table), "r"(xPointer));
         zero = 0;
         /* agbcc otherwise selects r3 instead of the target r2 as the signed-load index. */
-        asm("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #2"
+        asm("ldrsh %0, [%1, %2]"
             : "=r"(delta) : "r"(xPointer), "r"(zero));
+        delta <<= 2;
         xPosition = storeSprite->xPosition;
         delta += xPosition;
         storeSprite->xPosition = delta;
@@ -457,11 +457,17 @@ void func_804A508(void)
     byteOffset = motionIndex << 1;
     table = (const s16 *) (byteOffset + ((s32) table));
     zero = 0;
-    /* Keep the signed-load index in the target r4 after the preceding localized lookup. */
-    asm("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #2"
-        : "=r"(delta) : "r"(table), "r"(zero));
+    /* Keep r3 live so the typed C load uses the original r4 index. */
+    {
+      register u32 r3Live asm("r3");
+
+      asm("" : "=r"(r3Live));
+      delta = *table;
+      asm("" : : "r"(r3Live));
+    }
+    delta <<= 2;
     position = (u32) current;
-    position = *((u16 *) (position + 8));
+    position = ((struct PrimarySpriteData *)position)->yPosition;
     delta += position;
     storeSprite = current;
     storeSprite->yPosition = delta;
@@ -492,9 +498,9 @@ void func_804A508(void)
   else
   {
     const s16 *table;
-    int byteOffset;
+    register int byteOffset;
     register int zero asm("r2");
-    register s16 delta asm("r0");
+    register s32 delta ;
     register u32 position asm("r3");
     register struct PrimarySpriteData *storeSprite asm("r4");
     table = sUnk_83CFC38;
@@ -502,20 +508,21 @@ void func_804A508(void)
     table = (const s16 *) (byteOffset + ((s32) table));
     zero = 0;
     /* agbcc otherwise selects r4 instead of the target r2 as the signed-load index. */
-    asm("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #2"
+    asm("ldrsh %0, [%1, %2]"
         : "=r"(delta) : "r"(table), "r"(zero));
+        delta <<= 2;
     position = (u32) current;
-    position = *((u16 *) (position + 8));
+    position = ((struct PrimarySpriteData *)position)->yPosition;
     delta += position;
     storeSprite = current;
     storeSprite->yPosition = delta;
     {
-      register u32 xPosition asm("r3");
-      table = sUnk_83CFB78;
-      /* agbcc cannot otherwise reuse r1 for the address and r0 for the signed result. */
-      asm("add r1, r1, r0\n\tmov r2, #0\n\tldrsh r0, [r1, r2]\n\tlsl r0, r0, #2"
-          : "+r"(table), "+r"(byteOffset) : : "r2");
-      delta = (s32) table;
+      register u32 xPosition;
+      register const s16 *xBase;
+      xBase = sUnk_83CFB78;
+      byteOffset += (s32)xBase;
+      delta = *(const s16 *)byteOffset;
+      delta <<= 2;
       xPosition = storeSprite->xPosition;
       delta += xPosition;
       storeSprite->xPosition = delta;
@@ -524,9 +531,12 @@ void func_804A508(void)
   }
 
   loadLowAngle:
-  /* agbcc otherwise reuses r5 as the address destination instead of preserving the frame register. */
-  asm("add r0, r5, r0\n\tldrb r4, [r0]"
-      : "+r"(lowAngleTable), "=r"(angle) : "r"(frame));
+  {
+    register u32 loadedAngle;
+    lowAngleTable = (const u8 *)((s32)frame - -(s32)lowAngleTable);
+    loadedAngle = *lowAngleTable;
+    angle = loadedAngle;
+  }
 
   angleReady:
   {
@@ -543,15 +553,16 @@ void func_804A508(void)
   }
   gCurrentSprite.affinePA = FixedMul(cosine, FixedInverse((s16) (1 * (1 << 8))));
   {
-    register s32 index asm("r0");
+    register s32 index;
     const s16 *table;
-    s32 zero;
+    register s32 zero;
+    register s32 loadedSine;
     index = angle << 1;
     table = sSinCosTable;
     index += (s32) table;
-    /* Keep the zero index in r1 while loading the signed sine into r4. */
-    asm("mov r1, #0\n\tldrsh r4, [r0, r1]"
-        : "=r"(sine) : "r"(index) : "r1");
+    zero = 0;
+    loadedSine = ((const s16 *)index)[zero];
+    sine = loadedSine;
   }
   gCurrentSprite.affinePB = FixedMul(sine, FixedInverse((s16) (1 * (1 << 8))));
   gCurrentSprite.affinePC = FixedMul(-sine, FixedInverse((s16) (1 * (1 << 8))));
@@ -607,7 +618,7 @@ void func_804A84C(void)
   }
   {
     register u8 *modePtr asm("r4");
-    modePtr = ((u8 *) sprite) + 41;
+    modePtr = &sprite->work2;
     locals.mode = *modePtr;
   }
   {
@@ -633,7 +644,7 @@ void func_804A84C(void)
     table = (const s16 *) (frameOffset + ((s32) table));
     locals.mode1LowY = table;
   }
-  locals.childWork1 = ((u8 *) sprites) + 40;
+  locals.childWork1 = &sprites->work1;
   wario = &gWarioData;
   {
     s32 offset;
@@ -696,14 +707,13 @@ void func_804A84C(void)
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
         {
-          const s16 *xTable;
-          const s16 *xPointer;
-          s32 xZero;
-
+          register const s16 *xTable;
+          register u32 xAddress asm("r0");
+          register u32 xZero;
           xTable = sUnk_83D0280;
-          /* agbcc cannot otherwise keep the address result in r0 and the zero index in r3. */
-          asm("add r0, r3, r1\n\tmov r3, #0\n\tldrsh r0, [r0, r3]"
-              : "=r"(xVelocity) : "r"(frameOffset), "r"(xTable) : "r3");
+          xAddress = frameOffset + (u32)xTable;
+          xZero = 0;
+          asm("" : "+r"(xAddress)); xVelocity = ((const s16 *)xAddress)[xZero]; asm("" : : "r"(xTable));
         }
       }
       xDelta = (u16) (xDelta + (xVelocity * 4));
@@ -717,9 +727,9 @@ void func_804A84C(void)
       {
         wario->yPosition += yDelta;
         {
-          register u32 xPosition asm("r0");
+          u32 xPosition;
           xPosition = wario->xPosition;
-          xPosition = xDelta + xPosition;
+          xPosition = (xDelta) - (-(xPosition));
           wario->xPosition = xPosition;
         }
         goto applyChildMovement;
@@ -762,15 +772,16 @@ void func_804A84C(void)
         yDelta = (u16) (yPointer[zero] * 4);
         {
           const s16 *xTable;
-          register const s16 *xPointer asm("r0");
-          s32 xZero;
+          register const s16 *xPointer;
 
           xTable = sUnk_83D01C0;
           xPointer = (const s16 *)(offset48 + (s32)xTable);
-          asm("" : : "r"(xTable), "r"(xPointer));
-          /* agbcc otherwise assigns the signed-load zero index to r4. */
-          asm("mov r3, #0\n\tldrsh r0, [r0, r3]"
-              : "=r"(xVelocity) : "r"(xPointer) : "r3");
+          {
+            register u32 xZero;
+            xZero = 0;
+            xVelocity = xPointer[xZero];
+            asm("" : : "r"(offset48), "r"(xTable));
+          }
         }
       }
       else
@@ -782,14 +793,13 @@ void func_804A84C(void)
         asm("" : : "r"(yPointer));
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
         {
-          const s16 *xTable;
-          const s16 *xPointer;
-          s32 xZero;
-
+          register const s16 *xTable asm("r4");
+          register u32 xAddress;
+          register u32 xZero;
           xTable = sUnk_83D0160;
-          /* agbcc cannot otherwise keep the address result in r0 and the zero index in r1. */
-          asm("add r0, r3, r4\n\tmov r1, #0\n\tldrsh r0, [r0, r1]"
-              : "=r"(xVelocity) : "r"(frameOffset), "r"(xTable) : "r1");
+          xAddress = frameOffset + (u32)xTable;
+          xZero = 0;
+          xVelocity = ((const s16 *)xAddress)[xZero]; asm("" : : "r"(frameOffset), "r"(xTable));
         }
       }
       xDelta = (u16) (xDelta + (xVelocity * 4));
@@ -805,9 +815,9 @@ void func_804A84C(void)
       }
       wario->yPosition += yDelta;
       {
-        register u32 xPosition asm("r0");
+        u32 xPosition;
         xPosition = wario->xPosition;
-        xPosition = xDelta + xPosition;
+        xPosition = (xDelta) - (-(xPosition));
         wario->xPosition = xPosition;
       }
       if (frame != 47)
@@ -845,9 +855,9 @@ void func_804A84C(void)
   sprite->yPosition += yDelta;
 
   {
-    register u32 xPosition asm("r0");
+    u32 xPosition;
     xPosition = sprite->xPosition;
-    xPosition = xDelta + xPosition;
+    xPosition = (xDelta) - (-(xPosition));
     sprite->xPosition = xPosition;
   }
   goto afterLoop;
@@ -879,7 +889,7 @@ void func_804A84C(void)
       zero = 0;
       delta = table[zero] * 4;
       position = (u32) current;
-      position = *((u16 *) (position + 8));
+      position = ((struct PrimarySpriteData *)position)->yPosition;
       delta += position;
       storeSprite = current;
       storeSprite->yPosition = delta;
@@ -919,7 +929,7 @@ void func_804A84C(void)
       zero = 0;
       delta = table[zero] * 4;
       position = (u32) current;
-      position = *((u16 *) (position + 8));
+      position = ((struct PrimarySpriteData *)position)->yPosition;
       delta += position;
       storeSprite = current;
       storeSprite->yPosition = delta;
@@ -931,8 +941,9 @@ void func_804A84C(void)
         asm("" : : "r"(table), "r"(xPointer));
         zero = 0;
         /* agbcc otherwise selects r3 instead of the target r2 as the signed-load index. */
-        asm("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #2"
+        asm("ldrsh %0, [%1, %2]"
             : "=r"(delta) : "r"(xPointer), "r"(zero));
+        delta <<= 2;
         xPosition = storeSprite->xPosition;
         delta += xPosition;
         storeSprite->xPosition = delta;
@@ -956,11 +967,17 @@ void func_804A84C(void)
     byteOffset = motionIndex << 1;
     table = (const s16 *) (byteOffset + ((s32) table));
     zero = 0;
-    /* Keep the signed-load index in the target r4 after the preceding localized lookup. */
-    asm("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #2"
-        : "=r"(delta) : "r"(table), "r"(zero));
+    /* Keep r3 live so the typed C load uses the original r4 index. */
+    {
+      register u32 r3Live asm("r3");
+
+      asm("" : "=r"(r3Live));
+      delta = *table;
+      asm("" : : "r"(r3Live));
+    }
+    delta <<= 2;
     position = (u32) current;
-    position = *((u16 *) (position + 8));
+    position = ((struct PrimarySpriteData *)position)->yPosition;
     delta += position;
     storeSprite = current;
     storeSprite->yPosition = delta;
@@ -991,9 +1008,9 @@ void func_804A84C(void)
   else
   {
     const s16 *table;
-    int byteOffset;
+    register int byteOffset;
     register int zero asm("r2");
-    register s16 delta asm("r0");
+    register s32 delta ;
     register u32 position asm("r3");
     register struct PrimarySpriteData *storeSprite asm("r4");
     table = sUnk_83CFC38;
@@ -1001,20 +1018,21 @@ void func_804A84C(void)
     table = (const s16 *) (byteOffset + ((s32) table));
     zero = 0;
     /* agbcc otherwise selects r4 instead of the target r2 as the signed-load index. */
-    asm("ldrsh %0, [%1, %2]\n\tlsl %0, %0, #2"
+    asm("ldrsh %0, [%1, %2]"
         : "=r"(delta) : "r"(table), "r"(zero));
+        delta <<= 2;
     position = (u32) current;
-    position = *((u16 *) (position + 8));
+    position = ((struct PrimarySpriteData *)position)->yPosition;
     delta += position;
     storeSprite = current;
     storeSprite->yPosition = delta;
     {
-      register u32 xPosition asm("r3");
-      table = sUnk_83CFB78;
-      /* agbcc cannot otherwise reuse r1 for the address and r0 for the signed result. */
-      asm("add r1, r1, r0\n\tmov r2, #0\n\tldrsh r0, [r1, r2]\n\tlsl r0, r0, #2"
-          : "+r"(table), "+r"(byteOffset) : : "r2");
-      delta = (s32) table;
+      register u32 xPosition;
+      register const s16 *xBase;
+      xBase = sUnk_83CFB78;
+      byteOffset += (s32)xBase;
+      delta = *(const s16 *)byteOffset;
+      delta <<= 2;
       xPosition = storeSprite->xPosition;
       delta += xPosition;
       storeSprite->xPosition = delta;
@@ -1023,9 +1041,12 @@ void func_804A84C(void)
   }
 
   loadLowAngle:
-  /* agbcc otherwise reuses r5 as the address destination instead of preserving the frame register. */
-  asm("add r0, r5, r0\n\tldrb r4, [r0]"
-      : "+r"(lowAngleTable), "=r"(angle) : "r"(frame));
+  {
+    register u32 loadedAngle;
+    lowAngleTable = (const u8 *)((s32)frame - -(s32)lowAngleTable);
+    loadedAngle = *lowAngleTable;
+    angle = loadedAngle;
+  }
 
   angleReady:
   {
@@ -1042,15 +1063,16 @@ void func_804A84C(void)
   }
   gCurrentSprite.affinePA = FixedMul(cosine, FixedInverse((s16) (1 * (1 << 8))));
   {
-    register s32 index asm("r0");
+    register s32 index;
     const s16 *table;
-    s32 zero;
+    register s32 zero;
+    register s32 loadedSine;
     index = angle << 1;
     table = sSinCosTable;
     index += (s32) table;
-    /* Keep the zero index in r1 while loading the signed sine into r4. */
-    asm("mov r1, #0\n\tldrsh r4, [r0, r1]"
-        : "=r"(sine) : "r"(index) : "r1");
+    zero = 0;
+    loadedSine = ((const s16 *)index)[zero];
+    sine = loadedSine;
   }
   gCurrentSprite.affinePB = FixedMul(sine, FixedInverse((s16) (1 * (1 << 8))));
   gCurrentSprite.affinePC = FixedMul(-sine, FixedInverse((s16) (1 * (1 << 8))));

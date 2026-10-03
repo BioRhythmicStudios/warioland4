@@ -7,13 +7,11 @@
 #define CopyWarioPalette BatHeader_CopyWarioPalette
 #define ResolveWarioCeilingCollision BatHeader_ResolveWarioCeilingCollision
 #define ResolveWarioFloorCollision BatHeader_ResolveWarioFloorCollision
-#define func_8016614 BatHeader_func_8016614
 #include "wario.h"
 #include "wario/swimming.h"
 #undef CopyWarioPalette
 #undef ResolveWarioCeilingCollision
 #undef ResolveWarioFloorCollision
-#undef func_8016614
 
 #include "bg_clip.h"
 #include "gba/m4a.h"

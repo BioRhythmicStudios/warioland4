@@ -1,6 +1,3 @@
-#include "boss_pause.h"
-#include "global_data.h"
-#include "input.h"
 #include "game_screen_helpers.h"
 
 s32 BossPause(void)

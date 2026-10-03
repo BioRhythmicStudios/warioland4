@@ -56,13 +56,12 @@ void ToyBlockSquareCheckSpriteCollisions(void)
             register u32 basePosition asm("r0");
             register u32 ySum asm("r2");
 
-            /* agbcc otherwise materializes 0x1000 in r3 instead of the required r1. */
-            asm("mov r1, #128\n"
-                "lsl r1, r1, #5\n"
-                "add %0, r1, #0"
-                : "=r"(basePosition)
-                :
-                : "r1");
+            {
+                register u32 baseSeed asm("r1");
+                baseSeed = 0x1000;
+                asm("" : : "r"(baseSeed));
+                basePosition = baseSeed;
+            }
 
             {
                 register u16 positionY asm("r3");

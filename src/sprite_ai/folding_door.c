@@ -1,5 +1,4 @@
 #include "block.h"
-#include "global_data.h"
 #include "score.h"
 #include "sprite.h"
 #include "wario.h"

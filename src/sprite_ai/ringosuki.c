@@ -1,6 +1,5 @@
 #include "sprite_ai/ringosuki.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"

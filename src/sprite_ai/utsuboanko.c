@@ -1,6 +1,5 @@
 #include "sprite_ai/utsuboanko.h"
 
-#include "gba/m4a.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_util.h"

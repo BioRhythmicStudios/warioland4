@@ -1,7 +1,5 @@
 #include "sprite_ai/boss_door.h"
 
-#include "gba/m4a.h"
-#include "global_data.h"
 #include "screen_shake.h"
 #include "sprite.h"
 #include "wario.h"

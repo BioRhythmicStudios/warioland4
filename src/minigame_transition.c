@@ -1,7 +1,6 @@
 #include "minigame_transition.h"
 #include "cutscenes.h"
 #include "global_data.h"
-#include "main.h"
 
 #define SUBGAME_MODE_DELAYED_RETURN 46
 #define SUBGAME_MODE_RETURN_TARGET 17

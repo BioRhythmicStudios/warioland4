@@ -36,13 +36,13 @@ void InitRouletteGame(void)
     objectTiles = sRouletteObjTiles;
     /* agbcc cannot retain these addresses in high registers from pure assignments. Each boundary emits one target move; the literal load remains compiler-generated. */
     loadTemp = sRouletteTopResultTiles;
-    asm volatile("mov %0, %1" : "=r"(firstTileBlock) : "r"(loadTemp));
+    asm volatile("" : "=r"(firstTileBlock) : "0"(loadTemp));
     loadTemp = sRouletteMiddleResultTiles;
-    asm volatile("mov %0, %1" : "=r"(secondTileBlock) : "r"(loadTemp));
+    asm volatile("" : "=r"(secondTileBlock) : "0"(loadTemp));
     loadTemp = sRouletteBottomResultTiles;
-    asm volatile("mov %0, %1" : "=r"(thirdTileBlock) : "r"(loadTemp));
+    asm volatile("" : "=r"(thirdTileBlock) : "0"(loadTemp));
     loadTemp = sRouletteExtraBgTiles;
-    asm volatile("mov %0, %1" : "=r"(postLoopTiles) : "r"(loadTemp));
+    asm volatile("" : "=r"(postLoopTiles) : "0"(loadTemp));
     if ((s32)waitValue < 0)
     {
       do { waitValue = dmaRegs[2] & busyMask; } while (waitValue != 0);
@@ -289,7 +289,7 @@ void InitRouletteGame(void)
     gRouletteValueCount = 3;
     {
       int activeZero;
-      int tileZero;
+      register int tileZero asm("r4");
       u16 angle;
       struct RouletteItem *item;
       int x;
@@ -298,14 +298,15 @@ void InitRouletteGame(void)
 
       activeZero = 0;
       /* agbcc proves the cached r4 is already zero and removes this target write. */
-      asm volatile("movs %0, #0" : "=r"(tileZero));
+      asm volatile("" : "=r"(tileZero));
+      tileZero = 0;
       angle = 7168;
-      asm volatile("" : "+r"(angle));
+
       item = gRouletteItems;
       x = 1000;
-      asm volatile("" : "+r"(x));
+
       y = 88;
-      asm volatile("" : "+r"(y));
+
       remaining = 2;
       do
       {
@@ -424,16 +425,13 @@ void InitRouletteGame(void)
       {
         volatile u16 *alphaRegister;
         register s8 *fadePtr asm("r6");
-        u16 fadeValue;
+        s32 fadeValue;
 
         alphaRegister = (volatile u16 *)0x04000052;
         fadePtr = (s8 *)secondTileBlock;
+        asm("" : "+r"(fadePtr));
         fadeValue = 0;
-        /* agbcc expands this signed byte read into ldrb/lsl/asr. The original
-         * uses the single indexed ldrsb instruction with r6/r0. */
-        asm volatile("ldrsb %0, [%1, %0]"
-                     : "+r"(fadeValue)
-                     : "r"(fadePtr));
+        fadeValue = *(s8 *)((u8 *)fadePtr + fadeValue);
         *alphaRegister = (fadeValue << 8) | 16;
       }
     }

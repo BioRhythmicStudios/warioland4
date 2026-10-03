@@ -1,7 +1,4 @@
-#include "quit.h"
 
-#include "gba/m4a.h"
-#include "global_data.h"
 #include "interrupt_callbacks.h"
 #include "main.h"
 #include "save_file.h"

@@ -8,17 +8,11 @@
 #include "screen_shake.h"
 #include "sound.h"
 #define CopyWarioPalette NormalHeader_CopyWarioPalette
-#define UpdateWarioPositionHistory NormalHeader_UpdateWarioPositionHistory
-#define PrepareWarioUpdate NormalHeader_PrepareWarioUpdate
-#define UpdateWarioHorizontalCollisionOffset NormalHeader_UpdateWarioHorizontalCollisionOffset
 #define GetAdjustedWarioXVelocity NormalHeader_GetAdjustedWarioXVelocity
 #define func_8016614 NormalHeader_func_8016614
 #include "wario/normal.h"
 #include "wario/swimming.h"
 #undef CopyWarioPalette
-#undef UpdateWarioPositionHistory
-#undef PrepareWarioUpdate
-#undef UpdateWarioHorizontalCollisionOffset
 #undef GetAdjustedWarioXVelocity
 #undef func_8016614
 #include "voice_set.h"
@@ -90,7 +84,7 @@ u8 UpdateNormalWarioWalking(void)
   u16 pressed;
   register u16 held asm("r3");
   int dustType;
-  register u16 direction asm("r2");
+  register u32 direction asm("r2");
   s32 value;
   struct WarioData **warioPointer;
   u8 frame;
@@ -103,7 +97,7 @@ u8 UpdateNormalWarioWalking(void)
     return 0xFE;
   }
   {
-    register u16 button asm("r0");
+    u32 button;
     button = 0x0002;
     button &= pressed;
     if (button != 0)
@@ -127,8 +121,7 @@ u8 UpdateNormalWarioWalking(void)
     }
   }
   value = GetBackgroundCollisionAtPosition(wario->yPosition + 1, wario->xPosition - 30);
-  /* agbcc otherwise folds the required r0-to-r4 copy into ASR. */
-  asm("add %0, %1, #0" : "=r"(acceleration) : "r"(value));
+  asm("" : "=r"(acceleration) : "0"(value));
   acceleration >>= 16;
   mask = 0xFF;
   acceleration &= mask;
@@ -149,7 +142,7 @@ u8 UpdateNormalWarioWalking(void)
     buttons = &gButtonsHeld;
     base = &gWarioData;
     held = *buttons;
-    direction = base->horizontalDirection;
+    direction = *(volatile u16 *)&base->horizontalDirection;
     value = held;
     value &= direction;
     wario = base;
@@ -160,10 +153,10 @@ u8 UpdateNormalWarioWalking(void)
     if (direction & 0x0010)
     {
       {
-        register u16 branchRawVelocity asm("r1");
+        register u32 branchRawVelocity asm("r1");
         s32 branchVelocity;
 
-        branchRawVelocity = wario->xVelocity;
+        branchRawVelocity = *(volatile u16 *)&wario->xVelocity;
         branchVelocity = (s16) wario->xVelocity;
         if (branchVelocity <= 19)
         {
@@ -176,12 +169,12 @@ u8 UpdateNormalWarioWalking(void)
           if (branchVelocity <= 63)
           {
             /* agbcc otherwise updates r1 in place instead of producing the required r0 result. */
-            asm("add %0, %1, #6" : "=r"(value) : "r"(branchRawVelocity));
+            value = branchRawVelocity + 6;
             wario->xVelocity = value;
             goto update_animation;
           }
           /* agbcc otherwise updates r1 in place instead of producing the required r0 result. */
-          asm("add %0, %1, #2" : "=r"(value) : "r"(branchRawVelocity));
+          value = branchRawVelocity + 2;
           wario->xVelocity = value;
           if (((s16) value) > 127)
           {
@@ -300,9 +293,13 @@ store_accelerated_velocity:
     {
       return WPOSE_NORMAL_STOPPING_FROM_DASH;
     }
-    value = 0x30;
-    /* agbcc otherwise commutes the XOR/AND pair and overwrites the direction register. */
-    asm("eor %0, %1\n\tand %0, %2" : "+r"(value) : "r"(direction), "r"(held));
+    {
+      register s32 turnTest;
+      turnTest = 0x30;
+      turnTest ^= direction;
+      turnTest &= held;
+      value = turnTest;
+    }
     value <<= 16;
     if (value != 0)
     {
@@ -354,8 +351,11 @@ store_accelerated_velocity:
       }
       else
       {
-        /* agbcc otherwise compares the frame directly in r1 instead of copying it to r0. */
-        asm("add %0, %1, #0" : "=r"(value) : "r"(frame));
+        {
+          register u32 frameValue asm("r0");
+          frameValue = frame;
+          value = frameValue;
+        }
         if ((value == 2) || (value == 9))
         {
           m4aSongNumStart(1);
@@ -386,7 +386,7 @@ u8 UpdateNormalWarioTurning(void)
             return WPOSE_NORMAL_JUMPING;
         }
         {
-            register u16 button asm("r0");
+            u32 button;
 
             button = B_BUTTON;
             button &= pressed;
@@ -685,9 +685,9 @@ u8 UpdateNormalWarioFalling(void)
             newDirection = direction;
             newDirection ^= test;
             /* agbcc otherwise folds the copy into the AND and overwrites held. */
-            asm("add %0, %1, #0\n\tand %0, %2"
-                : "=r"(test)
-                : "r"(newDirection), "r"(held));
+            test = newDirection;
+            test &= held;
+            asm("" : "+r"(test));
             movementResult = (s16)test;
             if (movementResult != 0) {
                 wario->horizontalDirection = newDirection;
@@ -1135,9 +1135,7 @@ u8 UpdateNormalWarioSlidingOnIce(void)
         register int value asm("r0");
 
         wario = &gWarioData;
-        value = GetBackgroundCollisionAtPosition(wario->yPosition + 1, wario->xPosition - 30);
-        /* agbcc otherwise folds this copy into a three-operand ASR. */
-        asm("add %0, %1, #0" : "=r"(acceleration) : "r"(value));
+        acceleration = GetBackgroundCollisionAtPosition(wario->yPosition + 1, wario->xPosition - 30);
         acceleration >>= 16;
         mask = 0xFF;
         acceleration &= mask;
@@ -1199,9 +1197,7 @@ u8 UpdateNormalWarioStoppingFromDash(void)
         struct WarioData* wario;
 
         wario = &gWarioData;
-        value = GetBackgroundCollisionAtPosition(wario->yPosition + 1, wario->xPosition - 30);
-        /* agbcc otherwise folds this copy into a three-operand ASR. */
-        asm("add %0, %1, #0" : "=r"(acceleration) : "r"(value));
+        acceleration = GetBackgroundCollisionAtPosition(wario->yPosition + 1, wario->xPosition - 30);
         acceleration >>= 16;
         mask = 0xFF;
         acceleration &= mask;
@@ -5291,7 +5287,7 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
     u16 y;
     u32 collisionResult;
     u16 adjustedY;
-    register u16 adjustedX asm("r3");
+    u32 adjustedX;
     u8 result;
 
     {
@@ -5334,8 +5330,7 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
             offset &= lowMask;
             offset -= 0x3F;
             base -= offset;
-            base <<= 16;
-            adjustedX = base >> 16;
+            adjustedX = (u16)base;
             result = 17;
             break;
         }
@@ -5364,8 +5359,7 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
             offset <<= 1;
             offset -= 0x7E;
             base -= offset;
-            base <<= 16;
-            adjustedX = base >> 16;
+            adjustedX = (u16)base;
             result = 18;
             break;
         }
@@ -5394,8 +5388,7 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
             offset <<= 1;
             offset -= 0x3E;
             base -= offset;
-            base <<= 16;
-            adjustedX = base >> 16;
+            adjustedX = (u16)base;
             result = 18;
             break;
         }
@@ -5644,10 +5637,10 @@ secondProbeDone:
         shiftedVertical = verticalShifted;
         signedVertical = (s32)shiftedVertical >> 16;
         zero = 0;
-        asm volatile(
-            "movs r4, #0\n"
-            "ldrsh %0, [%0, r4]"
-            : "+r"(pointAddress));
+        {
+            register u32 zeroIndex asm("r4") = 0;
+            asm("ldrsh %0, [%0, r4]" : "+r"(pointAddress) : "r"(zeroIndex));
+        }
         if (signedVertical > (s32)pointAddress) {
             {
                 u32 adjustedY;
@@ -5743,12 +5736,12 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
         register struct WarioData *warioBase asm("r2");
 
         {
-            register u32 previousY asm("r0");
+            u32 previousY;
             u32 localOffset;
 
             previousY = gPreviousYPosition;
             localOffset = locals.offset;
-            previousY = localOffset + previousY;
+            previousY = (localOffset) - (-(previousY));
             yPosition = (u16)previousY;
         }
         warioBase = &gWarioData;
@@ -5811,11 +5804,11 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
 
         wario = &gWarioData;
         {
-            register u32 currentY asm("r0");
+            u32 currentY;
 
             currentY = wario->yPosition;
             offsetValue = locals.offset;
-            currentY = offsetValue + currentY;
+            currentY = (offsetValue) - (-(currentY));
             yPosition = (u16)currentY;
         }
         one = 1;
@@ -6173,9 +6166,8 @@ initialCollisionDone:
       }
       else
       {
-        register u32 collisionLimit asm("r1");
+        u32 collisionLimit;
         collisionLimit = currentCollision->unk_0E;
-        asm("" : "+r"(collisionLimit));
         if (((s32) result) > ((s32) collisionLimit))
         {
           return 0xFC;
@@ -6196,17 +6188,17 @@ initialCollisionDone:
       const u16 *points;
       u32 leftOffset;
       register u32 sideDouble asm("r8");
-      register u32 value asm("r0");
+      u32 value;
       u32 xPosition;
-      u32 yPosition;
+      register u32 yPosition asm("r9");
       register u16 *adjustedYPtr asm("r4");
-      register u16 *secondaryPtr asm("r5");
+      register u16 *secondaryPtr ;
       points = sWarioCollisionPointTable;
       leftOffset = leftIndex << 1;
       sideDouble = side << 1;
       value = sideDouble + side;
       value <<= 1;
-      value = leftOffset + value;
+      value = (leftOffset) - (-(value));
       value += (u32) points;
       value = *((const u16 *) value);
       {
@@ -6227,13 +6219,10 @@ initialCollisionDone:
       locals.sideDouble = sideDouble;
       if (result != 0)
       {
-        u32 secondaryValue;
-        asm volatile(
-            "mov r1, sp\n"
-            "ldrh r0, [r1, #8]"
-            : "=r"(secondaryValue)
-            :
-            : "r1", "memory");
+        register u32 stackOrigin asm("r1");
+        register u32 secondaryValue;
+        stackOrigin = (u32)&locals - 4;
+        secondaryValue = *(volatile u16 *)(stackOrigin + 8);
         if (secondaryValue != 0)
         {
           register u32 zero asm("r1");
@@ -6243,12 +6232,12 @@ initialCollisionDone:
           zero = 0;
           storeWario = &gWarioData;
           storeWario->unk_1C = result;
-          asm volatile(
-              "mov r2, sp\n"
-              "ldrh r0, [r2, #6]"
-              : "=r"(storedY)
-              :
-              : "r2", "memory");
+          {
+              register u32 stackOrigin asm("r2");
+              stackOrigin = (u32)&locals;
+                    stackOrigin -= 4;
+              storedY = *(volatile u16 *)(stackOrigin + 6);
+          }
           storeWario2 = &gWarioData;
           storeWario2->yPosition = storedY;
           storeWario2->unk_1A = zero;
@@ -6291,23 +6280,28 @@ initialCollisionDone:
           nextY = (u16)nextY;
           yPosition = nextY;
         }
-        /* Direct C or register-bound calls make agbcc enlarge this function's
-         * stack frame from 0x1C to 0x20 and reorder the five ABI arguments.
-         * These call-only boundaries preserve the original stack layout. */
-        asm volatile(
-            "add r6, sp, #8"
-            : "=r"(secondaryOut));
-        asm volatile(
-            "str r6, [sp, #0]\n"
-            "add r0, r7, #0\n"
-            "mov r1, r9\n"
-            "add r2, sp, #4\n"
-            "mov r3, sp\n"
-            "add r3, #6\n"
-            "bl CheckWarioTileCollision"
-            :
-            : "r"(leftIndex), "r"(yPosition), "r"(secondaryOut)
-            : "r0", "r1", "r2", "r3", "lr", "cc", "memory");
+        /* A direct five-argument call enlarges this function's stack frame.
+         * Store the fifth argument separately, then let C emit the call. */
+        {
+            register u32 localOrigin  = (u32)&locals;
+            secondaryOut = (u16 *)(localOrigin + 4);
+        }
+        {
+          register u32 callX asm("r0");
+          u32 callY;
+          register u32 adjustedXArg asm("r2");
+          register u32 adjustedYArg asm("r3");
+
+          asm("str r6, [sp, #0]" : : "r"(secondaryOut) : "memory");
+          callX = leftIndex;
+          callY = yPosition;
+          adjustedXArg = (u32)&locals.adjustedX;
+          adjustedYArg = (u32)&locals;
+          adjustedYArg -= 4;
+          adjustedYArg += 6;
+          ((u32 (*)(u32, u32, u32, u32))CheckWarioTileCollision)(
+              callX, callY, adjustedXArg, adjustedYArg);
+        }
         {
           u32 secondaryValue;
           secondaryValue = *secondaryOut;
@@ -6329,32 +6323,30 @@ initialCollisionDone:
         leftIndex = (u16)value2;
         {
           register u32 callResult asm("r0");
-          /* Compiler boundary: direct C changes the frame or ABI argument order. */
-          asm volatile(
-              "str r6, [sp, #0]\n"
-              "add r0, r7, #0\n"
-              "mov r1, r9\n"
-              "add r2, sp, #4\n"
-              "mov r3, sp\n"
-              "add r3, #6\n"
-              "bl CheckWarioTileCollision"
-              : "=r"(callResult)
-              : "r"(leftIndex), "r"(yPosition), "r"(secondaryOut)
-              : "r1", "r2", "r3", "lr", "cc", "memory");
+          u32 callY;
+          register u32 adjustedXArg asm("r2");
+          register u32 adjustedYArg asm("r3");
+
+          asm("str r6, [sp, #0]" : : "r"(secondaryOut) : "memory");
+          callResult = leftIndex;
+          callY = yPosition;
+          adjustedXArg = (u32)&locals.adjustedX;
+          adjustedYArg = (u32)&locals;
+          adjustedYArg -= 4;
+          adjustedYArg += 6;
+          callResult = ((u32 (*)(u32, u32, u32, u32))CheckWarioTileCollision)(
+              callResult, callY, adjustedXArg, adjustedYArg);
           result = callResult;
         }
         if (result != 0)
         {
           u32 zero;
-          u32 storedY;
+          register u32 stackOrigin asm("r2");
+          register u32 storedY;
           zero = 0;
           currentWario->unk_1C = result;
-          asm volatile(
-              "mov r2, sp\n"
-              "ldrh r0, [r2, #6]"
-              : "=r"(storedY)
-              :
-              : "r2", "memory");
+          stackOrigin = (u32)&locals - 4;
+          storedY = *(volatile u16 *)(stackOrigin + 6);
           currentWario->yPosition = storedY;
           currentWario->unk_1A = zero;
           return 0xFF;
@@ -6373,18 +6365,22 @@ initialCollisionDone:
           value2 += currentX;
         }
         leftIndex = (u16)value2;
-        /* Compiler boundary: direct C changes the frame or ABI argument order. */
-        asm volatile(
-            "str r6, [sp, #0]\n"
-            "add r0, r7, #0\n"
-            "mov r1, r9\n"
-            "add r2, sp, #4\n"
-            "mov r3, sp\n"
-            "add r3, #6\n"
-            "bl CheckWarioTileCollision"
-            :
-            : "r"(leftIndex), "r"(yPosition), "r"(secondaryOut)
-            : "r0", "r1", "r2", "r3", "lr", "cc", "memory");
+        {
+          register u32 callX asm("r0");
+          u32 callY;
+          register u32 adjustedXArg asm("r2");
+          register u32 adjustedYArg asm("r3");
+
+          asm("str r6, [sp, #0]" : : "r"(secondaryOut) : "memory");
+          callX = leftIndex;
+          callY = yPosition;
+          adjustedXArg = (u32)&locals.adjustedX;
+          adjustedYArg = (u32)&locals;
+          adjustedYArg -= 4;
+          adjustedYArg += 6;
+          ((u32 (*)(u32, u32, u32, u32))CheckWarioTileCollision)(
+              callX, callY, adjustedXArg, adjustedYArg);
+        }
         {
           u32 secondaryValue;
           secondaryValue = *secondaryOut;
@@ -6394,28 +6390,32 @@ initialCollisionDone:
         if (currentWario->unk_1A == 1)
           return 0xFF;
 
-        /* Compiler boundary: direct C changes the frame or ABI argument order. */
+        /* Keep the fifth argument in the existing outgoing stack slot. */
 
-        asm volatile(
-            "ldrh r0, [r4, #18]\n"
-            "add r1, sp, #8\n"
-            "str r1, [sp, #0]\n"
-            "mov r1, r9\n"
-            "add r2, sp, #4\n"
-            "mov r3, sp\n"
-            "add r3, #6\n"
-            "bl CheckWarioTileCollision"
-            :
-            : "r"(currentWario), "r"(yPosition)
-            : "r0", "r1", "r2", "r3", "lr", "cc", "memory");
         {
-          u32 secondaryValue;
-          asm volatile(
-              "mov r2, sp\n"
-              "ldrh r0, [r2, #8]"
-              : "=r"(secondaryValue)
-              :
-              : "r2", "memory");
+            register u32 callX = currentWario->xPosition;
+            {
+                register u32 fifthPtr = (u32)&locals;
+                u32 callY;
+                register u32 adjustedXArg asm("r2");
+                register u32 adjustedYArg asm("r3");
+
+                fifthPtr += 4;
+                asm("str r1, [sp, #0]" : : "r"(fifthPtr) : "memory");
+                callY = yPosition;
+                adjustedXArg = (u32)&locals.adjustedX;
+                adjustedYArg = (u32)&locals;
+                adjustedYArg -= 4;
+                adjustedYArg += 6;
+                ((u32 (*)(u32, u32, u32, u32))CheckWarioTileCollision)(
+                    callX, callY, adjustedXArg, adjustedYArg);
+            }
+        }
+        {
+          register u32 stackOrigin asm("r2");
+          register u32 secondaryValue;
+          stackOrigin = (u32)&locals - 4;
+          secondaryValue = *(volatile u16 *)(stackOrigin + 8);
           if (secondaryValue != 0)
             goto clearCollisionAndReturnFF;
         }
@@ -6440,8 +6440,8 @@ clearCollisionAndReturnFF:
     {
       register u32 xPosition;
       register u32 yPosition asm("r9");
-      u16 *adjustedYPtr;
-      u16 *secondaryPtr;
+      register u16 *adjustedYPtr;
+      register u16 *secondaryPtr;
 
       result = CheckWarioHorizontalCollision(side, (u16 *)(&locals.adjustedX), -62);
       if (result != 0)
@@ -6488,28 +6488,18 @@ clearCollisionAndReturnFF:
         pointValue += warioX;
         xPosition = (u16)pointValue;
       }
-      asm volatile(
-          "ldrh r2, [r6, #20]\n"
-          "mov r9, r2"
-          :
-          : "r"(wario)
-          : "r2", "memory");
+      {
+        register u32 yLoad asm("r2");
+        yLoad = wario->yPosition;
+        asm("" : "+r"(yLoad));
+        yPosition = yLoad;
+
+      }
       adjustedYPtr = &locals.adjustedY;
       secondaryPtr = &locals.secondary;
       {
-        register u32 callResult asm("r0");
-        /* Compiler boundary: direct C changes the frame or ABI argument order. */
-        asm volatile(
-            "str r4, [sp, #0]\n"
-            "add r0, r7, #0\n"
-            "mov r1, r9\n"
-            "add r2, sp, #4\n"
-            "add r3, r5, #0\n"
-            "bl CheckWarioTileCollision"
-            : "=r"(callResult)
-            : "r"(xPosition), "r"(yPosition), "r"(adjustedYPtr), "r"(secondaryPtr)
-            : "r1", "r2", "r3", "lr", "cc", "memory");
-        result = callResult;
+        result = ((u32 (*)(u32, u32, u32, u32, u32))CheckWarioTileCollision)(
+            xPosition, yPosition, (u32)&locals.adjustedX, (u32)adjustedYPtr, (u32)secondaryPtr);
       }
       wario->unk_1C = result;
       if (result != 0)
@@ -6532,18 +6522,17 @@ clearCollisionAndReturnFF:
         yPosition = (u16)loweredY;
       }
       {
-        register u32 callResult asm("r0");
-        /* Compiler boundary: direct C changes the frame or ABI argument order. */
-        asm volatile(
-            "str r4, [sp, #0]\n"
-            "add r0, r7, #0\n"
-            "mov r1, r9\n"
-            "add r2, sp, #4\n"
-            "add r3, r5, #0\n"
-            "bl CheckWarioTileCollision"
-            : "=r"(callResult)
-            : "r"(xPosition), "r"(yPosition), "r"(adjustedYPtr), "r"(secondaryPtr)
-            : "r1", "r2", "r3", "lr", "cc", "memory");
+        u32 callResult;
+        u32 callY;
+        u32 adjustedXArg;
+        register u32 adjustedYArg ;
+
+        callResult = xPosition;
+        callY = yPosition;
+        adjustedXArg = (u32)&locals.adjustedX;
+        adjustedYArg = (u32)adjustedYPtr;
+        callResult = ((u32 (*)(u32, u32, u32, u32, u32))CheckWarioTileCollision)(
+            xPosition, yPosition, (u32)&locals.adjustedX, (u32)adjustedYPtr, (u32)secondaryPtr);
         result = callResult;
       }
       wario->unk_1C = result;
@@ -6574,7 +6563,7 @@ clearCollisionAndReturnFF:
       register u32 xPosition;
       register u32 yPosition asm("r9");
       register u16 *adjustedYPtr asm("r4");
-      u16 *secondaryPtr;
+      register u16 *secondaryPtr;
 
       {
         register u32 rightIndex asm("r0");
@@ -6598,39 +6587,37 @@ clearCollisionAndReturnFF:
         tableBase += warioX;
         xPosition = (u16)tableBase;
       }
-      asm volatile(
-          "ldrh r2, [r6, #20]\n"
-          "mov r9, r2"
-          :
-          : "r"(wario)
-          : "r2", "memory");
+      {
+        register u32 yLoad asm("r2");
+        yLoad = wario->yPosition;
+        asm("" : "+r"(yLoad));
+        yPosition = yLoad;
+
+      }
       adjustedYPtr = &locals.adjustedY;
       secondaryPtr = &locals.secondary;
       {
-        register u32 callResult asm("r0");
-        /* Compiler boundary: direct C changes the frame or ABI argument order. */
-        asm volatile(
-            "str r5, [sp, #0]\n"
-            "add r0, r7, #0\n"
-            "mov r1, r9\n"
-            "add r2, sp, #4\n"
-            "add r3, r4, #0\n"
-            "bl CheckWarioTileCollision"
-            : "=r"(callResult)
-            : "r"(xPosition), "r"(yPosition), "r"(adjustedYPtr), "r"(secondaryPtr)
-            : "r1", "r2", "r3", "lr", "cc", "memory");
-        result = callResult;
-        asm("" : "+r"(result));
+        u32 callResult;
+        u32 callY;
+        u32 adjustedXArg;
+        u32 adjustedYArg;
+        u32 resultCopy;
+
+        callResult = xPosition;
+        callY = yPosition;
+        adjustedXArg = (u32)&locals.adjustedX;
+        adjustedYArg = (u32)adjustedYPtr;
+        callResult = ((u32 (*)(u32, u32, u32, u32, u32))CheckWarioTileCollision)(
+            xPosition, yPosition, (u32)&locals.adjustedX, (u32)adjustedYPtr, (u32)secondaryPtr);
+        resultCopy = callResult;
+        result = resultCopy;
       }
       if (result != 0)
       {
-        u32 adjustedY;
-        asm volatile(
-            "mov r1, sp\n"
-            "ldrh r0, [r1, #6]"
-            : "=r"(adjustedY)
-            :
-            : "r1", "memory");
+        register u32 stackOrigin asm("r1");
+        register u32 adjustedY;
+        stackOrigin = (u32)&locals - 4;
+        adjustedY = *(volatile u16 *)(stackOrigin + 6);
         wario->yPosition = adjustedY;
         goto returnFF;
       }
@@ -6648,30 +6635,28 @@ clearCollisionAndReturnFF:
       }
       {
         register u32 callResult asm("r0");
-        /* Compiler boundary: direct C changes the frame or ABI argument order. */
-        asm volatile(
-            "str r5, [sp, #0]\n"
-            "add r0, r7, #0\n"
-            "mov r1, r9\n"
-            "add r2, sp, #4\n"
-            "mov r3, sp\n"
-            "add r3, #6\n"
-            "bl CheckWarioTileCollision"
-            : "=r"(callResult)
-            : "r"(xPosition), "r"(yPosition), "r"(secondaryPtr)
-            : "r1", "r2", "r3", "lr", "cc", "memory");
+        u32 callY;
+        register u32 adjustedXArg asm("r2");
+        register u32 adjustedYArg asm("r3");
+
+        asm("str r5, [sp, #0]" : : "r"(secondaryPtr) : "memory");
+        callResult = xPosition;
+        callY = yPosition;
+        adjustedXArg = (u32)&locals.adjustedX;
+        adjustedYArg = (u32)&locals;
+        adjustedYArg -= 4;
+        adjustedYArg += 6;
+        callResult = ((u32 (*)(u32, u32, u32, u32))CheckWarioTileCollision)(
+            callResult, callY, adjustedXArg, adjustedYArg);
         result = callResult;
       }
       wario->unk_1C = result;
       if (result != 0)
       {
-        u32 adjustedY;
-        asm volatile(
-            "mov r2, sp\n"
-            "ldrh r0, [r2, #6]"
-            : "=r"(adjustedY)
-            :
-            : "r2", "memory");
+        register u32 stackOrigin asm("r2");
+        register u32 adjustedY;
+        stackOrigin = (u32)&locals - 4;
+        adjustedY = *(volatile u16 *)(stackOrigin + 6);
         wario->yPosition = adjustedY;
         goto returnFF;
       }
@@ -6708,7 +6693,7 @@ clearCollisionAndReturnFF:
           points = sWarioCollisionPointTable;
           points += 1;
           points = (const u16 *)((const u8 *)points + sideOffset);
-          asm("" : "+r"(adjustedXPtr), "+r"(points));
+          
           adjustedX = *adjustedXPtr;
           adjustedX -= *points;
           adjustedX += 63;
@@ -6717,14 +6702,11 @@ clearCollisionAndReturnFF:
       }
       {
         struct WarioData *storeWario;
-        u32 adjustedY;
+        register u32 stackOrigin asm("r2");
+        register u32 adjustedY;
         storeWario = &gWarioData;
-        asm volatile(
-            "mov r2, sp\n"
-            "ldrh r0, [r2, #6]"
-            : "=r"(adjustedY)
-            :
-            : "r2", "memory");
+        stackOrigin = (u32)&locals - 4;
+        adjustedY = *(volatile u16 *)(stackOrigin + 6);
         adjustedY -= 1;
         storeWario->yPosition = adjustedY;
       }
@@ -6822,7 +6804,7 @@ storeAdjustedX:
         address = r7Value + (u32)points;
         address = *(const u16 *)address;
         currentX = (u32)wario;
-        currentX = *(u16 *)(currentX + 18);
+        currentX = ((struct WarioData *)currentX)->xPosition;
         address += currentX;
         r4Value = (u16)address;
     }
@@ -6887,7 +6869,7 @@ secondPoint:
         address = r7Value + address;
         r7Value = *(const u16 *)address;
         currentX = (u32)wario;
-        currentX = *(u16 *)(currentX + 18);
+        currentX = ((struct WarioData *)currentX)->xPosition;
         address = r7Value + currentX;
         r4Value = (u16)address;
     }
@@ -7118,7 +7100,7 @@ initialCollisionDone:
             pointForX = address;
             asm("" : "+r"(pointForX));
             r2Value = (u32)wario;
-            r2Value = *(u16 *)(r2Value + 18);
+            r2Value = ((struct WarioData *)r2Value)->xPosition;
             address = pointForX + r2Value;
             firstX = (u16)address;
         }
@@ -7142,7 +7124,7 @@ initialCollisionDone:
             if (secondaryValue != 0) {
             if (result != 0) {
                 r4Value = (u32)wario;
-                *(u16 *)(r4Value + 28) = result;
+                ((struct WarioData *)r4Value)->unk_1C = result;
                 {
                     register void *stackBase asm("r1");
                     stackBase = (u8 *)&locals - 4;
@@ -7157,30 +7139,42 @@ initialCollisionDone:
 
                 adjustedYPtr = &gPreviousYPosition;
                 previousY = *adjustedYPtr;
-                asm volatile(
-                    "mov r2, sp\n"
-                    "ldrh r2, [r2, #6]"
-                    : "=r"(adjustedY));
+                {
+                    register u32 stackOrigin asm("r2");
+                    stackOrigin = (u32)&locals;
+                    stackOrigin -= 4;
+                    adjustedY = *(volatile u16 *)(stackOrigin + 6);
+                }
                 if (previousY < adjustedY) {
-                    /* Direct C and register-bound variants change the saved-register
-                     * set and five-argument call order. This call-only boundary keeps
-                     * the original 0x18-byte frame and Thumb ABI scheduling. */
-                    asm volatile(
-                        "add r5, r0, #0\n"
-                        "mov r8, r5\n"
-                        "add r3, sp, #8\n"
-                        "str r3, [sp, #0]\n"
-                        "add r0, r7, #0\n"
-                        "mov r1, r8\n"
-                        "add r2, sp, #4\n"
-                        "sub r3, #2\n"
-                        "bl CheckWarioTileCollision"
-                        : "+r"(previousY), "+r"(adjustedYPtr), "+r"(firstY)
-                        : "r"(firstX)
-                        : "r1", "r2", "r3", "lr", "cc", "memory");
-                    result = previousY;
+                    /* The outgoing fifth-argument store has no exact C expression;
+                     * argument construction and the call itself remain C. */
+                    {
+                        register u32 callYSeed asm("r5");
+                        register u32 callY asm("r8");
+                        register u32 fifthAndAdjustedY asm("r3");
+                        register u32 callX asm("r0");
+                        u32 callYArg;
+                        register u32 adjustedXArg asm("r2");
+
+                        callYSeed = previousY;
+                        asm("" : "+r"(callYSeed));
+                        callY = callYSeed;
+                        fifthAndAdjustedY = (u32)&locals;
+                        fifthAndAdjustedY += 4;
+                        asm("str r3, [sp, #0]"
+                            :
+                            : "r"(fifthAndAdjustedY)
+                            : "memory");
+                        callX = firstX;
+                        callYArg = callY;
+                        adjustedXArg = (u32)&locals.adjustedX;
+                        fifthAndAdjustedY -= 2;
+                        callX = ((u32 (*)(u32, u32, u32, u32))CheckWarioTileCollision)(
+                            callX, callYArg, adjustedXArg, fifthAndAdjustedY);
+                        result = callX;
+                    }
                     r4Value = (u32)wario;
-                    *(u16 *)(r4Value + 28) = result;
+                    ((struct WarioData *)r4Value)->unk_1C = result;
                     if (result != 0) {
                         {
                             register void *stackBase asm("r1");
@@ -7224,27 +7218,26 @@ initialCollisionDone:
                 }
                 r4Value = (u32)&locals.secondary;
                 {
-                    register u32 callResult asm("r0");
+                    register u32 callX asm("r0");
+                    u32 callY;
+                    register u32 adjustedXArg asm("r2");
+                    register u32 adjustedYArg asm("r3");
 
-                    /* Compiler boundary: direct C changes the frame or ABI argument order. */
-
-                    asm volatile(
-                        "str r4, [sp, #0]\n"
-                        "add r0, r7, #0\n"
-                        "mov r1, r8\n"
-                        "add r2, sp, #4\n"
-                        "mov r3, sp\n"
-                        "add r3, #6\n"
-                        "bl CheckWarioTileCollision"
-                        : "=r"(callResult)
-                        : "r"(r4Value), "r"(firstX), "r"(firstY)
-                        : "r1", "r2", "r3", "lr", "cc", "memory");
-                    result = callResult;
+                    asm("str r4, [sp, #0]" : : "r"(r4Value) : "memory");
+                    callX = firstX;
+                    callY = firstY;
+                    adjustedXArg = (u32)&locals.adjustedX;
+                    adjustedYArg = (u32)&locals;
+                    adjustedYArg -= 4;
+                    adjustedYArg += 6;
+                    callX = ((u32 (*)(u32, u32, u32, u32))CheckWarioTileCollision)(
+                        callX, callY, adjustedXArg, adjustedYArg);
+                    result = callX;
                 }
                 {
                     u8 *storeWario;
                     storeWario = (u8 *)wario;
-                    *(u16 *)(storeWario + 28) = result;
+                    ((struct WarioData *)storeWario)->unk_1C = result;
                 }
                 if (result != 0) {
                     register void *stackBase asm("r1");
@@ -7296,25 +7289,29 @@ afterStoreYReturnFD:
 
                 {
                     u32 callX;
-                    register u32 callY asm("r1");
+                    u32 callY;
 
                     callY = (u32)wario;
-                    callX = *(u16 *)(callY + 18);
-                    callY = *(u16 *)(callY + 20);
+                    callX = ((struct WarioData *)callY)->xPosition;
+                    callY = ((struct WarioData *)callY)->yPosition;
                     callY++;
                     callY = (u16)callY;
-                    /* Compiler boundary: direct C changes the frame or ABI argument order. */
-                    asm volatile(
-                        "add r2, sp, #8\n"
-                        "str r2, [sp, #0]\n"
-                        "add r2, sp, #4\n"
-                        "mov r3, sp\n"
-                        "add r3, #6\n"
-                        "bl CheckWarioTileCollision"
-                        : "+r"(callX), "+r"(callY)
-                        :
-                        : "r2", "r3", "lr", "cc", "memory");
-                    result = callX;
+                    /* Preserve only the outgoing fifth-argument stack store; agbcc
+                     * generates the register arguments and call from C below. */
+                    {
+                        register u32 fifthPtr asm("r2");
+                        register u32 adjustedXArg asm("r2");
+                        register u32 adjustedYArg;
+
+                        fifthPtr = (u32)&locals;
+                        fifthPtr += 4;
+                        asm("str r2, [sp, #0]" : : "r"(fifthPtr) : "memory");
+                        adjustedXArg = (u32)&locals.adjustedX;
+                        adjustedYArg = (u32)&locals.adjustedY;
+                        callX = ((u32 (*)(u32, u32, u32, u32))CheckWarioTileCollision)(
+                            callX, callY, adjustedXArg, adjustedYArg);
+                        result = callX;
+                    }
                 }
                 {
                     register void *stackBase asm("r3");
@@ -7435,32 +7432,32 @@ alternateProbe:
             tableValue = (u32)sWarioCollisionPointTable;
             tableValue += 2;
             tableValue += (u32)wario;
-            asm volatile(
-                "mov r4, #0\n"
-                "ldrsh r0, [r0, r4]"
-                : "+r"(tableValue)
-                :
-                : "cc", "memory");
+            {
+                register u32 zeroIndex asm("r4") = 0;
+                asm("ldrsh r0, [r0, r4]" : "+r"(tableValue) : "r"(zeroIndex) : "cc", "memory");
+            }
             if ((s32)tableValue > 31) {
                 alternateX = alternateWario->xPosition;
                 {
-                    register u32 callResult asm("r0");
+                    register u32 callX asm("r0");
+                    u32 callY;
+                    register u32 adjustedXArg asm("r2");
+                    register u32 adjustedYArg asm("r3");
 
-                    /* Compiler boundary: direct C changes the frame or ABI argument order. */
-
-                    asm volatile(
-                        "add r0, sp, #8\n"
-                        "str r0, [sp, #0]\n"
-                        "add r0, r7, #0\n"
-                        "mov r1, r8\n"
-                        "add r2, sp, #4\n"
-                        "mov r3, sp\n"
-                        "add r3, #6\n"
-                        "bl CheckWarioTileCollision"
-                        : "=r"(callResult)
-                        : "r"(alternateX), "r"(alternateY)
-                        : "r1", "r2", "r3", "lr", "cc", "memory");
-                    result = callResult;
+                    {
+                        register u32 temp asm("r0") = (u32)&locals;
+                        temp += 4;
+                        asm("str r0, [sp, #0]" : : "r"(temp) : "memory");
+                    }
+                    callX = alternateX;
+                    callY = alternateY;
+                    adjustedXArg = (u32)&locals.adjustedX;
+                    adjustedYArg = (u32)&locals;
+                    adjustedYArg -= 4;
+                    adjustedYArg += 6;
+                    callX = ((u32 (*)(u32, u32, u32, u32))CheckWarioTileCollision)(
+                        callX, callY, adjustedXArg, adjustedYArg);
+                    result = callX;
                 }
                 {
                     u8 *stackBase;
@@ -7700,7 +7697,7 @@ u8 ResolveWarioFloorCollision(void)
 
                     adjustedValue = outputs.adjustedX;
                     currentX = pointValue;
-                    asm volatile("" : "+r"(currentX));
+                    asm("" : "+r"(currentX));
                     pointValue = (u16)(adjustedValue - currentX + collisionData->unk_06);
                     currentX = activeWario->xPosition;
                     result = ((s32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(

@@ -16,7 +16,7 @@ void InitToyBlockRound(void)
     u8* ptr;
     u8* temp;
     u16 oldStatus;
-    register u16 status asm("r0");
+    u32 status;
     register u8 zero asm("r2");
     u16 zero16;
     const struct AnimationFrame* oam;

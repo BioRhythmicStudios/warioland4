@@ -1,7 +1,6 @@
 #include "sprite_ai/spoiled_rotten.h"
 
 #include "color_effects.h"
-#include "global_data.h"
 #include "hud.h"
 #include "main.h"
 #include "score.h"

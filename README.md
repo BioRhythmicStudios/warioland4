@@ -9,6 +9,8 @@ This repository can build the following versions:
 <!-- DECOMP_PROGRESS:START -->
 ## Decompilation Progress
 
+## It's 100% decompiled but note that some remaining ASM code sites are presents but i can't seem to figure out how to convert them to pure C as agbcc seems not cooperative enough especially for register bindings pressure. That doesn't stop project to build or recomp to be made
+
 ![Decompilation progress](docs/progress-treemap.svg)
 
 [Open the interactive progress treemap](https://TsilaAllaoui.github.io/warioland4/progress.html).

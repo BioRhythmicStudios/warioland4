@@ -221,7 +221,7 @@ void UpdateCuckooCondorPendulumHeight(void)
     register u32 speed asm("r2");
     u32 offset;
     register struct PrimarySpriteData *sprites asm("r3");
-    register u32 temp asm("r0");
+    u32 temp;
     register u32 base asm("r2");
     register u32 distance asm("r0");
 
@@ -282,7 +282,7 @@ void UpdateCuckooCondorPendulumHeight(void)
         sprite->yPosition = temp;
     } else if (currentY < targetY) {
         temp = sprite->yPosition;
-        temp = speed + temp;
+        temp = (speed) - (-(temp));
         sprite->yPosition = temp;
     }
 }
@@ -517,8 +517,8 @@ void CuckooCondorEnterArena(void)
         value = offset + value;
         *(const struct AnimationFrame **)value = sCuckooCondorClawOpenOam;
         other = (struct PrimarySpriteData *)(offset + (u32)sprites);
-        *(u8 *)((u32)other + 0x16) = zero;
-        *(u16 *)((u32)other + 0x14) = zero;
+        other->currentAnimationFrame = zero;
+        other->animationTimer = zero;
         {
             u32 dma;
             dma = 0x040000D4;
@@ -680,7 +680,7 @@ void CuckooCondorLowerPendulum(void)
     u32 value;
     struct PrimarySpriteData *sprite;
     u8 *timer;
-    register u32 temp asm("r0");
+    u32 temp;
     register u32 base asm("r1");
     u32 slot;
     register u32 base3 asm("r3");
@@ -711,7 +711,7 @@ void CuckooCondorLowerPendulum(void)
         temp *= slot;
         temp += base;
         base = 0x43;
-        *(u8 *)(temp + 0x1E) = base;
+        ((struct PrimarySpriteData *)temp)->warioCollision = base;
         temp = SOUND_A4;
         m4aSongNumStart(temp);
     }
@@ -736,7 +736,7 @@ void CuckooCondorLowerPendulum(void)
     temp = sizeof(struct PrimarySpriteData);
     slot *= temp;
     temp = base3 + 4;
-    temp = slot + temp;
+    temp = (slot) - (-(temp));
     base = (u32)sCuckooCondorPendulumRetractedOam;
     *(u32 *)temp = base;
     slot += base3;
@@ -841,7 +841,7 @@ void CuckooCondorRaisePendulum(void)
         if (timer == 0) {
             value = (u32)&gCurrentSprite;
             offset = 0x10;
-            *(u8 *)(value + 0x1C) = offset;
+            ((struct PrimarySpriteData *)value)->pose = offset;
             value += 0x29;
             temp = 0x3C;
             *(u8 *)value = temp;
@@ -862,7 +862,7 @@ void CuckooCondorRaisePendulum(void)
         } else {
             value = (u32)&gCurrentSprite;
             offset = 0x10;
-            *(u8 *)(value + 0x1C) = offset;
+            ((struct PrimarySpriteData *)value)->pose = offset;
             value += 0x29;
             temp = 0x3C;
             *(u8 *)value = temp;
@@ -932,7 +932,7 @@ void CuckooCondorHandleClockDamage(void)
                 if (mask != 0) {
                     temp = (u32)&gCurrentSprite;
                     raw = 3;
-                    *(u8 *)(temp + 0x1B) = raw;
+                    ((struct PrimarySpriteData *)temp)->palette = raw;
                     reg6 = temp;
                 } else {
                     raw = (u32)&gCurrentSprite;
@@ -1100,9 +1100,9 @@ void CuckooCondorFlyAndBob(void)
     temp = index + 1;
     value = workPtr;
     *(u8 *)value = temp;
-    temp = *(u16 *)(sprite + 8);
+    temp = ((struct PrimarySpriteData *)sprite)->yPosition;
     temp += delta;
-    *(u16 *)(sprite + 8) = temp;
+    ((struct PrimarySpriteData *)sprite)->yPosition = temp;
 
     value = sprite;
     value += 0x29;
@@ -1112,8 +1112,8 @@ void CuckooCondorFlyAndBob(void)
     temp <<= 24;
     if (temp == 0) {
         temp = 21;
-        *(u8 *)(sprite + 0x1C) = temp;
-        temp = *(u8 *)(sprite + 0x1D);
+        ((struct PrimarySpriteData *)sprite)->pose = temp;
+        temp = ((struct PrimarySpriteData *)sprite)->health;
         if (temp <= 1) {
             temp = 12;
             *(u8 *)value = temp;
@@ -1128,25 +1128,25 @@ void CuckooCondorFlyAndBob(void)
     temp = 0x40;
     temp &= value;
     if (temp != 0) {
-        temp = *(u8 *)(sprite + 0x1D);
+        temp = ((struct PrimarySpriteData *)sprite)->health;
         if (temp <= 1) {
-            temp = *(u16 *)(sprite + 0x0A);
+            temp = ((struct PrimarySpriteData *)sprite)->xPosition;
             temp += 2;
-            *(u16 *)(sprite + 0x0A) = temp;
-            temp = *(u8 *)(sprite + 0x16);
+            ((struct PrimarySpriteData *)sprite)->xPosition = temp;
+            temp = ((struct PrimarySpriteData *)sprite)->currentAnimationFrame;
             temp++;
-            *(u8 *)(sprite + 0x16) = temp;
+            ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = temp;
         } else {
-            temp = *(u16 *)(sprite + 0x0A);
+            temp = ((struct PrimarySpriteData *)sprite)->xPosition;
             temp++;
-            *(u16 *)(sprite + 0x0A) = temp;
+            ((struct PrimarySpriteData *)sprite)->xPosition = temp;
         }
-        temp = *(volatile u16 *)(sprite + 8);
+        temp = ((volatile struct PrimarySpriteData *)sprite)->yPosition;
         x = 0x80;
         x <<= 1;
         asm("" : "+r"(x));
         value = x;
-        x = *(u16 *)(sprite + 0x0A);
+        x = ((struct PrimarySpriteData *)sprite)->xPosition;
         value += x;
         value = (u16)value;
         func_8023BFC(temp, value);
@@ -1157,24 +1157,24 @@ void CuckooCondorFlyAndBob(void)
         temp = 0xFFBF;
         temp &= value;
     } else {
-        temp = *(u8 *)(sprite + 0x1D);
+        temp = ((struct PrimarySpriteData *)sprite)->health;
         if (temp <= 1) {
-            temp = *(u16 *)(sprite + 0x0A);
+            temp = ((struct PrimarySpriteData *)sprite)->xPosition;
             temp -= 2;
-            *(u16 *)(sprite + 0x0A) = temp;
-            temp = *(u8 *)(sprite + 0x16);
+            ((struct PrimarySpriteData *)sprite)->xPosition = temp;
+            temp = ((struct PrimarySpriteData *)sprite)->currentAnimationFrame;
             temp++;
-            *(u8 *)(sprite + 0x16) = temp;
+            ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = temp;
         } else {
-            temp = *(u16 *)(sprite + 0x0A);
+            temp = ((struct PrimarySpriteData *)sprite)->xPosition;
             temp--;
-            *(u16 *)(sprite + 0x0A) = temp;
+            ((struct PrimarySpriteData *)sprite)->xPosition = temp;
         }
-        temp = *(volatile u16 *)(sprite + 8);
+        temp = ((volatile struct PrimarySpriteData *)sprite)->yPosition;
         x = (u32)-0x100;
         asm("" : "+r"(x));
         value = x;
-        x = *(u16 *)(sprite + 0x0A);
+        x = ((struct PrimarySpriteData *)sprite)->xPosition;
         value += x;
         value = (u16)value;
         func_8023BFC(temp, value);
@@ -1253,7 +1253,7 @@ void CuckooCondorHandleCondorDamage(void)
                     one = 1;
                     pose = 0x6B;
                     do {
-                        value = *(u8 *)(other + 0x17);
+                        value = ((struct PrimarySpriteData *)other)->globalID;
                         value += 23;
                         value = (u8)value;
                         if (value <= 1) {
@@ -1261,7 +1261,7 @@ void CuckooCondorHandleCondorDamage(void)
                             value = one;
                             value &= mask;
                             if (value != 0)
-                                *(u8 *)(other + 0x1C) = pose;
+                                ((struct PrimarySpriteData *)other)->pose = pose;
                         }
                         other += sizeof(struct PrimarySpriteData);
                     } while (other <= end);
@@ -1481,29 +1481,29 @@ void CuckooCondorHandleShopItemHit(void)
         if (value != 0) {
             value = (u32)&gCurrentSprite;
             temp = 3;
-            *(u8 *)(value + 0x1B) = temp;
+            ((struct PrimarySpriteData *)value)->palette = temp;
             return;
         }
         temp = (u32)&gCurrentSprite;
-        *(u8 *)(temp + 0x1B) = value;
+        ((struct PrimarySpriteData *)temp)->palette = value;
         return;
     }
 
     sprite = (u32)&gCurrentSprite;
     temp = sprite;
     temp += 0x29;
-    health = *(u8 *)(sprite + 0x1D);
+    health = ((struct PrimarySpriteData *)sprite)->health;
     healthCopy = health;
     temp = *(u8 *)temp;
     if (healthCopy == temp) {
         temp = (u32)&gBgAnimationFrame;
         *(u8 *)temp = health;
         temp = 3;
-        *(u8 *)(sprite + 0x1C) = temp;
+        ((struct PrimarySpriteData *)sprite)->pose = temp;
         temp = (u32)sCuckooCondorClockIdleOam;
-        *(u32 *)(sprite + 4) = temp;
-        *(u8 *)(sprite + 0x16) = value;
-        *(u16 *)(sprite + 0x14) = value;
+        (u32)((struct PrimarySpriteData *)sprite)->pOamData = temp;
+        ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = value;
+        ((struct PrimarySpriteData *)sprite)->animationTimer = value;
         SpriteUtilStartBossTimer();
         temp = SOUND_A2;
         m4aSongNumStart(temp);
@@ -1517,7 +1517,7 @@ void CuckooCondorHandleShopItemHit(void)
     if (healthCopy == 0)
         return;
     temp = health - 1;
-    *(u8 *)(sprite + 0x1D) = temp;
+    ((struct PrimarySpriteData *)sprite)->health = temp;
     UpdateBossHealthGauge();
     temp = SE_DAMAGE;
     m4aSongNumStart(temp);
@@ -1908,14 +1908,14 @@ spawnCheck:
     value = (u32)sCuckooCondorClockPieceUpperLeftOam;
 setAnim:
     sprite->pOamData = (const struct AnimationFrame *)value;
-    *(u8 *)((u8 *)sprite + 0x16) = zero;
+    sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     goto end;
 
 finish:
     value = (u32)sCuckooCondorClockPieceUpperLeftOam;
     sprite->pOamData = (const struct AnimationFrame *)value;
-    *(u8 *)((u8 *)sprite + 0x16) = zero;
+    sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     value = 0x10;
     sprite->pose = value;
@@ -2124,7 +2124,7 @@ loop:
     *ptr0 = status;
     value = (u32)anim;
     sprite->pOamData = (const struct AnimationFrame *)value;
-    *(u8 *)((u8 *)sprite + 0x16) = status;
+    sprite->currentAnimationFrame = status;
     sprite->animationTimer = status;
     value = 0xE5;
     value = SpriteUtilFindSpriteSlot(value);
@@ -2134,7 +2134,7 @@ loop:
     status = sizeof(struct PrimarySpriteData);
     value *= status;
     value += (u32)scan;
-    value = *(u16 *)(value + 8);
+    value = ((struct PrimarySpriteData *)value)->yPosition;
     ydiff -= value;
     ydiff = (s32)ydiff >> 1;
     *dst = ydiff;
@@ -2221,7 +2221,7 @@ loop:
     *ptr0 = status;
     value = (u32)anim;
     sprite->pOamData = (const struct AnimationFrame *)value;
-    *(u8 *)((u8 *)sprite + 0x16) = status;
+    sprite->currentAnimationFrame = status;
     sprite->animationTimer = status;
     value = 0xE5;
     value = SpriteUtilFindSpriteSlot(value);
@@ -2231,7 +2231,7 @@ loop:
     status = sizeof(struct PrimarySpriteData);
     value *= status;
     value += (u32)scan;
-    value = *(u16 *)(value + 8);
+    value = ((struct PrimarySpriteData *)value)->yPosition;
     ydiff -= value;
     ydiff = (s32)ydiff >> 1;
     *dst = ydiff;
@@ -2393,7 +2393,7 @@ void UpdateCuckooCondorHead(void)
 
     if (value == 0x20) {
         temp = (u32)&gCurrentSprite;
-        oam = *(u32 *)(temp + 4);
+        oam = (u32)((struct PrimarySpriteData *)temp)->pOamData;
         value = (u32)sCuckooCondorHeadIdleOam;
         sprite = (struct PrimarySpriteData *)temp;
 
@@ -2425,8 +2425,8 @@ void UpdateCuckooCondorHead(void)
 
         sprite->pOamData = sCuckooCondorHeadHurtOam;
         temp = 0;
-        *(u8 *)((u32)sprite + 0x16) = temp;
-        *(u16 *)((u32)sprite + 0x14) = temp;
+        ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = temp;
+        ((struct PrimarySpriteData *)sprite)->animationTimer = temp;
     }
 
     temp = *(u8 *)timerPtr;
@@ -2463,7 +2463,7 @@ void UpdateCuckooCondorHead(void)
     temp = 0x2C;
     temp *= value;
     temp += timerPtr;
-    value = *(u8 *)(temp + 0x1D);
+    value = ((struct PrimarySpriteData *)temp)->health;
     temp = gBgAnimationFrame;
     temp >>= 1;
     temp++;
@@ -2483,7 +2483,7 @@ void CuckooCondorHeadStartAttack(void)
 
 void CuckooCondorHeadAttack(void)
 {
-    register u32 temp asm("r0");
+    u32 temp;
     u32 value;
     u32 child;
     u32 zero;
@@ -2492,25 +2492,25 @@ void CuckooCondorHeadAttack(void)
     register u32 zeroByte asm("r6");
 
     value = (u32)&gCurrentSprite;
-    temp = *(u8 *)(value + 0x1C);
+    temp = ((struct PrimarySpriteData *)value)->pose;
     if (temp == 0x6A) {
-        temp = *(u16 *)(value + 8);
+        temp = ((struct PrimarySpriteData *)value)->yPosition;
         temp -= 0x20;
-        value = *(u16 *)(value + 0xA);
+        value = ((struct PrimarySpriteData *)value)->xPosition;
         value -= 0x20;
         child = 0x40;
         SpawnSecondarySprite(temp, value, child);
     } else {
-        temp = *(u16 *)(value + 8);
+        temp = ((struct PrimarySpriteData *)value)->yPosition;
         temp -= 0x20;
-        value = *(u16 *)(value + 0xA);
+        value = ((struct PrimarySpriteData *)value)->xPosition;
         value += 0x20;
         child = 0x40;
         SpawnSecondarySprite(temp, value, child);
     }
 
     temp = (u32)&gCurrentSprite;
-    child = *(u32 *)(temp + 4);
+    child = (u32)((struct PrimarySpriteData *)temp)->pOamData;
     value = (u32)sCuckooCondorHeadIdleOam;
     sprite = (struct PrimarySpriteData *)temp;
 
@@ -2542,9 +2542,9 @@ void CuckooCondorHeadAttack(void)
 
     sprite->pOamData = sCuckooCondorHeadAttackOam;
     zero = 0;
-    *(u8 *)((u32)sprite + 0x16) = zero;
+    sprite->currentAnimationFrame = zero;
     zeroByte = 0;
-    *(u16 *)((u32)sprite + 0x14) = zero;
+    sprite->animationTimer = zero;
 
     temp = (u32)sprite;
     temp += 0x2A;
@@ -2554,7 +2554,7 @@ void CuckooCondorHeadAttack(void)
     child = value;
     child *= temp;
     temp = base + 4;
-    temp = child + temp;
+    temp = (child) - (-(temp));
     value = (u32)sCuckooCondorHeadPhase2Oam;
     *(u32 *)temp = value;
     child += base;
@@ -2599,7 +2599,7 @@ void CuckooCondorHeadRecover(void)
     register struct PrimarySpriteData *body asm("r2");
     register u8 *timer asm("r2");
     u32 value;
-    register u16 status asm("r1");
+    u32 status;
     register u32 masked asm("r0");
 
     sprite = &gCurrentSprite;
@@ -2619,8 +2619,9 @@ void CuckooCondorHeadRecover(void)
             body->pOamData = sCuckooCondorHeadIdleOam;
         body->currentAnimationFrame = 0;
         body->animationTimer = 2;
-        status = body->status;
-        masked = status & 0xFFBF;
+        status = *(volatile u16 *)&body->status;
+        masked = 0xFFBF;
+        masked &= status;
         body->pose = 18;
         masked &= 0xFDFF;
         body->status = masked;
@@ -3852,9 +3853,9 @@ void SpriteCuckooCondorClockPiece(void)
         case 4:
         {
             register u32 r5Value asm("r5");
-            register u32 r6Value asm("r6");
+            register u32 r6Value;
             register u8 *workPtr asm("r8");
-            s32 trig;
+            register s32 trig;
             u32 sinIndex;
             s32 inverse;
 
@@ -3894,11 +3895,13 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r5Value;
                 {
-                    register u32 zero asm("r1");
-
-                    zero = 0;
-                    /* agbcc otherwise selects r2 for this signed table load. */
-                    asm("ldrsh %0, [%1, %2]" : "=r"(trig) : "r"(sinIndex), "r"(zero));
+                    /* Keep r2 live across each C signed-halfword load so agbcc uses
+                     * r1 for the zero offset. Both ASM constraints emit no instructions.
+                     * All seven paired lifetimes are required for an exact object match. */
+                    register u32 r2Live asm("r2");
+                    asm("" : "=r"(r2Live));
+                    trig = *(const s16 *)sinIndex;
+                    asm("" : : "r"(r2Live));
                 }
                 {
                     register u8 *scaleRead asm("r2");
@@ -3912,8 +3915,10 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r5Value;
                 {
-                    /* agbcc otherwise selects r2 for this signed table load. */
-                    asm("movs r1, #0\n\tldrsh %0, [%1, r1]" : "=r"(trig) : "r"(sinIndex) : "r1");
+                    register u32 r2Live asm("r2");
+                    asm("" : "=r"(r2Live));
+                    trig = *(const s16 *)sinIndex;
+                    asm("" : : "r"(r2Live));
                     trig = -trig;
                 }
                 {
@@ -3929,11 +3934,10 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r5Value;
                 {
-                    register u32 zero asm("r1");
-
-                    zero = 0;
-                    /* agbcc otherwise selects r2 for this signed table load. */
-                    asm("ldrsh %0, [%1, %2]" : "=r"(trig) : "r"(sinIndex), "r"(zero));
+                    register u32 r2Live asm("r2");
+                    asm("" : "=r"(r2Live));
+                    trig = *(const s16 *)sinIndex;
+                    asm("" : : "r"(r2Live));
                 }
                 {
                     register u8 *scaleRead asm("r2");
@@ -3945,17 +3949,22 @@ void SpriteCuckooCondorClockPiece(void)
             } else {
                 r6Value = (u32)sSinCosTable;
                 {
-                    u32 angleValue;
+                    register u32 angleValue;
 
-                    /* agbcc otherwise materializes the work pointer through r2. */
-                    asm("movs %0, #39\n\tadd %0, %2\n\tmov %1, %0\n\tldrb %0, [%0]"
-                        : "=r"(angleValue), "=r"(workPtr)
-                        : "r"(sprite));
+                    angleValue = 39;
+                    asm("" : "+r"(angleValue));
+                    angleValue += (u32)sprite;
+                    workPtr = (u8 *)angleValue;
+                    angleValue = *(u8 *)angleValue;
                     angleValue += 0x40;
                     angleValue <<= 1;
                     angleValue += r6Value;
-                    /* Keep the signed table load on r1 as in the original. */
-                    asm("movs r1, #0\n\tldrsh %0, [%1, r1]" : "=r"(trig) : "r"(angleValue) : "r1");
+                    {
+                        register u32 r2Live asm("r2");
+                        asm("" : "=r"(r2Live));
+                        trig = *(const s16 *)angleValue;
+                        asm("" : : "r"(r2Live));
+                    }
                 }
                 r5Value = 0x100;
                 inverse = FixedInverse(r5Value);
@@ -3970,11 +3979,10 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r6Value;
                 {
-                    register u32 zero asm("r1");
-
-                    zero = 0;
-                    /* agbcc otherwise selects r2 for this signed table load. */
-                    asm("ldrsh %0, [%1, %2]" : "=r"(trig) : "r"(sinIndex), "r"(zero));
+                    register u32 r2Live asm("r2");
+                    asm("" : "=r"(r2Live));
+                    trig = *(const s16 *)sinIndex;
+                    asm("" : : "r"(r2Live));
                 }
                 inverse = FixedInverse(r5Value);
                 sprite->affinePB = FixedMul(trig, inverse);
@@ -3988,8 +3996,10 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r6Value;
                 {
-                    /* agbcc otherwise selects r2 for this signed table load. */
-                    asm("movs r1, #0\n\tldrsh %0, [%1, r1]" : "=r"(trig) : "r"(sinIndex) : "r1");
+                    register u32 r2Live asm("r2");
+                    asm("" : "=r"(r2Live));
+                    trig = *(const s16 *)sinIndex;
+                    asm("" : : "r"(r2Live));
                     trig = -trig;
                 }
                 inverse = FixedInverse(r5Value);
@@ -4005,11 +4015,10 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r6Value;
                 {
-                    register u32 zero asm("r1");
-
-                    zero = 0;
-                    /* agbcc otherwise selects r2 for this signed table load. */
-                    asm("ldrsh %0, [%1, %2]" : "=r"(trig) : "r"(sinIndex), "r"(zero));
+                    register u32 r2Live asm("r2");
+                    asm("" : "=r"(r2Live));
+                    trig = *(const s16 *)sinIndex;
+                    asm("" : : "r"(r2Live));
                 }
                 inverse = FixedInverse(r5Value);
                 sprite->affinePD = FixedMul(trig, inverse);
@@ -4030,7 +4039,7 @@ void SpriteCuckooCondorPendulumPart(void)
     struct PrimarySpriteData *sprite;
 
     base = (u32)&gCurrentSprite;
-    roomSlot = *(u8 *)(base + 0x18);
+    roomSlot = ((struct PrimarySpriteData *)base)->roomSlot;
     sprite = (struct PrimarySpriteData *)base;
     if (roomSlot != 0)
         sprite->disableWarioCollisionTimer = 1;
@@ -4080,7 +4089,7 @@ void SpriteCuckooCondorPendulumPart(void)
 void SpriteCuckooCondorHead(void)
 {
     struct PrimarySpriteData *sprite;
-    u32 pose;
+    s32 pose;
     struct PrimarySpriteData *current;
     u32 slot;
     register struct PrimarySpriteData *sprites asm("r3");
@@ -4092,53 +4101,29 @@ void SpriteCuckooCondorHead(void)
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
     pose = sprite->pose;
-    if (pose == 20)
-        goto pose20;
-    if ((s32)pose > 20)
-        goto greater20;
-    if (pose == 16)
-        goto pose16;
-    if ((s32)pose > 16)
-        goto greater16;
-    if (pose == 0)
-        goto pose0;
-    goto copyParent;
+    switch (pose) {
+    case 105:
+    case 106:
+        CuckooCondorHeadAttack();
+        goto recover;
+    case 0:
+        InitCuckooCondorHead();
+        break;
+    case 16:
+        UpdateCuckooCondorHead();
+        break;
+    case 18:
+        CuckooCondorHeadStartAttack();
+        break;
+    case 20:
+    recover:
+        CuckooCondorHeadRecover();
+        break;
+    case 22:
+        CuckooCondorHeadSpawnDebris();
+        break;
+    }
 
-greater16:
-    if (pose == 18)
-        goto pose18;
-    goto copyParent;
-
-greater20:
-    if (pose == 22)
-        goto pose22;
-    /* agbcc otherwise emits longer inverted range checks here; these two
-     * compiler-boundary comparisons preserve the original dispatcher shape. */
-    asm volatile("cmp r0, #22\n\tblt 1f" : : : "cc");
-    if ((s32)pose > 106)
-        goto copyParent;
-    asm volatile("cmp r0, #105\n\tblt 1f" : : : "cc");
-    CuckooCondorHeadAttack();
-    goto pose20;
-
-pose0:
-    InitCuckooCondorHead();
-    goto copyParent;
-pose16:
-    UpdateCuckooCondorHead();
-    goto copyParent;
-pose18:
-    CuckooCondorHeadStartAttack();
-    goto copyParent;
-pose20:
-    CuckooCondorHeadRecover();
-    goto copyParent;
-pose22:
-    CuckooCondorHeadSpawnDebris();
-
-copyParent:
-    /* Local target for the two compiler-boundary branches above. */
-    asm volatile("1:");
     current = &gCurrentSprite;
     size = (u32)current;
     size += 0x2A;
@@ -4150,10 +4135,10 @@ copyParent:
     base = 0xFF68;
     asm("" : "+r"(base));
     out = base;
-    yoff = *(u16 *)(slot + 8);
+    yoff = ((struct PrimarySpriteData *)slot)->yPosition;
     out += yoff;
     current->yPosition = out;
-    out = *(u16 *)(slot + 10);
+    out = ((struct PrimarySpriteData *)slot)->xPosition;
     current->xPosition = out;
 }
 
@@ -4290,7 +4275,7 @@ void SpriteCuckooCondorEgg(void)
     struct PrimarySpriteData *sprite;
 
     base = (u32)&gCurrentSprite;
-    pose = *(u8 *)(base + 0x1C);
+    pose = ((struct PrimarySpriteData *)base)->pose;
     sprite = (struct PrimarySpriteData *)base;
     switch (pose) {
     case 0:

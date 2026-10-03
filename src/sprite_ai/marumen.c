@@ -152,13 +152,12 @@ void MarumenGetUp(void)
     velocity = table[index];
     if (velocity == 0x7FFF) {
         u32 previousVelocityAddress;
-        register u16 yPosition asm("r0");
+        u16 yPosition;
 
         previousVelocityAddress = index - 1;
         previousVelocityAddress <<= 1;
         previousVelocityAddress += (u32)table;
-        yPosition = sprite->yPosition;
-        asm("" : "+r"(yPosition), "+r"(previousVelocityAddress));
+        yPosition = *(volatile u16 *)&sprite->yPosition;
         sprite->yPosition = yPosition + *(const s16 *)previousVelocityAddress;
     } else {
         u32 nextIndex;
@@ -414,7 +413,7 @@ void MarumenCrushed(void)
                 u16 yPosition;
                 u16 xPosition;
 
-                yPosition = sprite->yPosition;
+                yPosition = *(volatile u16 *)&sprite->yPosition;
                 xPosition = sprite->xPosition;
                 SpawnEnemyScoreDrop(globalId, yPosition, xPosition, effect);
             }
@@ -521,13 +520,12 @@ void MarumenAirborne(void)
     velocity = table[index];
     if (velocity == 0x7FFF) {
         u32 previousVelocityAddress;
-        register u16 yPosition asm("r0");
+        u16 yPosition;
 
         previousVelocityAddress = index - 1;
         previousVelocityAddress <<= 1;
         previousVelocityAddress += (u32)table;
-        yPosition = sprite->yPosition;
-        asm("" : "+r"(yPosition), "+r"(previousVelocityAddress));
+        yPosition = *(volatile u16 *)&sprite->yPosition;
         sprite->yPosition = yPosition + *(const s16 *)previousVelocityAddress;
     } else {
         u32 nextIndex;

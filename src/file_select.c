@@ -444,7 +444,7 @@ void InitializeFileSelectAnimations(u32 inputMode)
     register u8 zero asm("r0");
     u8 *languagePointer;
     u32 language;
-    register u32 tableIndex asm("r0");
+    u32 tableIndex;
     const u8 *messageTable;
     u16 coordinate;
 
@@ -486,7 +486,7 @@ void InitializeFileSelectAnimations(u32 inputMode)
         messageTable = sFileSelectRecoveryMessageAnimationTypes;
         tableIndex = *languagePointer;
         tableIndex <<= 1;
-        tableIndex = mode + tableIndex;
+        tableIndex = (mode) - (-(tableIndex));
         tableIndex += (u32)messageTable;
         data[22] = *(const u8 *)tableIndex;
         coordinate = 104;
@@ -2282,7 +2282,7 @@ void HandleFileDifficultyInput(void)
 {
     s32 max;
     u16 buttons;
-    register u16 maskedButtons asm("r0");
+    u32 maskedButtons;
 
     max = 1;
     if (gTitleScreenStyle != 0) {
@@ -2516,7 +2516,7 @@ void UpdateFileSelectMainAnimationPosition(void)
         } else {
             u8 *data;
             u32 stateValue;
-            register u32 valueAddress asm("r0");
+            u32 valueAddress;
             s32 value;
             const u8 *secondPath;
             u32 secondAddress;
@@ -2528,7 +2528,7 @@ void UpdateFileSelectMainAnimationPosition(void)
             /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
             asm("" : : "r"(pathOffset));
             valueAddress = pathOffset + stateValue;
-            valueAddress = (u32)path + valueAddress;
+            valueAddress = ((u32)path) - (-(valueAddress));
             value = *(const s8 *)valueAddress;
             *(u16 *)(data + 0) = value;
             secondPath = *pathEntry;

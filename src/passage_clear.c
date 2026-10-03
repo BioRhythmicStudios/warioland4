@@ -1,8 +1,5 @@
-#include "global_data.h"
 #include "compiler.h"
 #include "passage_clear.h"
-#include "gba/io_reg.h"
-#include "gba/m4a.h"
 #include "voice_set.h"
 #include "init_helpers.h"
 #include "stage_select.h"
@@ -11,7 +8,6 @@
 #include "boss_treasure_cutscene.h"
 
 
-extern u16 gStageEntrySequenceTimer;
 extern s8 gUnk_3003C3E;
 
 extern const u8 sPassageClearBgPalette[];

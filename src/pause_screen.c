@@ -197,7 +197,7 @@ void PauseScreenVBlank(void)
 } while (0)
 
 #define PAUSE_DMA_TRANSFER_R1(src_, dst_, cnt_) do { \
-    register struct DmaRegisters *localDma asm("r1"); \
+    register struct DmaRegisters *localDma; \
     localDma = (struct DmaRegisters *)0x040000D4; \
     localDma->src = (u32)(src_); \
     localDma->dst = (u32)(dst_); \
@@ -455,14 +455,16 @@ void InitializePauseScreen(void)
             jewelStates[3] = 2; }
 
         {
-            u16 zero;
+            register u16 zero asm("r0");
             register u16 *sequenceTimer asm("r1");
+            register u8 *seqStepPtr asm("r2");
 
             zero = 0;
             sequenceTimer = &gStageEntrySequenceTimer;
-            asm("strh r0, [r1]" : : "r"(zero), "r"(sequenceTimer) : "memory");
+            *sequenceTimer = zero;
+            seqStepPtr = &gStageEntrySequenceStep;
+            *seqStepPtr = zero;
         }
-        { register u8 *seqStepPtr asm("r2"); seqStepPtr = &gStageEntrySequenceStep; *seqStepPtr = 0; }
 
         {
             u16 jewelReset;
@@ -915,17 +917,16 @@ void RenderPauseScreenOam(void)
     {
       u8 *jewelStateBase;
       {
-        register const u8 *jewelAnimationBase asm("r0");
+        register const u8 *jewelAnimationBase;
         const struct AnimationFrame *jewelAnimation;
         register s32 jewelAnimOffset asm("r5");
         jewelAnimationBase = (const u8 *) new_var9;
 
-        // Couldn't figure out how to get this to match without using inline assembly.
-        // The compiler was generating a lot of extra instructions to load the values into registers, so I just used inline assembly to do it in one instruction.
-        asm("ldr %1, [sp, #8]\n\t"
-            "add %0, %1, %0\n\t"
-            "ldr %2, [%0]"
-            : "+r"(jewelAnimationBase), "=r"(jewelAnimOffset), "=r"(jewelAnimation));
+        /* Keep only the raw stack reload; the address addition and table read are ordinary C.
+         * Subtracting a negative base preserves agbcc's required add operand order. */
+        asm("ldr %1, [sp, #8]" : "+r"(jewelAnimationBase), "=r"(jewelAnimOffset));
+        jewelAnimationBase = (const u8 *)((s32)jewelAnimOffset - -(s32)jewelAnimationBase);
+        jewelAnimation = *(const struct AnimationFrame **)jewelAnimationBase;
         animation = jewelAnimation;
         jewelStateBase = (u8 *) gPauseJewelAnimationStates;
         animationState = (PauseAnimationState *) (jewelAnimOffset + (u32) jewelStateBase);
@@ -1033,10 +1034,9 @@ void RenderPauseScreenOam(void)
         animation = *((const struct AnimationFrame **) new_var2);
         src = animation->oam;
         nextSlot += *(src++);
-        // This too, couldn't figure out how to get this to match without using inline assembly.
         {
-          register s32 jewel2SlotCheck asm("r5");
-          asm("mov %0, ip" : "=r"(jewel2SlotCheck));
+          register s32 jewel2SlotCheck;
+          jewel2SlotCheck = nextSlot;
           if (jewel2SlotCheck > new_var)
           {
             return;
@@ -1047,27 +1047,21 @@ void RenderPauseScreenOam(void)
           const s32 *jewel2XTable;
           register s32 jewel2PreserveMask asm("r10");
           s32 jewel2PriorityMask;
-          register s32 jewel2LowR2 asm("r2");
+          register s32 jewel2LowR2;
           register u8 *jewel2State asm("r4");
           OamData *oam;
-          jewelPieceStates = (u8 *) sUnk_86D36CC;
-          asm("mov %0, %1"
-              : "=r"(jewel2XTable)
-              : "r"(jewelPieceStates));
-          jewelPieceState = (u8 *) -0x200;
-          asm("mov %0, %1"
-              : "=r"(jewel2PreserveMask)
-              : "r"(jewelPieceState));
-          jewel2LowR2 = -13;
-          asm("mov %0, %1"
-              : "=r"(jewel2PriorityMask)
-              : "r"(jewel2LowR2));
+          jewel2XTable = sUnk_86D36CC;
+          jewel2PreserveMask = -0x200;
+          {
+            register u8 prioritySeed asm("r2") = 13;
+            jewel2LowR2 = -(s32)prioritySeed;
+          }
+          jewel2PriorityMask = jewel2LowR2;
           jewel2State = &gUnk_3003C4A;
           jewelPieceStates = (u8 *) (currentSlot << 3);
           jewelPieceState = (u8 *) gOamBuffer;
           oam = (OamData *) ((u32) jewelPieceStates + (u32) jewelPieceState);
-          asm("mov %0, ip" : "=r"(jewel2LowR2));
-          currentSlot = jewel2LowR2 - currentSlot;
+          currentSlot = nextSlot - currentSlot;
           do
           {
             attr = *(src++);
@@ -1223,19 +1217,19 @@ void RenderPauseScreenOam(void)
       const s32 *keyXTable;
       const s32 *keyXTableLoad = sUnk_86D36D4;
       s32 keyPriorityMask;
-      register s32 keyPriorityMaskLoad asm("r2");
+      register s32 keyPriorityMaskLoad;
       OamData *oam;
       u8 *keyState;
       register u8 *keyStateLoad asm("r5");
       register s32 keyXMask asm("r5");
       u32 keyOffset;
-      // This too, couldn't figure out how to get this to match without using inline assembly.
-      asm(
-          "mov %0, %2\n\t"
-          "mov %1, #13\n\t"
-          "neg %1, %1"
-          : "=r"(keyXTable), "=r"(keyPriorityMaskLoad)
-          : "r"(keyXTableLoad));
+      /* Keep the real table-pointer copy observable; agbcc generates the mask instructions. */
+      asm("" : "=r"(keyXTable) : "0"(keyXTableLoad));
+      {
+        register u8 prioritySeed asm("r2");
+        prioritySeed = 13;
+        keyPriorityMaskLoad = -(int)prioritySeed;
+      }
       keyPriorityMask = keyPriorityMaskLoad;
       keyStateLoad = &gUnk_3003C4A;
       asm("" : "+r"(keyStateLoad));
@@ -1405,9 +1399,8 @@ void RenderPauseScreenOam(void)
         *(dest++) = *(src++);
         {
           register u8 scorePriorityByte asm("r1");
-          register u8 scorePriorityOut asm("r0");
+          u32 scorePriorityOut;
           scorePriorityByte = ((u8 *) oam)[5];
-          asm("" : "+r"(scorePriorityByte));
           scorePriorityOut = scorePriorityMask;
           scorePriorityOut &= scorePriorityByte;
           ((u8 *) oam)[5] = scorePriorityOut;

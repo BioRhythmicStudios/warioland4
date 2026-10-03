@@ -1,14 +1,11 @@
 #include "sprite_ai/switch.h"
 
 #include "background_registers.h"
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
-#include "sprite.h"
 #include "sprite_util.h"
 #include "voice_set.h"
 #include "wario.h"
-#include "gba/m4a.h"
 
 void SwitchSetCommonProperties(void)
 {
@@ -26,13 +23,14 @@ void SwitchSetCommonProperties(void)
     statusValue = 0x408;
     status = statusValue;
     zero = 0;
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
+    asm volatile("" : "+r"(zero16));
     status |= oldStatus;
     ptr = (u8*)sprite;
     *(u16*)ptr = status;
     {
         u8 oldPriority;
-        register u8 priority asm("r0");
+        u32 priority;
 
         oldPriority = ptr[26];
         priority = 0x80;
@@ -188,7 +186,7 @@ void EscapeSwitchCountdown(void)
     register u8 oldTimer asm("r0");
     register u8 timer asm("r2");
     register u32 shiftedTimer asm("r0");
-    register u8 checkedTimer asm("r1");
+    u32 checkedTimer;
 
     sprite = &gCurrentSprite;
     timerPtr = (u8*)sprite + 39;
@@ -215,9 +213,8 @@ void EscapeSwitchCountdown(void)
         u8* storePtr;
 
         sprite->pOamData = sEscapeSwitchActiveOam;
-        /* agbcc otherwise re-normalizes the zero before the halfword store. */
-        asm("strb %1, [%0, #22]\n"
-            "strh %1, [%0, #20]" : : "r"(sprite), "r"(checkedTimer));
+        sprite->currentAnimationFrame = checkedTimer;
+        sprite->animationTimer = checkedTimer;
         sprite->pose = 24;
         resetTimer = 40;
         storePtr = timerPtr;
@@ -244,11 +241,11 @@ void SwitchReleaseDelay(void)
 
 void SwitchRespawnDelay(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
+    struct PrimarySpriteData* sprite;
     u8* timerPtr;
-    register u8 rawTimer asm("r0");
+    u32 rawTimer;
     u32 shiftedTimer;
-    register u8 timer asm("r1");
+    u8 timer;
 
     sprite = &gCurrentSprite;
     timerPtr = (u8*)sprite + 39;
@@ -260,8 +257,8 @@ void SwitchRespawnDelay(void)
     if (timer == 0) {
         u8* hitboxPtr;
         const struct AnimationFrame* oam;
-        register struct PrimarySpriteData* work asm("r2");
-        register struct PrimarySpriteData* callSprite asm("r5");
+        struct PrimarySpriteData* work;
+        struct PrimarySpriteData* callSprite;
 
         hitboxPtr = (u8*)sprite + 35;
         *hitboxPtr = 176;
@@ -347,7 +344,8 @@ void SwitchEffectInit(void)
     statusBits = 0x8400;
     status = statusBits;
     zero = 0;
-    asm("mov %0, #0" : "=r"(zero16));
+    zero16 = 0;
+    asm volatile("" : "+r"(zero16));
     status |= oldStatus;
     status &= 0xFFFB;
     drawPtr = (u8*)sprite;

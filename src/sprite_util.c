@@ -3,7 +3,6 @@
 #include "background_registers.h"
 #include "block.h"
 #include "color_effects.h"
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"

@@ -595,11 +595,11 @@ void DrawStageEjection(void)
             attr = *(frame++);
             *(rawOut++) = attr;
             {
-              register u32 xWork asm("r1");
+              u32 xWork;
               u32 maskWork;
               u32 oldAttr;
               xWork = ((s16) curObj->x) >> 4;
-              xWork = attr + xWork;
+              xWork = (attr) - (-(xWork));
               maskWork = mask;
               xWork &= maskWork;
               oldAttr = ((u16 *) oamBytes)[1];
@@ -709,11 +709,11 @@ void DrawStageEjection(void)
             attr = *(frame++);
             *(rawOut++) = attr;
             {
-              register u32 xWork asm("r1");
+              u32 xWork;
               u32 maskWork;
               u32 oldAttr;
               xWork = ((s16) curObj->x) >> 4;
-              xWork = attr + xWork;
+              xWork = (attr) - (-(xWork));
               maskWork = mask;
               xWork &= maskWork;
               oldAttr = ((u16 *) oamBytes)[1];

@@ -1,7 +1,6 @@
 #include "sprite_ai/money_sunflower.h"
 
 #include "global_data.h"
-#include "sprite.h"
 
 
 void InitMoneySunflower(void)

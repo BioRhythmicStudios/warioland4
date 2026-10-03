@@ -1321,7 +1321,7 @@ void SpawnRoomSpritesAtCameraBoundary(u32 distance)
     u32 persistent;
     u32 x;
     u32 y;
-    register u32 temp0 asm("r0");
+    u32 temp0;
     register u32 temp1 asm("r1");
 
     temp1 = (u32)&gBg1YPosition;
@@ -1356,7 +1356,7 @@ void SpawnRoomSpritesAtCameraBoundary(u32 distance)
         temp1 = (u32)&gPersistentSpriteData[0][0];
         temp0 = gCurrentRoom;
         temp0 <<= 6;
-        temp0 = slot + temp0;
+        temp0 = (slot) - (-(temp0));
         temp0 += temp1;
         persistent = *(u8 *)temp0;
         if ((persistent & 0xF) == 0)

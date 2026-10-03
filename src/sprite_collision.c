@@ -860,12 +860,11 @@ s32 SpriteCollisionCheckObjectsTouching(
     return FALSE;
 }
 
-// https://decomp.me/scratch/3n8fv
-#ifdef NON_MATCHING
 void SpriteCollisionProcess(void)
 {
     s32 slot;
 
+    register struct WarioData *collisionWario asm("r6");
     u16 warioY;
     u16 warioX;
     u16 warioTop;
@@ -874,19 +873,20 @@ void SpriteCollisionProcess(void)
     u16 warioRight;
     u16 previousX;
 
-    u16 spriteY;
+    u32 spriteY;
     u16 spriteX;
     u16 hitboxDown;
     u16 spriteTop;
     u16 spriteBottom;
     u16 spriteLeft;
     u16 spriteRight;
-    u16 status;
+    u32 status;
 
     u16 verticalCenter;
     u16 horizontalCenter;
     u16 statusFlags;
     u16 warioDirection;
+    u8 reaction;
 
     if (gTimerState > 3 || gWarioData.unk_02) {
         return;
@@ -916,11 +916,14 @@ void SpriteCollisionProcess(void)
             spriteLeft = spriteX - gSpriteData[slot].hitboxExtentLeft;
             spriteRight = spriteX + gSpriteData[slot].hitboxExtentRight;
             hitboxDown = gSpriteData[slot].hitboxExtentDown;
-            // one's complement lmao
+            /* hitboxExtentDown is sign-magnitude: bit 7 puts the bottom edge above the sprite's origin. */
             if (hitboxDown <= S8_MAX) {
-                spriteBottom = spriteY + hitboxDown;
+                spriteBottom = spriteY - -(s32)hitboxDown;
             } else {
-                spriteBottom = spriteY - (hitboxDown & S8_MAX);
+                /* Both branches must leave the sum in r0 so they share one u16 truncation into r5. */
+                register u16 mask asm("r5") = hitboxDown & S8_MAX;
+                register u16 res asm("r0") = spriteY - mask;
+                spriteBottom = res;
             }
 
             if (!SpriteCollisionCheckObjectsTouching(
@@ -934,8 +937,12 @@ void SpriteCollisionProcess(void)
             verticalCenter = spriteTop + (spriteBottom - spriteTop) / 2;
             horizontalCenter = spriteLeft + (spriteRight - spriteLeft) / 2;
             gSpriteCollisionFlags = SPRITE_COLLISION_NONE;
-            if (((verticalCenter - PIXEL_SIZE) > warioBottom) && (gWarioData.yVelocity <= 0x18)) {
-                gSpriteCollisionFlags = SPRITE_COLLISION_ABOVE;
+            {
+                s32 aboveCheck = verticalCenter - PIXEL_SIZE;
+                collisionWario = &gWarioData;
+                if (aboveCheck > warioBottom && collisionWario->yVelocity <= 0x18) {
+                    gSpriteCollisionFlags = SPRITE_COLLISION_ABOVE;
+                }
             }
             if ((verticalCenter + PIXEL_SIZE) < warioTop) {
                 gSpriteCollisionFlags |= SPRITE_COLLISION_BELOW;
@@ -946,11 +953,11 @@ void SpriteCollisionProcess(void)
                 gSpriteCollisionFlags |= SPRITE_COLLISION_RIGHT;
             }
 
-            warioDirection = gWarioData.horizontalDirection;
-            if (gWarioData.unk_1A != 3) {
+            warioDirection = collisionWario->horizontalDirection;
+            if (collisionWario->unk_1A != 3) {
                 switch (gSpriteData[slot].warioCollision) {
                     case 0x1:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8020B10(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -959,7 +966,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x2:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8020BB8(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -968,7 +975,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x3:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8020E1C(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -977,7 +984,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x4:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8020CEC(slot, warioDirection, spriteLeft, spriteRight, warioX);
                         } else {
                             func_801E92C(slot);
@@ -986,7 +993,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x21:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8020F28(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -995,7 +1002,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0xA:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_80211E0(slot);
                         } else {
                             func_801E92C(slot);
@@ -1004,7 +1011,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x5:
-                        if (gWarioData.reaction == REACTION_NORMAL) {
+                        if (collisionWario->reaction == REACTION_NORMAL) {
                             if (gCurrentCarriedSprite.state != 0) {
                                 func_8020B10(slot, warioDirection);
                             } else {
@@ -1012,7 +1019,7 @@ void SpriteCollisionProcess(void)
                                     func_8023BFC(spriteY - 0xA0, spriteX);
                                     if (gSpriteCollisionTileType & 0xF) {
                                         func_8023BFC(warioY - 0x60, warioX);
-                                        if (!(0xF & gSpriteCollisionTileType) || ((gWarioData.pose < 5) || (gWarioData.pose > 9))) {
+                                        if (!(0xF & gSpriteCollisionTileType) || ((collisionWario->pose < 5) || (collisionWario->pose > 9))) {
                                             func_8020B10(slot, warioDirection);
                                         }
                                     } else {
@@ -1029,7 +1036,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x3B:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             if (gCurrentCarriedSprite.state != 0) {
                                 func_8020F28(slot, warioDirection);
                             } else {
@@ -1042,7 +1049,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x25:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8020FF4(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1051,7 +1058,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x26:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_80210E8(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1074,7 +1081,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x35:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_80236C4(slot, warioDirection, spriteLeft, spriteRight);
                         } else {
                             gSpriteData[slot].pose = SPOSE_CRUSHED_OR_COLLECTED_INIT;
@@ -1088,7 +1095,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0xC:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8021650(slot);
                         } else {
                             func_801E92C(slot);
@@ -1097,7 +1104,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x9:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_80215E8(slot);
                         } else {
                             func_801E92C(slot);
@@ -1106,10 +1113,11 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0xB:
-                        if (gWarioData.reaction == 0) {
+                        reaction = collisionWario->reaction;
+                        if (reaction == 0) {
                             func_80216B8(slot);
-                        } else if (gWarioData.reaction == 8) {
-                            gWarioData.reaction = 0;
+                        } else if (reaction == 8) {
+                            collisionWario->reaction = 0;
                             if (gSpriteCollisionFlags & SPRITE_COLLISION_LEFT) {
                                 SpriteCollisionTakeDamageRight();
                             } else {
@@ -1128,7 +1136,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0xE:
-                        if ((gWarioData.reaction == 0) && (gWarioData.damageTimer == 0)) {
+                        if ((collisionWario->reaction == 0) && (collisionWario->damageTimer == 0)) {
                             SpriteCollisionTransformWarioFlaming();
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
@@ -1170,14 +1178,14 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x13:
-                        if ((gWarioData.reaction == 0) && (gWarioData.damageTimer == 0)) {
+                        if ((collisionWario->reaction == 0) && (collisionWario->damageTimer == 0)) {
                             SpriteCollisionTransformWarioBat();
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x15:
-                        if ((gWarioData.reaction == 0) && (gWarioData.damageTimer == 0)) {
+                        if ((collisionWario->reaction == 0) && (collisionWario->damageTimer == 0)) {
                             func_8020C78(slot, warioDirection);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
@@ -1196,10 +1204,7 @@ void SpriteCollisionProcess(void)
                         func_8021DD0(slot, spriteTop);
                         break;
                     case 0x1E:
-                        if ((gWarioData.reaction != 0) || (gWarioData.damageTimer != 0)) {
-                            func_8021E6C(slot, spriteBottom, spriteLeft, spriteRight);
-                            gIgnoreSpriteCollision = 1;
-                        } else {
+                        if ((collisionWario->reaction != 0) || (collisionWario->damageTimer != 0)) {
                             func_8021784(
                                 slot,
                                 warioDirection,
@@ -1210,44 +1215,42 @@ void SpriteCollisionProcess(void)
                                 warioLeft,
                                 warioRight
                             );
+                        } else {
+                            func_8021E6C(slot, spriteBottom, spriteLeft, spriteRight);
+                            gIgnoreSpriteCollision = 1;
                         }
                         break;
                     case 0x1F:
                         if (gSpriteCollisionFlags & SPRITE_COLLISION_BELOW) {
-                            if (gWarioData.reaction == 0 || gWarioData.reaction == 2) {
-                                if (gWarioData.damageTimer != 0) {
-                                    gWarioData.damageTimer = 0;
+                            reaction = collisionWario->reaction;
+                            if (reaction == 0 || reaction == 2) {
+                                if (collisionWario->damageTimer != 0) {
+                                    collisionWario->damageTimer = 0;
                                 }
                                 SpriteCollisionTransformWarioFlat();
                                 gSpriteData[slot].work1 = 1;
                                 gSpriteData[slot].disableWarioCollisionTimer = 0xF;
-                                gWarioData.yPosition = gSpriteData[slot].yPosition + 0x90;
-                            } else if (gWarioData.reaction != 10) {
+                                collisionWario->yPosition = gSpriteData[slot].yPosition + 0x90;
+                            } else if (reaction != 10) {
                                 func_8021E6C(slot, spriteBottom, spriteLeft, spriteRight);
                             }
                             gIgnoreSpriteCollision = 1;
                             break;
                         }
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
-                            func_8021E6C(slot, spriteBottom, spriteLeft, spriteRight);
-                            gIgnoreSpriteCollision = 1;
-                            break;
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
+                            goto solidSpriteCollision;
                         }
                     case 0x16:
                     case 0x17:
                     case 0x18:
                     case 0x19:
                     case 0x1A:
-                        func_8021784(
-                            slot,
-                            warioDirection,
-                            spriteTop,
-                            spriteBottom,
-                            spriteLeft,
-                            spriteRight,
-                            warioLeft,
-                            warioRight
-                        );
+                        func_8021784(slot, warioDirection, spriteTop, spriteBottom, spriteLeft, spriteRight, warioLeft, warioRight);
+                        break;
+                    solidSpriteCollision:
+                        /* Calling it as a value-returning function keeps agbcc from merging this call into the identical one in case 0x1E. */
+                        ((s32 (*)(s32, u16, u16, u16))func_8021E6C)(slot, spriteBottom, spriteLeft, spriteRight);
+                        gIgnoreSpriteCollision = 1;
                         break;
                     case 0x20:
                         func_80220F8(slot);
@@ -1260,7 +1263,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x23:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8022188(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1269,7 +1272,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x24:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8022220(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1280,7 +1283,7 @@ void SpriteCollisionProcess(void)
                     case 0x29:
                     case 0x2A:
                     case 0x2B:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             func_80222D8(slot, spriteBottom, spriteLeft, spriteRight);
                             gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
                             gIgnoreSpriteCollision = 1;
@@ -1293,14 +1296,14 @@ void SpriteCollisionProcess(void)
                     case 0x42:
                     case 0x43:
                     case 0x44:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8022724(slot, warioDirection);
                             gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
                             gIgnoreSpriteCollision = 1;
                         }
                         break;
                     case 0x45:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             func_80215C0();
                             gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
                             gIgnoreSpriteCollision = 1;
@@ -1308,7 +1311,7 @@ void SpriteCollisionProcess(void)
                         }
                         break;
                     case 0x2C:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             func_8022EF8(slot, spriteLeft, spriteRight);
                             gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
                             gIgnoreSpriteCollision = 1;
@@ -1316,7 +1319,7 @@ void SpriteCollisionProcess(void)
                         }
                         break;
                     case 0x2D:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             func_8022FC8(slot, spriteLeft, spriteRight);
                             gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
                             gIgnoreSpriteCollision = 1;
@@ -1324,7 +1327,7 @@ void SpriteCollisionProcess(void)
                         }
                         break;
                     case 0x47:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             func_8023110(slot, spriteLeft, spriteRight);
                             gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
                             gIgnoreSpriteCollision = 1;
@@ -1332,7 +1335,7 @@ void SpriteCollisionProcess(void)
                         }
                         break;
                     case 0x2E:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_80233B8(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1341,7 +1344,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x2F:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_802349C(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1351,7 +1354,7 @@ void SpriteCollisionProcess(void)
                         break;
                     case 0x31:
                     case 0x32:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_80235A0(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1360,7 +1363,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x33:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_80231F8(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1369,7 +1372,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x34:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_80232C4(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1378,7 +1381,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x36:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             gSpriteData[slot].pose = SPOSE_6C;
                             if (gCurrentCarriedSprite.state != 0) {
                                 func_801E4B0();
@@ -1389,7 +1392,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x37:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_8020958(slot, warioDirection);
                         } else {
                             func_801E92C(slot);
@@ -1398,7 +1401,7 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x38:
-                        if ((gWarioData.reaction == 0) && (gWarioData.damageTimer == 0)) {
+                        if ((collisionWario->reaction == 0) && (collisionWario->damageTimer == 0)) {
                             func_80213F4(slot, warioX, previousX);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
@@ -1406,14 +1409,14 @@ void SpriteCollisionProcess(void)
                         break;
                     case 0x39:
                     case 0x3A:
-                        if ((gWarioData.reaction == 0) && (gWarioData.damageTimer == 0)) {
+                        if ((collisionWario->reaction == 0) && (collisionWario->damageTimer == 0)) {
                             func_8021434(slot, spriteLeft, spriteRight);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x3C:
-                        if (gWarioData.reaction == 0) {
+                        if (collisionWario->reaction == 0) {
                             func_80237E4(slot);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.25);
@@ -1425,25 +1428,25 @@ void SpriteCollisionProcess(void)
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x3E:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             func_8021F84(slot, spriteLeft, spriteRight, spriteTop);
                         }
                         break;
                     case 0x3F:
                     case 0x40:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             func_8022948(slot, spriteTop);
                         }
                         gIgnoreSpriteCollision = 1;
                         break;
                     case 0x41:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             func_8022AE8(slot, spriteLeft, spriteRight);
                             gIgnoreSpriteCollision = 1;
                         }
                         break;
                     case 0x49:
-                        if (gWarioData.reaction == 0 && gWarioData.damageTimer == 0) {
+                        if (collisionWario->reaction == 0 && collisionWario->damageTimer == 0) {
                             func_8022CE8(
                                 slot, warioY, warioX, warioLeft, warioRight, spriteLeft, spriteRight, warioDirection
                             );
@@ -1468,39 +1471,39 @@ void SpriteCollisionProcess(void)
                     case 0x4B:
                     case 0x4C:
                     case 0x4D:
-                        if (gWarioData.damageTimer == 0) {
+                        if (collisionWario->damageTimer == 0) {
                             func_80204F4(slot, spriteLeft, spriteRight, warioX);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.5) + DELTA_TIME;
                         break;
                     case 0x53:
                     case 0x54:
-                        if (gWarioData.damageTimer == 0) {
+                        if (collisionWario->damageTimer == 0) {
                             func_80209E0(slot, spriteLeft, spriteRight, warioX);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.5) + DELTA_TIME;
                         break;
                     case 0x4E:
-                        if (gWarioData.damageTimer == 0) {
+                        if (collisionWario->damageTimer == 0) {
                             func_80206B8(slot, spriteLeft, spriteRight, warioX);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.5) + DELTA_TIME;
                         break;
                     case 0x4F:
                     case 0x50:
-                        if (gWarioData.damageTimer == 0) {
+                        if (collisionWario->damageTimer == 0) {
                             func_80207D8(slot);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.5) + DELTA_TIME;
                         break;
                     case 0x51:
-                        if (gWarioData.damageTimer == 0) {
+                        if (collisionWario->damageTimer == 0) {
                             SpriteCollisionTakeDamageUnderwater(slot);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.5) + DELTA_TIME;
                         break;
                     case 0x52:
-                        if (gWarioData.damageTimer == 0) {
+                        if (collisionWario->damageTimer == 0) {
                             SpriteCollisionUnderwaterBonk(slot, spriteLeft, spriteRight, warioX);
                         }
                         gSpriteData[slot].disableWarioCollisionTimer = CONVERT_SECONDS(0.5) + DELTA_TIME;
@@ -1522,1697 +1525,6 @@ void SpriteCollisionProcess(void)
         }
     }
 }
-#else
-NAKED void SpriteCollisionProcess(void)
-{
-    __asm__(
-        "\
-	push	{r4, r5, r6, r7, lr} \n\
-	mov	r7, sl \n\
-	mov	r6, r9 \n\
-	mov	r5, r8 \n\
-	push	{r5, r6, r7} \n\
-	sub	sp, #56	@ 0x38 \n\
-	ldr	r0, .L_1f6e8 \n\
-	ldrb	r0, [r0, #0] \n\
-	cmp	r0, #3 \n\
-	bls	.L_1f640 \n\
-	bl	.L_203f8 \n\
-.L_1f640: \n\
-	ldr	r1, .L_1f6ec \n\
-	ldrb	r0, [r1, #2] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1f64c \n\
-	bl	.L_203f8 \n\
-.L_1f64c: \n\
-	ldrh	r0, [r1, #20] \n\
-	str	r0, [sp, #16] \n\
-	ldrh	r2, [r1, #18] \n\
-	str	r2, [sp, #20] \n\
-	ldr	r0, .L_1f6f0 \n\
-	ldrh	r0, [r0, #0] \n\
-	str	r0, [sp, #40]	@ 0x28 \n\
-	ldrh	r0, [r1, #52]	@ 0x34 \n\
-	ldr	r3, [sp, #16] \n\
-	add	r0, r3, r0 \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r0, r0, #16 \n\
-	str	r0, [sp, #24] \n\
-	ldrh	r0, [r1, #56]	@ 0x38 \n\
-	add	r0, r3, r0 \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r0, r0, #16 \n\
-	str	r0, [sp, #28] \n\
-	ldrh	r0, [r1, #50]	@ 0x32 \n\
-	add	r0, r2, r0 \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r0, r0, #16 \n\
-	str	r0, [sp, #32] \n\
-	ldrh	r0, [r1, #54]	@ 0x36 \n\
-	add	r0, r2, r0 \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r0, r0, #16 \n\
-	str	r0, [sp, #36]	@ 0x24 \n\
-	mov	r7, #0 \n\
-.L_1f686: \n\
-	ldr	r1, .L_1f6f4 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r1, r0, r1 \n\
-	ldrh	r0, [r1, #0] \n\
-	mov	r2, #3 \n\
-	and	r0, r2 \n\
-	cmp	r0, #3 \n\
-	beq	.L_1f69c \n\
-	bl	.L_203e4 \n\
-.L_1f69c: \n\
-	ldrb	r0, [r1, #31] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1f6a6 \n\
-	bl	.L_203ea \n\
-.L_1f6a6: \n\
-	ldrh	r3, [r1, #8] \n\
-	str	r3, [sp, #44]	@ 0x2c \n\
-	ldrh	r0, [r1, #10] \n\
-	str	r0, [sp, #48]	@ 0x30 \n\
-	add	r0, r1, #0 \n\
-	add	r0, #35	@ 0x23 \n\
-	ldrb	r0, [r0, #0] \n\
-	sub	r0, r3, r0 \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r0, r0, #16 \n\
-	mov	sl, r0 \n\
-	add	r0, r1, #0 \n\
-	add	r0, #37	@ 0x25 \n\
-	ldrb	r0, [r0, #0] \n\
-	ldr	r2, [sp, #48]	@ 0x30 \n\
-	sub	r0, r2, r0 \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r0, r0, #16 \n\
-	mov	r8, r0 \n\
-	add	r0, r1, #0 \n\
-	add	r0, #38	@ 0x26 \n\
-	ldrb	r0, [r0, #0] \n\
-	add	r0, r2, r0 \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r0, r0, #16 \n\
-	mov	r9, r0 \n\
-	add	r0, r1, #0 \n\
-	add	r0, #36	@ 0x24 \n\
-	ldrb	r5, [r0, #0] \n\
-	cmp	r5, #127	@ 0x7f \n\
-	bhi	.L_1f6f8 \n\
-	add	r0, r3, r5 \n\
-	b	.L_1f700 \n\
-.L_1f6e8: \n\
-	.4byte	gTimerState \n\
-.L_1f6ec: \n\
-	.4byte	gWarioData \n\
-.L_1f6f0: \n\
-	.4byte	gPreviousXPosition \n\
-.L_1f6f4: \n\
-	.4byte	gSpriteData \n\
-.L_1f6f8: \n\
-	mov	r0, #127	@ 0x7f \n\
-	and	r5, r0 \n\
-	ldr	r3, [sp, #44]	@ 0x2c \n\
-	sub	r0, r3, r5 \n\
-.L_1f700: \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r5, r0, #16 \n\
-	mov	r0, sl \n\
-	str	r0, [sp, #0] \n\
-	str	r5, [sp, #4] \n\
-	mov	r1, r8 \n\
-	str	r1, [sp, #8] \n\
-	mov	r2, r9 \n\
-	str	r2, [sp, #12] \n\
-	ldr	r0, [sp, #24] \n\
-	ldr	r1, [sp, #28] \n\
-	ldr	r2, [sp, #32] \n\
-	ldr	r3, [sp, #36]	@ 0x24 \n\
-	bl	SpriteCollisionCheckObjectsTouching \n\
-	cmp	r0, #0 \n\
-	bne	.L_1f726 \n\
-	bl	.L_203ee \n\
-.L_1f726: \n\
-	ldr	r0, .L_1f788 \n\
-	mov	r2, #0 \n\
-	strb	r2, [r0, #0] \n\
-	mov	r3, sl \n\
-	sub	r0, r5, r3 \n\
-	lsr	r1, r0, #31 \n\
-	add	r0, r0, r1 \n\
-	asr	r0, r0, #1 \n\
-	add	r0, sl \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r4, r0, #16 \n\
-	mov	r1, r9 \n\
-	mov	r3, r8 \n\
-	sub	r0, r1, r3 \n\
-	lsr	r1, r0, #31 \n\
-	add	r0, r0, r1 \n\
-	asr	r0, r0, #1 \n\
-	add	r0, r8 \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r0, r0, #16 \n\
-	mov	ip, r0 \n\
-	ldr	r0, .L_1f78c \n\
-	strb	r2, [r0, #0] \n\
-	sub	r1, r4, #4 \n\
-	ldr	r6, .L_1f790 \n\
-	add	r3, r0, #0 \n\
-	ldr	r0, [sp, #28] \n\
-	cmp	r1, r0 \n\
-	ble	.L_1f76c \n\
-	mov	r1, #24 \n\
-	ldrsh	r0, [r6, r1] \n\
-	cmp	r0, #24 \n\
-	bgt	.L_1f76c \n\
-	mov	r0, #1 \n\
-	strb	r0, [r3, #0] \n\
-.L_1f76c: \n\
-	add	r0, r4, #4 \n\
-	ldr	r2, [sp, #24] \n\
-	cmp	r0, r2 \n\
-	bge	.L_1f77c \n\
-	ldrb	r0, [r3, #0] \n\
-	mov	r1, #2 \n\
-	orr	r0, r1 \n\
-	strb	r0, [r3, #0] \n\
-.L_1f77c: \n\
-	ldr	r0, [sp, #20] \n\
-	cmp	ip, r0 \n\
-	bcc	.L_1f794 \n\
-	ldrb	r0, [r3, #0] \n\
-	mov	r1, #4 \n\
-	b	.L_1f798 \n\
-.L_1f788: \n\
-	.4byte	gIgnoreSpriteCollision \n\
-.L_1f78c: \n\
-	.4byte	gSpriteCollisionFlags \n\
-.L_1f790: \n\
-	.4byte	gWarioData \n\
-.L_1f794: \n\
-	ldrb	r0, [r3, #0] \n\
-	mov	r1, #8 \n\
-.L_1f798: \n\
-	orr	r0, r1 \n\
-	strb	r0, [r3, #0] \n\
-	ldrh	r4, [r6, #14] \n\
-	ldrb	r0, [r6, #26] \n\
-	cmp	r0, #3 \n\
-	bne	.L_1f7a8 \n\
-	bl	.L_20172 \n\
-.L_1f7a8: \n\
-	ldr	r1, .L_1f7c8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r2, r0, r1 \n\
-	ldrb	r0, [r2, #30] \n\
-	sub	r0, #1 \n\
-	mov	ip, r1 \n\
-	cmp	r0, #72	@ 0x48 \n\
-	bls	.L_1f7be \n\
-	bl	.L_2016c \n\
-.L_1f7be: \n\
-	lsl	r0, r0, #2 \n\
-	ldr	r1, .L_1f7cc \n\
-	add	r0, r0, r1 \n\
-	ldr	r0, [r0, #0] \n\
-	mov	pc, r0 \n\
-.L_1f7c8: \n\
-	.4byte	gSpriteData \n\
-.L_1f7cc: \n\
-	.4byte	.L_1f7d0 \n\
-.L_1f7d0: \n\
-	.4byte	.L_1f8f4 \n\
-	.4byte	.L_1f91c \n\
-	.4byte	.L_1f944 \n\
-	.4byte	.L_1f96c \n\
-	.4byte	.L_1f9e8 \n\
-	.4byte	.L_1fafc \n\
-	.4byte	.L_1fb22 \n\
-	.4byte	.L_1fb68 \n\
-	.4byte	.L_1fba4 \n\
-	.4byte	.L_1f9c4 \n\
-	.4byte	.L_1fbc8 \n\
-	.4byte	.L_1fb80 \n\
-	.4byte	.L_1fc1c \n\
-	.4byte	.L_1fc34 \n\
-	.4byte	.L_1fc54 \n\
-	.4byte	.L_1fc68 \n\
-	.4byte	.L_1fc7c \n\
-	.4byte	.L_1fc90 \n\
-	.4byte	.L_1fce0 \n\
-	.4byte	.L_1fccc \n\
-	.4byte	.L_1fd00 \n\
-	.4byte	.L_1fdcc \n\
-	.4byte	.L_1fdcc \n\
-	.4byte	.L_1fdcc \n\
-	.4byte	.L_1fdcc \n\
-	.4byte	.L_1fdcc \n\
-	.4byte	.L_1fd24 \n\
-	.4byte	.L_1fd2e \n\
-	.4byte	.L_1fd38 \n\
-	.4byte	.L_1fd4c \n\
-	.4byte	.L_1fd66 \n\
-	.4byte	.L_1fdf8 \n\
-	.4byte	.L_1f99c \n\
-	.4byte	.L_1fe0c \n\
-	.4byte	.L_1fe24 \n\
-	.4byte	.L_1fe48 \n\
-	.4byte	.L_1faac \n\
-	.4byte	.L_1fad4 \n\
-	.4byte	.L_1fca4 \n\
-	.4byte	.L_1fcb8 \n\
-	.4byte	.L_1fe6c \n\
-	.4byte	.L_1fe6c \n\
-	.4byte	.L_1fe6c \n\
-	.4byte	.L_1feec \n\
-	.4byte	.L_1ff14 \n\
-	.4byte	.L_1ff64 \n\
-	.4byte	.L_1ff88 \n\
-	.4byte	.L_1fd42 \n\
-	.4byte	.L_1ffac \n\
-	.4byte	.L_1ffac \n\
-	.4byte	.L_1ffd0 \n\
-	.4byte	.L_1fff4 \n\
-	.4byte	.L_1fb38 \n\
-	.4byte	.L_20018 \n\
-	.4byte	.L_20050 \n\
-	.4byte	.L_20074 \n\
-	.4byte	.L_20098 \n\
-	.4byte	.L_20098 \n\
-	.4byte	.L_1fa70 \n\
-	.4byte	.L_200bc \n\
-	.4byte	.L_200d8 \n\
-	.4byte	.L_200ec \n\
-	.4byte	.L_2010a \n\
-	.4byte	.L_2010a \n\
-	.4byte	.L_20124 \n\
-	.4byte	.L_1feaa \n\
-	.4byte	.L_1feaa \n\
-	.4byte	.L_1feaa \n\
-	.4byte	.L_1fec8 \n\
-	.4byte	.L_1fb14 \n\
-	.4byte	.L_1ff3c \n\
-	.4byte	.L_1fe98 \n\
-	.4byte	.L_20140 \n\
-.L_1f8f4: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1f904 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8020B10 \n\
-	b	.L_1f90a \n\
-.L_1f904: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1f90a: \n\
-	ldr	r1, .L_1f918 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1f918: \n\
-	.4byte	gSpriteData \n\
-.L_1f91c: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1f92c \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8020BB8 \n\
-	b	.L_1f932 \n\
-.L_1f92c: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1f932: \n\
-	ldr	r1, .L_1f940 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1f940: \n\
-	.4byte	gSpriteData \n\
-.L_1f944: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1f954 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8020E1C \n\
-	b	.L_1f95a \n\
-.L_1f954: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1f95a: \n\
-	ldr	r1, .L_1f968 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1f968: \n\
-	.4byte	gSpriteData \n\
-.L_1f96c: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1f984 \n\
-	ldr	r1, [sp, #20] \n\
-	str	r1, [sp, #0] \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	mov	r2, r8 \n\
-	mov	r3, r9 \n\
-	bl	func_8020CEC \n\
-	b	.L_1f98a \n\
-.L_1f984: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1f98a: \n\
-	ldr	r1, .L_1f998 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1f998: \n\
-	.4byte	gSpriteData \n\
-.L_1f99c: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1f9ac \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8020F28 \n\
-	b	.L_1f9b2 \n\
-.L_1f9ac: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1f9b2: \n\
-	ldr	r1, .L_1f9c0 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1f9c0: \n\
-	.4byte	gSpriteData \n\
-.L_1f9c4: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1f9d2 \n\
-	add	r0, r7, #0 \n\
-	bl	func_80211E0 \n\
-	b	.L_1f9d8 \n\
-.L_1f9d2: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1f9d8: \n\
-	ldr	r1, .L_1f9e4 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-.L_1f9e4: \n\
-	.4byte	gSpriteData \n\
-.L_1f9e8: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fa5a \n\
-	ldr	r0, .L_1fa48 \n\
-	ldrb	r0, [r0, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fa3c \n\
-	ldrb	r1, [r3, #0] \n\
-	mov	r0, #2 \n\
-	and	r0, r1 \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fa50 \n\
-	ldr	r0, [sp, #44]	@ 0x2c \n\
-	sub	r0, #160	@ 0xa0 \n\
-	ldr	r1, [sp, #48]	@ 0x30 \n\
-	bl	func_8023BFC \n\
-	ldr	r5, .L_1fa4c \n\
-	ldrb	r1, [r5, #0] \n\
-	mov	r2, #15 \n\
-	add	r0, r2, #0 \n\
-	and	r0, r1 \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fa50 \n\
-	ldr	r0, [sp, #16] \n\
-	sub	r0, #96	@ 0x60 \n\
-	ldr	r1, [sp, #20] \n\
-	str	r2, [sp, #52]	@ 0x34 \n\
-	bl	func_8023BFC \n\
-	ldrb	r1, [r5, #0] \n\
-	ldr	r2, [sp, #52]	@ 0x34 \n\
-	add	r0, r2, #0 \n\
-	and	r0, r1 \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fa3c \n\
-	ldrb	r0, [r6, #1] \n\
-	sub	r0, #5 \n\
-	lsl	r0, r0, #24 \n\
-	lsr	r0, r0, #24 \n\
-	cmp	r0, #4 \n\
-	bls	.L_1fa60 \n\
-.L_1fa3c: \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8020B10 \n\
-	b	.L_1fa60 \n\
-	.align	2, 0 \n\
-.L_1fa48: \n\
-	.4byte	gCurrentCarriedSprite \n\
-.L_1fa4c: \n\
-	.4byte	gSpriteCollisionTileType \n\
-.L_1fa50: \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_802125C \n\
-	b	.L_1fa60 \n\
-.L_1fa5a: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1fa60: \n\
-	ldr	r1, .L_1fa6c \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-.L_1fa6c: \n\
-	.4byte	gSpriteData \n\
-.L_1fa70: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fa96 \n\
-	ldr	r0, .L_1fa88 \n\
-	ldrb	r0, [r0, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fa8c \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8020F28 \n\
-	b	.L_1fa9c \n\
-.L_1fa88: \n\
-	.4byte	gCurrentCarriedSprite \n\
-.L_1fa8c: \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8021318 \n\
-	b	.L_1fa9c \n\
-.L_1fa96: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1fa9c: \n\
-	ldr	r1, .L_1faa8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-.L_1faa8: \n\
-	.4byte	gSpriteData \n\
-.L_1faac: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fabc \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8020FF4 \n\
-	b	.L_1fac2 \n\
-.L_1fabc: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1fac2: \n\
-	ldr	r1, .L_1fad0 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1fad0: \n\
-	.4byte	gSpriteData \n\
-.L_1fad4: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fae4 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_80210E8 \n\
-	b	.L_1faea \n\
-.L_1fae4: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1faea: \n\
-	ldr	r1, .L_1faf8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1faf8: \n\
-	.4byte	gSpriteData \n\
-.L_1fafc: \n\
-	add	r0, r7, #0 \n\
-	bl	func_8021720 \n\
-	ldr	r1, .L_1fb10 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1fb10: \n\
-	.4byte	gSpriteData \n\
-.L_1fb14: \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, ip \n\
-	mov	r1, #112	@ 0x70 \n\
-	strb	r1, [r0, #28] \n\
-	bl	.L_203ce \n\
-.L_1fb22: \n\
-	add	r0, r7, #0 \n\
-	bl	func_8021734 \n\
-	ldr	r1, .L_1fb34 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-.L_1fb34: \n\
-	.4byte	gSpriteData \n\
-.L_1fb38: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fb4c \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	mov	r2, r8 \n\
-	mov	r3, r9 \n\
-	bl	func_80236C4 \n\
-	b	.L_1fb58 \n\
-.L_1fb4c: \n\
-	ldr	r1, .L_1fb64 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	mov	r1, #49	@ 0x31 \n\
-	strb	r1, [r0, #28] \n\
-.L_1fb58: \n\
-	ldr	r1, .L_1fb64 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-.L_1fb64: \n\
-	.4byte	gSpriteData \n\
-.L_1fb68: \n\
-	add	r0, r7, #0 \n\
-	bl	func_8021564 \n\
-	ldr	r1, .L_1fb7c \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1fb7c: \n\
-	.4byte	gSpriteData \n\
-.L_1fb80: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fb8e \n\
-	add	r0, r7, #0 \n\
-	bl	func_8021650 \n\
-	b	.L_1fb94 \n\
-.L_1fb8e: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1fb94: \n\
-	ldr	r1, .L_1fba0 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-.L_1fba0: \n\
-	.4byte	gSpriteData \n\
-.L_1fba4: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fbb2 \n\
-	add	r0, r7, #0 \n\
-	bl	func_80215E8 \n\
-	b	.L_1fbb8 \n\
-.L_1fbb2: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1fbb8: \n\
-	ldr	r1, .L_1fbc4 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-.L_1fbc4: \n\
-	.4byte	gSpriteData \n\
-.L_1fbc8: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fbd6 \n\
-	add	r0, r7, #0 \n\
-	bl	func_80216B8 \n\
-	b	.L_1fc0a \n\
-.L_1fbd6: \n\
-	cmp	r0, #8 \n\
-	bne	.L_1fc04 \n\
-	mov	r0, #0 \n\
-	strb	r0, [r6, #0] \n\
-	ldrb	r1, [r3, #0] \n\
-	mov	r0, #4 \n\
-	and	r0, r1 \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fbee \n\
-	bl	SpriteCollisionTakeDamageRight \n\
-	b	.L_1fbf2 \n\
-.L_1fbee: \n\
-	bl	SpriteCollisionTakeDamageLeft \n\
-.L_1fbf2: \n\
-	ldr	r1, .L_1fc00 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	mov	r1, #108	@ 0x6c \n\
-	strb	r1, [r0, #28] \n\
-	b	.L_1fc0a \n\
-.L_1fc00: \n\
-	.4byte	gSpriteData \n\
-.L_1fc04: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1fc0a: \n\
-	ldr	r1, .L_1fc18 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1fc18: \n\
-	.4byte	gSpriteData \n\
-.L_1fc1c: \n\
-	add	r0, r7, #0 \n\
-	bl	func_8021500 \n\
-	ldr	r1, .L_1fc30 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1fc30: \n\
-	.4byte	gSpriteData \n\
-.L_1fc34: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fc44 \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fc44 \n\
-	bl	SpriteCollisionTransformWarioFlaming \n\
-.L_1fc44: \n\
-	ldr	r1, .L_1fc50 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	bl	.L_203ca \n\
-.L_1fc50: \n\
-	.4byte	gSpriteData \n\
-.L_1fc54: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801ED48 \n\
-	ldr	r1, .L_1fc64 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fc64: \n\
-	.4byte	gSpriteData \n\
-.L_1fc68: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801ECB8 \n\
-	ldr	r1, .L_1fc78 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fc78: \n\
-	.4byte	gSpriteData \n\
-.L_1fc7c: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801ECFC \n\
-	ldr	r1, .L_1fc8c \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fc8c: \n\
-	.4byte	gSpriteData \n\
-.L_1fc90: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801EC74 \n\
-	ldr	r1, .L_1fca0 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fca0: \n\
-	.4byte	gSpriteData \n\
-.L_1fca4: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801EC30 \n\
-	ldr	r1, .L_1fcb4 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fcb4: \n\
-	.4byte	gSpriteData \n\
-.L_1fcb8: \n\
-	add	r0, r7, #0 \n\
-	bl	func_8022C64 \n\
-	ldr	r1, .L_1fcc8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fcc8: \n\
-	.4byte	gSpriteData \n\
-.L_1fccc: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801EBCC \n\
-	ldr	r1, .L_1fcdc \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fcdc: \n\
-	.4byte	gSpriteData \n\
-.L_1fce0: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fcf0 \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fcf0 \n\
-	bl	SpriteCollisionTransformWarioBat \n\
-.L_1fcf0: \n\
-	ldr	r1, .L_1fcfc \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1fcfc: \n\
-	.4byte	gSpriteData \n\
-.L_1fd00: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fd14 \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fd14 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8020C78 \n\
-.L_1fd14: \n\
-	ldr	r1, .L_1fd20 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1fd20: \n\
-	.4byte	gSpriteData \n\
-.L_1fd24: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, sl \n\
-	bl	func_8021C30 \n\
-	b	.L_203d4 \n\
-.L_1fd2e: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, sl \n\
-	bl	func_8021CC8 \n\
-	b	.L_203d4 \n\
-.L_1fd38: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, sl \n\
-	bl	func_8021D5C \n\
-	b	.L_203d4 \n\
-.L_1fd42: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, sl \n\
-	bl	func_8021DD0 \n\
-	b	.L_203d4 \n\
-.L_1fd4c: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fdcc \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fdcc \n\
-	add	r0, r7, #0 \n\
-	add	r1, r5, #0 \n\
-	mov	r2, r8 \n\
-	mov	r3, r9 \n\
-	bl	func_8021E6C \n\
-	b	.L_203ce \n\
-.L_1fd66: \n\
-	ldrb	r1, [r3, #0] \n\
-	mov	r0, #2 \n\
-	and	r0, r1 \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fdc0 \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fd7a \n\
-	cmp	r0, #2 \n\
-	bne	.L_1fdac \n\
-.L_1fd7a: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fd84 \n\
-	mov	r0, #0 \n\
-	strb	r0, [r6, #4] \n\
-.L_1fd84: \n\
-	bl	SpriteCollisionTransformWarioFlat \n\
-	ldr	r2, .L_1fda8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	add	r1, r7, #0 \n\
-	mul	r1, r0 \n\
-	add	r1, r1, r2 \n\
-	add	r2, r1, #0 \n\
-	add	r2, #40	@ 0x28 \n\
-	mov	r0, #1 \n\
-	strb	r0, [r2, #0] \n\
-	mov	r0, #15 \n\
-	strb	r0, [r1, #31] \n\
-	ldrh	r0, [r1, #8] \n\
-	add	r0, #144	@ 0x90 \n\
-	strh	r0, [r6, #20] \n\
-	b	.L_203ce \n\
-	.align	2, 0 \n\
-.L_1fda8: \n\
-	.4byte	gSpriteData \n\
-.L_1fdac: \n\
-	cmp	r0, #10 \n\
-	bne	.L_1fdb2 \n\
-	b	.L_203ce \n\
-.L_1fdb2: \n\
-	add	r0, r7, #0 \n\
-	add	r1, r5, #0 \n\
-	mov	r2, r8 \n\
-	mov	r3, r9 \n\
-	bl	func_8021E6C \n\
-	b	.L_203ce \n\
-.L_1fdc0: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fdcc \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fdea \n\
-.L_1fdcc: \n\
-	mov	r2, r8 \n\
-	str	r2, [sp, #0] \n\
-	mov	r3, r9 \n\
-	str	r3, [sp, #4] \n\
-	ldr	r0, [sp, #32] \n\
-	str	r0, [sp, #8] \n\
-	ldr	r1, [sp, #36]	@ 0x24 \n\
-	str	r1, [sp, #12] \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	mov	r2, sl \n\
-	add	r3, r5, #0 \n\
-	bl	func_8021784 \n\
-	b	.L_203d4 \n\
-.L_1fdea: \n\
-	add	r0, r7, #0 \n\
-	add	r1, r5, #0 \n\
-	mov	r2, r8 \n\
-	mov	r3, r9 \n\
-	bl	func_8021E6C \n\
-	b	.L_203ce \n\
-.L_1fdf8: \n\
-	add	r0, r7, #0 \n\
-	bl	func_80220F8 \n\
-	ldr	r1, .L_1fe08 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fe08: \n\
-	.4byte	gSpriteData \n\
-.L_1fe0c: \n\
-	add	r0, r7, #0 \n\
-	ldr	r1, [sp, #20] \n\
-	ldr	r2, [sp, #40]	@ 0x28 \n\
-	bl	func_8022118 \n\
-	ldr	r1, .L_1fe20 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fe20: \n\
-	.4byte	gSpriteData \n\
-.L_1fe24: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fe34 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8022188 \n\
-	b	.L_1fe3a \n\
-.L_1fe34: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1fe3a: \n\
-	ldr	r1, .L_1fe44 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fe44: \n\
-	.4byte	gSpriteData \n\
-.L_1fe48: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1fe58 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8022220 \n\
-	b	.L_1fe5e \n\
-.L_1fe58: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1fe5e: \n\
-	ldr	r1, .L_1fe68 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fe68: \n\
-	.4byte	gSpriteData \n\
-.L_1fe6c: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fe74 \n\
-	b	.L_203d4 \n\
-.L_1fe74: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fe7c \n\
-	b	.L_203d4 \n\
-.L_1fe7c: \n\
-	add	r0, r7, #0 \n\
-	add	r1, r5, #0 \n\
-	mov	r2, r8 \n\
-	mov	r3, r9 \n\
-	bl	func_80222D8 \n\
-	ldr	r1, .L_1fe94 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1fe94: \n\
-	.4byte	gSpriteData \n\
-.L_1fe98: \n\
-	ldr	r2, [sp, #20] \n\
-	str	r2, [sp, #0] \n\
-	add	r0, r7, #0 \n\
-	mov	r1, sl \n\
-	add	r2, r5, #0 \n\
-	ldr	r3, [sp, #24] \n\
-	bl	func_8022524 \n\
-	b	.L_203ce \n\
-.L_1feaa: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1feb2 \n\
-	b	.L_203d4 \n\
-.L_1feb2: \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8022724 \n\
-	ldr	r1, .L_1fec4 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fec4: \n\
-	.4byte	gSpriteData \n\
-.L_1fec8: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fed0 \n\
-	b	.L_203d4 \n\
-.L_1fed0: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fed8 \n\
-	b	.L_203d4 \n\
-.L_1fed8: \n\
-	bl	func_80215C0 \n\
-	ldr	r1, .L_1fee8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-	.align	2, 0 \n\
-.L_1fee8: \n\
-	.4byte	gSpriteData \n\
-.L_1feec: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fef4 \n\
-	b	.L_203d4 \n\
-.L_1fef4: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1fefc \n\
-	b	.L_203d4 \n\
-.L_1fefc: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	bl	func_8022EF8 \n\
-	ldr	r1, .L_1ff10 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1ff10: \n\
-	.4byte	gSpriteData \n\
-.L_1ff14: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1ff1c \n\
-	b	.L_203d4 \n\
-.L_1ff1c: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1ff24 \n\
-	b	.L_203d4 \n\
-.L_1ff24: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	bl	func_8022FC8 \n\
-	ldr	r1, .L_1ff38 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1ff38: \n\
-	.4byte	gSpriteData \n\
-.L_1ff3c: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1ff44 \n\
-	b	.L_203d4 \n\
-.L_1ff44: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_1ff4c \n\
-	b	.L_203d4 \n\
-.L_1ff4c: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	bl	func_8023110 \n\
-	ldr	r1, .L_1ff60 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1ff60: \n\
-	.4byte	gSpriteData \n\
-.L_1ff64: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1ff74 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_80233B8 \n\
-	b	.L_1ff7a \n\
-.L_1ff74: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1ff7a: \n\
-	ldr	r1, .L_1ff84 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1ff84: \n\
-	.4byte	gSpriteData \n\
-.L_1ff88: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1ff98 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_802349C \n\
-	b	.L_1ff9e \n\
-.L_1ff98: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1ff9e: \n\
-	ldr	r1, .L_1ffa8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1ffa8: \n\
-	.4byte	gSpriteData \n\
-.L_1ffac: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1ffbc \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_80235A0 \n\
-	b	.L_1ffc2 \n\
-.L_1ffbc: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1ffc2: \n\
-	ldr	r1, .L_1ffcc \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1ffcc: \n\
-	.4byte	gSpriteData \n\
-.L_1ffd0: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_1ffe0 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_80231F8 \n\
-	b	.L_1ffe6 \n\
-.L_1ffe0: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_1ffe6: \n\
-	ldr	r1, .L_1fff0 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_1fff0: \n\
-	.4byte	gSpriteData \n\
-.L_1fff4: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_20004 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_80232C4 \n\
-	b	.L_2000a \n\
-.L_20004: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_2000a: \n\
-	ldr	r1, .L_20014 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_20014: \n\
-	.4byte	gSpriteData \n\
-.L_20018: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_2003e \n\
-	ldrb	r5, [r6, #4] \n\
-	cmp	r5, #0 \n\
-	bne	.L_2003e \n\
-	ldr	r1, .L_20048 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	mov	r1, #108	@ 0x6c \n\
-	strb	r1, [r0, #28] \n\
-	ldr	r4, .L_2004c \n\
-	ldrb	r0, [r4, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_2003e \n\
-	bl	func_801E4B0 \n\
-	strb	r5, [r4, #0] \n\
-.L_2003e: \n\
-	ldr	r1, .L_20048 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_20048: \n\
-	.4byte	gSpriteData \n\
-.L_2004c: \n\
-	.4byte	gCurrentCarriedSprite \n\
-.L_20050: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_20060 \n\
-	add	r0, r7, #0 \n\
-	add	r1, r4, #0 \n\
-	bl	func_8020958 \n\
-	b	.L_20066 \n\
-.L_20060: \n\
-	add	r0, r7, #0 \n\
-	bl	func_801E92C \n\
-.L_20066: \n\
-	ldr	r1, .L_20070 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_20070: \n\
-	.4byte	gSpriteData \n\
-.L_20074: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_2008a \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_2008a \n\
-	add	r0, r7, #0 \n\
-	ldr	r1, [sp, #20] \n\
-	ldr	r2, [sp, #40]	@ 0x28 \n\
-	bl	func_80213F4 \n\
-.L_2008a: \n\
-	ldr	r1, .L_20094 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_20094: \n\
-	.4byte	gSpriteData \n\
-.L_20098: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_200ae \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_200ae \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	bl	func_8021434 \n\
-.L_200ae: \n\
-	ldr	r1, .L_200b8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_200b8: \n\
-	.4byte	gSpriteData \n\
-.L_200bc: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_200c8 \n\
-	add	r0, r7, #0 \n\
-	bl	func_80237E4 \n\
-.L_200c8: \n\
-	ldr	r1, .L_200d4 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-	.align	2, 0 \n\
-.L_200d4: \n\
-	.4byte	gSpriteData \n\
-.L_200d8: \n\
-	bl	func_801ED18 \n\
-	ldr	r1, .L_200e8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-	.align	2, 0 \n\
-.L_200e8: \n\
-	.4byte	gSpriteData \n\
-.L_200ec: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_200f4 \n\
-	b	.L_203d4 \n\
-.L_200f4: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_200fc \n\
-	b	.L_203d4 \n\
-.L_200fc: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	mov	r3, sl \n\
-	bl	func_8021F84 \n\
-	b	.L_203d4 \n\
-.L_2010a: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_20112 \n\
-	b	.L_203ce \n\
-.L_20112: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_2011a \n\
-	b	.L_203ce \n\
-.L_2011a: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, sl \n\
-	bl	func_8022948 \n\
-	b	.L_203ce \n\
-.L_20124: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_2012c \n\
-	b	.L_203d4 \n\
-.L_2012c: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_20134 \n\
-	b	.L_203d4 \n\
-.L_20134: \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	bl	func_8022AE8 \n\
-	b	.L_203ce \n\
-.L_20140: \n\
-	ldrb	r0, [r6, #0] \n\
-	cmp	r0, #0 \n\
-	beq	.L_20148 \n\
-	b	.L_203ce \n\
-.L_20148: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	beq	.L_20150 \n\
-	b	.L_203ce \n\
-.L_20150: \n\
-	ldr	r3, [sp, #36]	@ 0x24 \n\
-	str	r3, [sp, #0] \n\
-	mov	r0, r8 \n\
-	str	r0, [sp, #4] \n\
-	mov	r1, r9 \n\
-	str	r1, [sp, #8] \n\
-	str	r4, [sp, #12] \n\
-	add	r0, r7, #0 \n\
-	ldr	r1, [sp, #16] \n\
-	ldr	r2, [sp, #20] \n\
-	ldr	r3, [sp, #32] \n\
-	bl	func_8022CE8 \n\
-	b	.L_203ce \n\
-.L_2016c: \n\
-	mov	r0, #15 \n\
-	strb	r0, [r2, #31] \n\
-	b	.L_203ce \n\
-.L_20172: \n\
-	ldr	r1, .L_20190 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	ldrb	r0, [r0, #30] \n\
-	sub	r0, #6 \n\
-	mov	ip, r1 \n\
-	cmp	r0, #78	@ 0x4e \n\
-	bls	.L_20186 \n\
-	b	.L_203c4 \n\
-.L_20186: \n\
-	lsl	r0, r0, #2 \n\
-	ldr	r1, .L_20194 \n\
-	add	r0, r0, r1 \n\
-	ldr	r0, [r0, #0] \n\
-	mov	pc, r0 \n\
-.L_20190: \n\
-	.4byte	gSpriteData \n\
-.L_20194: \n\
-	.4byte	.L_20198 \n\
-.L_20198: \n\
-	.4byte	.L_202d4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_203c4 \n\
-	.4byte	.L_202e8 \n\
-	.4byte	.L_202fc \n\
-	.4byte	.L_202fc \n\
-	.4byte	.L_202fc \n\
-	.4byte	.L_20344 \n\
-	.4byte	.L_20368 \n\
-	.4byte	.L_20368 \n\
-	.4byte	.L_20384 \n\
-	.4byte	.L_203a0 \n\
-	.4byte	.L_20320 \n\
-	.4byte	.L_20320 \n\
-.L_202d4: \n\
-	add	r0, r7, #0 \n\
-	bl	func_8021720 \n\
-	ldr	r1, .L_202e4 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_202e4: \n\
-	.4byte	gSpriteData \n\
-.L_202e8: \n\
-	add	r0, r7, #0 \n\
-	bl	SpriteCollisionMaybeTransformWarioBubble \n\
-	ldr	r1, .L_202f8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	b	.L_203ca \n\
-.L_202f8: \n\
-	.4byte	gSpriteData \n\
-.L_202fc: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_2030e \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	ldr	r3, [sp, #20] \n\
-	bl	func_80204F4 \n\
-.L_2030e: \n\
-	ldr	r1, .L_2031c \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	mov	r1, #31 \n\
-	b	.L_203cc \n\
-	.align	2, 0 \n\
-.L_2031c: \n\
-	.4byte	gSpriteData \n\
-.L_20320: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_20332 \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	ldr	r3, [sp, #20] \n\
-	bl	func_80209E0 \n\
-.L_20332: \n\
-	ldr	r1, .L_20340 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	mov	r1, #31 \n\
-	b	.L_203cc \n\
-	.align	2, 0 \n\
-.L_20340: \n\
-	.4byte	gSpriteData \n\
-.L_20344: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_20356 \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	ldr	r3, [sp, #20] \n\
-	bl	func_80206B8 \n\
-.L_20356: \n\
-	ldr	r1, .L_20364 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	mov	r1, #31 \n\
-	b	.L_203cc \n\
-	.align	2, 0 \n\
-.L_20364: \n\
-	.4byte	gSpriteData \n\
-.L_20368: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_20374 \n\
-	add	r0, r7, #0 \n\
-	bl	func_80207D8 \n\
-.L_20374: \n\
-	ldr	r1, .L_20380 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	mov	r1, #31 \n\
-	b	.L_203cc \n\
-.L_20380: \n\
-	.4byte	gSpriteData \n\
-.L_20384: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_20390 \n\
-	add	r0, r7, #0 \n\
-	bl	SpriteCollisionTakeDamageUnderwater \n\
-.L_20390: \n\
-	ldr	r1, .L_2039c \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	mov	r1, #31 \n\
-	b	.L_203cc \n\
-.L_2039c: \n\
-	.4byte	gSpriteData \n\
-.L_203a0: \n\
-	ldrb	r0, [r6, #4] \n\
-	cmp	r0, #0 \n\
-	bne	.L_203b2 \n\
-	add	r0, r7, #0 \n\
-	mov	r1, r8 \n\
-	mov	r2, r9 \n\
-	ldr	r3, [sp, #20] \n\
-	bl	SpriteCollisionUnderwaterBonk \n\
-.L_203b2: \n\
-	ldr	r1, .L_203c0 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, r0, r1 \n\
-	mov	r1, #31 \n\
-	b	.L_203cc \n\
-	.align	2, 0 \n\
-.L_203c0: \n\
-	.4byte	gSpriteData \n\
-.L_203c4: \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r7 \n\
-	add	r0, ip \n\
-.L_203ca: \n\
-	mov	r1, #15 \n\
-.L_203cc: \n\
-	strb	r1, [r0, #31] \n\
-.L_203ce: \n\
-	ldr	r1, .L_203e0 \n\
-	mov	r0, #1 \n\
-	strb	r0, [r1, #0] \n\
-.L_203d4: \n\
-	ldr	r0, .L_203e0 \n\
-	ldrb	r0, [r0, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_203f8 \n\
-	b	.L_203ee \n\
-	.align	2, 0 \n\
-.L_203e0: \n\
-	.4byte	gIgnoreSpriteCollision \n\
-.L_203e4: \n\
-	ldrb	r0, [r1, #31] \n\
-	cmp	r0, #0 \n\
-	beq	.L_203ee \n\
-.L_203ea: \n\
-	sub	r0, #1 \n\
-	strb	r0, [r1, #31] \n\
-.L_203ee: \n\
-	add	r7, #1 \n\
-	cmp	r7, #23 \n\
-	bgt	.L_203f8 \n\
-	bl	.L_1f686 \n\
-.L_203f8: \n\
-	add	sp, #56	@ 0x38 \n\
-	pop	{r3, r4, r5} \n\
-	mov	r8, r3 \n\
-	mov	r9, r4 \n\
-	mov	sl, r5 \n\
-	pop	{r4, r5, r6, r7} \n\
-	pop	{r0} \n\
-	bx	r0"
-    );
-}
-#endif
 
 void SpriteCollisionTakeDamageUnderwater(s32 slot)
 {
@@ -4680,8 +2992,6 @@ void func_8022220(s32 slot, u16 direction)
     gSpriteData[slot].pose = pose;
 }
 
-// https://decomp.me/scratch/7xzFL
-#ifdef NON_MATCHING
 void func_80222D8(s32 slot, u16 bottom, u16 left, u16 right)
 {
     s32 facingRight;
@@ -4698,7 +3008,7 @@ void func_80222D8(s32 slot, u16 bottom, u16 left, u16 right)
         gWarioData.yVelocity = 0x50;
         return;
     }
-    if (gSpriteCollisionFlags & COLLISION_BELOW) {
+    if (gSpriteCollisionFlags & SPRITE_COLLISION_BELOW) {
         gSpriteCollisionTileType = 0;
         func_8023BFC(bottom + 0x64, gSpriteData[slot].xPosition);
         if (gSpriteCollisionTileType == 0) {
@@ -4727,19 +3037,33 @@ void func_80222D8(s32 slot, u16 bottom, u16 left, u16 right)
             if (gSpriteCollisionFlags & SPRITE_COLLISION_LEFT) {
                 if ((gSpriteData[slot].warioCollision != 0x2B) || facingRight) {
                     gWarioData.xPosition = left - gWarioData.hitboxOffsetRight;
-                    gSpriteData[slot].pose = SPOSE_TACKLED_RIGHT_INIT;
+                    {
+                        /* Keep the explicit sprite-address multiply in agbcc's r0. */
+                        register u32 spriteStride asm("r0");
+                        spriteStride = sizeof(gSpriteData[0]);
+                        ((struct PrimarySpriteData *)((u8 *)gSpriteData + spriteStride * slot))->pose = SPOSE_TACKLED_RIGHT_INIT;
+                    }
                     WarioRequestPose(WPOSE_NORMAL_SHOULDER_BASH_BONK);
                     gWarioData.xVelocity = -0x48;
                     gWarioData.yVelocity = 0x78;
                     m4aSongNumStart(SOUND_38);
                 } else {
                     SpriteCollisionTakeDamageRight();
-                    gSpriteData[slot].pose = SPOSE_PUSHED_RIGHT_INIT
+                    gSpriteData[slot].pose = SPOSE_PUSHED_RIGHT_INIT;
                 }
             } else {
                 if ((gSpriteData[slot].warioCollision != 0x2B) || !facingRight) {
-                    gWarioData.xPosition = right - gWarioData.hitboxOffsetLeft + 1;
-                    gSpriteData[slot].pose = SPOSE_TACKLED_LEFT_INIT;
+                    {
+                        u16 hitboxOffset = gWarioData.hitboxOffsetLeft;
+                        u32 rightEdge = right;
+                        gWarioData.xPosition = rightEdge - hitboxOffset + 1;
+                    }
+                    {
+                        /* Keep the explicit sprite-address multiply in agbcc's r0. */
+                        register u32 spriteStride asm("r0");
+                        spriteStride = sizeof(gSpriteData[0]);
+                        ((struct PrimarySpriteData *)((u8 *)gSpriteData + spriteStride * slot))->pose = SPOSE_TACKLED_LEFT_INIT;
+                    }
                     WarioRequestPose(WPOSE_NORMAL_SHOULDER_BASH_BONK);
                     gWarioData.xVelocity = 0x48;
                     gWarioData.yVelocity = 0x78;
@@ -4779,320 +3103,6 @@ void func_80222D8(s32 slot, u16 bottom, u16 left, u16 right)
         }
     }
 }
-#else
-NAKED void func_80222D8(s32 slot, u16 bottom, u16 left, u16 right)
-{
-    __asm__(
-        " \n\
-	push	{r4, r5, r6, r7, lr} \n\
-	mov	r7, sl \n\
-	mov	r6, r9 \n\
-	mov	r5, r8 \n\
-	push	{r5, r6, r7} \n\
-	sub	sp, #4 \n\
-	add	r6, r0, #0 \n\
-	lsl	r1, r1, #16 \n\
-	lsr	r1, r1, #16 \n\
-	mov	r9, r1 \n\
-	lsl	r2, r2, #16 \n\
-	lsr	r2, r2, #16 \n\
-	str	r2, [sp, #0] \n\
-	lsl	r3, r3, #16 \n\
-	lsr	r3, r3, #16 \n\
-	mov	sl, r3 \n\
-	ldr	r2, .L_22330 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r6 \n\
-	add	r7, r0, r2 \n\
-	ldrh	r1, [r7, #0] \n\
-	mov	r0, #64	@ 0x40 \n\
-	and	r0, r1 \n\
-	lsl	r0, r0, #16 \n\
-	lsr	r3, r0, #16 \n\
-	ldr	r0, .L_22334 \n\
-	ldrb	r4, [r0, #0] \n\
-	mov	r1, #1 \n\
-	mov	ip, r1 \n\
-	mov	r5, ip \n\
-	and	r5, r4 \n\
-	mov	r8, r0 \n\
-	cmp	r5, #0 \n\
-	beq	.L_22358 \n\
-	mov	r0, #4 \n\
-	and	r0, r4 \n\
-	cmp	r0, #0 \n\
-	beq	.L_22340 \n\
-	bl	func_801EF50 \n\
-	ldr	r1, .L_22338 \n\
-	ldr	r0, .L_2233c \n\
-	b	.L_22348 \n\
-	.align	2, 0 \n\
-.L_22330: \n\
-	.4byte	gSpriteData \n\
-.L_22334: \n\
-	.4byte	gSpriteCollisionFlags \n\
-.L_22338: \n\
-	.4byte	gWarioData \n\
-.L_2233c: \n\
-	.4byte	0x0000ffe0 \n\
-.L_22340: \n\
-	bl	func_801EF94 \n\
-	ldr	r1, .L_22354 \n\
-	mov	r0, #32 \n\
-.L_22348: \n\
-	strh	r0, [r1, #22] \n\
-	ldr	r1, .L_22354 \n\
-	mov	r0, #80	@ 0x50 \n\
-	strh	r0, [r1, #24] \n\
-	b	.L_22510 \n\
-	.align	2, 0 \n\
-.L_22354: \n\
-	.4byte	gWarioData \n\
-.L_22358: \n\
-	mov	r0, #2 \n\
-	and	r0, r4 \n\
-	cmp	r0, #0 \n\
-	beq	.L_223cc \n\
-	ldr	r4, .L_2238c \n\
-	strb	r5, [r4, #0] \n\
-	mov	r0, r9 \n\
-	add	r0, #100	@ 0x64 \n\
-	ldrh	r1, [r7, #10] \n\
-	bl	func_8023BFC \n\
-	ldrb	r0, [r4, #0] \n\
-	cmp	r0, #0 \n\
-	bne	.L_22380 \n\
-	ldr	r1, .L_22390 \n\
-	ldrh	r0, [r1, #52]	@ 0x34 \n\
-	sub	r0, #1 \n\
-	mov	r2, r9 \n\
-	sub	r0, r2, r0 \n\
-	strh	r0, [r1, #20] \n\
-.L_22380: \n\
-	ldr	r4, .L_22390 \n\
-	ldrb	r0, [r4, #26] \n\
-	cmp	r0, #0 \n\
-	beq	.L_22394 \n\
-	strh	r5, [r4, #24] \n\
-	b	.L_22510 \n\
-.L_2238c: \n\
-	.4byte	gSpriteCollisionTileType \n\
-.L_22390: \n\
-	.4byte	gWarioData \n\
-.L_22394: \n\
-	ldr	r1, .L_223bc \n\
-	ldrb	r0, [r4, #0] \n\
-	lsl	r0, r0, #2 \n\
-	add	r0, r0, r1 \n\
-	ldr	r1, [r0, #0] \n\
-	mov	r0, #31 \n\
-	bl	_call_via_r1 \n\
-	mov	r0, r8 \n\
-	ldrb	r1, [r0, #0] \n\
-	mov	r0, #4 \n\
-	and	r0, r1 \n\
-	cmp	r0, #0 \n\
-	beq	.L_223c4 \n\
-	mov	r0, #16 \n\
-	strh	r0, [r4, #14] \n\
-	ldr	r0, .L_223c0 \n\
-	strh	r0, [r4, #22] \n\
-	b	.L_22510 \n\
-	.align	2, 0 \n\
-.L_223bc: \n\
-	.4byte	sWarioPoseRequestFuncTable \n\
-.L_223c0: \n\
-	.4byte	0x0000ffe0 \n\
-.L_223c4: \n\
-	mov	r0, #32 \n\
-	strh	r0, [r4, #14] \n\
-	strh	r0, [r4, #22] \n\
-	b	.L_22510 \n\
-.L_223cc: \n\
-	ldr	r0, .L_223e0 \n\
-	ldrb	r1, [r0, #1] \n\
-	add	r5, r0, #0 \n\
-	cmp	r1, #22 \n\
-	blt	.L_2247c \n\
-	cmp	r1, #23 \n\
-	ble	.L_223e4 \n\
-	cmp	r1, #25 \n\
-	bgt	.L_2247c \n\
-	b	.L_223e8 \n\
-.L_223e0: \n\
-	.4byte	gWarioData \n\
-.L_223e4: \n\
-	mov	r1, ip \n\
-	strb	r1, [r5, #8] \n\
-.L_223e8: \n\
-	mov	r0, r8 \n\
-	ldrb	r1, [r0, #0] \n\
-	mov	r0, #4 \n\
-	and	r0, r1 \n\
-	cmp	r0, #0 \n\
-	beq	.L_22434 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r6 \n\
-	add	r4, r0, r2 \n\
-	ldrb	r0, [r4, #30] \n\
-	cmp	r0, #43	@ 0x2b \n\
-	bne	.L_22404 \n\
-	cmp	r3, #0 \n\
-	beq	.L_22498 \n\
-.L_22404: \n\
-	ldrh	r0, [r5, #54]	@ 0x36 \n\
-	ldr	r1, [sp, #0] \n\
-	sub	r0, r1, r0 \n\
-	strh	r0, [r5, #18] \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r6 \n\
-	add	r0, r0, r2 \n\
-	mov	r1, #31 \n\
-	strb	r1, [r0, #28] \n\
-	ldr	r1, .L_2242c \n\
-	ldrb	r0, [r5, #0] \n\
-	lsl	r0, r0, #2 \n\
-	add	r0, r0, r1 \n\
-	ldr	r1, [r0, #0] \n\
-	mov	r0, #26 \n\
-	bl	_call_via_r1 \n\
-	ldr	r0, .L_22430 \n\
-	b	.L_2246a \n\
-	.align	2, 0 \n\
-.L_2242c: \n\
-	.4byte	sWarioPoseRequestFuncTable \n\
-.L_22430: \n\
-	.4byte	0x0000ffb8 \n\
-.L_22434: \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r6 \n\
-	add	r4, r0, r2 \n\
-	ldrb	r0, [r4, #30] \n\
-	cmp	r0, #43	@ 0x2b \n\
-	bne	.L_22444 \n\
-	cmp	r3, #0 \n\
-	bne	.L_224dc \n\
-.L_22444: \n\
-	ldrh	r0, [r5, #50]	@ 0x32 \n\
-	mov	r1, sl \n\
-	sub	r0, r1, r0 \n\
-	add	r0, #1 \n\
-	strh	r0, [r5, #18] \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r6 \n\
-	add	r0, r0, r2 \n\
-	mov	r1, #33	@ 0x21 \n\
-	strb	r1, [r0, #28] \n\
-	ldr	r1, .L_22478 \n\
-	ldrb	r0, [r5, #0] \n\
-	lsl	r0, r0, #2 \n\
-	add	r0, r0, r1 \n\
-	ldr	r1, [r0, #0] \n\
-	mov	r0, #26 \n\
-	bl	_call_via_r1 \n\
-	mov	r0, #72	@ 0x48 \n\
-.L_2246a: \n\
-	strh	r0, [r5, #22] \n\
-	mov	r0, #120	@ 0x78 \n\
-	strh	r0, [r5, #24] \n\
-	mov	r0, #56	@ 0x38 \n\
-	bl	m4aSongNumStart \n\
-	b	.L_22510 \n\
-.L_22478: \n\
-	.4byte	sWarioPoseRequestFuncTable \n\
-.L_2247c: \n\
-	mov	r0, r8 \n\
-	ldrb	r1, [r0, #0] \n\
-	mov	r0, #4 \n\
-	and	r0, r1 \n\
-	cmp	r0, #0 \n\
-	beq	.L_224cc \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r6 \n\
-	add	r4, r0, r2 \n\
-	ldrb	r0, [r4, #30] \n\
-	cmp	r0, #43	@ 0x2b \n\
-	bne	.L_224a2 \n\
-	cmp	r3, #0 \n\
-	bne	.L_224a2 \n\
-.L_22498: \n\
-	bl	SpriteCollisionTakeDamageRight \n\
-	mov	r0, #35	@ 0x23 \n\
-	strb	r0, [r4, #28] \n\
-	b	.L_22510 \n\
-.L_224a2: \n\
-	ldrh	r0, [r5, #54]	@ 0x36 \n\
-	ldr	r1, [sp, #0] \n\
-	sub	r0, r1, r0 \n\
-	strh	r0, [r5, #18] \n\
-	bl	func_801EF50 \n\
-	ldr	r0, .L_224c4 \n\
-	strh	r0, [r5, #22] \n\
-	ldr	r1, .L_224c8 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r6 \n\
-	add	r1, r0, r1 \n\
-	ldrb	r0, [r1, #30] \n\
-	cmp	r0, #41	@ 0x29 \n\
-	bne	.L_2250c \n\
-	mov	r0, #35	@ 0x23 \n\
-	b	.L_2250a \n\
-.L_224c4: \n\
-	.4byte	0x0000ffe0 \n\
-.L_224c8: \n\
-	.4byte	gSpriteData \n\
-.L_224cc: \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r6 \n\
-	add	r4, r0, r2 \n\
-	ldrb	r0, [r4, #30] \n\
-	cmp	r0, #43	@ 0x2b \n\
-	bne	.L_224e6 \n\
-	cmp	r3, #0 \n\
-	beq	.L_224e6 \n\
-.L_224dc: \n\
-	bl	SpriteCollisionTakeDamageLeft \n\
-	mov	r0, #37	@ 0x25 \n\
-	strb	r0, [r4, #28] \n\
-	b	.L_22510 \n\
-.L_224e6: \n\
-	add	r4, r5, #0 \n\
-	ldrh	r0, [r4, #50]	@ 0x32 \n\
-	mov	r2, sl \n\
-	sub	r0, r2, r0 \n\
-	add	r0, #1 \n\
-	strh	r0, [r4, #18] \n\
-	bl	func_801EF94 \n\
-	mov	r0, #32 \n\
-	strh	r0, [r4, #22] \n\
-	ldr	r1, .L_22520 \n\
-	mov	r0, #44	@ 0x2c \n\
-	mul	r0, r6 \n\
-	add	r1, r0, r1 \n\
-	ldrb	r0, [r1, #30] \n\
-	cmp	r0, #41	@ 0x29 \n\
-	bne	.L_2250c \n\
-	mov	r0, #37	@ 0x25 \n\
-.L_2250a: \n\
-	strb	r0, [r1, #28] \n\
-.L_2250c: \n\
-	mov	r0, #80	@ 0x50 \n\
-	strh	r0, [r5, #24] \n\
-.L_22510: \n\
-	add	sp, #4 \n\
-	pop	{r3, r4, r5} \n\
-	mov	r8, r3 \n\
-	mov	r9, r4 \n\
-	mov	sl, r5 \n\
-	pop	{r4, r5, r6, r7} \n\
-	pop	{r0} \n\
-	bx	r0 \n\
-.L_22520: \n\
-	.4byte	gSpriteData \n\
-        "
-    );
-}
-#endif
 
 void func_8022524(s32 slot, u16 spriteTop, u16 spriteBottom, u16 warioTop, u16 warioX)
 {

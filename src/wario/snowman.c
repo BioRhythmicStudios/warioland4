@@ -2,27 +2,16 @@
 
 #include "bg_clip.h"
 #include "block.h"
-#include "global_data.h"
-#include "input.h"
 #include "screen_shake.h"
 #include "sound.h"
 #include "voice_set.h"
-#include "wario.h"
 #include "wario/swimming.h"
 #include "wario_palette.h"
 
-#include "gba/m4a.h"
 
-extern s32 GetAdjustedWarioXVelocity(void);
-extern void UpdateWarioHorizontalCollisionOffset(void);
-extern void UpdateWarioPositionHistory(void);
-extern void ResetWarioState(void);
 extern s32 CheckWarioPointCollision(u8, u16, void*);
 extern u8 ResolveWarioStandardCollision(void);
 extern u8 ResolveWarioLandingCollision(void);
-extern u8 ResolveWarioCeilingCollision(void);
-extern u8 ResolveWarioFloorCollision(void);
-extern void func_8016614(u8);
 
 extern const struct AnimationFrameU16 sUnk_82E04C4[];
 

@@ -1,11 +1,8 @@
-#include "sprite_ai/kaentsubo.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_util.h"
-#include "types.h"
 #include "wario.h"
 
 extern const struct AnimationFrame sKaentsuboIdleOam[];
@@ -27,7 +24,6 @@ extern const struct AnimationFrame sKaentsuboFireballTravelOam[];
 extern const struct AnimationFrame sKaentsuboDefeatSmokeOam[];
 extern const struct AnimationFrame sKaentsuboFireballSpawnOam[];
 
-void func_8023FA8(void);
 
 void InitKaentsubo(void)
 {

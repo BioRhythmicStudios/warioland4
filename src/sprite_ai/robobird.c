@@ -1,12 +1,9 @@
-#include "sprite_ai/robobird.h"
 
-#include "global_data.h"
 #include "sound.h"
 #include "score.h"
 #include "wario.h"
 #include "sprite.h"
 #include "sprite_util.h"
-#include "types.h"
 
 extern const struct AnimationFrame sRobobirdIdleOam[];
 extern const struct AnimationFrame sRobobirdAttackStartupOam[];
@@ -41,8 +38,7 @@ void InitRobobird(void)
     p = &sprite->hitboxExtentLeft;
     *p = thirtyTwo;
     q += 2;
-    asm("" : "+r"(q));
-    *q = 28;
+    *(volatile u8 *)q = 28;
     {
         register const struct AnimationFrame* oam asm("r0");
         oam = sRobobirdIdleOam;

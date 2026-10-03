@@ -1,11 +1,8 @@
 #include "sprite_ai/butatabi.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
-#include "sprite.h"
 #include "sprite_util.h"
-#include "types.h"
 
 void SetButatabiHitbox(void)
 {
@@ -138,7 +135,7 @@ void ButatabiHop(void)
 {
     struct PrimarySpriteData* sprite;
     u8* gravityIndex;
-    register u32 gravityTimer asm("r4");
+    u32 gravityTimer;
     const s16* gravityTable;
     u32 gravityAddress;
     const s16* gravityEntry;
@@ -163,7 +160,7 @@ void ButatabiHop(void)
     velocity = *(s16 *)((u8 *)gravityEntry + zero);
     if (velocity == S16_MAX) {
         u32 previousAddress;
-        register const s16* previousEntry asm("r1");
+        const s16* previousEntry;
 
         previousAddress = gravityTimer - 1;
         previousAddress <<= 1;
@@ -172,7 +169,7 @@ void ButatabiHop(void)
         position = sprite->yPosition;
         position += *(const u16*)previousEntry;
     } else {
-        register u32 nextTimer asm("r0");
+        u32 nextTimer;
 
         nextTimer = gravityTimer + 1;
         *gravityIndex = nextTimer;
@@ -214,7 +211,7 @@ void ButatabiHop(void)
         u16 zeroOffset;
         register struct PrimarySpriteData* current asm("r0");
         u8* timerPointer;
-        register u32 oneOrNext asm("r1");
+        u32 oneOrNext;
 
         xTable = (const u8*)sButatabiXVelocity;
         xAddress = (gravityTimer >> 1) << 1;
@@ -233,11 +230,11 @@ void ButatabiHop(void)
             gravityTimer = 0;
             rawVelocity = *(const u16*)xTable;
             current->pOamData = sButatabiMovingOam;
-            asm("" : "+r"(gravityTimer));
             current->currentAnimationFrame = gravityTimer;
             current->animationTimer = gravityTimer;
         } else {
-            oneOrNext = gravityTimer + 1;
+            oneOrNext = gravityTimer;
+            oneOrNext += 1;
             current = &gCurrentSprite;
             timerPointer = &current->work2;
             *timerPointer = oneOrNext;
@@ -246,12 +243,13 @@ void ButatabiHop(void)
         {
             struct PrimarySpriteData* positionSprite;
             s32 status;
-            register u16 facing asm("r0");
+            u32 facing;
             u32 xPosition;
 
             positionSprite = current;
             status = positionSprite->status;
-            facing = status & SPRITE_STATUS_FACING_RIGHT;
+            facing = SPRITE_STATUS_FACING_RIGHT;
+            facing &= status;
             if (facing) {
                 xPosition = positionSprite->xPosition;
                 xPosition += rawVelocity;

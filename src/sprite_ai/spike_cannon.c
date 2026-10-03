@@ -1,5 +1,4 @@
 #include "global_data.h"
-#include "gba/m4a.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_ai/spike_cannon.h"
@@ -151,13 +150,16 @@ void InitSpikeCannonProjectile(void)
         workPointer += 39;
         *workPointer = 36;
         workPointer += 2;
-        asm("" : "+r"(workPointer));
-        *workPointer = 4;
+        *(volatile u8 *)workPointer = 4;
     }
     sprite->work3 = zeroByte;
     sprite->pose = distance;
-    /* agbcc otherwise removes this unused facing-direction test. */
-    asm("mov r0, #64\n\tand r0, %0" : : "r"(status) : "r0");
+    {
+        u32 facingTest;
+        facingTest = 64;
+        facingTest &= status;
+        asm volatile("" : "+r"(facingTest));
+    }
     {
         const struct AnimationFrame *oam;
         register struct PrimarySpriteData *storePointer asm("r1");

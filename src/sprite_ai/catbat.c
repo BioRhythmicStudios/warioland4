@@ -91,7 +91,7 @@ int UpdateCatbatGraphicsAnimation(const u8 *table)
     unsigned frame;
     register unsigned offset asm("r0");
     volatile u32 *dma;
-    register const u8 *tableBase asm("r2");
+    register const u8 *tableBase;
     const u8 *src;
     u32 control;
 
@@ -130,7 +130,7 @@ int UpdateCatbatGraphicsAnimation(const u8 *table)
     tableBase = (const u8 *)sUnk_878F0E4;
     offset = frame << 2;
     /* agbcc canonicalizes the commutative address add with the operands reversed. */
-    asm("add r0, r0, r2" : "+r"(offset) : "r"(tableBase));
+    offset -= -(int)tableBase;
     src = *(const u8 **)offset;
     dma[0] = (u32)src;
     dma[1] = 0x06015820;
@@ -154,7 +154,7 @@ void UpdateCatbatBackgroundAnimation(const u8 *sequence)
     unsigned frame;
     register unsigned offset asm("r0");
     volatile u32 *dma;
-    register const u8 *tableBase asm("r2");
+    register const u8 *tableBase;
     const u8 *src;
 
     table = sequence;
@@ -174,7 +174,7 @@ void UpdateCatbatBackgroundAnimation(const u8 *sequence)
     index = value >> 24;
     offset = index << 2;
     /* agbcc reverses this commutative sequence-address addition. */
-    asm("add r0, r0, r2" : "+r"(offset) : "r"(table));
+    offset -= -(int)table;
     frame = *(const u8 *)offset;
     if (frame == 0xFF) {
         index = 0;
@@ -189,7 +189,7 @@ void UpdateCatbatBackgroundAnimation(const u8 *sequence)
     tableBase = (const u8 *)sUnk_878F0F8;
     offset = frame << 2;
     /* agbcc reverses this commutative table-address addition. */
-    asm("add r0, r0, r2" : "+r"(offset) : "r"(tableBase));
+    offset -= -(int)tableBase;
     src = *(const u8 **)offset;
     dma[0] = (u32)src;
     dma[1] = 0x06014000;
@@ -386,64 +386,37 @@ void InitCatbat(void)
 void UpdateCatbatIntroWaitForShop(void)
 {
     struct PrimarySpriteData *sprite;
-    u8 *indexPtr;
     int index;
     const s16 *table;
-    int entryAddress;
-    const s16 *entry;
-    register u16 velocity asm("r4");
+    u32 velocity;
     int signedVelocity;
-    int zero;
-    int nextIndex;
-    u8 *storePtr;
-    u8 *timer;
     int timerValue;
 
     UpdateCatbatGraphicsAnimation(sUnk_83CF8FC);
     sprite = &gCurrentSprite;
-    indexPtr = &sprite->work3;
-    index = *indexPtr;
+    index = sprite->work3;
     table = sUnk_83CF980;
-    entryAddress = index << 1;
-    /* agbcc reverses this commutative table-address addition. */
-    asm("add r0, r0, r5" : "+r"(entryAddress) : "r"(table));
-    entry = (const s16 *)entryAddress;
-    velocity = *(const u16 *)entry;
-    zero = 0;
-    signedVelocity = *entry;
+    velocity = *(const u16 *)&table[index];
+    signedVelocity = table[index];
     if (signedVelocity == 0x7FFF) {
         velocity = *(const u16 *)&table[0];
         index = 0;
     }
-    nextIndex = index + 1;
-    storePtr = indexPtr;
-    *storePtr = nextIndex;
+    sprite->work3 = index + 1;
     sprite->yPosition += velocity;
 
-    timer = &sprite->work2;
-    timerValue = *timer;
+    timerValue = sprite->work2;
     if (timerValue != 0) {
         timerValue--;
-        *timer = timerValue;
+        sprite->work2 = timerValue;
         if ((timerValue << 24) != 0)
             return;
-        {
-            vu8 *switchState;
-            u32 switchAddress;
-
-            switchAddress = (u32)&gBossDefeatTimer;
-            switchState = (vu8 *)switchAddress;
-            *switchState = 7;
-        }
+        gBossDefeatTimer[0] = 7;
     }
-    {
-        vu8 *switchRead;
-        /* Reuse the store-side literal after agbcc incorrectly CSEs the address. */
-        asm volatile("ldr r0, [pc, #44]" : "=r"(switchRead));
-        if (*switchRead == 0 && gCurrentShopItem == 0) {
-            sprite->pose = 2;
-            *timer = 20;
-        }
+
+    if (gBossDefeatTimer[0] == 0 && gCurrentShopItem == 0) {
+        sprite->pose = 2;
+        sprite->work2 = 20;
     }
 }
 void UpdateCatbatIntroDelay(void)
@@ -454,7 +427,7 @@ void UpdateCatbatIntroDelay(void)
     const s16 *table;
     int entryAddress;
     const s16 *entry;
-    register u16 velocity asm("r4");
+    u32 velocity;
     int signedVelocity;
     int zero;
     int nextIndex;
@@ -471,7 +444,7 @@ void UpdateCatbatIntroDelay(void)
     table = sUnk_83CF980;
     entryAddress = index << 1;
     /* agbcc reverses this commutative table-address addition. */
-    asm("add r0, r0, r5" : "+r"(entryAddress) : "r"(table));
+    entryAddress -= -(int)table;
     entry = (const s16 *)entryAddress;
     velocity = *(const u16 *)entry;
     zero = 0;
@@ -506,7 +479,7 @@ void UpdateCatbatIntroRoar(void)
     const s16 *table;
     int entryAddress;
     const s16 *entry;
-    register u16 velocity asm("r4");
+    u32 velocity;
     int signedVelocity;
     int zero;
     int nextIndex;
@@ -523,7 +496,7 @@ void UpdateCatbatIntroRoar(void)
     table = sUnk_83CF980;
     entryAddress = index << 1;
     /* agbcc reverses this commutative table-address addition. */
-    asm("add r0, r0, r5" : "+r"(entryAddress) : "r"(table));
+    entryAddress -= -(int)table;
     entry = (const s16 *)entryAddress;
     velocity = *(const u16 *)entry;
     zero = 0;
@@ -557,7 +530,7 @@ void UpdateCatbatIntroBossTimer(void)
     const s16 *table;
     int entryAddress;
     const s16 *entry;
-    register u16 velocity asm("r4");
+    u32 velocity;
     int signedVelocity;
     int zero;
     int nextIndex;
@@ -572,7 +545,7 @@ void UpdateCatbatIntroBossTimer(void)
     table = sUnk_83CF980;
     entryAddress = index << 1;
     /* agbcc reverses this commutative table-address addition. */
-    asm("add r0, r0, r5" : "+r"(entryAddress) : "r"(table));
+    entryAddress -= -(int)table;
     entry = (const s16 *)entryAddress;
     velocity = *(const u16 *)entry;
     zero = 0;
@@ -601,7 +574,7 @@ void UpdateCatbatIntroWaitForTimer(void)
     const s16 *table;
     int entryAddress;
     const s16 *entry;
-    register u16 velocity asm("r3");
+    u32 velocity;
     int signedVelocity;
     int zero;
     int nextIndex;
@@ -614,7 +587,7 @@ void UpdateCatbatIntroWaitForTimer(void)
     table = sUnk_83CF980;
     entryAddress = index << 1;
     /* agbcc reverses this commutative table-address addition. */
-    asm("add r0, r0, r5" : "+r"(entryAddress) : "r"(table));
+    entryAddress -= -(int)table;
     entry = (const s16 *)entryAddress;
     velocity = *(const u16 *)entry;
     zero = 0;
@@ -710,7 +683,7 @@ void UpdateCatbatPatrol(void)
         register u8 *storePtr asm("r12");
         int index;
         int nextIndex;
-        register u8 *finalStore asm("r1");
+        register u8 *finalStore;
         const s16 *table;
         register int entryAddress asm("r0");
         int velocity;
@@ -718,15 +691,13 @@ void UpdateCatbatPatrol(void)
         register int signedVelocity asm("r1");
 
         indexPtr = (u8 *)42;
-        /* Preserve the target's r7 + r4 operand order. */
-        asm("add r7, r7, r4" : "+r"(indexPtr) : "r"(sprite));
+        indexPtr -= -(int)sprite;
         storePtr = indexPtr;
         /* Keep the target's direct byte load from the r7 work pointer. */
         asm("ldrb %0, [%1]" : "=r"(index) : "r"(indexPtr));
         table = sUnk_83CF980;
         entryAddress = index << 1;
-        /* Preserve the target's commutative table-address operand order. */
-        asm("add r0, r0, r5" : "+r"(entryAddress) : "r"(table));
+        entryAddress += (int)table;
         velocity = *(const u16 *)entryAddress;
         zero = 0;
         /* agbcc otherwise spills the fixed r0 address while forming ldrsh. */
@@ -743,7 +714,10 @@ void UpdateCatbatPatrol(void)
             yPosition = sprite->yPosition;
             yPosition += velocity;
             /* Preserve the target's zero setup before the delayed position store. */
-            asm volatile("mov r7, #0\nmov %0, r7" : "=r"(zeroHigh) : : "r7");
+            asm volatile("" : "=r"(zero));
+            zero = 0;
+            asm volatile("" : "+r"(zero));
+            zeroHigh = zero;
             sprite->yPosition = yPosition;
         }
     }
@@ -779,13 +753,12 @@ void UpdateCatbatPatrol(void)
                 sprite->xPosition += 4;
                 {
                     int oldStatus;
-                    int toggledStatus;
+                    register int toggledStatus asm("r0");
                     oldStatus = sprite->status;
                     if (oldStatus & SPRITE_STATUS_ONSCREEN)
                         goto finalCheck;
-                    /* Preserve the target's immediate XOR destination in r0. */
-                    asm("mov r0, #64\neor r0, r0, r1"
-                        : "=r"(toggledStatus) : "r"(oldStatus) : "cc");
+                    toggledStatus = SPRITE_STATUS_FACING_RIGHT;
+                    toggledStatus ^= oldStatus;
                     sprite->status = toggledStatus;
                 }
                 UpdateCatbatHitboxFacing();
@@ -803,8 +776,7 @@ void UpdateCatbatPatrol(void)
                     warioCheck = wario;
                     if (warioCheck->reaction != 8) {
                         func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 160));
-                        /* Keep the original comparison value live through this call. */
-                        asm("" : : "r"(comparison));
+                        collision += (u16)((u32)comparison * 0x10000u);
                 if (*collision == 17)
                     sprite->xPosition += 2;
                 else
@@ -851,13 +823,12 @@ void UpdateCatbatPatrol(void)
             sprite->xPosition -= 4;
             {
                 int oldStatus;
-                int toggledStatus;
+                register int toggledStatus asm("r0");
                 oldStatus = sprite->status;
                 if (oldStatus & SPRITE_STATUS_ONSCREEN)
                     goto finalCheck;
-                /* Preserve the target's immediate XOR destination in r0. */
-                asm("mov r0, #64\neor r0, r0, r1"
-                    : "=r"(toggledStatus) : "r"(oldStatus) : "cc");
+                toggledStatus = SPRITE_STATUS_FACING_RIGHT;
+                toggledStatus ^= oldStatus;
                 sprite->status = toggledStatus;
             }
             UpdateCatbatHitboxFacing();
@@ -971,7 +942,7 @@ void UpdateCatbatLandingAttack(void)
         const s16 *table;
         int entryAddress;
         const s16 *entry;
-        u16 velocity;
+        register u16 velocity asm("r4");
         int zero;
         int signedVelocity;
 
@@ -1000,8 +971,7 @@ void UpdateCatbatLandingAttack(void)
             {
                 u16 previousValue;
                 previousValue = *(const u16 *)previous;
-                /* agbcc reverses this commutative add and changes the Thumb opcode. */
-                asm("add r0, r0, r1" : "+r"(position) : "r"(previousValue));
+                position -= -(int)previousValue;
             }
             sprite->yPosition = position;
         } else {
@@ -1275,17 +1245,12 @@ move:
     }
 
     if ((timer & 7) == 0) {
-        int normalizedBit;
+        u8 normalizedBit;
+        u32 normalizedTemp;
 
-        /* agbcc folds this byte-normalized bit test and deletes its zero branch. */
-        asm volatile(
-            "mov r0, #8\n"
-            "and r0, r0, %1\n"
-            "lsl r0, r0, #24\n"
-            "lsr %0, r0, #24"
-            : "=r"(normalizedBit)
-            : "r"(timer)
-            : "r0", "cc");
+        normalizedTemp = 8;
+        normalizedTemp &= timer;
+        normalizedBit = normalizedTemp;
         if (normalizedBit != 0) {
             gCurrentSprite.palette = 4;
             if (timer == 56)
@@ -2022,145 +1987,142 @@ void UpdateCatbatGroundWaveDelay(void)
 }
 void InitCatbatLandingDebris(void)
 {
-    struct PrimarySpriteData *sprite;
-    u16 oldStatus;
-    register u16 status asm("r0");
-    int mask;
-    register int zeroByte asm("r2");
-    int zeroHalf;
-    int preservedZero;
-    int slot;
-
-    sprite = &gCurrentSprite;
-    oldStatus = sprite->status;
-    mask = SPRITE_STATUS_IGNORE_SPRITE_COLLISION | SPRITE_STATUS_BACKGROUND;
-    status = mask;
-    zeroByte = 0;
-    zeroHalf = 0;
-    status |= oldStatus;
-    status &= ~SPRITE_STATUS_HIDDEN;
-    sprite->status = status;
-
-    /* Keep the target's otherwise dead callee-saved zero lifetime. */
-    asm("movs %0, #0" : "=l"(preservedZero));
-    sprite->warioCollision = 62;
+  struct PrimarySpriteData *sprite;
+  u16 oldStatus;
+  short persistentZero;
+  register unsigned short status asm("r0");
+  u8 *animationFramePtr;
+  int mask;
+  int zeroByte;
+  const struct AnimationFrame *oamData;
+  u8 *animationFrameByte;
+  int zeroHalf;
+  struct PrimarySpriteData *roomSprite;
+  struct PrimarySpriteData *parentCopy;
+  u8 *rightPtrTemp;
+  struct PrimarySpriteData *workSprite;
+  int slot;
+  int rightAddress;
+  sprite = &gCurrentSprite;
+  persistentZero = 0;
+  oldStatus = sprite->status;
+  mask = SPRITE_STATUS_IGNORE_SPRITE_COLLISION | SPRITE_STATUS_BACKGROUND;
+  status = mask;
+  zeroByte = persistentZero;
+  zeroHalf = persistentZero;
+  status |= oldStatus;
+  status &= ~SPRITE_STATUS_HIDDEN;
+  sprite->status = status;
+  sprite->warioCollision = 62;
+  {
+    u8 *distance;
+    int value;
+    distance = &sprite->drawDistanceDown;
+    value = 64;
+    *distance = value;
+  }
+  {
+    u8 *field;
+    int sixteen;
+    field = &sprite->drawDistanceUp;
+    *field = zeroByte;
+    field++;
+    sixteen = 16;
+    *field = sixteen;
     {
-        u8 *distance;
-        int value;
-        distance = &sprite->drawDistanceDown;
-        value = 64;
-        *distance = value;
+      int four;
+      u8 *hitbox;
+      hitbox = (u8 *)sprite + 35;
+      four = 4;
+      *hitbox = four;
+    }
+    field = &sprite->hitboxExtentDown;
+    animationFramePtr = &sprite->currentAnimationFrame;
+    *field = zeroByte;
+    {
+      int address;
+      int savedAddress;
+      int value;
+      u8 *left;
+      address = 37;
+      address += (int) sprite;
+      savedAddress = address;
+      value = 32;
+      left = (u8 *) savedAddress;
+      *left = value;
     }
     {
-        u8 *field;
-        int sixteen;
-        field = &sprite->drawDistanceUp;
-        *field = zeroByte;
-        field++;
-        sixteen = 16;
-        *field = sixteen;
-
-        {
-            register int hitboxOffset asm("r5");
-            int four;
-            hitboxOffset = 35;
-            four = 4;
-            /* agbcc otherwise converts this indexed byte store to base+offset. */
-            asm("strb r0, [r5, r4]" : : "r"(four), "r"(hitboxOffset), "r"(sprite));
-        }
-        field = &sprite->hitboxExtentDown;
-        *field = zeroByte;
-        {
-            register int address asm("r0");
-            register int savedAddress asm("r12");
-            register int value asm("r0");
-            register u8 *left asm("r5");
-            asm("" : "=r"(address) : "0"(37));
-            address += (int)sprite;
-            savedAddress = address;
-            value = 32;
-            left = (u8 *)savedAddress;
-            *left = value;
-        }
-        {
-            register int address asm("r0");
-            register int savedAddress asm("r12");
-            register int value asm("r0");
-            register u8 *right asm("r5");
-            asm("" : "=r"(address) : "0"(38));
-            address += (int)sprite;
-            savedAddress = address;
-            value = 48;
-            right = (u8 *)savedAddress;
-            *right = value;
-        }
-
-        sprite->pOamData = sCatbatOam_83CF370;
-        /* agbcc otherwise copies the existing r2 zero before this byte store. */
-        *(u8 *)&sprite->currentAnimationFrame = zeroByte;
-        sprite->animationTimer = zeroHalf;
-        sprite->pose = sixteen;
+      int address;
+      int savedAddress;
+      int value;
+      u8 *right;
+      address = 38;
+      address += (int) sprite;
+      rightAddress = address;
+      savedAddress = rightAddress;
+      rightPtrTemp = (u8 *) savedAddress;
+      value = 48;
+      right = rightPtrTemp;
+      *right = value;
     }
-
+    oamData = sCatbatOam_83CF370;
+    animationFrameByte = (u8 *) animationFramePtr;
+    sprite->pOamData = oamData;
+    *animationFrameByte = zeroByte;
+    sprite->animationTimer = zeroHalf;
+    sprite->pose = sixteen;
+  }
+  {
+    int roomBit;
+    int healthBit;
+    s8 healthSeed;
+    healthSeed = 1;
+    healthBit = healthSeed;
+    roomBit = 1;
+    sprite->drawPriority = roomBit;
     {
-        register int roomBit asm("r5");
-        register int healthBit asm("r6");
-        healthBit = 1;
-        roomBit = 1;
-        sprite->drawPriority = roomBit;
-        {
-            u8 *work1;
-            u8 *work2;
-            work1 = &sprite->work1;
-            *work1 = zeroByte;
-            work2 = &sprite->work2;
-            *work2 = 42;
-            work1 = &sprite->work3;
-            *work1 = zeroByte;
-        }
-        /* End the initializer zero lifetime before preparing call arguments. */
-        asm("" ::: "r2");
-        SpriteSpawnAsChild(PSPRITE_CATBAT_DEBRIS_PARTICLE, sprite->roomSlot, 0,
-            sprite->yPosition, sprite->xPosition);
-
-        slot = SpriteUtilFindSpriteSlot(PSPRITE_CATBAT);
-        {
-            register struct PrimarySpriteData *sprites asm("r2");
-            int offset;
-            struct PrimarySpriteData *parent;
-            unsigned parentHealth;
-
-            sprites = gSpriteData;
-            offset = slot * sizeof(struct PrimarySpriteData);
-            /* Preserve the target's slot-offset plus array-base operand order. */
-            asm("add r2, r0, r2" : "+r"(sprites) : "r"(offset));
-            parent = sprites;
-            parentHealth = parent->health;
-            if (parentHealth <= 5)
-                sprite->health |= 16;
-            parentHealth = parent->health;
-            if (parentHealth <= 9) {
-                if (parentHealth <= 7)
-                    goto setCatbatHealthBit;
-                /*
-                 * agbcc either reverses the Thumb AND destination or deletes
-                 * the zero test. Keep only this tiny parity gate in assembly.
-                 */
-                asm volatile(
-                    "ldrb r1, [r4, #24]\n"
-                    "add r0, r5, #0\n"
-                    "and r0, r1\n"
-                    "cmp r0, #0\n"
-                    "beq 1f");
-setCatbatHealthBit:
-                sprite->health |= healthBit;
-                asm volatile("1:");
-            }
-        }
+      u8 *work1;
+      u8 *work2;
+      work1 = &sprite->work1;
+      *work1 = zeroByte;
+      workSprite = sprite;
+      work2 = &workSprite->work2;
+      *work2 = 42;
+      work1 = &sprite->work3;
+      *work1 = zeroByte;
     }
-
-    /* Preserve r7 across both calls, matching the target prologue. */
-    asm("" : : "l"(preservedZero));
+    SpriteSpawnAsChild(PSPRITE_CATBAT_DEBRIS_PARTICLE, sprite->roomSlot, persistentZero, sprite->yPosition, sprite->xPosition);
+    slot = SpriteUtilFindSpriteSlot(PSPRITE_CATBAT);
+    {
+      struct PrimarySpriteData *sprites;
+      int offset;
+      struct PrimarySpriteData *parent;
+      unsigned parentHealth;
+      zeroHalf = 0;
+      sprites = gSpriteData;
+      offset = slot * sizeof(struct PrimarySpriteData);
+      sprites = (struct PrimarySpriteData *) (((u8 *) sprites) + offset);
+      parent = sprites;
+      parentCopy = parent;
+      parentHealth = parentCopy->health;
+      if (parentHealth <= 5)
+      {
+        sprite->health |= 16;
+      }
+      parentHealth = parentCopy->health;
+      if (parentHealth <= 9)
+      {
+        do
+        {
+          if ((parentHealth <= 7) || (((roomSprite = sprite)->roomSlot & 1) != zeroHalf))
+          {
+            sprite->health |= healthBit;
+          }
+        }
+        while ((status = 0));
+      }
+    }
+  }
 }
 void UpdateCatbatLandingDebris(void)
 {
@@ -2383,7 +2345,7 @@ void InitCatbatDebrisParticle(void)
 void UpdateCatbatDebrisParticle(void)
 {
     int slot;
-    register struct PrimarySpriteData *base asm("r1");
+    register struct PrimarySpriteData *base;
     struct PrimarySpriteData *parent;
     struct PrimarySpriteData *sprite;
     int offset;
@@ -2399,7 +2361,7 @@ void UpdateCatbatDebrisParticle(void)
     offset = sizeof(struct PrimarySpriteData);
     offset *= slot;
     /* agbcc reverses this commutative address addition. */
-    asm("add r2, r0, r1" : "=r"(slot) : "r"(offset), "r"(base));
+    slot = offset - -(int)base;
     parent = (struct PrimarySpriteData *)slot;
     status = parent->status;
     exists = SPRITE_STATUS_EXISTS;
@@ -2615,7 +2577,7 @@ void UpdateCatbatAttackEffect(void)
         register const s16 *velocityTable asm("r6");
         int entryAddress;
         const s16 *entry;
-        register u16 velocityValue asm("r3");
+        u32 velocityValue;
         int zero;
         int signedVelocity;
         int nextIndex;
@@ -2627,7 +2589,7 @@ void UpdateCatbatAttackEffect(void)
         velocityTable = sUnk_83CFACE;
         entryAddress = indexValue << 1;
         /* Preserve the target's table-address operand order. */
-        asm("add r0, r0, r6" : "+r"(entryAddress) : "r"(velocityTable));
+        entryAddress -= -(int)velocityTable;
         entry = (const s16 *)entryAddress;
         velocityValue = *(const u16 *)entry;
         zero = 0;

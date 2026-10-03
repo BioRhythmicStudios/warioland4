@@ -676,7 +676,9 @@ void InitMoguramenProjectile(void)
         flags = SPRITE_STATUS_AFFINE | SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
         flagsCopy = flags;
         /* agbcc otherwise schedules these zeros before the status flag copy. */
-        asm("movs %0, #0\n	movs %1, #0" : "=r"(zeroByte), "=r"(zeroHalf));
+        zeroByte = 0;
+        asm("" : "+r"(zeroByte));
+        zeroHalf = 0;
         statusValue = flagsCopy | status;
     }
     finalStatus = statusValue & ~SPRITE_STATUS_HIDDEN;

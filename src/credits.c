@@ -3,13 +3,9 @@
 #include "background_registers.h"
 #include "compiler.h"
 #include "fixed_point.h"
-#include "gba.h"
-#include "gba/m4a.h"
-#include "global_data.h"
 #include "init_helpers.h"
 #include "interrupt_callbacks.h"
 #include "main.h"
-#include "oam.h"
 #include "score.h"
 
 extern const struct AnimationFrame sCreditsBackgroundStripAnimation[];
@@ -58,7 +54,6 @@ extern const u8 sCreditsObjTiles[];
 extern const u8 sCreditsOverlayTiles[];
 extern const u8 sCreditsSpriteStateTemplate[];
 
-void ResetFreeOam(void);
 
 u32 UpdateCreditsScreen(void)
 {
@@ -225,7 +220,7 @@ void InitializeCredits(void)
     u8 zeroByte;
     u16 zeroHalf;
     u16 sixteen;
-    register u16 x asm("r0");
+    u32 x;
     u8 difficulty;
 
     REG_IE ^= 1;
@@ -364,7 +359,6 @@ void InitializeCredits(void)
     *(u32 *)(dst + 4) = tmp1;
     zeroHalf = 0;
     x = 0x90;
-    COMPILER_BARRIER(x);
     x <<= 1;
     *(u16 *)(gCreditsBannerSpriteState.bytes + 4) = x;
     *(u16 *)(gCreditsBannerSpriteState.bytes + 6) = 0xA0;
@@ -394,7 +388,6 @@ void InitializeCredits(void)
     *(u32 *)(gCreditsBackgroundLayerSpriteState.bytes + 0) = tmp0;
     *(u32 *)(gCreditsBackgroundLayerSpriteState.bytes + 4) = tmp1;
     x = 0xA8;
-    COMPILER_BARRIER(x);
     x <<= 1;
     *(u16 *)(gCreditsBackgroundLayerSpriteState.bytes + 4) = x;
     *(u16 *)(gCreditsBackgroundLayerSpriteState.bytes + 6) = 0x3C;
@@ -1390,8 +1383,7 @@ void RenderCreditsOam(void)
       register s16 *pbPointer asm("r4");
       affinePbValue = FixedMul(sSinCosTable[0], (s16) FixedInverse((s16) gCreditsTreasureDrop.scale));
       pbPointer = pbPtr;
-      asm("" : "+r"(pbPointer));
-      *pbPointer = affinePbValue;
+      *(volatile s16 *)pbPointer = affinePbValue;
     }
     {
       s16 sineZero;

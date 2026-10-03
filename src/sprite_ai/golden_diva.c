@@ -135,12 +135,11 @@ void DespawnGoldenDivaAttack(void)
     sprite->status = 0;
     SpawnSecondarySprite(sprite->yPosition - 32, sprite->xPosition, 5);
     pose = sprite->pose;
-    if (pose > 88)
-        return;
-    /* Compiler boundary: pure C folds this lower bound into cmp #80 / ble. */
-    asm("cmp r0, #81\n\tblt 1f");
-    gCurrentCarriedSprite.state = 0;
-    asm("1:");
+    switch (pose) {
+    case 81 ... 88:
+        gCurrentCarriedSprite.state = 0;
+        break;
+    }
 }
 
 s32 UpdateGoldenDivaDynamicGraphics(const u8 *animation)
@@ -1731,7 +1730,7 @@ void UpdateGoldenDivaMaskDamage(void)
 
 void BeginGoldenDivaFaceAnimation(void)
 {
-    register u32 value asm("r0");
+    u32 value;
     u32 stride;
     register u32 offset asm("r2");
     register u32 data asm("r3");
@@ -1742,7 +1741,7 @@ void BeginGoldenDivaFaceAnimation(void)
     offset = value;
     offset *= stride;
     value = data + 4;
-    value = offset + value;
+    value = (offset) - (-(value));
     stride = (u32)sGoldenDivaBodyFaceStartOam;
     *(const struct AnimationFrame **)value = (const struct AnimationFrame *)stride;
     offset += data;
@@ -1809,9 +1808,9 @@ void UpdateGoldenDivaFaceAnimation(void)
             index = stride;
             index *= value;
             value = index + data;
-            *(u8 *)(value + 22) = zero;
+            ((struct PrimarySpriteData *)value)->currentAnimationFrame = zero;
             zero6 = 0;
-            *(u16 *)(value + 20) = zero;
+            ((struct PrimarySpriteData *)value)->animationTimer = zero;
             value = data + 4;
             index += value;
             value = (u32)sGoldenDivaBodyFaceLoopOam;
@@ -2006,9 +2005,9 @@ void BeginGoldenDivaAttack(void)
                 stride = sizeof(struct PrimarySpriteData);
                 stride *= value;
                 offset = stride + data;
-                *(u8 *)(offset + 22) = timerValue;
+                ((struct PrimarySpriteData *)offset)->currentAnimationFrame = timerValue;
                 zero = 0;
-                *(u16 *)(offset + 20) = timerValue;
+                ((struct PrimarySpriteData *)offset)->animationTimer = timerValue;
                 data += 4;
                 stride += data;
                 offset = (u32)sGoldenDivaBodyAttackOam;
@@ -2442,7 +2441,7 @@ void UpdateGoldenDivaBodyMovement(void)
             temp2 *= value;
             timer = temp2 + temp;
             value = 3;
-            *(u8 *)(timer + 27) = value;
+            ((struct PrimarySpriteData *)timer)->palette = value;
             value = (u32)sGoldenDivaBodyMoveOam;
             sprite->pOamData = (const struct AnimationFrame *)value;
             temp += 4;
@@ -2456,7 +2455,7 @@ void UpdateGoldenDivaBodyMovement(void)
             temp2 = slot;
             temp2 *= value;
             value = temp2 + temp;
-            *(u8 *)(value + 27) = timer;
+            ((struct PrimarySpriteData *)value)->palette = timer;
             value = (u32)sGoldenDivaBodyIdleOam;
             sprite->pOamData = (const struct AnimationFrame *)value;
             temp += 4;
@@ -2474,7 +2473,7 @@ void UpdateGoldenDivaBodyMovement(void)
     temp = stride;
     temp *= slot;
     temp2 = temp + sprites;
-    *(u8 *)(temp2 + 27) = timer;
+    ((struct PrimarySpriteData *)temp2)->palette = timer;
     value = (u32)sGoldenDivaBodyIdleOam;
     sprite->pOamData = (const struct AnimationFrame *)value;
     value = sprites + 4;
@@ -3161,10 +3160,10 @@ void InitGoldenDivaRobe(void)
     value = (u32)sGoldenDivaRobeOam;
     constant = sprite;
     *(u32 *)(constant + 4) = value;
-    *(u8 *)(constant + 22) = zero8;
-    *(u16 *)(constant + 20) = zero16;
+    ((struct PrimarySpriteData *)constant)->currentAnimationFrame = zero8;
+    ((struct PrimarySpriteData *)constant)->animationTimer = zero16;
     value = 16;
-    *(u8 *)(constant + 28) = value;
+    ((struct PrimarySpriteData *)constant)->pose = value;
     SpriteUtilFindSpriteSlotWork3(PSPRITE_EC);
 }
 
@@ -3212,10 +3211,10 @@ void InitGoldenDivaLowerBody(void)
     value = (u32)sGoldenDivaLowerBodyOam;
     temp = sprite;
     *(u32 *)(temp + 4) = value;
-    *(u8 *)(temp + 22) = constant;
-    *(u16 *)(temp + 20) = zero16;
+    ((struct PrimarySpriteData *)temp)->currentAnimationFrame = constant;
+    ((struct PrimarySpriteData *)temp)->animationTimer = zero16;
     value = 1;
-    *(u8 *)(temp + 28) = value;
+    ((struct PrimarySpriteData *)temp)->pose = value;
     SpriteUtilFindSpriteSlotWork3(PSPRITE_EC);
 }
 
@@ -3272,9 +3271,9 @@ void InitGoldenDivaFaceHitbox(void)
     value = (u32)sGoldenDivaMaskFaceOam;
     temp = sprite;
     *(u32 *)(temp + 4) = value;
-    *(u8 *)(temp + 22) = zero8;
-    *(u16 *)(temp + 20) = zero16;
-    *(u8 *)(temp + 28) = constant;
+    ((struct PrimarySpriteData *)temp)->currentAnimationFrame = zero8;
+    ((struct PrimarySpriteData *)temp)->animationTimer = zero16;
+    ((struct PrimarySpriteData *)temp)->pose = constant;
 }
 
 void UpdateGoldenDivaFaceHitbox(void)
@@ -3399,10 +3398,10 @@ void InitGoldenDivaFan(void)
     value = (u32)sGoldenDivaFanOam;
     constant = sprite;
     *(u32 *)(constant + 4) = value;
-    *(u8 *)(constant + 22) = zero8;
-    *(u16 *)(constant + 20) = zero16;
+    ((struct PrimarySpriteData *)constant)->currentAnimationFrame = zero8;
+    ((struct PrimarySpriteData *)constant)->animationTimer = zero16;
     value = 1;
-    *(u8 *)(constant + 28) = value;
+    ((struct PrimarySpriteData *)constant)->pose = value;
 }
 
 void FollowGoldenDivaFan(void)
@@ -3521,29 +3520,29 @@ void InitGoldenDivaMask(void)
     value = (u32)sGoldenDivaMaskFaceOam;
     constant = sprite;
     *(u32 *)(constant + 4) = value;
-    *(u8 *)(constant + 22) = zero8;
-    *(u16 *)(constant + 20) = zero16;
+    ((struct PrimarySpriteData *)constant)->currentAnimationFrame = zero8;
+    ((struct PrimarySpriteData *)constant)->animationTimer = zero16;
     value = 110;
-    *(u8 *)(constant + 28) = value;
+    ((struct PrimarySpriteData *)constant)->pose = value;
 
-    switch (*(u8 *)(constant + 24)) {
+    switch (((struct PrimarySpriteData *)constant)->roomSlot) {
         case 1:
-            *(u8 *)(constant + 39) = 96;
+            ((struct PrimarySpriteData *)constant)->work0 = 96;
             break;
         case 2:
-            *(u8 *)(constant + 39) = 160;
+            ((struct PrimarySpriteData *)constant)->work0 = 160;
             break;
         case 3:
-            *(u8 *)(constant + 39) = 224;
+            ((struct PrimarySpriteData *)constant)->work0 = 224;
             break;
         default:
-            *(u8 *)(constant + 39) = 32;
+            ((struct PrimarySpriteData *)constant)->work0 = 32;
             break;
     }
 
     if (*(u8 *)&gBossState == 13) {
         *(u16 *)constant &= 0xDFFB;
-        switch (*(u8 *)(constant + 24)) {
+        switch (((struct PrimarySpriteData *)constant)->roomSlot) {
             case 1:
                 *(const struct AnimationFrame **)(constant + 4) = sGoldenDivaRedMaskOam;
                 break;
@@ -4112,7 +4111,7 @@ void InitGoldenDivaExplosiveBall(void)
     pointer = sprite;
     *(u32 *)(pointer + 4) = value;
     *(u8 *)(pointer + 22) = zero;
-    *(u16 *)(pointer + 20) = zero16;
+    ((struct PrimarySpriteData *)pointer)->animationTimer = zero16;
     value = sprite;
     value += 39;
     *(u8 *)value = temp;
@@ -4125,11 +4124,11 @@ void InitGoldenDivaExplosiveBall(void)
     *(u8 *)value = zero;
     if ((status & 64) != 0) {
         value = 113;
-        *(u8 *)(pointer + 28) = value;
+        ((struct PrimarySpriteData *)pointer)->pose = value;
     } else {
         value = 111;
         status = sprite;
-        *(u8 *)(status + 28) = value;
+        ((struct PrimarySpriteData *)status)->pose = value;
     }
 }
 
@@ -4517,16 +4516,16 @@ void UpdateGoldenDivaBlackEggBounce(void)
         temp = index - 1;
         temp <<= 1;
         temp += current;
-        value = *(u16 *)(sprite + 8);
+        value = ((struct PrimarySpriteData *)sprite)->yPosition;
         temp = *(u16 *)temp;
         value += temp;
     } else {
         value = index + 1;
         *(u8 *)table = value;
-        value = *(u16 *)(sprite + 8);
+        value = ((struct PrimarySpriteData *)sprite)->yPosition;
         value += movement;
     }
-    *(u16 *)(sprite + 8) = value;
+    ((struct PrimarySpriteData *)sprite)->yPosition = value;
 
     current = (u32)&gCurrentSprite;
     pointer = current;
@@ -4558,8 +4557,8 @@ void UpdateGoldenDivaBlackEggBounce(void)
     }
 
     index = sprite;
-    value = *(u16 *)(index + 8);
-    temp = *(u16 *)(index + 10);
+    value = ((struct PrimarySpriteData *)index)->yPosition;
+    temp = ((struct PrimarySpriteData *)index)->xPosition;
     /* Compiler boundary: the u16 prototype would truncate the live u32 Y value before the direct call. */
     ((void (*)(u32, u16))func_8023BFC)(value, temp);
     value = gSpriteCollisionTileType;
@@ -4948,8 +4947,8 @@ void InitGoldenDivaGreenEnemy(void)
     value = (u32)sGoldenDivaGreenEnemyIdleOam;
     temp = sprite;
     *(u32 *)(temp + 4) = value;
-    *(u8 *)(temp + 22) = zero;
-    *(u16 *)(temp + 20) = zero16;
+    ((struct PrimarySpriteData *)temp)->currentAnimationFrame = zero;
+    ((struct PrimarySpriteData *)temp)->animationTimer = zero16;
     value = 64;
     value &= status;
     status = sprite;
@@ -4958,7 +4957,7 @@ void InitGoldenDivaGreenEnemy(void)
     } else {
         value = 54;
     }
-    *(u8 *)(status + 28) = value;
+    ((struct PrimarySpriteData *)status)->pose = value;
     zero = status;
     zero += 39;
     temp = 0;
@@ -4984,7 +4983,7 @@ void UpdateGoldenDivaGreenEnemy(void)
     sprite = (u32)&gCurrentSprite;
     zero16 = 0;
     value = 1;
-    *(u8 *)(sprite + 31) = value;
+    ((struct PrimarySpriteData *)sprite)->disableWarioCollisionTimer = value;
     temp = *(u16 *)sprite;
     zero = 0x400;
     asm("" : "+r"(zero));
@@ -5135,8 +5134,8 @@ void UpdateGoldenDivaGreenEnemyTransformation(void)
     if (value != temp) {
         *(u32 *)(sprite + 4) = temp;
         value = 0;
-        *(u8 *)(sprite + 22) = value;
-        *(u16 *)(sprite + 20) = value;
+        ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = value;
+        ((struct PrimarySpriteData *)sprite)->animationTimer = value;
         temp = sprite;
         temp += 39;
         value = 70;
@@ -5372,36 +5371,33 @@ void UpdateGoldenDivaBlackChickFall(void)
     u32 temp;
     u32 index;
     s32 movement;
-    register u32 sprite asm("r4");
-    register u32 table asm("r5");
+    u32 sprite;
+    u32 table;
     register u32 indexPointer asm("r6");
     u32 scratch;
-    register u32 work0 asm("r12");
+    u32 work0;
 
-    /* Keep one low-register pseudo live across the early call so agbcc allocates r7. */
-    asm("" : "=l"(scratch));
     sprite = (u32)&gCurrentSprite;
     table = sprite;
     table += 42;
     value = *(u8 *)table;
     if (value == 1) {
-        value = *(u16 *)(sprite + 8);
+        value = ((struct PrimarySpriteData *)sprite)->yPosition;
         value += 8;
         value = (u16)value;
-        temp = *(u16 *)(sprite + 10);
+        temp = ((struct PrimarySpriteData *)sprite)->xPosition;
         /* Compiler boundary: the u16 prototype would truncate the live u32 Y value before the direct call. */
         ((void (*)(u32, u16))func_8023BFC)(value, temp);
         value = gSpriteCollisionTileType;
         if (value != 17) {
             temp = 0;
             value = 28;
-            *(u8 *)(sprite + 28) = value;
+            ((struct PrimarySpriteData *)sprite)->pose = value;
             *(u8 *)table = temp;
             return;
         }
     }
 
-    asm("" : : "l"(scratch));
     value = (u32)&gCurrentSprite;
     temp = 39;
     asm("" : "+r"(temp));
@@ -5422,9 +5418,8 @@ void UpdateGoldenDivaBlackChickFall(void)
     value += table;
     movement = *(u16 *)value;
     scratch = 0;
-    asm("" : "+l"(scratch));
     /* agbcc otherwise spills the r0 address while forming this signed halfword load. */
-    asm volatile("ldrsh %0, [%1, %2]" : "=r"(temp) : "r"(value), "l"(scratch));
+    temp = *(s16 *)(value + scratch);
     value = 0x7FFF;
     if (temp == value) {
         movement = *(u16 *)table;
@@ -5505,9 +5500,9 @@ void ResetGoldenDivaBlackChickAnimation(void)
     value = (u32)sGoldenDivaBlackChickIdleOam;
     *(u32 *)(sprite + 4) = value;
     value = 0;
-    *(u8 *)(sprite + 22) = value;
+    ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = value;
     zero = 0;
-    *(u16 *)(sprite + 20) = value;
+    ((struct PrimarySpriteData *)sprite)->animationTimer = value;
     *(u8 *)(sprite + 29) = zero;
     value = sprite;
     value += 42;
@@ -5516,7 +5511,7 @@ void ResetGoldenDivaBlackChickAnimation(void)
     *(u8 *)value = zero;
     value--;
     *(u8 *)value = zero;
-    *(u8 *)(sprite + 26) = zero;
+    ((struct PrimarySpriteData *)sprite)->drawPriority = zero;
     zero = *(u16 *)sprite;
     value = 0xFEFF;
     value &= zero;
@@ -5590,9 +5585,9 @@ void UpdateGoldenDivaBlackChickGroundRight(void)
     u32 sprite;
 
     temp = (u32)&gCurrentSprite;
-    value = *(u16 *)(temp + 10);
+    value = ((struct PrimarySpriteData *)temp)->xPosition;
     value += 4;
-    *(u16 *)(temp + 10) = value;
+    ((struct PrimarySpriteData *)temp)->xPosition = value;
     work0 = temp;
     work0 += 39;
     value = *(u8 *)work0;
@@ -5656,9 +5651,9 @@ void UpdateGoldenDivaBlackChickGroundLeft(void)
     u32 sprite;
 
     temp = (u32)&gCurrentSprite;
-    value = *(u16 *)(temp + 10);
+    value = ((struct PrimarySpriteData *)temp)->xPosition;
     value -= 4;
-    *(u16 *)(temp + 10) = value;
+    ((struct PrimarySpriteData *)temp)->xPosition = value;
     work0 = temp;
     work0 += 39;
     value = *(u8 *)work0;
@@ -5729,10 +5724,10 @@ void UpdateGoldenDivaBlackChickPose111(void)
     value = 64;
     value &= temp;
     if (value != 0) {
-        temp = *(u16 *)(zero + 10);
+        temp = ((struct PrimarySpriteData *)zero)->xPosition;
         value = temp + 4;
-        *(u16 *)(zero + 10) = value;
-        value = *(u16 *)(zero + 8);
+        ((struct PrimarySpriteData *)zero)->xPosition = value;
+        value = ((struct PrimarySpriteData *)zero)->yPosition;
         value -= 32;
         value = (u16)value;
         temp += 36;
@@ -5779,7 +5774,7 @@ void UpdateGoldenDivaBlackChickPose111(void)
     value >>= 24;
     if (value == 130) {
         value = 70;
-        *(u8 *)(sprite + 30) = value;
+        ((struct PrimarySpriteData *)sprite)->warioCollision = value;
         goto end;
     }
     if (value == 80) {
@@ -5791,13 +5786,13 @@ void UpdateGoldenDivaBlackChickPose111(void)
     value = (u32)sGoldenDivaBlackChickPose111AltOam;
 setOam:
     *(u32 *)(sprite + 4) = value;
-    *(u8 *)(sprite + 22) = zero;
+    ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = zero;
     value = 1;
-    *(u16 *)(sprite + 20) = value;
+    ((struct PrimarySpriteData *)sprite)->animationTimer = value;
     goto end;
 timerExpired:
     value = 112;
-    *(u8 *)(sprite + 28) = value;
+    ((struct PrimarySpriteData *)sprite)->pose = value;
 end:
     return;
 }
@@ -5831,7 +5826,7 @@ void BeginGoldenDivaBlackChickPose112(void)
     *(u8 *)temp = value;
     value = 69;
     zero = sprite;
-    *(u8 *)(zero + 30) = value;
+    ((struct PrimarySpriteData *)zero)->warioCollision = value;
     value = sprite;
     value += 35;
     temp = 32;
@@ -5845,12 +5840,12 @@ void BeginGoldenDivaBlackChickPose112(void)
     temp++;
     *(volatile u8 *)temp = value;
     value = 113;
-    *(u8 *)(zero + 28) = value;
+    ((struct PrimarySpriteData *)zero)->pose = value;
     value = 1;
-    *(u8 *)(zero + 26) = value;
-    value = *(u16 *)(zero + 8);
+    ((struct PrimarySpriteData *)zero)->drawPriority = value;
+    value = ((struct PrimarySpriteData *)zero)->yPosition;
     value -= 28;
-    *(u16 *)(zero + 8) = value;
+    ((struct PrimarySpriteData *)zero)->yPosition = value;
     value = 211;
     m4aSongNumStart(value);
 }
@@ -5917,186 +5912,136 @@ void InitGoldenDivaHammer(void)
     temp = sprite;
     *(u32 *)(temp + 4) = value;
     *(u8 *)(temp + 22) = zero;
-    *(u16 *)(temp + 20) = zero16;
+    ((struct PrimarySpriteData *)temp)->animationTimer = zero16;
     value = 111;
-    *(u8 *)(temp + 28) = value;
+    ((struct PrimarySpriteData *)temp)->pose = value;
     value = sprite;
     value += 42;
     *(u8 *)value = zero;
     value = 240;
-    *(u8 *)(temp + 29) = value;
+    ((struct PrimarySpriteData *)temp)->health = value;
 }
 
 
 void UpdateGoldenDivaHammerOrbit(void)
 {
-    register u32 value asm("r0");
-    register u32 temp asm("r1");
-    u32 mixed4;
-    register s32 mixed5 asm("r5");
-    register s32 mixed6 asm("r6");
-    u32 table;
-    register u32 zero asm("r3");
-    u32 sprite;
+    struct PrimarySpriteData *sprite;
+    u8 *work3;
     u32 index;
-    u32 work3;
+    s32 scale;
+    s32 cosValue;
+    s32 sinValue;
+    s32 inverse;
+    s32 motion;
+    struct PrimarySpriteData *current;
 
-    sprite = (u32)&gCurrentSprite;
-    value = 42;
-    asm("" : "+r"(value));
-    value += sprite;
-    work3 = value;
-    temp = *(u8 *)value;
-    index = temp;
-    if (temp <= 15) {
-        mixed5 = index;
-        mixed5++;
-        mixed5 <<= 4;
-        temp = *(u16 *)sprite;
-        value = 128;
-        value |= temp;
-        *(u16 *)sprite = value;
-        mixed4 = (u32)sSinCosTable;
-        value = mixed4;
-        value += 128;
-        zero = 0;
-        /* Compiler boundary: pure C selects r1 instead of the required r3 signed-load index. */
-        asm volatile("ldrsh %0, [%1, %2]" : "=r"(mixed6) : "r"(value), "r"(zero));
-        value = mixed5;
-        value = FixedInverse(value);
-        temp = value;
-        value = mixed6;
-        value = FixedMul(value, temp);
-        *(u16 *)(sprite + 12) = value;
-        value = 0;
-        mixed4 = *(s16 *)(mixed4 + value);
-        value = mixed5;
-        value = FixedInverse(value);
-        temp = value;
-        value = mixed4;
-        value = FixedMul(value, temp);
-        *(u16 *)(sprite + 14) = value;
-        mixed4 = -mixed4;
-        value = mixed5;
-        value = FixedInverse(value);
-        temp = value;
-        value = mixed4;
-        value = FixedMul(value, temp);
-        *(u16 *)(sprite + 16) = value;
-        value = mixed5;
-        value = FixedInverse(value);
-        temp = value;
-        value = mixed6;
-        value = FixedMul(value, temp);
-        *(u16 *)(sprite + 18) = value;
+    sprite = &gCurrentSprite;
+    work3 = &sprite->work3;
+    index = *work3;
+
+    if (index <= 15) {
+        scale = index;
+        do {
+            scale++;
+            scale <<= 4;
+            sprite->status |= 128;
+
+            cosValue = sSinCosTable[64];
+            inverse = FixedInverse(scale);
+            sprite->affinePA = FixedMul(cosValue, inverse);
+
+            sinValue = sSinCosTable[0];
+            inverse = FixedInverse(scale);
+            sprite->affinePB = FixedMul(sinValue, inverse);
+
+            sinValue = -sinValue;
+            inverse = FixedInverse(scale);
+            sprite->affinePC = FixedMul(sinValue, inverse);
+
+            inverse = FixedInverse(scale);
+            sprite->affinePD = FixedMul(cosValue, inverse);
+        } while (0);
     }
 
     {
         u32 lookupTable;
+        u32 lookupIndex;
+        u32 entryAddress;
         u32 lookupZero;
+        s32 entryValue;
 
         lookupTable = (u32)sGoldenDivaHammerOrbitMotion;
-        temp = index;
-        value = temp << 1;
-        value += lookupTable;
-        mixed5 = *(u16 *)value;
+        lookupIndex = index;
+        entryAddress = lookupIndex << 1;
+        entryAddress += lookupTable;
+        motion = *(u16 *)entryAddress;
         lookupZero = 0;
-        temp = *(s16 *)(value + lookupZero);
-        value = 0x7FFF;
-        if (temp == value) {
-            value = index;
-            value--;
-            value <<= 1;
-            value += lookupTable;
-            mixed5 = *(u16 *)value;
+        entryValue = *(s16 *)(entryAddress + lookupZero);
+
+        if (entryValue == 0x7FFF) {
+            entryAddress = index;
+            entryAddress--;
+            entryAddress <<= 1;
+            entryAddress += lookupTable;
+            motion = *(u16 *)entryAddress;
         } else {
-            value = index;
-            value++;
-            temp = work3;
-            *(u8 *)temp = value;
+            u32 nextIndex;
+            u8 *work3Pointer;
+
+            nextIndex = index;
+            nextIndex++;
+            work3Pointer = work3;
+            *work3Pointer = nextIndex;
         }
     }
 
-    value = *(u16 *)(sprite + 8);
-    value += mixed5;
-    *(u16 *)(sprite + 8) = value;
-    mixed4 = (u32)&gCurrentSprite;
-    value = *(u16 *)(mixed4 + 8);
-    temp = *(u16 *)(mixed4 + 10);
-    value = func_8023A60(value, temp);
-    temp = value;
-    value = gSpriteCollisionResult;
-    if (value != 0) {
-        *(u16 *)(mixed4 + 8) = temp;
-        value = 48;
-        temp = 129;
-        ScreenShakeRequestY(value, temp);
-        value = 62;
-        m4aSongNumStart(value);
-        temp = *(u16 *)mixed4;
-        value = 64;
-        value &= temp;
-        if (value != 0) {
-            value = 51;
-            *(u8 *)(mixed4 + 28) = value;
-        } else {
-            value = 53;
-            *(u8 *)(mixed4 + 28) = value;
-        }
-    } else {
-        value = mixed5 << 16;
-        value = (s32)value >> 17;
-        mixed5 = (u16)value;
-        temp = *(u16 *)mixed4;
-        value = 64;
-        value &= temp;
-        if (value != 0) {
-            temp = *(u16 *)(mixed4 + 10);
-            temp += mixed5;
-            *(u16 *)(mixed4 + 10) = temp;
-            value = *(u16 *)(mixed4 + 8);
-            value -= 32;
-            value = (u16)value;
-            {
-                u32 offset;
+    sprite->yPosition += motion;
+    current = &gCurrentSprite;
 
-                offset = mixed4;
-                offset += 38;
-                offset = *(u8 *)offset;
-                temp += offset;
-            }
-            temp = (u16)temp;
-            /* Compiler boundary: the u16 prototype would truncate the live u32 Y value before the direct call. */
-            ((void (*)(u32, u16))func_8023BFC)(value, temp);
-        } else {
-            temp = *(u16 *)(mixed4 + 10);
-            temp -= mixed5;
-            *(u16 *)(mixed4 + 10) = temp;
-            value = *(u16 *)(mixed4 + 8);
-            value -= 32;
-            value = (u16)value;
-            {
-                u32 offset;
+    {
+        u32 checkedY;
 
-                offset = mixed4;
-                offset += 37;
-                offset = *(u8 *)offset;
-                temp -= offset;
+        checkedY = func_8023A60(current->yPosition, current->xPosition);
+        if (gSpriteCollisionResult != 0) {
+            current->yPosition = checkedY;
+            ScreenShakeRequestY(48, 129);
+            m4aSongNumStart(62);
+
+            if (current->status & 64) {
+                current->pose = 51;
+            } else {
+                current->pose = 53;
             }
-            temp = (u16)temp;
-            /* Compiler boundary: the u16 prototype would truncate the live u32 Y value before the direct call. */
-            ((void (*)(u32, u16))func_8023BFC)(value, temp);
-        }
-        value = gSpriteCollisionTileType;
-        temp = value;
-        value = 15;
-        value &= temp;
-        if (value != 0) {
-            value = (u32)&gCurrentSprite;
-            temp = *(u16 *)value;
-            table = 64;
-            temp ^= table;
-            *(u16 *)value = temp;
+        } else {
+            motion = (u16)((s32)(motion << 16) >> 17);
+
+            if (current->status & 64) {
+                u32 y;
+                u32 x;
+
+                x = current->xPosition;
+                x += motion;
+                current->xPosition = x;
+                y = (u16)(current->yPosition - 32);
+                x += current->hitboxExtentRight;
+                x = (u16)x;
+                ((void (*)(u32, u16))func_8023BFC)(y, x);
+            } else {
+                u32 y;
+                u32 x;
+
+                x = current->xPosition;
+                x -= motion;
+                current->xPosition = x;
+                y = (u16)(current->yPosition - 32);
+                x -= current->hitboxExtentLeft;
+                x = (u16)x;
+                ((void (*)(u32, u16))func_8023BFC)(y, x);
+            }
+
+            if (gSpriteCollisionTileType & 15) {
+                gCurrentSprite.status ^= 64;
+            }
         }
     }
 }
@@ -6124,13 +6069,13 @@ void BeginGoldenDivaHammerSwing(void)
 
     sprite = (u32)&gCurrentSprite;
     temp = 0;
-    *(u8 *)(sprite + 31) = temp;
+    ((struct PrimarySpriteData *)sprite)->disableWarioCollisionTimer = temp;
     value = 115;
-    *(u8 *)(sprite + 28) = value;
+    ((struct PrimarySpriteData *)sprite)->pose = value;
     value = (u32)sGoldenDivaHammerActiveOam;
     *(u32 *)(sprite + 4) = value;
-    *(u8 *)(sprite + 22) = temp;
-    *(u16 *)(sprite + 20) = temp;
+    ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = temp;
+    ((struct PrimarySpriteData *)sprite)->animationTimer = temp;
     temp = sprite;
     temp += 39;
     value = 10;
@@ -6147,10 +6092,10 @@ void BeginGoldenDivaHammerSwing(void)
     temp++;
     *(volatile u8 *)temp = value;
     value = 69;
-    *(u8 *)(sprite + 30) = value;
-    y = *(u16 *)(sprite + 8);
+    ((struct PrimarySpriteData *)sprite)->warioCollision = value;
+    y = ((struct PrimarySpriteData *)sprite)->yPosition;
     y -= 48;
-    value = *(u16 *)(sprite + 10);
+    value = ((struct PrimarySpriteData *)sprite)->xPosition;
     SpriteSpawnAsChild(11, 0, 0, y, value);
     m4aSongNumStart(129);
 }
@@ -6279,7 +6224,7 @@ void BeginGoldenDivaHammerSpin(void)
     temp += 42;
     value = 0;
     *(u8 *)temp = value;
-    value = *(u8 *)(sprite + 29);
+    value = ((struct PrimarySpriteData *)sprite)->health;
     if (value <= 48)
         goto setPose;
     temp = *(u16 *)sprite;
@@ -6293,7 +6238,7 @@ void BeginGoldenDivaHammerSpin(void)
 
 setPose:
     value = 114;
-    *(u8 *)(sprite + 28) = value;
+    ((struct PrimarySpriteData *)sprite)->pose = value;
     goto end;
 
 initialize:
@@ -6460,10 +6405,10 @@ void UpdateGoldenDivaHammerAffine(void)
     value = 0x40;
     value &= temp;
     if (value != 0) {
-        temp = *(u16 *)(trig + 10);
+        temp = ((struct PrimarySpriteData *)trig)->xPosition;
         temp -= scale;
-        *(u16 *)(trig + 10) = temp;
-        value = *(u16 *)(trig + 8);
+        ((struct PrimarySpriteData *)trig)->xPosition = temp;
+        value = ((struct PrimarySpriteData *)trig)->yPosition;
         value -= 32;
         value = (u16)value;
         offset = trig;
@@ -6478,10 +6423,10 @@ void UpdateGoldenDivaHammerAffine(void)
         value = *(u8 *)temp;
         value -= 8;
     } else {
-        temp = *(u16 *)(trig + 10);
+        temp = ((struct PrimarySpriteData *)trig)->xPosition;
         temp += scale;
-        *(u16 *)(trig + 10) = temp;
-        value = *(u16 *)(trig + 8);
+        ((struct PrimarySpriteData *)trig)->xPosition = temp;
+        value = ((struct PrimarySpriteData *)trig)->yPosition;
         value -= 32;
         value = (u16)value;
         offset = trig;
@@ -6756,10 +6701,10 @@ void InitGoldenDivaDebris(void)
     temp = sprite;
     *(u32 *)(temp + 4) = value;
     *(u8 *)(temp + 22) = zero8;
-    *(u16 *)(temp + 20) = zero16;
+    ((struct PrimarySpriteData *)temp)->animationTimer = zero16;
     value = 15;
-    *(u8 *)(temp + 28) = value;
-    value = *(u8 *)(temp + 24);
+    ((struct PrimarySpriteData *)temp)->pose = value;
+    value = ((struct PrimarySpriteData *)temp)->roomSlot;
     value <<= 4;
     value = ~value;
     temp += 39;
@@ -7013,14 +6958,14 @@ updateProjectile:
         destination = value;
         destination *= multiplier;
         destination += spriteData;
-        value = *(u16 *)(sprite + 8);
+        value = ((struct PrimarySpriteData *)sprite)->yPosition;
         value += 56;
         *(u16 *)(destination + 8) = value;
         destination = work2Pointer;
         value = *(u8 *)destination;
         value *= multiplier;
         value += spriteData;
-        destination = *(u16 *)(sprite + 10);
+        destination = ((struct PrimarySpriteData *)sprite)->xPosition;
         *(u16 *)(value + 10) = destination;
     } else if (value != 13 && gInitialHealth == 0 && *(u16 *)&gWarioData == 0x1300 && gCurrentSprite.health != 2) {
         gInitialHealth = 80;
@@ -7037,7 +6982,7 @@ void SpriteGoldenDivaRobe(void)
     u32 sprite;
 
     sprite = (u32)&gCurrentSprite;
-    value = *(u8 *)(sprite + 28);
+    value = ((struct PrimarySpriteData *)sprite)->pose;
     if (value == 0)
         InitGoldenDivaRobe();
 
@@ -7050,12 +6995,12 @@ void SpriteGoldenDivaRobe(void)
     value += spriteData;
     value = *(u16 *)(value + 8);
     value += 192;
-    *(u16 *)(sprite + 8) = value;
+    ((struct PrimarySpriteData *)sprite)->yPosition = value;
     value = *(u8 *)work3;
     value *= multiplier;
     value += spriteData;
     value = *(u16 *)(value + 10);
-    *(u16 *)(sprite + 10) = value;
+    ((struct PrimarySpriteData *)sprite)->xPosition = value;
 }
 
 void SpriteGoldenDivaLowerBody(void)
@@ -7068,7 +7013,7 @@ void SpriteGoldenDivaLowerBody(void)
     register u32 work3 asm("r12");
 
     value = (u32)&gCurrentSprite;
-    value = *(u8 *)(value + 28);
+    value = ((struct PrimarySpriteData *)value)->pose;
     switch (value) {
         case 0:
             InitGoldenDivaLowerBody();
@@ -7088,15 +7033,15 @@ void SpriteGoldenDivaLowerBody(void)
     multiplier = 44;
     value *= multiplier;
     value += spriteData;
-    value = *(u16 *)(value + 8);
+    value = ((struct PrimarySpriteData *)value)->yPosition;
     value += 192;
-    *(u16 *)(sprite + 8) = value;
+    ((struct PrimarySpriteData *)sprite)->yPosition = value;
     work3Copy = work3;
     value = *(u8 *)work3Copy;
     value *= multiplier;
     value += spriteData;
     value = *(u16 *)(value + 10);
-    *(u16 *)(sprite + 10) = value;
+    ((struct PrimarySpriteData *)sprite)->xPosition = value;
     value = (u8)gBossState;
     value -= 6;
     value = (u8)value;
@@ -7115,8 +7060,8 @@ void SpriteGoldenDivaFan(void)
 
     sprite = (u32)&gCurrentSprite;
     value = 1;
-    *(u8 *)(sprite + 31) = value;
-    value = *(u8 *)(sprite + 28);
+    ((struct PrimarySpriteData *)sprite)->disableWarioCollisionTimer = value;
+    value = ((struct PrimarySpriteData *)sprite)->pose;
     switch (value) {
         case 0:
             InitGoldenDivaFan();
@@ -7139,15 +7084,15 @@ void SpriteGoldenDivaFan(void)
     multiplier = 44;
     value *= multiplier;
     value += spriteData;
-    value = *(u16 *)(value + 8);
+    value = ((struct PrimarySpriteData *)value)->yPosition;
     value += 56;
-    *(u16 *)(sprite + 8) = value;
+    ((struct PrimarySpriteData *)sprite)->yPosition = value;
     work3Copy = work3;
     value = *(u8 *)work3Copy;
     value *= multiplier;
     value += spriteData;
     value = *(u16 *)(value + 10);
-    *(u16 *)(sprite + 10) = value;
+    ((struct PrimarySpriteData *)sprite)->xPosition = value;
 }
 
 void SpriteGoldenDivaFaceHitbox(void)
@@ -7697,9 +7642,9 @@ updateDownLeft:
     temp = *(u16 *)sprite;
     value = 128;
     value &= temp;
-    if (value == 0 && *(u8 *)(sprite + 30) == 51) {
+    if (value == 0 && ((struct PrimarySpriteData *)sprite)->warioCollision == 51) {
         value = 5;
-        *(u8 *)(sprite + 30) = value;
+        ((struct PrimarySpriteData *)sprite)->warioCollision = value;
     }
     DespawnGoldenDivaAttack();
 }
@@ -8343,11 +8288,16 @@ void SpriteGoldenDivaHammer(void)
                 } else if (value == 60) {
                     value = (u32)sGoldenDivaHammerActiveOam;
                     *(u32 *)(sprite + 4) = value;
-                    value = 0;
-                    *(u8 *)(sprite + 22) = value;
-                    /* Compiler boundary: agbcc reuses the prior zero without the required r0 reload. */
-                    asm("mov r0, #0" : "=r"(value));
-                    *(u16 *)(sprite + 20) = value;
+                    {
+                        register u8 zero8 asm("r0");
+                        zero8 = 0;
+                        *(u8 *)(sprite + 22) = zero8;
+                    }
+                    {
+                        u16 zero16;
+                        zero16 = 0;
+                        *(u16 *)(sprite + 20) = zero16;
+                    }
                 }
             }
         }
@@ -8526,7 +8476,7 @@ void SpriteGoldenDivaFace(void)
     }
 
     sprite = (u32)&gCurrentSprite;
-    value = *(u8 *)(sprite + 30);
+    value = ((struct PrimarySpriteData *)sprite)->warioCollision;
     if (value == 0) {
         value = gMainTimer;
         temp = value;
@@ -8538,7 +8488,7 @@ void SpriteGoldenDivaFace(void)
             value = (u8)value;
             if (value != 0)
                 value = 4;
-            *(u8 *)(sprite + 27) = value;
+            ((struct PrimarySpriteData *)sprite)->palette = value;
         }
     }
 }
@@ -8617,8 +8567,8 @@ void SpriteGoldenDivaAttackEffect(void)
 
     sprite = (u32)&gCurrentSprite;
     value = 1;
-    *(u8 *)(sprite + 31) = value;
-    pose = *(u8 *)(sprite + 28);
+    ((struct PrimarySpriteData *)sprite)->disableWarioCollisionTimer = value;
+    pose = ((struct PrimarySpriteData *)sprite)->pose;
     if (pose == 0) {
         temp = *(u16 *)sprite;
         zero = 128;

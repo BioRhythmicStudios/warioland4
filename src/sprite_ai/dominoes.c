@@ -723,8 +723,7 @@ void UpdateDominoChain(void)
             workPtr += 2;
             *workPtr = yTile;
             workPtr++;
-            asm volatile("" : "+r"(workPtr));
-            *workPtr = xTile;
+            *(volatile u8 *)workPtr = xTile;
             position = sprite->xPosition;
             position -= 64;
             sprite->xPosition = position;
@@ -779,8 +778,7 @@ void UpdateDominoChain(void)
             workPtr += 2;
             *workPtr = yTile;
             workPtr++;
-            asm volatile("" : "+r"(workPtr));
-            *workPtr = xTile;
+            *(volatile u8 *)workPtr = xTile;
             position = sprite->xPosition;
             position += 64;
             sprite->xPosition = position;
@@ -835,8 +833,7 @@ void UpdateDominoChain(void)
             workPtr += 2;
             *workPtr = yTile;
             workPtr++;
-            asm volatile("" : "+r"(workPtr));
-            *workPtr = xTile;
+            *(volatile u8 *)workPtr = xTile;
             position = sprite->xPosition;
             position -= 64;
             sprite->xPosition = position;
@@ -889,8 +886,7 @@ void UpdateDominoChain(void)
             workPtr += 2;
             *workPtr = yTile;
             workPtr++;
-            asm volatile("" : "+r"(workPtr));
-            *workPtr = xTile;
+            *(volatile u8 *)workPtr = xTile;
             position = sprite->xPosition;
             position += 64;
             sprite->xPosition = position;

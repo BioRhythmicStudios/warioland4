@@ -1,5 +1,4 @@
 #include "minigame.h"
-#include "global_data.h"
 #include "background_registers.h"
 #include "color_effects.h"
 #include "init_helpers.h"
@@ -8,7 +7,6 @@
 #include "score.h"
 #include "stage_entry.h"
 #include "stage_select.h"
-#include "gba/m4a.h"
 #include "minigames/roulette.h"
 #include "minigames/wario_hop.h"
 #include "minigames/homerun_derby.h"
@@ -35,21 +33,6 @@ extern u8 gMinigameCursorAnimationState[];
 extern const struct AnimationFrame *gMinigameCursorAnimation;
 extern u8 gMinigameSparkleAnimationState[];
 extern const struct AnimationFrame *const sMinigameItemAnimationTable[3][6];
-extern const struct AnimationFrame sMinigameItem0Animation0[];
-extern const struct AnimationFrame sMinigameItem0Animation1[];
-extern const struct AnimationFrame sMinigameItem0Animation2[];
-extern const struct AnimationFrame sMinigameItem0Animation3[];
-extern const struct AnimationFrame sMinigameItem0Animation4[];
-extern const struct AnimationFrame sMinigameItem1Animation0[];
-extern const struct AnimationFrame sMinigameItem1Animation1[];
-extern const struct AnimationFrame sMinigameItem1Animation2[];
-extern const struct AnimationFrame sMinigameItem1Animation3[];
-extern const struct AnimationFrame sMinigameItem1Animation4[];
-extern const struct AnimationFrame sMinigameItem2Animation0[];
-extern const struct AnimationFrame sMinigameItem2Animation1[];
-extern const struct AnimationFrame sMinigameItem2Animation2[];
-extern const struct AnimationFrame sMinigameItem2Animation3[];
-extern const struct AnimationFrame sMinigameItem2Animation4[];
 extern const u32 sMinigameSparkleXOffsets[];
 extern const u32 sMinigameSparkleYOffsets[];
 extern const struct AnimationFrame sMinigameSparkleAnimation[];
@@ -686,7 +669,7 @@ void InitMinigameMenu(void)
 
     {
         const u8 *collection;
-        register u8 collectionFlags asm("r1");
+        u32 collectionFlags;
         collection = (const u8 *)gCurrentCollection;
         collectionFlags = collection[16];
         if ((collectionFlags & 0x20) != 0)
@@ -1246,7 +1229,7 @@ s32 UpdateMinigameResultSequence(void)
         u8 *selected;
         u8 *address0;
         u32 index0;
-        register u16 value1 asm("r1");
+        u32 value1;
         u8 *address1;
         s32 offset;
 
@@ -1375,9 +1358,8 @@ void DrawMinigameMenuSprites(void)
                     *append = *source++;
                     {
                         register u8 oldFlags asm("r1");
-                        register u8 newFlags asm("r0");
+                        u32 newFlags;
                         oldFlags = adjust[5];
-                        asm volatile("" : "+r"(oldFlags));
                         newFlags = clearMask;
                         newFlags &= oldFlags;
                         adjust[5] = newFlags;
@@ -1422,8 +1404,7 @@ void DrawMinigameMenuSprites(void)
                 frame = *(u16 *)(coords + 2);
                 frame++;
                 *(u16 *)(coords + 2) = frame;
-                asm volatile("" : : : "memory");
-                frame = *(u16 *)(coords + 2);
+                frame = *(volatile u16 *)(coords + 2);
                 if (((const struct AnimationFrame *)currentAnimation)[frame].time == 0) {
                     *(u16 *)(coords + 2) = 0;
                     if (currentAnimation == (const u8 *)sMinigameCursorConfirmAnimation)

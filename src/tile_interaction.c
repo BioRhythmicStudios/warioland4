@@ -1479,17 +1479,24 @@ repeat:
         s32 xPosition;
         s32 yPosition;
         register s32 work asm("r0");
-        register s32 index asm("r4");
+        register s32 index;
         register struct BackgroundInfo *background asm("r5");
         register s32 extra asm("r6");
 
         xPosition = wario->xPosition;
-        asm volatile(
-            "mov r1, #54\n\t"
-            "ldrsh r0, [%1, r1]"
-            : "=r"(work)
-            : "r"(wario)
-            : "r1");
+        {
+            register u32 hitboxIndex asm("r1");
+
+            hitboxIndex = 54;
+{
+                register u32 r4Live asm("r4");
+
+                /* Keep r4 live across the C read to preserve the target index register. */
+                asm("" : "=r"(r4Live));
+                work = *(const s16 *)((const u8 *)wario + hitboxIndex);
+                asm("" : : "r"(r4Live));
+            }
+        }
         work = xPosition + work;
         work += right;
         work >>= 6;
@@ -1975,7 +1982,7 @@ void UpdateWarioEnvironmentalTiles(void)
     u32 *bg1Attributes;
     const u16 *attributes;
     u32 roomParam;
-    register u32 *outputCursor asm("r4");
+    register u32 *outputCursor;
 
     frame.xTiles[0] = (gWarioData.xPosition + (gWarioData.hitboxOffsetRight >> 1)) >> 6;
     {
@@ -1992,7 +1999,9 @@ void UpdateWarioEnvironmentalTiles(void)
     bg1Attributes = frame.bg1Attributes;
     {
         register u32 *bg2Ptr asm("r1");
-        asm volatile("mov %0, sp\nadd %0, #16" : "=r"(bg2Ptr));
+        bg2Ptr = (u32 *)&frame;
+        asm volatile("" : "+r"(bg2Ptr) : : "memory");
+        bg2Ptr += 4;
         frame.bg2AttributesPtr = bg2Ptr;
     }
     {
@@ -2026,38 +2035,41 @@ void UpdateWarioEnvironmentalTiles(void)
         xEntry = (s32 *)(offset + (u32)xTiles);
         value = *xEntry;
         value = frame.bg1Row + value;
-        asm volatile(
-            "lsl %0, %0, #1\n"
-            "ldr r1, [sp, #36]\n"
-            "add %0, %0, r1\n"
-            "ldrh %0, [%0, #0]\n"
-            "mov r1, r8\n"
-            "add r1, r1, %1\n"
-            "lsl %0, %0, #1\n"
-            "add %0, %0, r5\n"
-            "ldrh %0, [%0, #0]\n"
-            "str %0, [r1, #0]"
-            : "+r"(value)
-            : "r"(offset), "r"(bg1Attributes), "r"(attributes)
-            : "r1", "memory");
+        value <<= 1;
+        {
+            register u32 bg1Map = frame.bg1Map;
+            value += bg1Map;
+        }
+
+        value = *(volatile u16 *)value;
+        {
+            register u32 bgDest asm("r1");
+            bgDest = (u32)bg1Attributes;
+            asm volatile("" : "+r"(value), "+r"(bgDest) : "r"(offset), "r"(attributes) : "memory");
+            bgDest += offset;
+            value <<= 1;
+            value += (u32)attributes;
+            value = *(volatile u16 *)value;
+            *(volatile u32 *)bgDest = value;
+        }
 
         value = *xEntry;
         value = frame.bg2Row + value;
-        asm volatile(
-            "lsl %0, %0, #1\n"
-            "ldr r1, [sp, #44]\n"
-            "add %0, %0, r1\n"
-            "ldrh %0, [%0, #0]\n"
-            "ldr r1, [sp, #48]\n"
-            "add r2, r1, %1\n"
-            "lsl %0, %0, #1\n"
-            "add %0, %0, r5\n"
-            "ldrh %0, [%0, #0]\n"
-            "str %0, [r2, #0]"
-            : "+r"(value)
-            : "r"(offset), "r"(attributes)
-            : "r1", "memory");
-
+        value <<= 1;
+        {
+            register u32 bg2Map = frame.bg2Map;
+            value += bg2Map;
+        }
+        value = *(volatile u16 *)value;
+        {
+            register u32 *out asm("r2");
+            register u32 *base asm("r1") = frame.bg2AttributesPtr;
+            out = base + i;
+            value <<= 1;
+            value += (u32)attributes;
+            value = *(volatile u16 *)value;
+            *out = value;
+        }
         if (roomParam == 16) {
             value = yTile * background->bg0Width;
             value += *xEntry;
@@ -2067,12 +2079,9 @@ void UpdateWarioEnvironmentalTiles(void)
         } else {
             value = 0;
         }
-        asm volatile(
-            "str %1, [%0, #0]\n"
-            "add %0, #4"
-            : "+r"(outputCursor)
-            : "r"(value)
-            : "memory");
+        *(volatile u32 *)outputCursor = value;
+        asm volatile("" : "+r"(outputCursor) : "r"(value) : "memory");
+        outputCursor++;
         i++;
     } while (i <= 1);
 

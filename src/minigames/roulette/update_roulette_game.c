@@ -18,7 +18,10 @@ int UpdateRouletteGame(void)
     case 0:
         if (MinigameWaitForFrames(40) == 0)
             return 0;
-        asm volatile("@ roulette case 0 success boundary");
+        {
+            register int barrier asm("r2");
+            asm volatile("" : "=r"(barrier));
+        }
         goto advanceStateReload;
 
     case 1:
@@ -32,7 +35,10 @@ int UpdateRouletteGame(void)
     case 2:
         if (MinigameWaitForFrames(60) == 0)
             return 0;
-        asm volatile("@ roulette case 2 success boundary");
+        { 
+            register int barrier asm("r2");
+            asm volatile("" : "=r"(barrier));
+        }
         goto advanceStateReload;
 
     case 3:
@@ -231,7 +237,10 @@ advanceStateCached:
             gRouletteAngularAcceleration = 0;
         }
         UpdateRouletteResultTiles();
-        asm volatile("@ roulette case 9 end boundary");
+        {
+            register int barrier asm("r2");
+            asm volatile("" : "=r"(barrier));
+        }
         goto advanceStateReload;
 
     case 10:
@@ -300,7 +309,10 @@ advanceStateCached:
             gRouletteAngularAcceleration = 0;
         }
         UpdateRouletteResultTiles();
-        asm volatile("@ roulette case 11 end boundary");
+        {
+            register int barrier asm("r2");
+            asm volatile("" : "=r"(barrier));
+        }
         goto advanceStateReload;
 
     case 12:

@@ -3,9 +3,6 @@
 #include "background_registers.h"
 #include "color_effects.h"
 #include "fixed_point.h"
-#include "global_data.h"
-#include "gba/m4a.h"
-#include "gba/macro.h"
 #include "hud.h"
 #include "main.h"
 #include "score.h"
@@ -18,10 +15,6 @@
 s32 SpriteCollisionCheckObjectsTouching();
 void SpriteUtilCheckCollisionAtPositionOld(u32, u32) asm("func_8023BFC");
 
-void AerodentThrowablePrepareFallWithEffect(void);
-void AerodentThrowablePrepareFall(void);
-void AerodentThrowablePrepareKnockback(void);
-void AerodentThrowablePrepareThrow(void);
 void AerodentEmitterStartBurst(void);
 
 int AerodentWeakPointCheckThrowableCollision(void)
@@ -153,13 +146,13 @@ nextSlot:
 int AerodentMoveUpWithinCamera(void)
 {
     u16 *bg;
-    register u32 offset asm("r2");
-    register u32 value asm("r1");
+    u32 offset;
+    u32 value;
     struct PrimarySpriteData *sprite;
     u32 adjust;
     u32 bgLimit;
     u32 spritePosition;
-    register u16 nextY asm("r0");
+    u16 nextY;
 
     bg = &gBg1YPosition;
     offset = 128;
@@ -170,7 +163,7 @@ int AerodentMoveUpWithinCamera(void)
     bgLimit = (value + *bg) << 16;
     sprite = &gCurrentSprite;
     offset = sprite->yPosition;
-    value = offset + value;
+    value = (offset) - (-(value));
     spritePosition = value << 16;
     adjust = 0xFF200000;
     bgLimit += adjust;
@@ -1203,7 +1196,7 @@ void AerodentCompanionKnockback(void)
         const s16 *entry;
         int signedVelocity;
         int sentinel;
-        register u16 xVelocity asm("r1");
+        u32 xVelocity;
 
         entry = (const s16 *)((index << 2) + (u32)velocity);
         yVelocity = *(const u16 *)entry;
@@ -1215,10 +1208,11 @@ void AerodentCompanionKnockback(void)
             yVelocity = *(const u16 *)velocity;
         }
         {
-            register u32 xValue asm("r1");
+            u32 xValue;
 
             entry = (const s16 *)(index << 2);
-            xValue = (u32)velocity + 2;
+            xValue = (u32)velocity;
+            xValue += 2;
             entry = (const s16 *)((u32)entry + xValue);
             xValue = *(const u16 *)entry;
             xVelocity = xValue;
@@ -1323,7 +1317,7 @@ void AerodentCompanionReturnToParent(void)
     timer = &sprite->work0;
     value = *timer;
     if (value == 0) {
-        struct PrimarySpriteData *sprites;
+        register struct PrimarySpriteData *sprites asm("r5");
         int stride;
         int zero;
         u8 *parentSlot;
@@ -1332,7 +1326,7 @@ void AerodentCompanionReturnToParent(void)
         register u16 parentStatus asm("r1");
         int statusBit;
         const struct AnimationFrame *animation;
-        register u8 *slotCopy asm("r7");
+        u8 *slotCopy;
 
         sprites = gSpriteData;
         parentSlot = (u8 *)42;
@@ -1357,19 +1351,15 @@ void AerodentCompanionReturnToParent(void)
         *(const struct AnimationFrame **)index = animation;
         slotCopy = timer;
 
-        /* agbcc otherwise copies the preserved r7 pointer to a temporary and
-         * reuses r7 for the product. Keep each byte load in the target register. */
-        asm("ldrb %0, [%1]" : "=r"(index) : "r"(slotCopy));
+        index = *slotCopy;
         index *= stride;
         index += (u32)sprites;
         ((struct PrimarySpriteData *)index)->currentAnimationFrame = zero;
-        /* Reload the slot byte into the target register for the next indexed store. */
-        asm("ldrb %0, [%1]" : "=r"(index) : "r"(slotCopy));
+        index = *slotCopy;
         index *= stride;
         index += (u32)sprites;
         ((struct PrimarySpriteData *)index)->animationTimer = zero;
-        /* Reload the slot byte into the target register for the final indexed store. */
-        asm("ldrb %0, [%1]" : "=r"(index) : "r"(slotCopy));
+        index = *slotCopy;
         index *= stride;
         index += (u32)sprites;
         index += 41;
@@ -1407,10 +1397,8 @@ void AerodentCompanionReturnToParent(void)
         parentOffset *= stride;
         parentOffset += (u32)sprites;
         yOffset = 156;
-        /* r0 and r1 remain live here, so the original allocator uses r7.
-         * Keep the shift in that register before copying the result to r0. */
-        asm("lsl %0, %0, #1" : "+r"(yOffset)
-            : "r"(index), "r"(parentOffset));
+        yOffset <<= 1;
+        asm volatile("" : "+r"(yOffset) : "r"(index), "r"(parentOffset));
         index = yOffset;
         parentOffset = ((struct PrimarySpriteData *)parentOffset)->yPosition;
         index += parentOffset;
@@ -1612,7 +1600,7 @@ void AerodentCompanionRecover(void)
     struct PrimarySpriteData *spritesTemp;
     struct PrimarySpriteData *sprites;
     s32 xPosition;
-    register s32 nextX asm("r0");
+    s32 nextX;
     u8 *timer;
     u32 timerValue;
     s32 yPosition;
@@ -1626,7 +1614,7 @@ void AerodentCompanionRecover(void)
     if (xPosition > target)
         nextX = xPosition - 2;
     else
-        nextX = xPosition + 2;
+        nextX = (2) - (-(xPosition));
     current->xPosition = nextX;
 
     yPosition = current->yPosition;

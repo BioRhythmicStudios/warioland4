@@ -437,12 +437,12 @@ void DiceAirborne(void)
             velocity = sUnk_8352B18[index];
             if (velocity == 0x7FFF) {
                 u32 previousVelocityAddress;
-                register u16 yPosition asm("r0");
+                u16 yPosition;
 
                 previousVelocityAddress = index - 1;
                 previousVelocityAddress <<= 1;
                 previousVelocityAddress += (u32) sUnk_8352B18;
-                yPosition = gCurrentSprite.yPosition;
+                yPosition = *(volatile u16 *)&gCurrentSprite.yPosition;
                 {
                     s16 previousVelocity = *(const s16 *)previousVelocityAddress;
                     yPosition += previousVelocity;

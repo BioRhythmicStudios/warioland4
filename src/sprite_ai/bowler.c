@@ -1,8 +1,6 @@
 #include "sprite_ai/bowler.h"
 
 #include "fixed_point.h"
-#include "global_data.h"
-#include "gba/m4a.h"
 #include "score.h"
 #include "screen_shake.h"
 #include "sound.h"

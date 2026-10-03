@@ -1,11 +1,9 @@
 #include "stage_entry.h"
 #include "color_effects.h"
-#include "global_data.h"
 #include "init_helpers.h"
 #include "score.h"
 #include "stage_select.h"
 #include "voice_set.h"
-#include "gba/m4a.h"
 #include "main.h"
 #include "fixed_point.h"
 
@@ -26,8 +24,6 @@ extern const u16 sUnk_863ECF0[];
 extern const u16 sUnk_863E24C[];
 extern const u16 sUnk_863E4AA[];
 extern const struct AnimationFrame sUnk_863A2EC[];
-extern const struct AnimationFrame sUnk_8639AC4_ANIM[];
-extern const struct AnimationFrame sUnk_8639ADC_ANIM[];
 
 
 
@@ -1826,7 +1822,7 @@ void RenderStageEntrySprites(void)
     OamData *affineOam;
     register s32 modeMask asm("r0");
     register s32 priorityBase asm("r12");
-    register u8 modeByte asm("r1");
+    u32 modeByte;
     src = gStageEntryFlyingKeyzerAnimation[gStageEntryFlyingKeyzerState.frame].oam;
     nextSlot += *(src++);
     if (nextSlot > 128)

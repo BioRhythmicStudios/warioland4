@@ -1,7 +1,6 @@
 #include "background_registers.h"
 #include "camera.h"
 #include "global_data.h"
-#include "main.h"
 #include "wario.h"
 
 struct CameraTargetPosition {
@@ -11,12 +10,10 @@ struct CameraTargetPosition {
 
 extern const u8 *const *const sRoomCameraControlDataTable[];
 
-void UpdateCameraFromControlAreas(const struct CameraTargetPosition *position);
 void MoveCameraTowardTarget(s32 x, s32 y);
 s32 GetCameraXForControlArea(const struct CameraControlArea *area, const struct CameraTargetPosition *position);
 s32 GetCameraYForControlArea(const struct CameraControlArea *area, const struct CameraTargetPosition *position);
 void BuildCurrentRoomCameraControlAreas(void);
-void UpdateBottomRoomCamera(const struct CameraTargetPosition *position);
 void BuildBottomRoomCameraControlAreas(void);
 void UpdateStandardCamera(const struct CameraTargetPosition *position);
 void UpdateBg0CameraPosition(const struct CameraTargetPosition *unusedPosition);
@@ -51,8 +48,8 @@ void UpdateCameraFromControlAreas(const struct CameraTargetPosition *position)
 void MoveCameraTowardTarget(s32 x, s32 y)
 {
     u32 targetX;
-    register u16 *positionY asm("r4");
-    register u16 *positionX asm("r3");
+    u16 *positionY;
+    u16 *positionX;
     register u16 *pointer asm("r0");
     s32 targetY;
     s32 delta;
@@ -70,7 +67,7 @@ void MoveCameraTowardTarget(s32 x, s32 y)
         positionY = pointer;
         if (targetY != *positionY) {
             movement = gWarioData.yPosition - gPreviousYPosition;
-            delta = targetY - *positionY;
+            delta = targetY - *(volatile u16 *)positionY;
             if (delta > 0) {
                 if (delta > 48)
                     delta = 48;
@@ -102,7 +99,7 @@ void MoveCameraTowardTarget(s32 x, s32 y)
         positionX = pointer;
         if (targetX != *positionX) {
             movement = gWarioData.xPosition - gPreviousXPosition;
-            delta = targetX - *positionX;
+            delta = targetX - *(volatile u16 *)positionX;
             if (delta > 0) {
                 if (delta > 48)
                     delta = 48;
@@ -237,15 +234,13 @@ offsetLoop:
     offsetOrLimit += 1;
     if (offsetOrLimit <= 4)
         goto offsetLoop;
-    value = *(u8 *)(recordAddress + 5);
+    value = *(volatile u8 *)(recordAddress + 5);
     if (value == 0xFF)
         goto testBounds;
     value = *(u8 *)(recordAddress + 8);
     if (value == 0xFF)
         goto testBounds;
     countOrBoundary = *(u8 *)(recordAddress + 6);
-    /* Force agbcc to reload the map width before the tile lookup. */
-    asm volatile("" ::: "memory");
     value = *(u16 *)(backgroundInfoAddress + 12);
     value *= countOrBoundary;
     countOrBoundary = *(u8 *)(recordAddress + 5);

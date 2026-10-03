@@ -1239,7 +1239,7 @@ void func_803FCF8(void)
     register u8 *verticalIndexPtr asm("r8");
     register u32 verticalIndex asm("r2");
     u32 verticalAddress;
-    register u16 verticalRaw asm("r1");
+    u32 verticalRaw;
     s32 verticalSigned;
     s32 sentinel;
 

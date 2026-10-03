@@ -1,4 +1,3 @@
-#include "global_data.h"
 #include "sprite.h"
 #include "score.h"
 #include "sprite_ai/mayubird.h"
@@ -237,41 +236,24 @@ void MayubirdStartLongFallLeft(void)
 void MayubirdPrepareShortFall(void)
 {
     struct PrimarySpriteData *sprite;
-    register int zero asm("r4");
+    u32 zero;
 
     sprite = &gCurrentSprite;
     sprite->pOamData = sMayubirdFallOam;
     sprite->currentAnimationFrame = 0;
     zero = 0;
     sprite->animationTimer = 0;
-    *(u8 *)((u8 *)sprite + 29) = zero;
+    sprite->health = zero;
     sprite->work2 = 2;
-    /* Keep the two remaining zero stores in r4 for the original register layout. */
     {
         u8 *work3Pointer;
 
         work3Pointer = &sprite->work3;
         *work3Pointer = zero;
     }
-    *(u8 *)((u8 *)sprite + 26) = zero;
+    sprite->drawPriority = zero;
     SpawnSecondarySprite(sprite->yPosition - 32, sprite->xPosition, 6);
-    {
-        register u16 status asm("r0");
-        int deadFlag;
-        int mask;
-
-        status = sprite->status;
-        deadFlag = 128;
-        deadFlag <<= 2;
-        /* agbcc otherwise ORs r2 directly instead of preserving the r1 copy. */
-        asm volatile("add %0, %1, #0" : "=r"(mask) : "r"(deadFlag));
-        status |= mask;
-        /* Preserve the source's redundant OR with the zero register. */
-        asm volatile("orr %0, %1" : "+r"(status) : "r"(zero));
-        mask = 0xFEFF;
-        status &= mask;
-        sprite->status = status;
-    }
+    sprite->status = ((sprite->status | SPRITE_STATUS_MAYBE_DEAD) | zero) & (0xFEFF | (zero ^ zero));
 }
 
 void MayubirdStartShortFallRight(void)

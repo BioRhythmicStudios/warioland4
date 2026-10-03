@@ -1,8 +1,6 @@
-#include "block.h"
 
 #include "bg_clip.h"
 #include "game_screen_helpers.h"
-#include "global_data.h"
 #include "main.h"
 #include "wario.h"
 
@@ -24,18 +22,6 @@ typedef s32 (*BlockCollisionHandler)(struct BlockCollisionContext *context);
 extern const BlockCollisionHandler sBlockCollisionHandlers[];
 extern s32 ProcessTileInteractionAtPosition(u16 y, u16 x, u16 tileType);
 
-s32 GetNonSolidBlockCollision(struct BlockCollisionContext *context);
-s32 GetSolidBlockCollision(struct BlockCollisionContext *context);
-s32 GetDownRightSlopeCollision(struct BlockCollisionContext *context);
-s32 GetDownLeftSlopeCollision(struct BlockCollisionContext *context);
-s32 GetUpperShallowDownRightSlopeCollision(struct BlockCollisionContext *context);
-s32 GetLowerShallowDownRightSlopeCollision(struct BlockCollisionContext *context);
-s32 GetLowerShallowDownLeftSlopeCollision(struct BlockCollisionContext *context);
-s32 GetUpperShallowDownLeftSlopeCollision(struct BlockCollisionContext *context);
-s32 GetDamagedWarioOnlyBlockCollision(struct BlockCollisionContext *context);
-s32 GetSpriteOnlySolidBlockCollision(struct BlockCollisionContext *context);
-s32 GetDamagedWarioOrSpriteBlockCollision(struct BlockCollisionContext *context);
-s32 GetEmptyBlockCollision(struct BlockCollisionContext *context);
 s32 GetSwitchBlockCollision(struct BlockCollisionContext *context);
 
 void UpdateRoomStartDebugInfo(void)

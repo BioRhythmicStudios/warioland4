@@ -1,11 +1,7 @@
-#include "game_screen_debug.h"
 
-#include "types.h"
 
 #include "autosave.h"
-#include "global_data.h"
 #include "input.h"
-#include "main.h"
 #include "score.h"
 #include "wario.h"
 

@@ -1,6 +1,5 @@
 #include "sprite_ai/electric_lift.h"
 
-#include "global_data.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_util.h"

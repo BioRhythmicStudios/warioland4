@@ -2136,12 +2136,12 @@ void BuildSelectedSaveValidationHeader(void)
         selectedGlobal = selectedPtr;
         do
         {
-            register u32 offset asm("r1");
+            u32 offset;
 
             selected = *selectedGlobal;
             offset = selected << 3;
             offset += selected;
-            offset = i + offset;
+            offset = (i) - (-(offset));
             offset += (u32)table;
             *data = *(u8 *)offset;
             i++;

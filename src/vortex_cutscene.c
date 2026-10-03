@@ -1,18 +1,13 @@
 #include "vortex_cutscene.h"
-#include "gba.h"
-#include "global_data.h"
 #include "fixed_point.h"
 #include "init_helpers.h"
 #include "stage_select.h"
 #include "score.h"
 #include "stage_results.h"
 #include "voice_set.h"
-#include "oam.h"
-#include "gba/m4a.h"
 
 extern u8 gColorFading;
 extern u8 gUnk_3003C34;
-extern u8 gStageEntrySequenceStep;
 extern u8 gMainTimer;
 extern u8 gUnk_3003D6A;
 extern u16 gUnk_3003D68;
@@ -29,8 +24,6 @@ extern u16 gUnk_3003D8E;
 extern u16 gUnk_3003D90;
 extern u16 gUnk_3003D92;
 extern const u8 sUnk_867D8DC[];
-extern u8 gUnk_3003C4A;
-extern s16 gSubGameMode;
 extern const u8 sStageEjectionObjPalette[];
 extern const u8 sStageEjectionObjTiles[];
 extern const u8 sStageEjectionPassagePalettes[];

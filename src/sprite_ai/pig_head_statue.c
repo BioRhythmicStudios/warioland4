@@ -2,9 +2,7 @@
 
 #include "global_data.h"
 #include "sound.h"
-#include "sprite.h"
 #include "sprite_util.h"
-#include "types.h"
 
 
 void InitPigHeadStatue(void)
@@ -127,10 +125,12 @@ void InitPigHeadProjectile(void)
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
     status = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
-    /* agbcc otherwise schedules these zero initializations after the status operations. */
-    asm("mov %0, #0\n\t"
-        "mov %1, #0"
-        : "=r"(zero), "=r"(zero16));
+    {
+        register u8 zeroTemp asm("r2");
+        zeroTemp = 0;
+        zero = zeroTemp;
+        zero16 = 0;
+    }
     status |= oldStatus;
     status &= ~SPRITE_STATUS_HIDDEN;
     sprite->status = status;
@@ -166,13 +166,11 @@ void PigHeadProjectileFall(void)
     }
 
     if (gSpriteCollisionResult) {
-        u32 zero;
+        register u32 zero asm("r1");
         u32 zero16;
 
-        /* agbcc otherwise coalesces the two required zero-valued registers. */
-        asm("mov %0, #0\n\t"
-            "mov %1, #0"
-            : "=r"(zero), "=r"(zero16));
+        zero = 0;
+        zero16 = 0;
         sprite->yPosition = yPosition;
         sprite->hitboxExtentUp = 96;
         sprite->hitboxExtentDown = zero;
@@ -195,11 +193,11 @@ landed:
         if (yVelocity == S16_MAX) {
             u32 previousTimer;
             const s16* previousEntry;
-            register u16 oldY asm("r0");
+            u16 oldY;
             s16 previousVelocity;
             previousTimer = timer - 1;
             previousEntry = &sSpriteGravityVelocityTable[previousTimer];
-            oldY = sprite->yPosition;
+            oldY = *(volatile u16 *)&sprite->yPosition;
             previousVelocity = *previousEntry;
             oldY += previousVelocity;
             sprite->yPosition = oldY;
@@ -237,8 +235,8 @@ void PigHeadProjectileDespawn(void)
 {
     struct PrimarySpriteData* sprite;
     u8* timer;
-    int value;
-    u8 oldValue;
+    register int value asm("r1");
+    register u8 oldValue asm("r0");
 
     sprite = &gCurrentSprite;
     timer = &sprite->work0;
@@ -246,13 +244,9 @@ void PigHeadProjectileDespawn(void)
     value = oldValue - 1;
     *timer = value;
     if ((u8)value != 0) {
-        u32 check;
+        register u32 check asm("r0");
 
-        /* agbcc otherwise keeps the second unsigned-byte truncation in r1. */
-        asm("lsl %0, %1, #24\n\t"
-            "lsr %0, %0, #24"
-            : "=r"(check)
-            : "r"(value));
+        check = (u8)value;
         if (check <= 14) {
             sprite->disableWarioCollisionTimer = 1;
         }

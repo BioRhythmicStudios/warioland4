@@ -2,10 +2,8 @@
 #include "screen_shake.h"
 #include "sound.h"
 #include "sprite.h"
-#include "sprite_ai/piston.h"
 #include "sprite_util.h"
 #include "wario.h"
-#include "gba/m4a.h"
 
 extern const struct AnimationFrame sPistonChildOam[];
 extern const struct AnimationFrame sPistonIdleOam[];

@@ -1,11 +1,8 @@
 #include "sprite_ai/sprite_a9.h"
 
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
-#include "sprite.h"
 #include "sprite_util.h"
-#include "types.h"
 
 void func_805FB24(void)
 {

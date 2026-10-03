@@ -1,4 +1,3 @@
-#include "global_data.h"
 #include "score.h"
 #include "sound.h"
 #include "sprite.h"
@@ -7,7 +6,6 @@
 #include "sprite_util.h"
 #include "voice_set.h"
 #include "wario.h"
-#include "gba/m4a.h"
 
 s32 ToyBlockTriangleUnlockTouchedLock(void)
 {
@@ -26,9 +24,11 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
         register u32 currentX asm("r2");
 
         current = &gCurrentSprite;
-        value = 0x1000;
-        /* Keep the position bias in r0 before copying it to r2. */
-        asm("mov %0, %1" : "=r"(currentX) : "r"(value));
+        {
+            register u32 bias asm("r0");
+            bias = 0x1000;
+            asm("" : "=r"(currentX) : "0"(bias));
+        }
         value = current->yPosition;
         currentY = currentX + value;
         currentY = (u16)currentY;
@@ -84,7 +84,7 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
 
             value = 0x1000;
             /* Keep the position bias in r0 before copying it to r2. */
-            asm("mov %0, %1" : "=r"(spriteX) : "r"(value));
+            asm("" : "=r"(spriteX) : "0"(value));
             value = sprite->yPosition;
             spriteY = spriteX + value;
             spriteY = (u16)spriteY;
@@ -104,9 +104,11 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
             left = spriteX - *extent;
             left = (u16)left;
 
-            /* agbcc otherwise folds this required pointer increment into ldrb [r0, #1]. */
-            asm("add %0, #1" : "+r"(extent));
-            spriteX += *extent;
+            extent++;
+            { register u8 loaded asm("r0");
+              loaded = *(volatile u8 *)extent;
+              spriteX += loaded;
+            }
             spriteX = (u16)spriteX;
 
             /* Use word-width arguments so agbcc preserves the already-truncated register values. */
@@ -387,14 +389,16 @@ void UnlockMatchingToyBlockTriangleLock(void)
 
         sprite = &gCurrentSprite;
         sprite->pose = 24;
-        value = sprite->yPosition;
-        /* Preserve the target's copy from r0 to r1 before adding the tile bias. */
-        asm("mov %0, %1" : "=r"(temp) : "r"(value));
+        {
+            register u32 yValue asm("r0");
+            yValue = sprite->yPosition;
+            asm("" : "=r"(temp) : "0"(yValue));
+        }
         temp += 252;
         y = temp >> 6;
         temp = sprite->xPosition;
         /* Preserve the target's copy from r1 to r0 before subtracting. */
-        asm("mov %0, %1" : "=r"(value) : "r"(temp));
+        asm("" : "=r"(value) : "0"(temp));
         value -= 32;
     }
 
@@ -405,11 +409,10 @@ void UnlockMatchingToyBlockTriangleLock(void)
     found = FALSE;
     i = 0;
     {
-        u8* rawData;
+        register u8* rawData asm("r0");
 
         rawData = &gRoomSpriteData[0][0];
-        /* Preserve the separate r0-to-r3 move used for the room lookup table. */
-        asm("mov %0, %1" : "=r"(data) : "r"(rawData));
+        asm("" : "=r"(data) : "0"(rawData));
     }
 
     value = data[0];
@@ -480,8 +483,12 @@ void UnlockMatchingToyBlockTriangleLock(void)
                     current = (struct PrimarySpriteData*)((u32)value + (u32)sprites);
                     if (current->roomSlot != roomSlot)
                         continue;
-                    /* agbcc otherwise keeps 17 in r5 across the loop instead of reloading it in r0. */
-                    asm("mov r0, #17\nstrb r0, [%0, #28]" : : "r"(current) : "r0");
+                    /* Keep the short-lived pose materialization in r0 without instruction ASM. */
+                    {
+                        register u8 poseValue asm("r0");
+                        poseValue = 17;
+                        current->pose = poseValue;
+                    }
                 }
                 break;
             } while (TRUE);

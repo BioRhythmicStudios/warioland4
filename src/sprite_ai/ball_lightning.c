@@ -3,10 +3,7 @@
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_ai/ball_lightning.h"
-#include "sprite_collision.h"
 #include "sprite_util.h"
-#include "wario.h"
-#include "gba/m4a.h"
 
 void InitBallLightningSpawner(void)
 {
@@ -24,7 +21,8 @@ void InitBallLightningSpawner(void)
     oldStatus = sprite->status;
     status = 0x40C;
     /* Preserve the target's early zero values in r2 and r3. */
-    asm("mov %0, #0" : "=r"(zero));
+    zero = 0;
+    asm volatile("" : "+r"(zero));
     zero16 = 0;
     status |= oldStatus;
     postSprite = sprite;
@@ -92,7 +90,8 @@ void InitBallLightningBolt(void)
     oldStatus = sprite->status;
     status = 0x420;
     /* Preserve the target's early zero values in r3 and r4. */
-    asm("mov %0, #0" : "=r"(zero));
+    zero = 0;
+    asm volatile("" : "+r"(zero));
     zero16 = 0;
     status |= oldStatus;
     status &= 0xFFFB;
@@ -298,7 +297,8 @@ void InitBallLightningTrail(void)
     oldStatus = sprite->status;
     status = 0x400;
     /* Preserve the target's early zero values in r2 and r3. */
-    asm("mov %0, #0" : "=r"(zero));
+    zero = 0;
+    asm volatile("" : "+r"(zero));
     zero16 = 0;
     status |= oldStatus;
     status &= 0xFFFB;

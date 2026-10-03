@@ -50,7 +50,7 @@ void UpdateRouletteWheel(void)
             {
                 register s32 index asm("r2");
                 s32 sample;
-                register s32 product asm("r1");
+                s32 product;
 
                 index = (s16)current->angle >> 5;
                 {
@@ -64,7 +64,8 @@ void UpdateRouletteWheel(void)
                     samplePtr = (const s16 *)((u32)samplePtr + (u32)sinTable);
                     sample = *samplePtr;
                 }
-                product = (sample << 3) + sample;
+                product = (sample << 3);
+                product += sample;
                 product >>= 5;
                 sample = 124;
                 sample -= product;
@@ -211,15 +212,14 @@ void UpdateRouletteWheel(void)
         sum += *(u16 *)accumulatorPtr;
         *accumulatorPtr = sum;
         if ((s16)sum > 2047) {
-        u8 zero;
+        register u16 zero asm("r4");
         volatile u8 *selectedPtr;
         u16 selectedValue;
         register volatile u8 *sequencePtr asm("r3");
         u32 sequenceValue;
 
         zero = 0;
-        /* r2 still holds &gRouletteAngularAcceleration; agbcc otherwise rematerializes zero in r0. */
-        asm volatile("strh r4, [r2]" : : : "memory");
+        *accumulatorPtr = zero;
         selectedPtr = &gRouletteSelectedItemIndex;
         selectedValue = *selectedPtr;
         selectedValue++;

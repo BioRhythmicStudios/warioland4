@@ -1,4 +1,3 @@
-#include "types.h"
 #include "oam.h"
 extern const u16 sGoldenDivaBlackChickFinalOamFrame0[];
 extern const u16 sGoldenDivaBlackChickFinalOamFrame1[];
