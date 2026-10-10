@@ -9,7 +9,7 @@ This repository can build the following versions:
 <!-- DECOMP_PROGRESS:START -->
 ## Decompilation Progress
 
-## It's 100% decompiled but note that some remaining ASM code sites are presents but i can't seem to figure out how to convert them to pure C as agbcc seems not cooperative enough especially for register bindings pressure. That doesn't stop project to build or recomp to be made
+## It's 100% decompiled. All function have C equivalent so project can be built and recomp to be made. But note that some remaining ASM code sites are presents but i can't seem to figure out how to convert them to pure C as agbcc seems not cooperative enough especially for register bindings pressure. 
 
 ![Decompilation progress](docs/progress-treemap.svg)
 
