@@ -396,7 +396,7 @@ extern WarioPoseFunc sUnk_82DED60[];
 extern WarioPoseFunc sUnk_82DED90[];
 
 void PrepareWarioUpdate(void);
-void CopyWarioPalette(const void *source, int destinationIndex, int size);
+void CopyWarioPalette(const void* source, int destinationIndex, int size);
 s32 GetAdjustedWarioXVelocity(void);
 void UpdateWarioHorizontalCollisionOffset(void);
 void UpdateCarriedSpriteOffsets(void);
@@ -408,7 +408,6 @@ void FinalizeWarioUpdate(void);
 void ResetWarioState(void);
 void ProcessWarioInteraction(void);
 void FinalizeWarioUpdate(void);
-
 
 // void CopyWarioPalette(const void *src, u8 arg1, u8 arg2);
 void UpdateWarioPositionHistory(void);

@@ -1,113 +1,101 @@
 #include "score.h"
 #include "autosave.h"
 #include "background_registers.h"
+#include "gba/m4a.h"
 #include "hud.h"
 #include "main.h"
-#include "stage_entry.h"
-#include "gba/m4a.h"
+#include "screen_shake.h"
 #include "sprite.h"
 #include "sprite_collision.h"
-#include "screen_shake.h"
+#include "stage_entry.h"
 #include "wario.h"
 
 void UpdateSecondarySprites(void)
 {
-  register struct SecondarySprite *spriteBase asm("r2");
-  void (* const *aiTable)(void);
-  u32 offset;
-  s32 index;
-  index = 0;
-  spriteBase = gSecondarySpriteData;
-  aiTable = sSecondarySpriteAITable;
-  offset = index;
-  do
-  {
-    struct SecondarySprite *sprite;
-    register u32 byteOffset asm("r1");
-    byteOffset = offset;
-    asm("" : : "r"(byteOffset));
-    sprite = (struct SecondarySprite *) (byteOffset + ((u32) spriteBase));
-    if ((sprite->status & 5) == 5)
-    {
-      gCurrentSecondarySprite = *sprite;
-      aiTable[gCurrentSecondarySprite.id]();
-      if (gCurrentSecondarySprite.status & 1)
-      {
-        DrawCurrentSecondarySprite(index);
-      }
-      *sprite = gCurrentSecondarySprite;
-      spriteBase = gSecondarySpriteData;
-    }
-    {
-      u32 stride;
-      stride = sizeof(struct SecondarySprite);
-      offset += stride;
-    }
-    index++;
-  }
-  while (index <= 7);
-  {
-    register struct SecondarySprite *sprite asm("r9");
-    void (* const *secondAiTable)(void);
+    register struct SecondarySprite* spriteBase asm("r2");
+    void (*const* aiTable)(void);
+    u32 offset;
+    s32 index;
     index = 0;
-    {
-      struct SecondarySprite *freshSpriteBase;
-      register void (* const *freshAiTable)(void) asm("r1");
-      freshSpriteBase = gSecondarySpriteData;
-      sprite = freshSpriteBase;
-      asm("" : "=r"(freshAiTable) : "0"(sSecondarySpriteAITable) : "r8");
-      secondAiTable = freshAiTable;
-    }
-    do
-    {
-      s32 active;
-      register struct SecondarySprite *activeSprite asm("r2");
-      activeSprite = sprite;
-      active = activeSprite->status & 5;
-      if (active == 1)
-      {
-        struct SecondarySprite *current;
-        current = &gCurrentSecondarySprite;
-        *current = *sprite;
-        secondAiTable[current->id]();
-        active &= current->status;
-        if (active != 0)
-        {
-          DrawCurrentSecondarySprite(index);
+    spriteBase = gSecondarySpriteData;
+    aiTable = sSecondarySpriteAITable;
+    offset = index;
+    do {
+        struct SecondarySprite* sprite;
+        register u32 byteOffset asm("r1");
+        byteOffset = offset;
+        asm("" : : "r"(byteOffset));
+        sprite = (struct SecondarySprite*)(byteOffset + ((u32)spriteBase));
+        if ((sprite->status & 5) == 5) {
+            gCurrentSecondarySprite = *sprite;
+            aiTable[gCurrentSecondarySprite.id]();
+            if (gCurrentSecondarySprite.status & 1) {
+                DrawCurrentSecondarySprite(index);
+            }
+            *sprite = gCurrentSecondarySprite;
+            spriteBase = gSecondarySpriteData;
         }
-        *sprite = *current;
-        asm("" : : "r"(activeSprite), "r"(current));
-      }
-      {
-        u32 stride;
-        stride = sizeof(struct SecondarySprite);
-        sprite = (struct SecondarySprite *) (((u8 *) sprite) + stride);
-      }
-      index++;
+        {
+            u32 stride;
+            stride = sizeof(struct SecondarySprite);
+            offset += stride;
+        }
+        index++;
+    } while (index <= 7);
+    {
+        register struct SecondarySprite* sprite asm("r9");
+        void (*const* secondAiTable)(void);
+        index = 0;
+        {
+            struct SecondarySprite* freshSpriteBase;
+            register void (*const* freshAiTable)(void) asm("r1");
+            freshSpriteBase = gSecondarySpriteData;
+            sprite = freshSpriteBase;
+            asm("" : "=r"(freshAiTable) : "0"(sSecondarySpriteAITable) : "r8");
+            secondAiTable = freshAiTable;
+        }
+        do {
+            s32 active;
+            register struct SecondarySprite* activeSprite asm("r2");
+            activeSprite = sprite;
+            active = activeSprite->status & 5;
+            if (active == 1) {
+                struct SecondarySprite* current;
+                current = &gCurrentSecondarySprite;
+                *current = *sprite;
+                secondAiTable[current->id]();
+                active &= current->status;
+                if (active != 0) {
+                    DrawCurrentSecondarySprite(index);
+                }
+                *sprite = *current;
+                asm("" : : "r"(activeSprite), "r"(current));
+            }
+            {
+                u32 stride;
+                stride = sizeof(struct SecondarySprite);
+                sprite = (struct SecondarySprite*)(((u8*)sprite) + stride);
+            }
+            index++;
+        } while (index <= 7);
     }
-    while (index <= 7);
-  }
-  UpdateStageTimerAndScoreDrain();
-  if (gStageScoreDigitsDirty != 0)
-  {
-    UploadStageScoreDigitTiles();
-  }
-  if (gStageTimerDigitsState != 0)
-  {
-    UploadStageTimerDigitTiles();
-  }
-  if (gStageTimerColonState != 0)
-  {
-    UploadStageTimerColonTiles();
-  }
+    UpdateStageTimerAndScoreDrain();
+    if (gStageScoreDigitsDirty != 0) {
+        UploadStageScoreDigitTiles();
+    }
+    if (gStageTimerDigitsState != 0) {
+        UploadStageTimerDigitTiles();
+    }
+    if (gStageTimerColonState != 0) {
+        UploadStageTimerColonTiles();
+    }
 }
-
 
 void UploadStageScoreDigitTiles(void)
 {
-    vu32 *dma;
+    vu32* dma;
 
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = (u32)&sScoreDigitsGfx[gScoreDigits[4] * 32];
     dma[1] = 0x06011080;
     dma[2] = 0x80000010;
@@ -133,8 +121,8 @@ void UploadStageScoreDigitTiles(void)
 
 void UploadStageTimerDigitTiles(void)
 {
-    vu32 *dma;
-    s8 *digits;
+    vu32* dma;
+    s8* digits;
     u32 dmaControl;
     u8 state;
     s32 seconds;
@@ -157,125 +145,125 @@ void UploadStageTimerDigitTiles(void)
     }
 
     switch (state) {
-    case 3:
-        dma = (vu32 *)0x040000D4;
-        digits = gStageTimerDigits;
-        dma[0] = (u32)&sTimeDigitsUpperGfx[digits[2] * 32];
-        dma[1] = 0x06011000;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        dma[0] = (u32)&sTimeDigitsLowerGfx[digits[2] * 32];
-        dma[1] = 0x06011400;
-        dma[2] = dmaControl;
-        dma[2];
-    case 2:
-        dma = (vu32 *)0x040000D4;
-        digits = gStageTimerDigits;
-        dma[0] = (u32)&sTimeDigitsUpperGfx[digits[1] * 32];
-        dma[1] = 0x06011040;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        dma[0] = (u32)&sTimeDigitsLowerGfx[digits[1] * 32];
-        dma[1] = 0x06011440;
-        dma[2] = dmaControl;
-        dma[2];
-    case 1:
-        dma = (vu32 *)0x040000D4;
-        digits = gStageTimerDigits;
-        dma[0] = (u32)&sTimeDigitsUpperGfx[digits[0] * 32];
-        dma[1] = 0x06011060;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        dma[0] = (u32)&sTimeDigitsLowerGfx[digits[0] * 32];
-        dma[1] = 0x06011460;
-        dma[2] = dmaControl;
-        dma[2];
-        break;
-    case 19:
-        dma = (vu32 *)0x040000D4;
-        digits = gStageTimerDigits;
-        dma[0] = (u32)&sTimeDigitsYellowUpperGfx[digits[2] * 32];
-        dma[1] = 0x06011000;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        dma[0] = (u32)&sTimeDigitsYellowLowerGfx[digits[2] * 32];
-        dma[1] = 0x06011400;
-        dma[2] = dmaControl;
-        dma[2];
-    case 18:
-        dma = (vu32 *)0x040000D4;
-        digits = gStageTimerDigits;
-        dma[0] = (u32)&sTimeDigitsYellowUpperGfx[digits[1] * 32];
-        dma[1] = 0x06011040;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        dma[0] = (u32)&sTimeDigitsYellowLowerGfx[digits[1] * 32];
-        dma[1] = 0x06011440;
-        dma[2] = dmaControl;
-        dma[2];
-    case 17:
-        dma = (vu32 *)0x040000D4;
-        digits = gStageTimerDigits;
-        dma[0] = (u32)&sTimeDigitsYellowUpperGfx[digits[0] * 32];
-        dma[1] = 0x06011060;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        dma[0] = (u32)&sTimeDigitsYellowLowerGfx[digits[0] * 32];
-        dma[1] = 0x06011460;
-        dma[2] = dmaControl;
-        dma[2];
-        break;
-    case 35:
-        dma = (vu32 *)0x040000D4;
-        digits = gStageTimerDigits;
-        dma[0] = (u32)&sTimeDigitsRedUpperGfx[digits[2] * 32];
-        dma[1] = 0x06011000;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        dma[0] = (u32)&sTimeDigitsRedLowerGfx[digits[2] * 32];
-        dma[1] = 0x06011400;
-        dma[2] = dmaControl;
-        dma[2];
-    case 34:
-        dma = (vu32 *)0x040000D4;
-        digits = gStageTimerDigits;
-        dma[0] = (u32)&sTimeDigitsRedUpperGfx[digits[1] * 32];
-        dma[1] = 0x06011040;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        dma[0] = (u32)&sTimeDigitsRedLowerGfx[digits[1] * 32];
-        dma[1] = 0x06011440;
-        dma[2] = dmaControl;
-        dma[2];
-    case 33:
-        dma = (vu32 *)0x040000D4;
-        digits = gStageTimerDigits;
-        dma[0] = (u32)&sTimeDigitsRedUpperGfx[digits[0] * 32];
-        dma[1] = 0x06011060;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        dma[0] = (u32)&sTimeDigitsRedLowerGfx[digits[0] * 32];
-        dma[1] = 0x06011460;
-        dma[2] = dmaControl;
-        dma[2];
-        break;
+        case 3:
+            dma = (vu32*)0x040000D4;
+            digits = gStageTimerDigits;
+            dma[0] = (u32)&sTimeDigitsUpperGfx[digits[2] * 32];
+            dma[1] = 0x06011000;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            dma[0] = (u32)&sTimeDigitsLowerGfx[digits[2] * 32];
+            dma[1] = 0x06011400;
+            dma[2] = dmaControl;
+            dma[2];
+        case 2:
+            dma = (vu32*)0x040000D4;
+            digits = gStageTimerDigits;
+            dma[0] = (u32)&sTimeDigitsUpperGfx[digits[1] * 32];
+            dma[1] = 0x06011040;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            dma[0] = (u32)&sTimeDigitsLowerGfx[digits[1] * 32];
+            dma[1] = 0x06011440;
+            dma[2] = dmaControl;
+            dma[2];
+        case 1:
+            dma = (vu32*)0x040000D4;
+            digits = gStageTimerDigits;
+            dma[0] = (u32)&sTimeDigitsUpperGfx[digits[0] * 32];
+            dma[1] = 0x06011060;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            dma[0] = (u32)&sTimeDigitsLowerGfx[digits[0] * 32];
+            dma[1] = 0x06011460;
+            dma[2] = dmaControl;
+            dma[2];
+            break;
+        case 19:
+            dma = (vu32*)0x040000D4;
+            digits = gStageTimerDigits;
+            dma[0] = (u32)&sTimeDigitsYellowUpperGfx[digits[2] * 32];
+            dma[1] = 0x06011000;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            dma[0] = (u32)&sTimeDigitsYellowLowerGfx[digits[2] * 32];
+            dma[1] = 0x06011400;
+            dma[2] = dmaControl;
+            dma[2];
+        case 18:
+            dma = (vu32*)0x040000D4;
+            digits = gStageTimerDigits;
+            dma[0] = (u32)&sTimeDigitsYellowUpperGfx[digits[1] * 32];
+            dma[1] = 0x06011040;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            dma[0] = (u32)&sTimeDigitsYellowLowerGfx[digits[1] * 32];
+            dma[1] = 0x06011440;
+            dma[2] = dmaControl;
+            dma[2];
+        case 17:
+            dma = (vu32*)0x040000D4;
+            digits = gStageTimerDigits;
+            dma[0] = (u32)&sTimeDigitsYellowUpperGfx[digits[0] * 32];
+            dma[1] = 0x06011060;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            dma[0] = (u32)&sTimeDigitsYellowLowerGfx[digits[0] * 32];
+            dma[1] = 0x06011460;
+            dma[2] = dmaControl;
+            dma[2];
+            break;
+        case 35:
+            dma = (vu32*)0x040000D4;
+            digits = gStageTimerDigits;
+            dma[0] = (u32)&sTimeDigitsRedUpperGfx[digits[2] * 32];
+            dma[1] = 0x06011000;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            dma[0] = (u32)&sTimeDigitsRedLowerGfx[digits[2] * 32];
+            dma[1] = 0x06011400;
+            dma[2] = dmaControl;
+            dma[2];
+        case 34:
+            dma = (vu32*)0x040000D4;
+            digits = gStageTimerDigits;
+            dma[0] = (u32)&sTimeDigitsRedUpperGfx[digits[1] * 32];
+            dma[1] = 0x06011040;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            dma[0] = (u32)&sTimeDigitsRedLowerGfx[digits[1] * 32];
+            dma[1] = 0x06011440;
+            dma[2] = dmaControl;
+            dma[2];
+        case 33:
+            dma = (vu32*)0x040000D4;
+            digits = gStageTimerDigits;
+            dma[0] = (u32)&sTimeDigitsRedUpperGfx[digits[0] * 32];
+            dma[1] = 0x06011060;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            dma[0] = (u32)&sTimeDigitsRedLowerGfx[digits[0] * 32];
+            dma[1] = 0x06011460;
+            dma[2] = dmaControl;
+            dma[2];
+            break;
     }
     gStageTimerDigitsState = 0;
 }
 
 void UploadStageTimerColonTiles(void)
 {
-    register vu32 *dma asm("r0");
-    const u8 *lowerGfx;
+    register vu32* dma asm("r0");
+    const u8* lowerGfx;
     u32 dmaControl;
     u8 state;
     s32 seconds;
@@ -293,63 +281,63 @@ void UploadStageTimerColonTiles(void)
     }
 
     switch (state) {
-    case 2:
-        dma = (vu32 *)0x040000D4;
-        dma[0] = (u32)sTimeColonUpperGfx;
-        dma[1] = 0x06011020;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        lowerGfx = sTimeColonLowerGfx;
-        break;
-    case 1:
-        dma = (vu32 *)0x040000D4;
-        dma[0] = (u32)sTimeColonEmptyUpperGfx;
-        dma[1] = 0x06011020;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        lowerGfx = sTimeColonEmptyLowerGfx;
-        break;
-    case 18:
-        dma = (vu32 *)0x040000D4;
-        dma[0] = (u32)sTimeColonYellowUpperGfx;
-        dma[1] = 0x06011020;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        lowerGfx = sTimeColonYellowLowerGfx;
-        break;
-    case 17:
-        dma = (vu32 *)0x040000D4;
-        dma[0] = (u32)sTimeColonEmptyYellowUpperGfx;
-        dma[1] = 0x06011020;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        lowerGfx = sTimeColonEmptyYellowLowerGfx;
-        break;
-    case 34:
-        dma = (vu32 *)0x040000D4;
-        dma[0] = (u32)sTimeColonRedUpperGfx;
-        dma[1] = 0x06011020;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        lowerGfx = sTimeColonRedLowerGfx;
-        break;
-    case 33:
-        dma = (vu32 *)0x040000D4;
-        dma[0] = (u32)sTimeColonEmptyRedUpperGfx;
-        dma[1] = 0x06011020;
-        dmaControl = 0x80000010;
-        dma[2] = dmaControl;
-        dma[2];
-        lowerGfx = sTimeColonEmptyRedLowerGfx;
-        break;
-    default:
-        gStageTimerColonState = 0;
-        return;
+        case 2:
+            dma = (vu32*)0x040000D4;
+            dma[0] = (u32)sTimeColonUpperGfx;
+            dma[1] = 0x06011020;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            lowerGfx = sTimeColonLowerGfx;
+            break;
+        case 1:
+            dma = (vu32*)0x040000D4;
+            dma[0] = (u32)sTimeColonEmptyUpperGfx;
+            dma[1] = 0x06011020;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            lowerGfx = sTimeColonEmptyLowerGfx;
+            break;
+        case 18:
+            dma = (vu32*)0x040000D4;
+            dma[0] = (u32)sTimeColonYellowUpperGfx;
+            dma[1] = 0x06011020;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            lowerGfx = sTimeColonYellowLowerGfx;
+            break;
+        case 17:
+            dma = (vu32*)0x040000D4;
+            dma[0] = (u32)sTimeColonEmptyYellowUpperGfx;
+            dma[1] = 0x06011020;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            lowerGfx = sTimeColonEmptyYellowLowerGfx;
+            break;
+        case 34:
+            dma = (vu32*)0x040000D4;
+            dma[0] = (u32)sTimeColonRedUpperGfx;
+            dma[1] = 0x06011020;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            lowerGfx = sTimeColonRedLowerGfx;
+            break;
+        case 33:
+            dma = (vu32*)0x040000D4;
+            dma[0] = (u32)sTimeColonEmptyRedUpperGfx;
+            dma[1] = 0x06011020;
+            dmaControl = 0x80000010;
+            dma[2] = dmaControl;
+            dma[2];
+            lowerGfx = sTimeColonEmptyRedLowerGfx;
+            break;
+        default:
+            gStageTimerColonState = 0;
+            return;
     }
 
     dma[0] = (u32)lowerGfx;
@@ -361,7 +349,7 @@ void UploadStageTimerColonTiles(void)
 
 void StartTimeUpSequence(void)
 {
-    vu32 *dma;
+    vu32* dma;
     u32 timeUpTextGfx;
     u32 timeUpWarioGfx;
     u32 dmaControlSmall;
@@ -374,7 +362,7 @@ void StartTimeUpSequence(void)
     gStageTimerColonState = 2;
     gUnk_3000046 = 1;
 
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = (u32)sTimeUpTextPal;
     dma[1] = 0x05000240;
     dmaControlSmall = 0x80000010;
@@ -429,7 +417,7 @@ void PlayWarioDefeatJingle(void)
 
 void UpdateStageTimerAndScoreDrain(void)
 {
-    s8 *digits;
+    s8* digits;
     u32 frame;
     s32 updatedDigit;
     u8 timerDigitsState;
@@ -528,229 +516,167 @@ void UpdateStageTimerAndScoreDrain(void)
 
 u8 LoadStageCollectiblesFromSave(void)
 {
-  u32 reservedR5;
-  s32 passage;
-  u32 stage;
-  u32 new_var2;
-  s32 new_var;
-  passage = gCurrentPassage;
-  new_var = passage;
-  stage = (new_var2 = gCurrentStageNumber);
-  if (stage == 4)
-  {
-    switch (passage)
-    {
-      case PASSAGE_EMERALD:
+    u32 reservedR5;
+    s32 passage;
+    u32 stage;
+    u32 new_var2;
+    s32 new_var;
+    passage = gCurrentPassage;
+    new_var = passage;
+    stage = (new_var2 = gCurrentStageNumber);
+    if (stage == 4) {
+        switch (passage) {
+            case PASSAGE_EMERALD:
 
-      case PASSAGE_RUBY:
+            case PASSAGE_RUBY:
 
-      case PASSAGE_TOPAZ:
+            case PASSAGE_TOPAZ:
 
-      case PASSAGE_SAPPHIRE:
-        goto boss_collectibles;
+            case PASSAGE_SAPPHIRE:
+                goto boss_collectibles;
 
-      case PASSAGE_GOLDEN:
-        goto golden_collectibles;
+            case PASSAGE_GOLDEN:
+                goto golden_collectibles;
 
-      default:
-        goto clear_collectibles;
-
-    }
+            default:
+                goto clear_collectibles;
+        }
 
     boss_collectibles:
-    gCollectedNEJewelPiece = 2;
-
-    gCollectedSEJewelPiece = 2;
-    gCollectedSWJewelPiece = 2;
-    gCollectedNWJewelPiece = 0;
-    gCollectedCD = 0;
-    gCollectedKeyzer = 0;
-    goto function_end;
-    golden_collectibles:
-    {
-      if (gCurrentCollection[PASSAGE_EMERALD][4].jewelPieceNE)
-      {
         gCollectedNEJewelPiece = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gCollectedNEJewelPiece = 0;
-      }
-      if (gCurrentCollection[PASSAGE_EMERALD][4].jewelPieceSE)
-      {
+
         gCollectedSEJewelPiece = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gCollectedSEJewelPiece = 0;
-      }
-      if (gCurrentCollection[PASSAGE_EMERALD][4].jewelPieceSW)
-      {
         gCollectedSWJewelPiece = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gCollectedSWJewelPiece = 0;
-      }
-      if (gCurrentCollection[PASSAGE_RUBY][4].jewelPieceNE)
-      {
-        gCollectedNWJewelPiece = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
         gCollectedNWJewelPiece = 0;
-      }
-      if (gCurrentCollection[PASSAGE_RUBY][4].jewelPieceSE)
-      {
-        gHasBossTreasure5 = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gHasBossTreasure5 = 0;
-      }
-      if (gCurrentCollection[PASSAGE_RUBY][4].jewelPieceSW)
-      {
-        gHasBossTreasure6 = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gHasBossTreasure6 = 0;
-      }
-      if (gCurrentCollection[PASSAGE_TOPAZ][4].jewelPieceNE)
-      {
-        gHasBossTreasure7 = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gHasBossTreasure7 = 0;
-      }
-      if (gCurrentCollection[PASSAGE_TOPAZ][4].jewelPieceSE)
-      {
-        gHasBossTreasure8 = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gHasBossTreasure8 = 0;
-      }
-      if (gCurrentCollection[PASSAGE_TOPAZ][4].jewelPieceSW)
-      {
-        gHasBossTreasure9 = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gHasBossTreasure9 = 0;
-      }
-      if (gCurrentCollection[PASSAGE_SAPPHIRE][4].jewelPieceNE)
-      {
-        gHasBossTreasure10 = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gHasBossTreasure10 = 0;
-      }
-      if (gCurrentCollection[PASSAGE_SAPPHIRE][4].jewelPieceSE)
-      {
-        gHasBossTreasure11 = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gHasBossTreasure11 = 0;
-      }
-      if (gCurrentCollection[PASSAGE_SAPPHIRE][4].jewelPieceSW)
-      {
-        gHasBossTreasure12 = 2;
-        gGoldenTreasureCount++;
-      }
-      else
-      {
-        gHasBossTreasure12 = 0;
-      }
-      gCollectedCD = 0;
-      gCollectedKeyzer = 0;
-      goto function_end;
+        gCollectedCD = 0;
+        gCollectedKeyzer = 0;
+        goto function_end;
+    golden_collectibles: {
+        if (gCurrentCollection[PASSAGE_EMERALD][4].jewelPieceNE) {
+            gCollectedNEJewelPiece = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gCollectedNEJewelPiece = 0;
+        }
+        if (gCurrentCollection[PASSAGE_EMERALD][4].jewelPieceSE) {
+            gCollectedSEJewelPiece = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gCollectedSEJewelPiece = 0;
+        }
+        if (gCurrentCollection[PASSAGE_EMERALD][4].jewelPieceSW) {
+            gCollectedSWJewelPiece = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gCollectedSWJewelPiece = 0;
+        }
+        if (gCurrentCollection[PASSAGE_RUBY][4].jewelPieceNE) {
+            gCollectedNWJewelPiece = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gCollectedNWJewelPiece = 0;
+        }
+        if (gCurrentCollection[PASSAGE_RUBY][4].jewelPieceSE) {
+            gHasBossTreasure5 = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gHasBossTreasure5 = 0;
+        }
+        if (gCurrentCollection[PASSAGE_RUBY][4].jewelPieceSW) {
+            gHasBossTreasure6 = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gHasBossTreasure6 = 0;
+        }
+        if (gCurrentCollection[PASSAGE_TOPAZ][4].jewelPieceNE) {
+            gHasBossTreasure7 = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gHasBossTreasure7 = 0;
+        }
+        if (gCurrentCollection[PASSAGE_TOPAZ][4].jewelPieceSE) {
+            gHasBossTreasure8 = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gHasBossTreasure8 = 0;
+        }
+        if (gCurrentCollection[PASSAGE_TOPAZ][4].jewelPieceSW) {
+            gHasBossTreasure9 = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gHasBossTreasure9 = 0;
+        }
+        if (gCurrentCollection[PASSAGE_SAPPHIRE][4].jewelPieceNE) {
+            gHasBossTreasure10 = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gHasBossTreasure10 = 0;
+        }
+        if (gCurrentCollection[PASSAGE_SAPPHIRE][4].jewelPieceSE) {
+            gHasBossTreasure11 = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gHasBossTreasure11 = 0;
+        }
+        if (gCurrentCollection[PASSAGE_SAPPHIRE][4].jewelPieceSW) {
+            gHasBossTreasure12 = 2;
+            gGoldenTreasureCount++;
+        } else {
+            gHasBossTreasure12 = 0;
+        }
+        gCollectedCD = 0;
+        gCollectedKeyzer = 0;
+        goto function_end;
     }
 
     clear_collectibles:
-    gCollectedNEJewelPiece = 0;
+        gCollectedNEJewelPiece = 0;
 
-    gCollectedSEJewelPiece = 0;
-    gCollectedSWJewelPiece = 0;
-    gCollectedNWJewelPiece = 0;
-    gCollectedCD = 0;
-    gCollectedKeyzer = 0;
-    goto function_end;
-  }
-  reservedR5 = gCurrentCollection[new_var][new_var2].jewelPieceNE;
-  if (reservedR5)
-  {
-    gCollectedNEJewelPiece = 3;
-  }
-  else
-    if (1)
-  {
-    gCollectedNEJewelPiece = 0;
-  }
-  if (gCurrentCollection[new_var][new_var2].jewelPieceSE)
-  {
-    gCollectedSEJewelPiece = 3;
-  }
-  else
-  {
-    gCollectedSEJewelPiece = 0;
-  }
-  if (gCurrentCollection[new_var][new_var2].jewelPieceSW)
-  {
-    gCollectedSWJewelPiece = 3;
-  }
-  else
-  {
-    gCollectedSWJewelPiece = 0;
-  }
-  if (gCurrentCollection[new_var][new_var2].jewelPieceNW)
-  {
-    gCollectedNWJewelPiece = 3;
-  }
-  else
-  {
-    gCollectedNWJewelPiece = 0;
-  }
-  if (gCurrentCollection[new_var][new_var2].cd)
-  {
-    gCollectedCD = 3;
-  }
-  else
-  {
-    gCollectedCD = 0;
-  }
-  if (gCurrentCollection[new_var][new_var2].keyzer)
-  {
-    gCollectedKeyzer = 2;
-  }
-  else
-  {
-    gCollectedKeyzer = 0;
-  }
-  function_end:
-
+        gCollectedSEJewelPiece = 0;
+        gCollectedSWJewelPiece = 0;
+        gCollectedNWJewelPiece = 0;
+        gCollectedCD = 0;
+        gCollectedKeyzer = 0;
+        goto function_end;
+    }
+    reservedR5 = gCurrentCollection[new_var][new_var2].jewelPieceNE;
+    if (reservedR5) {
+        gCollectedNEJewelPiece = 3;
+    } else if (1) {
+        gCollectedNEJewelPiece = 0;
+    }
+    if (gCurrentCollection[new_var][new_var2].jewelPieceSE) {
+        gCollectedSEJewelPiece = 3;
+    } else {
+        gCollectedSEJewelPiece = 0;
+    }
+    if (gCurrentCollection[new_var][new_var2].jewelPieceSW) {
+        gCollectedSWJewelPiece = 3;
+    } else {
+        gCollectedSWJewelPiece = 0;
+    }
+    if (gCurrentCollection[new_var][new_var2].jewelPieceNW) {
+        gCollectedNWJewelPiece = 3;
+    } else {
+        gCollectedNWJewelPiece = 0;
+    }
+    if (gCurrentCollection[new_var][new_var2].cd) {
+        gCollectedCD = 3;
+    } else {
+        gCollectedCD = 0;
+    }
+    if (gCurrentCollection[new_var][new_var2].keyzer) {
+        gCollectedKeyzer = 2;
+    } else {
+        gCollectedKeyzer = 0;
+    }
+function_end:
 }
-
-
 
 void InitStageHudAndScore(void)
 {
-    s8 *pauseDisabled;
-    s8 *pauseLoad;
+    s8* pauseDisabled;
+    s8* pauseLoad;
     s32 pauseValue;
 
     gBossTreasureType = gCurrentPassage;
@@ -758,22 +684,17 @@ void InitStageHudAndScore(void)
     pauseLoad = &gStageEntryPauseMenuDisabled;
     pauseValue = *pauseLoad;
     pauseDisabled = pauseLoad;
-    if ((pauseValue != 0) || (gHasTemporarySave != 0))
-    {
-        struct SecondarySprite *sprite;
+    if ((pauseValue != 0) || (gHasTemporarySave != 0)) {
+        struct SecondarySprite* sprite;
         s32 remaining;
         sprite = gSecondarySpriteData;
         remaining = 7;
-        do
-        {
+        do {
             u8 id;
             id = sprite->id;
-            if (id <= 73)
-            {
+            if (id <= 73) {
                 sprite->status = 0;
-            }
-            else if (id == 75)
-            {
+            } else if (id == 75) {
                 register u32 status asm("r1");
                 u32 one;
                 u32 test;
@@ -781,18 +702,14 @@ void InitStageHudAndScore(void)
                 one = 1;
                 test = one;
                 test &= status;
-                if (test != 0)
-                {
-                    struct WarioData *wario;
+                if (test != 0) {
+                    struct WarioData* wario;
                     wario = &gWarioData;
                     sprite->yPosition = wario->yPosition - 96;
-                    if (wario->horizontalDirection & 32)
-                    {
+                    if (wario->horizontalDirection & 32) {
                         sprite->xPosition = wario->xPosition + 64;
                         sprite->pose = one;
-                    }
-                    else
-                    {
+                    } else {
                         sprite->xPosition = wario->xPosition - 64;
                         sprite->pose = 3;
                     }
@@ -800,33 +717,26 @@ void InitStageHudAndScore(void)
             }
             sprite++;
             remaining--;
-        }
-        while (remaining >= 0);
-    }
-    else
-    {
+        } while (remaining >= 0);
+    } else {
         s32 baseAddress;
         s32 spriteAddress;
         u32 clear;
         baseAddress = (s32)gSecondarySpriteData;
         clear = 0;
         spriteAddress = baseAddress + (7 * sizeof(struct SecondarySprite));
-        do
-        {
-            *(u8 *)spriteAddress = clear;
+        do {
+            *(u8*)spriteAddress = clear;
             spriteAddress -= sizeof(struct SecondarySprite);
-        }
-        while (spriteAddress >= baseAddress);
+        } while (spriteAddress >= baseAddress);
     }
-    if (*pauseDisabled == 0)
-    {
+    if (*pauseDisabled == 0) {
         u32 clear;
         clear = gHasTemporarySave;
-        if (clear == 0)
-        {
+        if (clear == 0) {
             gCurrentShopItem = clear;
             {
-                u8 *digits;
+                u8* digits;
                 digits = gScoreDigits;
                 digits[0] = clear;
                 digits[1] = clear;
@@ -866,32 +776,31 @@ void InitStageHudAndScore(void)
     UploadStageTimerDigitTiles();
     UploadStageTimerColonTiles();
     {
-        vu32 *dma;
-        const u8 *palette;
-        switch (gCurrentPassage)
-        {
+        vu32* dma;
+        const u8* palette;
+        switch (gCurrentPassage) {
             case 0:
-                dma = (vu32 *)0x040000D4;
+                dma = (vu32*)0x040000D4;
                 palette = sStageEntryPassagePal;
                 break;
             case 1:
-                dma = (vu32 *)0x040000D4;
+                dma = (vu32*)0x040000D4;
                 palette = sStageEmeraldPassagePal;
                 break;
             case 2:
-                dma = (vu32 *)0x040000D4;
+                dma = (vu32*)0x040000D4;
                 palette = sStageRubyPassagePal;
                 break;
             case 3:
-                dma = (vu32 *)0x040000D4;
+                dma = (vu32*)0x040000D4;
                 palette = sStageTopazPassagePal;
                 break;
             case 4:
-                dma = (vu32 *)0x040000D4;
+                dma = (vu32*)0x040000D4;
                 palette = sStageSapphirePassagePal;
                 break;
             case 5:
-                dma = (vu32 *)0x040000D4;
+                dma = (vu32*)0x040000D4;
                 palette = sStageGoldenPyramidPal;
                 break;
             default:
@@ -903,104 +812,78 @@ void InitStageHudAndScore(void)
         dma[2];
     }
 skip_passage_palette:
-    if (gCurrentStageNumber != 4)
-    {
+    if (gCurrentStageNumber != 4) {
         u8 state;
-        vu32 *dma;
-        const u8 *graphics;
+        vu32* dma;
+        const u8* graphics;
         state = gCollectedNEJewelPiece;
-        if (state == 3)
-        {
-            dma = (vu32 *)0x040000D4;
+        if (state == 3) {
+            dma = (vu32*)0x040000D4;
             graphics = sJewelPieceIconNEGfx;
-        }
-        else if (state != 0)
-        {
-            dma = (vu32 *)0x040000D4;
+        } else if (state != 0) {
+            dma = (vu32*)0x040000D4;
             graphics = sJewelPieceIconPartialNEGfx;
-        }
-        else
-        {
+        } else {
             goto skip_ne;
         }
         dma[0] = (u32)graphics;
         dma[1] = 0x06011C20;
         dma[2] = 0x80000010;
         dma[2];
-skip_ne:
+    skip_ne:
         state = gCollectedSEJewelPiece;
-        if (state == 3)
-        {
-            dma = (vu32 *)0x040000D4;
+        if (state == 3) {
+            dma = (vu32*)0x040000D4;
             graphics = sJewelPieceIconSEGfx;
-        }
-        else if (state != 0)
-        {
-            dma = (vu32 *)0x040000D4;
+        } else if (state != 0) {
+            dma = (vu32*)0x040000D4;
             graphics = sJewelPieceIconPartialSEGfx;
-        }
-        else
-        {
+        } else {
             goto skip_se;
         }
         dma[0] = (u32)graphics;
         dma[1] = 0x06012020;
         dma[2] = 0x80000010;
         dma[2];
-skip_se:
+    skip_se:
         state = gCollectedSWJewelPiece;
-        if (state == 3)
-        {
-            dma = (vu32 *)0x040000D4;
+        if (state == 3) {
+            dma = (vu32*)0x040000D4;
             graphics = sJewelPieceIconSWGfx;
-        }
-        else if (state != 0)
-        {
-            dma = (vu32 *)0x040000D4;
+        } else if (state != 0) {
+            dma = (vu32*)0x040000D4;
             graphics = sJewelPieceIconPartialSWGfx;
-        }
-        else
-        {
+        } else {
             goto skip_sw;
         }
         dma[0] = (u32)graphics;
         dma[1] = 0x06012000;
         dma[2] = 0x80000010;
         dma[2];
-skip_sw:
+    skip_sw:
         state = gCollectedNWJewelPiece;
-        if (state == 3)
-        {
-            dma = (vu32 *)0x040000D4;
+        if (state == 3) {
+            dma = (vu32*)0x040000D4;
             graphics = sJewelPieceIconNWGfx;
-        }
-        else if (state != 0)
-        {
-            dma = (vu32 *)0x040000D4;
+        } else if (state != 0) {
+            dma = (vu32*)0x040000D4;
             graphics = sJewelPieceIconPartialNWGfx;
-        }
-        else
-        {
+        } else {
             goto skip_nw;
         }
         dma[0] = (u32)graphics;
         dma[1] = 0x06011C00;
         dma[2] = 0x80000010;
         dma[2];
-skip_nw:
+    skip_nw:
         state = gCollectedCD;
-        if (state == 3)
-        {
-            dma = (vu32 *)0x040000D4;
+        if (state == 3) {
+            dma = (vu32*)0x040000D4;
             graphics = sCDIconGfx;
-        }
-        else if (state != 0)
-        {
-            dma = (vu32 *)0x040000D4;
+        } else if (state != 0) {
+            dma = (vu32*)0x040000D4;
             graphics = sCDIconPartialGfx;
-        }
-        else
-        {
+        } else {
             return;
         }
         dma[0] = (u32)graphics;
@@ -1012,11 +895,11 @@ skip_nw:
 
 void DrawCurrentSecondarySprite(u32 index)
 {
-    struct SecondarySprite *spriteAddress;
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* spriteAddress;
+    struct SecondarySprite* sprite;
     u32 spriteId;
-    const u16 *source;
-    u16 *destination;
+    const u16* source;
+    u16* destination;
     u32 count;
     u32 nextSlot;
     register u32 yOffset asm("r9");
@@ -1029,30 +912,29 @@ void DrawCurrentSecondarySprite(u32 index)
     spriteAddress = &gCurrentSecondarySprite;
     spriteId = spriteAddress->id;
     sprite = spriteAddress;
-    if (spriteId > SSPRITE_WARIO_DYING)
-    {
+    if (spriteId > SSPRITE_WARIO_DYING) {
         u32 currentSlot;
-        u8 *currentSlotPointer;
+        u8* currentSlotPointer;
         currentSlotPointer = &gOamSlotsUsed;
         currentSlot = *currentSlotPointer;
-        source = (const u16 *)gCurrentSecondarySpriteOamData;
+        source = (const u16*)gCurrentSecondarySpriteOamData;
         count = *source++;
         nextSlot = count + currentSlot;
-        if ((s32)nextSlot > 127)
+        if ((s32)nextSlot > 127) {
             return;
+        }
         {
             u32 slotOffset;
-            register OamData *oamBase asm("r2");
+            register OamData* oamBase asm("r2");
             slotOffset = currentSlot << 3;
             oamBase = gOamBuffer;
-            destination = (u16 *)(slotOffset + (u32)oamBase);
+            destination = (u16*)(slotOffset + (u32)oamBase);
         }
         yOffset = sprite->yPosition >> 2;
         xOffset = sprite->xPosition >> 2;
         affine = sprite->status & 2;
-        if (count != 0)
-        {
-            OamData *oam;
+        if (count != 0) {
+            OamData* oam;
             {
                 u32 indexMask;
                 u32 indexValue;
@@ -1062,15 +944,14 @@ void DrawCurrentSecondarySprite(u32 index)
                 indexValue <<= 1;
                 matrixBits = indexValue;
             }
-            oam = (OamData *)destination;
-            do
-            {
+            oam = (OamData*)destination;
+            do {
                 attr = *source++;
-                *(volatile u16 *)destination = attr;
+                *(volatile u16*)destination = attr;
                 destination++;
-                ((u8 *)oam)[0] = attr + yOffset;
+                ((u8*)oam)[0] = attr + yOffset;
                 attr = *source++;
-                *(volatile u16 *)destination = attr;
+                *(volatile u16*)destination = attr;
                 destination++;
                 {
                     u32 adjustedX;
@@ -1087,11 +968,10 @@ void DrawCurrentSecondarySprite(u32 index)
                     oam->all.attr1 = mask;
                 }
                 *destination++ = *source++;
-                if (affine != 0)
-                {
+                if (affine != 0) {
                     u8 value;
-                    ((u8 *)oam)[1] |= 3;
-                    value = ((u8 *)oam)[3];
+                    ((u8*)oam)[1] |= 3;
+                    value = ((u8*)oam)[3];
                     value |= 0x20;
                     value |= 0x10;
                     {
@@ -1101,68 +981,63 @@ void DrawCurrentSecondarySprite(u32 index)
                         value &= mask;
                     }
                     value |= matrixBits;
-                    ((u8 *)oam)[3] = value;
+                    ((u8*)oam)[3] = value;
                 }
                 destination++;
                 oam++;
                 count--;
-            }
-            while (count != 0);
+            } while (count != 0);
         }
-    }
-    else if (spriteId == SSPRITE_KEYZER)
-    {
+    } else if (spriteId == SSPRITE_KEYZER) {
         u32 currentSlot;
         /* Reserve the later loop counter across this branch so agbcc does not reuse r6 for the zero value. */
-        if (gUnk_3000034 != 0)
-        {
+        if (gUnk_3000034 != 0) {
             matrixBits = 0;
-        }
-        else
-        {
+        } else {
             u32 overBackground;
             overBackground = gDrawWarioOverBackground;
             matrixBits = 2;
-            if (overBackground != 0)
+            if (overBackground != 0) {
                 matrixBits = 1;
+            }
         }
         asm("" : : "r"(count));
         yOffset = (u16)((sprite->yPosition >> 2) - (gBg1YPosition >> 2));
         {
-            u8 *currentSlotPointer;
+            u8* currentSlotPointer;
             currentSlotPointer = &gOamSlotsUsed;
             currentSlot = *currentSlotPointer;
         }
-        source = (const u16 *)gCurrentSecondarySpriteOamData;
+        source = (const u16*)gCurrentSecondarySpriteOamData;
         count = *source++;
         nextSlot = count + currentSlot;
-        if ((s32)nextSlot > 127)
+        if ((s32)nextSlot > 127) {
             return;
+        }
         {
             u32 slotOffset;
-            register OamData *oamBase asm("r2");
+            register OamData* oamBase asm("r2");
             slotOffset = currentSlot << 3;
             oamBase = gOamBuffer;
-            destination = (u16 *)(slotOffset + (u32)oamBase);
+            destination = (u16*)(slotOffset + (u32)oamBase);
         }
         xOffset = (u16)((sprite->xPosition >> 2) - (gBg1XPosition >> 2));
         affine = sprite->status & 2;
-        if (count != 0)
-        {
-            OamData *oam;
+        if (count != 0) {
+            OamData* oam;
             {
                 register u32 modeValue asm("r2");
-                register volatile u8 *stackPointer asm("r1");
+                register volatile u8* stackPointer asm("r1");
                 u32 priorityValue;
                 modeValue = 3;
-                stackPointer = (volatile u8 *)stackWords;
+                stackPointer = (volatile u8*)stackWords;
                 stackPointer[4] = modeValue;
                 priorityValue = matrixBits;
                 asm("" : "+r"(priorityValue));
                 priorityValue <<= 2;
                 stackWords[2] = priorityValue;
             }
-            oam = (OamData *)destination;
+            oam = (OamData*)destination;
             {
                 u32 indexMask;
                 u32 indexValue;
@@ -1172,15 +1047,14 @@ void DrawCurrentSecondarySprite(u32 index)
                 indexValue <<= 1;
                 matrixBits = indexValue;
             }
-            do
-            {
+            do {
                 u8 value;
                 attr = *source++;
-                *(volatile u16 *)destination = attr;
+                *(volatile u16*)destination = attr;
                 destination++;
-                ((u8 *)oam)[0] = attr + yOffset;
+                ((u8*)oam)[0] = attr + yOffset;
                 attr = *source++;
-                *(volatile u16 *)destination = attr;
+                *(volatile u16*)destination = attr;
                 destination++;
                 {
                     u32 adjustedX;
@@ -1201,25 +1075,24 @@ void DrawCurrentSecondarySprite(u32 index)
                     u32 priorityByte;
                     u32 priorityMask;
                     u32 priorityValue;
-                    priorityByte = ((u8 *)oam)[5];
+                    priorityByte = ((u8*)oam)[5];
                     priorityMask = 13;
                     priorityMask = -priorityMask;
                     priorityMask &= priorityByte;
                     priorityValue = stackWords[2];
                     priorityMask |= priorityValue;
-                    ((u8 *)oam)[5] = priorityMask;
+                    ((u8*)oam)[5] = priorityMask;
                 }
-                if (affine != 0)
-                {
+                if (affine != 0) {
                     u32 modeByte;
                     register u32 modeBits asm("r2");
-                    modeByte = ((u8 *)oam)[1];
+                    modeByte = ((u8*)oam)[1];
                     modeBits = (u32)stackWords;
-                    modeBits = *(volatile u8 *)(modeBits + 4);
+                    modeBits = *(volatile u8*)(modeBits + 4);
                     asm("" : "+r"(modeBits));
                     modeByte |= modeBits;
-                    ((u8 *)oam)[1] = modeByte;
-                    value = ((u8 *)oam)[3];
+                    ((u8*)oam)[1] = modeByte;
+                    value = ((u8*)oam)[3];
                     value |= 0x20;
                     value |= 0x10;
                     {
@@ -1234,29 +1107,29 @@ void DrawCurrentSecondarySprite(u32 index)
                         asm("" : "+r"(matrixValue));
                         value |= matrixValue;
                     }
-                    ((u8 *)oam)[3] = value;
+                    ((u8*)oam)[3] = value;
                 }
                 destination++;
                 oam++;
                 count--;
-            }
-            while (count != 0);
+            } while (count != 0);
         }
         {
             u32 slotValue;
-            u8 *slotPointer;
+            u8* slotPointer;
             slotValue = nextSlot;
             slotPointer = &gOamSlotsUsed;
             *slotPointer = slotValue;
         }
-        if (affine == 0)
+        if (affine == 0) {
             return;
+        }
         {
             register u32 inputIndex asm("r0");
             u32 indexOffset;
             register u32 address asm("r0");
-            register OamData *paBase asm("r1");
-            register OamData *basePointer asm("r6");
+            register OamData* paBase asm("r1");
+            register OamData* basePointer asm("r6");
             inputIndex = stackWords[0];
             indexOffset = inputIndex << 2;
             address = indexOffset;
@@ -1264,33 +1137,30 @@ void DrawCurrentSecondarySprite(u32 index)
             address <<= 3;
             paBase = gOamBuffer;
             address += (u32)paBase;
-            ((OamData *)address)->all.affineParam = gSecondarySpriteAffinePA;
+            ((OamData*)address)->all.affineParam = gSecondarySpriteAffinePA;
             address = indexOffset;
             address += 97;
             address <<= 3;
             basePointer = gOamBuffer;
             address += (u32)basePointer;
-            ((OamData *)address)->all.affineParam = gSecondarySpriteAffinePB;
+            ((OamData*)address)->all.affineParam = gSecondarySpriteAffinePB;
             address = indexOffset;
             address += 98;
             address <<= 3;
             address += (u32)basePointer;
-            ((OamData *)address)->all.affineParam = gSecondarySpriteAffinePC;
+            ((OamData*)address)->all.affineParam = gSecondarySpriteAffinePC;
             address = indexOffset;
             address += 99;
             address <<= 3;
             address += (u32)basePointer;
-            ((OamData *)address)->all.affineParam = gSecondarySpriteAffinePD;
+            ((OamData*)address)->all.affineParam = gSecondarySpriteAffinePD;
         }
         return;
-    }
-    else
-    {
+    } else {
         u32 currentSlot;
-        register u16 *backgroundPointer asm("r5");
+        register u16* backgroundPointer asm("r5");
         backgroundPointer = &gBg1YPosition;
-        if (spriteId <= SSPRITE_49)
-        {
+        if (spriteId <= SSPRITE_49) {
             u32 background;
             register u32 lowerBound asm("r1");
             u32 spriteY;
@@ -1303,43 +1173,41 @@ void DrawCurrentSecondarySprite(u32 index)
             offset = 0x80;
             offset <<= 1;
             adjustedY = spriteY + offset;
-            if ((s32)lowerBound > (s32)adjustedY)
-            {
+            if ((s32)lowerBound > (s32)adjustedY) {
                 sprite->status = 0;
                 return;
             }
             lowerBound = 0xF0;
             lowerBound <<= 2;
             spriteY = background + lowerBound;
-            if ((s32)spriteY < (s32)adjustedY)
-            {
+            if ((s32)spriteY < (s32)adjustedY) {
                 sprite->status = 0;
                 return;
             }
         }
         yOffset = (u16)((sprite->yPosition >> 2) - (*backgroundPointer >> 2));
         {
-            u8 *currentSlotPointer;
+            u8* currentSlotPointer;
             currentSlotPointer = &gOamSlotsUsed;
             currentSlot = *currentSlotPointer;
         }
-        source = (const u16 *)gCurrentSecondarySpriteOamData;
+        source = (const u16*)gCurrentSecondarySpriteOamData;
         count = *source++;
         nextSlot = count + currentSlot;
-        if ((s32)nextSlot > 127)
+        if ((s32)nextSlot > 127) {
             return;
+        }
         {
             u32 slotOffset;
-            register OamData *oamBase asm("r2");
+            register OamData* oamBase asm("r2");
             slotOffset = currentSlot << 3;
             oamBase = gOamBuffer;
-            destination = (u16 *)(slotOffset + (u32)oamBase);
+            destination = (u16*)(slotOffset + (u32)oamBase);
         }
         xOffset = (u16)((sprite->xPosition >> 2) - (gBg1XPosition >> 2));
         affine = sprite->status & 2;
-        if (count != 0)
-        {
-            register OamData *oam asm("r4");
+        if (count != 0) {
+            register OamData* oam asm("r4");
             {
                 u32 indexMask;
                 u32 indexValue;
@@ -1349,15 +1217,14 @@ void DrawCurrentSecondarySprite(u32 index)
                 indexValue <<= 1;
                 matrixBits = indexValue;
             }
-            oam = (OamData *)destination;
-            do
-            {
+            oam = (OamData*)destination;
+            do {
                 attr = *source++;
-                *(volatile u16 *)destination = attr;
+                *(volatile u16*)destination = attr;
                 destination++;
-                ((u8 *)oam)[0] = attr + yOffset;
+                ((u8*)oam)[0] = attr + yOffset;
                 attr = *source++;
-                *(volatile u16 *)destination = attr;
+                *(volatile u16*)destination = attr;
                 destination++;
                 {
                     u32 adjustedX;
@@ -1374,11 +1241,10 @@ void DrawCurrentSecondarySprite(u32 index)
                     oam->all.attr1 = mask;
                 }
                 *destination++ = *source++;
-                if (affine != 0)
-                {
+                if (affine != 0) {
                     u8 value;
-                    ((u8 *)oam)[1] |= 3;
-                    value = ((u8 *)oam)[3];
+                    ((u8*)oam)[1] |= 3;
+                    value = ((u8*)oam)[3];
                     value |= 0x20;
                     value |= 0x10;
                     {
@@ -1388,29 +1254,29 @@ void DrawCurrentSecondarySprite(u32 index)
                         value &= mask;
                     }
                     value |= matrixBits;
-                    ((u8 *)oam)[3] = value;
+                    ((u8*)oam)[3] = value;
                 }
                 destination++;
                 oam++;
                 count--;
-            }
-            while (count != 0);
+            } while (count != 0);
         }
     }
     {
         u32 slotValue;
-        u8 *slotPointer;
+        u8* slotPointer;
         slotValue = nextSlot;
         slotPointer = &gOamSlotsUsed;
         *slotPointer = slotValue;
     }
-    if (affine == 0)
+    if (affine == 0) {
         return;
+    }
     {
         register u32 inputIndex asm("r1");
         register u32 indexOffset asm("r2");
         register u32 address asm("r0");
-        register OamData *basePointer asm("r6");
+        register OamData* basePointer asm("r6");
         inputIndex = stackWords[0];
         indexOffset = inputIndex << 2;
         address = indexOffset;
@@ -1418,22 +1284,22 @@ void DrawCurrentSecondarySprite(u32 index)
         address <<= 3;
         basePointer = gOamBuffer;
         address += (u32)basePointer;
-        ((OamData *)address)->all.affineParam = gSecondarySpriteAffinePA;
+        ((OamData*)address)->all.affineParam = gSecondarySpriteAffinePA;
         address = indexOffset;
         address += 97;
         address <<= 3;
         address += (u32)basePointer;
-        ((OamData *)address)->all.affineParam = gSecondarySpriteAffinePB;
+        ((OamData*)address)->all.affineParam = gSecondarySpriteAffinePB;
         address = indexOffset;
         address += 98;
         address <<= 3;
         address += (u32)basePointer;
-        ((OamData *)address)->all.affineParam = gSecondarySpriteAffinePC;
+        ((OamData*)address)->all.affineParam = gSecondarySpriteAffinePC;
         address = indexOffset;
         address += 99;
         address <<= 3;
         address += (u32)basePointer;
-        ((OamData *)address)->all.affineParam = gSecondarySpriteAffinePD;
+        ((OamData*)address)->all.affineParam = gSecondarySpriteAffinePD;
     }
 }
 
@@ -1460,12 +1326,11 @@ void AddStageScore(s32 score)
     }
 }
 
-
 void SpawnSecondarySprite(u32 y, u32 x, u32 id)
 {
-    struct SecondarySprite *base;
-    volatile u8 *statusBytes;
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* base;
+    volatile u8* statusBytes;
+    struct SecondarySprite* sprite;
     u16 yPosition;
     u16 xPosition;
     u8 spriteId;
@@ -1480,14 +1345,11 @@ void SpawnSecondarySprite(u32 y, u32 x, u32 id)
     spriteId = id;
     longestTimer = 0;
     index = 0;
-    if (gSecondarySpriteData[0].status != 0)
-    {
-        do
-        {
-            statusBytes = (volatile u8 *)gSecondarySpriteData;
+    if (gSecondarySpriteData[0].status != 0) {
+        do {
+            statusBytes = (volatile u8*)gSecondarySpriteData;
             index++;
-            if (index > 7)
-            {
+            if (index > 7) {
                 break;
             }
 
@@ -1495,36 +1357,28 @@ void SpawnSecondarySprite(u32 y, u32 x, u32 id)
             offset += index;
             offset += index;
             offset <<= 2;
-            if (statusBytes[offset] == 0)
-            {
+            if (statusBytes[offset] == 0) {
                 longestTimer = 1;
                 break;
             }
-        }
-        while (1);
-        if (longestTimer == 0)
-        {
+        } while (1);
+        if (longestTimer == 0) {
             replacementIndex = 0xFF;
             index = 0;
-            do
-            {
+            do {
                 currentId = gSecondarySpriteData[index].id;
                 timer = 0;
-                if (currentId <= 73)
-                {
+                if (currentId <= 73) {
                     timer = gSecondarySpriteData[index].timer;
                 }
-                if (longestTimer < timer)
-                {
+                if (longestTimer < timer) {
                     longestTimer = timer;
                     replacementIndex = index;
                 }
                 index++;
-            }
-            while (index <= 7);
+            } while (index <= 7);
 
-            if (replacementIndex == 0xFF)
-            {
+            if (replacementIndex == 0xFF) {
                 return;
             }
             index = replacementIndex;
@@ -1545,7 +1399,7 @@ void SpawnSecondarySprite(u32 y, u32 x, u32 id)
 
 void ConvertKeyzerToTimeUpEffect(void)
 {
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
 
     sprite = &gCurrentSecondarySprite;
     sprite->status = 1;
@@ -1560,7 +1414,7 @@ void ConvertKeyzerToTimeUpEffect(void)
 
 void ResetTimeUpWarioSecondarySprite(void)
 {
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
 
     sprite = &gCurrentSecondarySprite;
     sprite->status = 1;
@@ -1609,7 +1463,6 @@ void SpawnScoreCoinDropSprites(u32 y, u32 x, s32 amount)
     }
 }
 
-
 void SpawnEnemyScoreDrop(u32 id, u32 y, u32 x, u32 amount)
 {
     u16 yPosition;
@@ -1623,7 +1476,6 @@ void SpawnEnemyScoreDrop(u32 id, u32 y, u32 x, u32 amount)
         SpriteSpawnAsChild(13, 0, 0, yPosition, xPosition);
     }
 }
-
 
 void ChangeStageScoreAndDropCoins(s32 scoreChange)
 {
@@ -1644,7 +1496,6 @@ void ChangeStageScoreAndDropCoins(s32 scoreChange)
     }
 }
 
-
 void SpawnOnePointTileEffect(u32 y, u32 x)
 {
     u16 yPosition;
@@ -1660,7 +1511,6 @@ void SpawnOnePointTileEffect(u32 y, u32 x)
         m4aSongNumStart(0x13e);
     }
 }
-
 
 void SpawnTenPointTileEffect(u32 y, u32 x)
 {
@@ -1678,7 +1528,6 @@ void SpawnTenPointTileEffect(u32 y, u32 x)
     }
 }
 
-
 void SpawnTileDebrisParticle(u32 y, u32 x, u32 debrisOffset, u32 direction, u32 parity)
 {
     u16 yPosition;
@@ -1694,39 +1543,38 @@ void SpawnTileDebrisParticle(u32 y, u32 x, u32 debrisOffset, u32 direction, u32 
     spriteDirection = direction;
     variant = parity;
     switch (offset) {
-    case 0:
-        id = spriteDirection + 7;
-        if (variant != 0) {
-            id += 6;
-        }
-        break;
-    case 1:
-        id = spriteDirection + 19;
-        if (variant != 0) {
-            id += 6;
-        }
-        break;
-    case 2:
-        id = spriteDirection + 31;
-        if (variant != 0) {
-            id += 6;
-        }
-        break;
-    case 3:
-        id = 44;
-        if (variant != 0) {
-            id = 45;
-        }
-        break;
-    default:
-        id = 6;
-        break;
+        case 0:
+            id = spriteDirection + 7;
+            if (variant != 0) {
+                id += 6;
+            }
+            break;
+        case 1:
+            id = spriteDirection + 19;
+            if (variant != 0) {
+                id += 6;
+            }
+            break;
+        case 2:
+            id = spriteDirection + 31;
+            if (variant != 0) {
+                id += 6;
+            }
+            break;
+        case 3:
+            id = 44;
+            if (variant != 0) {
+                id = 45;
+            }
+            break;
+        default:
+            id = 6;
+            break;
     }
     SpawnSecondarySprite((u16)(yPosition + 32), (u16)(xPosition + 32), id);
 }
 
-
-void AdvanceSecondarySpriteAnimation(const struct AnimationFrame *animation)
+void AdvanceSecondarySpriteAnimation(const struct AnimationFrame* animation)
 {
     gCurrentSecondarySprite.work0++;
     if (animation[gCurrentSecondarySprite.animationTimer].time <= (u8)gCurrentSecondarySprite.work0) {

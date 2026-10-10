@@ -1,7 +1,7 @@
 #include "shop.h"
 
-#include "global_data.h"
 #include "color_effects.h"
+#include "global_data.h"
 #include "init_helpers.h"
 #include "interrupt_callbacks.h"
 #include "minigame.h"
@@ -18,9 +18,9 @@ extern u16 gStageEntryWindowBottom;
 extern u8 gCurrentShopItem;
 extern u8 gItemShopMessageId;
 extern u16 gItemShopShopkeeperAnimationState[2];
-extern const struct AnimationFrame *gItemShopShopkeeperAnimation;
+extern const struct AnimationFrame* gItemShopShopkeeperAnimation;
 extern struct ItemShopCursorState gItemShopCursor;
-extern const struct AnimationFrame *gItemShopCursorAnimation;
+extern const struct AnimationFrame* gItemShopCursorAnimation;
 extern struct ItemShopAnimationState gItemShopItemIconAnimationState;
 extern u8 gItemShopItemAvailability[10];
 extern u16 gItemShopTargetMedalCount;
@@ -152,250 +152,225 @@ u32 ItemShopSubroutine(void)
 
 void InitializeItemShop(void)
 {
-  vu16 *interruptMasterEnable;
-  u32 new_var3;
-  vu16 *displayStatus;
-  int i;
-  int new_var2;
-  int new_var;
-  register const u16 (*prices)[9] asm("r6");
-  const void *gfx0;
-  u32 priceOffset;
-  const void *gfx1;
-  u8 *availabilityAlias;
-  u16 *timerPtr;
-  u8 *messagePtr;
-  struct ColorFading *fadePtr;
-  *((vu16 *) 0x04000200) ^= 1;
-  InitializeVideoMemory();
-  interruptMasterEnable = (vu16 *) 0x04000208;
-  *interruptMasterEnable = 0;
-  new_var3 = (u32) (sUnk_8731858 + 0x800);
-  displayStatus = (vu16 *) 0x04000004;
-  *displayStatus &= 0xFFEF;
-  *((vu16 *) 0x04000200) &= 0xFFFD;
-  *interruptMasterEnable = 1;
-  {
-    vu32 *dma;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = (u32) sUnk_8735258;
-    dma[1] = 0x05000200;
-    dma[2] = 0x80000100;
-    dma[2];
-    while ((dma[2] & 0x80000000) != 0)
+    vu16* interruptMasterEnable;
+    u32 new_var3;
+    vu16* displayStatus;
+    int i;
+    int new_var2;
+    int new_var;
+    register const u16(*prices)[9] asm("r6");
+    const void* gfx0;
+    u32 priceOffset;
+    const void* gfx1;
+    u8* availabilityAlias;
+    u16* timerPtr;
+    u8* messagePtr;
+    struct ColorFading* fadePtr;
+    *((vu16*)0x04000200) ^= 1;
+    InitializeVideoMemory();
+    interruptMasterEnable = (vu16*)0x04000208;
+    *interruptMasterEnable = 0;
+    new_var3 = (u32)(sUnk_8731858 + 0x800);
+    displayStatus = (vu16*)0x04000004;
+    *displayStatus &= 0xFFEF;
+    *((vu16*)0x04000200) &= 0xFFFD;
+    *interruptMasterEnable = 1;
     {
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
+        dma[0] = (u32)sUnk_8735258;
+        dma[1] = 0x05000200;
+        dma[2] = 0x80000100;
+        dma[2];
+        while ((dma[2] & 0x80000000) != 0) {
+        }
+    }
+    {
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
+        dma[0] = (u32)sUnk_8732858;
+        dma[1] = 0x05000000;
+        dma[2] = 0x80000100;
+        dma[2];
+        while ((dma[2] & 0x80000000) != 0) {
+        }
+    }
+    *((vu16*)0x05000000) = 0;
+    gfx0 = sUnk_8732A58;
+    gfx1 = sUnk_8735458;
+    {
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
+        dma[0] = (u32)gfx0;
+        dma[1] = 0x06000000;
+        dma[2] = 0x80001400;
+        dma[2];
+        while ((dma[2] & 0x80000000) != 0) {
+        }
+    }
+    {
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
+        dma[0] = (u32)gfx1;
+        dma[1] = 0x06010000;
+        dma[2] = 0x80002000;
+        dma[2];
+        while ((dma[2] & 0x80000000) != 0) {
+        }
+    }
+    new_var2 = 0x1800;
+    {
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
+        dma[0] = (u32)((sUnk_8735458 + 0x29C0) + (gDifficulty << 10));
+        dma[1] = 0x06011140;
+        dma[2] = 0x80000100;
+        dma[2];
+        while ((dma[2] & 0x80000000) != 0) {
+        }
+    }
+    {
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
+        dma[0] = (u32)(sUnk_8738A18 + (gDifficulty << 10));
+        dma[1] = 0x06012540;
+        dma[2] = 0x80000100;
+        dma[2];
+        while ((dma[2] & 0x80000000) != 0) {
+        }
+    }
+    {
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
+        dma[0] = (u32)sUnk_8730858;
+        dma[1] = 0x0600C000;
+        dma[2] = 0x80000400;
+        dma[2];
+        while ((dma[2] & 0x80000000) != 0) {
+        }
+    }
+    asm("" : : "X"(0));
+    asm("" : : "X"(0));
+    asm("" : : "X"(0));
+    asm("" : : "X"(0));
+    {
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
+        dma[0] = (u32)sUnk_8731058;
+        dma[1] = 0x0600D000;
+        dma[2] = 0x80000400;
+        dma[2];
+        while ((dma[2] & 0x80000000) != 0) {
+        }
+    }
+    {
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
+        dma[0] = (u32)sUnk_8731858;
+        dma[1] = 0x0600E000;
+        dma[2] = 0x80000400;
+        dma[2];
+        while ((dma[2] & 0x80000000) != 0) {
+        }
+    }
+    {
+        register vu32* dma asm("r1");
+        vu16* backgroundControl;
+        dma = (vu32*)0x040000D4;
+        dma[0] = new_var3;
+        dma[1] = 0x0600F000;
+        dma[2] = 0x80000400;
+        dma[2];
+        backgroundControl = (vu16*)(((u32)dma) - 0xCC);
+        {
+            u32 bgValue;
+            asm("" : : "l"(0x1800));
+            bgValue = 0x1800;
+            *backgroundControl = bgValue;
+            backgroundControl++;
+            asm("" : : "l"(0x1A01));
+            bgValue = 0x1A01;
+            *backgroundControl = bgValue;
+            backgroundControl++;
+            asm("" : : "l"(0x1C02), "r"(bgValue));
+            bgValue = 0x1C02;
+            *backgroundControl = bgValue;
+            backgroundControl++;
+            asm("" : : "l"(0x1E03));
+            bgValue = 0x1E03;
+            *backgroundControl = bgValue;
+        }
+    }
+    gItemShopTargetMedalCount = gMedalCount;
+    DrawMinigameNumber(gMedalCount, (const u16*)sUnk_8733278, 128);
+    gItemShopTimer = 0;
+    gItemShopShopkeeperAnimationState[0] = 0;
+    gItemShopShopkeeperAnimationState[1] = 0;
+    gItemShopShopkeeperAnimation = sItemShopShopkeeperIdleAnimation;
+    gItemShopCursor.animationTimer = 0;
+    gItemShopCursor.animationFrame = 0;
+    gItemShopCursor.item = 0;
+    if (gCurrentPassage == 0) {
+        gItemShopCursor.x = *((const u16*)sUnk_872FF0C);
+        gItemShopCursor.y = *((const u16*)sUnk_872FF18);
+    } else {
+        gItemShopCursor.x = *((const u16*)sUnk_872FEE4);
+        gItemShopCursor.y = *((const u16*)sUnk_872FEF8);
+    }
+    gItemShopCursorAnimation = sItemShopCursorIdleAnimation;
+    gItemShopItemIconAnimationState.animationTimer = 0;
+    gItemShopItemIconAnimationState.animationFrame = 0;
+    i = 0;
+    timerPtr = &gSoundRoomMessageTimer;
+    messagePtr = &gItemShopMessageId;
+    fadePtr = &gColorFading;
+    availabilityAlias = gItemShopItemAvailability;
+    {
+        register u16* medalHint asm("r7") = &gMedalCount;
+        (void)medalHint;
+    }
+    prices = (const u16(*)[9])sUnk_872FF64;
+    for (; i <= 9; i++) {
+        if (i == 0) {
+            availabilityAlias[0] = 1;
+        } else {
+            new_var = i - 1;
+            priceOffset = new_var * 2 + gDifficulty * 18;
+            if (gMedalCount >= *(const u16*)(priceOffset + (u32)prices)) {
+                gItemShopItemAvailability[i] = 0;
+            } else {
+                gItemShopItemAvailability[i] = 2;
+            }
+        }
     }
 
-  }
-  {
-    vu32 *dma;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = (u32) sUnk_8732858;
-    dma[1] = 0x05000000;
-    dma[2] = 0x80000100;
-    dma[2];
-    while ((dma[2] & 0x80000000) != 0)
-    {
-    }
-
-  }
-  *((vu16 *) 0x05000000) = 0;
-  gfx0 = sUnk_8732A58;
-  gfx1 = sUnk_8735458;
-  {
-    vu32 *dma;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = (u32) gfx0;
-    dma[1] = 0x06000000;
-    dma[2] = 0x80001400;
-    dma[2];
-    while ((dma[2] & 0x80000000) != 0)
-    {
-    }
-
-  }
-  {
-    vu32 *dma;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = (u32) gfx1;
-    dma[1] = 0x06010000;
-    dma[2] = 0x80002000;
-    dma[2];
-    while ((dma[2] & 0x80000000) != 0)
-    {
-    }
-
-  }
-  new_var2 = 0x1800;
-  {
-    vu32 *dma;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = (u32) ((sUnk_8735458 + 0x29C0) + (gDifficulty << 10));
-    dma[1] = 0x06011140;
-    dma[2] = 0x80000100;
-    dma[2];
-    while ((dma[2] & 0x80000000) != 0)
-    {
-    }
-
-  }
-  {
-    vu32 *dma;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = (u32) (sUnk_8738A18 + (gDifficulty << 10));
-    dma[1] = 0x06012540;
-    dma[2] = 0x80000100;
-    dma[2];
-    while ((dma[2] & 0x80000000) != 0)
-    {
-    }
-
-  }
-  {
-    vu32 *dma;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = (u32) sUnk_8730858;
-    dma[1] = 0x0600C000;
-    dma[2] = 0x80000400;
-    dma[2];
-    while ((dma[2] & 0x80000000) != 0)
-    {
-    }
-
-  }
-  asm("" : : "X"(0));
-  asm("" : : "X"(0));
-  asm("" : : "X"(0));
-  asm("" : : "X"(0));
-  {
-    vu32 *dma;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = (u32) sUnk_8731058;
-    dma[1] = 0x0600D000;
-    dma[2] = 0x80000400;
-    dma[2];
-    while ((dma[2] & 0x80000000) != 0)
-    {
-    }
-
-  }
-  {
-    vu32 *dma;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = (u32) sUnk_8731858;
-    dma[1] = 0x0600E000;
-    dma[2] = 0x80000400;
-    dma[2];
-    while ((dma[2] & 0x80000000) != 0)
-    {
-    }
-
-  }
-  {
-    register vu32 *dma asm("r1");
-    vu16 *backgroundControl;
-    dma = (vu32 *) 0x040000D4;
-    dma[0] = new_var3;
-    dma[1] = 0x0600F000;
-    dma[2] = 0x80000400;
-    dma[2];
-    backgroundControl = (vu16 *) (((u32) dma) - 0xCC);
-    {
-      u32 bgValue;
-      asm("" : : "l"(0x1800));
-      bgValue = 0x1800;
-      *backgroundControl = bgValue;
-      backgroundControl++;
-      asm("" : : "l"(0x1A01));
-      bgValue = 0x1A01;
-      *backgroundControl = bgValue;
-      backgroundControl++;
-      asm("" : : "l"(0x1C02), "r"(bgValue));
-      bgValue = 0x1C02;
-      *backgroundControl = bgValue;
-      backgroundControl++;
-      asm("" : : "l"(0x1E03));
-      bgValue = 0x1E03;
-      *backgroundControl = bgValue;
-    }
-  }
-  gItemShopTargetMedalCount = gMedalCount;
-  DrawMinigameNumber(gMedalCount, (const u16 *)sUnk_8733278, 128);
-  gItemShopTimer = 0;
-  gItemShopShopkeeperAnimationState[0] = 0;
-  gItemShopShopkeeperAnimationState[1] = 0;
-  gItemShopShopkeeperAnimation = sItemShopShopkeeperIdleAnimation;
-  gItemShopCursor.animationTimer = 0;
-  gItemShopCursor.animationFrame = 0;
-  gItemShopCursor.item = 0;
-  if (gCurrentPassage == 0)
-  {
-    gItemShopCursor.x = *((const u16 *) sUnk_872FF0C);
-    gItemShopCursor.y = *((const u16 *) sUnk_872FF18);
-  }
-  else
-  {
-    gItemShopCursor.x = *((const u16 *) sUnk_872FEE4);
-    gItemShopCursor.y = *((const u16 *) sUnk_872FEF8);
-  }
-  gItemShopCursorAnimation = sItemShopCursorIdleAnimation;
-  gItemShopItemIconAnimationState.animationTimer = 0;
-  gItemShopItemIconAnimationState.animationFrame = 0;
-  i = 0;
-  timerPtr = &gSoundRoomMessageTimer;
-  messagePtr = &gItemShopMessageId;
-  fadePtr = &gColorFading;
-  availabilityAlias = gItemShopItemAvailability;
-  { register u16 * medalHint asm("r7") = &gMedalCount; (void)medalHint; }
-  prices = (const u16 (*)[9]) sUnk_872FF64;
-  for (; i <= 9; i++)
-  {
-    if (i == 0)
-    {
-      availabilityAlias[0] = 1;
-    }
-    else
-    {
-      new_var = i - 1;
-      priceOffset = new_var * 2 + gDifficulty * 18;
-      if (gMedalCount >= *(const u16 *)(priceOffset + (u32)prices))
-      {
-        gItemShopItemAvailability[i] = 0;
-      }
-      else
-      {
-        gItemShopItemAvailability[i] = 2;
-      }
-    }
-  }
-
-  *timerPtr = 0;
-  *messagePtr = 10;
-  fadePtr->uploadFlags = 3;
-  fadePtr->type = 2;
-  FillColorFadePalettes();
-  *((vu16 *) 0x04000054) = 0;
-  gUnk_3000C37 = 0;
-  m4aSongNumStart(0x2AA);
-  *((vu16 *) 0x04000000) = 0x1F00;
-  gStageEntryWindowLeft = 120;
-  gStageEntryWindowRight = 120;
-  gStageEntryWindowTop = 0;
-  gStageEntryWindowBottom = 160;
-  *((vu16 *) 0x04000000) |= 0x2000;
-  *((vu16 *) 0x04000048) = 0x3F;
-  *((vu16 *) 0x0400004A) = 0;
-  *((vu16 *) 0x04000050) = 0x1844;
-  *((vu16 *) 0x04000052) = 0x040C;
-  *((vu16 *) 0x04000012) = 0;
-  *((vu16 *) 0x04000010) = 0;
-  *((vu16 *) 0x04000016) = 0;
-  *((vu16 *) 0x04000014) = 0;
-  *((vu16 *) 0x0400001A) = 0;
-  *((vu16 *) 0x04000018) = 0;
-  *((vu16 *) 0x0400001E) = 0;
-  *((vu16 *) 0x0400001C) = 0;
-  *((vu16 *) 0x04000200) |= 1;
+    *timerPtr = 0;
+    *messagePtr = 10;
+    fadePtr->uploadFlags = 3;
+    fadePtr->type = 2;
+    FillColorFadePalettes();
+    *((vu16*)0x04000054) = 0;
+    gUnk_3000C37 = 0;
+    m4aSongNumStart(0x2AA);
+    *((vu16*)0x04000000) = 0x1F00;
+    gStageEntryWindowLeft = 120;
+    gStageEntryWindowRight = 120;
+    gStageEntryWindowTop = 0;
+    gStageEntryWindowBottom = 160;
+    *((vu16*)0x04000000) |= 0x2000;
+    *((vu16*)0x04000048) = 0x3F;
+    *((vu16*)0x0400004A) = 0;
+    *((vu16*)0x04000050) = 0x1844;
+    *((vu16*)0x04000052) = 0x040C;
+    *((vu16*)0x04000012) = 0;
+    *((vu16*)0x04000010) = 0;
+    *((vu16*)0x04000016) = 0;
+    *((vu16*)0x04000014) = 0;
+    *((vu16*)0x0400001A) = 0;
+    *((vu16*)0x04000018) = 0;
+    *((vu16*)0x0400001E) = 0;
+    *((vu16*)0x0400001C) = 0;
+    *((vu16*)0x04000200) |= 1;
 }
 
 void SetItemShopVBlankCallback(void)
@@ -405,31 +380,31 @@ void SetItemShopVBlankCallback(void)
 
 void ItemShopVBlank(void)
 {
-    vu32 *dma;
-    vu16 *window;
-    const u8 *const *table;
+    vu32* dma;
+    vu16* window;
+    const u8* const* table;
     u32 index;
 
     m4aSoundVSync();
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = (u32)gOamBuffer;
     dma[1] = 0x07000000;
     dma[2] = 0x84000100;
     dma[2];
 
-    window = (vu16 *)0x04000040;
+    window = (vu16*)0x04000040;
     window[0] = (gStageEntryWindowLeft << 8) | gStageEntryWindowRight;
     window += 2;
     window[0] = (gStageEntryWindowTop << 8) | gStageEntryWindowBottom;
 
     switch (gLanguage) {
         case 0:
-            table = (const u8 *const *)sUnk_8730150;
+            table = (const u8* const*)sUnk_8730150;
             index = gItemShopMessageId;
             Shop_DrawText(table[index], 0x7800, 26);
             break;
         case 1:
-            table = (const u8 *const *)sUnk_8730114;
+            table = (const u8* const*)sUnk_8730114;
             index = gItemShopMessageId;
             Shop_DrawText(table[index], 0x7800, 26);
             break;
@@ -443,153 +418,123 @@ static inline int GetPreviousShopIndex(u32 value)
 
 u32 HandleItemShopInput(void)
 {
-  int new_var2;
-  u32 direction;
-  u16 buttons;
-  u32 state;
-  u32 pressed;
-  direction = 0;
-  buttons = gButtonsPressed;
-  if ((buttons & 0x20) != 0)
-  {
-    direction = 1;
-  }
-  else
-  {
-    do
-    {
-      new_var2 = 0 ^ 0;
-    }
-    while (0);
-    if ((buttons & 0x10) != 0)
-    {
-      direction = 2;
-    }
-    else
-      if ((unsigned long long) ((buttons & 0x40) != 0))
-    {
-      direction = 3;
-    }
-    else
-      if ((buttons & 0x80) != 0)
-    {
-      direction = 4;
-    }
-    else
-      if (pressed = 1, pressed &= buttons, pressed != 0)
-    {
-      if (gItemShopCursor.item == new_var2)
-      {
-        m4aSongNumStart(0x129);
-        return 1;
-      }
-      if (gItemShopCursor.item == 1)
-      {
-        goto item_one;
-      }
-      state = gItemShopItemAvailability[gItemShopCursor.item];
-      if (state == 1)
-      {
-        goto purchase;
-      }
-      if (state == 2)
-      {
-        goto unavailable;
-      }
-      goto movement;
-      item_one:
-      VoiceSetPlay(18);
+    int new_var2;
+    u32 direction;
+    u16 buttons;
+    u32 state;
+    u32 pressed;
+    direction = 0;
+    buttons = gButtonsPressed;
+    if ((buttons & 0x20) != 0) {
+        direction = 1;
+    } else {
+        do {
+            new_var2 = 0 ^ 0;
+        } while (0);
+        if ((buttons & 0x10) != 0) {
+            direction = 2;
+        } else if ((unsigned long long)((buttons & 0x40) != 0)) {
+            direction = 3;
+        } else if ((buttons & 0x80) != 0) {
+            direction = 4;
+        } else if (pressed = 1, pressed &= buttons, pressed != 0) {
+            if (gItemShopCursor.item == new_var2) {
+                m4aSongNumStart(0x129);
+                return 1;
+            }
+            if (gItemShopCursor.item == 1) {
+                goto item_one;
+            }
+            state = gItemShopItemAvailability[gItemShopCursor.item];
+            if (state == 1) {
+                goto purchase;
+            }
+            if (state == 2) {
+                goto unavailable;
+            }
+            goto movement;
+        item_one:
+            VoiceSetPlay(18);
 
-      gSoundRoomMessageTimer = direction;
-      gItemShopMessageId = 14;
-      gItemShopShopkeeperAnimation = sItemShopShopkeeperVoiceAnimation;
-      gItemShopShopkeeperAnimationState[1] = direction;
-      gItemShopShopkeeperAnimationState[0] = direction;
-      goto done;
-      purchase:
-      m4aSongNumStart(0x125);
+            gSoundRoomMessageTimer = direction;
+            gItemShopMessageId = 14;
+            gItemShopShopkeeperAnimation = sItemShopShopkeeperVoiceAnimation;
+            gItemShopShopkeeperAnimationState[1] = direction;
+            gItemShopShopkeeperAnimationState[0] = direction;
+            goto done;
+        purchase:
+            m4aSongNumStart(0x125);
 
-      gItemShopCursorAnimation = sItemShopCursorPurchaseAnimation;
-      gItemShopCursor.animationFrame = direction;
-      gItemShopCursor.animationTimer = direction;
-      gCurrentShopItem = GetPreviousShopIndex(gItemShopCursor.item);
-      {
-        u16 *medalCount;
-        const u16 *priceTable;
-        u32 item;
-        u32 difficulty;
-        medalCount = &gItemShopTargetMedalCount;
-        priceTable = (const u16 *) sUnk_872FF64;
-        item = gItemShopCursor.item - 1;
-        difficulty = gDifficulty;
-        *medalCount -= priceTable[(difficulty * 9) + item];
-      }
-      gSwitchStates[1] = 2;
-      gSoundRoomMessageTimer = direction;
-      gItemShopMessageId = 12;
-      return 2;
-      unavailable:
-      gSoundRoomMessageTimer = direction;
+            gItemShopCursorAnimation = sItemShopCursorPurchaseAnimation;
+            gItemShopCursor.animationFrame = direction;
+            gItemShopCursor.animationTimer = direction;
+            gCurrentShopItem = GetPreviousShopIndex(gItemShopCursor.item);
+            {
+                u16* medalCount;
+                const u16* priceTable;
+                u32 item;
+                u32 difficulty;
+                medalCount = &gItemShopTargetMedalCount;
+                priceTable = (const u16*)sUnk_872FF64;
+                item = gItemShopCursor.item - 1;
+                difficulty = gDifficulty;
+                *medalCount -= priceTable[(difficulty * 9) + item];
+            }
+            gSwitchStates[1] = 2;
+            gSoundRoomMessageTimer = direction;
+            gItemShopMessageId = 12;
+            return 2;
+        unavailable:
+            gSoundRoomMessageTimer = direction;
 
-      gItemShopMessageId = 11;
-      m4aSongNumStart(0x225);
-      goto done;
-    }
-    else
-      if (pressed = 2, pressed &= buttons, pressed != 0)
-    {
-      m4aSongNumStart(0x129);
-      return 1;
-    }
-  }
-  movement:
-  if ((float) (gCurrentPassage == 0))
-  {
-    if (direction != 0)
-    {
-      {
-        const u8 *movementData;
-        u32 offset;
-        movementData = sUnk_87300B4;
-        offset = GetPreviousShopIndex(direction) << 2;
-        offset += gItemShopCursor.item << 4;
-        if ((*((const u32 *) (movementData + offset))) != 10)
-        {
-          MoveItemShopCursor(direction);
+            gItemShopMessageId = 11;
+            m4aSongNumStart(0x225);
+            goto done;
+        } else if (pressed = 2, pressed &= buttons, pressed != 0) {
+            m4aSongNumStart(0x129);
+            return 1;
         }
-      }
     }
-  }
-  else
-    if (direction != 0)
-  {
-    {
-      const u8 *movementData;
-      u32 offset;
-      movementData = sUnk_8730014;
-      new_var2 = GetPreviousShopIndex(direction);
-      offset = new_var2 << 2;
-      offset += gItemShopCursor.item << 4;
-      if ((*((const u32 *) (movementData + offset))) != 10)
-      {
-        MoveItemShopCursor(direction);
-      }
+movement:
+    if ((float)(gCurrentPassage == 0)) {
+        if (direction != 0) {
+            {
+                const u8* movementData;
+                u32 offset;
+                movementData = sUnk_87300B4;
+                offset = GetPreviousShopIndex(direction) << 2;
+                offset += gItemShopCursor.item << 4;
+                if ((*((const u32*)(movementData + offset))) != 10) {
+                    MoveItemShopCursor(direction);
+                }
+            }
+        }
+    } else if (direction != 0) {
+        {
+            const u8* movementData;
+            u32 offset;
+            movementData = sUnk_8730014;
+            new_var2 = GetPreviousShopIndex(direction);
+            offset = new_var2 << 2;
+            offset += gItemShopCursor.item << 4;
+            if ((*((const u32*)(movementData + offset))) != 10) {
+                MoveItemShopCursor(direction);
+            }
+        }
     }
-  }
 
-  done:
-  return 0;
-
+done:
+    return 0;
 }
 
 void MoveItemShopCursor(u32 inputDirection)
 {
     u32 direction = inputDirection;
     register u32 zero asm("r5");
-    u8 *passage;
+    u8* passage;
 
     {
-        u16 *messageTimer = &gSoundRoomMessageTimer;
+        u16* messageTimer = &gSoundRoomMessageTimer;
         zero = 0;
         *messageTimer = zero;
     }
@@ -598,23 +543,25 @@ void MoveItemShopCursor(u32 inputDirection)
     gItemShopItemIconAnimationState.animationFrame = 0;
 
     {
-        u8 *availability = gItemShopItemAvailability;
-        u8 *cursor = (u8 *)&gItemShopCursor;
+        u8* availability = gItemShopItemAvailability;
+        u8* cursor = (u8*)&gItemShopCursor;
         u32 value = cursor[8];
-        availability = (u8 *)((u32)value + (u32)availability);
+        availability = (u8*)((u32)value + (u32)availability);
         value = *availability;
-        if (value == 1)
+        if (value == 1) {
             *availability = zero;
+        }
 
         value = (u32)&gCurrentPassage;
         {
-            u32 passageValue = *(u8 *)value;
-            register const u32 *movementTable asm("r2");
-            passage = (u8 *)value;
-            if (passageValue == 0)
-                movementTable = (const u32 *)sUnk_87300B4;
-            else
-                movementTable = (const u32 *)sUnk_8730014;
+            u32 passageValue = *(u8*)value;
+            register const u32* movementTable asm("r2");
+            passage = (u8*)value;
+            if (passageValue == 0) {
+                movementTable = (const u32*)sUnk_87300B4;
+            } else {
+                movementTable = (const u32*)sUnk_8730014;
+            }
 
             value = direction - 1;
             value <<= 2;
@@ -622,26 +569,26 @@ void MoveItemShopCursor(u32 inputDirection)
             passageValue <<= 4;
             value += passageValue;
             value += (u32)movementTable;
-            value = *(const u32 *)value;
+            value = *(const u32*)value;
             cursor[8] = value;
         }
     }
 
     {
-        register u8 *cursor asm("r1") = (u8 *)&gItemShopCursor;
+        register u8* cursor asm("r1") = (u8*)&gItemShopCursor;
         u32 value = 0;
-        u8 *message;
-        u8 *availability;
-        register u8 *cursorLong asm("r4");
+        u8* message;
+        u8* availability;
+        register u8* cursorLong asm("r4");
 
-        *(u16 *)(cursor + 0) = value;
-        *(u16 *)(cursor + 2) = value;
+        *(u16*)(cursor + 0) = value;
+        *(u16*)(cursor + 2) = value;
         message = &gItemShopMessageId;
         value = cursor[8];
         *message = value;
         availability = gItemShopItemAvailability;
         value = cursor[8];
-        availability = (u8 *)((u32)value + (u32)availability);
+        availability = (u8*)((u32)value + (u32)availability);
         value = *availability;
         cursorLong = cursor;
         if (value == 0) {
@@ -649,9 +596,9 @@ void MoveItemShopCursor(u32 inputDirection)
             *availability = value;
             value = cursorLong[8];
             if (value == 0) {
-                u16 *medalCount = &gMedalCount;
-                const u8 *priceTable = sUnk_872FF64;
-                u8 *difficulty = &gDifficulty;
+                u16* medalCount = &gMedalCount;
+                const u8* priceTable = sUnk_872FF64;
+                u8* difficulty = &gDifficulty;
                 register u32 difficultyValue asm("r1") = *difficulty;
                 u32 priceAddress = difficultyValue << 3;
                 priceAddress += difficultyValue;
@@ -659,7 +606,7 @@ void MoveItemShopCursor(u32 inputDirection)
                 priceTable += 2;
                 priceAddress += (u32)priceTable;
                 difficultyValue = *medalCount;
-                priceAddress = *(const u16 *)priceAddress;
+                priceAddress = *(const u16*)priceAddress;
                 if (difficultyValue < priceAddress) {
                     value = 13;
                     *message = value;
@@ -668,31 +615,31 @@ void MoveItemShopCursor(u32 inputDirection)
         }
 
         if (*passage == 0) {
-            const u16 *positions = (const u16 *)sUnk_872FF0C;
+            const u16* positions = (const u16*)sUnk_872FF0C;
             value = cursorLong[8];
             value <<= 1;
             value += (u32)positions;
-            value = *(const u16 *)value;
-            *(u16 *)(cursorLong + 4) = value;
-            positions = (const u16 *)sUnk_872FF18;
+            value = *(const u16*)value;
+            *(u16*)(cursorLong + 4) = value;
+            positions = (const u16*)sUnk_872FF18;
             value = cursorLong[8];
             value <<= 1;
             value += (u32)positions;
-            value = *(const u16 *)value;
-            *(u16 *)(cursorLong + 6) = value;
+            value = *(const u16*)value;
+            *(u16*)(cursorLong + 6) = value;
         } else {
-            const u16 *positions = (const u16 *)sUnk_872FEE4;
+            const u16* positions = (const u16*)sUnk_872FEE4;
             value = cursorLong[8];
             value <<= 1;
             value += (u32)positions;
-            value = *(const u16 *)value;
-            *(u16 *)(cursorLong + 4) = value;
-            positions = (const u16 *)sUnk_872FEF8;
+            value = *(const u16*)value;
+            *(u16*)(cursorLong + 4) = value;
+            positions = (const u16*)sUnk_872FEF8;
             value = cursorLong[8];
             value <<= 1;
             value += (u32)positions;
-            value = *(const u16 *)value;
-            *(u16 *)(cursorLong + 6) = value;
+            value = *(const u16*)value;
+            *(u16*)(cursorLong + 6) = value;
         }
     }
 }
@@ -704,7 +651,7 @@ u32 UpdateItemShopMedalDeduction(void)
         m4aSongNumStart(0x222);
         gMedalCount--;
     }
-    DrawMinigameNumber(gMedalCount, (const u16 *)sUnk_8733278, 128);
+    DrawMinigameNumber(gMedalCount, (const u16*)sUnk_8733278, 128);
     if (gMedalCount == gItemShopTargetMedalCount) {
         gItemShopTimer = 0;
         return 1;
@@ -712,14 +659,14 @@ u32 UpdateItemShopMedalDeduction(void)
     return 0;
 }
 
-void Shop_DrawText(const u8 *text, u32 destination, u32 length)
+void Shop_DrawText(const u8* text, u32 destination, u32 length)
 {
-    const u8 *textPtr;
+    const u8* textPtr;
     u32 destinationBase;
     u32 count;
-    vu16 *timerPtr;
+    vu16* timerPtr;
     u32 timer;
-    u16 *timerBase;
+    u16* timerBase;
 
     textPtr = text;
     destinationBase = destination;
@@ -733,8 +680,8 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
         register s32 limit asm("r4") = count << 1;
 
         if (index < limit) {
-            vu32 *dma = (vu32 *)0x040000D4;
-            const u8 *blank = sUnk_873D438;
+            vu32* dma = (vu32*)0x040000D4;
+            const u8* blank = sUnk_873D438;
 
             do {
                 u32 value;
@@ -771,7 +718,7 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
             s32 index = 0;
 
             if (index < (s32)count) {
-                vu32 *dma = (vu32 *)0x040000D4;
+                vu32* dma = (vu32*)0x040000D4;
                 register u32 tempR4 asm("r4") = 0x06000000;
                 register u32 vramBase asm("sl") = tempR4;
                 register u32 tempR5 asm("r5") = 0x80000010;
@@ -835,7 +782,7 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
                     dma[2] = character;
                     status = dma[2];
                     {
-                        vu32 *dmaCopy = dma;
+                        vu32* dmaCopy = dma;
                         status = dmaCopy[2];
                         r1Value = busy;
                         status &= r1Value;
@@ -862,10 +809,10 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
         address = *timerPtr;
         address += (u32)textPtr;
         address--;
-        characterCheck = *(const u8 *)address;
+        characterCheck = *(const u8*)address;
         limit = count + 1;
         if (characterCheck == 0xFF) {
-            vu16 *timerLoop = timerPtr;
+            vu16* timerLoop = timerPtr;
             do {
                 address = *timerLoop;
                 address++;
@@ -873,14 +820,14 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
                 address = *timerLoop;
                 address += (u32)textPtr;
                 address--;
-                characterCheck = *(const u8 *)address;
+                characterCheck = *(const u8*)address;
             } while (characterCheck == 0xFF);
         }
 
         address = *timerPtr;
         if ((s32)address < limit) {
             u32 character;
-            register vu32 *dma asm("r2");
+            register vu32* dma asm("r2");
             u32 sourceOffset;
             u32 sourceHigh;
             register u32 sourceBase asm("r3");
@@ -889,8 +836,8 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
 
             address += (u32)textPtr;
             address--;
-            character = *(const u8 *)address;
-            dma = (vu32 *)0x040000D4;
+            character = *(const u8*)address;
+            dma = (vu32*)0x040000D4;
             sourceOffset = character << 5;
             sourceHigh = character >> 5;
             sourceHigh <<= 10;
@@ -917,7 +864,7 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
                 } while (status != 0);
             }
 
-            dma = (vu32 *)0x040000D4;
+            dma = (vu32*)0x040000D4;
             sourceOffset = character << 5;
             sourceHigh = character >> 5;
             sourceHigh <<= 10;
@@ -931,7 +878,7 @@ void Shop_DrawText(const u8 *text, u32 destination, u32 length)
             sourceHigh = *timerPtr;
             sourceHigh <<= 6;
             sourceHigh += destinationBase;
-            timerPtr = (u16 *)0x05FFFFE0;
+            timerPtr = (u16*)0x05FFFFE0;
             sourceHigh += (u32)timerPtr;
             dma[1] = sourceHigh;
             status = 0x80000010;
@@ -953,25 +900,25 @@ void DrawItemShopSprites(void)
 {
     register long slot asm("r8");
     long used;
-    u16 *rawDestination;
-    register const u16 *frameData asm("r4");
+    u16* rawDestination;
+    register const u16* frameData asm("r4");
 
     slot = 0;
     {
-        register u8 *slots asm("r1") = &gOamSlotsUsed;
+        register u8* slots asm("r1") = &gOamSlotsUsed;
         used = *slots;
     }
     {
         u32 oamOffset = used << 3;
-        frameData = (const u16 *)gOamBuffer;
-        rawDestination = (u16 *)(oamOffset + (u32)frameData);
+        frameData = (const u16*)gOamBuffer;
+        rawDestination = (u16*)(oamOffset + (u32)frameData);
     }
 
     {
-        u16 *state = gItemShopShopkeeperAnimationState;
-        const struct AnimationFrame **animationPointer;
-        register const struct AnimationFrame *loadedAnimation asm("r5");
-        register const struct AnimationFrame *animation asm("r12");
+        u16* state = gItemShopShopkeeperAnimationState;
+        const struct AnimationFrame** animationPointer;
+        register const struct AnimationFrame* loadedAnimation asm("r5");
+        register const struct AnimationFrame* animation asm("r12");
 
         {
             register u16 timer asm("r1") = state[0];
@@ -983,38 +930,37 @@ void DrawItemShopSprites(void)
             loadedAnimation = *animationPointer;
             asm("" : "+r"(loadedAnimation));
             animation = loadedAnimation;
-            if (animation[animationFrame].time < timer)
-        {
-            register u16 zeroTimer asm("r0") = slot;
-            state[0] = zeroTimer;
-            state[1]++;
-            if (animation[state[1]].time == 0)
-            {
-                register u16 zeroFrame asm("r1") = slot;
-                state[1] = zeroFrame;
-                if (animation == sItemShopShopkeeperVoiceAnimation)
-                    *animationPointer = sItemShopShopkeeperIdleAnimation;
+            if (animation[animationFrame].time < timer) {
+                register u16 zeroTimer asm("r0") = slot;
+                state[0] = zeroTimer;
+                state[1]++;
+                if (animation[state[1]].time == 0) {
+                    register u16 zeroFrame asm("r1") = slot;
+                    state[1] = zeroFrame;
+                    if (animation == sItemShopShopkeeperVoiceAnimation) {
+                        *animationPointer = sItemShopShopkeeperIdleAnimation;
+                    }
+                }
             }
-        }
         }
 
         {
             u16 finalFrame = state[1];
-            const struct AnimationFrame *finalAnimation = *animationPointer;
+            const struct AnimationFrame* finalAnimation = *animationPointer;
             frameData = finalAnimation[finalFrame].oam;
         }
     }
 
     used += *frameData++;
-    if (used > 128)
+    if (used > 128) {
         goto finish;
+    }
 
     {
-        struct ItemShopCursorState *cursor = &gItemShopCursor;
+        struct ItemShopCursorState* cursor = &gItemShopCursor;
 
-        if (slot < used)
-        {
-            OamData *oamBase = gOamBuffer;
+        if (slot < used) {
+            OamData* oamBase = gOamBuffer;
             u32 lowMask;
             register u32 highMask asm("r12");
             s32 byteMask;
@@ -1027,65 +973,64 @@ void DrawItemShopSprites(void)
                 byteMask = byteLoad;
             }
             {
-            OamData *destination;
-            destination = (OamData *)((slot << 3) + (u32)oamBase);
-            slot = used - slot;
-            do
-            {
-                register u32 attr asm("r2");
-                register u32 temp0 asm("r0");
-                u32 temp1;
+                OamData* destination;
+                destination = (OamData*)((slot << 3) + (u32)oamBase);
+                slot = used - slot;
+                do {
+                    register u32 attr asm("r2");
+                    register u32 temp0 asm("r0");
+                    u32 temp1;
 
-                attr = *frameData++;
-                *rawDestination++ = attr;
-                temp0 = attr;
-                temp0 += 120;
-                ((u8 *)destination)[0] = (u8)temp0;
+                    attr = *frameData++;
+                    *rawDestination++ = attr;
+                    temp0 = attr;
+                    temp0 += 120;
+                    ((u8*)destination)[0] = (u8)temp0;
 
-                attr = *frameData++;
-                *rawDestination++ = attr;
-                temp1 = attr;
-                temp1 += 20;
-                temp0 = lowMask;
-                temp1 &= temp0;
-                attr = destination->all.attr1;
-                temp0 = highMask;
-                temp0 &= attr;
-                temp0 |= temp1;
-                destination->all.attr1 = temp0;
+                    attr = *frameData++;
+                    *rawDestination++ = attr;
+                    temp1 = attr;
+                    temp1 += 20;
+                    temp0 = lowMask;
+                    temp1 &= temp0;
+                    attr = destination->all.attr1;
+                    temp0 = highMask;
+                    temp0 &= attr;
+                    temp0 |= temp1;
+                    destination->all.attr1 = temp0;
 
-                temp0 = *frameData;
-                *rawDestination = temp0;
-                frameData++;
-                temp1 = ((u8 *)destination)[5];
-                temp0 = byteMask;
-                temp0 &= temp1;
-                ((u8 *)destination)[5] = temp0;
-                rawDestination += 2;
-                destination++;
-                {
-                    s32 step = -1;
-                    s32 test;
-                    slot += step;
-                    test = slot;
-                    if (test == 0)
-                        break;
-                }
-            }
-            while (1);
-            slot = used;
+                    temp0 = *frameData;
+                    *rawDestination = temp0;
+                    frameData++;
+                    temp1 = ((u8*)destination)[5];
+                    temp0 = byteMask;
+                    temp0 &= temp1;
+                    ((u8*)destination)[5] = temp0;
+                    rawDestination += 2;
+                    destination++;
+                    {
+                        s32 step = -1;
+                        s32 test;
+                        slot += step;
+                        test = slot;
+                        if (test == 0) {
+                            break;
+                        }
+                    }
+                } while (1);
+                slot = used;
             }
         }
 
         {
-            const struct AnimationFrame **animationPointer;
-            const struct AnimationFrame *animation;
+            const struct AnimationFrame** animationPointer;
+            const struct AnimationFrame* animation;
             u16 animationFrame;
 
             {
                 register u16 timer asm("r0") = cursor->animationTimer;
                 u16 frame;
-                const struct AnimationFrame **ap;
+                const struct AnimationFrame** ap;
                 timer++;
                 cursor->animationTimer = timer;
                 frame = cursor->animationFrame;
@@ -1093,34 +1038,33 @@ void DrawItemShopSprites(void)
                 ap = &gItemShopCursorAnimation;
                 animationPointer = ap;
                 animation = *ap;
-                if (animation[frame].time < timer)
-            {
-                cursor->animationTimer = 0;
-                cursor->animationFrame++;
-                if (animation[cursor->animationFrame].time == 0)
-                {
-                    cursor->animationFrame = 0;
-                    if (animation == sItemShopCursorPurchaseAnimation)
-                        cursor->animationFrame = 1;
+                if (animation[frame].time < timer) {
+                    cursor->animationTimer = 0;
+                    cursor->animationFrame++;
+                    if (animation[cursor->animationFrame].time == 0) {
+                        cursor->animationFrame = 0;
+                        if (animation == sItemShopCursorPurchaseAnimation) {
+                            cursor->animationFrame = 1;
+                        }
+                    }
                 }
-            }
             }
 
             {
                 u16 finalFrame = cursor->animationFrame;
-                const struct AnimationFrame **finalPointer = &gItemShopCursorAnimation;
-                const struct AnimationFrame *finalAnimation = *finalPointer;
+                const struct AnimationFrame** finalPointer = &gItemShopCursorAnimation;
+                const struct AnimationFrame* finalAnimation = *finalPointer;
                 frameData = finalAnimation[finalFrame].oam;
             }
         }
 
         used += *frameData++;
-        if (used > 128)
+        if (used > 128) {
             goto finish;
+        }
 
-        if (slot < used)
-        {
-            OamData *oamBase = gOamBuffer;
+        if (slot < used) {
+            OamData* oamBase = gOamBuffer;
             register u32 lowMask asm("r10");
             register u32 highMask asm("r12");
             register s32 byteMask asm("r9");
@@ -1133,80 +1077,78 @@ void DrawItemShopSprites(void)
                 byteMask = byteLoad;
             }
             {
-            OamData *destination;
-            {
-                long oldSlot = slot;
-                u32 byteOffset = oldSlot << 3;
-                destination = (OamData *)(byteOffset + (u32)oamBase);
-                oldSlot = slot;
-                slot = used - oldSlot;
-            }
-            do
-            {
-                u32 attr;
-                register u32 temp0 asm("r0");
-                u32 temp1;
-
-                attr = *frameData++;
-                *rawDestination++ = attr;
-                temp0 = (u8)cursor->y;
-                temp0 += attr;
-                ((u8 *)destination)[0] = (u8)temp0;
-
-                attr = *frameData++;
-                *rawDestination++ = attr;
-                temp0 = 4;
-                temp1 = *(s16 *)((u8 *)cursor + temp0);
-                temp1 = (attr) - (-(temp1));
-                attr = lowMask;
-                temp1 &= attr;
-                attr = destination->all.attr1;
-                temp0 = highMask;
-                temp0 &= attr;
-                temp0 |= temp1;
-                destination->all.attr1 = temp0;
-
-                temp0 = *frameData;
-                *rawDestination = temp0;
-                frameData++;
-                temp1 = ((u8 *)destination)[5];
-                temp0 = byteMask;
-                temp0 &= temp1;
-                ((u8 *)destination)[5] = temp0;
-                rawDestination += 2;
-                destination++;
+                OamData* destination;
                 {
-                    s32 step = -1;
-                    s32 test;
-                    slot += step;
-                    test = slot;
-                    if (test == 0)
-                        break;
+                    long oldSlot = slot;
+                    u32 byteOffset = oldSlot << 3;
+                    destination = (OamData*)(byteOffset + (u32)oamBase);
+                    oldSlot = slot;
+                    slot = used - oldSlot;
                 }
-            }
-            while (1);
-            slot = used;
+                do {
+                    u32 attr;
+                    register u32 temp0 asm("r0");
+                    u32 temp1;
+
+                    attr = *frameData++;
+                    *rawDestination++ = attr;
+                    temp0 = (u8)cursor->y;
+                    temp0 += attr;
+                    ((u8*)destination)[0] = (u8)temp0;
+
+                    attr = *frameData++;
+                    *rawDestination++ = attr;
+                    temp0 = 4;
+                    temp1 = *(s16*)((u8*)cursor + temp0);
+                    temp1 = (attr) - (-(temp1));
+                    attr = lowMask;
+                    temp1 &= attr;
+                    attr = destination->all.attr1;
+                    temp0 = highMask;
+                    temp0 &= attr;
+                    temp0 |= temp1;
+                    destination->all.attr1 = temp0;
+
+                    temp0 = *frameData;
+                    *rawDestination = temp0;
+                    frameData++;
+                    temp1 = ((u8*)destination)[5];
+                    temp0 = byteMask;
+                    temp0 &= temp1;
+                    ((u8*)destination)[5] = temp0;
+                    rawDestination += 2;
+                    destination++;
+                    {
+                        s32 step = -1;
+                        s32 test;
+                        slot += step;
+                        test = slot;
+                        if (test == 0) {
+                            break;
+                        }
+                    }
+                } while (1);
+                slot = used;
             }
         }
     }
 
     {
-        const struct AnimationFrame * const *animationTable;
+        const struct AnimationFrame* const* animationTable;
         register s32 nextIndex asm("r12");
 
-        animationTable = (const struct AnimationFrame * const *)sUnk_872FF9C;
+        animationTable = (const struct AnimationFrame* const*)sUnk_872FF9C;
         {
             u32 zero = 0;
             nextIndex = zero;
         }
-        do
-        {
+        do {
             u32 state;
             u32 offset;
             u32 savedNextIndex;
             {
                 register u32 i asm("r12") = nextIndex;
-                register const struct AnimationFrame *animation asm("r3");
+                register const struct AnimationFrame* animation asm("r3");
 
                 {
                     u32 itemState;
@@ -1220,74 +1162,67 @@ void DrawItemShopSprites(void)
                     animation = animationTable[tableIndex];
                     offset = indexBytes;
                 }
-                if (state == 1)
-                {
-                    struct ItemShopAnimationState *iconState = &gItemShopItemIconAnimationState;
+                if (state == 1) {
+                    struct ItemShopAnimationState* iconState = &gItemShopItemIconAnimationState;
                     {
                         register u16 timer asm("r1") = iconState->animationTimer;
                         u16 frame;
                         timer++;
                         iconState->animationTimer = timer;
                         frame = iconState->animationFrame;
-                        if (animation[frame].time < timer)
-                    {
-                        iconState->animationTimer = 0;
-                        iconState->animationFrame++;
-                        if (animation[iconState->animationFrame].time == 0)
-                            iconState->animationFrame = 0;
-                    }
+                        if (animation[frame].time < timer) {
+                            iconState->animationTimer = 0;
+                            iconState->animationFrame++;
+                            if (animation[iconState->animationFrame].time == 0) {
+                                iconState->animationFrame = 0;
+                            }
+                        }
                     }
                     frameData = animation[iconState->animationFrame].oam;
-                }
-                else
-                {
+                } else {
                     frameData = animation[0].oam;
                 }
 
                 used += *frameData++;
-                if (used > 128)
+                if (used > 128) {
                     goto finish;
+                }
                 savedNextIndex = i + 1;
             }
 
-            if (slot < used)
-            {
-                register const u16 *yPosition0 asm("r10") = (const u16 *)(sUnk_872FF58 + offset);
-                register const u16 *xPosition0 asm("r9") = (const u16 *)(sUnk_872FF4C + offset);
-                register const u16 *yPosition1 asm("r12") = (const u16 *)(sUnk_872FF38 + offset);
-                const u16 *xPosition1 = (const u16 *)(sUnk_872FF24 + offset);
+            if (slot < used) {
+                register const u16* yPosition0 asm("r10") = (const u16*)(sUnk_872FF58 + offset);
+                register const u16* xPosition0 asm("r9") = (const u16*)(sUnk_872FF4C + offset);
+                register const u16* yPosition1 asm("r12") = (const u16*)(sUnk_872FF38 + offset);
+                const u16* xPosition1 = (const u16*)(sUnk_872FF24 + offset);
 
-                do
-                {
+                do {
                     register u32 yOffset asm("r0");
                     u32 xOffset;
                     register u32 attr asm("r2");
-                    OamData *destination;
+                    OamData* destination;
 
-                    if (gCurrentPassage == 0)
-                    {
+                    if (gCurrentPassage == 0) {
                         {
-                            register const u16 *yp asm("r2") = yPosition0;
+                            register const u16* yp asm("r2") = yPosition0;
                             yOffset = *yp;
                         }
                         {
-                            register const u16 *xp asm("r3") = xPosition0;
+                            register const u16* xp asm("r3") = xPosition0;
                             xOffset = *xp;
                         }
-                    }
-                    else
-                    {
-                        register const u16 *yp asm("r5") = yPosition1;
-                        const u16 *xp = xPosition1;
+                    } else {
+                        register const u16* yp asm("r5") = yPosition1;
+                        const u16* xp = xPosition1;
                         yOffset = *yp;
                         xOffset = *xp;
                     }
 
                     attr = *frameData++;
                     *rawDestination++ = attr;
-                    destination = (OamData *)((u8 *)gOamBuffer + (slot << 3));
+                    destination = (OamData*)((u8*)gOamBuffer + (slot << 3));
                     yOffset = attr + yOffset;
-                    ((u8 *)destination)[0] = (u8)yOffset;
+                    ((u8*)destination)[0] = (u8)yOffset;
 
                     attr = *frameData++;
                     *rawDestination++ = attr;
@@ -1306,30 +1241,28 @@ void DrawItemShopSprites(void)
                         register u32 byteValue asm("r1");
                         *rawDestination = value;
                         frameData++;
-                        byteValue = ((u8 *)destination)[5];
+                        byteValue = ((u8*)destination)[5];
                         value = -13;
                         value &= byteValue;
-                        ((u8 *)destination)[5] = value;
+                        ((u8*)destination)[5] = value;
                     }
                     rawDestination += 2;
                     {
                         long one = 1;
                         slot += one;
                     }
-                }
-                while (slot < used);
+                } while (slot < used);
             }
 
             {
                 u32 next = savedNextIndex;
                 nextIndex = next;
             }
-        }
-        while (nextIndex <= 9);
+        } while (nextIndex <= 9);
     }
 
     {
-        register u8 *slots asm("r2") = &gOamSlotsUsed;
+        register u8* slots asm("r2") = &gOamSlotsUsed;
         *slots = used;
     }
 finish:

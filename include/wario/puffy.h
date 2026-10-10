@@ -4,14 +4,14 @@
 #include "types.h"
 
 struct PuffyAnimationFrame {
-    const u16 *oam;
+    const u16* oam;
     u32 unk4;
     u8 time;
 };
 
 struct PuffyGraphicsFrame {
-    const u8 *data;
-    const u16 *oam;
+    const u8* data;
+    const u16* oam;
     u32 unk8;
 };
 
@@ -19,7 +19,7 @@ extern const struct PuffyAnimationFrame sPuffyTransformingAnimation[];
 extern const struct PuffyAnimationFrame sPuffyFloatingAnimation[];
 extern const struct PuffyAnimationFrame sPuffyHitCeilingAnimation[];
 extern const struct PuffyAnimationFrame sPuffyInhalingAnimation[];
-extern const struct PuffyGraphicsFrame *sPuffyGraphicsTable[];
+extern const struct PuffyGraphicsFrame* sPuffyGraphicsTable[];
 extern const u8 sPuffyPoseData[];
 extern const u8 sPuffyPalette[];
 

@@ -1,20 +1,20 @@
-#include "background_registers.h"
-#include "color_effects.h"
 #include "stage_select.h"
-#include "map_screen.h"
-#include "stage_entry.h"
-#include "stage_ejection.h"
-#include "stage_results.h"
-#include "vortex_cutscene.h"
+#include "background_registers.h"
 #include "boss_treasure_cutscene.h"
+#include "color_effects.h"
+#include "game_screen_helpers.h"
+#include "init_helpers.h"
+#include "interrupt_callbacks.h"
+#include "map_screen.h"
+#include "minigame.h"
 #include "passage_clear.h"
 #include "passage_screen.h"
-#include "sound_room.h"
-#include "minigame.h"
 #include "score.h"
-#include "game_screen_helpers.h"
-#include "interrupt_callbacks.h"
-#include "init_helpers.h"
+#include "sound_room.h"
+#include "stage_ejection.h"
+#include "stage_entry.h"
+#include "stage_results.h"
+#include "vortex_cutscene.h"
 
 extern void UpdateBossDoorOpeningDisplay(void);
 extern void UpdateBossDoorOpeningSprites(void);
@@ -29,8 +29,8 @@ extern const u32 sUnk_86391C4[][6];
 u32 StageSelectSubroutine(void)
 {
     u32 finished;
-    const struct MusicPlayer *musicPlayers;
-    const struct Song *songs;
+    const struct MusicPlayer* musicPlayers;
+    const struct Song* songs;
 
     finished = 0;
     SetStageSelectVBlankCallback();
@@ -38,11 +38,11 @@ u32 StageSelectSubroutine(void)
 
     switch (gSubGameMode) {
         case 0:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             StartMapScreenFromStageSelect();
             gSubGameMode = 1;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 1:
@@ -73,35 +73,35 @@ u32 StageSelectSubroutine(void)
             break;
 
         case 4:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             StartMapScreenAfterStageExit();
             gSubGameMode = 1;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 5:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             StartMapScreenIntroSequence();
             gSubGameMode = 1;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 6:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             StartMapScreenFinalPassageIntro();
             gSubGameMode = 1;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 7:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             StartMapScreenBossUnlockSequence();
             gSubGameMode = 1;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 8:
@@ -109,9 +109,7 @@ u32 StageSelectSubroutine(void)
             if (UpdateStageSelectFadeIn() != 0) {
                 musicPlayers = gMPlayTable;
                 songs = gSongTable;
-                m4aMPlayVolumeControl(
-                    musicPlayers[*(const u16 *)((const u8 *)songs + 0x13FC)].info,
-                    0xFFFF, 150);
+                m4aMPlayVolumeControl(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info, 0xFFFF, 150);
                 gSubGameMode = 9;
             }
             break;
@@ -149,45 +147,45 @@ u32 StageSelectSubroutine(void)
             break;
 
         case 11:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             InitializeStageEntryState();
             gSubGameMode = 8;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 12:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             InitializeStageEntryLandingState();
             gSubGameMode = 8;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 13:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             InitializeStageEntryKeyzerArrivalState();
             gSubGameMode = 8;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 14:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             InitializeStageEntryMovingLandingState();
             gSubGameMode = 8;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 15:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 4;
             gUnk_3003C58 = 0;
             InitializeVortexCutsceneFromPortal();
             gUnk_3003C34 = 0;
             gSubGameMode = 16;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 16:
@@ -236,23 +234,23 @@ u32 StageSelectSubroutine(void)
             break;
 
         case 20:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 4;
             gUnk_3003C58 = 0;
             InitializeVortexCutsceneFromPassage();
             gUnk_3003C34 = 1;
             gSubGameMode = 16;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 21:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 4;
             gUnk_3003C58 = 0;
             InitializeStageEjection();
             gUnk_3003C34 = 1;
             gSubGameMode = 22;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 22:
@@ -298,11 +296,11 @@ u32 StageSelectSubroutine(void)
             break;
 
         case 29:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             InitializePassageClear();
             gSubGameMode = 30;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 30:
@@ -324,10 +322,10 @@ u32 StageSelectSubroutine(void)
             if (UpdateStageSelectFadeOut() != 0) {
                 if (gCurrentPassage == 0) {
                     gSubGameMode = 7;
-                } else if (gCurrentCollection[1][4].keyzer != 0 &&
-                           gCurrentCollection[2][4].keyzer != 0 &&
-                           gCurrentCollection[3][4].keyzer != 0 &&
-                           gCurrentCollection[4][4].keyzer != 0) {
+                } else if (
+                    gCurrentCollection[1][4].keyzer != 0 && gCurrentCollection[2][4].keyzer != 0 &&
+                    gCurrentCollection[3][4].keyzer != 0 && gCurrentCollection[4][4].keyzer != 0
+                ) {
                     gSubGameMode = 6;
                 } else {
                     gSubGameMode = 0;
@@ -336,11 +334,11 @@ u32 StageSelectSubroutine(void)
             break;
 
         case 33:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             BeginPassageStageCursorArrival();
             gSubGameMode = 34;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 34:
@@ -348,9 +346,7 @@ u32 StageSelectSubroutine(void)
             if (UpdateStageSelectFadeIn() != 0) {
                 musicPlayers = gMPlayTable;
                 songs = gSongTable;
-                m4aMPlayVolumeControl(
-                    musicPlayers[*(const u16 *)((const u8 *)songs + 0x13FC)].info,
-                    0xFFFF, 150);
+                m4aMPlayVolumeControl(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info, 0xFFFF, 150);
                 gSubGameMode = 35;
             }
             break;
@@ -383,27 +379,27 @@ u32 StageSelectSubroutine(void)
             break;
 
         case 37:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             BeginPassageStageSwitch();
             gSubGameMode = 34;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 38:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             InitializePassageStageEntry();
             gSubGameMode = 34;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 39:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             BeginPassageScreenWindowClose();
             gSubGameMode = 34;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 40:
@@ -415,11 +411,11 @@ u32 StageSelectSubroutine(void)
             break;
 
         case 41:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             PrepareBossDoorOpeningResult();
             gSubGameMode = 42;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 42:
@@ -427,9 +423,7 @@ u32 StageSelectSubroutine(void)
             if (UpdateStageSelectFadeIn() != 0) {
                 musicPlayers = gMPlayTable;
                 songs = gSongTable;
-                m4aMPlayVolumeControl(
-                    musicPlayers[*(const u16 *)((const u8 *)songs + 0x13FC)].info,
-                    0xFFFF, 150);
+                m4aMPlayVolumeControl(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info, 0xFFFF, 150);
                 gSubGameMode = 43;
             }
             break;
@@ -468,19 +462,19 @@ u32 StageSelectSubroutine(void)
             break;
 
         case 45:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             PrepareBossDoorOpeningJewelDisplay();
             gSubGameMode = 42;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 46:
-            *(vu16 *)0x04000200 ^= 1;
+            *(vu16*)0x04000200 ^= 1;
             gColorFading.type = 2;
             InitSoundRoomScreen();
             gSubGameMode = 47;
-            *(vu16 *)0x04000200 |= 1;
+            *(vu16*)0x04000200 |= 1;
             break;
 
         case 47:
@@ -610,15 +604,15 @@ void InitializeStageSelectPaletteFade(void)
 void InitializeStageSelectBrightnessFade(void)
 {
     gBldy = 15;
-    *(vu16 *)0x04000054 = 15;
-    *(vu16 *)0x04000050 = 0x3FBF;
+    *(vu16*)0x04000054 = 15;
+    *(vu16*)0x04000050 = 0x3FBF;
 }
 
 void InitializeStageSelectFullBrightnessFade(void)
 {
     gBldy = 15;
-    *(vu16 *)0x04000054 = 15;
-    *(vu16 *)0x04000050 = 0x3FFF;
+    *(vu16*)0x04000054 = 15;
+    *(vu16*)0x04000050 = 0x3FFF;
 }
 
 void SetStageSelectVBlankCallback(void)
@@ -640,10 +634,10 @@ void SetStageSelectVBlankCallback(void)
 
 void StageSelectVBlank(void)
 {
-    vu32 *dma;
+    vu32* dma;
 
     m4aSoundVSync();
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = (u32)gOamBuffer;
     dma[1] = 0x07000000;
     dma[2] = 0x84000100;
@@ -706,15 +700,15 @@ void StageSelectVBlank(void)
 
 void StageSelectFadeVBlank(void)
 {
-    vu32 *dma;
+    vu32* dma;
 
     m4aSoundVSync();
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = (u32)gOamBuffer;
     dma[1] = 0x07000000;
     dma[2] = 0x84000100;
     dma[2];
-    *(vu16 *)0x04000054 = gBldy;
+    *(vu16*)0x04000054 = gBldy;
 
     switch (gSubGameMode) {
         case 16:
@@ -736,7 +730,7 @@ s32 LoadSelectedStageData(void)
 {
     s32 stageId;
     s32 one;
-    const u8 *roomCounts;
+    const u8* roomCounts;
 
     if (gStageEntryExitRequested == 1) {
         return 1;
@@ -770,7 +764,7 @@ no_stage:
     return 0;
 }
 
-void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination)
+void UploadTallFiveDigitNumberTiles(s32 value, const void* tiles, u32 destination)
 {
     s32 tenThousands;
     s32 thousands;
@@ -784,8 +778,8 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
     value = value % 10;
 
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + tenThousands * 32;
         dma[1] = 0x06000000 + destination;
         dma[2] = 0x80000010;
@@ -794,9 +788,9 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
         }
     }
     {
-        vu32 *dma;
+        vu32* dma;
         u32 tileOffset;
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         tileOffset = tenThousands * 32;
         tileOffset += 0x400;
         dma[0] = (u32)tiles + tileOffset;
@@ -807,8 +801,8 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + thousands * 32;
         dma[1] = 0x06000020 + destination;
         dma[2] = 0x80000010;
@@ -817,9 +811,9 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
         }
     }
     {
-        vu32 *dma;
+        vu32* dma;
         u32 tileOffset;
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         tileOffset = thousands * 32;
         tileOffset += 0x400;
         dma[0] = (u32)tiles + tileOffset;
@@ -830,8 +824,8 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + hundreds * 32;
         dma[1] = 0x06000040 + destination;
         dma[2] = 0x80000010;
@@ -840,9 +834,9 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
         }
     }
     {
-        vu32 *dma;
+        vu32* dma;
         u32 tileOffset;
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         tileOffset = hundreds * 32;
         tileOffset += 0x400;
         dma[0] = (u32)tiles + tileOffset;
@@ -853,8 +847,8 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + tens * 32;
         dma[1] = 0x06000060 + destination;
         dma[2] = 0x80000010;
@@ -863,9 +857,9 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
         }
     }
     {
-        vu32 *dma;
+        vu32* dma;
         u32 tileOffset;
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         tileOffset = tens * 32;
         tileOffset += 0x400;
         dma[0] = (u32)tiles + tileOffset;
@@ -876,8 +870,8 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + value * 32;
         dma[1] = 0x06000080 + destination;
         dma[2] = 0x80000010;
@@ -886,9 +880,9 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
         }
     }
     {
-        vu32 *dma;
+        vu32* dma;
         u32 tileOffset;
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         tileOffset = value * 32;
         tileOffset += 0x400;
         dma[0] = (u32)tiles + tileOffset;
@@ -898,7 +892,7 @@ void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destinatio
     }
 }
 
-void UploadFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination)
+void UploadFiveDigitNumberTiles(s32 value, const void* tiles, u32 destination)
 {
     s32 tenThousands;
     s32 thousands;
@@ -913,8 +907,8 @@ void UploadFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination)
     ones = value % 10;
 
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + tenThousands * 32;
         dma[1] = 0x06000000 + destination;
         dma[2] = 0x80000010;
@@ -923,8 +917,8 @@ void UploadFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination)
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + thousands * 32;
         dma[1] = 0x06000020 + destination;
         dma[2] = 0x80000010;
@@ -933,8 +927,8 @@ void UploadFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination)
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + hundreds * 32;
         dma[1] = 0x06000040 + destination;
         dma[2] = 0x80000010;
@@ -943,8 +937,8 @@ void UploadFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination)
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + tens * 32;
         dma[1] = 0x06000060 + destination;
         dma[2] = 0x80000010;
@@ -953,8 +947,8 @@ void UploadFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination)
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + ones * 32;
         dma[1] = 0x06000080 + destination;
         dma[2] = 0x80000010;
@@ -962,7 +956,7 @@ void UploadFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination)
     }
 }
 
-void DrawMinigameNumber(s32 value, const u16 *tiles, u32 destination)
+void DrawMinigameNumber(s32 value, const u16* tiles, u32 destination)
 {
     s32 hundreds;
     s32 tens;
@@ -972,8 +966,8 @@ void DrawMinigameNumber(s32 value, const u16 *tiles, u32 destination)
     value = value % 10;
 
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + hundreds * 32;
         dma[1] = 0x06000000 + destination;
         dma[2] = 0x80000010;
@@ -982,9 +976,9 @@ void DrawMinigameNumber(s32 value, const u16 *tiles, u32 destination)
         }
     }
     {
-        vu32 *dma;
+        vu32* dma;
         u32 tileOffset;
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         tileOffset = hundreds * 32;
         tileOffset += 0x400;
         dma[0] = (u32)tiles + tileOffset;
@@ -995,8 +989,8 @@ void DrawMinigameNumber(s32 value, const u16 *tiles, u32 destination)
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + tens * 32;
         dma[1] = 0x06000020 + destination;
         dma[2] = 0x80000010;
@@ -1005,9 +999,9 @@ void DrawMinigameNumber(s32 value, const u16 *tiles, u32 destination)
         }
     }
     {
-        vu32 *dma;
+        vu32* dma;
         u32 tileOffset;
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         tileOffset = tens * 32;
         tileOffset += 0x400;
         dma[0] = (u32)tiles + tileOffset;
@@ -1018,8 +1012,8 @@ void DrawMinigameNumber(s32 value, const u16 *tiles, u32 destination)
         }
     }
     {
-        vu32 *dma;
-        dma = (vu32 *)0x040000D4;
+        vu32* dma;
+        dma = (vu32*)0x040000D4;
         dma[0] = (u32)tiles + value * 32;
         dma[1] = 0x06000040 + destination;
         dma[2] = 0x80000010;
@@ -1028,9 +1022,9 @@ void DrawMinigameNumber(s32 value, const u16 *tiles, u32 destination)
         }
     }
     {
-        vu32 *dma;
+        vu32* dma;
         u32 tileOffset;
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         tileOffset = value * 32;
         tileOffset += 0x400;
         dma[0] = (u32)tiles + tileOffset;
@@ -1042,8 +1036,8 @@ void DrawMinigameNumber(s32 value, const u16 *tiles, u32 destination)
 
 void EnableAllLayersInWindows(void)
 {
-    *(vu16 *)0x04000048 = 0x3F;
-    *(vu16 *)0x0400004A = 0x3F;
+    *(vu16*)0x04000048 = 0x3F;
+    *(vu16*)0x0400004A = 0x3F;
 }
 
 void DrawStageSelectSprites(void)

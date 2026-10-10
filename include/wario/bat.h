@@ -4,14 +4,14 @@
 #include "types.h"
 
 struct BatAnimationFrame {
-    const u16 *oam;
+    const u16* oam;
     u32 unk4;
     u8 time;
 };
 
 struct BatGraphicsFrame {
-    const u8 *data;
-    const u16 *oam;
+    const u8* data;
+    const u16* oam;
     u32 unk8;
 };
 
@@ -20,7 +20,7 @@ extern const struct BatAnimationFrame sBatFlyAnimation[];
 extern const struct BatAnimationFrame sBatLandAnimation[];
 extern const struct BatAnimationFrame sBatTurnAnimation[];
 extern const struct BatAnimationFrame sBatRecoverAnimation[];
-extern const struct BatGraphicsFrame *sBatGraphicsTable[];
+extern const struct BatGraphicsFrame* sBatGraphicsTable[];
 extern const u8 sBatPoseData[];
 extern const u8 sBatPalette[];
 

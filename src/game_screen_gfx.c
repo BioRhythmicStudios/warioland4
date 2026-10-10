@@ -103,10 +103,10 @@ void GameScreenDrawWario(void)
         nextSlot += *(src++);
 
         afterimage &= 0x1F;
-        xOffset =
-            PIXELS_FROM_SUBPIXELS(gWarioAfterimageHistory.previousXPositions[afterimage]) - PIXELS_FROM_SUBPIXELS(gBg1XPosition);
-        yOffset =
-            PIXELS_FROM_SUBPIXELS(gWarioAfterimageHistory.previousYPositions[afterimage]) - PIXELS_FROM_SUBPIXELS(gBg1YPosition);
+        xOffset = PIXELS_FROM_SUBPIXELS(gWarioAfterimageHistory.previousXPositions[afterimage]) -
+                  PIXELS_FROM_SUBPIXELS(gBg1XPosition);
+        yOffset = PIXELS_FROM_SUBPIXELS(gWarioAfterimageHistory.previousYPositions[afterimage]) -
+                  PIXELS_FROM_SUBPIXELS(gBg1YPosition);
 
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);

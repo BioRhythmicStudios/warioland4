@@ -4,20 +4,20 @@
 #include "types.h"
 
 struct FrozenAnimationFrame {
-    const u16 *oam;
+    const u16* oam;
     u32 unk4;
     u8 time;
 };
 
 struct FrozenGraphicsFrame {
-    const u8 *data;
-    const u16 *oam;
+    const u8* data;
+    const u16* oam;
     u32 unk8;
 };
 
 extern const struct FrozenAnimationFrame sFrozenTransformAnimation[];
 extern const struct FrozenAnimationFrame sFrozenBonkAnimation[];
-extern const struct FrozenGraphicsFrame *sFrozenGraphicsTable[];
+extern const struct FrozenGraphicsFrame* sFrozenGraphicsTable[];
 extern const u8 sFrozenPoseData[];
 extern const u8 sFrozenPalette[];
 

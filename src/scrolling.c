@@ -1,6 +1,6 @@
 #include "scrolling.h"
-#include "global_data.h"
 #include "background_registers.h"
+#include "global_data.h"
 
 void UpdateBackgroundScrollRegisters()
 {
@@ -12,34 +12,34 @@ void UpdateBackgroundScrollRegisters()
     s16 valueY2;
     s16 valueX3;
     s16 valueY3;
-    
+
     temp_r6 = ScreenShakeUpdateY();
     temp_r0 = ScreenShakeUpdateX();
 
-    valueX1 = (((u16) gBg1XPosition >> 2) & 0x1FF);
-    valueY1 = (((u16) gBg1YPosition >> 2) & 0x1FF);
-    
+    valueX1 = (((u16)gBg1XPosition >> 2) & 0x1FF);
+    valueY1 = (((u16)gBg1YPosition >> 2) & 0x1FF);
+
     gBackgroundScroll.bg1Horizontal = valueX1;
     gBackgroundScroll.bg1Horizontal += temp_r0;
     gBackgroundScroll.bg1Vertical = valueY1;
     gBackgroundScroll.bg1Vertical += temp_r6;
 
-    valueX2 = (((u16) gBg2XPosition >> 2) & 0x1FF);
+    valueX2 = (((u16)gBg2XPosition >> 2) & 0x1FF);
     gBackgroundScroll.bg2Horizontal = valueX2;
     gBackgroundScroll.bg2Horizontal += temp_r0;
-    
-    valueY2 = (((u16) gBg2YPosition >> 2) & 0x1FF);
+
+    valueY2 = (((u16)gBg2YPosition >> 2) & 0x1FF);
     gBackgroundScroll.bg2Vertical = valueY2;
     gBackgroundScroll.bg2Vertical += temp_r6;
-    
-    gBackgroundScroll.bg0Horizontal = ((((u16) gBg0XPosition >> 2) + gBg0ScrollEffect.value) & 0x1FF) + temp_r0;
-    gBackgroundScroll.bg0Vertical = (((u16) gBg0YPosition >> 2) & 0x1FF) + temp_r6;
+
+    gBackgroundScroll.bg0Horizontal = ((((u16)gBg0XPosition >> 2) + gBg0ScrollEffect.value) & 0x1FF) + temp_r0;
+    gBackgroundScroll.bg0Vertical = (((u16)gBg0YPosition >> 2) & 0x1FF) + temp_r6;
     UpdateLayer3ScrollPosition();
     UpdateLayer3ScrollEffect();
 
-    valueX3 = (((u16) gBg3XPosition >> 2) + gLayer3ScrollEffectState.value) & 0x1FF;
-    valueY3 = (((u16) gBg3YPosition >> 2) & 0x1FF);
-    
+    valueX3 = (((u16)gBg3XPosition >> 2) + gLayer3ScrollEffectState.value) & 0x1FF;
+    valueY3 = (((u16)gBg3YPosition >> 2) & 0x1FF);
+
     gBackgroundScroll.bg3Horizontal = valueX3;
     gBackgroundScroll.bg3Vertical = valueY3;
     gBackgroundScroll.bg3Vertical += (temp_r6 >> 1);
@@ -53,32 +53,32 @@ void UpdateLayer3ScrollPosition()
     var_r2 = 0;
     var_r3 = 0;
     switch (gCurrentRoomHeader.layer3Scrolling) {
-    case 0:
-        break;
-    case 1:
-        var_r2 = 2;
-        var_r3 = 0;
-        break;
-    case 2:
-        var_r2 = 0;
-        var_r3 = 2;
-        break;
-    case 3:
-        var_r2 = 2;
-        var_r3 = 2;
-        break;
-    case 4:
-        var_r2 = 1;
-        var_r3 = 2;
-        break;
-    case 5:
-        var_r2 = 2;
-        var_r3 = 1;
-        break;
-    case 6:
-        var_r2 = 1;
-        var_r3 = 1;
-        break;
+        case 0:
+            break;
+        case 1:
+            var_r2 = 2;
+            var_r3 = 0;
+            break;
+        case 2:
+            var_r2 = 0;
+            var_r3 = 2;
+            break;
+        case 3:
+            var_r2 = 2;
+            var_r3 = 2;
+            break;
+        case 4:
+            var_r2 = 1;
+            var_r3 = 2;
+            break;
+        case 5:
+            var_r2 = 2;
+            var_r3 = 1;
+            break;
+        case 6:
+            var_r2 = 1;
+            var_r3 = 1;
+            break;
     }
 
     if (var_r2 == 0) {
@@ -105,7 +105,7 @@ void UpdateLayer3ScrollEffect()
 {
     if (gLayer3ScrollEffectState.type != 0) {
         if ((gLayer3ScrollEffectState.type == 1)) {
-            if(!(7 & gLayer3ScrollEffectState.timer)) {
+            if (!(7 & gLayer3ScrollEffectState.timer)) {
                 gLayer3ScrollEffectState.value += 1;
             }
         }
@@ -113,8 +113,7 @@ void UpdateLayer3ScrollEffect()
     }
 }
 
-typedef struct VerticalScrollingTileUpload
-{
+typedef struct VerticalScrollingTileUpload {
     u8 tileCount;
     u8 unused;
     u16 destinationBlock;
@@ -140,10 +139,10 @@ void PrepareVerticalScrollingTileUploads(s32 scrollDelta)
     s32 copiedTiles;
     u32 background;
     s32 tileCount;
-    VerticalScrollingTileUpload *nextUpload;
+    VerticalScrollingTileUpload* nextUpload;
     s32 nextLayer;
-    register VerticalScrollingTileUpload *upload asm("ip");
-    u16 *destination;
+    register VerticalScrollingTileUpload* upload asm("ip");
+    u16* destination;
 
     upload = gVerticalScrollingTileUploads;
     layerOrBackground = 0;
@@ -151,12 +150,12 @@ void PrepareVerticalScrollingTileUploads(s32 scrollDelta)
 layer_loop:
     scratch0 = 0;
     scratch1 = (u32)upload;
-    *(u8 *)scratch1 = scratch0;
+    *(u8*)scratch1 = scratch0;
 
     scratch2 = (u32)layerParams;
     asm("" : "+r"(scratch2));
     scratch0 = scratch2 + layerOrBackground;
-    scratch1 = *(u8 *)scratch0;
+    scratch1 = *(u8*)scratch0;
     scratch0 = 0x10;
     scratch0 &= scratch1;
 
@@ -164,31 +163,27 @@ layer_loop:
     nextLayer = scratch1;
     scratch2 = sizeof(*upload);
     scratch2 += (u32)upload;
-    nextUpload = (VerticalScrollingTileUpload *)scratch2;
+    nextUpload = (VerticalScrollingTileUpload*)scratch2;
 
-    if (scratch0 == 0)
+    if (scratch0 == 0) {
         goto next_layer;
+    }
 
-    if (layerOrBackground == 0)
-    {
+    if (layerOrBackground == 0) {
         scratch0 = (u32)&gBg0YPosition;
-        scratch1 = *(u16 *)scratch0;
+        scratch1 = *(u16*)scratch0;
         scratch0 = (u32)&gBg0XPosition;
-    }
-    else if (layerOrBackground == 1)
-    {
+    } else if (layerOrBackground == 1) {
         scratch0 = (u32)&gBg1YPosition;
-        scratch1 = *(u16 *)scratch0;
+        scratch1 = *(u16*)scratch0;
         scratch0 = (u32)&gBg1XPosition;
-    }
-    else
-    {
+    } else {
         scratch0 = (u32)&gBg2YPosition;
-        scratch1 = *(u16 *)scratch0;
+        scratch1 = *(u16*)scratch0;
         scratch0 = (u32)&gBg2XPosition;
     }
 
-    xPositionOrTileIndex = *(u16 *)scratch0;
+    xPositionOrTileIndex = *(u16*)scratch0;
     scratch2 = scrollDelta;
     scratch0 = scratch2 << 16;
     scratch2 = scratch0 >> 16;
@@ -203,55 +198,60 @@ layer_loop:
     nextLayer = scratch0;
     scratch1 = sizeof(*upload);
     scratch1 += (u32)upload;
-    nextUpload = (VerticalScrollingTileUpload *)scratch1;
+    nextUpload = (VerticalScrollingTileUpload*)scratch1;
 
-    if (signedRow < 0)
+    if (signedRow < 0) {
         goto next_layer;
+    }
 
     scratch1 = (u32)&gBackgroundInfo;
     scratch0 = layerOrBackground << 3;
     layerOrBackground = scratch0 + scratch1;
-    scratch0 = *(u16 *)(layerOrBackground + 6);
-    if (signedRow > (s32)scratch0)
+    scratch0 = *(u16*)(layerOrBackground + 6);
+    if (signedRow > (s32)scratch0) {
         goto next_layer;
+    }
 
     scratch1 = (u32)upload;
-    *(u16 *)(scratch1 + 4) = scratch2;
+    *(u16*)(scratch1 + 4) = scratch2;
 
     scratch0 = xPositionOrTileIndex >> 6;
     scratch0 -= 2;
     scratch0 <<= 16;
     scratch2 = scratch0 >> 16;
-    if ((s32)scratch0 < 0)
+    if ((s32)scratch0 < 0) {
         scratch2 = 0;
+    }
 
     scratch0 = (u32)upload;
-    *(u16 *)(scratch0 + 2) = scratch2;
+    *(u16*)(scratch0 + 2) = scratch2;
 
     copiedTiles = 19;
     scratch1 = 19;
     tileCount = scratch1;
-    scratch0 = *(u16 *)(layerOrBackground + 4);
-    if ((s32)scratch0 < copiedTiles)
+    scratch0 = *(u16*)(layerOrBackground + 4);
+    if ((s32)scratch0 < copiedTiles) {
         tileCount = scratch0;
+    }
 
     scratch2 = tileCount;
     asm("" : "+r"(scratch2));
     scratch2 <<= 2;
     tileCount = scratch2;
     scratch0 = (u32)upload;
-    *(u8 *)scratch0 = scratch2;
+    *(u8*)scratch0 = scratch2;
 
-    scratch0 = *(u16 *)(layerOrBackground + 4);
+    scratch0 = *(u16*)(layerOrBackground + 4);
     scratch2 = (u32)upload;
-    scratch1 = *(u16 *)(scratch2 + 4);
+    scratch1 = *(u16*)(scratch2 + 4);
     scratch0 *= scratch1;
-    scratch1 = *(u16 *)(scratch2 + 2);
+    scratch1 = *(u16*)(scratch2 + 2);
     xPositionOrTileIndex = scratch0 + scratch1;
 
     copiedTiles = 0;
-    if (copiedTiles >= tileCount)
+    if (copiedTiles >= tileCount) {
         goto next_layer;
+    }
 
     background = layerOrBackground;
     layerOrBackground = (u32)&gBackgroundTileTables;
@@ -297,37 +297,50 @@ copy_loop:
     } while (0)
 
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles < tileCount) goto copy_loop;
+    if (copiedTiles < tileCount) {
+        goto copy_loop;
+    }
 
 #undef COPY_METATILE
 next_layer:
     layerOrBackground = nextLayer;
     upload = nextUpload;
-    if ((s32)layerOrBackground <= 2)
+    if ((s32)layerOrBackground <= 2) {
         goto layer_loop;
+    }
 }
 
 void ApplyVerticalScrollingTileUploads(void)
 {
-    VerticalScrollingTileUpload *upload;
-    VerticalScrollingTileUpload *descriptor;
-    VerticalScrollingTileUpload *nextUpload;
-    register VerticalScrollingTileUpload *fieldDescriptor asm("r2");
-    register u16 *source asm("r4");
+    VerticalScrollingTileUpload* upload;
+    VerticalScrollingTileUpload* descriptor;
+    VerticalScrollingTileUpload* nextUpload;
+    register VerticalScrollingTileUpload* fieldDescriptor asm("r2");
+    register u16* source asm("r4");
     u32 sourceOffset;
     u32 firstTileOffset;
     u32 firstMask;
-    register volatile u16 *destination asm("r1");
+    register volatile u16* destination asm("r1");
     u32 vramBase;
     u32 destinationBlock;
     u8 tileCount;
@@ -347,16 +360,14 @@ outer_loop_vertical:
     tileCount = descriptor->tileCount;
     nextUploadIndex = uploadIndex + 1;
     nextUpload = descriptor + 1;
-    if (tileCount != 0)
-    {
+    if (tileCount != 0) {
         vramBase = 0x06000000 + (uploadIndex << 12);
         fieldDescriptor = upload;
         vramBase += (fieldDescriptor->destinationOffset & 0xF) << 7;
         destinationBlock = fieldDescriptor->destinationBlock;
         copiedTiles = 0;
 
-        if (copiedTiles < tileCount)
-        {
+        if (copiedTiles < tileCount) {
             {
                 register u32 constant asm("r0");
                 constant = 0xF;
@@ -375,92 +386,110 @@ outer_loop_vertical:
                 constant <<= 3;
                 rowOffset = constant;
             }
-copy_loop_vertical:
+        copy_loop_vertical:
             firstTileOffset = destinationBlock;
             firstMask = blockMask;
             firstTileOffset &= firstMask;
             tileOffset = firstTileOffset << 1;
-            if ((destinationBlock & rowBit) != 0)
+            if ((destinationBlock & rowBit) != 0) {
                 tileOffset += rowOffset;
-            destination = (volatile u16 *)((tileOffset << 1) + vramBase);
+            }
+            destination = (volatile u16*)((tileOffset << 1) + vramBase);
             sourceOffset = copiedTiles << 1;
-            source = (u16 *)upload;
+            source = (u16*)upload;
             source += 3;
-            destination[0] = *(u16 *)((u32)source + sourceOffset);
+            destination[0] = *(u16*)((u32)source + sourceOffset);
             copiedTiles++;
-            destination[1] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x20] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x21] = *(u16 *)((u32)source + (copiedTiles++ << 1));
+            destination[1] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x20] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x21] = *(u16*)((u32)source + (copiedTiles++ << 1));
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done_vertical;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done_vertical;
+            }
 
             tileOffset = (destinationBlock & blockMask) << 1;
-            if ((destinationBlock & rowBit) != 0)
+            if ((destinationBlock & rowBit) != 0) {
                 tileOffset += rowOffset;
-            destination = (volatile u16 *)((tileOffset << 1) + vramBase);
-            destination[0] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[1] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x20] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x21] = *(u16 *)((u32)source + (copiedTiles++ << 1));
+            }
+            destination = (volatile u16*)((tileOffset << 1) + vramBase);
+            destination[0] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[1] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x20] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x21] = *(u16*)((u32)source + (copiedTiles++ << 1));
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done_vertical;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done_vertical;
+            }
 
             tileOffset = (destinationBlock & blockMask) << 1;
-            if ((destinationBlock & rowBit) != 0)
+            if ((destinationBlock & rowBit) != 0) {
                 tileOffset += rowOffset;
-            destination = (volatile u16 *)((tileOffset << 1) + vramBase);
-            destination[0] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[1] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x20] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x21] = *(u16 *)((u32)source + (copiedTiles++ << 1));
+            }
+            destination = (volatile u16*)((tileOffset << 1) + vramBase);
+            destination[0] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[1] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x20] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x21] = *(u16*)((u32)source + (copiedTiles++ << 1));
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done_vertical;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done_vertical;
+            }
 
             tileOffset = (destinationBlock & blockMask) << 1;
-            if ((destinationBlock & rowBit) != 0)
+            if ((destinationBlock & rowBit) != 0) {
                 tileOffset += rowOffset;
-            destination = (volatile u16 *)((tileOffset << 1) + vramBase);
-            destination[0] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[1] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x20] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x21] = *(u16 *)((u32)source + (copiedTiles++ << 1));
+            }
+            destination = (volatile u16*)((tileOffset << 1) + vramBase);
+            destination[0] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[1] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x20] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x21] = *(u16*)((u32)source + (copiedTiles++ << 1));
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done_vertical;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done_vertical;
+            }
 
             tileOffset = (destinationBlock & blockMask) << 1;
-            if ((destinationBlock & rowBit) != 0)
+            if ((destinationBlock & rowBit) != 0) {
                 tileOffset += rowOffset;
-            destination = (volatile u16 *)((tileOffset << 1) + vramBase);
-            destination[0] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[1] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x20] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x21] = *(u16 *)((u32)source + (copiedTiles++ << 1));
+            }
+            destination = (volatile u16*)((tileOffset << 1) + vramBase);
+            destination[0] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[1] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x20] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x21] = *(u16*)((u32)source + (copiedTiles++ << 1));
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done_vertical;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done_vertical;
+            }
 
             tileOffset = (destinationBlock & blockMask) << 1;
-            if ((destinationBlock & rowBit) != 0)
+            if ((destinationBlock & rowBit) != 0) {
                 tileOffset += rowOffset;
-            destination = (volatile u16 *)((tileOffset << 1) + vramBase);
-            destination[0] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[1] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x20] = *(u16 *)((u32)source + (copiedTiles++ << 1));
-            destination[0x21] = *(u16 *)((u32)source + (copiedTiles++ << 1));
+            }
+            destination = (volatile u16*)((tileOffset << 1) + vramBase);
+            destination[0] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[1] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x20] = *(u16*)((u32)source + (copiedTiles++ << 1));
+            destination[0x21] = *(u16*)((u32)source + (copiedTiles++ << 1));
             asm("" : : "r"(source));
             destinationBlock++;
-            if (copiedTiles < tileCount) goto copy_loop_vertical;
+            if (copiedTiles < tileCount) {
+                goto copy_loop_vertical;
+            }
         }
     }
 
 descriptor_done_vertical:
     uploadIndex = nextUploadIndex;
     upload = nextUpload;
-    if (uploadIndex <= 2) goto outer_loop_vertical;
+    if (uploadIndex <= 2) {
+        goto outer_loop_vertical;
+    }
 }
 
-
-typedef struct HorizontalScrollingTileUpload
-{
+typedef struct HorizontalScrollingTileUpload {
     u8 tileCount;
     u8 unused;
     u16 destinationFlags;
@@ -486,10 +515,10 @@ void PrepareHorizontalScrollingTileUploads(s32 scrollDelta)
     s32 copiedTiles;
     u32 background;
     s32 tileCount;
-    HorizontalScrollingTileUpload *nextUpload;
+    HorizontalScrollingTileUpload* nextUpload;
     s32 nextLayer;
-    HorizontalScrollingTileUpload *upload;
-    u16 *destination;
+    HorizontalScrollingTileUpload* upload;
+    u16* destination;
 
     upload = gHorizontalScrollingTileUploads;
     layerOrBackground = 0;
@@ -497,12 +526,12 @@ void PrepareHorizontalScrollingTileUploads(s32 scrollDelta)
 layer_loop:
     scratch0 = 0;
     scratch1 = (u32)upload;
-    *(u8 *)scratch1 = scratch0;
+    *(u8*)scratch1 = scratch0;
 
     scratch2 = (u32)layerParams;
     asm("" : "+r"(scratch2));
     scratch0 = scratch2 + layerOrBackground;
-    scratch1 = *(u8 *)scratch0;
+    scratch1 = *(u8*)scratch0;
     scratch0 = 0x10;
     scratch0 &= scratch1;
 
@@ -510,31 +539,27 @@ layer_loop:
     nextLayer = scratch1;
     scratch2 = sizeof(*upload);
     scratch2 += (u32)upload;
-    nextUpload = (HorizontalScrollingTileUpload *)scratch2;
+    nextUpload = (HorizontalScrollingTileUpload*)scratch2;
 
-    if (scratch0 == 0)
+    if (scratch0 == 0) {
         goto next_layer;
+    }
 
-    if (layerOrBackground == 0)
-    {
+    if (layerOrBackground == 0) {
         scratch0 = (u32)&gBg0YPosition;
-        yPositionOrTileIndex = *(u16 *)scratch0;
+        yPositionOrTileIndex = *(u16*)scratch0;
         scratch0 = (u32)&gBg0XPosition;
-    }
-    else if (layerOrBackground == 1)
-    {
+    } else if (layerOrBackground == 1) {
         scratch0 = (u32)&gBg1YPosition;
-        yPositionOrTileIndex = *(u16 *)scratch0;
+        yPositionOrTileIndex = *(u16*)scratch0;
         scratch0 = (u32)&gBg1XPosition;
-    }
-    else
-    {
+    } else {
         scratch0 = (u32)&gBg2YPosition;
-        yPositionOrTileIndex = *(u16 *)scratch0;
+        yPositionOrTileIndex = *(u16*)scratch0;
         scratch0 = (u32)&gBg2XPosition;
     }
 
-    scratch1 = *(u16 *)scratch0;
+    scratch1 = *(u16*)scratch0;
     scratch2 = scrollDelta;
     scratch0 = scratch2 << 16;
     scratch2 = scratch0 >> 16;
@@ -549,55 +574,60 @@ layer_loop:
     nextLayer = scratch0;
     scratch1 = sizeof(*upload);
     scratch1 += (u32)upload;
-    nextUpload = (HorizontalScrollingTileUpload *)scratch1;
+    nextUpload = (HorizontalScrollingTileUpload*)scratch1;
 
-    if (signedColumn < 0)
+    if (signedColumn < 0) {
         goto next_layer;
+    }
 
     scratch1 = (u32)&gBackgroundInfo;
     scratch0 = layerOrBackground << 3;
     layerOrBackground = scratch0 + scratch1;
-    scratch0 = *(u16 *)(layerOrBackground + 4);
-    if (signedColumn > (s32)scratch0)
+    scratch0 = *(u16*)(layerOrBackground + 4);
+    if (signedColumn > (s32)scratch0) {
         goto next_layer;
+    }
 
     scratch1 = (u32)upload;
-    *(u16 *)(scratch1 + 2) = scratch2;
+    *(u16*)(scratch1 + 2) = scratch2;
 
     scratch0 = yPositionOrTileIndex >> 6;
     scratch0 -= 2;
     scratch0 <<= 16;
     scratch2 = scratch0 >> 16;
-    if ((s32)scratch0 < 0)
+    if ((s32)scratch0 < 0) {
         scratch2 = 0;
+    }
 
     scratch0 = (u32)upload;
-    *(u16 *)(scratch0 + 4) = scratch2;
+    *(u16*)(scratch0 + 4) = scratch2;
 
     copiedTiles = 14;
     scratch1 = 14;
     tileCount = scratch1;
-    scratch0 = *(u16 *)(layerOrBackground + 6);
-    if ((s32)scratch0 < copiedTiles)
+    scratch0 = *(u16*)(layerOrBackground + 6);
+    if ((s32)scratch0 < copiedTiles) {
         tileCount = scratch0;
+    }
 
     scratch2 = tileCount;
     asm("" : "+r"(scratch2));
     scratch2 <<= 2;
     tileCount = scratch2;
     scratch0 = (u32)upload;
-    *(u8 *)scratch0 = scratch2;
+    *(u8*)scratch0 = scratch2;
 
-    scratch0 = *(u16 *)(layerOrBackground + 4);
+    scratch0 = *(u16*)(layerOrBackground + 4);
     scratch2 = (u32)upload;
-    scratch1 = *(u16 *)(scratch2 + 4);
+    scratch1 = *(u16*)(scratch2 + 4);
     scratch0 *= scratch1;
-    scratch1 = *(u16 *)(scratch2 + 2);
+    scratch1 = *(u16*)(scratch2 + 2);
     yPositionOrTileIndex = scratch0 + scratch1;
 
     copiedTiles = 0;
-    if (copiedTiles >= tileCount)
+    if (copiedTiles >= tileCount) {
         goto next_layer;
+    }
 
     background = layerOrBackground;
     layerOrBackground = (u32)&gBackgroundTileTables;
@@ -644,32 +674,45 @@ copy_loop:
     } while (0)
 
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles >= tileCount) goto next_layer;
+    if (copiedTiles >= tileCount) {
+        goto next_layer;
+    }
     COPY_METATILE();
-    if (copiedTiles < tileCount) goto copy_loop;
+    if (copiedTiles < tileCount) {
+        goto copy_loop;
+    }
 
 #undef COPY_METATILE
 next_layer:
     layerOrBackground = nextLayer;
     upload = nextUpload;
-    if ((s32)layerOrBackground <= 2)
+    if ((s32)layerOrBackground <= 2) {
         goto layer_loop;
+    }
 }
 
 void ApplyHorizontalScrollingTileUploads(void)
 {
-    HorizontalScrollingTileUpload *upload;
-    HorizontalScrollingTileUpload *nextUpload;
-    u16 *source;
-    register volatile u16 *destination asm("r0");
+    HorizontalScrollingTileUpload* upload;
+    HorizontalScrollingTileUpload* nextUpload;
+    u16* source;
+    register volatile u16* destination asm("r0");
     u32 vramBase;
     u16 destinationFlags;
     u32 destinationBlock;
@@ -686,14 +729,12 @@ outer_loop:
     tileCount = upload->tileCount;
     nextUploadIndex = uploadIndex + 1;
     nextUpload = upload + 1;
-    if (tileCount != 0)
-    {
+    if (tileCount != 0) {
         vramBase = 0x06000000 + (uploadIndex << 12);
         destinationFlags = upload->destinationFlags;
         asm("" : "+r"(destinationFlags));
 
-        if ((destinationFlags & 0x10) != 0)
-        {
+        if ((destinationFlags & 0x10) != 0) {
             vramBase = 0x06000800 + (uploadIndex << 12);
         }
 
@@ -701,87 +742,98 @@ outer_loop:
         destinationBlock = upload->destinationBlock;
         copiedTiles = 0;
 
-        if (copiedTiles < tileCount)
-        {
+        if (copiedTiles < tileCount) {
             mask = 0xF;
             source = upload->tileData;
 
-copy_loop:
-            destination = (volatile u16 *)(((destinationBlock & mask) << 7) + vramBase);
+        copy_loop:
+            destination = (volatile u16*)(((destinationBlock & mask) << 7) + vramBase);
             destination[0] = *source++;
             destination[1] = *source++;
             destination[0x20] = *source++;
             destination[0x21] = *source++;
             copiedTiles += 4;
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done;
+            }
 
-            destination = (volatile u16 *)(((destinationBlock & mask) << 7) + vramBase);
+            destination = (volatile u16*)(((destinationBlock & mask) << 7) + vramBase);
             destination[0] = *source++;
             destination[1] = *source++;
             destination[0x20] = *source++;
             destination[0x21] = *source++;
             copiedTiles += 4;
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done;
+            }
 
-            destination = (volatile u16 *)(((destinationBlock & mask) << 7) + vramBase);
+            destination = (volatile u16*)(((destinationBlock & mask) << 7) + vramBase);
             destination[0] = *source++;
             destination[1] = *source++;
             destination[0x20] = *source++;
             destination[0x21] = *source++;
             copiedTiles += 4;
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done;
+            }
 
-            destination = (volatile u16 *)(((destinationBlock & mask) << 7) + vramBase);
+            destination = (volatile u16*)(((destinationBlock & mask) << 7) + vramBase);
             destination[0] = *source++;
             destination[1] = *source++;
             destination[0x20] = *source++;
             destination[0x21] = *source++;
             copiedTiles += 4;
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done;
+            }
 
-            destination = (volatile u16 *)(((destinationBlock & mask) << 7) + vramBase);
+            destination = (volatile u16*)(((destinationBlock & mask) << 7) + vramBase);
             destination[0] = *source++;
             destination[1] = *source++;
             destination[0x20] = *source++;
             destination[0x21] = *source++;
             copiedTiles += 4;
             destinationBlock++;
-            if (copiedTiles >= tileCount) goto descriptor_done;
+            if (copiedTiles >= tileCount) {
+                goto descriptor_done;
+            }
 
-            destination = (volatile u16 *)(((destinationBlock & mask) << 7) + vramBase);
+            destination = (volatile u16*)(((destinationBlock & mask) << 7) + vramBase);
             destination[0] = *source++;
             destination[1] = *source++;
             destination[0x20] = *source++;
             destination[0x21] = *source++;
             copiedTiles += 4;
             destinationBlock++;
-            if (copiedTiles < tileCount) goto copy_loop;
+            if (copiedTiles < tileCount) {
+                goto copy_loop;
+            }
         }
     }
 
 descriptor_done:
     uploadIndex = nextUploadIndex;
     upload = nextUpload;
-    if (uploadIndex <= 2) goto outer_loop;
+    if (uploadIndex <= 2) {
+        goto outer_loop;
+    }
 }
 void WaitForDma3Transfer(void)
 {
-    volatile u32 *dma;
+    volatile u32* dma;
     register u32 enableMask asm("r1");
     s32 status;
 
-    dma = (volatile u32 *)0x040000D4;
+    dma = (volatile u32*)0x040000D4;
     status = (s32)dma[2];
     enableMask = 0x80;
     enableMask <<= 24;
-    if (status < 0)
-    {
-        do
-        {
+    if (status < 0) {
+        do {
             status = dma[2] & enableMask;
         } while (status != 0);
     }

@@ -1,8 +1,8 @@
 #ifndef SPRITE_AI_SHOPKEEPER_H
 #define SPRITE_AI_SHOPKEEPER_H
 
-#include "types.h"
 #include "oam.h"
+#include "types.h"
 
 void BeginBossTreasureChestDespawn(void);
 void BeginShopkeeperExit(void);
@@ -54,7 +54,7 @@ void SelectBugleNoteAnimation(void);
 void SetupShopkeeperSelectedItem(void);
 void ShopItemFollowShopkeeper(void);
 void ShopkeeperFollowWario(void);
-void ShopkeeperUpdateGraphicsScript(const u8 *script);
+void ShopkeeperUpdateGraphicsScript(const u8* script);
 void ShrinkShopkeeperSmile(void);
 void SpawnBossTreasureRewards(void);
 void SpawnShopkeeperTransformationItem(void);
@@ -247,6 +247,6 @@ extern const u16 sBugleNoteAffineAngleTable[];
 extern const u16 sShopkeeperItemTiles[];
 extern const s16 sSpriteGravityVelocityTable[];
 extern const u16 sSpriteAffineScaleTable[][2];
-extern const void *sShopkeeperGraphicsFramePointers[];
+extern const void* sShopkeeperGraphicsFramePointers[];
 
 #endif /* SPRITE_AI_SHOPKEEPER_H */

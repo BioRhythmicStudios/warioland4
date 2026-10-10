@@ -4,7 +4,6 @@
 #include "game_screen_helpers.h"
 #include "main.h"
 
-
 struct BgClipStack {
     u32 bg0Attribute;
     u32 attributes[2];
@@ -14,12 +13,12 @@ struct BgClipStack {
 
 s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
 {
-    register struct BackgroundCollisionData *collision;
-    register struct BackgroundCollisionData *collisionInit asm("r1");
-    struct BackgroundInfo *background;
-    struct BackgroundInfo *backgroundInit;
-    register struct RoomHeader *roomHeader asm("sl");
-    register struct RoomHeader *roomHeaderInit asm("r3");
+    register struct BackgroundCollisionData* collision;
+    register struct BackgroundCollisionData* collisionInit asm("r1");
+    struct BackgroundInfo* background;
+    struct BackgroundInfo* backgroundInit;
+    register struct RoomHeader* roomHeader asm("sl");
+    register struct RoomHeader* roomHeaderInit asm("r3");
     u32 tileY;
     register u32 tileX asm("ip");
     u32 attribute;
@@ -32,9 +31,9 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
     register s32 limit asm("r0");
     u32 parameter;
     struct BgClipStack stack;
-    const u16 *attributeTable;
-    struct BackgroundInfo *layer;
-    u32 *destination;
+    const u16* attributeTable;
+    struct BackgroundInfo* layer;
+    u32* destination;
     s32 layerIndex;
     u32 value;
     s32 waterCollision;
@@ -53,9 +52,9 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
     collision = collisionInit;
     background = backgroundInit;
 
-    if (stack.yPosition >= limit ||
-        stack.xPosition >= (backgroundInit->bg1Width << 6))
+    if (stack.yPosition >= limit || stack.xPosition >= (backgroundInit->bg1Width << 6)) {
         return 0;
+    }
 
     tileY = shiftedY >> 22;
     tileX = shiftedX >> 22;
@@ -63,14 +62,13 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
     asm("" : "=r"(roomHeader) : "0"(roomHeaderInit));
     attributeTable = gBackgroundTileTables.attributes;
     destination = stack.attributes;
-    layer = (struct BackgroundInfo *)&background->pBg1Data;
+    layer = (struct BackgroundInfo*)&background->pBg1Data;
     layerIndex = 1;
-    do
-    {
+    do {
         register u32 temporary asm("r0");
         u32 product;
         register u32 tileIndex asm("r2");
-        const u16 *tileMap;
+        const u16* tileMap;
 
         temporary = layer->bg0Width;
         product = tileY;
@@ -81,88 +79,82 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
         tileMap = layer->pBg0Data;
         temporary = tileIndex << 1;
         temporary += (u32)tileMap;
-        tileIndex = *(u16 *)temporary;
+        tileIndex = *(u16*)temporary;
         temporary = tileIndex << 1;
         temporary += (u32)attributeTable;
-        temporary = *(u16 *)temporary;
+        temporary = *(u16*)temporary;
         *destination++ = temporary;
-        layer = (struct BackgroundInfo *)((u8 *)layer + 8);
+        layer = (struct BackgroundInfo*)((u8*)layer + 8);
         layerIndex--;
-    }
-    while (layerIndex >= 0);
+    } while (layerIndex >= 0);
 
     collisionType = 0;
     attribute = stack.attributes[0];
-    if (attribute == 106)
+    if (attribute == 106) {
         collisionType = 5;
-    else if (attribute == 107)
+    } else if (attribute == 107) {
         collisionType = 6;
-    else if (attribute == 104)
+    } else if (attribute == 104) {
         collisionType = 11;
-    else if (attribute == 4)
+    } else if (attribute == 4) {
         collisionType = 7;
-    else if (attribute == 5)
+    } else if (attribute == 5) {
         collisionType = 8;
-    else if (attribute == 6)
+    } else if (attribute == 6) {
         collisionType = 9;
-    else if (attribute == 7)
+    } else if (attribute == 7) {
         collisionType = 10;
-    else if (attribute == 121)
+    } else if (attribute == 121) {
         collisionType = 2;
-    else if (attribute == 123)
+    } else if (attribute == 123) {
         collisionType = 4;
-    else if (attribute == 2)
+    } else if (attribute == 2) {
         collisionType = 1;
-    else if (attribute == 122)
+    } else if (attribute == 122) {
         collisionType = 3;
-    else if ((u32)(attribute - 89) <= 4)
+    } else if ((u32)(attribute - 89) <= 4) {
         collisionType = 11;
+    }
 
-    if (collisionType == 0)
-    {
-        register struct RoomHeader *headerTemporary asm("r3");
+    if (collisionType == 0) {
+        register struct RoomHeader* headerTemporary asm("r3");
 
         headerTemporary = roomHeader;
-        if (headerTemporary->bg2Param != 16)
+        if (headerTemporary->bg2Param != 16) {
             goto primary_collision_done;
+        }
         value = stack.attributes[1];
-        if (value == 2)
+        if (value == 2) {
             collisionType = 1;
-        else if (value == 121)
+        } else if (value == 121) {
             collisionType = 2;
-        else if (value == 123)
+        } else if (value == 123) {
             collisionType = 4;
-        else if (value == 104)
+        } else if (value == 104) {
             collisionType = 11;
-        else if (value == 122)
+        } else if (value == 122) {
             collisionType = 3;
-        else if ((u32)(value - 56) <= 7)
-        {
+        } else if ((u32)(value - 56) <= 7) {
             overrideType = value - 55;
-            if (overrideType <= 3)
-            {
+            if (overrideType <= 3) {
                 u32 switchState;
-                u8 *switchPointer;
+                u8* switchPointer;
 
-                switchPointer = (u8 *)overrideType;
+                switchPointer = (u8*)overrideType;
                 switchPointer += (u32)gSwitchStates;
                 switchState = *switchPointer;
-                if (switchState == SWITCH_STATE_OFF || switchState == SWITCH_STATE_SWITCHING_OFF)
+                if (switchState == SWITCH_STATE_OFF || switchState == SWITCH_STATE_SWITCHING_OFF) {
                     collisionType = 1;
-            }
-            else if ((u8)(gSwitchStates[value - 59] - 1) <= 1)
-            {
+                }
+            } else if ((u8)(gSwitchStates[value - 59] - 1) <= 1) {
                 collisionType = 1;
             }
-        }
-        else
-        {
+        } else {
             u32 rangeValue;
 
             rangeValue = value;
             rangeValue -= 152;
-            if (rangeValue <= 3)
-            {
+            if (rangeValue <= 3) {
                 register u32 switchState asm("r1");
                 u32 maskedState;
 
@@ -171,13 +163,11 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
                 one = 1;
                 maskedState = one;
                 maskedState &= switchState;
-                if (maskedState == 0)
-                {
-                    if (overrideType <= 1)
+                if (maskedState == 0) {
+                    if (overrideType <= 1) {
                         collisionType = value - 150;
-                }
-                else if (overrideType > 1)
-                {
+                    }
+                } else if (overrideType > 1) {
                     overrideType &= one;
                     collisionType = overrideType + 2;
                 }
@@ -190,34 +180,37 @@ primary_collision_done:
     waterCollision = 0;
     overrideType = 0;
     {
-        struct RoomHeader *headerTemporary;
+        struct RoomHeader* headerTemporary;
 
         headerTemporary = roomHeader;
         parameter = headerTemporary->bgPriorityAlpha;
-        if (parameter <= 7)
+        if (parameter <= 7) {
             goto check_primary_water_attribute;
+        }
         parameter = headerTemporary->bg0Param;
-        if (parameter <= 16)
+        if (parameter <= 16) {
             goto process_bg0_collision;
+        }
     }
 
-check_primary_water_attribute:
-    {
-        u32 rangeValue;
+check_primary_water_attribute: {
+    u32 rangeValue;
 
-        rangeValue = attribute;
-        rangeValue -= 76;
-        if (rangeValue > 12)
-            goto secondary_collision_done;
-        waterCollision = 1;
+    rangeValue = attribute;
+    rangeValue -= 76;
+    if (rangeValue > 12) {
         goto secondary_collision_done;
     }
+    waterCollision = 1;
+    goto secondary_collision_done;
+}
 
 process_bg0_collision:
-    if (parameter == 0)
+    if (parameter == 0) {
         goto secondary_collision_done;
+    }
     {
-        register struct BackgroundInfo *backgroundTemporary asm("r1");
+        register struct BackgroundInfo* backgroundTemporary asm("r1");
         s32 bound;
         register s32 coordinate asm("r3");
         u32 width;
@@ -226,63 +219,66 @@ process_bg0_collision:
         bound = backgroundTemporary->bg0Height;
         bound <<= 6;
         coordinate = stack.yPosition;
-        if (coordinate >= bound)
+        if (coordinate >= bound) {
             goto bg0_out_of_bounds;
+        }
         width = backgroundTemporary->bg0Width;
         bound = width;
         bound <<= 6;
         coordinate = stack.xPosition;
-        if (coordinate < bound)
+        if (coordinate < bound) {
             goto bg0_in_bounds;
+        }
 
-bg0_out_of_bounds:
+    bg0_out_of_bounds:
         return collision->primaryType << 16;
 
-bg0_in_bounds:
-        {
-            register u32 tileIndex asm("r0");
-            struct BackgroundInfo *backgroundReload;
-            const u16 *tileMap;
-            struct BackgroundTileTables *tables;
-            const u16 *attributesReload;
-            u32 bgAttribute;
+    bg0_in_bounds: {
+        register u32 tileIndex asm("r0");
+        struct BackgroundInfo* backgroundReload;
+        const u16* tileMap;
+        struct BackgroundTileTables* tables;
+        const u16* attributesReload;
+        u32 bgAttribute;
 
-            tileIndex = tileY;
-            tileIndex *= width;
-            tileIndex += tileX;
-            backgroundReload = background;
-            tileMap = backgroundReload->pBg0Data;
-            tileIndex <<= 1;
-            tileIndex += (u32)tileMap;
-            tileIndex = *(u16 *)tileIndex;
-            tables = &gBackgroundTileTables;
-            attributesReload = tables->attributes;
-            tileIndex <<= 1;
-            tileIndex += (u32)attributesReload;
-            bgAttribute = *(u16 *)tileIndex;
-            stack.bg0Attribute = bgAttribute;
-            parameter = bgAttribute;
-            parameter -= 76;
-            if (parameter > 12)
-                goto secondary_collision_done;
-            waterCollision = 1;
-            if (bgAttribute == 81)
-                overrideType = 12;
-            else if (bgAttribute == 82)
-                overrideType = 13;
-            else if (bgAttribute == 83)
-                overrideType = 14;
-            else if (bgAttribute == 84)
-                overrideType = 15;
-            else if (bgAttribute == 85)
-                overrideType = 16;
-            else if (bgAttribute == 86)
-                overrideType = 17;
-            else if (bgAttribute == 87)
-                overrideType = 18;
-            else if (bgAttribute == 88)
-                overrideType = 19;
+        tileIndex = tileY;
+        tileIndex *= width;
+        tileIndex += tileX;
+        backgroundReload = background;
+        tileMap = backgroundReload->pBg0Data;
+        tileIndex <<= 1;
+        tileIndex += (u32)tileMap;
+        tileIndex = *(u16*)tileIndex;
+        tables = &gBackgroundTileTables;
+        attributesReload = tables->attributes;
+        tileIndex <<= 1;
+        tileIndex += (u32)attributesReload;
+        bgAttribute = *(u16*)tileIndex;
+        stack.bg0Attribute = bgAttribute;
+        parameter = bgAttribute;
+        parameter -= 76;
+        if (parameter > 12) {
+            goto secondary_collision_done;
         }
+        waterCollision = 1;
+        if (bgAttribute == 81) {
+            overrideType = 12;
+        } else if (bgAttribute == 82) {
+            overrideType = 13;
+        } else if (bgAttribute == 83) {
+            overrideType = 14;
+        } else if (bgAttribute == 84) {
+            overrideType = 15;
+        } else if (bgAttribute == 85) {
+            overrideType = 16;
+        } else if (bgAttribute == 86) {
+            overrideType = 17;
+        } else if (bgAttribute == 87) {
+            overrideType = 18;
+        } else if (bgAttribute == 88) {
+            overrideType = 19;
+        }
+    }
 
         {
             u32 switchState;
@@ -291,27 +287,27 @@ bg0_in_bounds:
             switchState = gSwitchStates[4];
             maskedState = 1;
             maskedState &= switchState;
-            if (maskedState == 0)
-            {
+            if (maskedState == 0) {
                 parameter = stack.bg0Attribute;
-                if (parameter == 76)
+                if (parameter == 76) {
                     overrideType = 12;
-                else if (parameter == 77)
+                } else if (parameter == 77) {
                     overrideType = 17;
-                else if (parameter == 78)
+                } else if (parameter == 78) {
                     overrideType = 18;
-                else if (parameter == 79)
+                } else if (parameter == 79) {
                     overrideType = 19;
+                }
             }
         }
     }
 
 secondary_collision_done:
 
-    if (waterCollision == 1)
-    {
-        if (overrideType != 0 || collision->primaryType != 1)
+    if (waterCollision == 1) {
+        if (overrideType != 0 || collision->primaryType != 1) {
             collision->primaryType = overrideType;
+        }
     }
     collision->waterType = waterCollision;
     return (collision->primaryType << 16) | collision->waterType;
@@ -322,13 +318,13 @@ s32 GetBg2CollisionTypeAtTile(s32 y, s32 x)
     register u32 yCoord asm("r5");
     u32 xCoord;
     u16 xSaved;
-    struct BackgroundCollisionData *collision;
-    struct BackgroundCollisionData *collisionTemp;
-    register struct BackgroundInfo *background asm("r4");
+    struct BackgroundCollisionData* collision;
+    struct BackgroundCollisionData* collisionTemp;
+    register struct BackgroundInfo* background asm("r4");
     s32 result;
     s32 zero;
     u32 indexTemporary;
-    register const u16 *tileMap asm("r1");
+    register const u16* tileMap asm("r1");
     u16 tile;
 
     y = (u16)y;
@@ -343,8 +339,9 @@ s32 GetBg2CollisionTypeAtTile(s32 y, s32 x)
     background = &gBackgroundInfo;
     collision = collisionTemp;
 
-    if (yCoord >= background->bg1Height || xCoord >= background->bg1Width)
+    if (yCoord >= background->bg1Height || xCoord >= background->bg1Width) {
         return 0;
+    }
 
     indexTemporary = background->bg2Width;
     indexTemporary *= yCoord;
@@ -352,41 +349,33 @@ s32 GetBg2CollisionTypeAtTile(s32 y, s32 x)
     tileMap = background->pBg2Data;
     indexTemporary = xCoord << 1;
     indexTemporary += (u32)tileMap;
-    tile = *(u16 *)indexTemporary;
+    tile = *(u16*)indexTemporary;
     tile = gBackgroundTileTables.attributes[tile];
 
-    if ((u32)(tile - 96) <= 7)
-    {
+    if ((u32)(tile - 96) <= 7) {
         result = 1;
-        if (tile != 96)
-        {
+        if (tile != 96) {
             result = 2;
-            if (tile != 97)
-            {
+            if (tile != 97) {
                 result = 3;
-                if (tile != 98)
-                {
+                if (tile != 98) {
                     result = 4;
-                    if (tile != 99)
-                    {
+                    if (tile != 99) {
                         result = 5;
-                        if (tile != 100)
-                        {
+                        if (tile != 100) {
                             result = 6;
-                            if (tile != 101)
-                            {
+                            if (tile != 101) {
                                 result = 8;
-                                if (tile == 102)
+                                if (tile == 102) {
                                     result = 7;
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
-    else if ((u32)(tile - 132) <= 10)
-    {
+    } else if ((u32)(tile - 132) <= 10) {
         result = tile - 123;
     }
 
@@ -400,8 +389,8 @@ s32 TryTriggerRoomTransitionAtTile(s32 y, s32 x)
     u32 yCoord;
     u32 xCoord;
     s32 result;
-    const u8 *entry;
-    s16 *modeState;
+    const u8* entry;
+    s16* modeState;
 
     temporary = y;
     asm("" : "+r"(temporary));
@@ -410,32 +399,31 @@ s32 TryTriggerRoomTransitionAtTile(s32 y, s32 x)
     xCoord = (u16)x;
     result = 0;
     {
-        register s16 *modePointer asm("r1");
+        register s16* modePointer asm("r1");
         u16 offset;
 
         modePointer = &gSubGameMode;
         offset = 0;
-        temporary = *(s16 *)((u8 *)modePointer + offset);
+        temporary = *(s16*)((u8*)modePointer + offset);
         modeState = modePointer;
     }
 
-    if (temporary != 2)
+    if (temporary != 2) {
         return y;
+    }
 
-    entry = (const u8 *)sRoomStartDataTables[gStageRoomTableIndex];
-    while (entry[0] != 0)
-    {
-        if (entry[0] == 2 && entry[1] == gCurrentRoom &&
-            entry[2] <= xCoord && xCoord <= entry[3] &&
-            entry[4] <= yCoord && yCoord <= entry[5])
-        {
+    entry = (const u8*)sRoomStartDataTables[gStageRoomTableIndex];
+    while (entry[0] != 0) {
+        if (entry[0] == 2 && entry[1] == gCurrentRoom && entry[2] <= xCoord && xCoord <= entry[3] &&
+            entry[4] <= yCoord && yCoord <= entry[5]) {
             gUnk_3000025 = entry[6];
             *modeState = 3;
             SetRoomTransitionTileValues(0);
             ApplyRoomTransitionTileOffset(0);
             StartRoomTransitionFade(2);
-            if (gUnk_3000025 == 0)
+            if (gUnk_3000025 == 0) {
                 gStageExitType = 6;
+            }
             result = 1;
             break;
         }
@@ -447,42 +435,37 @@ s32 TryTriggerRoomTransitionAtTile(s32 y, s32 x)
 
 void CheckRoomTransitionAtPosition(u16 y, u16 x)
 {
-    const u8 *entry;
+    const u8* entry;
     u16 tileY;
     u16 tileX;
 
-    if (gSubGameMode != 2)
+    if (gSubGameMode != 2) {
         return;
+    }
 
     tileY = y >> 6;
     tileX = x >> 6;
-    entry = (const u8 *)sRoomStartDataTables[gStageRoomTableIndex];
-    while (entry[0] != 0)
-    {
+    entry = (const u8*)sRoomStartDataTables[gStageRoomTableIndex];
+    while (entry[0] != 0) {
         s32 fadeMusic;
 
         fadeMusic = 0;
-        if (entry[0] != 1 && entry[0] != 3 && entry[0] != 4)
-        {
-            if (entry[0] != 5)
-            {
+        if (entry[0] != 1 && entry[0] != 3 && entry[0] != 4) {
+            if (entry[0] != 5) {
                 entry += 12;
                 continue;
             }
             fadeMusic = 1;
         }
 
-        if (entry[1] == gCurrentRoom &&
-            entry[2] <= tileX && tileX <= entry[3] &&
-            entry[4] <= tileY && tileY <= entry[5])
-        {
+        if (entry[1] == gCurrentRoom && entry[2] <= tileX && tileX <= entry[3] && entry[4] <= tileY &&
+            tileY <= entry[5]) {
             gUnk_3000025 = entry[6];
             gSubGameMode = 3;
             SetRoomTransitionTileValues(0);
             ApplyRoomTransitionTileOffset(0);
             StartRoomTransitionFade(entry[0]);
-            if (fadeMusic != 0)
-            {
+            if (fadeMusic != 0) {
                 FadeOutMusicForPause();
                 gUnk_3000C37 = 1;
             }
@@ -495,29 +478,28 @@ void CheckRoomTransitionAtPosition(u16 y, u16 x)
 
 void ApplyRoomTransitionTileOffset(u8 value)
 {
-    struct BackgroundInfo *background;
-    struct BackgroundInfo *widthBackground;
-    u16 *loadedMap;
+    struct BackgroundInfo* background;
+    struct BackgroundInfo* widthBackground;
+    u16* loadedMap;
     s32 firstIndex;
     register s32 secondIndex asm("r4");
     register s32 temporary asm("r0");
-    u16 *data;
-    u16 *map;
+    u16* data;
+    u16* map;
     u16 tile;
     s32 count;
 
-    if (gRoomTransitionTileDataCount == 0)
+    if (gRoomTransitionTileDataCount == 0) {
         return;
+    }
 
     count = gRoomTransitionTileDataCount;
-    if (count != 0)
-    {
+    if (count != 0) {
         background = &gBackgroundInfo;
         loadedMap = background->pBg1Data;
         map = loadedMap;
-        data = (u16 *)0x02039F80 + count;
-        do
-        {
+        data = (u16*)0x02039F80 + count;
+        do {
             s32 i;
 
             data--;
@@ -531,8 +513,7 @@ void ApplyRoomTransitionTileOffset(u8 value)
             secondIndex = (u16)temporary;
             tile += value;
             i = 1;
-            do
-            {
+            do {
                 map[firstIndex] = tile;
                 map[secondIndex] = tile + 4;
                 temporary = tile + 2;
@@ -542,40 +523,37 @@ void ApplyRoomTransitionTileOffset(u8 value)
                 temporary = secondIndex + 1;
                 secondIndex = (u16)temporary;
                 i--;
-            }
-            while (i >= 0);
-        }
-        while (count != 0);
+            } while (i >= 0);
+        } while (count != 0);
     }
 
-    if (value == 0)
+    if (value == 0) {
         gRoomTransitionTileDataCount = 0;
+    }
 }
 
 void SetRoomTransitionTileValues(s32 value)
 {
     u16 tileValue;
-    const u16 *data;
-    struct BackgroundInfo *background;
+    const u16* data;
+    struct BackgroundInfo* background;
     s32 count;
     u32 mask;
     u32 descriptor;
     u32 packed;
     u32 index;
     u32 width;
-    u16 *map;
+    u16* map;
 
     tileValue = (u16)value;
-    data = (const u16 *)0x02039F00;
+    data = (const u16*)0x02039F00;
     background = &gBackgroundInfo;
     count = 63;
     mask = 0xFF;
-    do
-    {
+    do {
         descriptor = *data;
         packed = descriptor << 16;
-        if (packed != 0)
-        {
+        if (packed != 0) {
             width = background->bg1Width;
             index = mask;
             index &= descriptor;
@@ -587,28 +565,22 @@ void SetRoomTransitionTileValues(s32 value)
         }
         data++;
         count--;
-    }
-    while (count >= 0);
+    } while (count >= 0);
 }
 
 void StartRoomTransitionFade(u8 type)
 {
-    if (type == 1 || type == 5)
-    {
+    if (type == 1 || type == 5) {
         gWindow.content = 0;
         gColorFading.type = 5;
-    }
-    else if (type == 4)
-    {
+    } else if (type == 4) {
         gColorFading.progress = 0;
         gColorFading.type = 2;
         BackupPalettesForColorFade();
         gSubGameMode = 6;
         gSpriteAiDropTimer = 0;
         gStageExitType = 0x80;
-    }
-    else
-    {
+    } else {
         gColorFading.progress = 0;
         gColorFading.type = 2;
         BackupPalettesForColorFade();

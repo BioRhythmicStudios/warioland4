@@ -3,30 +3,36 @@
 void SetBgTileColor(s32 x, s32 y, s32 color)
 {
     s32 offset;
-    u16 *dst;
+    u16* dst;
     s32 mode;
 
     color = (u16)color;
     mode = gVideoMode;
 
-    if (mode == 4) goto mode4;
-    if (mode > 4) goto modeDefault;
-    if (mode != 3) goto modeDefault;
+    if (mode == 4) {
+        goto mode4;
+    }
+    if (mode > 4) {
+        goto modeDefault;
+    }
+    if (mode != 3) {
+        goto modeDefault;
+    }
 
     offset = (y * 0x1E0);
     y = x * 2;
     offset += y;
-    dst = (u16 *)(offset + 0x06000000);
+    dst = (u16*)(offset + 0x06000000);
     *dst = color;
     return;
 
 mode4:
     if (gVideoPage == 0) {
         offset = (y * 0xF0) + x;
-        dst = (u16 *)(offset + 0x06000000);
+        dst = (u16*)(offset + 0x06000000);
     } else {
         offset = (y * 0xF0) + x;
-        dst = (u16 *)(offset + 0x0600A000);
+        dst = (u16*)(offset + 0x0600A000);
     }
     *dst = (*dst & 0xFF00) | color;
     return;
@@ -36,10 +42,10 @@ modeDefault:
         offset = y * 0x140;
         y = x * 2;
         offset += y;
-        dst = (u16 *)(offset + 0x06000000);
+        dst = (u16*)(offset + 0x06000000);
     } else {
         offset = (y * 0x140) + x;
-        dst = (u16 *)(offset + 0x0600A000);
+        dst = (u16*)(offset + 0x0600A000);
     }
     *dst = color;
 }

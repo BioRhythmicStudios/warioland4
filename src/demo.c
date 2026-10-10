@@ -10,8 +10,8 @@
 #include "wario.h"
 
 struct DemoDmaRegisters {
-    const void *source;
-    void *destination;
+    const void* source;
+    void* destination;
     vu32 control;
 };
 
@@ -35,23 +35,23 @@ extern const u32 sUnk_86391C4[][6];
 void SetupDemo(void)
 {
     u32 demoIndex;
-    u8 *passage;
-    register u8 *stage asm("r9");
-    register u8 *addressLoad asm("r2");
-    const u8 *configurations;
+    u8* passage;
+    register u8* stage asm("r9");
+    register u8* addressLoad asm("r2");
+    const u8* configurations;
     u32 doubledIndex;
-    const struct DemoConfiguration *configuration;
+    const struct DemoConfiguration* configuration;
     int stageValue;
-    s8 *stageId;
-    register const u8 *data asm("r4");
+    s8* stageId;
+    register const u8* data asm("r4");
     u32 zero;
-    u8 *roomCount;
+    u8* roomCount;
     u32 stageOffset;
     u32 passageOffset;
-    const u8 *field;
-    register u8 *bossData asm("r2");
+    const u8* field;
+    register u8* bossData asm("r2");
     s32 bossOffset;
-    u32 *collectionBase;
+    u32* collectionBase;
     u32 collectionOffset;
 
     demoIndex = sDemoOrder[gUnk_3000020];
@@ -60,10 +60,10 @@ void SetupDemo(void)
 
     addressLoad = &gCurrentPassage;
     passage = addressLoad;
-    configurations = (const u8 *)sDemoConfigurations;
+    configurations = (const u8*)sDemoConfigurations;
     doubledIndex = demoIndex << 1;
-    configuration = (const struct DemoConfiguration *)((doubledIndex + demoIndex) << 2);
-    configuration = (const struct DemoConfiguration *)((u32)configuration + (u32)configurations);
+    configuration = (const struct DemoConfiguration*)((doubledIndex + demoIndex) << 2);
+    configuration = (const struct DemoConfiguration*)((u32)configuration + (u32)configurations);
     *addressLoad = configuration->passage;
 
     addressLoad = &gCurrentStageNumber;
@@ -73,12 +73,12 @@ void SetupDemo(void)
     gUnk_3000025 = configuration->room;
 
     stageId = &gCurrentStageID;
-    data = (const u8 *)sUnk_86391C4;
+    data = (const u8*)sUnk_86391C4;
     stageOffset = *addressLoad << 2;
     passageOffset = *passage * 24;
     stageOffset += passageOffset;
     stageOffset += (u32)data;
-    *stageId = *(const u32 *)stageOffset;
+    *stageId = *(const u32*)stageOffset;
 
     roomCount = &gStageRoomTableIndex;
     data = sStageRoomCounts;
@@ -88,14 +88,14 @@ void SetupDemo(void)
     gGameMusicState.songId = configuration->songId;
 
     if (stageValue == 4) {
-        bossData = (u8 *)gStageTimerDigits;
+        bossData = (u8*)gStageTimerDigits;
         bossOffset = *stageId;
         bossOffset *= 12;
         field = data;
         field += 8;
         {
-            u8 *bossEntry;
-            bossEntry = (u8 *)bossOffset;
+            u8* bossEntry;
+            bossEntry = (u8*)bossOffset;
             bossEntry += (u32)field;
             bossData[0] = *bossEntry;
         }
@@ -104,8 +104,8 @@ void SetupDemo(void)
         bossOffset *= 12;
         field = data + 7;
         {
-            u8 *bossEntry;
-            bossEntry = (u8 *)bossOffset;
+            u8* bossEntry;
+            bossEntry = (u8*)bossOffset;
             bossEntry += (u32)field;
             bossData[1] = *bossEntry;
         }
@@ -114,8 +114,8 @@ void SetupDemo(void)
         bossOffset *= 12;
         field = data + 6;
         {
-            u8 *bossEntry;
-            bossEntry = (u8 *)bossOffset;
+            u8* bossEntry;
+            bossEntry = (u8*)bossOffset;
             bossEntry += (u32)field;
             bossData[2] = *bossEntry;
         }
@@ -126,35 +126,35 @@ void SetupDemo(void)
     gTimerState = zero;
     gSwitchPressed = zero;
     gStageEntryPauseMenuDisabled = zero;
-    collectionBase = (u32 *)gCurrentCollection;
+    collectionBase = (u32*)gCurrentCollection;
     addressLoad = stage;
     collectionOffset = *addressLoad << 2;
     passageOffset = *passage * 24;
     collectionOffset += passageOffset;
     collectionOffset += (u32)collectionBase;
     addressLoad = 0;
-    *(u32 *)collectionOffset = (u32)addressLoad;
+    *(u32*)collectionOffset = (u32)addressLoad;
 
     if (gDemoState == DEMO_STATE_PLAYBACK) {
-        volatile struct DemoDmaRegisters *dma;
+        volatile struct DemoDmaRegisters* dma;
         u32 pointerOffset;
         u32 control;
-        const u16 *counts;
-        const u16 *const *inputTable;
+        const u16* counts;
+        const u16* const* inputTable;
 
-        dma = (volatile struct DemoDmaRegisters *)0x040000D4;
+        dma = (volatile struct DemoDmaRegisters*)0x040000D4;
         inputTable = sDemoInputStreams;
         pointerOffset = demoIndex << 2;
-        dma->source = *(const u16 *const *)(pointerOffset + (u32)inputTable);
+        dma->source = *(const u16* const*)(pointerOffset + (u32)inputTable);
         dma->destination = gDemoInputs;
         counts = sDemoInputDmaWordCounts;
-        counts = (const u16 *)((u32)doubledIndex + (u32)counts);
+        counts = (const u16*)((u32)doubledIndex + (u32)counts);
         control = *counts >> 1;
         control |= 0x80000000;
         dma->control = control;
         dma->control;
 
-        dma->source = *(const u16 *const *)((const u8 *)sDemoInputLengthStreams + pointerOffset);
+        dma->source = *(const u16* const*)((const u8*)sDemoInputLengthStreams + pointerOffset);
         dma->destination = gDemoInputLengths;
         dma->control = control;
         dma->control;
@@ -168,9 +168,9 @@ void SetupDemo(void)
 void StopDemo(void)
 {
     u32 demoIndex;
-    struct WarioData *wario;
-    const struct DemoConfiguration *configurations;
-    const struct DemoConfiguration *configuration;
+    struct WarioData* wario;
+    const struct DemoConfiguration* configurations;
+    const struct DemoConfiguration* configuration;
 
     gUnk_3000020 &= 0x7F;
     demoIndex = sDemoOrder[gUnk_3000020];
@@ -178,8 +178,8 @@ void StopDemo(void)
     if (gUnk_3000025 != 0) {
         wario = &gWarioData;
         configurations = sDemoConfigurations;
-        configuration = (const struct DemoConfiguration *)(demoIndex * sizeof(*configuration));
-        configuration = (const struct DemoConfiguration *)((u32)configuration + (u32)configurations);
+        configuration = (const struct DemoConfiguration*)(demoIndex * sizeof(*configuration));
+        configuration = (const struct DemoConfiguration*)((u32)configuration + (u32)configurations);
         wario->xPosition = configuration->warioX;
         wario->yPosition = configuration->warioY;
     }
@@ -204,10 +204,10 @@ u32 AdvanceDemo(void)
     u32 wrapped;
     u32 zero;
 
-    vu16 *ime;
+    vu16* ime;
 
     wrapped = 0;
-    ime = (vu16 *)0x04000208;
+    ime = (vu16*)0x04000208;
     zero = 0;
     *ime = wrapped;
     REG_DISPSTAT &= 0xFFEF;
@@ -217,17 +217,17 @@ u32 AdvanceDemo(void)
     m4aMPlayAllStop();
 
     if (gDemoState == DEMO_STATE_RECORDING) {
-        volatile struct DemoDmaRegisters *dma;
+        volatile struct DemoDmaRegisters* dma;
         u32 control;
 
-        dma = (volatile struct DemoDmaRegisters *)0x040000D4;
+        dma = (volatile struct DemoDmaRegisters*)0x040000D4;
         dma->source = gDemoInputs;
-        dma->destination = (void *)0x02038C00;
+        dma->destination = (void*)0x02038C00;
         control = 0x80000100;
         dma->control = control;
         dma->control;
         dma->source = gDemoInputLengths;
-        dma->destination = (void *)0x02038E00;
+        dma->destination = (void*)0x02038E00;
         dma->control = control;
         dma->control;
         func_8001000();

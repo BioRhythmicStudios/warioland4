@@ -1,38 +1,34 @@
-#include "global_data.h"
-#include "compiler.h"
+#include "background_registers.h"
 #include "color_effects.h"
-#include "sound.h"
-#include "scrolling.h"
+#include "compiler.h"
 #include "game_screen_helpers.h"
+#include "global_data.h"
 #include "hblank.h"
 #include "main.h"
 #include "score.h"
-#include "background_registers.h"
+#include "scrolling.h"
+#include "sound.h"
 #include "wario.h"
 
-
-struct GrayscaleWeights
-{
+struct GrayscaleWeights {
     s32 red;
     s32 green;
     s32 blue;
 };
 
-struct PaletteFadeLoopState
-{
+struct PaletteFadeLoopState {
     s32 nextBank;
     s32 count;
 };
 
-struct PaletteBufferPair
-{
-    u16 *dst;
-    u16 *srcB;
+struct PaletteBufferPair {
+    u16* dst;
+    u16* srcB;
 };
 
 typedef u16 (*ColorBlendFunction)(u32, u32, u32, u32);
 
-void *memcpy(void *destination, const void *source, unsigned long size);
+void* memcpy(void* destination, const void* source, unsigned long size);
 
 extern const struct GrayscaleWeights sGrayscaleWeights;
 extern ColorBlendFunction sColorBlendFunctionTable[];
@@ -50,10 +46,10 @@ void BackupPalettesForColorFade(void)
 
 void BackupPalettesToSecondaryBuffers(void)
 {
-    vu32 *dma;
+    vu32* dma;
     u32 control;
 
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = 0x05000000;
     dma[1] = 0x02020400;
     control = 0x80000100;
@@ -67,10 +63,10 @@ void BackupPalettesToSecondaryBuffers(void)
 
 void BackupPalettesToPrimaryBuffers(void)
 {
-    vu32 *dma;
+    vu32* dma;
     u32 control;
 
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = 0x05000000;
     dma[1] = 0x02020000;
     control = 0x80000100;
@@ -84,10 +80,10 @@ void BackupPalettesToPrimaryBuffers(void)
 
 void CopySecondaryPalettesToPrimaryBuffers(void)
 {
-    vu32 *dma;
+    vu32* dma;
     u32 control;
 
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = 0x02020400;
     dma[1] = 0x02020000;
     control = 0x80000100;
@@ -101,10 +97,10 @@ void CopySecondaryPalettesToPrimaryBuffers(void)
 
 void CopyAlternatePalettesToPrimaryBuffers(void)
 {
-    vu32 *dma;
+    vu32* dma;
     u32 control;
 
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = 0x02020800;
     dma[1] = 0x02020000;
     control = 0x80000100;
@@ -118,10 +114,10 @@ void CopyAlternatePalettesToPrimaryBuffers(void)
 
 void CopyAlternateBgAndSecondaryObjPalettesToPrimaryBuffers(void)
 {
-    vu32 *dma;
+    vu32* dma;
     u32 control;
 
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = 0x02020800;
     dma[1] = 0x02020000;
     control = 0x80000100;
@@ -139,19 +135,18 @@ void BuildGrayscaleBgPaletteBuffer(void)
     s32 redWeight;
     s32 greenWeight;
     s32 blueWeight;
-    u16 *destination;
-    const u16 *source;
+    u16* destination;
+    const u16* source;
     s32 remaining;
 
     weights = sGrayscaleWeights;
-    destination = (u16 *)0x02020800;
-    source = (const u16 *)0x02020400;
+    destination = (u16*)0x02020800;
+    source = (const u16*)0x02020400;
     redWeight = weights.red;
     greenWeight = weights.green;
     blueWeight = weights.blue;
     remaining = 255;
-    do
-    {
+    do {
         u32 color;
         s32 red;
         register s32 green asm("r2");
@@ -190,8 +185,9 @@ void BuildGrayscaleBgPaletteBuffer(void)
             value += addend;
         }
         value /= 3;
-        if (value > 31)
+        if (value > 31) {
             value = 31;
+        }
         blue = 31;
         blue &= value;
         value = blue << 5;
@@ -211,19 +207,17 @@ void BuildGrayscaleBgPaletteBuffer(void)
 
 void UploadColorFadePalettes(void)
 {
-    struct ColorFading *fade;
+    struct ColorFading* fade;
     u32 flags;
-    vu32 *dma;
+    vu32* dma;
     register u32 value asm("r0");
 
     fade = &gColorFading;
     flags = fade->uploadFlags;
-    if (flags != 0)
-    {
+    if (flags != 0) {
         value = flags & 1;
-        if (value != 0)
-        {
-            dma = (vu32 *)0x040000D4;
+        if (value != 0) {
+            dma = (vu32*)0x040000D4;
             dma[0] = 0x02020000;
             dma[1] = 0x05000000;
             dma[2] = 0x80000100;
@@ -233,9 +227,8 @@ void UploadColorFadePalettes(void)
         }
         flags = fade->uploadFlags;
         value = flags & 2;
-        if (value != 0)
-        {
-            dma = (vu32 *)0x040000D4;
+        if (value != 0) {
+            dma = (vu32*)0x040000D4;
             dma[0] = 0x02020200;
             dma[1] = 0x05000200;
             dma[2] = 0x80000100;
@@ -248,19 +241,17 @@ void UploadColorFadePalettes(void)
 
 void ColorFadingProcess(void)
 {
-    u8 *fade;
+    u8* fade;
     u32 flags;
-    vu32 *dmaSmall;
+    vu32* dmaSmall;
     register u32 value asm("r0");
 
-    fade = (u8 *)&gColorFading;
+    fade = (u8*)&gColorFading;
     flags = fade[4];
-    if (flags != 0)
-    {
+    if (flags != 0) {
         value = flags & 1;
-        if (value != 0)
-        {
-            dmaSmall = (vu32 *)0x040000D4;
+        if (value != 0) {
+            dmaSmall = (vu32*)0x040000D4;
             dmaSmall[0] = 0x02020000;
             value = 160;
             value <<= 19;
@@ -273,9 +264,8 @@ void ColorFadingProcess(void)
 
         flags = fade[4];
         value = flags & 2;
-        if (value != 0)
-        {
-            dmaSmall = (vu32 *)0x040000D4;
+        if (value != 0) {
+            dmaSmall = (vu32*)0x040000D4;
             dmaSmall[0] = 0x02020200;
             dmaSmall[1] = 0x05000200;
             dmaSmall[2] = 0x80000100;
@@ -283,23 +273,19 @@ void ColorFadingProcess(void)
             value = flags & 0xFD;
             fade[4] = value;
         }
-    }
-    else
-    {
-        u8 *timer;
+    } else {
+        u8* timer;
         register u32 timerFlags asm("r3");
-        register vu32 *dma asm("r2");
+        register vu32* dma asm("r2");
         register u32 timerValue asm("r0");
         u32 base;
 
         timer = gBossDefeatTimer;
         timerFlags = timer[4];
-        if (timerFlags != 0)
-        {
+        if (timerFlags != 0) {
             timerValue = timerFlags & 2;
-            if (timerValue != 0)
-            {
-                dma = (vu32 *)0x040000D4;
+            if (timerValue != 0) {
+                dma = (vu32*)0x040000D4;
                 timerValue = timer[1] << 5;
                 base = 0x02020E00;
                 dma[0] = timerValue + base;
@@ -314,17 +300,13 @@ void ColorFadingProcess(void)
                 timerValue = 0xFD;
                 goto clear_timer_flag;
             }
-        }
-        else
-        {
+        } else {
             timer = gGoldenDivaRoomTimer;
             timerFlags = timer[4];
-            if (timerFlags != 0)
-            {
+            if (timerFlags != 0) {
                 timerValue = timerFlags & 1;
-                if (timerValue != 0)
-                {
-                    dma = (vu32 *)0x040000D4;
+                if (timerValue != 0) {
+                    dma = (vu32*)0x040000D4;
                     timerValue = timer[1] << 5;
                     base = 0x02020C00;
                     dma[0] = timerValue + base;
@@ -338,7 +320,7 @@ void ColorFadingProcess(void)
                     dma[2] = timerValue;
                     dma[2];
                     timerValue = 0xFE;
-clear_timer_flag:
+                clear_timer_flag:
                     timerValue &= timerFlags;
                     timer[4] = timerValue;
                 }
@@ -349,20 +331,18 @@ clear_timer_flag:
 
 void UploadBossColorFadePalettes(void)
 {
-    u8 *timer;
+    u8* timer;
     u32 flags;
-    register vu32 *dma asm("r2");
+    register vu32* dma asm("r2");
     register u32 value asm("r0");
     u32 base;
 
     timer = gBossDefeatTimer;
     flags = timer[4];
-    if (flags != 0)
-    {
+    if (flags != 0) {
         value = flags & 2;
-        if (value != 0)
-        {
-            dma = (vu32 *)0x040000D4;
+        if (value != 0) {
+            dma = (vu32*)0x040000D4;
             value = timer[1] << 5;
             base = 0x02020E00;
             dma[0] = value + base;
@@ -377,17 +357,13 @@ void UploadBossColorFadePalettes(void)
             value = flags & 0xFD;
             timer[4] = value;
         }
-    }
-    else
-    {
+    } else {
         timer = gGoldenDivaRoomTimer;
         flags = timer[4];
-        if (flags != 0)
-        {
+        if (flags != 0) {
             value = flags & 1;
-            if (value != 0)
-            {
-                dma = (vu32 *)0x040000D4;
+            if (value != 0) {
+                dma = (vu32*)0x040000D4;
                 value = timer[1] << 5;
                 base = 0x02020C00;
                 dma[0] = value + base;
@@ -411,9 +387,9 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
     register u32 mode asm("r9");
     register u32 amount asm("r4");
     u32 bank;
-    register struct ColorFading *fade asm("sl");
-    register u16 *destination asm("r8");
-    register u16 *source asm("r6");
+    register struct ColorFading* fade asm("sl");
+    register u16* destination asm("r8");
+    register u16* source asm("r6");
     volatile struct PaletteFadeLoopState state;
 
     mode = (u8)arg0;
@@ -421,19 +397,17 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
     bank = 0;
     fade = &gColorFading;
 
-    do
-    {
-        if (bank == 0)
-        {
-            register struct ColorFading *fadeLow asm("r3");
+    do {
+        if (bank == 0) {
+            register struct ColorFading* fadeLow asm("r3");
             u32 flags;
             u32 test;
-            u16 *sourceInit;
+            u16* sourceInit;
 
             {
-                register u16 *destinationInit asm("r1");
+                register u16* destinationInit asm("r1");
 
-                destinationInit = (u16 *)0x02020000;
+                destinationInit = (u16*)0x02020000;
                 COMPILER_BARRIER(destinationInit);
                 destination = destinationInit;
             }
@@ -441,33 +415,29 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
             flags = fadeLow->sourceFlags;
             test = 1;
             test &= flags;
-            sourceInit = (u16 *)0x02020400;
+            sourceInit = (u16*)0x02020400;
             source = sourceInit;
-            if (test != 0)
-            {
-                sourceInit = (u16 *)0x02020800;
+            if (test != 0) {
+                sourceInit = (u16*)0x02020800;
                 source = sourceInit;
             }
-        }
-        else
-        {
-            register u16 *destinationInit asm("r7");
-            struct ColorFading *fadeLow;
+        } else {
+            register u16* destinationInit asm("r7");
+            struct ColorFading* fadeLow;
             u32 flags;
             u32 test;
-            u16 *sourceInit;
+            u16* sourceInit;
 
-            destinationInit = (u16 *)0x02020200;
+            destinationInit = (u16*)0x02020200;
             destination = destinationInit;
             fadeLow = fade;
             flags = fadeLow->sourceFlags;
             test = 2;
             test &= flags;
-            sourceInit = (u16 *)0x02020600;
+            sourceInit = (u16*)0x02020600;
             source = sourceInit;
-            if (test != 0)
-            {
-                sourceInit = (u16 *)0x02020A00;
+            if (test != 0) {
+                sourceInit = (u16*)0x02020A00;
                 source = sourceInit;
             }
         }
@@ -480,7 +450,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
             register s32 white asm("ip");
             register s32 maximum asm("r5");
             register s32 countInit asm("r2");
-            register struct ColorFading *fadeInner;
+            register struct ColorFading* fadeInner;
 
             whiteInit = 31;
             COMPILER_BARRIER(whiteInit);
@@ -489,8 +459,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
             countInit = 255;
             state.count = countInit;
 
-            do
-            {
+            do {
                 register u32 color asm("r1");
                 register u32 red asm("r2");
                 register u32 green asm("r3");
@@ -513,13 +482,11 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
                 fadeInner = fade;
                 type = fadeInner->type;
                 COMPILER_BARRIER_INPUT(fadeInner);
-                if (type == 1)
-                {
+                if (type == 1) {
                     u32 modeLow;
 
                     modeLow = mode;
-                    if (modeLow == 0)
-                    {
+                    if (modeLow == 0) {
                         s32 whiteRed;
                         s32 whiteGreen;
                         register s32 whiteBlue asm("r7");
@@ -543,9 +510,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
                         temporary >>= 5;
                         whiteBlue = white;
                         temporary = whiteBlue - temporary;
-                    }
-                    else
-                    {
+                    } else {
                         temporary = maximum - red;
                         temporary *= amount;
                         temporary >>= 5;
@@ -563,14 +528,11 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
                         temporary >>= 5;
                         temporary = color + temporary;
                     }
-                }
-                else
-                {
+                } else {
                     u32 modeLow;
 
                     modeLow = mode;
-                    if (modeLow == 0)
-                    {
+                    if (modeLow == 0) {
                         temporary = red;
                         temporary *= amount;
                         temporary >>= 5;
@@ -584,9 +546,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
                         temporary = color;
                         temporary *= amount;
                         temporary >>= 5;
-                    }
-                    else
-                    {
+                    } else {
                         temporary = red;
                         temporary *= amount;
                         temporary >>= 5;
@@ -614,7 +574,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
                 red |= temporary;
 
                 {
-                    register u16 *destinationLow asm("r1");
+                    register u16* destinationLow asm("r1");
 
                     destinationLow = destination;
                     *destinationLow = red;
@@ -628,10 +588,11 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
                     count--;
                     state.count = count;
                     increment = 2;
-                    destination = (u16 *)((u8 *)destination + increment);
+                    destination = (u16*)((u8*)destination + increment);
                     source++;
-                    if (count < 0)
+                    if (count < 0) {
                         break;
+                    }
                 }
             } while (1);
         }
@@ -648,7 +609,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
 
     {
         u32 value;
-        register struct ColorFading *fadeLow asm("r1");
+        register struct ColorFading* fadeLow asm("r1");
 
         value = 3;
         fadeLow = &gColorFading;
@@ -659,7 +620,7 @@ void ApplyPaletteFade(u32 arg0, u32 arg1)
 u32 UpdatePaletteInterpolation(u32 arg0, u32 arg1)
 {
     u32 paletteSet;
-    register struct ColorFading *fade asm("r9");
+    register struct ColorFading* fade asm("r9");
     register s32 step asm("ip");
     register s32 interval asm("r8");
     volatile struct PaletteBufferPair pointers;
@@ -668,17 +629,16 @@ u32 UpdatePaletteInterpolation(u32 arg0, u32 arg1)
 
     {
         u32 rawSpeed;
-        struct ColorFading *fadeAddress;
+        struct ColorFading* fadeAddress;
         u32 pending;
 
         rawSpeed = (u8)arg1;
         fadeAddress = &gColorFading;
         pending = fadeAddress->interpolationPending;
         fade = fadeAddress;
-        if (pending != 0)
-        {
+        if (pending != 0) {
             u32 zero;
-            register struct ColorFading *fadeLow asm("r1");
+            register struct ColorFading* fadeLow asm("r1");
 
             zero = 0;
             fadeLow = fade;
@@ -689,11 +649,12 @@ u32 UpdatePaletteInterpolation(u32 arg0, u32 arg1)
         }
 
         {
-            register struct ColorFading *fadeLow asm("r1");
+            register struct ColorFading* fadeLow asm("r1");
 
             fadeLow = fade;
-            if (fadeLow->progress == 32)
+            if (fadeLow->progress == 32) {
                 return 1;
+            }
         }
 
         {
@@ -701,8 +662,9 @@ u32 UpdatePaletteInterpolation(u32 arg0, u32 arg1)
 
             signedSpeed = (s8)rawSpeed;
             step = signedSpeed;
-            if (signedSpeed >= 0)
+            if (signedSpeed >= 0) {
                 goto nonnegative_speed;
+            }
         }
     }
 
@@ -735,23 +697,23 @@ nonnegative_speed:
         step = one;
     }
 
-speed_ready:
-    {
-        register struct ColorFading *fadeLow asm("r2");
-        u32 timer;
+speed_ready: {
+    register struct ColorFading* fadeLow asm("r2");
+    u32 timer;
 
-        fadeLow = fade;
-        timer = fadeLow->timer;
-        timer++;
-        fadeLow->timer = timer;
-        timer = fadeLow->timer;
-        if ((s32)timer < interval)
-            return 0;
+    fadeLow = fade;
+    timer = fadeLow->timer;
+    timer++;
+    fadeLow->timer = timer;
+    timer = fadeLow->timer;
+    if ((s32)timer < interval) {
+        return 0;
     }
+}
 
     {
         register u32 zero asm("r0");
-        struct ColorFading *fadeLow;
+        struct ColorFading* fadeLow;
         u32 level;
 
         zero = 0;
@@ -761,39 +723,37 @@ speed_ready:
         level += step;
         fadeLow->progress = level;
         level = (u8)level;
-        if (level > 32)
+        if (level > 32) {
             fadeLow->progress = 32;
+        }
     }
 
     {
-        register struct ColorFading *fadeLow asm("r2");
+        register struct ColorFading* fadeLow asm("r2");
         u32 factor;
-        register u16 *srcA asm("sl");
+        register u16* srcA asm("sl");
         s32 count;
 
         fadeLow = fade;
         factor = fadeLow->progress;
-        pointers.dst = (u16 *)0x02020000;
+        pointers.dst = (u16*)0x02020000;
 
-        if (paletteSet == 0)
-        {
-            register u16 *srcAInit asm("r1");
-            register u16 *srcBInit asm("r2");
+        if (paletteSet == 0) {
+            register u16* srcAInit asm("r1");
+            register u16* srcBInit asm("r2");
 
-            srcAInit = (u16 *)0x02020400;
+            srcAInit = (u16*)0x02020400;
             COMPILER_BARRIER(srcAInit);
             srcA = srcAInit;
-            srcBInit = (u16 *)0x02020800;
+            srcBInit = (u16*)0x02020800;
             pointers.srcB = srcBInit;
-        }
-        else
-        {
-            u16 *srcBInit;
-            u16 *srcAInit;
+        } else {
+            u16* srcBInit;
+            u16* srcAInit;
 
-            srcBInit = (u16 *)0x02020400;
+            srcBInit = (u16*)0x02020400;
             pointers.srcB = srcBInit;
-            srcAInit = (u16 *)0x02020800;
+            srcAInit = (u16*)0x02020800;
             srcA = srcAInit;
         }
 
@@ -804,8 +764,7 @@ speed_ready:
             count = countInit;
         }
 
-        do
-        {
+        do {
             {
                 u16 color;
                 u32 redA;
@@ -819,7 +778,7 @@ speed_ready:
                 u32 redOut;
                 u32 greenOut;
                 register u32 blueOut asm("r2");
-                register u16 *srcB asm("r2");
+                register u16* srcB asm("r2");
 
                 color = *srcA;
                 redA = 31;
@@ -846,8 +805,7 @@ speed_ready:
                 bits &= color;
                 blueB = bits >> 10;
 
-                if (redB > redA)
-                {
+                if (redB > redA) {
                     u32 multiplier;
 
                     temp = redB - redA;
@@ -856,9 +814,7 @@ speed_ready:
                     temp = multiplier;
                     temp >>= 5;
                     temp = redA + temp;
-                }
-                else
-                {
+                } else {
                     u32 multiplier;
 
                     temp = redA - redB;
@@ -870,8 +826,7 @@ speed_ready:
                 }
                 redOut = (u8)temp;
 
-                if (greenB > greenA)
-                {
+                if (greenB > greenA) {
                     u32 multiplier;
 
                     temp = greenB - greenA;
@@ -880,9 +835,7 @@ speed_ready:
                     temp = multiplier;
                     temp >>= 5;
                     temp = greenA + temp;
-                }
-                else
-                {
+                } else {
                     u32 multiplier;
 
                     temp = greenA - greenB;
@@ -894,8 +847,7 @@ speed_ready:
                 }
                 greenOut = (u8)temp;
 
-                if (blueB > blueA)
-                {
+                if (blueB > blueA) {
                     u32 multiplier;
 
                     temp = blueB - blueA;
@@ -904,9 +856,7 @@ speed_ready:
                     temp = multiplier;
                     temp >>= 5;
                     temp = blueA + temp;
-                }
-                else
-                {
+                } else {
                     u32 multiplier;
 
                     temp = blueA - blueB;
@@ -924,27 +874,28 @@ speed_ready:
                 temp = blueOut << 10;
                 redOut |= temp;
                 temp = (s32)pointers.dst;
-                *(u16 *)temp = redOut;
+                *(u16*)temp = redOut;
 
                 redOut = 1;
                 redOut = -redOut;
                 count += redOut;
                 temp += 2;
-                pointers.dst = (u16 *)temp;
+                pointers.dst = (u16*)temp;
                 blueOut = 2;
-                srcA = (u16 *)((u8 *)srcA + blueOut);
+                srcA = (u16*)((u8*)srcA + blueOut);
                 pointers.srcB++;
                 redOut = count;
                 COMPILER_BARRIER(redOut);
-                if ((s32)redOut < 0)
+                if ((s32)redOut < 0) {
                     break;
+                }
             }
         } while (1);
     }
 
     {
         u32 one;
-        register struct ColorFading *fadeLow asm("r2");
+        register struct ColorFading* fadeLow asm("r2");
 
         one = 1;
         fadeLow = fade;
@@ -958,7 +909,7 @@ static const u16 sPaletteInterpolationAlignment __attribute__((section(".text"))
 void ConvertObjPaletteBankToGrayscale(u8 arg0)
 {
     register u32 paletteIndex asm("r6");
-    register u16 *palette asm("r4");
+    register u16* palette asm("r4");
     register s32 colorIndex asm("r5");
     register u32 r7Value;
 
@@ -969,13 +920,11 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
 
         offset = paletteIndex << 5;
         base = 0x05000200;
-        palette = (u16 *)(offset + base);
+        palette = (u16*)(offset + base);
     }
     colorIndex = paletteIndex << 4;
-    if (colorIndex <= 0xFF)
-    {
-        do
-        {
+    if (colorIndex <= 0xFF) {
+        do {
             u32 color;
             register s32 red asm("r0");
             register s32 green asm("r3");
@@ -1002,8 +951,7 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
             red += green;
             red += color;
             gray = red / 3;
-            if (gray > 0x1F)
-            {
+            if (gray > 0x1F) {
                 gray = 0x1F;
             }
             red = gray << 10;
@@ -1017,12 +965,12 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
     }
 
     {
-        vu32 *dma;
+        vu32* dma;
         register u32 offset asm("r1");
         u32 base;
         register u32 value asm("r0");
 
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         offset = paletteIndex << 5;
         base = 0x05000200;
         value = offset + base;
@@ -1044,21 +992,22 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
 void LoadBossSpriteGraphics(u32 arg0, u32 arg1, u32 arg2)
 {
     register u32 value asm("r0");
-    u8 *state;
+    u8* state;
     register u32 paletteOffset asm("r2");
     u32 type;
     s32 mode;
     u32 palette;
     u32 count;
     u32 copyBack;
-    register vu32 *dma asm("r1");
-    u16 *dst;
+    register vu32* dma asm("r1");
+    u16* dst;
 
     type = (u8)arg0;
     palette = (u8)arg1;
     count = (u8)arg2;
-    if (type == 0)
+    if (type == 0) {
         return;
+    }
 
     state = gBossDefeatTimer;
     value = 0;
@@ -1079,7 +1028,7 @@ void LoadBossSpriteGraphics(u32 arg0, u32 arg1, u32 arg2)
 
     copyBack = 0;
     if (gSubGameMode == 2 || gSubGameMode == 6) {
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         paletteOffset = palette << 5;
         type = 0x05000200;
         value = paletteOffset + type;
@@ -1093,7 +1042,7 @@ void LoadBossSpriteGraphics(u32 arg0, u32 arg1, u32 arg2)
         dma[2] = value;
         value = dma[2];
     } else {
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         paletteOffset = palette << 5;
         type = 0x02020600;
         value = paletteOffset + type;
@@ -1111,7 +1060,7 @@ void LoadBossSpriteGraphics(u32 arg0, u32 arg1, u32 arg2)
 
     if (mode == 1) {
         mode = 0x05000200;
-        dst = (u16 *)(paletteOffset + mode);
+        dst = (u16*)(paletteOffset + mode);
         if (type != 0) {
             value = 0x7FFF;
             COMPILER_BARRIER(value);
@@ -1125,12 +1074,13 @@ void LoadBossSpriteGraphics(u32 arg0, u32 arg1, u32 arg2)
         }
         goto copy_palette;
     }
-    if (mode == 2)
+    if (mode == 2) {
         return;
+    }
     if (mode == 3) {
         mode = 0x05000200;
         COMPILER_BARRIER(mode);
-        dst = (u16 *)(paletteOffset + mode);
+        dst = (u16*)(paletteOffset + mode);
         if (type != 0) {
             mode = 0;
             value = type;
@@ -1142,13 +1092,14 @@ void LoadBossSpriteGraphics(u32 arg0, u32 arg1, u32 arg2)
         }
         goto copy_palette;
     }
-    if (mode == 4)
+    if (mode == 4) {
         copyBack = 0;
+    }
 
 copy_palette:
 
     if (copyBack != 0) {
-        dma = (vu32 *)0x040000D4;
+        dma = (vu32*)0x040000D4;
         mode = 0x05000200;
         value = paletteOffset + mode;
         dma[0] = value;
@@ -1164,7 +1115,6 @@ copy_palette:
     return;
 }
 
-
 void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
 {
     u32 type;
@@ -1172,10 +1122,10 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
     u32 tileCount;
     register s32 mode asm("r4");
     u32 uploadAgain;
-    vu32 *reg;
+    vu32* reg;
     u32 offset;
     register u32 value asm("r0");
-    u8 *timer;
+    u8* timer;
 
     value = arg0;
     type = (u8)value;
@@ -1183,12 +1133,11 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
     offset = arg1;
     paletteIndex = (u8)offset;
 
-    reg = (vu32 *)arg2;
-    reg = (vu32 *)((u32)reg << 24);
+    reg = (vu32*)arg2;
+    reg = (vu32*)((u32)reg << 24);
     tileCount = (u32)reg >> 24;
 
-    if (type == 0)
-    {
+    if (type == 0) {
         return;
     }
 
@@ -1202,8 +1151,7 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
     timer[3] = value;
     timer[5] = value;
 
-    if (mode > 4)
-    {
+    if (mode > 4) {
         mode -= 4;
         value = 1;
         timer[5] = value;
@@ -1218,12 +1166,10 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
         value = gSubGameMode;
     }
 
-    if (gSubGameMode == 2 || gSubGameMode == 6)
-    {
+    if (gSubGameMode == 2 || gSubGameMode == 6) {
         value = timer[0];
-        if (value == 2 || value == 4 || value == 6 || value == 8)
-        {
-            reg = (vu32 *)0x040000D4;
+        if (value == 2 || value == 4 || value == 6 || value == 8) {
+            reg = (vu32*)0x040000D4;
             offset = paletteIndex << 5;
             value = 0x05000000;
             COMPILER_BARRIER(value);
@@ -1238,10 +1184,8 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
             reg[2] = value;
             reg[2];
         }
-    }
-    else
-    {
-        reg = (vu32 *)0x040000D4;
+    } else {
+        reg = (vu32*)0x040000D4;
         value = paletteIndex << 5;
         offset = 0x02020400;
         offset += value;
@@ -1257,66 +1201,54 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
         uploadAgain = 1;
     }
 
-    if (mode == 1)
-    {
+    if (mode == 1) {
         u32 base;
-        u16 *ptr;
+        u16* ptr;
         register u32 fill asm("r2");
 
         base = 0x05000000;
         COMPILER_BARRIER(base);
         value = paletteIndex << 5;
         base = (value) - (-(base));
-        ptr = (u16 *)base;
+        ptr = (u16*)base;
         value = tileCount << 4;
-        if (value != 0)
-        {
+        if (value != 0) {
             mode = 0x7FFF;
             COMPILER_BARRIER(mode);
             fill = mode;
-            do
-            {
+            do {
                 *ptr = fill;
                 value--;
                 ptr++;
             } while (value != 0);
         }
-    }
-    else if (mode == 2)
-    {
+    } else if (mode == 2) {
         return;
-    }
-    else if (mode == 3)
-    {
+    } else if (mode == 3) {
         u32 base;
-        u16 *ptr;
+        u16* ptr;
         u32 fill;
 
         base = 0x05000000;
         COMPILER_BARRIER(base);
         value = paletteIndex << 5;
         base = (value) - (-(base));
-        ptr = (u16 *)base;
+        ptr = (u16*)base;
         value = tileCount << 4;
-        if (value != 0)
-        {
+        if (value != 0) {
             fill = 0;
-            do
-            {
+            do {
                 *ptr = fill;
                 value--;
                 ptr++;
             } while (value != 0);
         }
-    }
-    else if (mode == 4)
-    {
+    } else if (mode == 4) {
         uploadAgain = 0;
     }
 
-    if (uploadAgain != 0)
-    {
-        reg = (vu32 *)0x040000D4;
+    if (uploadAgain != 0) {
+        reg = (vu32*)0x040000D4;
         offset = paletteIndex << 5;
         value = 0x05000000;
         COMPILER_BARRIER(value);
@@ -1334,32 +1266,24 @@ void StartGoldenDivaPaletteFade(u32 arg0, u32 arg1, u32 arg2)
     }
 }
 
-
 void UpdateBossDefeatPaletteFade(void)
 {
     s32 temp_r1;
     s32 temp_r0;
     u8 temp_r2;
 
-    if ((gBossDefeatTimer[4] == 0) && (gBossDefeatTimer[0] != 0) &&
-        (temp_r2 = 0x80 & gBossDefeatTimer[0]) == 0)
-    {
-        if ((u32)gBossDefeatTimer[0] > 4U)
-        {
+    if ((gBossDefeatTimer[4] == 0) && (gBossDefeatTimer[0] != 0) && (temp_r2 = 0x80 & gBossDefeatTimer[0]) == 0) {
+        if ((u32)gBossDefeatTimer[0] > 4U) {
             gBossDefeatTimer[5] = 1U;
             gBossDefeatTimer[0] -= 4;
         }
-        if ((gBossDefeatTimer[5] == 0) || !(1 & gMainTimer))
-        {
+        if ((gBossDefeatTimer[5] == 0) || !(1 & gMainTimer)) {
             temp_r0 = gBossDefeatTimer[3] + 1;
             gBossDefeatTimer[3] = temp_r0;
             temp_r0 = (u8)temp_r0;
-            if ((u32)temp_r0 <= 0x20U)
-            {
+            if ((u32)temp_r0 <= 0x20U) {
                 temp_r1 = gBossDefeatTimer[1] << 5;
-                ApplyTimedPaletteFade((s16 *)(temp_r1 + 0x02020E00),
-                             (u16 *)(temp_r1 + 0x02021200),
-                             gBossDefeatTimer);
+                ApplyTimedPaletteFade((s16*)(temp_r1 + 0x02020E00), (u16*)(temp_r1 + 0x02021200), gBossDefeatTimer);
                 gBossDefeatTimer[4] = 2U;
                 return;
             }
@@ -1377,24 +1301,18 @@ void UpdateGoldenDivaPaletteFade(void)
     u8 temp_r2;
 
     if ((gGoldenDivaRoomTimer[4] == 0) && (gGoldenDivaRoomTimer[0] != 0) &&
-        (temp_r2 = 0x80 & gGoldenDivaRoomTimer[0]) == 0)
-    {
-        if ((u32)gGoldenDivaRoomTimer[0] > 4U)
-        {
+        (temp_r2 = 0x80 & gGoldenDivaRoomTimer[0]) == 0) {
+        if ((u32)gGoldenDivaRoomTimer[0] > 4U) {
             gGoldenDivaRoomTimer[5] = 1U;
             gGoldenDivaRoomTimer[0] -= 4;
         }
-        if ((gGoldenDivaRoomTimer[5] == 0) || !(1 & gMainTimer))
-        {
+        if ((gGoldenDivaRoomTimer[5] == 0) || !(1 & gMainTimer)) {
             temp_r0 = gGoldenDivaRoomTimer[3] + 1;
             gGoldenDivaRoomTimer[3] = temp_r0;
             temp_r0 = (u8)temp_r0;
-            if ((u32)temp_r0 <= 0x20U)
-            {
+            if ((u32)temp_r0 <= 0x20U) {
                 temp_r1 = gGoldenDivaRoomTimer[1] << 5;
-                ApplyTimedPaletteFade((s16 *)(temp_r1 + 0x02020C00),
-                             (u16 *)(temp_r1 + 0x02021000),
-                             gGoldenDivaRoomTimer);
+                ApplyTimedPaletteFade((s16*)(temp_r1 + 0x02020C00), (u16*)(temp_r1 + 0x02021000), gGoldenDivaRoomTimer);
                 gGoldenDivaRoomTimer[4] = 1U;
                 return;
             }
@@ -1405,13 +1323,13 @@ void UpdateGoldenDivaPaletteFade(void)
     }
 }
 
-void ApplyTimedPaletteFade(s16 *arg0, u16 *arg1, u8 *arg2)
+void ApplyTimedPaletteFade(s16* arg0, u16* arg1, u8* arg2)
 {
-    s16 *dst;
-    u16 *src;
-    u8 *timer;
+    s16* dst;
+    u16* src;
+    u8* timer;
     register s32 i asm("r6");
-    ColorBlendFunction *table;
+    ColorBlendFunction* table;
     register u16 color asm("r2");
     u32 red;
     u32 green;
@@ -1426,11 +1344,9 @@ void ApplyTimedPaletteFade(s16 *arg0, u16 *arg1, u8 *arg2)
     timer = arg2;
     count = timer[2];
     i = 0;
-    if (count != 0)
-    {
+    if (count != 0) {
         table = sColorBlendFunctionTable;
-        do
-        {
+        do {
             color = *src;
             red = color & 0x1F;
             green = (color & 0x3E0) >> 5;
@@ -1440,11 +1356,11 @@ void ApplyTimedPaletteFade(s16 *arg0, u16 *arg1, u8 *arg2)
             index <<= 2;
             index += (u32)table;
             amount = timer[3];
-            func = *(ColorBlendFunction *)index;
+            func = *(ColorBlendFunction*)index;
             *dst = func(red, green, blue, amount);
             i++;
             amount = 2;
-            dst = (s16 *)((u32)dst + amount);
+            dst = (s16*)((u32)dst + amount);
             src++;
         } while (i < (s32)(timer[2] << 4));
     }
@@ -1597,169 +1513,152 @@ s32 BlendColorToBlack(u32 arg0, u32 arg1, u32 arg2, u32 arg3)
 
 void UpdateEscapePaletteFadeSequence(void)
 {
-  u8 *state;
-  s32 step;
-  u8 *stateBase;
-  u32 callArg0;
-  u32 callArg1;
-  u8 initialState;
-  if (gSubGameMode != 2)
-  {
-    return;
-  }
-  stateBase = &gEscapeHBlankEffectState;
-  initialState = *stateBase;
-  state = stateBase;
-  if (initialState <= 14)
-  {
-    if (gTimerState == 11)
-    {
-      *state = 17;
+    u8* state;
+    s32 step;
+    u8* stateBase;
+    u32 callArg0;
+    u32 callArg1;
+    u8 initialState;
+    if (gSubGameMode != 2) {
+        return;
     }
-    else
-      if (gTimerState > 1)
-    {
-      *state = 15;
+    stateBase = &gEscapeHBlankEffectState;
+    initialState = *stateBase;
+    state = stateBase;
+    if (initialState <= 14) {
+        if (gTimerState == 11) {
+            *state = 17;
+        } else if (gTimerState > 1) {
+            *state = 15;
+        }
     }
-  }
-  step = 2;
-  if ((gStageTimerDigits[1] <= 3) && (gStageTimerDigits[2] == 0))
-  {
-    step = 1;
-  }
-  switch (*state)
-  {
-    case 1:
-      SetHurryUpMusic(1);
-      gColorFading.timer = 0;
-      gEscapeHBlankEffectState++;
-      break;
-
-    case 2:
-      if (gWarioPauseTimer != 0)
-    {
-      (*state)++;
+    step = 2;
+    if ((gStageTimerDigits[1] <= 3) && (gStageTimerDigits[2] == 0)) {
+        step = 1;
     }
-      break;
+    switch (*state) {
+        case 1:
+            SetHurryUpMusic(1);
+            gColorFading.timer = 0;
+            gEscapeHBlankEffectState++;
+            break;
 
-    case 3:
-      if (gWarioPauseTimer == 0)
-    {
-      gColorFading.timer = 0;
-      (*state)++;
+        case 2:
+            if (gWarioPauseTimer != 0) {
+                (*state)++;
+            }
+            break;
+
+        case 3:
+            if (gWarioPauseTimer == 0) {
+                gColorFading.timer = 0;
+                (*state)++;
+            }
+            break;
+
+        case 4:
+            SetHBlankMode(3);
+
+        case 5:
+            BackupPalettesToSecondaryBuffers();
+            BuildRoomTintPalette(0);
+            gColorFading.timer = 0;
+            gColorFading.progress = 0;
+            gColorFading.interpolationPending = 0;
+            gEscapeHBlankEffectState++;
+            break;
+
+        case 6:
+
+        case 11:
+            callArg1 = step;
+            callArg0 = 0;
+            COMPILER_BARRIER2(callArg0, callArg1);
+            if (UpdatePaletteInterpolation(callArg0, callArg1) != 0) {
+                gColorFading.timer = 0;
+                gColorFading.progress = 0;
+                gEscapeHBlankEffectState++;
+            }
+            break;
+
+        case 7:
+
+        case 9:
+
+        case 12: {
+            struct ColorFading* fade;
+            fade = &gColorFading;
+            fade->timer = 0;
+            fade->progress = 0;
+            fade->interpolationPending = 0;
+            (*state)++;
+            break;
+        }
+
+        case 8:
+
+        case 13:
+            callArg1 = step;
+            callArg0 = 1;
+            if (UpdatePaletteInterpolation(callArg0, callArg1) != 0) {
+                gColorFading.timer = 0;
+                gColorFading.progress = 0;
+                gEscapeHBlankEffectState++;
+            }
+            break;
+
+        case 10:
+            BuildRoomTintPalette(1);
+            gColorFading.timer = 0;
+            gColorFading.progress = 0;
+            gEscapeHBlankEffectState++;
+            break;
+
+        case 14:
+            gColorFading.timer = 0;
+            gColorFading.progress = 0;
+            *state = 5;
+            break;
+
+        case 15:
+            BackupPalettesToSecondaryBuffers();
+            BuildGrayscaleBgPaletteBuffer();
+            gColorFading.timer = 0;
+            gColorFading.progress = 0;
+            gColorFading.interpolationPending = 0;
+            gEscapeHBlankEffectState++;
+            break;
+
+        case 16:
+            if (UpdatePaletteInterpolation(0, 2) != 0) {
+                gColorFading.timer = 0;
+                gEscapeHBlankEffectState++;
+            }
+            break;
+
+        case 17:
+            break;
     }
-      break;
-
-    case 4:
-      SetHBlankMode(3);
-
-    case 5:
-      BackupPalettesToSecondaryBuffers();
-      BuildRoomTintPalette(0);
-      gColorFading.timer = 0;
-      gColorFading.progress = 0;
-      gColorFading.interpolationPending = 0;
-      gEscapeHBlankEffectState++;
-      break;
-
-    case 6:
-
-    case 11:
-      callArg1 = step;
-      callArg0 = 0;
-      COMPILER_BARRIER2(callArg0, callArg1);
-      if (UpdatePaletteInterpolation(callArg0, callArg1) != 0)
-    {
-      gColorFading.timer = 0;
-      gColorFading.progress = 0;
-      gEscapeHBlankEffectState++;
-    }
-      break;
-
-    case 7:
-
-    case 9:
-
-    case 12:
-    {
-      struct ColorFading *fade;
-      fade = &gColorFading;
-      fade->timer = 0;
-      fade->progress = 0;
-      fade->interpolationPending = 0;
-      (*state)++;
-      break;
-    }
-
-    case 8:
-
-    case 13:
-      callArg1 = step;
-      callArg0 = 1;
-      if (UpdatePaletteInterpolation(callArg0, callArg1) != 0)
-    {
-      gColorFading.timer = 0;
-      gColorFading.progress = 0;
-      gEscapeHBlankEffectState++;
-    }
-      break;
-
-    case 10:
-      BuildRoomTintPalette(1);
-      gColorFading.timer = 0;
-      gColorFading.progress = 0;
-      gEscapeHBlankEffectState++;
-      break;
-
-    case 14:
-      gColorFading.timer = 0;
-      gColorFading.progress = 0;
-      *state = 5;
-      break;
-
-    case 15:
-      BackupPalettesToSecondaryBuffers();
-      BuildGrayscaleBgPaletteBuffer();
-      gColorFading.timer = 0;
-      gColorFading.progress = 0;
-      gColorFading.interpolationPending = 0;
-      gEscapeHBlankEffectState++;
-      break;
-
-    case 16:
-      if (UpdatePaletteInterpolation(0, 2) != 0)
-    {
-      gColorFading.timer = 0;
-      gEscapeHBlankEffectState++;
-    }
-      break;
-
-    case 17:
-      break;
-
-  }
-
 }
-
 
 void BuildRoomTintPalette(u32 arg0)
 {
     s8 channels[3];
-    u16 *destination;
-    u16 *source;
+    u16* destination;
+    u16* source;
     s32 index;
-    s8 *channelBase;
-    register const s8 *offsetTable asm("sl");
-    u8 *roomIndex;
+    s8* channelBase;
+    register const s8* offsetTable asm("sl");
+    u8* roomIndex;
     u32 direction;
-    u16 *nextDestination;
+    u16* nextDestination;
     s32 nextIndex;
-    s8 *channel;
+    s8* channel;
     s32 channelIndex;
 
     direction = (u8)arg0;
-    destination = (u16 *)0x02020800;
-    source = (u16 *)0x02020400;
+    destination = (u16*)0x02020800;
+    source = (u16*)0x02020400;
     *destination = 0;
     *source = 0;
     destination++;
@@ -1769,8 +1668,7 @@ void BuildRoomTintPalette(u32 arg0)
     offsetTable = sRoomPaletteColorOffsets;
     roomIndex = &gStageRoomTableIndex;
 
-    do
-    {
+    do {
         channelBase[0] = *source & 31;
         channelBase[1] = (*source & 0x3E0) >> 5;
         channelBase[2] = (*source & 0x7C00) >> 10;
@@ -1778,15 +1676,15 @@ void BuildRoomTintPalette(u32 arg0)
         channelBase[0] += offsetTable[(((*roomIndex << 1) + direction) * 3)];
         {
             u32 offsetIndex;
-            const s8 *greenBase;
+            const s8* greenBase;
             offsetIndex = (((*roomIndex << 1) + direction) * 3);
             greenBase = offsetTable + 1;
             offsetIndex += (u32)greenBase;
-            channelBase[1] += *(const s8 *)offsetIndex;
+            channelBase[1] += *(const s8*)offsetIndex;
         }
         {
             u32 offsetIndex;
-            const s8 *blueBase;
+            const s8* blueBase;
             offsetIndex = (((*roomIndex << 1) + direction) * 3);
             blueBase = sRoomPaletteColorOffsets + 2;
             channelBase[2] += blueBase[offsetIndex];
@@ -1797,12 +1695,12 @@ void BuildRoomTintPalette(u32 arg0)
         nextIndex = index + 1;
         channel = channels;
         channelIndex = 2;
-        do
-        {
-            if (*channel > 31)
+        do {
+            if (*channel > 31) {
                 *channel = 31;
-            else if (*channel < 0)
+            } else if (*channel < 0) {
                 *channel = 0;
+            }
             channel++;
             channelIndex--;
         } while (channelIndex >= 0);
@@ -1812,7 +1710,6 @@ void BuildRoomTintPalette(u32 arg0)
         destination = nextDestination;
     } while (index <= 255);
 }
-
 
 s32 UpdatePaletteFadeStep(u32 arg0, u32 arg1)
 {
@@ -1824,53 +1721,54 @@ s32 UpdatePaletteFadeStep(u32 arg0, u32 arg1)
     mode = (u8)arg0;
     tableIndex = (u8)arg1;
     result = 0;
-    
-    if (gColorFading.progress == 0)
-    {
-        if (mode == 0) gBldy = 0;
+
+    if (gColorFading.progress == 0) {
+        if (mode == 0) {
+            gBldy = 0;
+        }
         gColorFading.sourceFlags = 0;
-        if (tableIndex == 0 && gSwitchPressed != 0 && gEscapeHBlankEffectState > 16)
+        if (tableIndex == 0 && gSwitchPressed != 0 && gEscapeHBlankEffectState > 16) {
             gColorFading.sourceFlags = 1;
-    }
-    else if (gColorFading.progress == sPaletteFadeStepLimits[tableIndex])
-    {
-        if (mode != 0)
-        {
-            if (gColorFading.type == 1)
-            {
-                *(vu16 *)0x04000050 = 0x00BF;
-            }
-            else
-            {
-                *(vu16 *)0x04000050 = 0x00FF;
+        }
+    } else if (gColorFading.progress == sPaletteFadeStepLimits[tableIndex]) {
+        if (mode != 0) {
+            if (gColorFading.type == 1) {
+                *(vu16*)0x04000050 = 0x00BF;
+            } else {
+                *(vu16*)0x04000050 = 0x00FF;
             }
             gBldy = 16;
-            *(vu16 *)0x04000054 = 16;
-        }
-        else
-        {
-            if ((gColorFading.sourceFlags & 1) != 0) CopyAlternateBgAndSecondaryObjPalettesToPrimaryBuffers();
-            else CopySecondaryPalettesToPrimaryBuffers();
+            *(vu16*)0x04000054 = 16;
+        } else {
+            if ((gColorFading.sourceFlags & 1) != 0) {
+                CopyAlternateBgAndSecondaryObjPalettesToPrimaryBuffers();
+            } else {
+                CopySecondaryPalettesToPrimaryBuffers();
+            }
             gColorFading.uploadFlags = 3;
         }
         gColorFading.progress++;
+    } else if (gColorFading.progress > sPaletteFadeStepLimits[tableIndex]) {
+        result = 1;
     }
-    else if (gColorFading.progress > sPaletteFadeStepLimits[tableIndex]) result = 1;
-    if (gColorFading.progress < sPaletteFadeStepLimits[tableIndex])
-    {
-        if (tableIndex == 2) amount = gColorFading.progress;
-        else amount = sPaletteFadeAmounts[gColorFading.progress];
+    if (gColorFading.progress < sPaletteFadeStepLimits[tableIndex]) {
+        if (tableIndex == 2) {
+            amount = gColorFading.progress;
+        } else {
+            amount = sPaletteFadeAmounts[gColorFading.progress];
+        }
         ApplyPaletteFade(mode, amount);
         gColorFading.progress++;
     }
-    if (result != 0) gColorFading.progress = 0;
+    if (result != 0) {
+        gColorFading.progress = 0;
+    }
     return result;
 }
 
 void InitializeColorFadeEffect(void)
 {
-    switch (((u8 *)&gColorFading)[0])
-    {
+    switch (((u8*)&gColorFading)[0]) {
         case 1:
         case 2:
             FillColorFadePalettes();
@@ -1878,11 +1776,10 @@ void InitializeColorFadeEffect(void)
             break;
         case 5:
             BackupPalettesToSecondaryBuffers();
-            if (HandleSwitchColorFade() != 0)
-            {
-                vu32 *dma;
+            if (HandleSwitchColorFade() != 0) {
+                vu32* dma;
                 register u32 value asm("r0");
-                dma = (vu32 *)0x040000D4;
+                dma = (vu32*)0x040000D4;
                 value = 0x02020800;
                 dma[0] = value;
                 value = 0x05000000;
@@ -1897,8 +1794,7 @@ void InitializeColorFadeEffect(void)
 
 void PrepareColorFadeBuffers(void)
 {
-    switch (((u8 *)&gColorFading)[0])
-    {
+    switch (((u8*)&gColorFading)[0]) {
         case 1:
         case 2:
             FillColorFadePalettes();
@@ -1911,29 +1807,27 @@ void PrepareColorFadeBuffers(void)
 
 void FillColorFadePalettes(void)
 {
-    u8 *fade;
-    u16 *dst0;
-    u16 *dst1;
-    u16 *dst2;
-    u16 *dst3;
+    u8* fade;
+    u16* dst0;
+    u16* dst1;
+    u16* dst2;
+    u16* dst3;
     s32 count;
     u32 color;
 
-    fade = (u8 *)&gColorFading;
+    fade = (u8*)&gColorFading;
     fade[2] = 0;
     BackupPalettesToSecondaryBuffers();
     color = 0;
-    if (fade[0] == 1)
-    {
+    if (fade[0] == 1) {
         color = 0x7FFF;
     }
-    dst0 = (u16 *)0x02020000;
-    dst1 = (u16 *)0x02020200;
-    dst2 = (u16 *)0x05000000;
-    dst3 = (u16 *)0x05000200;
+    dst0 = (u16*)0x02020000;
+    dst1 = (u16*)0x02020200;
+    dst2 = (u16*)0x05000000;
+    dst3 = (u16*)0x05000200;
     count = 255;
-    do
-    {
+    do {
         *dst0 = color;
         *dst1 = color;
         *dst2 = color;
@@ -1949,24 +1843,20 @@ void FillColorFadePalettes(void)
 s32 HandleSwitchColorFade(void)
 {
     u32 result;
-    u8 *timer;
-    u8 *fade;
+    u8* timer;
+    u8* fade;
 
-    if (gSwitchPressed == 0)
-    {
+    if (gSwitchPressed == 0) {
         return 0;
     }
     result = 0;
     timer = &gEscapeHBlankEffectState;
-    if (*timer <= 14)
-    {
+    if (*timer <= 14) {
         *timer = 4;
-        fade = (u8 *)&gColorFading;
+        fade = (u8*)&gColorFading;
         fade[5] = result;
         fade[4] = result;
-    }
-    else
-    {
+    } else {
         *timer = 17;
         BuildGrayscaleBgPaletteBuffer();
         result = 1;
@@ -1976,8 +1866,8 @@ s32 HandleSwitchColorFade(void)
 
 s32 ExpandColorFadeWindow(void)
 {
-    struct Window *window;
-    struct Window *rest;
+    struct Window* window;
+    struct Window* rest;
     s32 step;
     register s32 current asm("r2");
     s32 completed;
@@ -2014,8 +1904,8 @@ s32 ExpandColorFadeWindow(void)
     }
 
     value = (s32)&gWindow;
-    current = ((struct Window *)value)->top;
-    rest = (struct Window *)value;
+    current = ((struct Window*)value)->top;
+    rest = (struct Window*)value;
     if (current > step) {
         value = current - step;
         rest->top = value;
@@ -2026,7 +1916,7 @@ s32 ExpandColorFadeWindow(void)
     }
 
     current = rest->right;
-    window = (struct Window *)240;
+    window = (struct Window*)240;
     value = (s32)window - step;
     if (current < value) {
         value = current + step;
@@ -2037,7 +1927,7 @@ s32 ExpandColorFadeWindow(void)
     }
 
     current = rest->bottom;
-    window = (struct Window *)160;
+    window = (struct Window*)160;
     value = (s32)window - step;
     if (current < value) {
         value = current + step;
@@ -2059,20 +1949,19 @@ s32 ExpandColorFadeWindow(void)
 s32 CollapseColorFadeWindowAroundWario(void)
 {
     s32 distances[4];
-    struct Window *window;
+    struct Window* window;
     s32 targetX;
     s32 targetY;
     s32 result;
 
     {
-        struct Window *first;
+        struct Window* first;
 
         register s32 content asm("r0");
 
         first = &gWindow;
         content = first->content;
-        if (content == 0)
-        {
+        if (content == 0) {
             content++;
             first->content = content;
             m4aSongNumStart(222);
@@ -2081,19 +1970,18 @@ s32 CollapseColorFadeWindowAroundWario(void)
     }
 
     {
-        u8 *wario;
-        u16 *bgX;
-        u16 *bgY;
+        u8* wario;
+        u16* bgX;
+        u16* bgY;
         s32 zero;
-        s32 *clear;
+        s32* clear;
 
-        wario = (u8 *)&gWarioData;
+        wario = (u8*)&gWarioData;
         bgX = &gBg1XPosition;
         bgY = &gBg1YPosition;
         zero = 0;
         clear = &distances[3];
-        do
-        {
+        do {
             *clear = zero;
             clear--;
         } while ((s32)clear >= (s32)distances);
@@ -2102,39 +1990,35 @@ s32 CollapseColorFadeWindowAroundWario(void)
             s32 warioPosition;
             s32 backgroundPosition;
 
-            warioPosition = *(u16 *)(wario + 18);
+            warioPosition = *(u16*)(wario + 18);
             backgroundPosition = *bgX;
             targetX = warioPosition - backgroundPosition;
         }
-        if (targetX < 0)
-        {
+        if (targetX < 0) {
             targetX = 0;
-        }
-        else
-        {
+        } else {
             targetX >>= 2;
-            if (targetX > 240)
+            if (targetX > 240) {
                 targetX = 240;
+            }
         }
 
         {
             s32 warioPosition;
             s32 backgroundPosition;
 
-            warioPosition = *(u16 *)(wario + 20);
+            warioPosition = *(u16*)(wario + 20);
             backgroundPosition = *bgY;
             backgroundPosition += 63;
             targetY = warioPosition - backgroundPosition;
         }
-        if (targetY < 0)
-        {
+        if (targetY < 0) {
             targetY = 0;
-        }
-        else
-        {
+        } else {
             targetY >>= 2;
-            if (targetY > 160)
+            if (targetY > 160) {
                 targetY = 160;
+            }
         }
     }
 
@@ -2146,15 +2030,15 @@ s32 CollapseColorFadeWindowAroundWario(void)
     {
         s32 selected;
         register s32 i asm("r4");
-        s32 *scan;
+        s32* scan;
 
         selected = 0;
         i = 0;
         scan = distances;
-        do
-        {
-            if (distances[selected] <= *scan)
+        do {
+            if (distances[selected] <= *scan) {
                 selected = i;
+            }
             scan++;
             i++;
         } while (i <= 3);
@@ -2162,7 +2046,7 @@ s32 CollapseColorFadeWindowAroundWario(void)
         {
             s32 amount;
             register s32 zero asm("r2");
-            register s32 *current asm("r1");
+            register s32* current asm("r1");
             register s32 count asm("r3");
             s32 value;
             register s32 reduced asm("r1");
@@ -2170,20 +2054,20 @@ s32 CollapseColorFadeWindowAroundWario(void)
             value = selected;
             value <<= 2;
             value += (s32)distances;
-            value = *(s32 *)value;
+            value = *(s32*)value;
             reduced = value - 2;
             value >>= 3;
             amount = reduced - value;
             zero = 0;
             current = distances;
             count = 3;
-            do
-            {
+            do {
                 value = *current;
-                if (amount < value)
+                if (amount < value) {
                     *current = value - amount;
-                else
+                } else {
                     *current = zero;
+                }
                 current++;
                 count--;
             } while (count >= 0);
@@ -2196,65 +2080,49 @@ s32 CollapseColorFadeWindowAroundWario(void)
         s32 limit;
 
         step = distances[0];
-        if (step != 0)
-        {
+        if (step != 0) {
             current = window->left;
             limit = targetX - step;
-            if (current < limit)
-            {
+            if (current < limit) {
                 limit = current + step;
                 window->left = limit;
-            }
-            else
-            {
+            } else {
                 window->left = targetX;
             }
         }
 
         step = distances[1];
-        if (step != 0)
-        {
+        if (step != 0) {
             current = window->right;
             limit = targetX + step;
-            if (current > limit)
-            {
+            if (current > limit) {
                 limit = current - step;
                 window->right = limit;
-            }
-            else
-            {
+            } else {
                 window->right = targetX;
             }
         }
 
         step = distances[2];
-        if (step != 0)
-        {
+        if (step != 0) {
             current = window->top;
             limit = targetY - step;
-            if (current < limit)
-            {
+            if (current < limit) {
                 limit = current + step;
                 window->top = limit;
-            }
-            else
-            {
+            } else {
                 window->top = targetY;
             }
         }
 
         step = distances[3];
-        if (step != 0)
-        {
+        if (step != 0) {
             current = window->bottom;
             limit = targetY + step;
-            if (current > limit)
-            {
+            if (current > limit) {
                 limit = current - step;
                 window->bottom = limit;
-            }
-            else
-            {
+            } else {
                 window->bottom = targetY;
             }
         }
@@ -2264,9 +2132,8 @@ s32 CollapseColorFadeWindowAroundWario(void)
         register s32 completed asm("r4");
 
         completed = 0;
-        if (window->left == targetX && window->right == targetX &&
-            window->top == targetY && window->bottom == targetY)
-        {
+        if (window->left == targetX && window->right == targetX && window->top == targetY &&
+            window->bottom == targetY) {
             gBldCnt = 255;
             gBldy = 16;
             completed = 1;
@@ -2282,8 +2149,8 @@ s32 CollapseColorFadeWindowVertically(void)
 {
     s8 steps[17];
     s32 padding[4];
-    struct Window *first;
-    struct Window *window;
+    struct Window* first;
+    struct Window* window;
     s32 value;
     register s32 content asm("r1");
     s32 step;
@@ -2301,8 +2168,8 @@ s32 CollapseColorFadeWindowVertically(void)
 
     window = first;
     {
-        s32 *start;
-        s32 *current;
+        s32* start;
+        s32* current;
 
         start = &padding[0];
         step = 0;
@@ -2318,7 +2185,7 @@ s32 CollapseColorFadeWindowVertically(void)
     value = (s32)steps;
     value += content;
     step = 0;
-    step = *(s8 *)value;
+    step = *(s8*)value;
     if (content != 0) {
         value = content + 1;
         window->content = value;
@@ -2348,20 +2215,23 @@ s32 CollapseColorFadeWindowVertically(void)
 
     result = 0;
     content = (s32)window;
-    value = ((struct Window *)content)->top;
-    if (value != center)
-        goto done;
-    value = ((struct Window *)content)->bottom;
-    if (value != center)
-        goto done;
-    contentValue = ((struct Window *)content)->content;
-    if (contentValue == 0) {
-        value = 1;
-        ((struct Window *)content)->content = value;
+    value = ((struct Window*)content)->top;
+    if (value != center) {
         goto done;
     }
-    if (contentValue != 17)
+    value = ((struct Window*)content)->bottom;
+    if (value != center) {
         goto done;
+    }
+    contentValue = ((struct Window*)content)->content;
+    if (contentValue == 0) {
+        value = 1;
+        ((struct Window*)content)->content = value;
+        goto done;
+    }
+    if (contentValue != 17) {
+        goto done;
+    }
     result = 1;
     value = 0;
     window->content = value;
@@ -2370,4 +2240,3 @@ done:
     value = result;
     return value;
 }
-

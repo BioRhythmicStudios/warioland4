@@ -1,5 +1,3 @@
-
-
 #include "autosave.h"
 #include "input.h"
 #include "score.h"

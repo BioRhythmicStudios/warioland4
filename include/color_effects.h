@@ -31,7 +31,7 @@ void LoadBossSpriteGraphics(u32 type, u32 paletteIndex, u32 colorCount);
 void StartGoldenDivaPaletteFade(u32 type, u32 paletteIndex, u32 colorCount);
 void UpdateBossDefeatPaletteFade(void);
 void UpdateGoldenDivaPaletteFade(void);
-void ApplyTimedPaletteFade(s16 *destination, u16 *source, u8 *state);
+void ApplyTimedPaletteFade(s16* destination, u16* source, u8* state);
 s32 BlendColorFromWhite(u8 red, u8 green, u8 blue, u8 amount);
 s32 BlendColorToWhite(u32 red, u32 green, u32 blue, u32 amount);
 s32 BlendColorFromBlack(u32 red, u32 green, u32 blue, u32 amount);

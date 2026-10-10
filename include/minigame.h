@@ -9,7 +9,7 @@ s32 MinigameWaitForFrames(s32 frames);
 void SetMinigameVBlankCallback(void);
 void MinigameVBlankCallback(void);
 void MinigameFadeVBlankCallback(void);
-void DrawMinigameHighScore(u32 value, const u16 *tiles, u32 destination);
+void DrawMinigameHighScore(u32 value, const u16* tiles, u32 destination);
 void DrawActiveMinigame(void);
 s32 ExpandMinigameWindow(void);
 s32 ContractMinigameWindow(void);

@@ -32,7 +32,6 @@ extern const struct AnimationFrame sPinballCompletionSparkleOam[];
 extern const struct AnimationFrame sPinballLockRightDisappearOam[];
 extern const struct AnimationFrame sPinballCounterDisappearOam[];
 
-
 void SpritePinball(void);
 void SpritePinballLockUp(void);
 void SpritePinballLockDown(void);

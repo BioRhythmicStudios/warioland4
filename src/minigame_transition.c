@@ -7,7 +7,6 @@
 #define SUBGAME_INIT_DELAY_FRAMES 0x15
 #define DMA_FILL_32(count) (((DMA_ENABLE | DMA_32BIT | DMA_SRC_FIXED) << 16) | (count))
 
-
 void SubGameInitAndDispatch(u32 subGameMode)
 {
     u32 fillValue;
@@ -21,9 +20,9 @@ void SubGameInitAndDispatch(u32 subGameMode)
 
     fillValue = 0xA0;
     {
-        vu32 *dma3;
+        vu32* dma3;
 
-        dma3 = (vu32 *)REG_ADDR_DMA3SAD;
+        dma3 = (vu32*)REG_ADDR_DMA3SAD;
         dma3[0] = (u32)&fillValue;
         dma3[1] = OAM;
         dma3[2] = DMA_FILL_32(0x100);
@@ -111,9 +110,9 @@ void SubGameClearGraphicsMemory(void)
 
     fillValue = 0;
     {
-        vu32 *dma3;
+        vu32* dma3;
 
-        dma3 = (vu32 *)REG_ADDR_DMA3SAD;
+        dma3 = (vu32*)REG_ADDR_DMA3SAD;
         dma3[0] = (u32)&fillValue;
         dma3[1] = BG_PLTT;
         dma3[2] = DMA_FILL_32(0x100);

@@ -1,3 +1,4 @@
+#include "tile_interaction.h"
 #include "background_registers.h"
 #include "bg_clip.h"
 #include "compiler.h"
@@ -6,54 +7,48 @@
 #include "score.h"
 #include "screen_shake.h"
 #include "sound.h"
-#include "tile_interaction.h"
 #include "sprite.h"
 #include "wario.h"
 
-
-void SpawnTileDebris(struct TileInteractionContext *ctx);
-void SpawnTileDebrisSprite(struct TileInteractionContext *ctx);
-s32 FindTwoStepTileReplacement(struct TileInteractionContext *ctx);
-s32 FindTileReplacement(struct TileInteractionContext *ctx);
-s32 ActivateSwitchTile(struct TileInteractionContext *ctx, u8 mode);
-s32 ProcessSpecialBossTile(struct TileInteractionContext *ctx);
+void SpawnTileDebris(struct TileInteractionContext* ctx);
+void SpawnTileDebrisSprite(struct TileInteractionContext* ctx);
+s32 FindTwoStepTileReplacement(struct TileInteractionContext* ctx);
+s32 FindTileReplacement(struct TileInteractionContext* ctx);
+s32 ActivateSwitchTile(struct TileInteractionContext* ctx, u8 mode);
+s32 ProcessSpecialBossTile(struct TileInteractionContext* ctx);
 void ReplaceTileEffectPair(u8 index);
-void GetTileEffectPosition(u8 index, u16 *y, u16 *x);
+void GetTileEffectPosition(u8 index, u16* y, u16* x);
 void UpdateWarioEnvironmentalTiles(void);
 s32 ProcessWarioReactionTile(s32 attribute, s32 pose);
 void ClearTileAndSpawnPrimaryEffect(u32 y, u32 x);
 void ClearTileAndSpawnAlternateEffect(u32 y, u32 x);
-s32 RequestWarioPoseForTileAttributes(const u32 *attributes, u32 pose);
+s32 RequestWarioPoseForTileAttributes(const u32* attributes, u32 pose);
 s32 SetBg1Tile(u32 tile, u32 y, u32 x);
 void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x);
 void SetBg2TileAndGraphics(u16 tile, u16 y, u16 x);
 
-
 const u16 sSingleTileBreakSoundIds[] = {
-    0xFC, 0x104, 0xFE, 0x106, 0x100, 0x108, 0x102, 0x10A,
-    0x10C, 0x10D, 0x10C, 0x10D, 0x10C, 0x10D, 0x10C, 0x10D,
-    0xFC, 0x104, 0xFC, 0x104, 0xFC, 0x104,
+    0xFC,  0x104, 0xFE,  0x106, 0x100, 0x108, 0x102, 0x10A, 0x10C, 0x10D, 0x10C,
+    0x10D, 0x10C, 0x10D, 0x10C, 0x10D, 0xFC,  0x104, 0xFC,  0x104, 0xFC,  0x104,
 };
 
 const u16 sAdjacentTileBreakSoundIds[] = {
-    0xFD, 0x105, 0xFF, 0x107, 0x101, 0x109, 0x103, 0x10B,
-    0x10C, 0x10D, 0x10C, 0x10D, 0x10C, 0x10D, 0x10C, 0x10D,
-    0xFD, 0x105, 0xFD, 0x105, 0xFD, 0x105,
+    0xFD,  0x105, 0xFF,  0x107, 0x101, 0x109, 0x103, 0x10B, 0x10C, 0x10D, 0x10C,
+    0x10D, 0x10C, 0x10D, 0x10C, 0x10D, 0xFD,  0x105, 0xFD,  0x105, 0xFD,  0x105,
 };
 
 const u8 sTileEffectPositions[] = {
-    0x11, 0x16, 0x13, 0x16, 0x15, 0x16, 0x11, 0x16, 0x13, 0x16, 0x15, 0x16,
-    0x11, 0x16, 0x13, 0x16, 0x15, 0x16, 0x11, 0x16, 0x13, 0x16, 0x15, 0x16,
-    0x10, 0x14, 0x10, 0x16, 0x10, 0x18, 0x12, 0x14, 0x12, 0x16, 0x12, 0x18,
-    0x14, 0x14, 0x14, 0x16, 0x14, 0x18, 0x16, 0x14, 0x16, 0x16, 0x16, 0x18,
+    0x11, 0x16, 0x13, 0x16, 0x15, 0x16, 0x11, 0x16, 0x13, 0x16, 0x15, 0x16, 0x11, 0x16, 0x13, 0x16,
+    0x15, 0x16, 0x11, 0x16, 0x13, 0x16, 0x15, 0x16, 0x10, 0x14, 0x10, 0x16, 0x10, 0x18, 0x12, 0x14,
+    0x12, 0x16, 0x12, 0x18, 0x14, 0x14, 0x14, 0x16, 0x14, 0x18, 0x16, 0x14, 0x16, 0x16, 0x16, 0x18,
 };
 
-const u16 sTileInteractionSoundIds[] = { 0x140, 0x152, 0x141, 0x153, 0x142, 0x154 };
+const u16 sTileInteractionSoundIds[] = {0x140, 0x152, 0x141, 0x153, 0x142, 0x154};
 
-s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx);
-s32 ProcessFragileTileAttribute(struct TileInteractionContext *ctx);
-s32 ProcessDirectionalTileAttribute(struct TileInteractionContext *ctx);
-s32 DispatchTileInteractionHandler(struct TileInteractionContext *ctx, u8 type);
+s32 ProcessTileInteractionAttribute(struct TileInteractionContext* ctx);
+s32 ProcessFragileTileAttribute(struct TileInteractionContext* ctx);
+s32 ProcessDirectionalTileAttribute(struct TileInteractionContext* ctx);
+s32 DispatchTileInteractionHandler(struct TileInteractionContext* ctx, u8 type);
 
 u32 ProcessHorizontalTileInteraction(u32 y, u32 x)
 {
@@ -69,18 +64,18 @@ u32 ProcessHorizontalTileInteraction(u32 y, u32 x)
     ctx.yTile = y >> 6;
     ctx.xTile = x >> 6;
     {
-        struct BackgroundInfo *background;
+        struct BackgroundInfo* background;
         u32 width;
         u32 address;
         u32 xTile;
-        const u16 *attributes;
-        struct TileInteractionContext *state;
+        const u16* attributes;
+        struct TileInteractionContext* state;
 
         background = &gBackgroundInfo;
         width = background->bg1Width;
         address = ctx.yTile;
         {
-            volatile u16 *xPtr;
+            volatile u16* xPtr;
             xPtr = &ctx.xTile;
             address *= width;
             xTile = *xPtr;
@@ -90,12 +85,12 @@ u32 ProcessHorizontalTileInteraction(u32 y, u32 x)
         xTile = (u32)background->pBg1Data;
         address <<= 1;
         address += xTile;
-        address = *(u16 *)address;
+        address = *(u16*)address;
         state = &ctx;
         attributes = gBackgroundTileTables.attributes;
         address <<= 1;
         address += (u32)attributes;
-        state->attribute = *(u16 *)address;
+        state->attribute = *(u16*)address;
     }
     ctx.debrisType = 0;
     ctx.debrisOffset = 0;
@@ -104,30 +99,33 @@ u32 ProcessHorizontalTileInteraction(u32 y, u32 x)
     ctx.direction = 1;
 
     if (gWarioData.reaction != 0) {
-        if (gWarioData.reaction != 6)
+        if (gWarioData.reaction != 6) {
             goto done;
+        }
         ctx.direction = 5;
-        if (gWarioData.xPosition > originalX)
+        if (gWarioData.xPosition > originalX) {
             ctx.direction = 6;
+        }
         result = ProcessDirectionalTileAttribute(&ctx);
         goto done;
     }
 
-    if (gWarioData.xPosition > originalX)
+    if (gWarioData.xPosition > originalX) {
         ctx.direction = 2;
+    }
 
     switch (gWarioData.pose) {
-    case 14:
-    case 15:
-        goto process;
-    case 22:
-    case 24:
-        goto reverseDirection;
-    case 23:
-    case 25:
-        goto addDirection;
-    default:
-        goto checkResult;
+        case 14:
+        case 15:
+            goto process;
+        case 22:
+        case 24:
+            goto reverseDirection;
+        case 23:
+        case 25:
+            goto addDirection;
+        default:
+            goto checkResult;
     }
 addDirection:
     ctx.direction += 4;
@@ -136,12 +134,14 @@ reverseDirection:
     ctx.direction ^= 3;
     result = 1;
 checkResult:
-    if (result == 0)
+    if (result == 0) {
         goto done;
+    }
 process:
     result = ProcessTileInteractionAttribute(&ctx);
-    if (result == 1)
+    if (result == 1) {
         goto done;
+    }
     if (result == 2) {
         result = 0;
         goto done;
@@ -161,7 +161,7 @@ u32 ProcessPointTileInteraction(u32 y, u32 x)
     y = (u16)y;
     x = (u16)x;
     {
-        struct TileInteractionContext *state;
+        struct TileInteractionContext* state;
         u32 yTile;
         state = &ctx;
         yTile = y >> 6;
@@ -170,7 +170,7 @@ u32 ProcessPointTileInteraction(u32 y, u32 x)
     }
     ctx.xTile = x >> 6;
     {
-        struct BackgroundInfo *background;
+        struct BackgroundInfo* background;
         u32 width;
         register u32 address asm("r0");
         u32 xTile;
@@ -179,7 +179,7 @@ u32 ProcessPointTileInteraction(u32 y, u32 x)
         width = background->bg1Width;
         address = ctx.yTile;
         {
-            struct TileInteractionContext *state;
+            struct TileInteractionContext* state;
             state = &ctx;
             address *= width;
             xTile = state->xTile;
@@ -190,17 +190,17 @@ u32 ProcessPointTileInteraction(u32 y, u32 x)
         address += xTile;
         {
             register u32 tile asm("r3");
-            struct TileInteractionContext *state;
-            struct BackgroundTileTables *tables;
-            const u16 *attributes;
+            struct TileInteractionContext* state;
+            struct BackgroundTileTables* tables;
+            const u16* attributes;
 
-            tile = *(u16 *)address;
+            tile = *(u16*)address;
             state = &ctx;
             tables = &gBackgroundTileTables;
             attributes = tables->attributes;
             address = tile << 1;
             address += (u32)attributes;
-            state->attribute = *(u16 *)address;
+            state->attribute = *(u16*)address;
         }
     }
     ctx.debrisType = zero;
@@ -209,12 +209,15 @@ u32 ProcessPointTileInteraction(u32 y, u32 x)
     ctx.collisionMode = gWarioCollisionData.unk_0D;
     ctx.direction = 4;
     result = ProcessTileInteractionAttribute(&ctx);
-    if (result == 1)
+    if (result == 1) {
         return 1;
-    if (result == 2)
+    }
+    if (result == 2) {
         return 0;
-    if (ActivateSwitchTile(&ctx, 2))
+    }
+    if (ActivateSwitchTile(&ctx, 2)) {
         return 1;
+    }
     return 0;
 }
 
@@ -228,7 +231,7 @@ u32 ProcessSideTileInteraction(u32 y, u32 x)
     y = (u16)y;
     x = (u16)x;
     {
-        struct TileInteractionContext *state;
+        struct TileInteractionContext* state;
         u32 yTile;
         state = &ctx;
         yTile = y >> 6;
@@ -237,7 +240,7 @@ u32 ProcessSideTileInteraction(u32 y, u32 x)
     }
     ctx.xTile = x >> 6;
     {
-        struct BackgroundInfo *background;
+        struct BackgroundInfo* background;
         u32 width;
         register u32 address asm("r0");
         u32 xTile;
@@ -246,7 +249,7 @@ u32 ProcessSideTileInteraction(u32 y, u32 x)
         width = background->bg1Width;
         address = ctx.yTile;
         {
-            struct TileInteractionContext *state;
+            struct TileInteractionContext* state;
             state = &ctx;
             address *= width;
             xTile = state->xTile;
@@ -257,17 +260,17 @@ u32 ProcessSideTileInteraction(u32 y, u32 x)
         address += xTile;
         {
             register u32 tile asm("r3");
-            struct TileInteractionContext *state;
-            struct BackgroundTileTables *tables;
-            const u16 *attributes;
+            struct TileInteractionContext* state;
+            struct BackgroundTileTables* tables;
+            const u16* attributes;
 
-            tile = *(u16 *)address;
+            tile = *(u16*)address;
             state = &ctx;
             tables = &gBackgroundTileTables;
             attributes = tables->attributes;
             address = tile << 1;
             address += (u32)attributes;
-            state->attribute = *(u16 *)address;
+            state->attribute = *(u16*)address;
         }
     }
     ctx.debrisType = zero;
@@ -275,22 +278,26 @@ u32 ProcessSideTileInteraction(u32 y, u32 x)
     ctx.soundIndex = zero;
     ctx.collisionMode = gWarioCollisionData.unk_0C;
     ctx.direction = 3;
-    if (gWarioData.reaction == 7)
+    if (gWarioData.reaction == 7) {
         ctx.direction = 4;
+    }
     result = ProcessTileInteractionAttribute(&ctx);
-    if (result == 1)
+    if (result == 1) {
         return 1;
-    if (result == 2)
+    }
+    if (result == 2) {
         return 0x80;
-    if (ActivateSwitchTile(&ctx, 1))
+    }
+    if (ActivateSwitchTile(&ctx, 1)) {
         return 1;
+    }
     return 0;
 }
 
-s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
+s32 ProcessTileInteractionAttribute(struct TileInteractionContext* ctx)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    struct TileInteractionContext *state;
+    struct TileInteractionContext* state;
     u8 result;
     register u32 value asm("r0");
     u32 argument;
@@ -329,7 +336,7 @@ s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
         } else {
             goto returnZero;
         }
-        value = *(volatile u16 *)&state->attribute;
+        value = *(volatile u16*)&state->attribute;
         argument = value - argument;
         goto callReturnOne;
     }
@@ -372,14 +379,15 @@ s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
             } else {
                 goto returnZero;
             }
-            value = *(volatile u16 *)&state->attribute;
+            value = *(volatile u16*)&state->attribute;
             value -= argument;
             argument = value + 2;
             argument <<= 24;
             argument >>= 24;
             value = DispatchTileInteractionHandler(state, argument);
-            if (value != 0)
+            if (value != 0) {
                 result = 2;
+            }
             goto done;
         }
     }
@@ -393,7 +401,7 @@ s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
         state->debrisOffset = value;
         value = 3;
         state->soundIndex = value;
-        value = *(volatile u16 *)&state->attribute;
+        value = *(volatile u16*)&state->attribute;
         argument = value;
         argument -= 46;
         goto callReturnOne;
@@ -405,31 +413,31 @@ s32 ProcessTileInteractionAttribute(struct TileInteractionContext *ctx)
         value = 0;
         state->debrisOffset = value;
         state->soundIndex = value;
-        value = *(volatile u16 *)&state->attribute;
+        value = *(volatile u16*)&state->attribute;
         argument = value;
         argument -= 89;
-callReturnOne:
+    callReturnOne:
         argument = (u8)argument;
         value = DispatchTileInteractionHandler(state, argument);
-        if (value != 0)
+        if (value != 0) {
             result = 1;
+        }
         goto done;
     }
     goto returnZero;
-done:
-    {
-        u32 returnValue;
-        returnValue = result;
-        return returnValue;
-    }
+done: {
+    u32 returnValue;
+    returnValue = result;
+    return returnValue;
+}
 returnZero:
     return 0;
 }
 
-s32 ProcessFragileTileAttribute(struct TileInteractionContext *ctx)
+s32 ProcessFragileTileAttribute(struct TileInteractionContext* ctx)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    struct TileInteractionContext *state;
+    struct TileInteractionContext* state;
     u32 value;
     register u32 zero asm("r1");
 
@@ -438,8 +446,9 @@ s32 ProcessFragileTileAttribute(struct TileInteractionContext *ctx)
     value = state->attribute;
     value -= 43;
     value = (u16)value;
-    if (value <= 4)
+    if (value <= 4) {
         goto valid;
+    }
     value = 0;
     goto done;
 valid:
@@ -459,10 +468,10 @@ done:
     return value;
 }
 
-s32 ProcessDirectionalTileAttribute(struct TileInteractionContext *ctx)
+s32 ProcessDirectionalTileAttribute(struct TileInteractionContext* ctx)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    struct TileInteractionContext *state;
+    struct TileInteractionContext* state;
     s32 result;
     u32 collisionMode;
     u32 attribute;
@@ -472,8 +481,9 @@ s32 ProcessDirectionalTileAttribute(struct TileInteractionContext *ctx)
     state = ctx;
     result = 0;
     collisionMode = state->collisionMode;
-    if (collisionMode > 1)
+    if (collisionMode > 1) {
         goto main;
+    }
 returnZero:
     value = 0;
     goto directReturn;
@@ -482,8 +492,9 @@ main:
     value = attribute;
     value -= 48;
     value = (u16)value;
-    if (value > 3)
+    if (value > 3) {
         goto done;
+    }
     state->debrisOffset = result;
     value = attribute << 16;
     COMPILER_BARRIER(value);
@@ -497,10 +508,12 @@ main:
         value = 9;
         goto type5Store;
     }
-    if (value != 50)
+    if (value != 50) {
         goto checkType5;
-    if (collisionMode != 3)
+    }
+    if (collisionMode != 3) {
         goto checkType5;
+    }
     value = 10;
 type2Store:
     state->soundIndex = value;
@@ -509,62 +522,67 @@ type2Store:
 checkType5:
     value = attribute << 16;
     value >>= 16;
-    if (value != 51)
+    if (value != 51) {
         goto returnZero;
+    }
     value = state->collisionMode;
-    if (value != 3)
+    if (value != 3) {
         goto returnZero;
+    }
     value = 10;
 type5Store:
     state->soundIndex = value;
     type = 5;
 call:
     value = DispatchTileInteractionHandler(state, type);
-    if (value != 0)
+    if (value != 0) {
         result = 1;
+    }
 done:
     value = result;
 directReturn:
     return value;
 }
 
-s32 DispatchTileInteractionHandler(struct TileInteractionContext *ctx, u8 type)
+s32 DispatchTileInteractionHandler(struct TileInteractionContext* ctx, u8 type)
 {
     switch (type) {
-    case 0:
-    case 2:
-    case 6:
-        break;
-    case 1:
-        ctx->debrisType = 1;
-        break;
-    case 3:
-        ctx->debrisType = 2;
-        break;
-    case 4:
-        FindTwoStepTileReplacement(ctx);
-        break;
-    case 5:
-    case 7:
-        FindTileReplacement(ctx);
-        break;
-    case 8:
-    default:
-        return 0;
+        case 0:
+        case 2:
+        case 6:
+            break;
+        case 1:
+            ctx->debrisType = 1;
+            break;
+        case 3:
+            ctx->debrisType = 2;
+            break;
+        case 4:
+            FindTwoStepTileReplacement(ctx);
+            break;
+        case 5:
+        case 7:
+            FindTileReplacement(ctx);
+            break;
+        case 8:
+        default:
+            return 0;
     }
     gTileInteractionHandlers[type](ctx);
     return 1;
 }
 
-void BreakSingleTile(struct TileInteractionContext *ctx)
+void BreakSingleTile(struct TileInteractionContext* ctx)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    if (SetBg1Tile(0, ctx->yTile, ctx->xTile))
+    if (SetBg1Tile(0, ctx->yTile, ctx->xTile)) {
         SpawnTileDebris(ctx);
-    if (ctx->debrisType)
+    }
+    if (ctx->debrisType) {
         SpawnTileDebrisSprite(ctx);
+    }
     {
-        const u16 *sounds;
+        const u16* sounds;
         register u32 soundOffset asm("r0");
         u32 reaction;
 
@@ -572,33 +590,39 @@ void BreakSingleTile(struct TileInteractionContext *ctx)
         soundOffset = ctx->soundIndex;
         reaction = gWarioData.reaction;
         soundOffset <<= 2;
-        if (reaction == 1)
+        if (reaction == 1) {
             soundOffset += 2;
+        }
         soundOffset += (u32)sounds;
-        m4aSongNumStart(*(const u16 *)soundOffset);
+        m4aSongNumStart(*(const u16*)soundOffset);
     }
 }
 
-void BreakAdjacentTiles(struct TileInteractionContext *ctx)
+void BreakAdjacentTiles(struct TileInteractionContext* ctx)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    if (SetBg1Tile(0, ctx->yTile, ctx->xTile))
+    if (SetBg1Tile(0, ctx->yTile, ctx->xTile)) {
         SpawnTileDebris(ctx);
-    if (ctx->debrisType)
+    }
+    if (ctx->debrisType) {
         SpawnTileDebrisSprite(ctx);
+    }
     ctx->xTile++;
     ctx->yTile++;
-    if (SetBg1Tile(0, ctx->yTile, ctx->xTile))
+    if (SetBg1Tile(0, ctx->yTile, ctx->xTile)) {
         SpawnTileDebris(ctx);
+    }
     ctx->yTile--;
-    if (SetBg1Tile(0, ctx->yTile, ctx->xTile))
+    if (SetBg1Tile(0, ctx->yTile, ctx->xTile)) {
         SpawnTileDebris(ctx);
+    }
     ctx->xTile--;
     ctx->yTile++;
-    if (SetBg1Tile(0, ctx->yTile, ctx->xTile))
+    if (SetBg1Tile(0, ctx->yTile, ctx->xTile)) {
         SpawnTileDebris(ctx);
+    }
     {
-        const u16 *sounds;
+        const u16* sounds;
         register u32 soundOffset asm("r0");
         u32 reaction;
 
@@ -606,27 +630,28 @@ void BreakAdjacentTiles(struct TileInteractionContext *ctx)
         soundOffset = ctx->soundIndex;
         reaction = gWarioData.reaction;
         soundOffset <<= 2;
-        if (reaction == 1)
+        if (reaction == 1) {
             soundOffset += 2;
+        }
         soundOffset += (u32)sounds;
-        m4aSongNumStart(*(const u16 *)soundOffset);
+        m4aSongNumStart(*(const u16*)soundOffset);
     }
 }
 
-void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
+void BreakTrackedAdjacentTiles(struct TileInteractionContext* ctx)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    register struct TileInteractionContext *state asm("r5");
+    register struct TileInteractionContext* state asm("r5");
     u32 replacement;
 
     state = ctx;
     {
-        struct BackgroundInfo *background;
+        struct BackgroundInfo* background;
         u32 width;
         register u32 value asm("r0");
         register u32 product asm("r2");
         u32 xTile;
-        u8 *count;
+        u8* count;
         u32 base;
 
         background = &gBackgroundInfo;
@@ -646,16 +671,16 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
         value <<= 1;
         base = 0x02039F80;
         value += base;
-        *(u16 *)value = replacement;
+        *(u16*)value = replacement;
         base = (u32)background->pBg1Data;
         value = replacement << 1;
         value += base;
-        replacement = *(u16 *)value;
+        replacement = *(u16*)value;
         value = *count;
         value <<= 1;
         base = 0x02039F82;
         value += base;
-        *(u16 *)value = replacement;
+        *(u16*)value = replacement;
         value = *count;
         value += 2;
         *count = value;
@@ -672,8 +697,9 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
 
         callY = state->yTile;
         callX = state->xTile;
-        if (SetBg1Tile(replacement, callY, callX))
+        if (SetBg1Tile(replacement, callY, callX)) {
             SpawnTileDebris(state);
+        }
     }
     state->xTile++;
     {
@@ -687,8 +713,9 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
 
         callY = state->yTile;
         callX = state->xTile;
-        if (SetBg1Tile(replacement, callY, callX))
+        if (SetBg1Tile(replacement, callY, callX)) {
             SpawnTileDebris(state);
+        }
     }
     state->yTile++;
     {
@@ -702,8 +729,9 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
 
         callY = state->yTile;
         callX = state->xTile;
-        if (SetBg1Tile(replacement, callY, callX))
+        if (SetBg1Tile(replacement, callY, callX)) {
             SpawnTileDebris(state);
+        }
     }
     state->xTile--;
     {
@@ -717,11 +745,12 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
 
         callY = state->yTile;
         callX = state->xTile;
-        if (SetBg1Tile(replacement, callY, callX))
+        if (SetBg1Tile(replacement, callY, callX)) {
             SpawnTileDebris(state);
+        }
     }
     {
-        const u16 *sounds;
+        const u16* sounds;
         register u32 soundOffset asm("r0");
         u32 reaction;
 
@@ -729,14 +758,15 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext *ctx)
         soundOffset = state->soundIndex;
         reaction = gWarioData.reaction;
         soundOffset <<= 2;
-        if (reaction == 1)
+        if (reaction == 1) {
             soundOffset += 2;
+        }
         soundOffset += (u32)sounds;
-        m4aSongNumStart(*(const u16 *)soundOffset);
+        m4aSongNumStart(*(const u16*)soundOffset);
     }
 }
 
-void SpawnTileDebris(struct TileInteractionContext *ctx)
+void SpawnTileDebris(struct TileInteractionContext* ctx)
 {
     u16 yTile;
     u16 y;
@@ -755,7 +785,7 @@ void SpawnTileDebris(struct TileInteractionContext *ctx)
     SpawnTileDebrisParticle(y, x, ctx->debrisOffset, ctx->direction, parity);
 }
 
-void SpawnTileDebrisSprite(struct TileInteractionContext *ctx)
+void SpawnTileDebrisSprite(struct TileInteractionContext* ctx)
 {
     u32 shifted;
     u32 y;
@@ -787,17 +817,17 @@ void SpawnTileDebrisSprite(struct TileInteractionContext *ctx)
     }
 }
 
-s32 FindTwoStepTileReplacement(struct TileInteractionContext *ctx)
+s32 FindTwoStepTileReplacement(struct TileInteractionContext* ctx)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    struct TileInteractionContext *state;
+    struct TileInteractionContext* state;
     u32 targetA;
     u32 targetB;
     u32 temp;
     register u32 second asm("r1");
     s32 i;
-    struct BackgroundTileTables *tables;
-    register struct BackgroundInfo *background asm("r4");
+    struct BackgroundTileTables* tables;
+    register struct BackgroundInfo* background asm("r4");
 
     state = ctx;
     second = state->attribute;
@@ -809,69 +839,73 @@ s32 FindTwoStepTileReplacement(struct TileInteractionContext *ctx)
     tables = &gBackgroundTileTables;
     background = &gBackgroundInfo;
 loop:
-    if (i == 0)
+    if (i == 0) {
         goto decrementX;
+    }
     if (i == 1) {
         state->xTile++;
         state->yTile--;
         goto sample;
     }
-    if (i != 2)
+    if (i != 2) {
         goto sample;
+    }
 decrementX:
     state->xTile--;
-sample:
-    {
-        register u32 width asm("r1");
-        u32 address;
-        width = background->bg1Width;
-        address = state->yTile;
-        address *= width;
-        width = state->xTile;
-        address += width;
-        width = (u32)background->pBg1Data;
-        address <<= 1;
-        address += width;
-        address = *(u16 *)address;
-        width = (u32)tables->attributes;
-        address <<= 1;
-        address += width;
-        address = *(u16 *)address;
-        width = 0;
-        state->attribute = address;
-        address <<= 16;
-        address >>= 16;
-        if (address != targetA)
-            goto checkB;
-        state->debrisType = width;
-        temp = 1;
-        goto done;
-checkB:
-        if (address != targetB)
-            goto next;
-        temp = 2;
-        state->debrisType = temp;
-        temp = 1;
-        goto done;
+sample: {
+    register u32 width asm("r1");
+    u32 address;
+    width = background->bg1Width;
+    address = state->yTile;
+    address *= width;
+    width = state->xTile;
+    address += width;
+    width = (u32)background->pBg1Data;
+    address <<= 1;
+    address += width;
+    address = *(u16*)address;
+    width = (u32)tables->attributes;
+    address <<= 1;
+    address += width;
+    address = *(u16*)address;
+    width = 0;
+    state->attribute = address;
+    address <<= 16;
+    address >>= 16;
+    if (address != targetA) {
+        goto checkB;
     }
+    state->debrisType = width;
+    temp = 1;
+    goto done;
+checkB:
+    if (address != targetB) {
+        goto next;
+    }
+    temp = 2;
+    state->debrisType = temp;
+    temp = 1;
+    goto done;
+}
 next:
     i++;
-    if (i <= 2)
+    if (i <= 2) {
         goto loop;
+    }
     temp = 0;
 done:
     return temp;
 }
 
-s32 FindTileReplacement(struct TileInteractionContext *ctx)
+s32 FindTileReplacement(struct TileInteractionContext* ctx)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    struct TileInteractionContext *state;
+    struct TileInteractionContext* state;
     u32 target;
     u32 temp;
     s32 i;
-    struct BackgroundTileTables *tables;
-    register struct BackgroundInfo *background asm("r4");
+    struct BackgroundTileTables* tables;
+    register struct BackgroundInfo* background asm("r4");
 
     state = ctx;
     temp = state->attribute;
@@ -881,54 +915,57 @@ s32 FindTileReplacement(struct TileInteractionContext *ctx)
     tables = &gBackgroundTileTables;
     background = &gBackgroundInfo;
 loop:
-    if (i == 0)
+    if (i == 0) {
         goto decrementX;
+    }
     if (i == 1) {
         state->xTile++;
         state->yTile--;
         goto sample;
     }
-    if (i != 2)
+    if (i != 2) {
         goto sample;
+    }
 decrementX:
     state->xTile--;
-sample:
-    {
-        register u32 width asm("r1");
-        u32 address;
-        width = background->bg1Width;
-        address = state->yTile;
-        address *= width;
-        width = state->xTile;
-        address += width;
-        width = (u32)background->pBg1Data;
-        address <<= 1;
-        address += width;
-        address = *(u16 *)address;
-        width = (u32)tables->attributes;
-        address <<= 1;
-        address += width;
-        address = *(u16 *)address;
-        width = 0;
-        state->attribute = address;
-        address <<= 16;
-        address >>= 16;
-        if (address != target)
-            goto next;
-        state->debrisType = width;
-        temp = 1;
-        goto done;
+sample: {
+    register u32 width asm("r1");
+    u32 address;
+    width = background->bg1Width;
+    address = state->yTile;
+    address *= width;
+    width = state->xTile;
+    address += width;
+    width = (u32)background->pBg1Data;
+    address <<= 1;
+    address += width;
+    address = *(u16*)address;
+    width = (u32)tables->attributes;
+    address <<= 1;
+    address += width;
+    address = *(u16*)address;
+    width = 0;
+    state->attribute = address;
+    address <<= 16;
+    address >>= 16;
+    if (address != target) {
+        goto next;
     }
+    state->debrisType = width;
+    temp = 1;
+    goto done;
+}
 next:
     i++;
-    if (i <= 2)
+    if (i <= 2) {
         goto loop;
+    }
     temp = 0;
 done:
     return temp;
 }
 
-s32 ActivateSwitchTile(struct TileInteractionContext *ctx, u8 mode)
+s32 ActivateSwitchTile(struct TileInteractionContext* ctx, u8 mode)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
     u32 normalizedMode;
@@ -961,33 +998,38 @@ s32 ActivateSwitchTile(struct TileInteractionContext *ctx, u8 mode)
         switchId = 3;
         goto processSwitch;
     }
-    if (value == 67)
+    if (value == 67) {
         switchId = 4;
-    if (switchId == 0)
-        goto done;
-processSwitch:
-    {
-        u8 *switchState;
-        u16 state;
-        switchState = &gSwitchStates[switchId];
-        state = *switchState;
-        if (state > 1)
-            goto done;
-        value = 2;
-        value |= state;
-        *switchState = value;
-        state = 1;
-        value &= state;
-        state = 215;
-        if (value != 0)
-            state = 216;
-        m4aSongNumStart(state);
     }
+    if (switchId == 0) {
+        goto done;
+    }
+processSwitch: {
+    u8* switchState;
+    u16 state;
+    switchState = &gSwitchStates[switchId];
+    state = *switchState;
+    if (state > 1) {
+        goto done;
+    }
+    value = 2;
+    value |= state;
+    *switchState = value;
+    state = 1;
+    value &= state;
+    state = 215;
+    if (value != 0) {
+        state = 216;
+    }
+    m4aSongNumStart(state);
+}
     ScreenShakeRequestY(20, 0);
-    if (gWarioCollisionData.unk_0C == 0)
+    if (gWarioCollisionData.unk_0C == 0) {
         goto done;
-    if (normalizedMode != 1)
+    }
+    if (normalizedMode != 1) {
         goto done;
+    }
     attribute = gWarioData.reaction;
     value = 7;
     attribute ^= value;
@@ -1000,10 +1042,10 @@ directReturn:
     return value;
 }
 
-s32 ProcessSpecialBossTile(struct TileInteractionContext *ctx)
+s32 ProcessSpecialBossTile(struct TileInteractionContext* ctx)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    register struct TileInteractionContext *state asm("r4");
+    register struct TileInteractionContext* state asm("r4");
     register u32 value asm("r0");
     u32 result;
 
@@ -1015,10 +1057,11 @@ s32 ProcessSpecialBossTile(struct TileInteractionContext *ctx)
         goto directReturn;
     }
     value = state->attribute;
-    if (value != 10)
+    if (value != 10) {
         goto done;
+    }
     {
-        register struct BackgroundInfo *background asm("r2");
+        register struct BackgroundInfo* background asm("r2");
         register u32 product asm("r3");
 
         background = &gBackgroundInfo;
@@ -1036,7 +1079,7 @@ s32 ProcessSpecialBossTile(struct TileInteractionContext *ctx)
         result = (u32)background->pBg1Data;
         value >>= 15;
         value += result;
-        value = *(u16 *)value;
+        value = *(u16*)value;
         value += 1;
         value = (u16)value;
         {
@@ -1073,7 +1116,7 @@ s32 ProcessTileInteractionAtPosition(u32 y, u32 x, u32 tile)
     u32 xReg;
     s32 result;
     s32 i;
-    u16 *entry;
+    u16* entry;
     s32 mode;
 
     yInput = y;
@@ -1085,13 +1128,13 @@ s32 ProcessTileInteractionAtPosition(u32 y, u32 x, u32 tile)
     ctx.xTile = xReg;
     ctx.yTile = yReg;
     {
-        struct TileInteractionContext *state;
-        const u16 *attributes;
+        struct TileInteractionContext* state;
+        const u16* attributes;
         state = &ctx;
         attributes = gBackgroundTileTables.attributes;
         tileInput <<= 1;
         tileInput += (u32)attributes;
-        state->attribute = *(const u16 *)tileInput;
+        state->attribute = *(const u16*)tileInput;
         state->direction = 4;
         ctx.debrisType = 0;
         ctx.debrisOffset = 0;
@@ -1101,121 +1144,125 @@ s32 ProcessTileInteractionAtPosition(u32 y, u32 x, u32 tile)
     mode = (u8)gSpriteTileInteractionMode;
 
     switch (mode) {
-    case 1:
-        result = ProcessTileInteractionAttribute(&ctx);
-        if (result == 1)
-            break;
-        if (result == 2) {
-            result = 0;
-            break;
-        }
-        ActivateSwitchTile(&ctx, 0);
-        break;
-    case 2:
-        entry = (u16 *)0x02039F00;
-        i = 0;
-        {
-            u32 stored;
-            u32 high;
-            u32 packed;
-
-            stored = *entry;
-            high = xReg << 8;
-            packed = high;
-            packed |= yReg;
-            xReg = high;
-            if (stored == packed) {
-                *entry = result;
-                goto eraseTile;
-            }
-        }
-        do {
-            u32 stored;
-            u32 packed;
-
-            entry++;
-            i++;
-            if (i > 63)
-                break;
-            stored = *entry;
-            packed = xReg;
-            COMPILER_BARRIER2(stored, packed);
-            packed |= yReg;
-            if (stored == packed) {
-                register u32 zero asm("r0");
-                zero = 0;
-                *entry = zero;
-                result = 1;
+        case 1:
+            result = ProcessTileInteractionAttribute(&ctx);
+            if (result == 1) {
                 break;
             }
-        } while (1);
-        if (result) {
-eraseTile:
-            SetBg1TileAndGraphics(0, ctx.yTile, ctx.xTile);
-        }
-        result = 1;
-        break;
-    case 3:
-        entry = (u16 *)0x02039F00;
-        i = 0;
-        {
-            u32 stored;
-            u32 high;
-            u32 packed;
-
-            stored = *entry;
-            high = xReg << 8;
-            packed = high;
-            packed |= yReg;
-            xReg = high;
-            if (stored == packed) {
-                result = 1;
-            } else {
-                do {
-                    u32 nextStored;
-                    register u32 nextPacked asm("r0");
-
-                    entry++;
-                    i++;
-                    if (i > 63)
-                        break;
-                    nextStored = *entry;
-                    nextPacked = xReg;
-                    nextPacked |= yReg;
-                    if (nextStored == nextPacked) {
-                        result = 1;
-                        break;
-                    }
-                } while (1);
+            if (result == 2) {
+                result = 0;
+                break;
             }
-        }
-        if (result == 0) {
-            entry = (u16 *)0x02039F00;
+            ActivateSwitchTile(&ctx, 0);
+            break;
+        case 2:
+            entry = (u16*)0x02039F00;
             i = 0;
             {
-                struct TileInteractionContext *state;
-                state = &ctx;
-                goto emptyCheck;
-                do {
-                    entry++;
-                    i++;
-emptyCheck:
-                    if (i > 63)
-                        break;
-                    if (*entry == 0) {
-                        xReg |= yReg;
-                        *entry = xReg;
-                        SetBg1TileAndGraphics(1, state->yTile, state->xTile);
-                        result = 1;
-                        break;
-                    }
-                } while (1);
+                u32 stored;
+                u32 high;
+                u32 packed;
+
+                stored = *entry;
+                high = xReg << 8;
+                packed = high;
+                packed |= yReg;
+                xReg = high;
+                if (stored == packed) {
+                    *entry = result;
+                    goto eraseTile;
+                }
             }
-        }
-        break;
-    case 4:
-        ProcessSpecialBossTile(&ctx);
-        break;
+            do {
+                u32 stored;
+                u32 packed;
+
+                entry++;
+                i++;
+                if (i > 63) {
+                    break;
+                }
+                stored = *entry;
+                packed = xReg;
+                COMPILER_BARRIER2(stored, packed);
+                packed |= yReg;
+                if (stored == packed) {
+                    register u32 zero asm("r0");
+                    zero = 0;
+                    *entry = zero;
+                    result = 1;
+                    break;
+                }
+            } while (1);
+            if (result) {
+            eraseTile:
+                SetBg1TileAndGraphics(0, ctx.yTile, ctx.xTile);
+            }
+            result = 1;
+            break;
+        case 3:
+            entry = (u16*)0x02039F00;
+            i = 0;
+            {
+                u32 stored;
+                u32 high;
+                u32 packed;
+
+                stored = *entry;
+                high = xReg << 8;
+                packed = high;
+                packed |= yReg;
+                xReg = high;
+                if (stored == packed) {
+                    result = 1;
+                } else {
+                    do {
+                        u32 nextStored;
+                        register u32 nextPacked asm("r0");
+
+                        entry++;
+                        i++;
+                        if (i > 63) {
+                            break;
+                        }
+                        nextStored = *entry;
+                        nextPacked = xReg;
+                        nextPacked |= yReg;
+                        if (nextStored == nextPacked) {
+                            result = 1;
+                            break;
+                        }
+                    } while (1);
+                }
+            }
+            if (result == 0) {
+                entry = (u16*)0x02039F00;
+                i = 0;
+                {
+                    struct TileInteractionContext* state;
+                    state = &ctx;
+                    goto emptyCheck;
+                    do {
+                        entry++;
+                        i++;
+                    emptyCheck:
+                        if (i > 63) {
+                            break;
+                        }
+                        if (*entry == 0) {
+                            xReg |= yReg;
+                            *entry = xReg;
+                            SetBg1TileAndGraphics(1, state->yTile, state->xTile);
+                            result = 1;
+                            break;
+                        }
+                    } while (1);
+                }
+            }
+            break;
+        case 4:
+            ProcessSpecialBossTile(&ctx);
+            break;
     }
     return result;
 }
@@ -1224,7 +1271,7 @@ void StartTileEffect(u32 type)
 {
     u32 normalized;
     u32 compare;
-    struct TileEffectState *effect;
+    struct TileEffectState* effect;
     u32 zero;
     u32 stored;
     register u32 gameMode asm("r0");
@@ -1238,16 +1285,18 @@ void StartTileEffect(u32 type)
     gameMode = gUnk_300001B;
     COMPILER_BARRIER(gameMode);
     stored = 0;
-    if (gameMode > 1)
+    if (gameMode > 1) {
         stored = normalized;
+    }
     effect->type = stored;
-    if (compare <= 11)
+    if (compare <= 11) {
         effect->state = 1;
+    }
 }
 
 void UpdateTileEffect(void)
 {
-    struct TileEffectState *effect;
+    struct TileEffectState* effect;
     u16 x;
     u16 y;
     s32 state;
@@ -1255,14 +1304,18 @@ void UpdateTileEffect(void)
 
     effect = &gTileEffectState;
     state = effect->state;
-    if (state == 1)
+    if (state == 1) {
         goto state1;
-    if (state <= 1)
+    }
+    if (state <= 1) {
         goto end;
-    if (state == 2)
+    }
+    if (state == 2) {
         goto state2;
-    if (state == 3)
+    }
+    if (state == 3) {
         goto state3;
+    }
     goto end;
 
 state1:
@@ -1299,17 +1352,17 @@ void ReplaceTileEffectPair(u8 index)
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
     u32 tableIndex;
     u32 offset;
-    const u8 *table;
+    const u8* table;
     u16 x;
     u16 y;
-    struct BackgroundInfo *background;
+    struct BackgroundInfo* background;
     u32 leftX;
     s32 i;
     u32 product;
     register u32 work asm("r2");
     register u16 yArg asm("r1");
     register u32 scratch asm("r3");
-    const u16 *map;
+    const u16* map;
 
     tableIndex = gBossTreasureType;
     tableIndex -= 1;
@@ -1327,10 +1380,10 @@ void ReplaceTileEffectPair(u8 index)
         product = background->bg2Width;
         product *= y;
         work = product + x;
-        map = (const u16 *)background->pBg2Data;
+        map = (const u16*)background->pBg2Data;
         product = work << 1;
         product += (u32)map;
-        work = *(const u16 *)product;
+        work = *(const u16*)product;
         product = work + 2;
         product <<= 16;
         product >>= 16;
@@ -1340,10 +1393,10 @@ void ReplaceTileEffectPair(u8 index)
         product *= y;
         product += x;
         work = product - 1;
-        map = (const u16 *)background->pBg2Data;
+        map = (const u16*)background->pBg2Data;
         product = work << 1;
         product += (u32)map;
-        work = *(const u16 *)product;
+        work = *(const u16*)product;
         product = work + 2;
         product <<= 16;
         product >>= 16;
@@ -1357,11 +1410,11 @@ void ReplaceTileEffectPair(u8 index)
     } while (i >= 0);
 }
 
-void GetTileEffectPosition(u8 index, u16 *y, u16 *x)
+void GetTileEffectPosition(u8 index, u16* y, u16* x)
 {
     u32 group;
     u32 offset;
-    const u8 *table;
+    const u8* table;
 
     group = gBossTreasureType - 1;
     offset = (group << 1) + group;
@@ -1376,28 +1429,32 @@ void GetTileEffectPosition(u8 index, u16 *y, u16 *x)
 void RefreshCollectedTileEffects(void)
 {
     s32 index;
-    u8 *collection;
+    u8* collection;
     s32 count;
     u32 address;
 
-    if (gUnk_300001B != 3)
+    if (gUnk_300001B != 3) {
         goto done;
+    }
 
     gBossTreasureType = 5;
     index = 0;
     address = (u32)gCurrentCollection;
     address += 40;
-    collection = (u8 *)address;
+    collection = (u8*)address;
     count = 3;
     do {
-        if ((s32)(*collection << 31) == 0)
+        if ((s32)(*collection << 31) == 0) {
             ReplaceTileEffectPair((u8)index);
+        }
         index++;
-        if ((s32)(*collection << 30) >= 0)
+        if ((s32)(*collection << 30) >= 0) {
             ReplaceTileEffectPair((u8)index);
+        }
         index++;
-        if ((s32)(*collection << 29) >= 0)
+        if ((s32)(*collection << 29) >= 0) {
             ReplaceTileEffectPair((u8)index);
+        }
         index++;
         collection += 24;
         count--;
@@ -1417,16 +1474,17 @@ void UpdateWarioTileInteractions(void)
     register s32 edge asm("r4");
     s32 x;
     s32 y;
-    struct WarioData *wario;
-    TileCoordinateHandler *entry;
+    struct WarioData* wario;
+    TileCoordinateHandler* entry;
 
-    if (gSubGameMode == 8)
+    if (gSubGameMode == 8) {
         return;
+    }
     {
         u32 work;
         register u32 timer asm("r1");
         work = (u32)&gMainTimer;
-        timer = *(u8 *)work;
+        timer = *(u8*)work;
         work = 1;
         work &= timer;
         if (work != 0) {
@@ -1442,45 +1500,44 @@ void UpdateWarioTileInteractions(void)
         zero = 0;
         stack[3] = zero;
         ptr = (u32)&gWarioData;
-        reaction = *(u8 *)ptr;
-        wario = (struct WarioData *)ptr;
+        reaction = *(u8*)ptr;
+        wario = (struct WarioData*)ptr;
         if (reaction == 2) {
             edge = 1;
             stack[3] = edge;
         }
     }
-repeat:
-    {
-        register s32 mode asm("r6");
-        mode = stack[3];
-        if (mode == 1) {
-            s32 zero;
-            register s32 three asm("r1");
-            register s32 negThree asm("r2");
-            zero = 0;
-            stack[0] = zero;
-            three = 3;
-            bottom = three;
-            negThree = 3;
-            negThree = -negThree;
-            stack[1] = negThree;
-            right = three;
-        } else {
-            edge = 0;
-            stack[0] = edge;
-            bottom = edge;
-            y = 0;
-            stack[1] = y;
-            right = y;
-        }
+repeat: {
+    register s32 mode asm("r6");
+    mode = stack[3];
+    if (mode == 1) {
+        s32 zero;
+        register s32 three asm("r1");
+        register s32 negThree asm("r2");
+        zero = 0;
+        stack[0] = zero;
+        three = 3;
+        bottom = three;
+        negThree = 3;
+        negThree = -negThree;
+        stack[1] = negThree;
+        right = three;
+    } else {
+        edge = 0;
+        stack[0] = edge;
+        bottom = edge;
+        y = 0;
+        stack[1] = y;
+        right = y;
     }
+}
 
     {
         s32 xPosition;
         s32 yPosition;
         register s32 work asm("r0");
         register s32 index;
-        register struct BackgroundInfo *background asm("r5");
+        register struct BackgroundInfo* background asm("r5");
         register s32 extra asm("r6");
 
         xPosition = wario->xPosition;
@@ -1488,12 +1545,12 @@ repeat:
             register u32 hitboxIndex asm("r1");
 
             hitboxIndex = 54;
-{
+            {
                 register u32 r4Live asm("r4");
 
                 /* Keep r4 live across the C read to preserve the target index register. */
                 asm("" : "=r"(r4Live));
-                work = *(const s16 *)((const u8 *)wario + hitboxIndex);
+                work = *(const s16*)((const u8*)wario + hitboxIndex);
                 asm("" : : "r"(r4Live));
             }
         }
@@ -1503,38 +1560,42 @@ repeat:
         right = work;
         background = &gBackgroundInfo;
         work = background->bg1Width;
-        if (right > work)
+        if (right > work) {
             right = work;
+        }
 
         work = wario->hitboxOffsetLeft;
         work = xPosition + work;
         extra = stack[1];
         edge = work + extra;
-        if (edge < 0)
+        if (edge < 0) {
             edge = 0;
+        }
         edge >>= 6;
         stack[1] = edge;
 
         yPosition = wario->yPosition;
         index = 52;
-        work = *(s16 *)((u8 *)wario + index);
+        work = *(s16*)((u8*)wario + index);
         work = yPosition + work;
         extra = stack[0];
         edge = work + extra;
-        if (edge < 0)
+        if (edge < 0) {
             edge = 0;
+        }
         edge >>= 6;
         stack[0] = edge;
 
         index = 56;
-        work = *(s16 *)((u8 *)wario + index);
+        work = *(s16*)((u8*)wario + index);
         work = yPosition + work;
         work += bottom;
         work >>= 6;
         bottom = work;
         work = background->bg1Height;
-        if (bottom > work)
+        if (bottom > work) {
             bottom = work;
+        }
 
         work = gPreviousXPosition;
         xPosition -= work;
@@ -1550,22 +1611,24 @@ repeat:
         y = stack[0];
         if (dx != 0) {
             x = stack[1];
-            if (dx >= 0)
+            if (dx >= 0) {
                 x = right;
+            }
             edge++;
         } else {
             x = stack[1];
-            if (edge != 0)
+            if (edge != 0) {
                 x = right;
+            }
         }
         if (y <= bottom) {
-            register TileCoordinateHandler *table asm("r1");
+            register TileCoordinateHandler* table asm("r1");
             register u32 mode asm("r2");
             register u32 offset asm("r0");
             table = gTileCoordinateHandlers;
             mode = stack[3];
             offset = mode << 2;
-            entry = (TileCoordinateHandler *)(offset + (u32)table);
+            entry = (TileCoordinateHandler*)(offset + (u32)table);
             x <<= 16;
             do {
                 u32 arg0;
@@ -1588,42 +1651,44 @@ repeat:
         COMPILER_BARRIER(y);
         if (y != 0) {
             y = stack[0];
-            if (stack[2] >= 0)
+            if (stack[2] >= 0) {
                 y = bottom;
+            }
             edge++;
         } else {
             y = stack[0];
-            if (edge != 0)
+            if (edge != 0) {
                 y = bottom;
+            }
         }
         {
             s32 nextEdge;
             nextEdge = edge + 1;
             if (x <= right) {
-            register TileCoordinateHandler *table asm("r1");
-            register u32 mode asm("r2");
-            register u32 offset asm("r0");
-            table = gTileCoordinateHandlers;
-            mode = stack[3];
-            offset = mode << 2;
-            entry = (TileCoordinateHandler *)(offset + (u32)table);
-            {
-                register u32 yShift asm("r4");
-                yShift = y;
-                yShift <<= 16;
-                do {
-                    u32 arg0;
-                    u32 arg1;
-                    TileCoordinateHandler call;
-                    arg1 = (u16)x;
-                    call = *entry;
-                    arg0 = yShift >> 16;
-                    stack[4] = nextEdge;
-                    call(arg0, arg1);
-                    x++;
-                    nextEdge = stack[4];
-                } while (x <= right);
-            }
+                register TileCoordinateHandler* table asm("r1");
+                register u32 mode asm("r2");
+                register u32 offset asm("r0");
+                table = gTileCoordinateHandlers;
+                mode = stack[3];
+                offset = mode << 2;
+                entry = (TileCoordinateHandler*)(offset + (u32)table);
+                {
+                    register u32 yShift asm("r4");
+                    yShift = y;
+                    yShift <<= 16;
+                    do {
+                        u32 arg0;
+                        u32 arg1;
+                        TileCoordinateHandler call;
+                        arg1 = (u16)x;
+                        call = *entry;
+                        arg0 = yShift >> 16;
+                        stack[4] = nextEdge;
+                        call(arg0, arg1);
+                        x++;
+                        nextEdge = stack[4];
+                    } while (x <= right);
+                }
             }
             edge = nextEdge;
         }
@@ -1643,13 +1708,17 @@ void ProcessTileAtPosition(u32 y, u32 x)
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
     u32 yReg;
     u32 xReg;
-    struct BackgroundInfo *background;
-    struct BackgroundInfo *initialBackground;
-    register struct BackgroundTileTables *tables asm("r3");
+    struct BackgroundInfo* background;
+    struct BackgroundInfo* initialBackground;
+    register struct BackgroundTileTables* tables asm("r3");
     u32 attribute;
     u32 savedAttribute;
-    u8 *switches;
-    struct { volatile u32 bg0; volatile u32 attribute; volatile u32 bg2; } slots;
+    u8* switches;
+    struct {
+        volatile u32 bg0;
+        volatile u32 attribute;
+        volatile u32 bg2;
+    } slots;
     u32 tile;
     u32 work;
     u32 amount;
@@ -1702,24 +1771,28 @@ void ProcessTileAtPosition(u32 y, u32 x)
 
     work = savedAttribute - 0x74;
     if (work <= 2) {
-        if (gTimerState > 3)
+        if (gTimerState > 3) {
             return;
-        if (gWarioPauseTimer != 0)
+        }
+        if (gWarioPauseTimer != 0) {
             return;
-        if (gHeartMeter.current == 0 && gUnk_3000022 == 0)
+        }
+        if (gHeartMeter.current == 0 && gUnk_3000022 == 0) {
             return;
+        }
 
         SetBg1Tile(0, yReg, xReg);
         work = slots.attribute;
         amount = 3;
         if (work != 0x75) {
             amount = 1;
-            if (work == 0x76)
+            if (work == 0x76) {
                 amount = 5;
+            }
         }
 
         {
-            const u16 *soundTable;
+            const u16* soundTable;
             u32 soundIndex;
             register u32 warioState asm("r1");
 
@@ -1727,20 +1800,22 @@ void ProcessTileAtPosition(u32 y, u32 x)
             soundIndex = slots.attribute;
             soundIndex -= 0x74;
             warioState = (u32)&gWarioData;
-            warioState = *(u8 *)warioState;
+            warioState = *(u8*)warioState;
             soundIndex <<= 2;
-            if (warioState == 1)
+            if (warioState == 1) {
                 soundIndex += 2;
+            }
             soundIndex += (u32)soundTable;
-            m4aSongNumStart(*(const u16 *)soundIndex);
+            m4aSongNumStart(*(const u16*)soundIndex);
         }
 
         work = gHeartMeter.filling;
         work += amount;
         gHeartMeter.filling = work;
         work = gHeartMeter.current + gHeartMeter.filling;
-        if ((s32)work > 8)
+        if ((s32)work > 8) {
             gHeartMeter.filling = 8 - gHeartMeter.current;
+        }
         gHeartMeter.unk_2 = gHeartMeter.filling << 3;
         gHeartMeter.unk_3 = 0;
         return;
@@ -1751,16 +1826,16 @@ void ProcessTileAtPosition(u32 y, u32 x)
         work *= yReg;
         work += xReg;
         {
-            u16 *map;
+            u16* map;
             register u32 mapTile asm("r4");
-            register const u16 *attributes asm("r1");
+            register const u16* attributes asm("r1");
             register u32 address asm("r0");
             map = background->pBg0Data;
             mapTile = map[work];
             attributes = tables->attributes;
             address = mapTile << 1;
             address += (u32)attributes;
-            work = *(u16 *)address;
+            work = *(u16*)address;
         }
     } else {
         work = 0;
@@ -1771,38 +1846,42 @@ void ProcessTileAtPosition(u32 y, u32 x)
     work *= yReg;
     work += xReg;
     {
-        u16 *map;
+        u16* map;
         register u32 mapTile asm("r4");
-        register const u16 *attributes asm("r1");
+        register const u16* attributes asm("r1");
         register u32 address asm("r0");
         map = background->pBg2Data;
         mapTile = map[work];
         attributes = tables->attributes;
         address = mapTile << 1;
         address += (u32)attributes;
-        work = *(u16 *)address;
+        work = *(u16*)address;
     }
     slots.bg2 = work;
 
     switch (gWarioData.reaction) {
-    case 0:
-        if (gWarioData.damageTimer != 0)
-            return;
-        if (ProcessWarioReactionTile(savedAttribute, 19) != 0)
-            return;
-        if (slots.attribute == 0x69) {
-            gWarioData.reaction = 2;
-            sWarioPoseRequestFuncTable[2](0);
-        }
-        break;
-    case 1:
-        if (gWarioData.damageTimer == 0)
-            ProcessWarioReactionTile(savedAttribute, 6);
-        break;
-    case 8:
-        if (gWarioData.damageTimer == 0)
-            ProcessWarioReactionTile(savedAttribute, 19);
-        break;
+        case 0:
+            if (gWarioData.damageTimer != 0) {
+                return;
+            }
+            if (ProcessWarioReactionTile(savedAttribute, 19) != 0) {
+                return;
+            }
+            if (slots.attribute == 0x69) {
+                gWarioData.reaction = 2;
+                sWarioPoseRequestFuncTable[2](0);
+            }
+            break;
+        case 1:
+            if (gWarioData.damageTimer == 0) {
+                ProcessWarioReactionTile(savedAttribute, 6);
+            }
+            break;
+        case 8:
+            if (gWarioData.damageTimer == 0) {
+                ProcessWarioReactionTile(savedAttribute, 19);
+            }
+            break;
     }
 }
 
@@ -1837,15 +1916,16 @@ s32 ProcessWarioReactionTile(s32 attribute, s32 pose)
             offset++;
             value = (u32)gSwitchStates;
             value = offset + value;
-            switchValue = *(u8 *)value;
+            switchValue = *(u8*)value;
             value = 1;
             value &= switchValue;
-            if (value != expected)
+            if (value != expected) {
                 hit = 1;
+            }
         } else {
             offset0 = attributeReg - 0x7E;
             if ((u32)offset0 <= 3) {
-                struct WarioData *wario;
+                struct WarioData* wario;
                 u32 position;
 
                 if (attributeReg == 0x81) {
@@ -1853,47 +1933,53 @@ s32 ProcessWarioReactionTile(s32 attribute, s32 pose)
                     position = (u16)wario->hitboxOffsetTop;
                     position += wario->yPosition;
                     position &= 0x3F;
-                    if (position <= 7)
+                    if (position <= 7) {
                         hit = 1;
+                    }
                 } else if (attributeReg == 0x80) {
                     wario = &gWarioData;
                     position = (u16)wario->hitboxOffsetBottom;
                     position += wario->yPosition;
                     position &= 0x3F;
-                    if (position > 0x37)
+                    if (position > 0x37) {
                         hit = 1;
+                    }
                 } else if (attributeReg == 0x7E) {
                     wario = &gWarioData;
                     position = (u16)wario->hitboxOffsetLeft;
                     position += wario->xPosition;
                     position &= 0x3F;
-                    if (position <= 7)
+                    if (position <= 7) {
                         hit = 1;
+                    }
                 } else if (attributeReg == 0x7F) {
                     wario = &gWarioData;
                     position = (u16)wario->hitboxOffsetRight;
                     position += wario->xPosition;
                     position &= 0x3F;
-                    if (position > 0x37)
+                    if (position > 0x37) {
                         hit = 1;
+                    }
                 }
             } else if (gUnk_300001B == 3 && attributeReg == 0x9C && !(gSwitchStates[2] & 1)) {
-                struct WarioData *wario;
+                struct WarioData* wario;
                 register u32 position asm("r1");
 
                 wario = &gWarioData;
                 position = (u16)wario->hitboxOffsetBottom;
                 position += wario->yPosition;
                 position &= 0x3F;
-                if (position > 0x2F)
+                if (position > 0x2F) {
                     hit = 1;
+                }
             }
         }
     }
 
     if (hit) {
-        if (gWarioData.reaction == 8)
+        if (gWarioData.reaction == 8) {
             gWarioData.reaction = 0;
+        }
         sWarioPoseRequestFuncTable[gWarioData.reaction]((u8)poseReg);
         ChangeStageScoreAndDropCoins(-10);
     }
@@ -1907,18 +1993,18 @@ void ProcessAlternateTileAtPosition(u32 y, u32 x)
     u32 xTile;
     u32 attribute;
     u32 zero;
-    struct TileInteractionContext *collisionState;
-    const u16 *attributes;
-    struct TileInteractionContext *attributeState;
+    struct TileInteractionContext* collisionState;
+    const u16* attributes;
+    struct TileInteractionContext* attributeState;
 
     yTile = (u16)y;
     xTile = (u16)x;
-    attribute = ((u16 *)gBackgroundInfo.pBg1Data)[yTile * gBackgroundInfo.bg1Width + xTile];
+    attribute = ((u16*)gBackgroundInfo.pBg1Data)[yTile * gBackgroundInfo.bg1Width + xTile];
     attributes = gBackgroundTileTables.attributes;
     attribute = attributes[attribute];
     if (gWarioData.reaction == 2 && (u8)(gWarioData.pose - 7) <= 1) {
-        struct TileInteractionContext *state;
-        struct TileInteractionContext *setupState;
+        struct TileInteractionContext* state;
+        struct TileInteractionContext* setupState;
 
         state = &ctx;
         zero = 0;
@@ -1942,10 +2028,13 @@ void ClearTileAndSpawnPrimaryEffect(u32 y, u32 x)
 {
     u32 yReg;
     u32 xReg;
-    yReg = y; xReg = x;
-    yReg = (u16)yReg; xReg = (u16)xReg;
+    yReg = y;
+    xReg = x;
+    yReg = (u16)yReg;
+    xReg = (u16)xReg;
     SetBg1Tile(0, yReg, xReg);
-    yReg <<= 6; xReg <<= 6;
+    yReg <<= 6;
+    xReg <<= 6;
     SpawnOnePointTileEffect(yReg, xReg);
 }
 
@@ -1953,10 +2042,13 @@ void ClearTileAndSpawnAlternateEffect(u32 y, u32 x)
 {
     u32 yReg;
     u32 xReg;
-    yReg = y; xReg = x;
-    yReg = (u16)yReg; xReg = (u16)xReg;
+    yReg = y;
+    xReg = x;
+    yReg = (u16)yReg;
+    xReg = (u16)xReg;
     SetBg1Tile(0, yReg, xReg);
-    yReg <<= 6; xReg <<= 6;
+    yReg <<= 6;
+    xReg <<= 6;
     SpawnTenPointTileEffect(yReg, xReg);
 }
 
@@ -1972,22 +2064,22 @@ void UpdateWarioEnvironmentalTiles(void)
         u32 bg1Map;
         u32 bg2Row;
         u32 bg2Map;
-        u32 *bg2AttributesPtr;
+        u32* bg2AttributesPtr;
         u32 stackPadding;
     } frame;
     s32 yTile;
     s32 i;
-    register s32 *xTiles asm("r10");
-    struct BackgroundInfo *background;
-    u32 *bg1Attributes;
-    const u16 *attributes;
+    register s32* xTiles asm("r10");
+    struct BackgroundInfo* background;
+    u32* bg1Attributes;
+    const u16* attributes;
     u32 roomParam;
-    register u32 *outputCursor;
+    register u32* outputCursor;
 
     frame.xTiles[0] = (gWarioData.xPosition + (gWarioData.hitboxOffsetRight >> 1)) >> 6;
     {
         s32 secondX;
-        s32 *xTemp;
+        s32* xTemp;
         secondX = (gWarioData.xPosition + (gWarioData.hitboxOffsetLeft >> 1)) >> 6;
         xTemp = frame.xTiles;
         xTemp[1] = secondX;
@@ -1998,8 +2090,8 @@ void UpdateWarioEnvironmentalTiles(void)
     background = &gBackgroundInfo;
     bg1Attributes = frame.bg1Attributes;
     {
-        register u32 *bg2Ptr asm("r1");
-        bg2Ptr = (u32 *)&frame;
+        register u32* bg2Ptr asm("r1");
+        bg2Ptr = (u32*)&frame;
         asm volatile("" : "+r"(bg2Ptr) : : "memory");
         bg2Ptr += 4;
         frame.bg2AttributesPtr = bg2Ptr;
@@ -2028,11 +2120,11 @@ void UpdateWarioEnvironmentalTiles(void)
 
     do {
         u32 offset;
-        s32 *xEntry;
+        s32* xEntry;
         register u32 value asm("r0");
 
         offset = i << 2;
-        xEntry = (s32 *)(offset + (u32)xTiles);
+        xEntry = (s32*)(offset + (u32)xTiles);
         value = *xEntry;
         value = frame.bg1Row + value;
         value <<= 1;
@@ -2041,7 +2133,7 @@ void UpdateWarioEnvironmentalTiles(void)
             value += bg1Map;
         }
 
-        value = *(volatile u16 *)value;
+        value = *(volatile u16*)value;
         {
             register u32 bgDest asm("r1");
             bgDest = (u32)bg1Attributes;
@@ -2049,8 +2141,8 @@ void UpdateWarioEnvironmentalTiles(void)
             bgDest += offset;
             value <<= 1;
             value += (u32)attributes;
-            value = *(volatile u16 *)value;
-            *(volatile u32 *)bgDest = value;
+            value = *(volatile u16*)value;
+            *(volatile u32*)bgDest = value;
         }
 
         value = *xEntry;
@@ -2060,14 +2152,14 @@ void UpdateWarioEnvironmentalTiles(void)
             register u32 bg2Map = frame.bg2Map;
             value += bg2Map;
         }
-        value = *(volatile u16 *)value;
+        value = *(volatile u16*)value;
         {
-            register u32 *out asm("r2");
-            register u32 *base asm("r1") = frame.bg2AttributesPtr;
+            register u32* out asm("r2");
+            register u32* base asm("r1") = frame.bg2AttributesPtr;
             out = base + i;
             value <<= 1;
             value += (u32)attributes;
-            value = *(volatile u16 *)value;
+            value = *(volatile u16*)value;
             *out = value;
         }
         if (roomParam == 16) {
@@ -2079,7 +2171,7 @@ void UpdateWarioEnvironmentalTiles(void)
         } else {
             value = 0;
         }
-        *(volatile u32 *)outputCursor = value;
+        *(volatile u32*)outputCursor = value;
         asm volatile("" : "+r"(outputCursor) : "r"(value) : "memory");
         outputCursor++;
         i++;
@@ -2088,8 +2180,8 @@ void UpdateWarioEnvironmentalTiles(void)
     i = 0;
     {
         register u32 yShift asm("r7");
-        s32 *xEntry;
-        u32 *attributeEntry;
+        s32* xEntry;
+        u32* attributeEntry;
         yShift = (u32)yTile << 16;
         xEntry = xTiles;
         attributeEntry = bg1Attributes;
@@ -2099,14 +2191,15 @@ void UpdateWarioEnvironmentalTiles(void)
             if (value == 3) {
                 u16 xArg;
                 u16 yArg;
-                xArg = *(u16 *)xEntry;
+                xArg = *(u16*)xEntry;
                 yArg = (u16)(yShift >> 16);
-                if (TryTriggerRoomTransitionAtTile(yArg, xArg))
+                if (TryTriggerRoomTransitionAtTile(yArg, xArg)) {
                     return;
+                }
             } else if (value == 9) {
                 u16 xArg;
                 u16 yArg;
-                xArg = *(u16 *)xEntry;
+                xArg = *(u16*)xEntry;
                 yArg = (u16)(yShift >> 16);
                 if (TryTriggerRoomTransitionAtTile(yArg, xArg)) {
                     m4aSongNumStart(25);
@@ -2119,7 +2212,7 @@ void UpdateWarioEnvironmentalTiles(void)
                 gSubGameMode = 3;
                 StartRoomTransitionFade(2);
                 {
-                    const struct MusicPlayer *table;
+                    const struct MusicPlayer* table;
                     table = gMPlayTable;
                     MPlayStop(table[3].info);
                     m4aMPlayFadeOut(table[0].info, 2);
@@ -2128,40 +2221,44 @@ void UpdateWarioEnvironmentalTiles(void)
                 }
                 return;
             }
-            xEntry = (s32 *)((u32)xEntry + 4);
+            xEntry = (s32*)((u32)xEntry + 4);
             attributeEntry++;
             i++;
         } while (i <= 1);
     }
 
     switch (gWarioData.reaction) {
-    case 10:
-        if (gWarioData.pose != 6 && (frame.bg1Attributes[0] == 0x7D || frame.bg1Attributes[1] == 0x7D))
-            sWarioPoseRequestFuncTable[10](6);
-        break;
-    case 5:
-        if (gWarioData.pose != 0)
-            RequestWarioPoseForTileAttributes(frame.bg0Attributes, 10);
-        break;
-    case 9:
-        if (gWarioData.pose != 0)
-            RequestWarioPoseForTileAttributes(frame.bg0Attributes, 4);
-        break;
+        case 10:
+            if (gWarioData.pose != 6 && (frame.bg1Attributes[0] == 0x7D || frame.bg1Attributes[1] == 0x7D)) {
+                sWarioPoseRequestFuncTable[10](6);
+            }
+            break;
+        case 5:
+            if (gWarioData.pose != 0) {
+                RequestWarioPoseForTileAttributes(frame.bg0Attributes, 10);
+            }
+            break;
+        case 9:
+            if (gWarioData.pose != 0) {
+                RequestWarioPoseForTileAttributes(frame.bg0Attributes, 4);
+            }
+            break;
     }
 }
 
-s32 RequestWarioPoseForTileAttributes(const u32 *attributes, u32 pose)
+s32 RequestWarioPoseForTileAttributes(const u32* attributes, u32 pose)
 {
-    struct WarioData *wario;
-    struct WarioData *loadedWario;
+    struct WarioData* wario;
+    struct WarioData* loadedWario;
     u32 currentPose;
     s32 i;
 
     loadedWario = &gWarioData;
     currentPose = loadedWario->pose;
     wario = loadedWario;
-    if (currentPose == pose)
+    if (currentPose == pose) {
         return 0;
+    }
     for (i = 0; i <= 5; i++, attributes++) {
         if (*attributes == 124) {
             sWarioPoseRequestFuncTable[wario->reaction]((u8)pose);
@@ -2184,11 +2281,11 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
     xReg = (u16)x;
     result = 1;
     {
-        struct BackgroundInfo *background;
+        struct BackgroundInfo* background;
         u32 width;
         register u32 product asm("r2");
         register u32 index asm("r0");
-        register u16 *mapEntry asm("r1");
+        register u16* mapEntry asm("r1");
 
         background = &gBackgroundInfo;
         width = background->bg1Width;
@@ -2201,20 +2298,20 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
         index <<= 16;
         mapEntry = background->pBg1Data;
         index >>= 15;
-        mapEntry = (u16 *)(index + (u32)mapEntry);
+        mapEntry = (u16*)(index + (u32)mapEntry);
         *mapEntry = tileReg;
         if (tileReg == 0) {
-            u16 *count;
+            u16* count;
             register u32 offset asm("r0");
-            u16 *list;
+            u16* list;
 
             count = &gClearedRoomTileCount;
             offset = *count;
             offset <<= 1;
-            list = (u16 *)0x0203A000;
+            list = (u16*)0x0203A000;
             offset += (u32)list;
-            mapEntry = (u16 *)((s32)mapEntry >> 1);
-            *(u16 *)offset = (u32)mapEntry;
+            mapEntry = (u16*)((s32)mapEntry >> 1);
+            *(u16*)offset = (u32)mapEntry;
             offset = *count;
             offset++;
             *count = offset;
@@ -2229,26 +2326,28 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
         cameraTileY = value >> 6;
         value = cameraTileY;
         value += 10;
-        if ((s32)yReg > (s32)value)
+        if ((s32)yReg > (s32)value) {
             result = 0;
+        }
 
         value = cameraTileY - 4;
         if ((s32)value <= (s32)yReg) {
             value += 17;
             if ((s32)yReg <= (s32)value) {
-                volatile u16 *dst;
+                volatile u16* dst;
                 register u32 mask asm("r1");
                 register u32 work asm("r0");
                 register u32 columnOffset asm("r4");
                 u32 tileIndex;
                 u32 nextIndex;
-                const u16 *tiles;
+                const u16* tiles;
 
-                dst = (volatile u16 *)0x06001000;
+                dst = (volatile u16*)0x06001000;
                 work = 16;
                 work &= xReg;
-                if (work != 0)
-                    dst = (volatile u16 *)0x06001800;
+                if (work != 0) {
+                    dst = (volatile u16*)0x06001800;
+                }
                 mask = 15;
                 work = xReg;
                 work &= mask;
@@ -2259,15 +2358,15 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
                 COMPILER_BARRIER2(work, columnOffset);
                 work += columnOffset;
                 work <<= 1;
-                dst = (volatile u16 *)((u32)dst + work);
+                dst = (volatile u16*)((u32)dst + work);
 
                 work = tileReg << 18;
                 tileIndex = work >> 16;
                 mask = tileIndex;
                 {
-                    struct BackgroundTileTables *tables;
-                    volatile u16 *lowerDst;
-                    volatile u16 *lastDst;
+                    struct BackgroundTileTables* tables;
+                    volatile u16* lowerDst;
+                    volatile u16* lastDst;
 
                     tables = &gBackgroundTileTables;
                     work = 1;
@@ -2277,7 +2376,7 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
 
                     mask <<= 1;
                     mask += (u32)tiles;
-                    work = *(const u16 *)mask;
+                    work = *(const u16*)mask;
                     dst[0] = work;
 
                     work = nextIndex + 1;
@@ -2286,7 +2385,7 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
                     mask = tileIndex;
                     nextIndex <<= 1;
                     nextIndex += (u32)tiles;
-                    work = *(const u16 *)nextIndex;
+                    work = *(const u16*)nextIndex;
                     dst[1] = work;
 
                     lowerDst = dst;
@@ -2295,14 +2394,14 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
                     work <<= 16;
                     mask <<= 1;
                     mask += (u32)tiles;
-                    mask = *(const u16 *)mask;
+                    mask = *(const u16*)mask;
                     lowerDst[0] = mask;
 
                     lastDst = dst;
                     lastDst += 33;
                     work >>= 15;
                     work += (u32)tiles;
-                    work = *(const u16 *)work;
+                    work = *(const u16*)work;
                     lastDst[0] = work;
                 }
             }
@@ -2329,7 +2428,7 @@ void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x)
     xLong = xReg;
 
     {
-        struct BackgroundInfo *backgroundReg;
+        struct BackgroundInfo* backgroundReg;
         u32 width;
         register u32 mapWork asm("r0");
 
@@ -2341,11 +2440,11 @@ void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x)
         mapWork = product;
         mapWork = xReg + mapWork;
         mapWork <<= 16;
-        backgroundReg = (struct BackgroundInfo *)backgroundReg;
-        backgroundReg = (struct BackgroundInfo *)backgroundReg->pBg1Data;
+        backgroundReg = (struct BackgroundInfo*)backgroundReg;
+        backgroundReg = (struct BackgroundInfo*)backgroundReg->pBg1Data;
         mapWork >>= 15;
         mapWork += (u32)backgroundReg;
-        *(u16 *)mapWork = tileReg;
+        *(u16*)mapWork = tileReg;
     }
 
     work = gBg1YPosition;
@@ -2354,15 +2453,16 @@ void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x)
     if ((s32)work <= (s32)yReg) {
         work += 17;
         if ((s32)yReg <= (s32)work) {
-            volatile u16 *dst;
+            volatile u16* dst;
             register u32 tileIndex asm("r4");
             u32 originalIndex;
             u32 nextIndex;
             register u32 tableReg asm("r3");
 
-            dst = (volatile u16 *)0x06001000;
-            if (xReg & 16)
-                dst = (volatile u16 *)0x06001800;
+            dst = (volatile u16*)0x06001000;
+            if (xReg & 16) {
+                dst = (volatile u16*)0x06001800;
+            }
 
             work = 15;
             xLong &= work;
@@ -2371,7 +2471,7 @@ void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x)
             work = yLong << 6;
             work += product;
             work <<= 1;
-            dst = (volatile u16 *)((u32)dst + work);
+            dst = (volatile u16*)((u32)dst + work);
 
             tileIndex = tileReg;
             work = tileIndex << 18;
@@ -2383,11 +2483,11 @@ void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x)
             tileIndex |= work;
             nextIndex = tileIndex;
             COMPILER_BARRIER5(originalIndex, tileIndex, nextIndex, tableReg, work);
-            tableReg = *(u32 *)tableReg;
+            tableReg = *(u32*)tableReg;
 
             originalIndex <<= 1;
             originalIndex += tableReg;
-            work = *(const u16 *)originalIndex;
+            work = *(const u16*)originalIndex;
             dst[0] = work;
 
             work = nextIndex + 1;
@@ -2397,7 +2497,7 @@ void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x)
             COMPILER_BARRIER2(tileIndex, originalIndex);
             nextIndex <<= 1;
             nextIndex += tableReg;
-            work = *(const u16 *)nextIndex;
+            work = *(const u16*)nextIndex;
             dst[1] = work;
 
             nextIndex = (u32)dst;
@@ -2406,15 +2506,15 @@ void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x)
             work <<= 16;
             originalIndex <<= 1;
             originalIndex += tableReg;
-            originalIndex = *(const u16 *)originalIndex;
-            *(volatile u16 *)nextIndex = originalIndex;
+            originalIndex = *(const u16*)originalIndex;
+            *(volatile u16*)nextIndex = originalIndex;
 
             originalIndex = (u32)dst;
             originalIndex += 66;
             work >>= 15;
             work += tableReg;
-            work = *(const u16 *)work;
-            *(volatile u16 *)originalIndex = work;
+            work = *(const u16*)work;
+            *(volatile u16*)originalIndex = work;
         }
     }
 }
@@ -2445,7 +2545,7 @@ void SetBg2TileAndGraphics(u16 tile, u16 y, u16 x)
     arg2 >>= 16;
 
     arg1 = (u32)&gBackgroundInfo;
-    value = *(u16 *)(arg1 + 20);
+    value = *(u16*)(arg1 + 20);
     work = arg3;
     work *= value;
     COMPILER_BARRIER(work);
@@ -2453,10 +2553,10 @@ void SetBg2TileAndGraphics(u16 tile, u16 y, u16 x)
     COMPILER_BARRIER(value);
     value = arg2 + value;
     value <<= 16;
-    arg1 = *(u32 *)(arg1 + 16);
+    arg1 = *(u32*)(arg1 + 16);
     value >>= 15;
     value += arg1;
-    *(u16 *)value = tileValue;
+    *(u16*)value = tileValue;
 
     dst = 0x06002000;
     if (arg2 & 16) {
@@ -2480,11 +2580,11 @@ void SetBg2TileAndGraphics(u16 tile, u16 y, u16 x)
     work |= value;
     COMPILER_BARRIER(work);
     arg2 = work;
-    arg3 = *(u32 *)arg3;
+    arg3 = *(u32*)arg3;
     arg1 <<= 1;
     arg1 += arg3;
-    value = *(u16 *)arg1;
-    *(u16 *)dst = value;
+    value = *(u16*)arg1;
+    *(u16*)dst = value;
 
     value = arg2 + 1;
     value <<= 16;
@@ -2493,8 +2593,8 @@ void SetBg2TileAndGraphics(u16 tile, u16 y, u16 x)
     arg1 = work;
     arg2 <<= 1;
     arg2 += arg3;
-    value = *(u16 *)arg2;
-    *(u16 *)(dst + 2) = value;
+    value = *(u16*)arg2;
+    *(u16*)(dst + 2) = value;
 
     arg2 = dst;
     arg2 += 64;
@@ -2502,13 +2602,13 @@ void SetBg2TileAndGraphics(u16 tile, u16 y, u16 x)
     value <<= 16;
     arg1 <<= 1;
     arg1 += arg3;
-    arg1 = *(u16 *)arg1;
-    *(u16 *)arg2 = arg1;
+    arg1 = *(u16*)arg1;
+    *(u16*)arg2 = arg1;
 
     arg1 = dst;
     arg1 += 66;
     value >>= 15;
     value += arg3;
-    value = *(u16 *)value;
-    *(u16 *)arg1 = value;
+    value = *(u16*)value;
+    *(u16*)arg1 = value;
 }

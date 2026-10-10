@@ -14,4 +14,4 @@ void func_8092DA0(void);
 void func_8092DEC(void);
 void func_8092DFC(void);
 
-#endif // SAVE_DATA_CLEAR
+#endif  // SAVE_DATA_CLEAR

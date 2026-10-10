@@ -8,7 +8,6 @@
 #include "main.h"
 #include "score.h"
 
-
 s32 RunCurrentPassageStageEnd(void);
 
 void UpdateStageEndAffineTransform(void);
@@ -194,8 +193,8 @@ s32 UpdateStageExitSequence(void)
             break;
 
         case 31:
-            *(u16 *)0x04000004 &= 0xFFEF;
-            *(u16 *)0x04000200 &= 0xFFFD;
+            *(u16*)0x04000004 &= 0xFFEF;
+            *(u16*)0x04000200 &= 0xFFFD;
             gSwitchPressed = 0;
             gStageEntryPauseMenuDisabled = 0;
             gUnk_3000025 = 0;
@@ -267,7 +266,7 @@ s32 UpdateStageEndSequence(void)
                 m4aSongNumStart(0x1E3);
             } else {
                 gUnk_30000D8.defaultAlpha = (u8)(gUnk_30000D8.defaultAlpha - 1);
-                *((u16 *)0x04000052) = gUnk_30000D8.defaultAlpha | (0xFF00 & (*((u16 *)0x04000052)));
+                *((u16*)0x04000052) = gUnk_30000D8.defaultAlpha | (0xFF00 & (*((u16*)0x04000052)));
             }
             break;
 
@@ -308,7 +307,7 @@ s32 UpdateStageEndSequence(void)
             if (!(7 & gUnk_300188E)) {
                 mosaicLevel = gMosaic + 1;
                 gMosaic = mosaicLevel;
-                *((s16 *)0x0400004C) = mosaicLevel | ((2 * mosaicLevel) * 8);
+                *((s16*)0x0400004C) = mosaicLevel | ((2 * mosaicLevel) * 8);
             }
             break;
 
@@ -367,13 +366,9 @@ void UpdateStageEndAffineTransform(void)
     matrixValue = FixedMul(trigValue, (s16)FixedInverse((s16)gStageEndScaleY));
     gBg2PD = matrixValue;
 
-    gBg2X = (((gUnk_3003BF6 - (s16)gStageEndAffineOriginX) << 8)
-        - (gBg2PA * gUnk_3003BF6))
-        - (gBg2PB * gUnk_3003BF5);
+    gBg2X = (((gUnk_3003BF6 - (s16)gStageEndAffineOriginX) << 8) - (gBg2PA * gUnk_3003BF6)) - (gBg2PB * gUnk_3003BF5);
 
-    gBg2Y = (((gUnk_3003BF5 - (s16)gStageEndAffineOriginY) << 8)
-        - (gBg2PC * gUnk_3003BF6))
-        - (gBg2PD * gUnk_3003BF5);
+    gBg2Y = (((gUnk_3003BF5 - (s16)gStageEndAffineOriginY) << 8) - (gBg2PC * gUnk_3003BF6)) - (gBg2PD * gUnk_3003BF5);
 }
 
 void UpdateStageEndScale(void)
@@ -418,19 +413,19 @@ void InitStageEndAffine(void)
 
 void StageEndVBlank(void)
 {
-    vu16 *ioRegister;
+    vu16* ioRegister;
     s32 affineReference;
 
     m4aSoundVSync();
 
-    ioRegister = (vu16 *)0x040000D4;
-    ((vu32 *)ioRegister)[0] = (u32)gOamBuffer;
-    ((vu32 *)ioRegister)[1] = 0x07000000;
-    ((vu32 *)ioRegister)[2] = 0x84000100;
-    ((vu32 *)ioRegister)[2];
+    ioRegister = (vu16*)0x040000D4;
+    ((vu32*)ioRegister)[0] = (u32)gOamBuffer;
+    ((vu32*)ioRegister)[1] = 0x07000000;
+    ((vu32*)ioRegister)[2] = 0x84000100;
+    ((vu32*)ioRegister)[2];
 
-    *(vu16 *)0x04000014 = 0;
-    *(vu16 *)0x04000016 = 0;
+    *(vu16*)0x04000014 = 0;
+    *(vu16*)0x04000016 = 0;
 
     ioRegister -= 90;
     *ioRegister++ = gBg2PA;
@@ -458,7 +453,7 @@ void StageEndVBlank(void)
     *ioRegister = 0x064A;
 
     SetHBlankMode(0xE);
-    *(vu16 *)0x05000000 = 0;
+    *(vu16*)0x05000000 = 0;
 }
 
 void InitStageEndVBlank(void)
@@ -490,8 +485,8 @@ void UpdateStageEndBlend(void)
 initialize_blend:
     gBlendAlphaEvb = 0;
 
-    *((volatile u16 *)0x04000052) = 0x10;
-    *((volatile u16 *)0x04000050) = 0x2F50;
+    *((volatile u16*)0x04000052) = 0x10;
+    *((volatile u16*)0x04000050) = 0x2F50;
     gUnk_3000038++;
     goto finish;
 
@@ -508,7 +503,7 @@ update_blend:
     currentAlpha++;
     nextAlpha = currentAlpha;
     gBlendAlphaEvb = nextAlpha;
-    *((volatile u16 *)0x04000052) = (nextAlpha << 8) | (0x10 - nextAlpha);
+    *((volatile u16*)0x04000052) = (nextAlpha << 8) | (0x10 - nextAlpha);
 
 finish:
     return;

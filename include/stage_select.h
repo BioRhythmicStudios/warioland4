@@ -14,9 +14,9 @@ void SetStageSelectVBlankCallback(void);
 void StageSelectVBlank(void);
 void StageSelectFadeVBlank(void);
 s32 LoadSelectedStageData(void);
-void UploadTallFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination);
-void UploadFiveDigitNumberTiles(s32 value, const void *tiles, u32 destination);
-void DrawMinigameNumber(s32 value, const u16 *tiles, u32 destination);
+void UploadTallFiveDigitNumberTiles(s32 value, const void* tiles, u32 destination);
+void UploadFiveDigitNumberTiles(s32 value, const void* tiles, u32 destination);
+void DrawMinigameNumber(s32 value, const u16* tiles, u32 destination);
 void EnableAllLayersInWindows(void);
 void DrawStageSelectSprites(void);
 

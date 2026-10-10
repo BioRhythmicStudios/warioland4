@@ -1,8 +1,8 @@
 #ifndef SHOP_H
 #define SHOP_H
 
-#include "types.h"
 #include "oam.h"
+#include "types.h"
 
 struct ItemShopCursorState {
     u16 animationTimer;
@@ -27,7 +27,7 @@ void ItemShopVBlank(void);
 u32 HandleItemShopInput(void);
 void MoveItemShopCursor(u32 direction);
 u32 UpdateItemShopMedalDeduction(void);
-void Shop_DrawText(const u8 *text, u32 destination, u32 length);
+void Shop_DrawText(const u8* text, u32 destination, u32 length);
 void DrawItemShopSprites(void);
 
 #endif  // SHOP_H

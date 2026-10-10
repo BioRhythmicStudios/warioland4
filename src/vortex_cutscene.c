@@ -1,9 +1,9 @@
 #include "vortex_cutscene.h"
 #include "fixed_point.h"
 #include "init_helpers.h"
-#include "stage_select.h"
 #include "score.h"
 #include "stage_results.h"
+#include "stage_select.h"
 #include "voice_set.h"
 
 extern u8 gColorFading;
@@ -38,7 +38,7 @@ extern const u8 sUnk_868A01C[];
 extern const u16 sStageEjectionWarioOam[];
 extern const u16 sUnk_863D9EC[];
 extern const u16 sUnk_863D9F4[];
-extern const u16 *const sUnk_863A47C[];
+extern const u16* const sUnk_863A47C[];
 extern const struct AnimationFrame sUnk_863DB7C[];
 extern const struct AnimationFrame sUnk_863DBE4[];
 extern const struct AnimationFrame sUnk_863DCB4[];
@@ -51,7 +51,7 @@ u32 UpdateVortexCutscene(void)
     if (UpdateVortexCutsceneMainSprite() != 0) {
         if (gUnk_3003C34 == 0) {
             gColorFading = 4;
-            *(vu16 *)REG_ADDR_BLDCNT = 0x3FFF;
+            *(vu16*)REG_ADDR_BLDCNT = 0x3FFF;
             return 1;
         }
         gStageEntrySequenceStep++;
@@ -64,7 +64,7 @@ u32 UpdateVortexCutscene(void)
 
 void InitializeVortexCutsceneResources(void)
 {
-    volatile u32 *dma;
+    volatile u32* dma;
     u32 status;
     u32 mask;
     u16 zero;
@@ -72,7 +72,7 @@ void InitializeVortexCutsceneResources(void)
     InitializeVideoMemory();
     InitMinigameScoreDisplay();
 
-    dma = (volatile u32 *)REG_ADDR_DMA3;
+    dma = (volatile u32*)REG_ADDR_DMA3;
     dma[0] = (u32)sUnk_867D8DC;
     dma[1] = 0x05000000;
     dma[2] = 0x80000020;
@@ -85,7 +85,7 @@ void InitializeVortexCutsceneResources(void)
         } while (status != 0);
     }
 
-    dma = (volatile u32 *)REG_ADDR_DMA3;
+    dma = (volatile u32*)REG_ADDR_DMA3;
     dma[0] = (u32)sStageEjectionObjPalette;
     dma[1] = 0x05000200;
     dma[2] = 0x80000100;
@@ -98,7 +98,7 @@ void InitializeVortexCutsceneResources(void)
         } while (status != 0);
     }
 
-    dma = (volatile u32 *)REG_ADDR_DMA3;
+    dma = (volatile u32*)REG_ADDR_DMA3;
     dma[0] = (u32)sUnk_867DC9C;
     dma[1] = 0x06000000;
     dma[2] = 0x80002000;
@@ -111,7 +111,7 @@ void InitializeVortexCutsceneResources(void)
         } while (status != 0);
     }
 
-    dma = (volatile u32 *)REG_ADDR_DMA3;
+    dma = (volatile u32*)REG_ADDR_DMA3;
     dma[0] = (u32)sStageEjectionObjTiles;
     dma[1] = 0x06010000;
     dma[2] = 0x80002000;
@@ -124,7 +124,7 @@ void InitializeVortexCutsceneResources(void)
         } while (status != 0);
     }
 
-    dma = (volatile u32 *)REG_ADDR_DMA3;
+    dma = (volatile u32*)REG_ADDR_DMA3;
     dma[0] = (u32)sUnk_8681C9C;
     dma[1] = 0x0600E000;
     dma[2] = 0x80000400;
@@ -154,8 +154,8 @@ void InitializeVortexCutsceneResources(void)
 void InitializeVortexCutsceneFromPortal(void)
 {
     s32 value;
-    u16 *sprite;
-    const s16 *sincos;
+    u16* sprite;
+    const s16* sincos;
     u32 angle;
     u16 radius;
     u16 zero;
@@ -184,184 +184,157 @@ void InitializeVortexCutsceneFromPortal(void)
 
 void InitializeVortexCutsceneFromPassage(void)
 {
-  struct VortexSpriteStateCopy
-  {
-    u32 words[5];
-  };
-  u32 control;
-  u16 *sprite;
-  volatile u32 *transfer;
-  InitializeVortexCutsceneResources();
-  if ((gCurrentPassage == 0) || (gCurrentPassage == 5))
-  {
-    gUnk_3003C4A = 1;
-  }
-  else
-  {
-    gUnk_3003C4A = 0;
-  }
-  if (gUnk_3003C4A != 0)
-  {
-    volatile u32 *dma;
-    u32 status;
-    u32 mask;
-    dma = (volatile u32 *) (0x4000000 + 0xd4);
-    dma[0] = (u32) sUnk_868A01C;
-    dma[1] = 0x0600C000;
-    dma[2] = 0x80000400;
-    status = dma[2];
-    status = dma[2];
-    mask = 0x80000000;
-    if (((s32) status) < 0)
-    {
-      do
-      {
-        status = dma[2] & mask;
-      }
-      while (status != 0);
+    struct VortexSpriteStateCopy {
+        u32 words[5];
+    };
+    u32 control;
+    u16* sprite;
+    volatile u32* transfer;
+    InitializeVortexCutsceneResources();
+    if ((gCurrentPassage == 0) || (gCurrentPassage == 5)) {
+        gUnk_3003C4A = 1;
+    } else {
+        gUnk_3003C4A = 0;
     }
-    transfer = (volatile u32 *) (0x4000000 + 0xd4);
-    transfer[0] = (u32) sUnk_868981C;
-    transfer[1] = 0x0600D000;
-    control = 0x80000400;
-  }
-  else
-  {
-    volatile u32 *dma;
-    u32 status;
-    u32 mask;
-    dma = (volatile u32 *) (0x4000000 + 0xd4);
-    dma[0] = (u32) sUnk_868901C;
-    dma[1] = 0x0600C000;
-    dma[2] = 0x80000400;
-    status = dma[2];
-    status = dma[2];
-    mask = 0x80000000;
-    if (((s32) status) < 0)
-    {
-      do
-      {
-        status = dma[2] & mask;
-      }
-      while (status != 0);
-    }
-    dma = (volatile u32 *) (0x4000000 + 0xd4);
-    dma[0] = (u32) sUnk_868981C;
-    dma[1] = 0x0600D000;
-    dma[2] = 0x80000400;
-    status = dma[2];
-    status = dma[2];
-    mask = 0x80000000;
-    if (((s32) status) < 0)
-    {
-      do
-      {
-        status = dma[2] & mask;
-      }
-      while (status != 0);
-    }
-    transfer = (volatile u32 *) (0x4000000 + 0xd4);
-    transfer[0] = (u32) (&sStageEjectionPassageExtraPalettes[(gCurrentPassage - 1) << 5]);
-    transfer[1] = 0x050003C0;
-    control = 0x80000010;
-  }
-  {
-    volatile u32 *waitDma;
-    u32 status;
-    u32 mask;
-    transfer[2] = control;
-    status = transfer[2];
-    waitDma = (volatile u32 *) (0x4000000 + 0xd4);
-    status = waitDma[2];
-    mask = 0x80000000;
-    if (((s32) status) < 0)
-    {
-      do
-      {
-        do
-        {
-          status = waitDma[2] & mask;
+    if (gUnk_3003C4A != 0) {
+        volatile u32* dma;
+        u32 status;
+        u32 mask;
+        dma = (volatile u32*)(0x4000000 + 0xd4);
+        dma[0] = (u32)sUnk_868A01C;
+        dma[1] = 0x0600C000;
+        dma[2] = 0x80000400;
+        status = dma[2];
+        status = dma[2];
+        mask = 0x80000000;
+        if (((s32)status) < 0) {
+            do {
+                status = dma[2] & mask;
+            } while (status != 0);
         }
-        while (status != 0);
-      }
-      while (0);
+        transfer = (volatile u32*)(0x4000000 + 0xd4);
+        transfer[0] = (u32)sUnk_868981C;
+        transfer[1] = 0x0600D000;
+        control = 0x80000400;
+    } else {
+        volatile u32* dma;
+        u32 status;
+        u32 mask;
+        dma = (volatile u32*)(0x4000000 + 0xd4);
+        dma[0] = (u32)sUnk_868901C;
+        dma[1] = 0x0600C000;
+        dma[2] = 0x80000400;
+        status = dma[2];
+        status = dma[2];
+        mask = 0x80000000;
+        if (((s32)status) < 0) {
+            do {
+                status = dma[2] & mask;
+            } while (status != 0);
+        }
+        dma = (volatile u32*)(0x4000000 + 0xd4);
+        dma[0] = (u32)sUnk_868981C;
+        dma[1] = 0x0600D000;
+        dma[2] = 0x80000400;
+        status = dma[2];
+        status = dma[2];
+        mask = 0x80000000;
+        if (((s32)status) < 0) {
+            do {
+                status = dma[2] & mask;
+            } while (status != 0);
+        }
+        transfer = (volatile u32*)(0x4000000 + 0xd4);
+        transfer[0] = (u32)(&sStageEjectionPassageExtraPalettes[(gCurrentPassage - 1) << 5]);
+        transfer[1] = 0x050003C0;
+        control = 0x80000010;
     }
-  }
-  {
-    volatile u32 *dma;
-    u32 status;
-    u32 mask;
-    dma = (volatile u32 *) (0x4000000 + 0xd4);
-    dma[0] = (u32) (&sStageEjectionPassagePalettes[gCurrentPassage << 5]);
-    dma[1] = 0x050003A0;
-    dma[2] = 0x80000010;
-    status = dma[2];
-    status = dma[2];
-    mask = 0x80000000;
-    if (((s32) status) < 0)
     {
-      do
-      {
-        status = dma[2] & mask;
-      }
-      while (status != 0);
+        volatile u32* waitDma;
+        u32 status;
+        u32 mask;
+        transfer[2] = control;
+        status = transfer[2];
+        waitDma = (volatile u32*)(0x4000000 + 0xd4);
+        status = waitDma[2];
+        mask = 0x80000000;
+        if (((s32)status) < 0) {
+            do {
+                do {
+                    status = waitDma[2] & mask;
+                } while (status != 0);
+            } while (0);
+        }
     }
-    dma = (volatile u32 *) (0x4000000 + 0xd4);
-    dma[0] = (u32) sUnk_868669C;
-    dma[1] = 0x05000080;
-    dma[2] = 0x800000C0;
-    status = dma[2];
-    status = dma[2];
-    mask = 0x80000000;
-    if (((s32) status) < 0)
     {
-      do
-      {
-        status = dma[2] & mask;
-      }
-      while (status != 0);
+        volatile u32* dma;
+        u32 status;
+        u32 mask;
+        dma = (volatile u32*)(0x4000000 + 0xd4);
+        dma[0] = (u32)(&sStageEjectionPassagePalettes[gCurrentPassage << 5]);
+        dma[1] = 0x050003A0;
+        dma[2] = 0x80000010;
+        status = dma[2];
+        status = dma[2];
+        mask = 0x80000000;
+        if (((s32)status) < 0) {
+            do {
+                status = dma[2] & mask;
+            } while (status != 0);
+        }
+        dma = (volatile u32*)(0x4000000 + 0xd4);
+        dma[0] = (u32)sUnk_868669C;
+        dma[1] = 0x05000080;
+        dma[2] = 0x800000C0;
+        status = dma[2];
+        status = dma[2];
+        mask = 0x80000000;
+        if (((s32)status) < 0) {
+            do {
+                status = dma[2] & mask;
+            } while (status != 0);
+        }
+        dma = (volatile u32*)(0x4000000 + 0xd4);
+        dma[0] = (u32)sUnk_868681C;
+        dma[1] = 0x06008000;
+        dma[2] = 0x80001400;
+        dma[2];
     }
-    dma = (volatile u32 *) (0x4000000 + 0xd4);
-    dma[0] = (u32) sUnk_868681C;
-    dma[1] = 0x06008000;
-    dma[2] = 0x80001400;
-    dma[2];
-  }
-  *((vu16 *) (0x4000000 + 0x8)) = 0x1808;
-  *((vu16 *) (0x4000000 + 0xa)) = 0x1A09;
-  {
-    register u16 firstZero asm("r1");
-    u16 spriteZero;
-    firstZero = 0;
-    /* Keep the first zero live in r1 until the sprite-state zero is introduced in r2. */
-    asm("" : : "r"(firstZero));
-    gUnk_3003D6C = firstZero;
-    gUnk_3003D70 = firstZero;
-    gUnk_3003D6E = firstZero;
-    gUnk_3003D72 = firstZero;
-    spriteZero = 0;
-    sprite = gStageEntryMainSpriteState;
-    sprite[0] = spriteZero;
-    sprite[1] = spriteZero;
-    sprite[2] = 120;
-    sprite[3] = 80;
-    sprite[6] = spriteZero;
-    sprite[7] = 128;
-    sprite[8] = 128;
-    gStageResultsNewHighScoreIcon.state = firstZero;
-    *((struct VortexSpriteStateCopy *) gUnk_3003D78) = *((struct VortexSpriteStateCopy *) sprite);
-    gUnk_3003D8C = spriteZero;
-    gUnk_3003D90 = spriteZero;
-    gUnk_3003D8E = spriteZero;
-    gUnk_3003D92 = spriteZero;
-  }
+    *((vu16*)(0x4000000 + 0x8)) = 0x1808;
+    *((vu16*)(0x4000000 + 0xa)) = 0x1A09;
+    {
+        register u16 firstZero asm("r1");
+        u16 spriteZero;
+        firstZero = 0;
+        /* Keep the first zero live in r1 until the sprite-state zero is introduced in r2. */
+        asm("" : : "r"(firstZero));
+        gUnk_3003D6C = firstZero;
+        gUnk_3003D70 = firstZero;
+        gUnk_3003D6E = firstZero;
+        gUnk_3003D72 = firstZero;
+        spriteZero = 0;
+        sprite = gStageEntryMainSpriteState;
+        sprite[0] = spriteZero;
+        sprite[1] = spriteZero;
+        sprite[2] = 120;
+        sprite[3] = 80;
+        sprite[6] = spriteZero;
+        sprite[7] = 128;
+        sprite[8] = 128;
+        gStageResultsNewHighScoreIcon.state = firstZero;
+        *((struct VortexSpriteStateCopy*)gUnk_3003D78) = *((struct VortexSpriteStateCopy*)sprite);
+        gUnk_3003D8C = spriteZero;
+        gUnk_3003D90 = spriteZero;
+        gUnk_3003D8E = spriteZero;
+        gUnk_3003D92 = spriteZero;
+    }
 }
 
 u32 UpdateVortexCutsceneMainSprite(void)
 {
-    u8 *modePtr;
+    u8* modePtr;
     u8 mode;
-    u16 *timerPtr;
+    u16* timerPtr;
 
     mode = gUnk_3003C34;
     modePtr = &gUnk_3003C34;
@@ -370,8 +343,8 @@ u32 UpdateVortexCutsceneMainSprite(void)
         s32 radius1;
         s32 radius2;
         u16 timer;
-        u16 *sprite;
-        const s16 *table;
+        u16* sprite;
+        const s16* table;
         u32 angle;
         u32 zero;
 
@@ -405,8 +378,8 @@ u32 UpdateVortexCutsceneMainSprite(void)
         s32 radius1;
         s32 radius2;
         u16 timer;
-        u16 *sprite;
-        const s16 *table;
+        u16* sprite;
+        const s16* table;
         u32 angle;
         u32 zero;
 
@@ -457,8 +430,8 @@ u32 UpdateVortexCutsceneKeyzerSprite(void)
     s32 radius2;
     u16 timer;
     u32 angle;
-    u16 *sprite;
-    const s16 *table;
+    u16* sprite;
+    const s16* table;
     u32 zero;
 
     gUnk_3003D8C = (gUnk_3003D8C + 68) & 0xFFF;
@@ -491,22 +464,18 @@ u32 UpdateVortexCutsceneKeyzerSprite(void)
     return 0;
 }
 
-
 void UpdateVortexCutsceneAffine(void)
 {
-    const s16 *table;
-    s32 *tempAlias;
+    const s16* table;
+    s32* tempAlias;
     s32 value;
     s16 inverse;
-    s32 *valueAlias;
+    s32* valueAlias;
     s32 temp;
-    s16 *affine;
-    if (gUnk_3003C34 == 0)
-    {
+    s16* affine;
+    if (gUnk_3003C34 == 0) {
         gUnk_3003D68 = (gUnk_3003D68 + 5) & 0xFF;
-    }
-    else
-    {
+    } else {
         gUnk_3003D68 = (gUnk_3003D68 + 251) & 0xFF;
     }
     table = sSinCosTable;
@@ -518,13 +487,13 @@ void UpdateVortexCutsceneAffine(void)
     }
     inverse = FixedInverse(0x200);
     value = FixedMul(value, inverse);
-    affine = (s16 *) gStageEntryHorizontalScroll;
+    affine = (s16*)gStageEntryHorizontalScroll;
     affine[2] = value;
     value = table[gUnk_3003D68];
     valueAlias = &value;
     inverse = FixedInverse(0x200);
     affine[3] = FixedMul(value, inverse);
-    value = (s16) (-table[gUnk_3003D68]);
+    value = (s16)(-table[gUnk_3003D68]);
     inverse = FixedInverse(0x200);
     affine[4] = FixedMul(value, inverse);
     {
@@ -542,27 +511,25 @@ void UpdateVortexCutsceneAffine(void)
     temp -= ((value << 2) + value) << 4;
     /* Keep aliases alive so agbcc preserves the original value lifetimes. */
     tempAlias = &temp;
-    *((s32 *) (affine + 6)) = *tempAlias;
+    *((s32*)(affine + 6)) = *tempAlias;
     temp = (128 - affine[1]) << 8;
     value = affine[4];
     temp -= ((value << 4) - value) << 3;
     value = affine[5];
     temp -= (((*valueAlias) << 2) + value) << 4;
-    *((s32 *) (affine + 8)) = *tempAlias;
+    *((s32*)(affine + 8)) = *tempAlias;
 }
-
-
 
 void UpdateVortexCutscenePaletteCycle(void)
 {
-    vu32 *dma;
+    vu32* dma;
 
     if (gMainTimer % 5 == 0) {
         gUnk_3003D6A++;
         if (gUnk_3003D6A > 14) {
             gUnk_3003D6A = 0;
         }
-        dma = (vu32 *)REG_ADDR_DMA3;
+        dma = (vu32*)REG_ADDR_DMA3;
         dma[0] = (u32)(sUnk_867D8DC + (gUnk_3003D6A << 6));
         dma[1] = 0x05000000;
         dma[2] = 0x80000020;
@@ -572,14 +539,14 @@ void UpdateVortexCutscenePaletteCycle(void)
 
 void ApplyVortexCutsceneAffineRegisters(void)
 {
-    volatile u16 *finalDestination;
-    volatile u16 *destination;
-    u16 *source;
+    volatile u16* finalDestination;
+    volatile u16* destination;
+    u16* source;
     s32 value;
-    u16 *ySource;
+    u16* ySource;
     s32 upperMask;
     do {
-        destination = (volatile u16 *) 0x04000020;
+        destination = (volatile u16*)0x04000020;
         /* agbcc otherwise reuses the later mask pseudo-register for the first halfword copy.
          * This zero-byte boundary only splits that lifetime and emits no instruction. */
         AGBCC_SPLIT_REGISTER_LIFETIME(upperMask);
@@ -592,7 +559,7 @@ void ApplyVortexCutsceneAffineRegisters(void)
         destination++;
         *destination = source[5];
         destination++;
-        value = *((s32 *) (source + 6));
+        value = *((s32*)(source + 6));
         *destination = value;
         destination++;
         upperMask = 0x0FFF0000;
@@ -602,7 +569,7 @@ void ApplyVortexCutsceneAffineRegisters(void)
     *destination = value;
     destination++;
     ySource = source;
-    value = *((s32 *) (ySource + 8));
+    value = *((s32*)(ySource + 8));
     *destination = value;
     destination++;
     value &= upperMask;
@@ -648,12 +615,12 @@ void RenderVortexCutsceneOam(void)
         } all;
     } VortexOamData;
 
-    const u16 *src;
-    u16 *dest;
-    u16 *spriteState;
-    u16 *pbPtr;
-    u16 *pcPtr;
-    u16 *pdPtr;
+    const u16* src;
+    u16* dest;
+    u16* spriteState;
+    u16* pbPtr;
+    u16* pcPtr;
+    u16* pdPtr;
     u16 affine[4];
     u16 attr;
     u16 sine;
@@ -667,9 +634,9 @@ void RenderVortexCutsceneOam(void)
 
     currentSlot = 0;
     nextSlot = gOamSlotsUsed;
-    dest = (u16 *) &gOamBuffer[nextSlot];
+    dest = (u16*)&gOamBuffer[nextSlot];
 
-    if ((u16) (gUnk_3003D66 - 1) <= 88) {
+    if ((u16)(gUnk_3003D66 - 1) <= 88) {
         src = sStageEjectionWarioOam;
         nextSlot += *(src++);
         if (nextSlot > 128) {
@@ -684,24 +651,24 @@ void RenderVortexCutsceneOam(void)
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);
             *(dest++) = attr;
-            gOamBuffer[currentSlot].split.y = attr + (u8) gStageEntryMainSpriteState[3] - 32;
+            gOamBuffer[currentSlot].split.y = attr + (u8)gStageEntryMainSpriteState[3] - 32;
             gOamBuffer[currentSlot].split.affineMode = 3;
 
             attr = *(src++);
             *(dest++) = attr;
             gOamBuffer[currentSlot].split.x = (attr + gStageEntryMainSpriteState[2] - 32) & 0x1FF;
-            ((VortexOamData *) gOamBuffer)[currentSlot].split.affineIndex = 0;
+            ((VortexOamData*)gOamBuffer)[currentSlot].split.affineIndex = 0;
 
             *(dest++) = *(src++);
             gOamBuffer[currentSlot].split.priority = 0;
             dest++;
         }
 
-        affine[0] = FixedMul(sSinCosTable[spriteState[6] + 64], (s16) FixedInverse(spriteState[7] >> 4));
-        *pbPtr = FixedMul(sSinCosTable[spriteState[6]], (s16) FixedInverse(spriteState[7] >> 4));
+        affine[0] = FixedMul(sSinCosTable[spriteState[6] + 64], (s16)FixedInverse(spriteState[7] >> 4));
+        *pbPtr = FixedMul(sSinCosTable[spriteState[6]], (s16)FixedInverse(spriteState[7] >> 4));
         sine = sSinCosTable[spriteState[6]];
-        *pcPtr = FixedMul((s16) -sine, (s16) FixedInverse(spriteState[8] >> 4));
-        warioPd = FixedMul(sSinCosTable[spriteState[6] + 64], (s16) FixedInverse(spriteState[8] >> 4));
+        *pcPtr = FixedMul((s16)-sine, (s16)FixedInverse(spriteState[8] >> 4));
+        warioPd = FixedMul(sSinCosTable[spriteState[6] + 64], (s16)FixedInverse(spriteState[8] >> 4));
         *pdPtr = warioPd;
         gOamBuffer[0].all.affineParam = affine[0];
         gOamBuffer[1].all.affineParam = *pbPtr;
@@ -709,7 +676,7 @@ void RenderVortexCutsceneOam(void)
         gOamBuffer[3].all.affineParam = warioPd;
     }
 
-    if (((u16) (gUnk_3003D66 - 30) <= 89) && (gCollectedKeyzer == 1) && (gUnk_3003C34 == 1)) {
+    if (((u16)(gUnk_3003D66 - 30) <= 89) && (gCollectedKeyzer == 1) && (gUnk_3003C34 == 1)) {
         src = sUnk_863D9EC;
         nextSlot += *(src++);
         if (nextSlot > 128) {
@@ -724,24 +691,24 @@ void RenderVortexCutsceneOam(void)
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);
             *(dest++) = attr;
-            gOamBuffer[currentSlot].split.y = attr + (u8) gUnk_3003D78[3] - 32;
+            gOamBuffer[currentSlot].split.y = attr + (u8)gUnk_3003D78[3] - 32;
             gOamBuffer[currentSlot].split.affineMode = 3;
 
             attr = *(src++);
             *(dest++) = attr;
             gOamBuffer[currentSlot].split.x = (attr + gUnk_3003D78[2] - 32) & 0x1FF;
-            ((VortexOamData *) gOamBuffer)[currentSlot].split.affineIndex = 1;
+            ((VortexOamData*)gOamBuffer)[currentSlot].split.affineIndex = 1;
 
             *(dest++) = *(src++);
             gOamBuffer[currentSlot].split.priority = 0;
             dest++;
         }
 
-        affine[0] = FixedMul(sSinCosTable[spriteState[6] + 64], (s16) FixedInverse(spriteState[7] >> 4));
-        *pbPtr = FixedMul(sSinCosTable[spriteState[6]], (s16) FixedInverse(spriteState[7] >> 4));
+        affine[0] = FixedMul(sSinCosTable[spriteState[6] + 64], (s16)FixedInverse(spriteState[7] >> 4));
+        *pbPtr = FixedMul(sSinCosTable[spriteState[6]], (s16)FixedInverse(spriteState[7] >> 4));
         sine = sSinCosTable[spriteState[6]];
-        *pcPtr = FixedMul((s16) -sine, (s16) FixedInverse(spriteState[8] >> 4));
-        keyzerPd = FixedMul(sSinCosTable[spriteState[6] + 64], (s16) FixedInverse(spriteState[8] >> 4));
+        *pcPtr = FixedMul((s16)-sine, (s16)FixedInverse(spriteState[8] >> 4));
+        keyzerPd = FixedMul(sSinCosTable[spriteState[6] + 64], (s16)FixedInverse(spriteState[8] >> 4));
         *pdPtr = keyzerPd;
         gOamBuffer[4].all.affineParam = affine[0];
         gOamBuffer[5].all.affineParam = *pbPtr;
@@ -760,30 +727,30 @@ void RenderVortexCutsceneOam(void)
             for (; currentSlot < nextSlot; currentSlot++) {
                 attr = *(src++);
                 *(dest++) = attr;
-                gOamBuffer[currentSlot].split.y = attr + (u8) gStageResultsTreasure.y - 16;
+                gOamBuffer[currentSlot].split.y = attr + (u8)gStageResultsTreasure.y - 16;
                 if (gStageResultsTreasure.state == 4) {
-                    gOamBuffer[currentSlot].split.y = attr + (u8) gStageResultsTreasure.y - 32;
+                    gOamBuffer[currentSlot].split.y = attr + (u8)gStageResultsTreasure.y - 32;
                 }
                 gOamBuffer[currentSlot].split.affineMode = 3;
 
                 attr = *(src++);
                 *(dest++) = attr;
-                gOamBuffer[currentSlot].split.x = (attr + (s16) gStageResultsTreasure.x - 16) & 0x1FF;
+                gOamBuffer[currentSlot].split.x = (attr + (s16)gStageResultsTreasure.x - 16) & 0x1FF;
                 if (gStageResultsTreasure.state == 4) {
-                    gOamBuffer[currentSlot].split.x = ((attr + (s16) gStageResultsTreasure.x - 32) & 0xFF) & 0x1FF;
+                    gOamBuffer[currentSlot].split.x = ((attr + (s16)gStageResultsTreasure.x - 32) & 0xFF) & 0x1FF;
                 }
-                ((VortexOamData *) gOamBuffer)[currentSlot].split.affineIndex = 0;
+                ((VortexOamData*)gOamBuffer)[currentSlot].split.affineIndex = 0;
 
                 *(dest++) = *(src++);
                 gOamBuffer[currentSlot].split.priority = 0;
                 dest++;
             }
 
-            affine[0] = FixedMul(sSinCosTable[64], (s16) FixedInverse((s16) gStageResultsTreasure.scale));
-            *pbPtr = FixedMul(sSinCosTable[0], (s16) FixedInverse((s16) gStageResultsTreasure.scale));
+            affine[0] = FixedMul(sSinCosTable[64], (s16)FixedInverse((s16)gStageResultsTreasure.scale));
+            *pbPtr = FixedMul(sSinCosTable[0], (s16)FixedInverse((s16)gStageResultsTreasure.scale));
             sine = sSinCosTable[0];
-            *pcPtr = FixedMul((s16) -sine, (s16) FixedInverse((s16) gStageResultsTreasure.scale));
-            treasurePd = FixedMul(sSinCosTable[64], (s16) FixedInverse((s16) gStageResultsTreasure.scale));
+            *pcPtr = FixedMul((s16)-sine, (s16)FixedInverse((s16)gStageResultsTreasure.scale));
+            treasurePd = FixedMul(sSinCosTable[64], (s16)FixedInverse((s16)gStageResultsTreasure.scale));
             *pdPtr = treasurePd;
             gOamBuffer[0].all.affineParam = affine[0];
             gOamBuffer[1].all.affineParam = *pbPtr;

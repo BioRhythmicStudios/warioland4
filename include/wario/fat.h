@@ -5,13 +5,13 @@
 #include "wario.h"
 
 struct FatWarioGraphicsFrame {
-    const u8 *gfx;
-    const u16 *oam;
+    const u8* gfx;
+    const u16* oam;
     u8 time;
     u8 pad_09[3];
 };
 
-extern const struct FatWarioGraphicsFrame *const sFatWarioGraphicsTable[][2];
+extern const struct FatWarioGraphicsFrame* const sFatWarioGraphicsTable[][2];
 extern const u8 sFatWarioPoseProperties[][8];
 extern const struct FatWarioGraphicsFrame sFatWarioTransformingFrames[];
 extern const struct FatWarioGraphicsFrame sFatWarioTurningFrames[];
@@ -20,7 +20,7 @@ extern const struct FatWarioGraphicsFrame sFatWarioJumpingFrames[];
 extern const struct FatWarioGraphicsFrame sFatWarioKillingEnemyFrames[];
 extern const struct FatWarioGraphicsFrame sFatWarioDetransformingFrames[];
 
-extern int func_8014268(u8, u16, void *);
+extern int func_8014268(u8, u16, void*);
 extern void UpdateWarioHorizontalCollisionOffset();
 extern s32 GetAdjustedWarioXVelocity();
 extern u8 func_8014758();

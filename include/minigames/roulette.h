@@ -1,9 +1,9 @@
 #ifndef GUARD_MINIGAMES_ROULETTE_H
 #define GUARD_MINIGAMES_ROULETTE_H
 
-#include "types.h"
-#include "oam.h"
 #include "fixed_point.h"
+#include "oam.h"
+#include "types.h"
 
 struct RouletteAnimationState {
     u16 timer;
@@ -41,12 +41,12 @@ struct RouletteRenderStack {
     s16 affineB;
     s16 affineC;
     s16 affineD;
-    s16 *affineBPtr;
-    s16 *affineCPtr;
-    s16 *affineDPtr;
+    s16* affineBPtr;
+    s16* affineCPtr;
+    s16* affineDPtr;
     int nextItem;
     int itemOffset;
-    struct RouletteItem **itemRef;
+    struct RouletteItem** itemRef;
 };
 
 extern u16 gUnk_300188E;
@@ -70,7 +70,7 @@ extern struct RouletteSmallState gRouletteMiddleResult;
 extern struct RouletteSmallState gRouletteBottomResult;
 extern u8 gRouletteWinningValues[3];
 extern s16 gRouletteTickPeriod;
-extern struct RouletteItem *gRouletteItemDrawOrder[3];
+extern struct RouletteItem* gRouletteItemDrawOrder[3];
 extern u16 gRouletteMoveStartX;
 extern u16 gRouletteMoveStartY;
 extern u16 gRouletteMoveStartTile;
@@ -89,7 +89,7 @@ extern s16 gRouletteMoveStepTile;
 extern s16 gRouletteMoveStepX;
 extern s16 gRouletteMoveStepY;
 extern u8 gRouletteOamOrder[];
-extern const u16 *gRouletteItemOamTable[15];
+extern const u16* gRouletteItemOamTable[15];
 
 extern u8 sRouletteBgPalette[];
 extern u8 sRouletteObjPalette[];
@@ -101,7 +101,7 @@ extern u8 sRouletteBottomResultTiles[];
 extern u8 sRouletteExtraBgTiles[];
 extern u8 sRouletteExtraObjTiles[];
 extern const s16 sRouletteInitialTileSin;
-extern const u16 *sRouletteItemOamFrames[];
+extern const u16* sRouletteItemOamFrames[];
 extern const u8 sRouletteAwardMedalTiles[];
 extern const u8 sRouletteMedalTiles[];
 extern const u8 sRouletteScoreTiles[];
@@ -109,8 +109,6 @@ extern const u16 sRouletteAffineTableB[];
 extern const u16 sRouletteAffineTableA[];
 extern const u16 sRouletteAffineTableC[];
 extern u8 sRouletteResultFlashTiles[];
-
-
 
 extern int __modsi3(int, int);
 extern unsigned int __umodsi3(unsigned int, unsigned int);

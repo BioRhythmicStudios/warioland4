@@ -6,7 +6,6 @@
 #include "wario.h"
 #undef sWarioCollisionPointTable
 
-
 extern s8 gWarioCollisionDamageFlag;
 extern s16 gWarioTileHorizontalSpeed;
 extern s16 gWarioTileVerticalSpeed;
@@ -22,11 +21,11 @@ extern const u8 sWarioWeakThrowStateTable[];
 extern const u8 sWarioChargedThrowStateTable[];
 extern const u8 sWarioTurningThrowStateTable[];
 
-extern const struct WarioAnimationFrame *const sWarioPoseAnimationTable[];
-extern const struct WarioAnimationFrame *const sWarioCarryingAnimationTable[];
-extern const struct WarioAnimationFrame *const sWarioUpwardThrowAnimationTable[];
-extern const struct WarioAnimationFrame *const sWarioAirborneAnimationTable[];
-extern const struct WarioAnimationFrame *const sWarioIdleInputAnimationTable[];
+extern const struct WarioAnimationFrame* const sWarioPoseAnimationTable[];
+extern const struct WarioAnimationFrame* const sWarioCarryingAnimationTable[];
+extern const struct WarioAnimationFrame* const sWarioUpwardThrowAnimationTable[];
+extern const struct WarioAnimationFrame* const sWarioAirborneAnimationTable[];
+extern const struct WarioAnimationFrame* const sWarioIdleInputAnimationTable[];
 
 extern const struct WarioAnimationFrame sWarioWalkingAnimation[];
 extern const struct WarioAnimationFrame sWarioFastWalkingAnimation[];
@@ -81,7 +80,7 @@ extern const u16 sWarioDashAttackPaletteFrames[];
 extern const u16 sWarioDamageFlashPalette[];
 extern const u16 sWarioUnusedPose76AlternatePalette[];
 extern const u16 sWarioGroundPoundSecondaryPalette[];
-extern const u16 *const sWarioGroundPoundPaletteFrames[];
+extern const u16* const sWarioGroundPoundPaletteFrames[];
 extern const u16 sWarioUnusedPose76Palette[];
 extern const u16 sWarioChargedThrowPaletteFrames[];
 extern const u16 sWarioDumbbellSecondaryPalette[];
@@ -166,10 +165,10 @@ void ResolveNormalWarioPoseCollision(void);
 void SetNormalWarioPose(u8 arg0);
 void UpdateNormalWarioMovement(void);
 void ResolveNormalWarioCollision(void);
-u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 *newXPosition, u16 *inWater);
-u32 CheckWarioHorizontalCollision(u32 side, u16 *newXPosition, u32 verticalOffset);
+u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16* newYPosition, u16* newXPosition, u16* inWater);
+u32 CheckWarioHorizontalCollision(u32 side, u16* newXPosition, u32 verticalOffset);
 int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode);
-u32 CheckWarioPointCollision(u32 index, u32 yPosition, u16 *secondaryResult);
+u32 CheckWarioPointCollision(u32 index, u32 yPosition, u16* secondaryResult);
 u8 ResolveWarioStandardCollision(void);
 u8 ResolveWarioLandingCollision(void);
 u8 ResolveWarioCeilingCollision(void);

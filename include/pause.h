@@ -15,7 +15,7 @@ typedef struct PauseAnimationState {
     u16 animationFrame;
 } PauseAnimationState;
 
-extern const struct AnimationFrame *gPauseScreenAnimation;
+extern const struct AnimationFrame* gPauseScreenAnimation;
 extern struct PauseScreenState gPauseScreenState;
 extern PauseAnimationState gPauseJewelAnimationStates[4];
 extern PauseAnimationState gPauseCdAnimationState;

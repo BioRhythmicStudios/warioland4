@@ -5,13 +5,13 @@
 #include "wario.h"
 
 struct FlamingWarioGraphicsFrame {
-    const u8 *gfx;
-    const u16 *oam;
+    const u8* gfx;
+    const u16* oam;
     u8 time;
     u8 pad_09[3];
 };
 
-extern const struct FlamingWarioGraphicsFrame *const sFlamingWarioGraphicsTable[][2];
+extern const struct FlamingWarioGraphicsFrame* const sFlamingWarioGraphicsTable[][2];
 extern const u8 sFlamingWarioPoseProperties[][8];
 extern const u8 sFlamingWarioBluePalette[];
 extern const u8 sFlamingWarioGreenPalette[];

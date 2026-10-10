@@ -8,7 +8,7 @@
  * modules.  The convenience declarations in wario.h use narrower types for
  * some helpers, which changes agbcc code generation at the call sites.
  */
-void CopyWarioPalette(const void *source, u32 destination, u32 size);
+void CopyWarioPalette(const void* source, u32 destination, u32 size);
 void UpdateWarioHorizontalCollisionOffset(void);
 s32 GetAdjustedWarioXVelocity(void);
 s32 ResolveWarioStandardCollision(void);

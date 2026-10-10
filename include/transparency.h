@@ -1,10 +1,10 @@
 #ifndef TRANSPARENCY_H
 #define TRANSPARENCY_H
 
-#include "global_data.h"
 #include "backgrounds.h"
-#include "wario.h"
+#include "global_data.h"
 #include "sound.h"
+#include "wario.h"
 
 extern struct TransparencyState gUnk_30000D8;
 extern const u8 sUnk_83F7820[];

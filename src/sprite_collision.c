@@ -864,7 +864,7 @@ void SpriteCollisionProcess(void)
 {
     s32 slot;
 
-    register struct WarioData *collisionWario asm("r6");
+    register struct WarioData* collisionWario asm("r6");
     u16 warioY;
     u16 warioX;
     u16 warioTop;
@@ -1019,7 +1019,8 @@ void SpriteCollisionProcess(void)
                                     func_8023BFC(spriteY - 0xA0, spriteX);
                                     if (gSpriteCollisionTileType & 0xF) {
                                         func_8023BFC(warioY - 0x60, warioX);
-                                        if (!(0xF & gSpriteCollisionTileType) || ((collisionWario->pose < 5) || (collisionWario->pose > 9))) {
+                                        if (!(0xF & gSpriteCollisionTileType) ||
+                                            ((collisionWario->pose < 5) || (collisionWario->pose > 9))) {
                                             func_8020B10(slot, warioDirection);
                                         }
                                     } else {
@@ -1245,10 +1246,20 @@ void SpriteCollisionProcess(void)
                     case 0x18:
                     case 0x19:
                     case 0x1A:
-                        func_8021784(slot, warioDirection, spriteTop, spriteBottom, spriteLeft, spriteRight, warioLeft, warioRight);
+                        func_8021784(
+                            slot,
+                            warioDirection,
+                            spriteTop,
+                            spriteBottom,
+                            spriteLeft,
+                            spriteRight,
+                            warioLeft,
+                            warioRight
+                        );
                         break;
                     solidSpriteCollision:
-                        /* Calling it as a value-returning function keeps agbcc from merging this call into the identical one in case 0x1E. */
+                        /* Calling it as a value-returning function keeps agbcc from merging this call into the
+                         * identical one in case 0x1E. */
                         ((s32 (*)(s32, u16, u16, u16))func_8021E6C)(slot, spriteBottom, spriteLeft, spriteRight);
                         gIgnoreSpriteCollision = 1;
                         break;
@@ -2511,8 +2522,10 @@ void func_8021784(
         if (gPreviousYPosition > gWarioData.yPosition) {
             gSpriteCollisionFlags &= ~1;
         }
-    } else if (gSpriteCollisionFlags & SPRITE_COLLISION_BELOW && gSpriteData[slot].warioCollision != 0x16 &&
-               gPreviousYPosition < gWarioData.yPosition) {
+    } else if (
+        gSpriteCollisionFlags & SPRITE_COLLISION_BELOW && gSpriteData[slot].warioCollision != 0x16 &&
+        gPreviousYPosition < gWarioData.yPosition
+    ) {
         gSpriteCollisionFlags &= ~2;
         return;
     }
@@ -3041,7 +3054,8 @@ void func_80222D8(s32 slot, u16 bottom, u16 left, u16 right)
                         /* Keep the explicit sprite-address multiply in agbcc's r0. */
                         register u32 spriteStride asm("r0");
                         spriteStride = sizeof(gSpriteData[0]);
-                        ((struct PrimarySpriteData *)((u8 *)gSpriteData + spriteStride * slot))->pose = SPOSE_TACKLED_RIGHT_INIT;
+                        ((struct PrimarySpriteData*)((u8*)gSpriteData + spriteStride * slot))->pose =
+                            SPOSE_TACKLED_RIGHT_INIT;
                     }
                     WarioRequestPose(WPOSE_NORMAL_SHOULDER_BASH_BONK);
                     gWarioData.xVelocity = -0x48;
@@ -3062,7 +3076,8 @@ void func_80222D8(s32 slot, u16 bottom, u16 left, u16 right)
                         /* Keep the explicit sprite-address multiply in agbcc's r0. */
                         register u32 spriteStride asm("r0");
                         spriteStride = sizeof(gSpriteData[0]);
-                        ((struct PrimarySpriteData *)((u8 *)gSpriteData + spriteStride * slot))->pose = SPOSE_TACKLED_LEFT_INIT;
+                        ((struct PrimarySpriteData*)((u8*)gSpriteData + spriteStride * slot))->pose =
+                            SPOSE_TACKLED_LEFT_INIT;
                     }
                     WarioRequestPose(WPOSE_NORMAL_SHOULDER_BASH_BONK);
                     gWarioData.xVelocity = 0x48;

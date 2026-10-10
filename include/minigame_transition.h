@@ -29,4 +29,4 @@ void InitializeTitleScreenLogoCutscene(void);
 void WaitForVBlankInterrupt(u32 subGameMode);
 void ResetCutsceneBackgroundRegisters(void);
 
-#endif // MINIGAME_TRANSITION_H
+#endif  // MINIGAME_TRANSITION_H

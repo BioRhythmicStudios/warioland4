@@ -16,7 +16,14 @@ void UpdateLayeredSubGameCutscene(u16 frame);
 void UpdateLayeredEndingCutsceneSequence(u16 frame);
 void UpdateLayeredWarioCutsceneSequence(u16 frame);
 void UpdateEndingScrollCutscene(u16 frame);
-void BuildCutsceneBackgroundAffineMatrix(u16 *affineRegisters, u16 rotation, u16 scaleX, u16 scaleY, s32 centerX, s32 centerY);
+void BuildCutsceneBackgroundAffineMatrix(
+    u16* affineRegisters,
+    u16 rotation,
+    u16 scaleX,
+    u16 scaleY,
+    s32 centerX,
+    s32 centerY
+);
 
 void ResetPrimaryCutsceneAffineState(void)
 {
@@ -277,7 +284,9 @@ u32 UpdateCutsceneSequence(void)
             break;
     }
 
-    BuildCutsceneBackgroundAffineMatrix(gUnk_3002C32, gUnk_3002C2C, gUnk_3002C2E, gUnk_3002C30, 0x78 - gUnk_3002C28, 0x50 - gUnk_3002C2A);
+    BuildCutsceneBackgroundAffineMatrix(
+        gUnk_3002C32, gUnk_3002C2C, gUnk_3002C2E, gUnk_3002C30, 0x78 - gUnk_3002C28, 0x50 - gUnk_3002C2A
+    );
 
     if (((u16)(gSubGameMode - 3) <= 0xD) && ((gButtonsPressed & (A_BUTTON | START_BUTTON)) != 0)) {
         m4aSongNumStartOrChange(0x124);
@@ -289,8 +298,8 @@ u32 UpdateCutsceneSequence(void)
 
 void CutsceneVBlankCallback(void)
 {
-    vu16 *affineRegisters;
-    vu16 *ioRegister;
+    vu16* affineRegisters;
+    vu16* ioRegister;
     u32 registerValue;
     u32 oamByteSize;
 
@@ -298,15 +307,15 @@ void CutsceneVBlankCallback(void)
 
     oamByteSize = gUnk_3002C6C;
     if (oamByteSize != 0) {
-        ioRegister = (vu16 *)REG_ADDR_DMA3SAD;
-        ((vu32 *)ioRegister)[0] = (u32)gOamBuffer;
-        ((vu32 *)ioRegister)[1] = OAM;
-        ((vu32 *)ioRegister)[2] = DMA_COPY_32(oamByteSize >> 2);
-        ((vu32 *)ioRegister)[2];
+        ioRegister = (vu16*)REG_ADDR_DMA3SAD;
+        ((vu32*)ioRegister)[0] = (u32)gOamBuffer;
+        ((vu32*)ioRegister)[1] = OAM;
+        ((vu32*)ioRegister)[2] = DMA_COPY_32(oamByteSize >> 2);
+        ((vu32*)ioRegister)[2];
     }
 
     affineRegisters = gUnk_3002C32;
-    ioRegister = (vu16 *)REG_ADDR_BG2PA;
+    ioRegister = (vu16*)REG_ADDR_BG2PA;
 
     registerValue = *affineRegisters;
     *ioRegister = registerValue;

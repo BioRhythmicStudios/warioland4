@@ -14,7 +14,7 @@ struct CameraControlArea {
 };
 
 extern struct CameraControlArea gCameraControlAreas[2];
-extern const u8 *gCurrentRoomCameraControlData;
+extern const u8* gCurrentRoomCameraControlData;
 
 void LoadCurrentRoomCameraControlData(void);
 void UpdateCamera(void);

@@ -190,6 +190,6 @@ void SpawnEnemyScoreDrop(u32 id, u32 y, u32 x, u32 amount);
 void ChangeStageScoreAndDropCoins(s32);
 void ConvertKeyzerToTimeUpEffect(void);
 void ResetTimeUpWarioSecondarySprite(void);
-void AdvanceSecondarySpriteAnimation(const struct AnimationFrame *animation);
+void AdvanceSecondarySpriteAnimation(const struct AnimationFrame* animation);
 
 #endif  // SCORE_H

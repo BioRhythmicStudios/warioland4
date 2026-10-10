@@ -1,4 +1,3 @@
-
 #include "main.h"
 #include "score.h"
 #include "sprite_ai/chance_wheel.h"
@@ -29,7 +28,6 @@ extern const u8 sBossLife0Gfx[];
 
 extern const u8 sUnk_83BF986[];
 extern const u8 sBigBoardSpaceSpriteTable[];
-
 
 const u16 sCommonSpritesPal[] = {
 #include "data/common_sprites.pal.inc"
@@ -397,7 +395,7 @@ void UpdateBossHealthGauge(void)
 void UpdateWarioLifeHud(void)
 {
     u32 heartGaugeIncrease;
-    struct WarioLife *heartMeter;
+    struct WarioLife* heartMeter;
 
     heartGaugeIncrease = 0;
     gHeartGauge.unk_2 = 0;
@@ -421,7 +419,7 @@ void UpdateWarioLifeHud(void)
         }
     }
 
-    gCurrentHeartGaugeGfx = (u8 *)sHeartGaugeGfx[gHeartGauge.current];
+    gCurrentHeartGaugeGfx = (u8*)sHeartGaugeGfx[gHeartGauge.current];
 
     if (heartGaugeIncrease == 8) {
         if (gHeartMeter.current + gHeartMeter.filling > 7) {
@@ -459,248 +457,234 @@ void UpdateWarioLifeHud(void)
         if ((gMainTimer & 0x3F) == 0x20 && gWarioPauseTimer == 0) {
             m4aSongNumStart(0x1C8);
         }
-        gCurrentHeartMeterGfx = (u8 *)sHeartMeterGfx[9];
+        gCurrentHeartMeterGfx = (u8*)sHeartMeterGfx[9];
     } else {
-        gCurrentHeartMeterGfx = (u8 *)sHeartMeterGfx[heartMeter->current];
+        gCurrentHeartMeterGfx = (u8*)sHeartMeterGfx[heartMeter->current];
     }
 }
-
 
 void DrawGameplayHudOam(void)
 {
-  u16 *dest;
-  int new_var;
-  register u32 count asm("ip");
-  u8 stage;
-  int new_var2;
-  u8 *base;
-  dest = (u16 *) gOamBuffer;
-  new_var2 = 0;
-  asm volatile("" : "=r"(count) : "0"(new_var2));
-  new_var = 6;
-  ;
-  stage = gCurrentStageNumber;
-  base = (u8 *) dest;
-  if (stage > 3)
-  {
-    if ((gCurrentRoom != 0) && (gTimerState != 11))
-    {
-      *(dest++) = count;
-      ((OamData *) base)->split.y = 6;
-      ((OamData *) base)->split.shape = 1;
-      do
-      {
-        *(dest++) = count;
-      }
-      while (0);
-      ((OamData *) base)->split.x = 161;
-      ((OamData *) base)->split.size = 1;
-      *dest = count;
-      ((OamData *) base)->split.tileNum = 352;
-      ((OamData *) base)->split.paletteNum = 14;
-      dest += 2;
-      *(dest++) = 0;
-      {
-        u8 *oam;
-        oam = base + 8;
-        ((OamData *) oam)->split.y = 6;
-        ((OamData *) oam)->split.shape = 1;
-        *(dest++) = 0;
-        ((OamData *) oam)->split.x = 193;
-        ((OamData *) oam)->split.size = 1;
-        *dest = 0;
-        ((OamData *) oam)->split.tileNum = 356;
-        asm volatile("" : "+r"(count));
-        ((OamData *) oam)->split.paletteNum = 14;
-        dest += 2;
-      }
-      *(dest++) = 0;
-      {
-        u8 *oam;
-        oam = base + 16;
-        ((OamData *) oam)->split.y = 6;
-        ((OamData *) oam)->split.shape = 1;
-        *(dest++) = new_var2;
-        ((OamData *) oam)->split.x = 225;
-        ((OamData *) oam)->split.size = 0;
-        *dest = 0;
-        ((OamData *) oam)->split.tileNum = 360;
-        ((OamData *) oam)->split.paletteNum = 14;
-        dest += 2;
-      }
-      goto setInitialOamCount;
-    }
-  }
-  else
-    if (gTimerState <= 2)
-  {
-    u32 xMask;
+    u16* dest;
+    int new_var;
+    register u32 count asm("ip");
+    u8 stage;
+    int new_var2;
+    u8* base;
+    dest = (u16*)gOamBuffer;
+    new_var2 = 0;
+    asm volatile("" : "=r"(count) : "0"(new_var2));
+    new_var = 6;
+    ;
+    stage = gCurrentStageNumber;
+    base = (u8*)dest;
+    if (stage > 3) {
+        if ((gCurrentRoom != 0) && (gTimerState != 11)) {
+            *(dest++) = count;
+            ((OamData*)base)->split.y = 6;
+            ((OamData*)base)->split.shape = 1;
+            do {
+                *(dest++) = count;
+            } while (0);
+            ((OamData*)base)->split.x = 161;
+            ((OamData*)base)->split.size = 1;
+            *dest = count;
+            ((OamData*)base)->split.tileNum = 352;
+            ((OamData*)base)->split.paletteNum = 14;
+            dest += 2;
+            *(dest++) = 0;
+            {
+                u8* oam;
+                oam = base + 8;
+                ((OamData*)oam)->split.y = 6;
+                ((OamData*)oam)->split.shape = 1;
+                *(dest++) = 0;
+                ((OamData*)oam)->split.x = 193;
+                ((OamData*)oam)->split.size = 1;
+                *dest = 0;
+                ((OamData*)oam)->split.tileNum = 356;
+                asm volatile("" : "+r"(count));
+                ((OamData*)oam)->split.paletteNum = 14;
+                dest += 2;
+            }
+            *(dest++) = 0;
+            {
+                u8* oam;
+                oam = base + 16;
+                ((OamData*)oam)->split.y = 6;
+                ((OamData*)oam)->split.shape = 1;
+                *(dest++) = new_var2;
+                ((OamData*)oam)->split.x = 225;
+                ((OamData*)oam)->split.size = 0;
+                *dest = 0;
+                ((OamData*)oam)->split.tileNum = 360;
+                ((OamData*)oam)->split.paletteNum = 14;
+                dest += 2;
+            }
+            goto setInitialOamCount;
+        }
+    } else if (gTimerState <= 2) {
+        u32 xMask;
 
-    {
-      u8 *oam;
-      {
-        register u32 tempCount asm("r2");
-        tempCount = count;
-        *(dest++) = tempCount;
-        stage = 6;
-        new_var = stage;
-        asm volatile("" : : "r"(new_var), "r"(base));
-        ((OamData *) base)->split.y = new_var;
-        *(dest++) = tempCount;
-      }
-      {
-        u32 result;
-        register u16 oldAttr asm("r1");
-        register u8 *storeOam asm("r2");
-        u32 hardMask;
+        {
+            u8* oam;
+            {
+                register u32 tempCount asm("r2");
+                tempCount = count;
+                *(dest++) = tempCount;
+                stage = 6;
+                new_var = stage;
+                asm volatile("" : : "r"(new_var), "r"(base));
+                ((OamData*)base)->split.y = new_var;
+                *(dest++) = tempCount;
+            }
+            {
+                u32 result;
+                register u16 oldAttr asm("r1");
+                register u8* storeOam asm("r2");
+                u32 hardMask;
 
-        oldAttr = *(u16 *)(base + 2);
-        hardMask = 0xFFFFFE00;
-        result = hardMask;
-        result &= oldAttr;
-        oldAttr = 179;
-        result |= oldAttr;
-        storeOam = base;
-        *(u16 *)(storeOam + 2) = result;
-        asm volatile("" : "=r"(xMask) : "0"(hardMask));
-        oam = storeOam;
-      }
-      {
-        u32 storeCount;
-        asm volatile("" : "=r"(storeCount) : "0"(count));
-        *dest = storeCount;
-      }
-      ((OamData *) oam)->split.tileNum = 203;
-      ((OamData *) oam)->split.paletteNum = new_var;
-      dest += 2;
+                oldAttr = *(u16*)(base + 2);
+                hardMask = 0xFFFFFE00;
+                result = hardMask;
+                result &= oldAttr;
+                oldAttr = 179;
+                result |= oldAttr;
+                storeOam = base;
+                *(u16*)(storeOam + 2) = result;
+                asm volatile("" : "=r"(xMask) : "0"(hardMask));
+                oam = storeOam;
+            }
+            {
+                u32 storeCount;
+                asm volatile("" : "=r"(storeCount) : "0"(count));
+                *dest = storeCount;
+            }
+            ((OamData*)oam)->split.tileNum = 203;
+            ((OamData*)oam)->split.paletteNum = new_var;
+            dest += 2;
+        }
+        count = 2;
+        {
+            u32 zero;
+            zero = 0;
+            *(dest++) = zero;
+        }
+        {
+            u8* oam;
+            oam = base + 8;
+            {
+                int yValue;
+                yValue = new_var;
+                *(base + 8) = yValue;
+            }
+            ((OamData*)oam)->split.shape = 1;
+            *(dest++) = 0;
+            ((OamData*)oam)->all.attr1 = (((OamData*)oam)->all.attr1 & xMask) | 188;
+            ((OamData*)oam)->split.size = 0;
+            *dest = 0;
+            ((OamData*)oam)->split.tileNum = 132;
+            ((OamData*)oam)->split.paletteNum = 4;
+            dest += 2;
+        }
+        *(dest++) = 0;
+        {
+            u8* oam;
+            oam = base + 16;
+            ((OamData*)oam)->split.y = new_var;
+            ((OamData*)oam)->split.shape = 1;
+            *(dest++) = 0;
+            ((OamData*)oam)->all.attr1 = (((OamData*)oam)->all.attr1 & xMask) | 204;
+            ((OamData*)oam)->split.size = 1;
+            *dest = 0;
+            ((OamData*)oam)->split.tileNum = 134;
+            ((OamData*)oam)->split.paletteNum = 4;
+            dest += count;
+        }
+        goto setInitialOamCount;
     }
-    count = 2;
-    {
-      u32 zero;
-      zero = 0;
-      *(dest++) = zero;
-    }
-    {
-      u8 *oam;
-      oam = base + 8;
-      {
-        int yValue;
-        yValue = new_var;
-        *(base + 8) = yValue;
-      }
-      ((OamData *) oam)->split.shape = 1;
-      *(dest++) = 0;
-      ((OamData *) oam)->all.attr1 = (((OamData *) oam)->all.attr1 & xMask) | 188;
-      ((OamData *) oam)->split.size = 0;
-      *dest = 0;
-      ((OamData *) oam)->split.tileNum = 132;
-      ((OamData *) oam)->split.paletteNum = 4;
-      dest += 2;
-    }
-    *(dest++) = 0;
-    {
-      u8 *oam;
-      oam = base + 16;
-      ((OamData *) oam)->split.y = new_var;
-      ((OamData *) oam)->split.shape = 1;
-      *(dest++) = 0;
-      ((OamData *) oam)->all.attr1 = (((OamData *) oam)->all.attr1 & xMask) | 204;
-      ((OamData *) oam)->split.size = 1;
-      *dest = 0;
-      ((OamData *) oam)->split.tileNum = 134;
-      ((OamData *) oam)->split.paletteNum = 4;
-      dest += count;
-    }
-    goto setInitialOamCount;
-  }
-  goto processStatusOam;
-  setInitialOamCount:
-  count = 3;
+    goto processStatusOam;
+setInitialOamCount:
+    count = 3;
 
-  processStatusOam:
-  if (gCurrentStageNumber > 3)
-  {
-    if (gCurrentRoom != 0)
-    {
-      *(dest++) = 0;
-      {
-        u8 *oam;
-        oam = base + (count * 8);
-        ((OamData *) oam)->split.y = new_var;
-        ((OamData *) oam)->split.shape = 1;
+processStatusOam:
+    if (gCurrentStageNumber > 3) {
+        if (gCurrentRoom != 0) {
+            *(dest++) = 0;
+            {
+                u8* oam;
+                oam = base + (count * 8);
+                ((OamData*)oam)->split.y = new_var;
+                ((OamData*)oam)->split.shape = 1;
+                *(dest++) = 0;
+                ((OamData*)oam)->split.x = 9;
+                ((OamData*)oam)->split.size = 1;
+                *dest = 0;
+                ((OamData*)oam)->split.tileNum = 144;
+                ((OamData*)oam)->split.paletteNum = 7;
+                dest += 2;
+            }
+            count++;
+            *(dest++) = 0;
+            {
+                u8* oam;
+                oam = base + (count * 8);
+                ((OamData*)oam)->split.y = new_var;
+                ((OamData*)oam)->split.shape = 1;
+                *(dest++) = 0;
+                ((OamData*)oam)->split.x = 41;
+                ((OamData*)oam)->split.size = 1;
+                *dest = 0;
+                ((OamData*)oam)->split.tileNum = 148;
+                ((OamData*)oam)->split.paletteNum = 7;
+                count++;
+            }
+        }
+    } else {
         *(dest++) = 0;
-        ((OamData *) oam)->split.x = 9;
-        ((OamData *) oam)->split.size = 1;
-        *dest = 0;
-        ((OamData *) oam)->split.tileNum = 144;
-        ((OamData *) oam)->split.paletteNum = 7;
-        dest += 2;
-      }
-      count++;
-      *(dest++) = 0;
-      {
-        u8 *oam;
-        oam = base + (count * 8);
-        ((OamData *) oam)->split.y = new_var;
-        ((OamData *) oam)->split.shape = 1;
-        *(dest++) = 0;
-        ((OamData *) oam)->split.x = 41;
-        ((OamData *) oam)->split.size = 1;
-        *dest = 0;
-        ((OamData *) oam)->split.tileNum = 148;
-        ((OamData *) oam)->split.paletteNum = 7;
+        {
+            u8* oam;
+            oam = base + (count * 8);
+            ((OamData*)oam)->split.y = new_var;
+            ((OamData*)oam)->split.shape = 1;
+            *(dest++) = 0;
+            ((OamData*)oam)->split.x = 9;
+            goto dummy_label_71025;
+        dummy_label_71025:;
+
+            ;
+            ;
+            ;
+            ((OamData*)oam)->split.size = 2;
+            *dest = 0;
+            ((OamData*)oam)->split.tileNum = 144;
+            ((OamData*)oam)->split.paletteNum = 7;
+            dest += 2;
+        }
         count++;
-      }
+        *(dest++) = 0;
+        {
+            u8* oam;
+            oam = base + (count * 8);
+            ((OamData*)oam)->split.y = new_var;
+            ((OamData*)oam)->split.shape = 1;
+            *(dest++) = 0;
+            ((OamData*)oam)->split.x = 41;
+            ((OamData*)oam)->split.size = 2;
+            *dest = 0;
+            ((OamData*)oam)->split.tileNum = 148;
+            ((OamData*)oam)->split.paletteNum = 7;
+            count++;
+        }
     }
-  }
-  else
-  {
-    *(dest++) = 0;
-    {
-      u8 *oam;
-      oam = base + (count * 8);
-      ((OamData *) oam)->split.y = new_var;
-      ((OamData *) oam)->split.shape = 1;
-      *(dest++) = 0;
-      ((OamData *) oam)->split.x = 9;
-      goto dummy_label_71025;
-      dummy_label_71025:
-      ;
 
-      ;
-      ;
-      ;
-      ((OamData *) oam)->split.size = 2;
-      *dest = 0;
-      ((OamData *) oam)->split.tileNum = 144;
-      ((OamData *) oam)->split.paletteNum = 7;
-      dest += 2;
-    }
-    count++;
-    *(dest++) = 0;
-    {
-      u8 *oam;
-      oam = base + (count * 8);
-      ((OamData *) oam)->split.y = new_var;
-      ((OamData *) oam)->split.shape = 1;
-      *(dest++) = 0;
-      ((OamData *) oam)->split.x = 41;
-      ((OamData *) oam)->split.size = 2;
-      *dest = 0;
-      ((OamData *) oam)->split.tileNum = 148;
-      ((OamData *) oam)->split.paletteNum = 7;
-      count++;
-    }
-  }
-
-  gOamSlotsUsed = count;
+    gOamSlotsUsed = count;
 }
-
 
 void UpdateBigBoardSecondarySprite(void)
 {
-    struct SecondarySprite *source;
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* source;
+    struct SecondarySprite* sprite;
     u32 pose;
     u32 switchPose;
 
@@ -715,16 +699,18 @@ void UpdateBigBoardSecondarySprite(void)
             sprite->pose = 1;
             break;
         case 1:
-            if (sprite->work0 == 0)
+            if (sprite->work0 == 0) {
                 break;
+            }
             {
                 u32 timer;
                 timer = sprite->timer;
                 timer--;
                 sprite->timer = timer;
                 timer <<= 24;
-                if (timer != 0)
+                if (timer != 0) {
                     break;
+                }
             }
             {
                 register u32 frame asm("r0");
@@ -740,8 +726,9 @@ void UpdateBigBoardSecondarySprite(void)
                 sprite->timer = four;
                 frame -= 6;
                 frame = (u16)frame;
-                if (frame <= 67)
+                if (frame <= 67) {
                     break;
+                }
                 value = sprite->xPosition;
                 frame = value;
                 frame += 64;
@@ -759,45 +746,49 @@ void UpdateBigBoardSecondarySprite(void)
                 }
             }
             break;
-        case 2:
-            {
-                u32 value;
-                register u32 mask asm("r1");
-                value = sprite->animationTimer;
-                value -= 7;
-                value = (u16)value;
-                if (value <= 67)
-                    gUnk_300003A += 16;
-                value = sprite->timer;
-                value--;
-                sprite->timer = value;
-                mask = 255;
-                value <<= 24;
-                if (value != 0)
-                    break;
-                value = 1;
-                sprite->pose = value;
-                value = 8;
-                sprite->timer = value;
-                value = sprite->work0;
-                value--;
-                sprite->work0 = value;
-                value &= mask;
-                if (value != 0)
-                    goto playMoveSound;
-                goto playStopSound;
+        case 2: {
+            u32 value;
+            register u32 mask asm("r1");
+            value = sprite->animationTimer;
+            value -= 7;
+            value = (u16)value;
+            if (value <= 67) {
+                gUnk_300003A += 16;
             }
-        case 3:
-            if (sprite->work0 == 0)
+            value = sprite->timer;
+            value--;
+            sprite->timer = value;
+            mask = 255;
+            value <<= 24;
+            if (value != 0) {
                 break;
+            }
+            value = 1;
+            sprite->pose = value;
+            value = 8;
+            sprite->timer = value;
+            value = sprite->work0;
+            value--;
+            sprite->work0 = value;
+            value &= mask;
+            if (value != 0) {
+                goto playMoveSound;
+            }
+            goto playStopSound;
+        }
+        case 3:
+            if (sprite->work0 == 0) {
+                break;
+            }
             {
                 u32 timer;
                 timer = sprite->timer;
                 timer--;
                 sprite->timer = timer;
                 timer <<= 24;
-                if (timer != 0)
+                if (timer != 0) {
                     break;
+                }
             }
             {
                 u32 frame;
@@ -822,45 +813,44 @@ void UpdateBigBoardSecondarySprite(void)
                 }
             }
             break;
-        case 4:
-            {
-                register struct SecondarySprite *current asm("r1");
-                u32 value;
-                register u32 mask asm("r3");
-                current = sprite;
-                value = current->timer;
-                value--;
-                current->timer = value;
-                mask = 255;
-                value <<= 24;
-                if (value != 0)
-                    break;
-                value = 3;
-                current->pose = value;
-                value = 8;
-                current->timer = value;
-                value = current->work0;
-                value--;
-                current->work0 = value;
-                value &= mask;
-                if (value != 0) {
-playMoveSound:
-                    m4aSongNumStart(224);
-                    break;
-                }
-                value = current->animationTimer;
-                if (value == 79) {
-                    value = 5;
-                    current->pose = value;
-playStopSound:
-                    m4aSongNumStart(225);
-                    break;
-                }
-                value = 1;
-                sprite->pose = value;
-                m4aSongNumStart(225);
+        case 4: {
+            register struct SecondarySprite* current asm("r1");
+            u32 value;
+            register u32 mask asm("r3");
+            current = sprite;
+            value = current->timer;
+            value--;
+            current->timer = value;
+            mask = 255;
+            value <<= 24;
+            if (value != 0) {
+                break;
             }
-            break;
+            value = 3;
+            current->pose = value;
+            value = 8;
+            current->timer = value;
+            value = current->work0;
+            value--;
+            current->work0 = value;
+            value &= mask;
+            if (value != 0) {
+            playMoveSound:
+                m4aSongNumStart(224);
+                break;
+            }
+            value = current->animationTimer;
+            if (value == 79) {
+                value = 5;
+                current->pose = value;
+            playStopSound:
+                m4aSongNumStart(225);
+                break;
+            }
+            value = 1;
+            sprite->pose = value;
+            m4aSongNumStart(225);
+        } break;
         case 5:
             break;
     }
@@ -868,10 +858,10 @@ playStopSound:
     if (gUnk_3000038 == 0 || gCurrentSecondarySprite.pose == 2) {
         gCurrentSecondarySpriteOamData = sUnk_83BF986;
     } else {
-        struct SecondarySprite *current;
-        const u8 **destination;
-        const u8 *table;
-        const u8 *spaces;
+        struct SecondarySprite* current;
+        const u8** destination;
+        const u8* table;
+        const u8* spaces;
         u32 index;
 
         current = &gCurrentSecondarySprite;
@@ -880,19 +870,17 @@ playStopSound:
         spaces = sBigBoardSpaces;
         index = current->animationTimer;
         index += (u32)spaces;
-        index = *(const u8 *)index;
+        index = *(const u8*)index;
         index <<= 3;
         index += (u32)table;
-        index = *(const u32 *)index;
-        *destination = (const u8 *)index;
+        index = *(const u32*)index;
+        *destination = (const u8*)index;
     }
 }
 
-
-
 void StartCollectedJewelPieceHudEffect(void)
 {
-    s8 *state;
+    s8* state;
     u32 position;
     u32 direction;
     s32 signedDirection;
@@ -916,7 +904,6 @@ void StartCollectedJewelPieceHudEffect(void)
         }
     }
 }
-
 
 void StartNextCollectedTreasureHudEffect(void)
 {
@@ -959,10 +946,9 @@ void StartNextCollectedTreasureHudEffect(void)
     }
 }
 
-
 void UpdateTreasureCollectionHudEffects(void)
 {
-    s8 *state;
+    s8* state;
     u32 position;
     u32 savedPosition;
     s32 direction;
@@ -983,22 +969,34 @@ void UpdateTreasureCollectionHudEffects(void)
     } else if (direction == 1) {
         switch ((s8)position) {
             case 5:
-                if (gGoldenTreasureCount > 10) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 10) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
             case 4:
-                if (gGoldenTreasureCount > 9) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 9) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
             case 3:
-                if (gGoldenTreasureCount > 8) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 8) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
             case 2:
-                if (gGoldenTreasureCount > 7) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 7) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
             case 1:
-                if (gGoldenTreasureCount > 6) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 6) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
             case 0:
-                if (gGoldenTreasureCount > 5) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 5) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
         }
     } else if (direction == 0) {
@@ -1006,19 +1004,29 @@ void UpdateTreasureCollectionHudEffects(void)
         positionIndex >>= 24;
         switch (positionIndex) {
             case 4:
-                if (gGoldenTreasureCount > 4) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 4) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
             case 3:
-                if (gGoldenTreasureCount > 3) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 3) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
             case 2:
-                if (gGoldenTreasureCount > 2) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 2) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
             case 1:
-                if (gGoldenTreasureCount > 1) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount > 1) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
             case 0:
-                if (gGoldenTreasureCount != 0) StartNextCollectedTreasureHudEffect();
+                if (gGoldenTreasureCount != 0) {
+                    StartNextCollectedTreasureHudEffect();
+                }
                 break;
         }
     }

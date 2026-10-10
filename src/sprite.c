@@ -89,44 +89,41 @@
 #include "sprite_ai/yeti.h"
 
 extern ProcedureFunc sPrimarySpriteAITable[];
-extern const u8 *const sPrimarySpriteGraphicsPointers[];
-extern const u8 *const sPrimarySpritePalettePointers[];
-extern const u8 *const sRoomSpriteGraphicsLists[];
+extern const u8* const sPrimarySpriteGraphicsPointers[];
+extern const u8* const sPrimarySpritePalettePointers[];
+extern const u8* const sRoomSpriteGraphicsLists[];
 extern const u32 sPrimarySpriteGraphicsSizes[];
 extern const u8 sOamWidthByShapeAndSize[];
 
 void UpdatePrimarySprites(void)
 {
     register s32 spriteIndex asm("r6");
-    struct PrimarySpriteData *spriteBase;
-    struct PrimarySpriteData *currentSprite;
-    ProcedureFunc *aiTable;
-    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData* spriteBase;
+    struct PrimarySpriteData* currentSprite;
+    ProcedureFunc* aiTable;
+    struct PrimarySpriteData* sprite;
     register u32 value asm("r0");
 
-    if (gSubGameMode == 2)
-    {
+    if (gSubGameMode == 2) {
         SpawnRoomSpritesAtCameraBoundary(3);
-        if (gWarioPauseTimer == 0)
-        {
+        if (gWarioPauseTimer == 0) {
             SpriteCollisionProcess();
             func_80267C0();
             spriteIndex = 0;
             spriteBase = gSpriteData;
             currentSprite = &gCurrentSprite;
             aiTable = sPrimarySpriteAITable;
-firstLoop:
+        firstLoop:
             value = sizeof(struct PrimarySpriteData);
             value *= spriteIndex;
-            sprite = (struct PrimarySpriteData *)(value + (u32)spriteBase);
+            sprite = (struct PrimarySpriteData*)(value + (u32)spriteBase);
             {
                 u32 status;
                 status = sprite->status;
                 value = 1;
                 value &= status;
             }
-            if (value != 0)
-            {
+            if (value != 0) {
                 *currentSprite = *sprite;
                 aiTable[currentSprite->globalID]();
                 AdvanceCurrentSpriteAnimation();
@@ -134,28 +131,27 @@ firstLoop:
                 *sprite = *currentSprite;
             }
             spriteIndex++;
-            if (spriteIndex <= 23)
+            if (spriteIndex <= 23) {
                 goto firstLoop;
+            }
             return;
         }
 
         spriteIndex = 0;
         currentSprite = &gCurrentSprite;
-secondLoop:
-        {
-            u32 spriteBaseAddress = (u32)gSpriteData;
-            value = sizeof(struct PrimarySpriteData);
-            value *= spriteIndex;
-            sprite = (struct PrimarySpriteData *)(value + spriteBaseAddress);
-        }
+    secondLoop: {
+        u32 spriteBaseAddress = (u32)gSpriteData;
+        value = sizeof(struct PrimarySpriteData);
+        value *= spriteIndex;
+        sprite = (struct PrimarySpriteData*)(value + spriteBaseAddress);
+    }
         {
             u32 status;
             status = sprite->status;
             value = 1;
             value &= status;
         }
-        if (value != 0 && (sprite->drawPriority & 0x80) != 0)
-        {
+        if (value != 0 && (sprite->drawPriority & 0x80) != 0) {
             *currentSprite = *sprite;
             sPrimarySpriteAITable[currentSprite->globalID]();
             AdvanceCurrentSpriteAnimation();
@@ -163,24 +159,23 @@ secondLoop:
             *sprite = *currentSprite;
         }
         spriteIndex++;
-        if (spriteIndex <= 23)
+        if (spriteIndex <= 23) {
             goto secondLoop;
+        }
         return;
     }
 
-    if (gSubGameMode == 8)
-    {
+    if (gSubGameMode == 8) {
         SpawnRoomSpritesAtCameraBoundary(3);
         spriteIndex = 0;
         spriteBase = gSpriteData;
         currentSprite = &gCurrentSprite;
         aiTable = sPrimarySpriteAITable;
-thirdLoop:
+    thirdLoop:
         value = sizeof(struct PrimarySpriteData);
         value *= spriteIndex;
-        sprite = (struct PrimarySpriteData *)(value + (u32)spriteBase);
-        if ((sprite->status & 1) != 0)
-        {
+        sprite = (struct PrimarySpriteData*)(value + (u32)spriteBase);
+        if ((sprite->status & 1) != 0) {
             *currentSprite = *sprite;
             aiTable[currentSprite->globalID]();
             AdvanceCurrentSpriteAnimation();
@@ -188,240 +183,230 @@ thirdLoop:
             *sprite = *currentSprite;
         }
         spriteIndex++;
-        if (spriteIndex <= 23)
+        if (spriteIndex <= 23) {
             goto thirdLoop;
+        }
         return;
     }
 
     SpawnRoomSpritesAtCameraBoundary(3);
     spriteIndex = 0;
-fourthLoop:
-    {
-        u32 spriteBaseAddress = (u32)gSpriteData;
-        value = sizeof(struct PrimarySpriteData);
-        value *= spriteIndex;
-        sprite = (struct PrimarySpriteData *)(value + spriteBaseAddress);
-    }
-    if ((sprite->status & 1) != 0)
-    {
+fourthLoop: {
+    u32 spriteBaseAddress = (u32)gSpriteData;
+    value = sizeof(struct PrimarySpriteData);
+    value *= spriteIndex;
+    sprite = (struct PrimarySpriteData*)(value + spriteBaseAddress);
+}
+    if ((sprite->status & 1) != 0) {
         currentSprite = &gCurrentSprite;
         *currentSprite = *sprite;
-        if (currentSprite->pose <= 14)
+        if (currentSprite->pose <= 14) {
             sPrimarySpriteAITable[currentSprite->globalID]();
+        }
         UpdateCurrentSpriteVisibility();
         *sprite = *currentSprite;
     }
     spriteIndex++;
-    if (spriteIndex <= 23)
+    if (spriteIndex <= 23) {
         goto fourthLoop;
+    }
 }
 
 void AdvanceCurrentSpriteAnimation(void)
 {
-    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
     sprite->currentAnimationFrame++;
-    if (sprite->pOamData[sprite->animationTimer].time < sprite->currentAnimationFrame)
-    {
+    if (sprite->pOamData[sprite->animationTimer].time < sprite->currentAnimationFrame) {
         sprite->currentAnimationFrame = 1;
         sprite->animationTimer++;
-        if (sprite->pOamData[sprite->animationTimer].time == 0)
+        if (sprite->pOamData[sprite->animationTimer].time == 0) {
             sprite->animationTimer = 0;
+        }
     }
 }
 
 void DrawPrimarySprites(void)
 {
-  s32 spriteIndex;
-  struct PrimarySpriteData *spriteBase;
-  struct PrimarySpriteData *currentSprite;
-  const u16 **currentOam;
-  u32 temp0;
-  u32 temp1;
-  struct PrimarySpriteData *sprite;
-  temp0 = gCurrentStageNumber;
-  if (temp0 > 3)
-  {
-    goto laterStages;
-  }
-  spriteIndex = 0;
-  spriteBase = gSpriteData;
-  currentSprite = &gCurrentSprite;
-  currentOam = &gCurrentSpriteOamData;
-  firstLoop:
-  temp0 = sizeof(struct PrimarySpriteData);
+    s32 spriteIndex;
+    struct PrimarySpriteData* spriteBase;
+    struct PrimarySpriteData* currentSprite;
+    const u16** currentOam;
+    u32 temp0;
+    u32 temp1;
+    struct PrimarySpriteData* sprite;
+    temp0 = gCurrentStageNumber;
+    if (temp0 > 3) {
+        goto laterStages;
+    }
+    spriteIndex = 0;
+    spriteBase = gSpriteData;
+    currentSprite = &gCurrentSprite;
+    currentOam = &gCurrentSpriteOamData;
+firstLoop:
+    temp0 = sizeof(struct PrimarySpriteData);
 
-  temp0 *= spriteIndex;
-  temp1 = (u32) spriteBase;
-  sprite = (struct PrimarySpriteData *) (temp0 + temp1);
-  temp1 = sprite->status;
-  temp0 = 15;
-  temp0 &= temp1;
-  if (temp0 == 3)
-  {
-    *currentSprite = *sprite;
-    temp0 = currentSprite->animationTimer;
-    temp1 = (u32) currentSprite->pOamData;
-    temp0 <<= 3;
-    temp0 += temp1;
-    temp0 = *((u32 *) temp0);
-    *currentOam = (const u16 *) temp0;
-    temp0 = spriteIndex;
-    DrawCurrentPrimarySprite(temp0);
-  }
-  spriteIndex++;
-  if (spriteIndex <= 23)
-  {
-    goto firstLoop;
-  }
-  spriteIndex = 0;
-  {
-    struct PrimarySpriteData *baseTemporary;
-    baseTemporary = (spriteBase = gSpriteData);
-  }
-  currentSprite = &gCurrentSprite;
-  currentOam = &gCurrentSpriteOamData;
-  secondLoop:
-  temp0 = sizeof(struct PrimarySpriteData);
+    temp0 *= spriteIndex;
+    temp1 = (u32)spriteBase;
+    sprite = (struct PrimarySpriteData*)(temp0 + temp1);
+    temp1 = sprite->status;
+    temp0 = 15;
+    temp0 &= temp1;
+    if (temp0 == 3) {
+        *currentSprite = *sprite;
+        temp0 = currentSprite->animationTimer;
+        temp1 = (u32)currentSprite->pOamData;
+        temp0 <<= 3;
+        temp0 += temp1;
+        temp0 = *((u32*)temp0);
+        *currentOam = (const u16*)temp0;
+        temp0 = spriteIndex;
+        DrawCurrentPrimarySprite(temp0);
+    }
+    spriteIndex++;
+    if (spriteIndex <= 23) {
+        goto firstLoop;
+    }
+    spriteIndex = 0;
+    {
+        struct PrimarySpriteData* baseTemporary;
+        baseTemporary = (spriteBase = gSpriteData);
+    }
+    currentSprite = &gCurrentSprite;
+    currentOam = &gCurrentSpriteOamData;
+secondLoop:
+    temp0 = sizeof(struct PrimarySpriteData);
 
-  temp0 *= spriteIndex;
-  {
-    u32 spriteBaseAddress;
-    spriteBaseAddress = (u32) spriteBase;
-    sprite = (struct PrimarySpriteData *) (temp0 + spriteBaseAddress);
-  }
-  temp1 = sprite->status;
-  temp0 = 15;
-  temp0 &= temp1;
-  if (temp0 == 11)
-  {
-    *currentSprite = *sprite;
-    temp0 = currentSprite->animationTimer;
-    temp1 = (u32) currentSprite->pOamData;
-    temp0 <<= 3;
-    temp0 += temp1;
-    temp0 = *((u32 *) temp0);
-    *currentOam = (const u16 *) temp0;
-    temp0 = spriteIndex;
-    DrawCurrentPrimarySprite(temp0);
-  }
-  spriteIndex++;
-  if (spriteIndex <= 23)
-  {
-    goto secondLoop;
-  }
-  return;
-  laterStages:
-  spriteIndex = 0;
+    temp0 *= spriteIndex;
+    {
+        u32 spriteBaseAddress;
+        spriteBaseAddress = (u32)spriteBase;
+        sprite = (struct PrimarySpriteData*)(temp0 + spriteBaseAddress);
+    }
+    temp1 = sprite->status;
+    temp0 = 15;
+    temp0 &= temp1;
+    if (temp0 == 11) {
+        *currentSprite = *sprite;
+        temp0 = currentSprite->animationTimer;
+        temp1 = (u32)currentSprite->pOamData;
+        temp0 <<= 3;
+        temp0 += temp1;
+        temp0 = *((u32*)temp0);
+        *currentOam = (const u16*)temp0;
+        temp0 = spriteIndex;
+        DrawCurrentPrimarySprite(temp0);
+    }
+    spriteIndex++;
+    if (spriteIndex <= 23) {
+        goto secondLoop;
+    }
+    return;
+laterStages:
+    spriteIndex = 0;
 
-  {
-    struct PrimarySpriteData *baseTemporary;
-    baseTemporary = (spriteBase = gSpriteData);
-  }
-  currentSprite = &gCurrentSprite;
-  currentOam = &gCurrentSpriteOamData;
-  thirdLoop:
-  temp0 = sizeof(struct PrimarySpriteData);
+    {
+        struct PrimarySpriteData* baseTemporary;
+        baseTemporary = (spriteBase = gSpriteData);
+    }
+    currentSprite = &gCurrentSprite;
+    currentOam = &gCurrentSpriteOamData;
+thirdLoop:
+    temp0 = sizeof(struct PrimarySpriteData);
 
-  temp0 *= spriteIndex;
-  {
-    u32 spriteBaseAddress;
-    spriteBaseAddress = (u32) spriteBase;
-    sprite = (struct PrimarySpriteData *) (temp0 + spriteBaseAddress);
-  }
-  temp1 = sprite->status;
-  temp0 = 15;
-  temp0 &= temp1;
-  if (temp0 == 3)
-  {
-    *currentSprite = *sprite;
-    temp0 = currentSprite->animationTimer;
-    temp1 = (u32) currentSprite->pOamData;
-    temp0 <<= 3;
-    temp0 += temp1;
-    temp0 = *((u32 *) temp0);
-    *currentOam = (const u16 *) temp0;
-    temp0 = spriteIndex;
-    DrawCurrentPrimarySprite(temp0);
-  }
-  spriteIndex++;
-  if (spriteIndex <= 23)
-  {
-    goto thirdLoop;
-  }
-  spriteIndex = 0;
-  {
-    struct PrimarySpriteData *baseTemporary;
-    baseTemporary = (spriteBase = gSpriteData);
-  }
-  currentSprite = &gCurrentSprite;
-  currentOam = &gCurrentSpriteOamData;
-  fourthLoop:
-  temp0 = sizeof(struct PrimarySpriteData);
+    temp0 *= spriteIndex;
+    {
+        u32 spriteBaseAddress;
+        spriteBaseAddress = (u32)spriteBase;
+        sprite = (struct PrimarySpriteData*)(temp0 + spriteBaseAddress);
+    }
+    temp1 = sprite->status;
+    temp0 = 15;
+    temp0 &= temp1;
+    if (temp0 == 3) {
+        *currentSprite = *sprite;
+        temp0 = currentSprite->animationTimer;
+        temp1 = (u32)currentSprite->pOamData;
+        temp0 <<= 3;
+        temp0 += temp1;
+        temp0 = *((u32*)temp0);
+        *currentOam = (const u16*)temp0;
+        temp0 = spriteIndex;
+        DrawCurrentPrimarySprite(temp0);
+    }
+    spriteIndex++;
+    if (spriteIndex <= 23) {
+        goto thirdLoop;
+    }
+    spriteIndex = 0;
+    {
+        struct PrimarySpriteData* baseTemporary;
+        baseTemporary = (spriteBase = gSpriteData);
+    }
+    currentSprite = &gCurrentSprite;
+    currentOam = &gCurrentSpriteOamData;
+fourthLoop:
+    temp0 = sizeof(struct PrimarySpriteData);
 
-  temp0 *= spriteIndex;
-  {
-    u32 spriteBaseAddress;
-    spriteBaseAddress = (u32) spriteBase;
-    sprite = (struct PrimarySpriteData *) (temp0 + spriteBaseAddress);
-  }
-  temp1 = sprite->status;
-  temp0 = 15;
-  temp0 &= temp1;
-  if ((temp0 == 11) && (sprite->globalID != 14))
-  {
-    *currentSprite = *sprite;
-    temp0 = currentSprite->animationTimer;
-    temp1 = (u32) currentSprite->pOamData;
-    temp0 <<= 3;
-    temp0 += temp1;
-    temp0 = *((u32 *) temp0);
-    *currentOam = (const u16 *) temp0;
-    temp0 = spriteIndex;
-    DrawCurrentPrimarySprite(temp0);
-  }
-  spriteIndex++;
-  if (spriteIndex <= 23)
-  {
-    goto fourthLoop;
-  }
-  spriteIndex = 0;
-  {
-    struct PrimarySpriteData *baseTemporary;
-    baseTemporary = (spriteBase = gSpriteData);
-  }
-  currentSprite = &gCurrentSprite;
-  currentOam = &gCurrentSpriteOamData;
-  fifthLoop:
-  temp0 = sizeof(struct PrimarySpriteData);
+    temp0 *= spriteIndex;
+    {
+        u32 spriteBaseAddress;
+        spriteBaseAddress = (u32)spriteBase;
+        sprite = (struct PrimarySpriteData*)(temp0 + spriteBaseAddress);
+    }
+    temp1 = sprite->status;
+    temp0 = 15;
+    temp0 &= temp1;
+    if ((temp0 == 11) && (sprite->globalID != 14)) {
+        *currentSprite = *sprite;
+        temp0 = currentSprite->animationTimer;
+        temp1 = (u32)currentSprite->pOamData;
+        temp0 <<= 3;
+        temp0 += temp1;
+        temp0 = *((u32*)temp0);
+        *currentOam = (const u16*)temp0;
+        temp0 = spriteIndex;
+        DrawCurrentPrimarySprite(temp0);
+    }
+    spriteIndex++;
+    if (spriteIndex <= 23) {
+        goto fourthLoop;
+    }
+    spriteIndex = 0;
+    {
+        struct PrimarySpriteData* baseTemporary;
+        baseTemporary = (spriteBase = gSpriteData);
+    }
+    currentSprite = &gCurrentSprite;
+    currentOam = &gCurrentSpriteOamData;
+fifthLoop:
+    temp0 = sizeof(struct PrimarySpriteData);
 
-  temp0 *= spriteIndex;
-  {
-    u32 spriteBaseAddress;
-    spriteBaseAddress = (u32) spriteBase;
-    sprite = (struct PrimarySpriteData *) (temp0 + spriteBaseAddress);
-  }
-  temp1 = sprite->status;
-  temp0 = 15;
-  temp0 &= temp1;
-  if ((temp0 == 11) && (sprite->globalID == 14))
-  {
-    *currentSprite = *sprite;
-    temp0 = currentSprite->animationTimer;
-    temp1 = (u32) currentSprite->pOamData;
-    temp0 <<= 3;
-    temp0 += temp1;
-    temp0 = *((u32 *) temp0);
-    *currentOam = (const u16 *) temp0;
-    temp0 = spriteIndex;
-    DrawCurrentPrimarySprite(temp0);
-  }
-  spriteIndex++;
-  if (spriteIndex <= 23)
-  {
-    goto fifthLoop;
-  }
+    temp0 *= spriteIndex;
+    {
+        u32 spriteBaseAddress;
+        spriteBaseAddress = (u32)spriteBase;
+        sprite = (struct PrimarySpriteData*)(temp0 + spriteBaseAddress);
+    }
+    temp1 = sprite->status;
+    temp0 = 15;
+    temp0 &= temp1;
+    if ((temp0 == 11) && (sprite->globalID == 14)) {
+        *currentSprite = *sprite;
+        temp0 = currentSprite->animationTimer;
+        temp1 = (u32)currentSprite->pOamData;
+        temp0 <<= 3;
+        temp0 += temp1;
+        temp0 = *((u32*)temp0);
+        *currentOam = (const u16*)temp0;
+        temp0 = spriteIndex;
+        DrawCurrentPrimarySprite(temp0);
+    }
+    spriteIndex++;
+    if (spriteIndex <= 23) {
+        goto fifthLoop;
+    }
 }
 
 void DrawCurrentPrimarySprite(u32 spriteIndex)
@@ -450,19 +435,20 @@ void DrawCurrentPrimarySprite(u32 spriteIndex)
 
     r12 = spriteIndex;
     r0 = (u32)&gOamSlotsUsed;
-    r1 = *(u8 *)r0;
+    r1 = *(u8*)r0;
     asm("" : "+r"(r1));
     r8 = r1;
     r1 = (u32)&gCurrentSpriteOamData;
-    r6 = *(u32 *)r1;
-    r2 = *(u16 *)r6;
+    r6 = *(u32*)r1;
+    r2 = *(u16*)r6;
     asm("" : "+r"(r2));
     r9 = r2;
     r6 += 2;
     r1 = r9;
     r1 += r8;
-    if ((s32)r1 > 127)
+    if ((s32)r1 > 127) {
         goto done;
+    }
 
     r3 = r8;
     asm("" : "+r"(r3));
@@ -470,23 +456,23 @@ void DrawCurrentPrimarySprite(u32 spriteIndex)
     r3 = (u32)gOamBuffer;
     r5 = r0 + r3;
     r2 = (u32)&gCurrentSprite;
-    r1 = *(u16 *)(r2 + 8);
+    r1 = *(u16*)(r2 + 8);
     r1 >>= 2;
     r0 = (u32)&gBg1YPosition;
-    r0 = *(u16 *)r0;
+    r0 = *(u16*)r0;
     r0 >>= 2;
     r1 -= r0;
     r1 = (u16)r1;
     yBase = r1;
-    r1 = *(u16 *)(r2 + 10);
+    r1 = *(u16*)(r2 + 10);
     r1 >>= 2;
     r0 = (u32)&gBg1XPosition;
-    r0 = *(u16 *)r0;
+    r0 = *(u16*)r0;
     r0 >>= 2;
     r1 -= r0;
     r1 = (u16)r1;
     r10 = r1;
-    r1 = *(u16 *)r2;
+    r1 = *(u16*)r2;
     r0 = 0x40;
     r0 &= r1;
     r0 = (u16)r0;
@@ -503,25 +489,27 @@ void DrawCurrentPrimarySprite(u32 spriteIndex)
     r0 &= r1;
     r0 = (u16)r0;
     blend = r0;
-    r1 = *(u8 *)(r2 + 25);
-    r0 = *(u8 *)(r2 + 27);
+    r1 = *(u8*)(r2 + 25);
+    r0 = *(u8*)(r2 + 27);
     r0 = r1 + r0;
     paletteOffset = r0;
     r1 <<= 6;
     tileOffset = r1;
-    r0 = *(u8 *)(r2 + 26);
+    r0 = *(u8*)(r2 + 26);
     r4 = 15;
     r4 &= r0;
     r0 = (u32)&gDrawWarioOverBackground;
-    r0 = *(u8 *)r0;
-    if (r0 != 0 && r4 != 0)
+    r0 = *(u8*)r0;
+    if (r0 != 0 && r4 != 0) {
         r4--;
+    }
     r0 = r9;
     r0 += r8;
     totalSlots = r0;
     r1 = r9;
-    if (r1 == 0)
+    if (r1 == 0) {
         goto after_entries;
+    }
 
     r1 = (u32)gOamBuffer;
     r7 = 1;
@@ -535,35 +523,35 @@ void DrawCurrentPrimarySprite(u32 spriteIndex)
     r8 = r9;
 
 entry_loop:
-    r0 = *(u16 *)r6;
+    r0 = *(u16*)r6;
     r6 += 2;
-    *(u16 *)r5 = r0;
+    *(u16*)r5 = r0;
     r5 += 2;
     r1 = yBase;
     r0 += r1;
-    *(u8 *)r3 = r0;
+    *(u8*)r3 = r0;
 
-    r4 = *(u16 *)r6;
+    r4 = *(u16*)r6;
     r6 += 2;
-    *(u16 *)r5 = r4;
+    *(u16*)r5 = r4;
     r5 += 2;
     r2 = r10;
     asm("" : "+r"(r2));
     r1 = r4 + r2;
     r0 = 0x1FF;
     r1 &= r0;
-    r2 = *(u16 *)(r3 + 2);
+    r2 = *(u16*)(r3 + 2);
     r0 = ~0x1FF;
     r0 &= r2;
     r0 |= r1;
-    *(u16 *)(r3 + 2) = r0;
+    *(u16*)(r3 + 2) = r0;
 
-    r0 = *(u16 *)r6;
-    *(u16 *)r5 = r0;
+    r0 = *(u16*)r6;
+    *(u16*)r5 = r0;
     r6 += 2;
     r5 += 2;
 
-    r1 = *(u8 *)(r3 + 5);
+    r1 = *(u8*)(r3 + 5);
     r0 = 13;
     r0 = -r0;
     r0 &= r1;
@@ -576,9 +564,9 @@ entry_loop:
     r1 = 15;
     r0 &= r1;
     r0 |= r2;
-    *(u8 *)(r3 + 5) = r0;
+    *(u8*)(r3 + 5) = r0;
 
-    r2 = *(u16 *)(r3 + 4);
+    r2 = *(u16*)(r3 + 4);
     r1 = r2 << 22;
     r1 >>= 22;
     r0 = tileOffset;
@@ -591,12 +579,11 @@ entry_loop:
     r0 = ~0x3FF;
     r0 &= r2;
     r0 |= r1;
-    *(u16 *)(r3 + 4) = r0;
+    *(u16*)(r3 + 4) = r0;
 
     r1 = hFlip;
-    if (r1 != 0)
-    {
-        r2 = *(u8 *)(r3 + 3);
+    if (r1 != 0) {
+        r2 = *(u8*)(r3 + 3);
         r0 = r2 << 27;
         r0 >>= 31;
         r0 ^= r7;
@@ -606,15 +593,15 @@ entry_loop:
         r1 = -r1;
         r1 &= r2;
         r1 |= r0;
-        *(u8 *)(r3 + 3) = r1;
-        r0 = *(u8 *)(r3 + 1);
+        *(u8*)(r3 + 3) = r1;
+        r0 = *(u8*)(r3 + 1);
         r0 >>= 6;
         r1 >>= 6;
         r0 <<= 2;
         r1 += r0;
         r2 = (u32)sOamWidthByShapeAndSize;
         r1 += r2;
-        r1 = *(u8 *)r1;
+        r1 = *(u8*)r1;
         r1 <<= 3;
         r1 = r4 + r1;
         r0 = r10;
@@ -622,38 +609,34 @@ entry_loop:
         r1 = r0 - r1;
         r2 = 0x1FF;
         r1 &= r2;
-        r2 = *(u16 *)(r3 + 2);
+        r2 = *(u16*)(r3 + 2);
         r0 = ~0x1FF;
         r0 &= r2;
         r0 |= r1;
-        *(u16 *)(r3 + 2) = r0;
+        *(u16*)(r3 + 2) = r0;
     }
 
     r0 = affine;
-    if (r0 != 0)
-    {
+    if (r0 != 0) {
         r1 = doubleSize;
-        if (r1 != 0)
-        {
-            r0 = *(u8 *)(r3 + 1);
+        if (r1 != 0) {
+            r0 = *(u8*)(r3 + 1);
             r2 = 3;
             r0 |= r2;
-        }
-        else
-        {
-            r1 = *(u8 *)(r3 + 1);
+        } else {
+            r1 = *(u8*)(r3 + 1);
             r0 = 4;
             r0 = -r0;
             r0 &= r1;
             r0 |= r7;
         }
-        *(u8 *)(r3 + 1) = r0;
+        *(u8*)(r3 + 1) = r0;
 
         r1 = r12;
         r0 = (s32)r1 >> 4;
         r0 &= r7;
         r0 <<= 5;
-        r2 = *(u8 *)(r3 + 3);
+        r2 = *(u8*)(r3 + 3);
         r1 = 33;
         r1 = -r1;
         r1 &= r2;
@@ -675,19 +658,18 @@ entry_loop:
         r0 = -r0;
         r1 &= r0;
         r1 |= r2;
-        *(u8 *)(r3 + 3) = r1;
+        *(u8*)(r3 + 3) = r1;
     }
 
     r0 = blend;
-    if (r0 != 0)
-    {
-        r0 = *(u8 *)(r3 + 1);
+    if (r0 != 0) {
+        r0 = *(u8*)(r3 + 1);
         r1 = 13;
         r1 = -r1;
         r1 &= r0;
         r0 = 4;
         r1 |= r0;
-        *(u8 *)(r3 + 1) = r1;
+        *(u8*)(r3 + 1) = r1;
     }
 
     r5 += 2;
@@ -696,42 +678,42 @@ entry_loop:
     r1 = -r1;
     r8 += r1;
     r2 = r8;
-    if (r2 != 0)
+    if (r2 != 0) {
         goto entry_loop;
+    }
 
 after_entries:
     asm("" : : "r"(r0), "r"(r1), "r"(r2));
     gOamSlotsUsed = (u8)totalSlots;
     r0 = affine;
-    if (r0 != 0)
-    {
+    if (r0 != 0) {
         r1 = r12;
         r0 = r1 << 5;
         r2 = (u32)gOamBuffer;
         r0 += r2;
         r3 = (u32)&gCurrentSprite;
-        r1 = *(u16 *)(r3 + 12);
-        *(u16 *)(r0 + 6) = r1;
+        r1 = *(u16*)(r3 + 12);
+        *(u16*)(r0 + 6) = r1;
         r0 = r12;
         r1 = r0 << 2;
         r0 = r1 + 1;
         r0 <<= 3;
         r0 += r2;
-        r2 = *(u16 *)(r3 + 14);
-        *(u16 *)(r0 + 6) = r2;
+        r2 = *(u16*)(r3 + 14);
+        *(u16*)(r0 + 6) = r2;
         r0 = r1 + 2;
         r0 <<= 3;
         r2 = (u32)gOamBuffer;
         r0 += r2;
-        r2 = *(u16 *)(r3 + 16);
-        *(u16 *)(r0 + 6) = r2;
+        r2 = *(u16*)(r3 + 16);
+        *(u16*)(r0 + 6) = r2;
         r1 += 3;
         r1 <<= 3;
         r3 = (u32)gOamBuffer;
         r1 += r3;
         r2 = (u32)&gCurrentSprite;
-        r0 = *(u16 *)(r2 + 18);
-        *(u16 *)(r1 + 6) = r0;
+        r0 = *(u16*)(r2 + 18);
+        *(u16*)(r1 + 6) = r0;
     }
 
 done:
@@ -740,111 +722,102 @@ done:
 
 void UpdateCurrentSpriteVisibility(void)
 {
-  register u16 status asm("r10");
-  u16 bgY;
-  u32 bgX;
-  u16 spriteY;
-  u32 spriteX;
-  u16 bgYShifted;
-  u16 spriteYShifted;
-  u16 top;
-  u32 firstTop;
-  u16 bottom;
-  u16 bgXShifted;
-  u16 spriteXShifted;
-  u16 left;
-  u16 right;
-  register u8 *persistent asm("r1");
-  u16 new_var;
-  register u16 statusMask asm("r0");
-  u8 persistentValue;
-  unsigned long long new_var2;
-  u16 secondBgYShifted;
-  u16 secondBottom;
-  u16 secondBgX;
-  u16 secondSpriteX;
-  u16 secondSpriteYShifted;
-  status = gCurrentSprite.status;
-  if ((status & 1) == 0)
-  {
-    return;
-  }
-  bgY = gBg1YPosition;
-  bgX = gBg1XPosition;
-  spriteY = gCurrentSprite.yPosition;
-  right = (spriteX = gCurrentSprite.xPosition);
-  bgYShifted = bgY + 0x100;
-  spriteYShifted = spriteY + 0x100;
-  firstTop = (u16) (bgYShifted - (gCurrentSprite.drawDistanceUp * 4));
-  bottom = 0x280;
-  bottom = bgYShifted + ((gCurrentSprite.drawDistanceDown * 4) + bottom);
-  bgXShifted = bgX + 0x100;
-  spriteXShifted = spriteX + 0x100;
-  left = bgXShifted - (gCurrentSprite.drawDistanceLeftRight * 4);
-  right = 0x3C0;
-  right = bgXShifted + ((gCurrentSprite.drawDistanceLeftRight * 4) + right);
-  if ((((left < spriteXShifted) && (spriteXShifted < right)) && (firstTop < spriteYShifted)) && (spriteYShifted < bottom))
-  {
-    gCurrentSprite.status = status | 2;
-    return;
-  }
-  gCurrentSprite.status &= 0xFFFD;
-  secondSpriteYShifted = bgY + 0x280;
-  secondBgYShifted = secondSpriteYShifted;
-  secondSpriteYShifted = spriteY + 0x280;
-  top = secondBgYShifted - 0x240;
-  secondBottom = secondBgYShifted + 0x4C0;
-  secondSpriteX = bgX + 0x280;
-  secondBgX = secondSpriteX;
-  secondSpriteX = spriteX + 0x280;
-  left = secondBgX - 0x240;
-  right = secondBgX + 0x600;
-  if ((((left < secondSpriteX) && (secondSpriteX < right)) && (top < secondSpriteYShifted)) && (secondSpriteYShifted < secondBottom))
-  {
-    return;
-  }
-  new_var = gCurrentSprite.status;
-  if ((new_var & 0x8000) != 0)
-  {
-    return;
-    if (1)
-    {
+    register u16 status asm("r10");
+    u16 bgY;
+    u32 bgX;
+    u16 spriteY;
+    u32 spriteX;
+    u16 bgYShifted;
+    u16 spriteYShifted;
+    u16 top;
+    u32 firstTop;
+    u16 bottom;
+    u16 bgXShifted;
+    u16 spriteXShifted;
+    u16 left;
+    u16 right;
+    register u8* persistent asm("r1");
+    u16 new_var;
+    register u16 statusMask asm("r0");
+    u8 persistentValue;
+    unsigned long long new_var2;
+    u16 secondBgYShifted;
+    u16 secondBottom;
+    u16 secondBgX;
+    u16 secondSpriteX;
+    u16 secondSpriteYShifted;
+    status = gCurrentSprite.status;
+    if ((status & 1) == 0) {
+        return;
     }
-  }
-  statusMask = 0x10;
-  statusMask &= new_var;
-  if (statusMask != 0)
-  {
+    bgY = gBg1YPosition;
+    bgX = gBg1XPosition;
+    spriteY = gCurrentSprite.yPosition;
+    right = (spriteX = gCurrentSprite.xPosition);
+    bgYShifted = bgY + 0x100;
+    spriteYShifted = spriteY + 0x100;
+    firstTop = (u16)(bgYShifted - (gCurrentSprite.drawDistanceUp * 4));
+    bottom = 0x280;
+    bottom = bgYShifted + ((gCurrentSprite.drawDistanceDown * 4) + bottom);
+    bgXShifted = bgX + 0x100;
+    spriteXShifted = spriteX + 0x100;
+    left = bgXShifted - (gCurrentSprite.drawDistanceLeftRight * 4);
+    right = 0x3C0;
+    right = bgXShifted + ((gCurrentSprite.drawDistanceLeftRight * 4) + right);
+    if ((((left < spriteXShifted) && (spriteXShifted < right)) && (firstTop < spriteYShifted)) &&
+        (spriteYShifted < bottom)) {
+        gCurrentSprite.status = status | 2;
+        return;
+    }
+    gCurrentSprite.status &= 0xFFFD;
+    secondSpriteYShifted = bgY + 0x280;
+    secondBgYShifted = secondSpriteYShifted;
+    secondSpriteYShifted = spriteY + 0x280;
+    top = secondBgYShifted - 0x240;
+    secondBottom = secondBgYShifted + 0x4C0;
+    secondSpriteX = bgX + 0x280;
+    secondBgX = secondSpriteX;
+    secondSpriteX = spriteX + 0x280;
+    left = secondBgX - 0x240;
+    right = secondBgX + 0x600;
+    if ((((left < secondSpriteX) && (secondSpriteX < right)) && (top < secondSpriteYShifted)) &&
+        (secondSpriteYShifted < secondBottom)) {
+        return;
+    }
+    new_var = gCurrentSprite.status;
+    if ((new_var & 0x8000) != 0) {
+        return;
+        if (1) {
+        }
+    }
+    statusMask = 0x10;
+    statusMask &= new_var;
+    if (statusMask != 0) {
+        gCurrentSprite.status = 0;
+        return;
+    }
     gCurrentSprite.status = 0;
-    return;
-  }
-  gCurrentSprite.status = 0;
-  gCurrentSprite.globalID = 16;
-  if (gCurrentSprite.health == 0)
-  {
-    return;
-  }
-  persistent = &gPersistentSpriteData[0][0];
-  {
-    u32 persistentOffset = (((u32) gCurrentRoom) << 6) + gCurrentSprite.roomSlot;
-    persistent = (u8 *) (persistentOffset + (u32) persistent);
-  }
-  persistentValue = *persistent;
-  if ((persistentValue & 0xF) == 1)
-  {
-    *persistent = persistentValue - 1;
-  }
+    gCurrentSprite.globalID = 16;
+    if (gCurrentSprite.health == 0) {
+        return;
+    }
+    persistent = &gPersistentSpriteData[0][0];
+    {
+        u32 persistentOffset = (((u32)gCurrentRoom) << 6) + gCurrentSprite.roomSlot;
+        persistent = (u8*)(persistentOffset + (u32)persistent);
+    }
+    persistentValue = *persistent;
+    if ((persistentValue & 0xF) == 1) {
+        *persistent = persistentValue - 1;
+    }
 }
-
 
 void InitializePrimarySprites(void)
 {
     LoadRoomSpriteGraphics();
-    if (gPauseFlag == 0)
-    {
+    if (gPauseFlag == 0) {
         LoadRoomSpriteData();
-        if (gHasTemporarySave == 0)
-        {
+        if (gHasTemporarySave == 0) {
             ResetPersistentSpriteData();
             ClearPrimarySpriteSlots();
             SpawnVisibleRoomSprites();
@@ -877,193 +850,192 @@ void LoadRoomSpriteGraphics(void)
     r1 = 7;
 init_loop:
     r0 = r7 + r4;
-    *(u8 *)r0 = r3;
+    *(u8*)r0 = r3;
     r0 = r7 + r2;
-    *(u8 *)r0 = r1;
+    *(u8*)r0 = r1;
     r7++;
-    if (r7 <= 31)
+    if (r7 <= 31) {
         goto init_loop;
+    }
 
     r2 = 0x040000D4;
     r1 = (u32)sPrimarySpriteGraphicsPointers;
-    r0 = *(u32 *)r1;
-    *(volatile u32 *)(r2 + 0) = r0;
+    r0 = *(u32*)r1;
+    *(volatile u32*)(r2 + 0) = r0;
     r0 = 0x06017800;
-    *(volatile u32 *)(r2 + 4) = r0;
+    *(volatile u32*)(r2 + 4) = r0;
     r3 = (u32)sPrimarySpriteGraphicsSizes;
-    r0 = *(u32 *)r3;
+    r0 = *(u32*)r3;
     r0 >>= 1;
     r5 = 0x80000000;
     r0 |= r5;
-    *(volatile u32 *)(r2 + 8) = r0;
-    r0 = *(volatile u32 *)(r2 + 8);
+    *(volatile u32*)(r2 + 8) = r0;
+    r0 = *(volatile u32*)(r2 + 8);
 
     r1 = (u32)sPrimarySpritePalettePointers;
-    r0 = *(u32 *)r1;
-    *(volatile u32 *)(r2 + 0) = r0;
+    r0 = *(u32*)r1;
+    *(volatile u32*)(r2 + 0) = r0;
     r0 = 0x050003E0;
-    *(volatile u32 *)(r2 + 4) = r0;
+    *(volatile u32*)(r2 + 4) = r0;
     r0 = 0x80000010;
-    *(volatile u32 *)(r2 + 8) = r0;
-    r0 = *(volatile u32 *)(r2 + 8);
+    *(volatile u32*)(r2 + 8) = r0;
+    r0 = *(volatile u32*)(r2 + 8);
 
     r3 = 0xFF;
     asm("" : "+r"(r3));
     r9 = r3;
-    r0 = *(u8 *)r6;
-    if ((s32)r0 > 90)
+    r0 = *(u8*)r6;
+    if ((s32)r0 > 90) {
         r0 = 0;
+    }
     r7 = 0;
     r1 = r0 << 2;
     r4 = (u32)sRoomSpriteGraphicsLists;
     r0 = r1 + r4;
-    r0 = *(u32 *)r0;
-    r3 = *(u8 *)r0;
+    r0 = *(u32*)r0;
+    r3 = *(u8*)r0;
     r10 = r1;
-    if (r3 == 0)
+    if (r3 == 0) {
         goto done;
+    }
     r6 = r2;
     r8 = r5;
     r0 = 0;
     r12 = r0;
 main_loop:
     r0 = r1 + r4;
-    r0 = *(u32 *)r0;
+    r0 = *(u32*)r0;
     r0 += r12;
-    r5 = *(u8 *)(r0 + 1);
+    r5 = *(u8*)(r0 + 1);
     r1 = (u32)gRoomSpriteIds;
     r0 = r7 + r1;
-    *(u8 *)r0 = r3;
+    *(u8*)r0 = r3;
     r0 = (u32)gRoomSpriteGraphicsSlots;
     r2 = r7 + r0;
     r1 = 7;
     r0 = r5;
     r0 &= r1;
-    *(u8 *)r2 = r0;
-    if (r5 == r9)
+    *(u8*)r2 = r0;
+    if (r5 == r9) {
         goto advance;
+    }
     r9 = r5;
-    if (r5 == 8)
+    if (r5 == 8) {
         goto advance;
+    }
     r3 -= 16;
     r2 = r3 << 2;
     r1 = (u32)sPrimarySpriteGraphicsPointers;
     r0 = r2 + r1;
-    r3 = *(u32 *)r0;
+    r3 = *(u32*)r0;
     r0 = r5 << 11;
     r1 = 0x06014000;
     r4 = r0 + r1;
     r1 = (u32)sPrimarySpriteGraphicsSizes;
     r0 = r2 + r1;
-    r1 = *(u32 *)r0;
-    *(volatile u32 *)(r6 + 0) = r3;
-    *(volatile u32 *)(r6 + 4) = r4;
+    r1 = *(u32*)r0;
+    *(volatile u32*)(r6 + 0) = r3;
+    *(volatile u32*)(r6 + 4) = r4;
     r0 = r1 >> 1;
     r3 = r8;
     r0 |= r3;
-    *(volatile u32 *)(r6 + 8) = r0;
-    r0 = *(volatile u32 *)(r6 + 8);
+    *(volatile u32*)(r6 + 8) = r0;
+    r0 = *(volatile u32*)(r6 + 8);
     r0 = (u32)sPrimarySpritePalettePointers;
     r2 += r0;
-    r2 = *(u32 *)r2;
+    r2 = *(u32*)r2;
     r0 = r5 << 5;
     r3 = 0x05000300;
     r4 = r0 + r3;
     r1 >>= 11;
-    *(volatile u32 *)(r6 + 0) = r2;
-    *(volatile u32 *)(r6 + 4) = r4;
+    *(volatile u32*)(r6 + 0) = r2;
+    *(volatile u32*)(r6 + 4) = r4;
     r1 <<= 4;
     r0 = r8;
     r1 |= r0;
-    *(volatile u32 *)(r6 + 8) = r1;
-    r0 = *(volatile u32 *)(r6 + 8);
+    *(volatile u32*)(r6 + 8) = r1;
+    r0 = *(volatile u32*)(r6 + 8);
 advance:
     r1 = 2;
     r12 += r1;
     r7++;
-    if (r7 > 31)
+    if (r7 > 31) {
         goto done;
+    }
     r1 = r10;
     r4 = (u32)sRoomSpriteGraphicsLists;
     r0 = r1 + r4;
-    r0 = *(u32 *)r0;
+    r0 = *(u32*)r0;
     r0 += r12;
-    r3 = *(u8 *)r0;
-    if (r3 != 0)
+    r3 = *(u8*)r0;
+    if (r3 != 0) {
         goto main_loop;
+    }
 done:
     return;
 }
 
 void ResetPersistentSpriteData(void)
 {
-    if (gStageEntryPauseMenuDisabled != 0)
-    {
+    if (gStageEntryPauseMenuDisabled != 0) {
         s32 i;
-        u8 *persistent;
-        u8 *currentRoom;
+        u8* persistent;
+        u8* currentRoom;
         u32 mask;
 
         i = 0;
         persistent = &gPersistentSpriteData[0][0];
         currentRoom = &gCurrentRoom;
         mask = 0xF;
-        do
-        {
-            register u8 *data asm("r3");
+        do {
+            register u8* data asm("r3");
             register u32 address asm("r0");
             u32 value;
             address = *currentRoom;
             address <<= 6;
             address = i + address;
-            data = (u8 *)(address + (u32)persistent);
+            data = (u8*)(address + (u32)persistent);
             value = *data;
-            if ((value & mask) == 1)
+            if ((value & mask) == 1) {
                 *data = value - 1;
+            }
             i++;
-        }
-        while (i <= 63);
-    }
-    else
-    {
+        } while (i <= 63);
+    } else {
         s32 room;
-        u8 *persistent;
+        u8* persistent;
         u32 zero;
 
         room = 0;
         persistent = &gPersistentSpriteData[0][0];
         zero = 0;
-        do
-        {
+        do {
             register s32 i asm("r2");
-            u8 *data;
-            data = (u8 *)(room << 6);
+            u8* data;
+            data = (u8*)(room << 6);
             room++;
             i = 63;
-            data = (u8 *)((u32)data + (u32)persistent);
+            data = (u8*)((u32)data + (u32)persistent);
             data += 63;
-            do
-            {
+            do {
                 *data = zero;
                 data--;
                 i--;
-            }
-            while (i >= 0);
-        }
-        while (room <= 15);
+            } while (i >= 0);
+        } while (room <= 15);
     }
 }
 
 void LoadRoomSpriteData(void)
 {
-    struct RoomHeader *roomHeader;
+    struct RoomHeader* roomHeader;
     u32 fill;
-    register u8 *destination asm("r2");
+    register u8* destination asm("r2");
     register s32 offset asm("r4");
-    u8 *middle;
+    u8* middle;
     s32 count;
     u32 value;
-    u8 *pointer;
+    u8* pointer;
 
     roomHeader = &gCurrentRoomHeader;
     fill = 0xFF;
@@ -1071,12 +1043,11 @@ void LoadRoomSpriteData(void)
     offset = 0;
     middle = destination + 1;
     count = 63;
-    do
-    {
+    do {
         value = destination[0];
         value |= fill;
         destination[0] = value;
-        pointer = (u8 *)offset;
+        pointer = (u8*)offset;
         pointer += (u32)middle;
         value = *pointer;
         value |= fill;
@@ -1087,38 +1058,35 @@ void LoadRoomSpriteData(void)
         destination += 3;
         offset += 3;
         count--;
-    }
-    while (count >= 0);
+    } while (count >= 0);
 
-    value = *(u8 *)roomHeader->pHardSpriteData;
-    if (value != 0xFF)
-    {
-        struct RoomHeader *header;
+    value = *(u8*)roomHeader->pHardSpriteData;
+    if (value != 0xFF) {
+        struct RoomHeader* header;
         s32 sourceOffset;
-        u8 *end;
-        u8 *middleBase;
+        u8* end;
+        u8* middleBase;
 
         header = roomHeader;
         sourceOffset = 0;
         destination = &gRoomSpriteData[0][0];
         end = destination + 189;
         middleBase = destination + 1;
-        do
-        {
+        do {
             destination[0] = value;
-            pointer = (u8 *)sourceOffset;
+            pointer = (u8*)sourceOffset;
             pointer += (u32)middleBase;
-            value = *((u8 *)((u32)sourceOffset + (u32)header->pHardSpriteData) + 1);
+            value = *((u8*)((u32)sourceOffset + (u32)header->pHardSpriteData) + 1);
             *pointer = value;
-            value = *((u8 *)((u32)sourceOffset + (u32)header->pHardSpriteData) + 2);
+            value = *((u8*)((u32)sourceOffset + (u32)header->pHardSpriteData) + 2);
             destination[2] = value;
             sourceOffset += 3;
             destination += 3;
-            if ((s32)destination > (s32)end)
+            if ((s32)destination > (s32)end) {
                 break;
-            value = *((u8 *)((u32)sourceOffset + (u32)header->pHardSpriteData));
-        }
-        while (value != 0xFF);
+            }
+            value = *((u8*)((u32)sourceOffset + (u32)header->pHardSpriteData));
+        } while (value != 0xFF);
     }
 }
 
@@ -1134,12 +1102,10 @@ void ClearPrimarySpriteSlots(void)
     offset = 253;
     offset <<= 2;
     address = base + offset;
-    do
-    {
-        *(u16 *)address = zero;
+    do {
+        *(u16*)address = zero;
         address -= sizeof(struct PrimarySpriteData);
-    }
-    while (address >= base);
+    } while (address >= base);
 }
 
 void SpawnRoomSprite(u32 roomSlot, u32 y, u32 x, u32 persistent)
@@ -1147,15 +1113,15 @@ void SpawnRoomSprite(u32 roomSlot, u32 y, u32 x, u32 persistent)
     u32 slot;
     u32 persistentValue;
     register u32 index asm("r4");
-    struct PrimarySpriteData *spriteBase;
+    struct PrimarySpriteData* spriteBase;
     register u32 stride asm("r8");
     u32 one;
-    register u8 *globalIdPointer asm("ip");
+    register u8* globalIdPointer asm("ip");
     register u32 spriteY asm("sl");
     register u32 temp0 asm("r0");
     u32 temp1;
     register u32 temp2 asm("r2");
-    struct PrimarySpriteData *sprite;
+    struct PrimarySpriteData* sprite;
     u32 xPosition;
 
     slot = roomSlot;
@@ -1172,7 +1138,7 @@ void SpawnRoomSprite(u32 roomSlot, u32 y, u32 x, u32 persistent)
     temp0 = slot << 1;
     temp0 += slot;
     temp0 += temp2;
-    globalIdPointer = (u8 *)temp0;
+    globalIdPointer = (u8*)temp0;
     temp1 = y << 6;
     temp1 += 64;
     spriteY = temp1;
@@ -1181,26 +1147,28 @@ loop:
     temp0 = stride;
     temp0 *= index;
     temp1 = (u32)spriteBase;
-    sprite = (struct PrimarySpriteData *)(temp0 + temp1);
+    sprite = (struct PrimarySpriteData*)(temp0 + temp1);
     temp0 = sprite->status;
     temp2 = one;
     temp2 &= temp0;
-    if (temp2 != 0)
+    if (temp2 != 0) {
         goto next;
+    }
 
     temp1 = (u32)&gCurrentRoom;
-    temp0 = *(u8 *)temp1;
+    temp0 = *(u8*)temp1;
     temp0 <<= 6;
     temp0 = slot + temp0;
     temp1 = (u32)&gPersistentSpriteData[0][0];
     temp0 += temp1;
     temp1 = persistentValue + 1;
-    *(u8 *)temp0 = temp1;
+    *(u8*)temp0 = temp1;
 
     temp1 = (u32)globalIdPointer;
-    temp0 = *(u8 *)temp1;
-    if (temp0 <= 16)
+    temp0 = *(u8*)temp1;
+    if (temp0 <= 16) {
         goto normalId;
+    }
 
     temp0 -= 1;
     temp0 = (u8)temp0;
@@ -1210,11 +1178,11 @@ loop:
     temp2 = (u32)gRoomSpriteGraphicsSlots;
     temp0 = temp1;
     temp0 += temp2;
-    temp0 = *(u8 *)temp0;
+    temp0 = *(u8*)temp0;
     sprite->gfxSlot = temp0;
     temp0 = (u32)&gRoomSpriteIds[0];
     temp1 += temp0;
-    temp0 = *(u8 *)temp1;
+    temp0 = *(u8*)temp1;
     goto storeId;
 
 normalId:
@@ -1226,29 +1194,30 @@ storeId:
     temp1 = stride;
     temp1 *= index;
     temp1 += (u32)spriteBase;
-    ((struct PrimarySpriteData *)temp1)->status = one;
+    ((struct PrimarySpriteData*)temp1)->status = one;
     temp2 = spriteY;
-    ((struct PrimarySpriteData *)temp1)->yPosition = temp2;
+    ((struct PrimarySpriteData*)temp1)->yPosition = temp2;
     temp2 = xPosition;
     temp0 = temp2 << 6;
     temp0 += 32;
-    ((struct PrimarySpriteData *)temp1)->xPosition = temp0;
-    ((struct PrimarySpriteData *)temp1)->roomSlot = slot;
+    ((struct PrimarySpriteData*)temp1)->xPosition = temp0;
+    ((struct PrimarySpriteData*)temp1)->roomSlot = slot;
     temp0 = 2;
-    ((struct PrimarySpriteData *)temp1)->drawPriority = temp0;
+    ((struct PrimarySpriteData*)temp1)->drawPriority = temp0;
     temp0 = persistentValue >> 4;
-    ((struct PrimarySpriteData *)temp1)->pose = temp0;
-    ((struct PrimarySpriteData *)temp1)->health = one;
+    ((struct PrimarySpriteData*)temp1)->pose = temp0;
+    ((struct PrimarySpriteData*)temp1)->health = one;
     temp0 = 0;
-    ((struct PrimarySpriteData *)temp1)->palette = temp0;
-    ((struct PrimarySpriteData *)temp1)->disableWarioCollisionTimer = one;
+    ((struct PrimarySpriteData*)temp1)->palette = temp0;
+    ((struct PrimarySpriteData*)temp1)->disableWarioCollisionTimer = one;
     goto done;
 
 next:
     temp0 = index + 1;
     index = (u8)temp0;
-    if (index <= 23)
+    if (index <= 23) {
         goto loop;
+    }
 done:
     return;
 }
@@ -1260,7 +1229,7 @@ void SpawnVisibleRoomSprites(void)
     s32 maxY;
     s32 maxX;
     s32 slot;
-    u8 *persistentBase;
+    u8* persistentBase;
     s32 offset;
     u32 data;
     u32 y;
@@ -1278,36 +1247,36 @@ void SpawnVisibleRoomSprites(void)
     maxX = temp;
     slot = 0;
     data = (u32)&gRoomSpriteData[0][0];
-    y = *(u8 *)data;
-    if (y == 0xFF)
+    y = *(u8*)data;
+    if (y == 0xFF) {
         return;
+    }
     persistentBase = &gPersistentSpriteData[0][0];
     offset = 0;
-    do
-    {
+    do {
         u32 persistent;
         temp = gCurrentRoom;
         temp <<= 6;
         temp = slot + temp;
         temp += (u32)persistentBase;
-        persistent = *(u8 *)temp;
-        if ((persistent & 0xF) == 0)
-        {
+        persistent = *(u8*)temp;
+        if ((persistent & 0xF) == 0) {
             temp = data + 1;
             temp = offset + temp;
-            data = *(u8 *)temp;
-            if (minY <= (s32)y && (s32)y <= maxY && minX <= (s32)data && (s32)data <= maxX)
+            data = *(u8*)temp;
+            if (minY <= (s32)y && (s32)y <= maxY && minX <= (s32)data && (s32)data <= maxX) {
                 SpawnRoomSprite(slot, y, data, persistent);
+            }
         }
         offset += 3;
         slot++;
-        if (slot > 63)
+        if (slot > 63) {
             return;
+        }
         data = (u32)&gRoomSpriteData[0][0];
         temp = offset + data;
-        y = *(u8 *)temp;
-    }
-    while (y != 0xFF);
+        y = *(u8*)temp;
+    } while (y != 0xFF);
 }
 
 void SpawnRoomSpritesAtCameraBoundary(u32 distance)
@@ -1317,7 +1286,7 @@ void SpawnRoomSpritesAtCameraBoundary(u32 distance)
     s32 maxX;
     s32 maxY;
     register s32 slot asm("r5");
-    u8 *roomData;
+    u8* roomData;
     u32 persistent;
     u32 x;
     u32 y;
@@ -1325,10 +1294,10 @@ void SpawnRoomSpritesAtCameraBoundary(u32 distance)
     register u32 temp1 asm("r1");
 
     temp1 = (u32)&gBg1YPosition;
-    y = *(u16 *)temp1;
+    y = *(u16*)temp1;
     y >>= 6;
     temp1 = (u32)&gBg1XPosition;
-    temp1 = *(u16 *)temp1;
+    temp1 = *(u16*)temp1;
     temp1 >>= 6;
     minX = temp1 - distance;
     x = distance;
@@ -1339,62 +1308,62 @@ void SpawnRoomSpritesAtCameraBoundary(u32 distance)
     distance += 9;
     y += distance;
     maxY = y;
-    if (minX < 0)
+    if (minX < 0) {
         minX = 0;
-    if (minY < 0)
+    }
+    if (minY < 0) {
         minY = 0;
+    }
 
     slot = 0;
     roomData = &gRoomSpriteData[0][0];
-    do
-    {
+    do {
         temp0 = (u32)roomData;
-        y = *(u8 *)temp0;
-        if (y == 0xFF)
+        y = *(u8*)temp0;
+        if (y == 0xFF) {
             return;
+        }
 
         temp1 = (u32)&gPersistentSpriteData[0][0];
         temp0 = gCurrentRoom;
         temp0 <<= 6;
         temp0 = (slot) - (-(temp0));
         temp0 += temp1;
-        persistent = *(u8 *)temp0;
-        if ((persistent & 0xF) == 0)
-        {
+        persistent = *(u8*)temp0;
+        if ((persistent & 0xF) == 0) {
             temp0 = (u32)roomData;
-            x = *((u8 *)temp0 + 1);
-            if (maxX == (s32)x)
-            {
-                if (minY <= (s32)y && (s32)y <= maxY)
+            x = *((u8*)temp0 + 1);
+            if (maxX == (s32)x) {
+                if (minY <= (s32)y && (s32)y <= maxY) {
                     goto spawn;
+                }
             }
-            if (minX == (s32)x)
-            {
-                if (minY <= (s32)y && (s32)y <= maxY)
+            if (minX == (s32)x) {
+                if (minY <= (s32)y && (s32)y <= maxY) {
                     goto spawn;
+                }
             }
-            if (maxY == (s32)y)
-            {
-                if (minX <= (s32)x && (s32)x <= maxX)
+            if (maxY == (s32)y) {
+                if (minX <= (s32)x && (s32)x <= maxX) {
                     goto spawn;
+                }
             }
             goto fourthCheck;
-spawn:
+        spawn:
             SpawnRoomSprite(slot, y, x, persistent);
             goto next;
-fourthCheck:
-            if (minY == (s32)y)
-            {
-                if (minX <= (s32)x && (s32)x <= maxX)
+        fourthCheck:
+            if (minY == (s32)y) {
+                if (minX <= (s32)x && (s32)x <= maxX) {
                     SpawnRoomSprite(slot, y, x, persistent);
+                }
             }
         }
-next:
+    next:
         temp0 = 3;
         roomData += temp0;
         slot++;
-    }
-    while (slot <= 63);
+    } while (slot <= 63);
 }
 
 void SpriteSpawnAsChild(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosition, u32 xPosition)
@@ -1406,7 +1375,7 @@ void SpriteSpawnAsChild(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosition, u32 xP
     u32 x;
     register u32 xWork asm("r4");
     u32 index;
-    struct PrimarySpriteData *sprites;
+    struct PrimarySpriteData* sprites;
     u32 one;
 
     xWork = xPosition;
@@ -1419,17 +1388,15 @@ void SpriteSpawnAsChild(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosition, u32 xP
     sprites = gSpriteData;
     one = 1;
     xWork = 0;
-    do
-    {
-        struct PrimarySpriteData *sprite;
+    do {
+        struct PrimarySpriteData* sprite;
         u32 offset;
         u32 base;
         offset = sizeof(*sprite);
         offset *= index;
         base = (u32)sprites;
-        sprite = (struct PrimarySpriteData *)(offset + base);
-        if ((sprite->status & 1) == 0)
-        {
+        sprite = (struct PrimarySpriteData*)(offset + base);
+        if ((sprite->status & 1) == 0) {
             sprite->status = 23;
             sprite->gfxSlot = normalizedGfx;
             sprite->globalID = normalizedId;
@@ -1448,8 +1415,7 @@ void SpriteSpawnAsChild(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosition, u32 xP
             next = index + 1;
             index = (u8)next;
         }
-    }
-    while (index <= 23);
+    } while (index <= 23);
 end:
     return;
 }
@@ -1464,7 +1430,7 @@ void SpawnPrimarySpriteWithStatus(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPositi
     u32 x;
     register u32 normalizedStatus asm("r5");
     u32 index;
-    struct PrimarySpriteData *sprites;
+    struct PrimarySpriteData* sprites;
 
     xWork = xPosition;
     normalizedStatus = status;
@@ -1482,17 +1448,15 @@ void SpawnPrimarySpriteWithStatus(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPositi
         xWork = 0;
         normalizedStatus |= activeBits;
     }
-    do
-    {
-        struct PrimarySpriteData *sprite;
+    do {
+        struct PrimarySpriteData* sprite;
         u32 offset;
         u32 base;
         offset = sizeof(*sprite);
         offset *= index;
         base = (u32)sprites;
-        sprite = (struct PrimarySpriteData *)(offset + base);
-        if ((sprite->status & 1) == 0)
-        {
+        sprite = (struct PrimarySpriteData*)(offset + base);
+        if ((sprite->status & 1) == 0) {
             sprite->status = normalizedStatus;
             sprite->gfxSlot = normalizedGfx;
             sprite->globalID = normalizedId;
@@ -1515,8 +1479,7 @@ void SpawnPrimarySpriteWithStatus(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPositi
             next = index + 1;
             index = (u8)next;
         }
-    }
-    while (index <= 23);
+    } while (index <= 23);
 end:
     return;
 }
@@ -1530,7 +1493,7 @@ void SpawnHighPriorityPrimarySprite(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosi
     u32 x;
     register u32 xWork asm("r4");
     u32 index;
-    struct PrimarySpriteData *sprites;
+    struct PrimarySpriteData* sprites;
     u32 one;
 
     xWork = xPosition;
@@ -1543,17 +1506,15 @@ void SpawnHighPriorityPrimarySprite(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosi
     sprites = gSpriteData;
     one = 1;
     xWork = 0;
-    do
-    {
-        struct PrimarySpriteData *sprite;
+    do {
+        struct PrimarySpriteData* sprite;
         u32 offset;
         u32 base;
         offset = sizeof(*sprite);
         offset *= index;
         base = (u32)sprites;
-        sprite = (struct PrimarySpriteData *)(offset + base);
-        if ((sprite->status & 1) == 0)
-        {
+        sprite = (struct PrimarySpriteData*)(offset + base);
+        if ((sprite->status & 1) == 0) {
             sprite->status = 23;
             sprite->gfxSlot = normalizedGfx;
             sprite->globalID = normalizedId;
@@ -1572,8 +1533,7 @@ void SpawnHighPriorityPrimarySprite(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosi
             next = index + 1;
             index = (u8)next;
         }
-    }
-    while (index <= 23);
+    } while (index <= 23);
 end:
     return;
 }

@@ -1,5 +1,6 @@
 #include "game_screen_helpers.h"
 
+#include "animated_graphics.h"
 #include "background_registers.h"
 #include "color_effects.h"
 #include "demo.h"
@@ -8,12 +9,10 @@
 #include "main.h"
 #include "score.h"
 #include "sound.h"
-#include "wario.h"
 #include "transparency.h"
-#include "animated_graphics.h"
+#include "wario.h"
 
 #include "gba/m4a.h"
-
 
 /* Neighboring modules still use these original ABI symbols on the main base. */
 void TransparencyProcessTiles();
@@ -35,60 +34,51 @@ void m4aMPlayFadeOutTemporarily();
 #define SE_HURRY_UP_SWITCH 0xD9
 
 struct DmaRegisters {
-    const void *source;
-    void *destination;
+    const void* source;
+    void* destination;
     vu32 control;
 };
 
 void ConfigureRoomDisplay(void)
 {
     u16 backgroundControl[4];
-    struct Window *windowState;
-    u16 *backgroundControlPointer;
+    struct Window* windowState;
+    u16* backgroundControlPointer;
     int blendControlTen;
     u8 blendControl;
     u8 blendLevel;
     s32 position;
     int defaultWindowLeft;
     int backgroundY;
-    struct Window *windowPointer;
+    struct Window* windowPointer;
     {
-        u8 *drawFlag;
+        u8* drawFlag;
         u16 zero;
         drawFlag = &gDrawWarioOverBackground;
         zero = 0;
         backgroundControlPointer = &backgroundControl[3];
-        do
-        {
+        do {
             *backgroundControlPointer = zero;
             backgroundControlPointer--;
-        }
-        while ((s32) backgroundControlPointer >= (s32) backgroundControl);
+        } while ((s32)backgroundControlPointer >= (s32)backgroundControl);
         *drawFlag = 0;
     }
-    if (gCurrentRoomHeader.bg0Param & 0x20)
-    {
+    if (gCurrentRoomHeader.bg0Param & 0x20) {
         backgroundControl[0] = GetBackgroundScreenSize(*gCurrentRoomHeader.pBg0Data) | 8;
-    }
-    else
-    {
+    } else {
         backgroundControl[0] = 0x4004;
     }
     backgroundControl[1] = 0x4204;
     defaultWindowLeft = 0;
     backgroundControl[2] = 0x4404;
     backgroundControl[3] = 0x0603;
-    if (gCurrentRoomHeader.bg3Param == 0x20)
-    {
+    if (gCurrentRoomHeader.bg3Param == 0x20) {
         backgroundControl[3] |= 8;
-    }
-    else
-    {
+    } else {
         backgroundControl[3] |= 4;
     }
     backgroundControl[3] |= GetBackgroundScreenSize(*gCurrentRoomHeader.pBg3Data);
-    switch (gCurrentRoomHeader.bgPriorityAlpha)
-    {
+    switch (gCurrentRoomHeader.bgPriorityAlpha) {
         case 0:
 
         case 1:
@@ -190,14 +180,12 @@ void ConfigureRoomDisplay(void)
             backgroundControl[2] |= 1;
             gDrawWarioOverBackground = 1;
             break;
-
     }
 
     blendControl = 0;
     blendLevel = 0;
     blendControlTen = 10;
-    switch (gCurrentRoomHeader.bgPriorityAlpha)
-    {
+    switch (gCurrentRoomHeader.bgPriorityAlpha) {
         case 24:
         case 25:
         case 26:
@@ -276,40 +264,30 @@ void ConfigureRoomDisplay(void)
             break;
     }
 
-    if (blendControl == 0)
-    {
-        if ((gPauseFlag == 0) && (gHasTemporarySave == 0))
-        {
+    if (blendControl == 0) {
+        if ((gPauseFlag == 0) && (gHasTemporarySave == 0)) {
             gUnk_30000D8.blendTimer = 0;
             gUnk_30000D8.targetAlpha = blendLevel;
             gUnk_30000D8.currentAlpha = blendLevel;
             gUnk_30000D8.defaultAlpha = blendLevel;
-            if (gStageEntryPauseMenuDisabled != 0)
-            {
+            if (gStageEntryPauseMenuDisabled != 0) {
                 TransparencyProcessTiles(0);
                 gUnk_30000D8.currentAlpha = gUnk_30000D8.targetAlpha;
             }
         }
-        *((vu16 *) 0x04000052) = (gUnk_30000D8.currentAlpha << 8) | (16 - gUnk_30000D8.currentAlpha);
+        *((vu16*)0x04000052) = (gUnk_30000D8.currentAlpha << 8) | (16 - gUnk_30000D8.currentAlpha);
         gBldAlpha = 0;
-    }
-    else
-    {
+    } else {
         gUnk_30000D8.defaultAlpha = blendControl;
-        *((vu16 *) 0x04000052) = 0x1000 | blendControl;
+        *((vu16*)0x04000052) = 0x1000 | blendControl;
         gBldAlpha = 0;
     }
-    if (gColorFading.type == 5)
-    {
+    if (gColorFading.type == 5) {
         gWindow.left = (position = (gWarioData.xPosition - gBg1XPosition) >> 2);
-        if (((u8) position) > 240)
-        {
-            if (gWarioData.xPosition < gBg1XPosition)
-            {
+        if (((u8)position) > 240) {
+            if (gWarioData.xPosition < gBg1XPosition) {
                 gWindow.left = 0;
-            }
-            else
-            {
+            } else {
                 gWindow.left = 240;
             }
         }
@@ -319,25 +297,19 @@ void ConfigureRoomDisplay(void)
             backgroundY = gBg1YPosition + 63;
             yPosition = (yPosition - backgroundY) >> 2;
             gWindow.top = yPosition;
-            if (((u8) yPosition) > 160)
-        {
-            if (((s32) (gWarioData.yPosition - 63)) < gBg1YPosition)
-            {
-                gWindow.top = 0;
-            }
-            else
-            {
-                gWindow.top = 160;
-            }
+            if (((u8)yPosition) > 160) {
+                if (((s32)(gWarioData.yPosition - 63)) < gBg1YPosition) {
+                    gWindow.top = 0;
+                } else {
+                    gWindow.top = 160;
+                }
             }
         }
         gWindow.right = gWindow.left;
         gWindow.bottom = gWindow.top;
         gWindow.content = 0;
-    }
-    else
-    {
-        struct Window *window;
+    } else {
+        struct Window* window;
         int zero;
         window = &gWindow;
         zero = 0;
@@ -347,24 +319,24 @@ void ConfigureRoomDisplay(void)
         window->bottom = 160;
         window->content = zero;
     }
-    *((vu8 *) 0x0400004A) = 32;
-    *((vu8 *) 0x04000049) = 63;
+    *((vu8*)0x0400004A) = 32;
+    *((vu8*)0x04000049) = 63;
     windowPointer = &gWindow;
     windowState = &(*windowPointer);
-    *((vu16 *) 0x04000042) = ((*windowState).left << 8) | (*windowState).right;
-    *((vu16 *) 0x04000046) = ((*windowState).top << 8) | gWindow.bottom;
-    *((vu8 *) 0x04000048) = 0;
-    *((vu16 *) 0x04000040) = 0;
-    *((vu16 *) 0x04000044) = 0;
-    *((vu16 *) 0x04000008) = backgroundControl[0];
-    *((vu16 *) 0x0400000A) = backgroundControl[1];
-    *((vu16 *) 0x0400000C) = backgroundControl[2];
-    *((vu16 *) 0x0400000E) = backgroundControl[3];
+    *((vu16*)0x04000042) = ((*windowState).left << 8) | (*windowState).right;
+    *((vu16*)0x04000046) = ((*windowState).top << 8) | gWindow.bottom;
+    *((vu8*)0x04000048) = 0;
+    *((vu16*)0x04000040) = 0;
+    *((vu16*)0x04000044) = 0;
+    *((vu16*)0x04000008) = backgroundControl[0];
+    *((vu16*)0x0400000A) = backgroundControl[1];
+    *((vu16*)0x0400000C) = backgroundControl[2];
+    *((vu16*)0x0400000E) = backgroundControl[3];
     gMosaic = 0;
     {
-        vu16 *mosaicRegister;
+        vu16* mosaicRegister;
         int hwZero;
-        mosaicRegister = (vu16 *) 0x0400004C;
+        mosaicRegister = (vu16*)0x0400004C;
         hwZero = 0;
         *mosaicRegister = hwZero;
     }
@@ -393,37 +365,38 @@ u32 GetBackgroundScreenSize(u8 arg0)
 
 void LoadRoom(void)
 {
-    struct RoomHeader *roomHeader;
-    volatile struct DmaRegisters *dma;
-    const u8 *blankTiles;
+    struct RoomHeader* roomHeader;
+    volatile struct DmaRegisters* dma;
+    const u8* blankTiles;
     u32 dmaFillControl;
     u32 dmaEnable;
     struct TilesetLoadData tileset;
-    const struct RoomHeader *roomTable;
-    const struct RoomHeader *const *roomTableBase;
-    const struct RoomHeader *const *roomTablePointer;
-    const void *selectedData;
+    const struct RoomHeader* roomTable;
+    const struct RoomHeader* const* roomTableBase;
+    const struct RoomHeader* const* roomTablePointer;
+    const void* selectedData;
     u32 roomIndex;
     register u16 tileAttribute asm("r3");
-    register const u16 *tileAttributes asm("r1");
-    register const u16 *tilePointer asm("r0");
+    register const u16* tileAttributes asm("r1");
+    register const u16* tilePointer asm("r0");
 
     InitializeRoomState();
     roomHeader = &gCurrentRoomHeader;
     roomTableBase = sRoomHeaderTables;
-    roomTablePointer = (const struct RoomHeader *const *)(gStageRoomTableIndex * 4);
-    roomTablePointer = (const struct RoomHeader *const *)((u32)roomTablePointer + (u32)roomTableBase);
+    roomTablePointer = (const struct RoomHeader* const*)(gStageRoomTableIndex * 4);
+    roomTablePointer = (const struct RoomHeader* const*)((u32)roomTablePointer + (u32)roomTableBase);
     roomIndex = gCurrentRoom;
     roomTable = *roomTablePointer;
     *roomHeader = roomTable[roomIndex];
     tileset = sTilesetLoadData[roomHeader->tileset];
     UpdateBossRoomState();
-    if (gDifficulty == DIFFICULTY_NORMAL)
+    if (gDifficulty == DIFFICULTY_NORMAL) {
         roomHeader->pHardSpriteData = roomHeader->pNormalSpriteData;
-    else if (gDifficulty == DIFFICULTY_SUPER_HARD)
+    } else if (gDifficulty == DIFFICULTY_SUPER_HARD) {
         roomHeader->pHardSpriteData = roomHeader->pSHardSpriteData;
+    }
     if (gUnk_300001C != 0) {
-        struct RoomHeader *musicRoomHeader;
+        struct RoomHeader* musicRoomHeader;
 
         musicRoomHeader = &gCurrentRoomHeader;
         musicRoomHeader->musicVolume = 0;
@@ -432,39 +405,40 @@ void LoadRoom(void)
     gBackgroundTileTables.bottom = tileset.metatileBottom;
     gBackgroundTileTables.attributes = tileset.metatileAttributes;
     InitializeRoomEffects();
-    if (gStageEntryPauseMenuDisabled == 0 || gHasTemporarySave != 0)
+    if (gStageEntryPauseMenuDisabled == 0 || gHasTemporarySave != 0) {
         PreloadStageRoomBackgrounds();
+    }
 
-    dma = (struct DmaRegisters *)0x040000D4;
+    dma = (struct DmaRegisters*)0x040000D4;
     dma->source = tileset.backgroundGraphics;
-    dma->destination = (void *)0x06004820;
+    dma->destination = (void*)0x06004820;
     dma->control = (tileset.backgroundGraphicsSize >> 1) | (dmaEnable = 0x80000000);
     WaitForDma3Transfer(dma->control);
     blankTiles = sBlankBackgroundTiles;
     dma->source = blankTiles;
-    dma->destination = (void *)0x06004800;
+    dma->destination = (void*)0x06004800;
     dmaFillControl = 0x80000010;
     dma->control = dmaFillControl;
     dma->control;
     dma->source = tileset.palette;
-    dma->destination = (void *)0x05000000;
+    dma->destination = (void*)0x05000000;
     dma->control = 0x80000100;
     WaitForDma3Transfer(dma->control);
     if (gCurrentStageNumber != STAGE_BOSS) {
         dma->source = tileset.extraPalette;
-        dma->destination = (void *)0x05000260;
+        dma->destination = (void*)0x05000260;
         dma->control = dmaFillControl;
         dma->control;
     }
-    gHBlankPaletteFadeColors[0] = *(const u16 *)tileset.palette;
-    *(vu16 *)0x05000000 = 0;
+    gHBlankPaletteFadeColors[0] = *(const u16*)tileset.palette;
+    *(vu16*)0x05000000 = 0;
     gHBlankPaletteFadeColors[1] = 0;
     dma->source = tileset.animatedGraphics;
-    dma->destination = (void *)(0x0600FFE0 - tileset.animatedGraphicsSize);
+    dma->destination = (void*)(0x0600FFE0 - tileset.animatedGraphicsSize);
     dma->control = dmaEnable | (tileset.animatedGraphicsSize >> 1);
     WaitForDma3Transfer(dma->control);
     dma->source = blankTiles;
-    dma->destination = (void *)0x0600FFE0;
+    dma->destination = (void*)0x0600FFE0;
     dma->control = dmaFillControl;
     dma->control;
 
@@ -485,113 +459,116 @@ void LoadRoom(void)
     DrawRoomBackgroundLayer(2);
     if (gUnk_300001B == 1) {
         if (gCurrentPassage == PASSAGE_GOLDEN) {
-            LZ77UnCompVram(sGoldenBossRoomOverlayTiles, (void *)0x06008000);
+            LZ77UnCompVram(sGoldenBossRoomOverlayTiles, (void*)0x06008000);
             selectedData = sGoldenBossRoomOverlayTilemap;
         } else {
-            LZ77UnCompVram(sBossRoomOverlayTiles, (void *)0x06008000);
+            LZ77UnCompVram(sBossRoomOverlayTiles, (void*)0x06008000);
             selectedData = sBossRoomOverlayTilemap;
         }
         {
             register s32 transferSize asm("r3");
-            volatile struct DmaRegisters *overlayDma;
-            u8 *overlayBuffer;
+            volatile struct DmaRegisters* overlayDma;
+            u8* overlayBuffer;
             register s32 halfSize asm("r0");
             register u32 overlayDmaEnable asm("r1");
 
-            overlayBuffer = (u8 *)0x0201F840;
+            overlayBuffer = (u8*)0x0201F840;
             asm volatile("" : "+r"(overlayBuffer));
             transferSize = DecompressRoomBackground(0, selectedData, overlayBuffer);
             asm("" : "+r"(transferSize));
-            overlayDma = (struct DmaRegisters *)0x040000D4;
-            overlayDma->source = (void *)0x0201F840;
-            overlayDma->destination = (void *)0x06003800;
+            overlayDma = (struct DmaRegisters*)0x040000D4;
+            overlayDma->source = (void*)0x0201F840;
+            overlayDma->destination = (void*)0x06003800;
             halfSize = transferSize / 2;
             overlayDmaEnable = 0x80000000;
             overlayDma->control = halfSize | overlayDmaEnable;
             overlayDma->control;
         }
     }
-    if (gUnk_300001B != 0)
-        DecompressRoomBackground(0, sBossRoomBackgroundData, (u8 *)0x0201F040);
+    if (gUnk_300001B != 0) {
+        DecompressRoomBackground(0, sBossRoomBackgroundData, (u8*)0x0201F040);
+    }
     RefreshCollectedTileEffects();
     InitAnimatedGraphics();
     InitRoomHBlank();
     UpdateHBlankEffect();
     if (gWarioData.unk_02 != 0) {
-        if (gWarioData.pose == 17)
+        if (gWarioData.pose == 17) {
             gWarioData.yPosition += 0x80;
-        else if (gWarioData.pose == 18)
+        } else if (gWarioData.pose == 18) {
             gWarioData.yPosition -= 0x80;
+        }
         gPreviousYPosition = gWarioData.yPosition;
     }
-    tileAttribute = *(const u16 *)gBackgroundInfo.pBg1Data;
+    tileAttribute = *(const u16*)gBackgroundInfo.pBg1Data;
     tileAttributes = gBackgroundTileTables.attributes;
-    tilePointer = (const u16 *)((tileAttribute * 2) + (u32)tileAttributes);
+    tilePointer = (const u16*)((tileAttribute * 2) + (u32)tileAttributes);
     tileAttribute = *tilePointer;
-    if (tileAttribute == 0xA0)
+    if (tileAttribute == 0xA0) {
         gUnk_3000034 = 1;
-    else
+    } else {
         gUnk_3000034 = 0;
+    }
 }
 
 void LoadRoomBackgrounds(void)
 {
-    struct DmaRegisters *dma;
-    struct BackgroundInfo *backgroundInfo;
+    struct DmaRegisters* dma;
+    struct BackgroundInfo* backgroundInfo;
     u32 dmaEnable;
-    u8 *buffer;
+    u8* buffer;
     u32 size;
     s32 halfSize;
     u32 roomDataBase;
-    const u8 *data;
-    const u8 *source;
+    const u8* data;
+    const u8* source;
 
-    source = (const u8 *)gCurrentRoomHeader.pBg3Data;
-    buffer = (u8 *)0x0201F040;
+    source = (const u8*)gCurrentRoomHeader.pBg3Data;
+    buffer = (u8*)0x0201F040;
     size = DecompressRoomBackground(0, source, buffer);
-    dma = (struct DmaRegisters *)0x040000D4;
+    dma = (struct DmaRegisters*)0x040000D4;
     dma->source = buffer;
-    dma->destination = (void *)0x06003000;
+    dma->destination = (void*)0x06003000;
     halfSize = (s32)size / 2;
     dmaEnable = 0x80000000;
     dma->control = dmaEnable | halfSize;
     dma->control;
 
     roomDataBase = 0x02000000;
-    data = *(const u8 **)(roomDataBase + gCurrentRoom * 4);
+    data = *(const u8**)(roomDataBase + gCurrentRoom * 4);
     backgroundInfo = &gBackgroundInfo;
-    backgroundInfo->bg1Width = *(const u16 *)data;
+    backgroundInfo->bg1Width = *(const u16*)data;
     data += 2;
-    backgroundInfo->bg1Height = *(const u16 *)data;
+    backgroundInfo->bg1Height = *(const u16*)data;
     data += 2;
-    backgroundInfo->pBg1Data = (void *)data;
+    backgroundInfo->pBg1Data = (void*)data;
 
     if (gCurrentRoomHeader.bg2Param & 0x10) {
-        u8 *destination;
+        u8* destination;
 
-        source = (const u8 *)gCurrentRoomHeader.pBg2Data;
-        destination = (u8 *)0x0201A040;
-        backgroundInfo->pBg2Data = (void *)destination;
+        source = (const u8*)gCurrentRoomHeader.pBg2Data;
+        destination = (u8*)0x0201A040;
+        backgroundInfo->pBg2Data = (void*)destination;
         size = DecompressRoomBackground(1, source, destination);
         backgroundInfo->bg2Width = (s32)size >> 16;
         backgroundInfo->bg2Height = size & 0xFF;
     }
 
     if (gCurrentRoomHeader.bg0Param & 0x10) {
-        u8 *destination;
+        u8* destination;
 
-        source = (const u8 *)gCurrentRoomHeader.pBg0Data;
-        destination = (u8 *)0x0201C840;
-        backgroundInfo->pBg0Data = (void *)destination;
+        source = (const u8*)gCurrentRoomHeader.pBg0Data;
+        destination = (u8*)0x0201C840;
+        backgroundInfo->pBg0Data = (void*)destination;
         size = DecompressRoomBackground(1, source, destination);
         backgroundInfo->bg0Width = (s32)size >> 16;
         backgroundInfo->bg0Height = size & 0xFF;
     } else if (gCurrentRoomHeader.bg0Param & 0x20) {
-        source = (const u8 *)gCurrentRoomHeader.pBg0Data;
-        buffer = (u8 *)0x0201C840;
+        source = (const u8*)gCurrentRoomHeader.pBg0Data;
+        buffer = (u8*)0x0201C840;
         size = DecompressRoomBackground(0, source, buffer);
         dma->source = buffer;
-        dma->destination = (void *)0x06000000;
+        dma->destination = (void*)0x06000000;
         dma->control = dmaEnable | ((s32)size / 2);
         dma->control;
     }
@@ -600,9 +577,9 @@ void LoadRoomBackgrounds(void)
 void RestoreTemporarySaveRoomTiles(void)
 {
     u32 base;
-    u16 *tileIndex;
+    u16* tileIndex;
     u32 zero;
-    u16 *count;
+    u16* count;
     s32 index;
 
     if (gHasTemporarySave != 0) {
@@ -612,9 +589,9 @@ void RestoreTemporarySaveRoomTiles(void)
             if (index != *count) {
                 base = 0x02000000;
                 zero = 0;
-                tileIndex = (u16 *)0x0203A000;
+                tileIndex = (u16*)0x0203A000;
                 do {
-                    *(vu16 *)(base + (*tileIndex * 2)) = zero;
+                    *(vu16*)(base + (*tileIndex * 2)) = zero;
                     tileIndex++;
                     index++;
                 } while (index != *count);
@@ -627,11 +604,11 @@ void RestoreTemporarySaveRoomTiles(void)
 
 void InitializeRoomState(void)
 {
-    register struct ColorFading *colorBase asm("r2");
-    register struct ColorFading *colorFading asm("r5");
-    s8 *pauseFlag;
+    register struct ColorFading* colorBase asm("r2");
+    register struct ColorFading* colorFading asm("r5");
+    s8* pauseFlag;
     s32 initialize;
-    const struct RoomStartData *roomData;
+    const struct RoomStartData* roomData;
     s32 switchState;
     s32 switchStateStart;
     u32 roomIndex;
@@ -673,8 +650,9 @@ void InitializeRoomState(void)
         gGoldenDivaRoomTimer[5] = 0;
         gSpriteTileInteractionMode = 0;
         if (gHasTemporarySave == 0) {
-            if ((gUnk_3000020 & 0x80) == 0)
+            if ((gUnk_3000020 & 0x80) == 0) {
                 gUnk_3000025 = 0;
+            }
             gClearedRoomTileCount = 0;
             gUnk_300003A = 0;
             gGoldenBossTransitionBg0Y = 0;
@@ -685,15 +663,16 @@ void InitializeRoomState(void)
                 switchZero = 0;
                 switchState = switchStateStart + 4;
                 do {
-                    *(u8 *)switchState = switchZero;
+                    *(u8*)switchState = switchZero;
                     switchState--;
                 } while (switchState >= switchStateStart);
             }
         }
     }
 
-    if (*pauseFlag != 0)
+    if (*pauseFlag != 0) {
         return;
+    }
 
     gUnk_3000046 = 0;
     roomData = sRoomStartDataTables[gStageRoomTableIndex];
@@ -702,8 +681,9 @@ void InitializeRoomState(void)
     gCurrentRoom = roomData->room;
     gUnk_3000027 = roomData->flags;
     gUnk_3000026 = roomData->type;
-    if (roomData->type == 5 && gHasTemporarySave == 0)
+    if (roomData->type == 5 && gHasTemporarySave == 0) {
         colorFading->type = 5;
+    }
     if (gHasTemporarySave != 0) {
         func_8000D18();
         return;
@@ -715,10 +695,10 @@ void InitializeRoomState(void)
     gCameraPositionState.yOffset = 0;
 
     {
-        u16 *tile;
+        u16* tile;
         register u32 index asm("r1");
-        u8 *stageFlags;
-        register struct WarioData *wario asm("r4");
+        u8* stageFlags;
+        register struct WarioData* wario asm("r4");
         u16 zero;
         register u16 nextIndex asm("r0");
         u16 music;
@@ -727,7 +707,7 @@ void InitializeRoomState(void)
         u32 yPosition;
         u32 pose;
 
-        tile = (u16 *)0x02039F00;
+        tile = (u16*)0x02039F00;
         index = 0;
         stageFlags = &gUnk_3000020;
         wario = &gWarioData;
@@ -739,8 +719,9 @@ void InitializeRoomState(void)
         } while (index <= 63);
 
         music = roomData->music;
-        if (music != 0)
+        if (music != 0) {
             gGameMusicState.songId = music;
+        }
 
         if (roomData->type == 3) {
             xPosition = roomData->x + 1;
@@ -766,12 +747,14 @@ void InitializeRoomState(void)
             wario->yPosition = yPosition;
         }
 
-        if (*stageFlags & 0x80)
+        if (*stageFlags & 0x80) {
             StopDemo();
+        }
     }
 
-    if (gDemoState != 0)
+    if (gDemoState != 0) {
         gMainTimer = 0;
+    }
     gScreenShakeY.duration = 0;
     gScreenShakeY.frameTimer = 0;
     gScreenShakeY.amplitude = 0;
@@ -788,15 +771,16 @@ void InitializeRoomState(void)
 
 void InitializeRoomEffects(void)
 {
-    struct RoomHeader *roomHeader;
+    struct RoomHeader* roomHeader;
     register u32 zeroType asm("r4");
 
     roomHeader = &gCurrentRoomHeader;
-    if (roomHeader->cameraControl == 3)
+    if (roomHeader->cameraControl == 3) {
         LoadCurrentRoomCameraControlData();
+    }
 
     {
-        u16 *effectValues;
+        u16* effectValues;
         u32 zeroValue;
         register u32 defaultValue asm("r2");
 
@@ -816,14 +800,15 @@ void InitializeRoomEffects(void)
 
         gLayer3ScrollEffectState.value = zeroValue;
         gLayer3ScrollEffectState.timer = zeroType;
-        if (roomHeader->layer3Scrolling == 7)
+        if (roomHeader->layer3Scrolling == 7) {
             gLayer3ScrollEffectState.type = 1;
-        else
+        } else {
             gLayer3ScrollEffectState.type = zeroType;
+        }
     }
 
     {
-        struct RoomEffectState *effect;
+        struct RoomEffectState* effect;
         register u32 zeroType2 asm("r2");
         u32 zeroValue2;
 
@@ -832,10 +817,11 @@ void InitializeRoomEffects(void)
         zeroValue2 = 0;
         effect->value = zeroValue2;
         effect->timer = zeroType2;
-        if (gCurrentRoomHeader.bg0Param == 34)
+        if (gCurrentRoomHeader.bg0Param == 34) {
             effect->type = 2;
-        else
+        } else {
             effect->type = zeroType2;
+        }
     }
 }
 
@@ -847,17 +833,17 @@ void DrawRoomBackgroundLayer(u8 layer)
      */
     volatile u32 layerValue;
     volatile u32 backgroundParameter;
-    u16 * volatile source;
+    u16* volatile source;
     volatile u32 startX;
     u32 columns;
     s32 rows;
-    struct BackgroundInfo *savedBackground;
+    struct BackgroundInfo* savedBackground;
     u32 nextStartY;
     register s32 nextRow asm("sl");
     s32 row;
     u32 column;
     u16 sourceIndex;
-    vu16 *destination;
+    vu16* destination;
     u32 screenBlockOffset;
     u16 metatile;
     u16 tileIndex;
@@ -867,7 +853,7 @@ void DrawRoomBackgroundLayer(u8 layer)
         u32 yPosition;
 
         {
-            register struct BackgroundInfo *background asm("r6");
+            register struct BackgroundInfo* background asm("r6");
             register u32 width asm("r4");
             register u32 calculation asm("r0");
             u32 startRegister;
@@ -895,8 +881,9 @@ void DrawRoomBackgroundLayer(u8 layer)
 
                     mask = 0x10;
                     parameter = backgroundParameter;
-                    if ((mask & parameter) == 0)
+                    if ((mask & parameter) == 0) {
                         goto RenderComplete;
+                    }
                 }
 
                 calculation = xPosition >> 6;
@@ -906,16 +893,17 @@ void DrawRoomBackgroundLayer(u8 layer)
                 calculation -= 3;
                 calculation <<= 16;
                 startRegister = calculation >> 16;
-                if ((s32)calculation < 0)
+                if ((s32)calculation < 0) {
                     startRegister = 0;
+                }
                 {
-                    register u8 *base asm("r1");
+                    register u8* base asm("r1");
                     register u32 layerIndex asm("r5");
 
-                    base = (u8 *)&gBackgroundInfo;
+                    base = (u8*)&gBackgroundInfo;
                     layerIndex = layerValue;
                     calculation = layerIndex << 3;
-                    background = (struct BackgroundInfo *)(calculation + (u32)base);
+                    background = (struct BackgroundInfo*)(calculation + (u32)base);
                 }
                 width = background->bg0Width;
                 {
@@ -946,8 +934,9 @@ void DrawRoomBackgroundLayer(u8 layer)
             calculation -= 3;
             calculation <<= 16;
             startRegister = calculation >> 16;
-            if ((s32)calculation < 0)
+            if ((s32)calculation < 0) {
                 startRegister = 0;
+            }
             {
                 u32 height;
                 s32 rowCount;
@@ -976,7 +965,7 @@ void DrawRoomBackgroundLayer(u8 layer)
                 calculation <<= 1;
                 pointer = (u32)background->pBg0Data;
                 pointer += calculation;
-                source = (u16 *)pointer;
+                source = (u16*)pointer;
             }
 
             row = 0;
@@ -984,15 +973,16 @@ void DrawRoomBackgroundLayer(u8 layer)
                 register s32 rowLimit asm("r3");
                 rowLimit = rows;
                 asm("" : "+r"(rowLimit));
-                if (row >= rowLimit)
+                if (row >= rowLimit) {
                     goto RenderComplete;
+                }
             }
             savedBackground = background;
         }
 
         do {
             register s32 remainingColumns asm("r5");
-            register struct BackgroundInfo *rowBackground asm("r4");
+            register struct BackgroundInfo* rowBackground asm("r4");
             register u32 nextY asm("r5");
             register u32 columnCount asm("r0");
 
@@ -1032,16 +1022,17 @@ void DrawRoomBackgroundLayer(u8 layer)
                     register u32 tileOffset asm("r0");
                     register u32 indexValue asm("r3");
                     register u32 sourceOffset asm("r0");
-                    register u16 *sourcePointer asm("r4");
+                    register u16* sourcePointer asm("r4");
 
                     vramBase = 0x06000000;
                     asm("" : "+r"(vramBase));
                     destinationBase = screenBlockOffset;
                     asm("" : "+r"(destinationBase));
-                    destination = (vu16 *)(destinationBase + vramBase);
+                    destination = (vu16*)(destinationBase + vramBase);
                     screenColumn = column & 0x1F;
-                    if ((screenColumn & 0x10) != 0)
-                        destination = (vu16 *)(0x06000800 + screenBlockOffset);
+                    if ((screenColumn & 0x10) != 0) {
+                        destination = (vu16*)(0x06000800 + screenBlockOffset);
+                    }
                     {
                         u32 mask;
                         register u32 columnOffset asm("r1");
@@ -1059,7 +1050,7 @@ void DrawRoomBackgroundLayer(u8 layer)
                     sourceOffset = indexValue << 1;
                     sourcePointer = source;
                     sourceOffset = sourceOffset + (u32)sourcePointer;
-                    metatile = *(u16 *)sourceOffset;
+                    metatile = *(u16*)sourceOffset;
                     tileIndex = metatile * 4;
                     destination[0] = gBackgroundTileTables.top[tileIndex++];
                     destination[1] = gBackgroundTileTables.top[tileIndex++];
@@ -1081,66 +1072,66 @@ void DrawRoomBackgroundLayer(u8 layer)
                 yPosition = normalizedY >> 16;
                 rowLimit = rows;
                 asm("" : "+r"(rowLimit));
-                if (row >= rowLimit)
+                if (row >= rowLimit) {
                     break;
+                }
             }
         } while (1);
     }
 
-RenderComplete:
-    {
-        register u32 parameter asm("r4");
-        parameter = backgroundParameter;
-        if (parameter == 0) {
-            u8 *bufferRegister;
-            struct DmaRegisters *dmaRegister;
-            u32 layerOffset;
-            u32 controlRegister;
-            const u8 *compressedData;
-            register u32 layerTemporary asm("r0");
-            u32 controlValue;
-            register u32 finalControl asm("r2");
-            u32 vramBase;
-            u32 secondVramBase;
+RenderComplete: {
+    register u32 parameter asm("r4");
+    parameter = backgroundParameter;
+    if (parameter == 0) {
+        u8* bufferRegister;
+        struct DmaRegisters* dmaRegister;
+        u32 layerOffset;
+        u32 controlRegister;
+        const u8* compressedData;
+        register u32 layerTemporary asm("r0");
+        u32 controlValue;
+        register u32 finalControl asm("r2");
+        u32 vramBase;
+        u32 secondVramBase;
 
-            compressedData = sEmptyRoomBackgroundTilemap;
-            bufferRegister = (u8 *)0x0201F040;
-            DecompressRoomBackground(0, compressedData, bufferRegister);
-            dmaRegister = (struct DmaRegisters *)0x040000D4;
-            dmaRegister->source = bufferRegister;
-            layerTemporary = layerValue;
-            layerOffset = layerTemporary << 12;
-            vramBase = 0x06000000;
-            asm("" : "+r"(vramBase));
-            dmaRegister->destination = (void *)(layerOffset + vramBase);
-            controlValue = 0x80000400;
-            controlRegister = controlValue;
-            dmaRegister->control = controlValue;
-            WaitForDma3Transfer(dmaRegister->control);
-            dmaRegister->source = bufferRegister;
-            secondVramBase = 0x06000800;
-            layerOffset += secondVramBase;
-            dmaRegister->destination = (void *)layerOffset;
-            finalControl = controlRegister;
-            dmaRegister->control = finalControl;
-            dmaRegister->control;
-        }
+        compressedData = sEmptyRoomBackgroundTilemap;
+        bufferRegister = (u8*)0x0201F040;
+        DecompressRoomBackground(0, compressedData, bufferRegister);
+        dmaRegister = (struct DmaRegisters*)0x040000D4;
+        dmaRegister->source = bufferRegister;
+        layerTemporary = layerValue;
+        layerOffset = layerTemporary << 12;
+        vramBase = 0x06000000;
+        asm("" : "+r"(vramBase));
+        dmaRegister->destination = (void*)(layerOffset + vramBase);
+        controlValue = 0x80000400;
+        controlRegister = controlValue;
+        dmaRegister->control = controlValue;
+        WaitForDma3Transfer(dmaRegister->control);
+        dmaRegister->source = bufferRegister;
+        secondVramBase = 0x06000800;
+        layerOffset += secondVramBase;
+        dmaRegister->destination = (void*)layerOffset;
+        finalControl = controlRegister;
+        dmaRegister->control = finalControl;
+        dmaRegister->control;
     }
+}
 }
 
 void PreloadStageRoomBackgrounds(void)
 {
-    u8 *destination;
-    const struct RoomHeader *entry;
+    u8* destination;
+    const struct RoomHeader* entry;
     s32 index;
-    const u8 *stageCountBase;
-    const u8 *stageCountTable;
-    u8 **destinationTable;
-    const u8 *graphics;
+    const u8* stageCountBase;
+    const u8* stageCountTable;
+    u8** destinationTable;
+    const u8* graphics;
     u32 size;
     s32 stageOffset;
 
-    destination = (u8 *)0x02000040;
+    destination = (u8*)0x02000040;
     entry = sRoomHeaderTables[gStageRoomTableIndex];
     index = 0;
     stageCountBase = sStageRoomCounts;
@@ -1148,9 +1139,9 @@ void PreloadStageRoomBackgrounds(void)
     stageCountBase++;
     if (index < stageCountBase[stageOffset]) {
         stageCountTable = stageCountBase;
-        destinationTable = (u8 **)0x02000000;
+        destinationTable = (u8**)0x02000000;
         do {
-            graphics = (const u8 *)entry->pBg1Data;
+            graphics = (const u8*)entry->pBg1Data;
             size = (graphics[0] * graphics[1] + 2) * 2;
             DecompressRoomBackground(2, graphics, destination);
             *destinationTable++ = destination;
@@ -1161,13 +1152,12 @@ void PreloadStageRoomBackgrounds(void)
     }
 }
 
-
-u32 DecompressRoomBackground(u8 type, const u8 *sourceArg, u8 *destinationArg)
+u32 DecompressRoomBackground(u8 type, const u8* sourceArg, u8* destinationArg)
 {
-    const u8 *source;
-    u8 *destination;
+    const u8* source;
+    u8* destination;
     register u32 result asm("r5");
-    u8 *base;
+    u8* base;
     s32 pass;
     u32 count;
     u8 marker;
@@ -1268,16 +1258,16 @@ u32 DecompressRoomBackground(u8 type, const u8 *sourceArg, u8 *destinationArg)
 
 u32 LoadBossPauseBackgroundTiles(u8 useAlternateTiles)
 {
-    struct DmaRegisters *dma;
+    struct DmaRegisters* dma;
 
     if (useAlternateTiles != 0) {
-        dma = (struct DmaRegisters *)0x040000D4;
+        dma = (struct DmaRegisters*)0x040000D4;
         dma->source = sBossPauseAlternateBackgroundTiles;
     } else {
-        dma = (struct DmaRegisters *)0x040000D4;
+        dma = (struct DmaRegisters*)0x040000D4;
         dma->source = sBossPauseBackgroundTiles;
     }
-    dma->destination = (void *)0x0600FE40;
+    dma->destination = (void*)0x0600FE40;
     dma->control = 0x800000D0;
     return dma->control;
 }
@@ -1300,22 +1290,25 @@ void UpdateBossRoomState(void)
 
 void InitializeRoomMusic(void)
 {
-    struct MusicPlayerInfo *musicPlayer;
-    const struct MusicPlayer *musicPlayers;
-    const struct Song *songs;
+    struct MusicPlayerInfo* musicPlayer;
+    const struct MusicPlayer* musicPlayers;
+    const struct Song* songs;
     u16 playerId;
 
-    if (gUnk_300001C != 0)
+    if (gUnk_300001C != 0) {
         return;
+    }
     gGameMusicState.specialState = 0;
     gGameMusicState.specialPlayerId = 0;
-    if (gSwitchPressed != 0)
+    if (gSwitchPressed != 0) {
         gCurrentRoomHeader.musicVolume = 0x100;
+    }
 
     if (gStageEntryPauseMenuDisabled == 0) {
         gGameMusicState.specialSongId = 0;
-        if (gHasTemporarySave != 0 && gSwitchPressed != 0)
+        if (gHasTemporarySave != 0 && gSwitchPressed != 0) {
             SetHurryUpMusic(0);
+        }
         m4aSongNumStartOrChange(gGameMusicState.songId);
         musicPlayers = gMPlayTable;
         songs = gSongTable;
@@ -1324,10 +1317,11 @@ void InitializeRoomMusic(void)
         m4aMPlayVolumeControl(musicPlayer, 0xFFFF, gCurrentRoomHeader.musicVolume);
         gGameMusicState.previousSongId = gGameMusicState.songId;
         if (gHasTemporarySave != 0) {
-            if (gSwitchPressed != 0)
+            if (gSwitchPressed != 0) {
                 m4aSongNumStart(SE_HURRY_UP_SWITCH);
-            else
+            } else {
                 m4aSongNumStart(SOUND_1CC);
+            }
         }
     } else if (gPauseFlag != 0 || gUnk_3000026 == 5) {
         if (gGameMusicState.specialSongId != 0) {
@@ -1347,8 +1341,9 @@ void InitializeRoomMusic(void)
         gGameMusicState.previousSongId = gGameMusicState.songId;
     } else {
         gGameMusicState.specialSongId = 0;
-        if (gSwitchPressed != 0)
+        if (gSwitchPressed != 0) {
             SetHurryUpMusic(0);
+        }
         gGameMusicState.state = 1;
     }
     gGameMusicState.playerId = gSongTable[gGameMusicState.previousSongId].ms;
@@ -1372,16 +1367,17 @@ void ProcessRoomMusic(void)
 {
     u16 playerId;
 
-    if (gUnk_300001C != 0)
+    if (gUnk_300001C != 0) {
         return;
+    }
     switch (gGameMusicState.state) {
         case 0:
             ProcessWarioTransformationMusic();
             break;
         case 1: {
-            struct MusicPlayerInfo *musicPlayer;
-            const struct MusicPlayer *musicPlayers;
-            const struct Song *songs;
+            struct MusicPlayerInfo* musicPlayer;
+            const struct MusicPlayer* musicPlayers;
+            const struct Song* songs;
 
             if (gGameMusicState.previousSongId == gGameMusicState.songId) {
                 musicPlayers = gMPlayTable;
@@ -1397,9 +1393,9 @@ void ProcessRoomMusic(void)
             break;
         }
         case 2: {
-            struct MusicPlayerInfo *musicPlayer;
-            const struct MusicPlayer *musicPlayers;
-            const struct Song *songs;
+            struct MusicPlayerInfo* musicPlayer;
+            const struct MusicPlayer* musicPlayers;
+            const struct Song* songs;
 
             if (gGameMusicState.memoryAccessState != gMPlayMemAccArea[0]) {
                 musicPlayers = gMPlayTable;
@@ -1421,16 +1417,16 @@ void ProcessRoomMusic(void)
 
 void ProcessWarioTransformationMusic(void)
 {
-    struct MusicPlayerInfo *musicPlayer;
-    const struct MusicPlayer *musicPlayers;
+    struct MusicPlayerInfo* musicPlayer;
+    const struct MusicPlayer* musicPlayers;
     u16 playerId;
 
-    if (gSwitchPressed != 0)
+    if (gSwitchPressed != 0) {
         return;
+    }
     switch (gGameMusicState.specialState) {
         case 0:
-            if (gWarioData.reaction == 0 &&
-                (gWarioData.pose == 54 || gWarioData.pose == 59)) {
+            if (gWarioData.reaction == 0 && (gWarioData.pose == 54 || gWarioData.pose == 59)) {
                 SelectWarioTransformationMusic();
                 m4aSongNumStart(gGameMusicState.specialSongId);
                 musicPlayers = gMPlayTable;
@@ -1441,8 +1437,9 @@ void ProcessWarioTransformationMusic(void)
             }
             break;
         case 1:
-            if (gWarioData.reaction == 0 && gWarioData.pose != 54 && gWarioData.pose != 59)
+            if (gWarioData.reaction == 0 && gWarioData.pose != 54 && gWarioData.pose != 59) {
                 gGameMusicState.specialState = 2;
+            }
             break;
         case 2:
             musicPlayers = gMPlayTable;
@@ -1457,23 +1454,24 @@ void ProcessWarioTransformationMusic(void)
 
 void SelectWarioTransformationMusic(void)
 {
-    register const u8 *musicIndexPointer asm("r1");
+    register const u8* musicIndexPointer asm("r1");
     u32 currentMusicIndex;
     u32 index;
-    struct GameMusicState *musicState;
-    const u32 *specialMusicTable;
+    struct GameMusicState* musicState;
+    const u32* specialMusicTable;
     u32 tableOffset;
 
     musicIndexPointer = &gUnk_3000C36;
-    currentMusicIndex = *(volatile const u8 *)musicIndexPointer;
+    currentMusicIndex = *(volatile const u8*)musicIndexPointer;
     index = 0;
-    if (currentMusicIndex <= 16)
+    if (currentMusicIndex <= 16) {
         index = currentMusicIndex;
+    }
     musicState = &gGameMusicState;
     specialMusicTable = sWarioTransformationMusic;
     tableOffset = index << 2;
     tableOffset += (u32)specialMusicTable;
-    musicState->specialSongId = *(const u32 *)tableOffset;
+    musicState->specialSongId = *(const u32*)tableOffset;
     musicState->specialPlayerId = gSongTable[musicState->specialSongId].ms;
 }
 
@@ -1486,122 +1484,127 @@ void FadeOutMusicForPause(void)
 
 void ProcessGoldenPassageBossTransition(void)
 {
-    u8 *transitionFlag;
+    u8* transitionFlag;
     u32 advanceState;
-    u8 *transitionState;
+    u8* transitionState;
 
     advanceState = 0;
     {
-        u8 *temporaryPointer;
+        u8* temporaryPointer;
         u32 temporaryValue;
 
         temporaryPointer = &gShopItemTimer;
         temporaryValue = *temporaryPointer;
         transitionFlag = temporaryPointer;
-        if (temporaryValue != 0)
+        if (temporaryValue != 0) {
             gUnk_300188E++;
+        }
     }
     {
-        u8 *temporaryPointer;
+        u8* temporaryPointer;
         u32 temporaryValue;
 
         temporaryPointer = &gSpriteAiDropTimer;
         temporaryValue = *temporaryPointer;
         transitionState = temporaryPointer;
         switch (temporaryValue) {
-        case 0:
-            gGoldenBossTransitionBg0Y = 0;
-            gUnk_3003BF5 = 0;
-            gUnk_3003BF6 = 0;
-            if (*transitionFlag != 1)
-                break;
-            goto increment_state;
-        case 1:
-        {
-            u16 *firstAlpha;
-            u16 *blendAlpha;
-            u32 value;
-
-            *(vu16 *)0x04000050 = 0x3748;
-            firstAlpha = &gBlendAlphaEvb;
-            value = 16;
-            *firstAlpha = value;
-            gBlendAlphaEva = 0;
-            blendAlpha = &gBldAlpha;
-            value <<= 8;
-            *blendAlpha = value;
-            goto increment_state;
-        }
-        case 2:
-            *(vu16 *)0x04000008 = (*(vu16 *)0x04000008 & 0xFFFC) | 1;
-            *(vu16 *)0x0400000A = (*(vu16 *)0x0400000A & 0xFFFC) | 2;
-            *(vu16 *)0x0400000C = (*(vu16 *)0x0400000C & 0xFFFC) | 3;
-            *(vu16 *)0x0400000E = *(vu16 *)0x0400000E & 0xFFFC;
-            goto increment_state;
-        case 3:
-            if ((gUnk_300188E & 3) == 0) {
-                gBlendAlphaEvb--;
-                if (gBlendAlphaEvb == 8)
-                    advanceState = 1;
-                gBldAlpha = (gBlendAlphaEvb << 8) | gBlendAlphaEva;
-            }
-            break;
-        case 4:
-            if (gUnk_300188E > 40) {
-                SetHBlankMode(15);
-                goto increment_state;
-            }
-            break;
-        case 5:
-            if ((gUnk_300188E & 7) == 0) {
-                gBlendAlphaEva++;
-                if (gBlendAlphaEva == 8)
-                    advanceState = 1;
-                gBldAlpha = gBlendAlphaEva | (gBlendAlphaEvb << 8);
-            }
-            break;
-        case 6:
-            if (gUnk_300188E > 45) {
-                gUnk_3003BF5 = 1;
-                goto increment_state;
-            }
-            break;
-        case 7:
-            if (gUnk_300188E <= 45)
-                break;
-            goto increment_state;
-        case 8:
-            *transitionFlag = 2;
-            goto increment_state;
-        case 9:
-            if (*transitionFlag != 3)
-                break;
-            goto increment_state;
-        case 10:
-            if ((gUnk_300188E & 3) == 0) {
-                gBlendAlphaEva--;
-                gBlendAlphaEvb++;
-                if (gBlendAlphaEva == 0) {
-                    gBlendAlphaEvb = 16;
-                    advanceState = 1;
+            case 0:
+                gGoldenBossTransitionBg0Y = 0;
+                gUnk_3003BF5 = 0;
+                gUnk_3003BF6 = 0;
+                if (*transitionFlag != 1) {
+                    break;
                 }
-                gBldAlpha = gBlendAlphaEva | (gBlendAlphaEvb << 8);
+                goto increment_state;
+            case 1: {
+                u16* firstAlpha;
+                u16* blendAlpha;
+                u32 value;
+
+                *(vu16*)0x04000050 = 0x3748;
+                firstAlpha = &gBlendAlphaEvb;
+                value = 16;
+                *firstAlpha = value;
+                gBlendAlphaEva = 0;
+                blendAlpha = &gBldAlpha;
+                value <<= 8;
+                *blendAlpha = value;
+                goto increment_state;
             }
-            break;
-        case 11:
-            *(vu16 *)0x04000008 = (*(vu16 *)0x04000008 & 0xFFFC) | 1;
-            *(vu16 *)0x0400000A = *(vu16 *)0x0400000A & 0xFFFC;
-            *(vu16 *)0x0400000C = (*(vu16 *)0x0400000C & 0xFFFC) | 2;
-            *(vu16 *)0x0400000E = (*(vu16 *)0x0400000E & 0xFFFC) | 3;
-            *(vu16 *)0x04000050 = 0x3F40;
-            *transitionFlag = 0;
-            *transitionState = 0;
-            gUnk_300188E = 0;
-            break;
+            case 2:
+                *(vu16*)0x04000008 = (*(vu16*)0x04000008 & 0xFFFC) | 1;
+                *(vu16*)0x0400000A = (*(vu16*)0x0400000A & 0xFFFC) | 2;
+                *(vu16*)0x0400000C = (*(vu16*)0x0400000C & 0xFFFC) | 3;
+                *(vu16*)0x0400000E = *(vu16*)0x0400000E & 0xFFFC;
+                goto increment_state;
+            case 3:
+                if ((gUnk_300188E & 3) == 0) {
+                    gBlendAlphaEvb--;
+                    if (gBlendAlphaEvb == 8) {
+                        advanceState = 1;
+                    }
+                    gBldAlpha = (gBlendAlphaEvb << 8) | gBlendAlphaEva;
+                }
+                break;
+            case 4:
+                if (gUnk_300188E > 40) {
+                    SetHBlankMode(15);
+                    goto increment_state;
+                }
+                break;
+            case 5:
+                if ((gUnk_300188E & 7) == 0) {
+                    gBlendAlphaEva++;
+                    if (gBlendAlphaEva == 8) {
+                        advanceState = 1;
+                    }
+                    gBldAlpha = gBlendAlphaEva | (gBlendAlphaEvb << 8);
+                }
+                break;
+            case 6:
+                if (gUnk_300188E > 45) {
+                    gUnk_3003BF5 = 1;
+                    goto increment_state;
+                }
+                break;
+            case 7:
+                if (gUnk_300188E <= 45) {
+                    break;
+                }
+                goto increment_state;
+            case 8:
+                *transitionFlag = 2;
+                goto increment_state;
+            case 9:
+                if (*transitionFlag != 3) {
+                    break;
+                }
+                goto increment_state;
+            case 10:
+                if ((gUnk_300188E & 3) == 0) {
+                    gBlendAlphaEva--;
+                    gBlendAlphaEvb++;
+                    if (gBlendAlphaEva == 0) {
+                        gBlendAlphaEvb = 16;
+                        advanceState = 1;
+                    }
+                    gBldAlpha = gBlendAlphaEva | (gBlendAlphaEvb << 8);
+                }
+                break;
+            case 11:
+                *(vu16*)0x04000008 = (*(vu16*)0x04000008 & 0xFFFC) | 1;
+                *(vu16*)0x0400000A = *(vu16*)0x0400000A & 0xFFFC;
+                *(vu16*)0x0400000C = (*(vu16*)0x0400000C & 0xFFFC) | 2;
+                *(vu16*)0x0400000E = (*(vu16*)0x0400000E & 0xFFFC) | 3;
+                *(vu16*)0x04000050 = 0x3F40;
+                *transitionFlag = 0;
+                *transitionState = 0;
+                gUnk_300188E = 0;
+                break;
         }
     }
     if (advanceState != 0) {
-increment_state:
+    increment_state:
         gSpriteAiDropTimer++;
         gUnk_300188E = 0;
     }
@@ -1614,31 +1617,36 @@ void UpdateGoldenPassageBossTransitionTimer(void)
         gUnk_3003BF6 = 0;
     } else {
         gUnk_3003BF6++;
-        if (gGoldenBossTransitionBg0Y <= 149)
+        if (gGoldenBossTransitionBg0Y <= 149) {
             gGoldenBossTransitionBg0Y++;
-        else
+        } else {
             gUnk_3003BF5 = 0;
+        }
     }
 }
 
 void ProcessRoomBackgrounds(void)
 {
     if (gCurrentRoomHeader.bg0Param <= 31) {
-        if (gCurrentRoomHeader.bg0Param == 17)
+        if (gCurrentRoomHeader.bg0Param == 17) {
             TransparencyProcessWater();
-        else if (gCurrentRoomHeader.bgPriorityAlpha > 23)
+        } else if (gCurrentRoomHeader.bgPriorityAlpha > 23) {
             TransparencyProcessTiles(1);
+        }
     }
-    if (gTimerState != 0)
+    if (gTimerState != 0) {
         UpdateEscapePaletteFadeSequence();
+    }
     UpdateBossDefeatPaletteFade();
     UpdateGoldenDivaPaletteFade();
-    if (gShopItemState != 0)
+    if (gShopItemState != 0) {
         ProcessRoomWindowEffect();
+    }
     if (gUnk_300001B > 1) {
         UpdateTileEffect();
-        if (gUnk_300001B == 3)
+        if (gUnk_300001B == 3) {
             ProcessGoldenPassageBossTransition();
+        }
     }
     if (gPauseFlag != 0) {
         BackupPalettesForColorFade();
@@ -1650,7 +1658,7 @@ void ProcessRoomBackgrounds(void)
 
 void ProcessRoomWindowEffect(void)
 {
-    u8 *statePointer;
+    u8* statePointer;
     register u32 state asm("r4");
 
     statePointer = &gShopItemState;
@@ -1670,7 +1678,7 @@ void ProcessRoomWindowEffect(void)
     }
 
     if ((state & 0x80) != 0) {
-        u8 *timerPointer;
+        u8* timerPointer;
         u32 timer;
 
         timerPointer = &gUnk_30037BF;
@@ -1678,15 +1686,15 @@ void ProcessRoomWindowEffect(void)
         timer--;
         *timerPointer = timer;
         if ((timer << 24) == 0) {
-            struct Window *window;
+            struct Window* window;
             u32 windowValue;
-            vu16 *windowRegister;
+            vu16* windowRegister;
             u32 windowBottom;
 
             window = &gWindow;
             window->top = 0xA0;
-            *(vu16 *)0x05000000 = 0x7FFF;
-            windowRegister = (vu16 *)0x04000046;
+            *(vu16*)0x05000000 = 0x7FFF;
+            windowRegister = (vu16*)0x04000046;
             windowValue = 0xA000;
             windowBottom = window->bottom;
             windowBottom |= windowValue;
@@ -1695,7 +1703,7 @@ void ProcessRoomWindowEffect(void)
             *statePointer = state & 0x7F;
         }
     } else {
-        u8 *timerPointer;
+        u8* timerPointer;
         u32 timerValue;
         u8 timer;
 
@@ -1705,13 +1713,13 @@ void ProcessRoomWindowEffect(void)
         *timerPointer = timerValue;
         timer = timerValue;
         if (timer == 0) {
-            struct Window *window;
+            struct Window* window;
             register u32 nextState asm("r1");
 
             window = &gWindow;
             window->top = 0;
-            *(vu16 *)0x04000046 = window->bottom;
-            *(vu16 *)0x05000000 = gHBlankPaletteFadeColors[1];
+            *(vu16*)0x04000046 = window->bottom;
+            *(vu16*)0x05000000 = gHBlankPaletteFadeColors[1];
             nextState = state - 1;
             *statePointer = nextState;
             if ((u8)nextState == 0x40) {
@@ -1731,10 +1739,10 @@ void ProcessRoomWindowEffect(void)
 
 void UpdateRoomAnimatedGraphics(void)
 {
-    if (gSubGameMode == 2 || gSubGameMode == 6 ||
-        (gSubGameMode == 4 && gUnk_300001B == 1)) {
-        if (gUnk_3000046 == 0)
+    if (gSubGameMode == 2 || gSubGameMode == 6 || (gSubGameMode == 4 && gUnk_300001B == 1)) {
+        if (gUnk_3000046 == 0) {
             UpdateAnimatedGraphics();
+        }
     }
 }
 
@@ -1742,19 +1750,22 @@ void DrawGameScreen(void)
 {
     UpdateBackgroundScrollRegisters();
     gScrollingUpdateFrameCounter++;
-    if ((gScrollingUpdateFrameCounter & 1) != 0 || gCameraPositionState.xOffset < -28 || gCameraPositionState.xOffset > 28) {
+    if ((gScrollingUpdateFrameCounter & 1) != 0 || gCameraPositionState.xOffset < -28 ||
+        gCameraPositionState.xOffset > 28) {
         PrepareHorizontalScrollingTileUploads(16);
         ApplyHorizontalScrollingTileUploads();
         PrepareHorizontalScrollingTileUploads(-2);
         ApplyHorizontalScrollingTileUploads();
     }
-    if ((gScrollingUpdateFrameCounter & 1) == 0 || gCameraPositionState.yOffset < -28 || gCameraPositionState.yOffset > 28) {
+    if ((gScrollingUpdateFrameCounter & 1) == 0 || gCameraPositionState.yOffset < -28 ||
+        gCameraPositionState.yOffset > 28) {
         PrepareVerticalScrollingTileUploads(11);
         ApplyVerticalScrollingTileUploads();
         PrepareVerticalScrollingTileUploads(-2);
         ApplyVerticalScrollingTileUploads();
     }
-    if (gSubGameMode == 2)
+    if (gSubGameMode == 2) {
         UpdateWarioTileInteractions();
+    }
     UpdateHBlankEffect();
 }

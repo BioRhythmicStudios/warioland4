@@ -1,6 +1,5 @@
 #include "main.h"
 
-
 #include "init_helpers.h"
 #include "input.h"
 #include "interrupt_callbacks.h"

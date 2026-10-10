@@ -1,9 +1,9 @@
 #ifndef TILE_INTERACTION_H
 #define TILE_INTERACTION_H
 
-#include "types.h"
 #include "tile_collision.h"
 #include "tile_effect.h"
+#include "types.h"
 
 struct TileInteractionContext {
     u16 xTile;
@@ -17,7 +17,7 @@ struct TileInteractionContext {
     u8 padding;
 };
 
-typedef void (*TileInteractionHandler)(struct TileInteractionContext *context);
+typedef void (*TileInteractionHandler)(struct TileInteractionContext* context);
 typedef void (*TileCoordinateHandler)(u32 y, u32 x);
 
 extern TileInteractionHandler gTileInteractionHandlers[];
@@ -28,9 +28,9 @@ void UpdateTileEffect(void);
 void RefreshCollectedTileEffects(void);
 void UpdateWarioTileInteractions(void);
 
-void BreakSingleTile(struct TileInteractionContext *context);
-void BreakAdjacentTiles(struct TileInteractionContext *context);
-void BreakTrackedAdjacentTiles(struct TileInteractionContext *context);
+void BreakSingleTile(struct TileInteractionContext* context);
+void BreakAdjacentTiles(struct TileInteractionContext* context);
+void BreakTrackedAdjacentTiles(struct TileInteractionContext* context);
 void ProcessTileAtPosition(u32 y, u32 x);
 void ProcessAlternateTileAtPosition(u32 y, u32 x);
 

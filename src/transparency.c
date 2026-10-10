@@ -33,7 +33,7 @@ void TransparencyProcessTiles(s32 isMoving)
     temp = ((gWarioData.hitboxOffsetTop >> 1) + gWarioData.yPosition) >> 6;
     alpha = (temp * gBackgroundInfo.bg1Width) + xTile;
     {
-        u8 **bgTileLookupPointer = (u8 **)&gBackgroundTileTables;
+        u8** bgTileLookupPointer = (u8**)&gBackgroundTileTables;
         u32 tile = gBackgroundInfo.pBg0Data[alpha];
         alpha = bgTileLookupPointer[1][tile];
         alpha -= 0x80;
@@ -66,12 +66,13 @@ void TransparencyProcessTiles(s32 isMoving)
     }
 }
 
-void TransparencyProcessWater(void) {
+void TransparencyProcessWater(void)
+{
     u16 songId;
     s32 alphaDelta;
     s32 nextAlpha;
     register s32 newTarget asm("r2");
-    register struct TransparencyState *p asm("r2") = &gUnk_30000D8;
+    register struct TransparencyState* p asm("r2") = &gUnk_30000D8;
 
     if (p->blendTimer == 0) {
         if (gUnk_3000038 != 0) {

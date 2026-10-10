@@ -79,16 +79,16 @@ struct GameScreenDebugInfo {
 };
 
 struct BackgroundInfo {
-    u16 *pBg0Data;
+    u16* pBg0Data;
     u16 bg0Width;
     u16 bg0Height;
-    u16 *pBg1Data;
+    u16* pBg1Data;
     u16 bg1Width;
     u16 bg1Height;
-    u16 *pBg2Data;
+    u16* pBg2Data;
     u16 bg2Width;
     u16 bg2Height;
-    u16 *pBg3Data;
+    u16* pBg3Data;
     u16 bg3Width;
     u16 bg3Height;
 };
@@ -99,16 +99,16 @@ struct RoomHeader {
     u8 bg1Param;
     u8 bg2Param;
     u8 bg3Param;
-    u8 *pBg0Data;
-    u8 *pBg1Data;
-    u8 *pBg2Data;
-    u8 *pBg3Data;
+    u8* pBg0Data;
+    u8* pBg1Data;
+    u8* pBg2Data;
+    u8* pBg3Data;
     u8 cameraControl;
     u8 layer3Scrolling;
     u8 bgPriorityAlpha;
-    void *pHardSpriteData;
-    void *pNormalSpriteData;
-    void *pSHardSpriteData;
+    void* pHardSpriteData;
+    void* pNormalSpriteData;
+    void* pSHardSpriteData;
     u8 raster;
     u8 water;
     u16 musicVolume;
@@ -172,8 +172,8 @@ struct WarioPoseProperty {
 };
 
 struct WarioAnimationFrame {
-    const u8 *objData;
-    const u16 *oamData;
+    const u8* objData;
+    const u16* oamData;
     u8 time;
     u8 padding[3];
 };
@@ -193,9 +193,9 @@ struct TransparencyState {
 };
 
 struct BackgroundTileTables {
-    const u16 *top;
-    const u8 *bottom;
-    const u16 *attributes;
+    const u16* top;
+    const u8* bottom;
+    const u16* attributes;
 };
 
 struct GameMusicState {
@@ -231,7 +231,7 @@ struct ScreenShakeParameters {
 };
 
 struct WarioEffectFrame {
-    const void *data;
+    const void* data;
     u16 time;
     u16 pad;
 };
@@ -346,7 +346,7 @@ extern u8 gBossDefeatTimer[];
 extern u8 gUnk_3000023;
 extern struct BackgroundTileTables gBackgroundTileTables;
 extern u8 gRoomTransitionTileDataCount;
-// extern u8 gUnk_300342C; 
+// extern u8 gUnk_300342C;
 
 /* 0x03000524 */
 extern u8 gRoomSpriteIds[];
@@ -360,7 +360,7 @@ extern u8 gRoomSpriteData[][3];
 /* 0x03000B80 */
 extern struct SecondarySprite gSecondarySpriteData[8];
 extern struct SecondarySprite gCurrentSecondarySprite;
-extern const u8 *gCurrentSecondarySpriteOamData;
+extern const u8* gCurrentSecondarySpriteOamData;
 extern s16 gSecondarySpriteAffinePA;
 extern s16 gSecondarySpriteAffinePB;
 extern s16 gSecondarySpriteAffinePC;
@@ -397,17 +397,17 @@ extern u16 gUnk_3002C60;
 extern s32 gUnk_3002C64;
 extern s32 gUnk_3002C68;
 extern u32 gUnk_3002C6C;
-extern OamData *gUnk_3002C70;
+extern OamData* gUnk_3002C70;
 extern u32 gUnk_3002C74;
 extern s32 gUnk_3002C78;
 extern s32 gUnk_3002C7C;
 extern u16 gEndingCutsceneCollectedTreasureCount;
 extern u16 gEndingCutsceneTreasureScale;
 extern u16 gUnk_3002C84;
-extern u16 *gUnk_3002C88;
-extern u16 *gUnk_3002C8C;
-extern const u16 *gUnk_3002C90;
-extern const u16 *gUnk_3002C94;
+extern u16* gUnk_3002C88;
+extern u16* gUnk_3002C8C;
+extern const u16* gUnk_3002C90;
+extern const u16* gUnk_3002C94;
 extern s16 gCutsceneAnimationFinished;
 extern s16 gUnk_3002C9A;
 extern s16 gUnk_3002C9C;
@@ -455,12 +455,11 @@ extern u8 gOamSlotsUsed;
 extern s8 gWarioMusicState;
 extern struct WarioCollisionData gWarioCollisionData;
 
-
 /* ROM data */
 extern const s16 sWarioHitboxes[][4];
 extern const struct WarioEffectFrame sWarioAfterimageFrames[];
 extern const struct WarioEffectFrame sWarioGroundPoundLandingAfterimageFrames[];
-extern const struct WarioAnimationFrame *const sUnk_82DDB10[][2];
+extern const struct WarioAnimationFrame* const sUnk_82DDB10[][2];
 extern const struct WarioPoseProperty sUnk_82DDB60[];
 extern const u16 sBouncyWarioPalette[];
 extern const struct AnimationFrame sAerodentOam_83DABA0[];

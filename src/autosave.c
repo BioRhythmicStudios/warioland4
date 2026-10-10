@@ -1,4 +1,3 @@
-
 #include "save_file.h"
 #include "score.h"
 #include "wario.h"
@@ -130,8 +129,8 @@ void AutosaveFinalBoss(void)
     gCurrentStageNumber = STAGE_MAX;
 
     if (gCollectedNEJewelPiece && gCollectedSEJewelPiece && gCollectedSWJewelPiece && gCollectedNWJewelPiece &&
-        gHasBossTreasure5 && gHasBossTreasure6 && gHasBossTreasure7 && gHasBossTreasure8 &&
-        gHasBossTreasure9 && gHasBossTreasure10 && gHasBossTreasure11 && gHasBossTreasure12) {
+        gHasBossTreasure5 && gHasBossTreasure6 && gHasBossTreasure7 && gHasBossTreasure8 && gHasBossTreasure9 &&
+        gHasBossTreasure10 && gHasBossTreasure11 && gHasBossTreasure12) {
         if (gTitleScreenStyle != TITLE_STYLE_S_HARD_UNLOCKED && gDifficulty == DIFFICULTY_HARD) {
             gClearMessage = CLEAR_MESSAGE_SUPER_HARD_UNLOCKED;
             gTitleScreenStyle = TITLE_STYLE_S_HARD_UNLOCKED;

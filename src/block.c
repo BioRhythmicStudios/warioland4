@@ -1,4 +1,3 @@
-
 #include "bg_clip.h"
 #include "game_screen_helpers.h"
 #include "main.h"
@@ -17,16 +16,16 @@ struct BlockCollisionContext {
     s32 isSprite;
 };
 
-typedef s32 (*BlockCollisionHandler)(struct BlockCollisionContext *context);
+typedef s32 (*BlockCollisionHandler)(struct BlockCollisionContext* context);
 
 extern const BlockCollisionHandler sBlockCollisionHandlers[];
 extern s32 ProcessTileInteractionAtPosition(u16 y, u16 x, u16 tileType);
 
-s32 GetSwitchBlockCollision(struct BlockCollisionContext *context);
+s32 GetSwitchBlockCollision(struct BlockCollisionContext* context);
 
 void UpdateRoomStartDebugInfo(void)
 {
-    const struct RoomStartData *roomStart;
+    const struct RoomStartData* roomStart;
     s32 entryIndex;
     u16 warioXTile;
     u16 warioYTile;
@@ -57,9 +56,8 @@ void UpdateRoomStartDebugInfo(void)
         rightX = roomStart->unk03;
         topY = roomStart->unk04;
         bottomY = roomStart->y;
-        if (gCurrentRoom == roomStart->room &&
-            leftX <= warioXTile && warioXTile <= rightX &&
-            topY <= warioYTile && warioYTile <= bottomY) {
+        if (gCurrentRoom == roomStart->room && leftX <= warioXTile && warioXTile <= rightX && topY <= warioYTile &&
+            warioYTile <= bottomY) {
             if ((u16)(attribute - 2) <= 5) {
                 gGameScreenDebugInfo.roomEntryOnesDigitAndPalette = 0x80;
             } else {
@@ -82,7 +80,7 @@ s32 GetWarioBlockCollisionAtPosition(u32 yPosition, u32 xPosition)
     u16 tileType;
     u16 y;
     u16 x;
-    const struct BackgroundTileTables *tables;
+    const struct BackgroundTileTables* tables;
 
     y = yPosition;
     x = xPosition;
@@ -131,11 +129,10 @@ s32 GetSpriteBlockCollisionAtPosition(u16 y, u16 x)
     u16 layerCollision[3];
     struct BlockCollisionContext context;
     s32 layer;
-    u8 *backgroundInfo;
-    u8 *layerInfo;
+    u8* backgroundInfo;
+    u8* layerInfo;
 
-    if (x >= gBackgroundInfo.bg1Width * BLOCK_TILE_SIZE ||
-        y >= gBackgroundInfo.bg1Height * BLOCK_TILE_SIZE) {
+    if (x >= gBackgroundInfo.bg1Width * BLOCK_TILE_SIZE || y >= gBackgroundInfo.bg1Height * BLOCK_TILE_SIZE) {
         gBackgroundCollisionData.primaryType = 0;
         gBackgroundCollisionData.waterType = 0;
         return 0;
@@ -146,13 +143,13 @@ s32 GetSpriteBlockCollisionAtPosition(u16 y, u16 x)
     context.localX = x >> 6;
 
     for (layer = 1; layer <= 2; layer++) {
-        backgroundInfo = (u8 *)&gBackgroundInfo;
+        backgroundInfo = (u8*)&gBackgroundInfo;
         layerInfo = backgroundInfo + layer * 8;
-        layerCollision[layer] = context.localY * *(u16 *)(layerInfo + 4) + context.localX;
-        layerCollision[layer] = (*(u16 **)layerInfo)[layerCollision[layer]];
-        if (*(u8 *)&gSpriteTileInteractionMode != 0 && layer == 1) {
+        layerCollision[layer] = context.localY * *(u16*)(layerInfo + 4) + context.localX;
+        layerCollision[layer] = (*(u16**)layerInfo)[layerCollision[layer]];
+        if (*(u8*)&gSpriteTileInteractionMode != 0 && layer == 1) {
             if (ProcessTileInteractionAtPosition(context.localY, context.localX, layerCollision[1]) != 0) {
-                if (*(u8 *)&gSpriteTileInteractionMode == 3) {
+                if (*(u8*)&gSpriteTileInteractionMode == 3) {
                     layerCollision[1] = layer;
                 } else {
                     layerCollision[1] = 0;
@@ -188,17 +185,17 @@ s32 GetSpriteBlockCollisionAtPosition(u16 y, u16 x)
     return layer;
 }
 
-s32 GetNonSolidBlockCollision(struct BlockCollisionContext *context)
+s32 GetNonSolidBlockCollision(struct BlockCollisionContext* context)
 {
     return context->tileType;
 }
 
-s32 GetSolidBlockCollision(struct BlockCollisionContext *context)
+s32 GetSolidBlockCollision(struct BlockCollisionContext* context)
 {
     return context->tileType | BLOCK_SOLID_FLAG;
 }
 
-s32 GetDownRightSlopeCollision(struct BlockCollisionContext *context)
+s32 GetDownRightSlopeCollision(struct BlockCollisionContext* context)
 {
     s32 result;
 
@@ -210,7 +207,7 @@ s32 GetDownRightSlopeCollision(struct BlockCollisionContext *context)
     return result;
 }
 
-s32 GetDownLeftSlopeCollision(struct BlockCollisionContext *context)
+s32 GetDownLeftSlopeCollision(struct BlockCollisionContext* context)
 {
     s32 result;
 
@@ -222,7 +219,7 @@ s32 GetDownLeftSlopeCollision(struct BlockCollisionContext *context)
     return result;
 }
 
-s32 GetUpperShallowDownRightSlopeCollision(struct BlockCollisionContext *context)
+s32 GetUpperShallowDownRightSlopeCollision(struct BlockCollisionContext* context)
 {
     s32 result;
 
@@ -234,7 +231,7 @@ s32 GetUpperShallowDownRightSlopeCollision(struct BlockCollisionContext *context
     return result;
 }
 
-s32 GetLowerShallowDownRightSlopeCollision(struct BlockCollisionContext *context)
+s32 GetLowerShallowDownRightSlopeCollision(struct BlockCollisionContext* context)
 {
     s32 result;
 
@@ -246,7 +243,7 @@ s32 GetLowerShallowDownRightSlopeCollision(struct BlockCollisionContext *context
     return result;
 }
 
-s32 GetLowerShallowDownLeftSlopeCollision(struct BlockCollisionContext *context)
+s32 GetLowerShallowDownLeftSlopeCollision(struct BlockCollisionContext* context)
 {
     s32 result;
 
@@ -258,7 +255,7 @@ s32 GetLowerShallowDownLeftSlopeCollision(struct BlockCollisionContext *context)
     return result;
 }
 
-s32 GetUpperShallowDownLeftSlopeCollision(struct BlockCollisionContext *context)
+s32 GetUpperShallowDownLeftSlopeCollision(struct BlockCollisionContext* context)
 {
     s32 result;
 
@@ -270,7 +267,7 @@ s32 GetUpperShallowDownLeftSlopeCollision(struct BlockCollisionContext *context)
     return result;
 }
 
-s32 GetDamagedWarioOnlyBlockCollision(struct BlockCollisionContext *context)
+s32 GetDamagedWarioOnlyBlockCollision(struct BlockCollisionContext* context)
 {
     s32 result;
 
@@ -285,7 +282,7 @@ s32 GetDamagedWarioOnlyBlockCollision(struct BlockCollisionContext *context)
     return result;
 }
 
-s32 GetSpriteOnlySolidBlockCollision(struct BlockCollisionContext *context)
+s32 GetSpriteOnlySolidBlockCollision(struct BlockCollisionContext* context)
 {
     s32 result;
 
@@ -300,7 +297,7 @@ s32 GetSpriteOnlySolidBlockCollision(struct BlockCollisionContext *context)
     return result;
 }
 
-s32 GetDamagedWarioOrSpriteBlockCollision(struct BlockCollisionContext *context)
+s32 GetDamagedWarioOrSpriteBlockCollision(struct BlockCollisionContext* context)
 {
     s32 result;
 
@@ -315,13 +312,13 @@ s32 GetDamagedWarioOrSpriteBlockCollision(struct BlockCollisionContext *context)
     return result;
 }
 
-s32 GetEmptyBlockCollision(struct BlockCollisionContext *context)
+s32 GetEmptyBlockCollision(struct BlockCollisionContext* context)
 {
     context->tileType = 0;
     return GetNonSolidBlockCollision(context);
 }
 
-s32 GetSwitchBlockCollision(struct BlockCollisionContext *context)
+s32 GetSwitchBlockCollision(struct BlockCollisionContext* context)
 {
     s32 inverse;
     s32 result;
@@ -401,9 +398,9 @@ s32 GetSwitchBlockCollision(struct BlockCollisionContext *context)
             context->tileType = 12;
             goto returnTile;
 
-emptyBlock:
+        emptyBlock:
             context->tileType = 0;
-returnTile:
+        returnTile:
             result = GetNonSolidBlockCollision(context);
             goto done;
 
@@ -416,9 +413,9 @@ returnTile:
             result = GetDownRightSlopeCollision(context);
             goto done;
 
-caseOneSolidBlock:
+        caseOneSolidBlock:
             context->tileType = 1;
-callSolidBlock:
+        callSolidBlock:
             result = GetSolidBlockCollision(context);
             goto done;
 
@@ -431,7 +428,7 @@ callSolidBlock:
             result = GetDownLeftSlopeCollision(context);
             goto done;
 
-callCaseFiveSolidBlock:
+        callCaseFiveSolidBlock:
             result = GetSolidBlockCollision(context);
             break;
     }

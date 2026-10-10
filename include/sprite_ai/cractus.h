@@ -1,8 +1,8 @@
 #ifndef SPRITE_AI_CRACTUS_H
 #define SPRITE_AI_CRACTUS_H
 
-#include "types.h"
 #include "oam.h"
+#include "types.h"
 
 void SpriteCractusSpawner(void);
 void SpriteCractusBoss(void);

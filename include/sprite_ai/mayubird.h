@@ -1,8 +1,8 @@
 #ifndef SPRITE_AI_MAYUBIRD_H
 #define SPRITE_AI_MAYUBIRD_H
 
-#include "types.h"
 #include "oam.h"
+#include "types.h"
 
 extern const struct AnimationFrame sMayubirdIdleOam[];
 extern const struct AnimationFrame sMayubirdFlightEndOam[];

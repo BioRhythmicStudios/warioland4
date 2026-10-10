@@ -12,7 +12,7 @@ struct AnimatedGraphicsState {
     u8 pad5;
     u8 pad6;
     u8 pad7;
-    const void *tiles;
+    const void* tiles;
 };
 
 struct AnimatedGraphicsDefinition {
@@ -20,7 +20,7 @@ struct AnimatedGraphicsDefinition {
     u8 frameDelay;
     u8 frameCount;
     u8 pad3;
-    const void *tiles;
+    const void* tiles;
 };
 
 extern struct AnimatedGraphicsState gAnimatedGraphicsStates[];

@@ -6,17 +6,17 @@
 #include "types.h"
 
 struct TilesetLoadData {
-    const void *backgroundGraphics;
+    const void* backgroundGraphics;
     u16 backgroundGraphicsSize;
     u16 padding06;
-    const void *palette;
-    const void *animatedGraphics;
+    const void* palette;
+    const void* animatedGraphics;
     u16 animatedGraphicsSize;
     u16 padding12;
-    const u16 *metatileTop;
-    const u16 *metatileBottom;
-    const u16 *metatileAttributes;
-    const void *extraPalette;
+    const u16* metatileTop;
+    const u16* metatileBottom;
+    const u16* metatileAttributes;
+    const void* extraPalette;
 };
 
 struct RoomStartData {
@@ -34,8 +34,8 @@ struct RoomStartData {
 };
 
 extern const struct TilesetLoadData sTilesetLoadData[];
-extern const struct RoomHeader *const sRoomHeaderTables[];
-extern const struct RoomStartData *const sRoomStartDataTables[];
+extern const struct RoomHeader* const sRoomHeaderTables[];
+extern const struct RoomStartData* const sRoomStartDataTables[];
 extern const u8 sBlankBackgroundTiles[];
 extern const u8 sBossRoomBackgroundData[];
 extern const u8 sBossPauseBackgroundTiles[];
@@ -57,7 +57,7 @@ void InitializeRoomState(void);
 void InitializeRoomEffects(void);
 void DrawRoomBackgroundLayer(u8 layer);
 void PreloadStageRoomBackgrounds(void);
-u32 DecompressRoomBackground(u8 type, const u8 *source, u8 *destination);
+u32 DecompressRoomBackground(u8 type, const u8* source, u8* destination);
 u32 LoadBossPauseBackgroundTiles(u8 useAlternateTiles);
 void UpdateBossRoomState(void);
 void InitializeRoomMusic(void);

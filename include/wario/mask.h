@@ -5,13 +5,13 @@
 #include "wario.h"
 
 struct MaskWarioGraphicsFrame {
-    const u8 *gfx;
-    const u16 *oam;
+    const u8* gfx;
+    const u16* oam;
     u8 time;
     u8 pad_09[3];
 };
 
-extern const struct MaskWarioGraphicsFrame *const sMaskWarioGraphicsTable[][2];
+extern const struct MaskWarioGraphicsFrame* const sMaskWarioGraphicsTable[][2];
 extern const u8 sMaskWarioPoseProperties[][8];
 extern const u8 sMaskWarioPalette[];
 extern const struct MaskWarioGraphicsFrame sMaskWarioTransformAnimation[];

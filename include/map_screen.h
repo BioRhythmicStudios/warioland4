@@ -22,4 +22,4 @@ void UpdateMapScreenPaletteCycle(void);
 void UpdateMapScreenTreasurePalettes(void);
 void DrawMapScreenSprites(void);
 
-#endif // MAP_SCREEN_H
+#endif  // MAP_SCREEN_H

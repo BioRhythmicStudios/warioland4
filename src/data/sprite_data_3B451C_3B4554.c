@@ -37,7 +37,8 @@ const u16 sRotatingPlatformOam_83B4544_Frame1[] = {
 };
 /* 0x083B4532 - 0x083B4534: not yet typed. */
 const u8 sSpriteDataRaw_083B4532[] = {
-    0x00, 0x00,
+    0x00,
+    0x00,
 };
 /* 0x083B4534: Match_disasm_rotating_platform. */
 const struct AnimationFrame sRotatingPlatformOam_83B4534[] = {

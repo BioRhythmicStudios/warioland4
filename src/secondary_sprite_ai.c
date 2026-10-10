@@ -1,24 +1,23 @@
 #include "secondary_sprite_ai.h"
 
-#include "color_effects.h"
 #include "autosave.h"
+#include "color_effects.h"
 #include "sprite_collision.h"
 
-#include "global_data.h"
 #include "background_registers.h"
-#include "voice_set.h"
-#include "main.h"
 #include "fixed_point.h"
+#include "gba/m4a.h"
+#include "global_data.h"
+#include "hud.h"
+#include "main.h"
 #include "oam.h"
 #include "score.h"
-#include "hud.h"
 #include "sprite.h"
-#include "gba/m4a.h"
-#include "sprite_ai/shopkeeper.h"
 #include "sprite_ai/coins.h"
 #include "sprite_ai/keyzer.h"
+#include "sprite_ai/shopkeeper.h"
+#include "voice_set.h"
 #include "wario.h"
-
 
 extern const u16 sTimeUpTextPal[];
 extern const u16 sTimeUpWarioPal[];
@@ -152,7 +151,7 @@ void ApplySecondarySpriteVerticalMotionTable(void)
 {
     u32 valueOrEntry;
     register u32 table asm("r1");
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
     u32 timer;
     u16 movement;
     s16 signedMovement;
@@ -162,15 +161,12 @@ void ApplySecondarySpriteVerticalMotionTable(void)
     table = (u32)sUnk_84165F4;
     valueOrEntry = timer << 1;
     valueOrEntry += table;
-    movement = *(const u16 *)valueOrEntry;
-    signedMovement = *(const s16 *)valueOrEntry;
+    movement = *(const u16*)valueOrEntry;
+    signedMovement = *(const s16*)valueOrEntry;
 
-    if (signedMovement == 0x7FFF)
-    {
+    if (signedMovement == 0x7FFF) {
         sprite->status = 0;
-    }
-    else
-    {
+    } else {
         valueOrEntry = timer + 1;
         sprite->timer = valueOrEntry;
         valueOrEntry = sprite->yPosition;
@@ -181,9 +177,9 @@ void ApplySecondarySpriteVerticalMotionTable(void)
 void ApplySecondarySpriteScaleMotionTableA(void)
 {
     s32 tableOrValue;
-    register s16 *destination asm("r5");
+    register s16* destination asm("r5");
     register s32 cosine asm("r6");
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
     u32 timer;
     s32 scale;
 
@@ -192,23 +188,20 @@ void ApplySecondarySpriteScaleMotionTableA(void)
     tableOrValue = (u16)sUnk_84165F4[timer];
     scale = sUnk_84167B4[timer];
 
-    if (scale == 0x7FFF)
-    {
+    if (scale == 0x7FFF) {
         sprite->status = 0;
-    }
-    else
-    {
+    } else {
         sprite->status |= 2;
         sprite->timer = timer + 1;
         sprite->yPosition += tableOrValue;
 
         destination = &gSecondarySpriteAffinePA;
         tableOrValue = (s32)sSinCosTable;
-        cosine = *(const s16 *)(tableOrValue + 0x80);
+        cosine = *(const s16*)(tableOrValue + 0x80);
         *destination = FixedMul(cosine, FixedInverse(scale));
 
         destination = &gSecondarySpriteAffinePB;
-        tableOrValue = *(const s16 *)tableOrValue;
+        tableOrValue = *(const s16*)tableOrValue;
         *destination = FixedMul(tableOrValue, FixedInverse(scale));
 
         destination = &gSecondarySpriteAffinePC;
@@ -216,15 +209,15 @@ void ApplySecondarySpriteScaleMotionTableA(void)
         *destination = FixedMul(tableOrValue, FixedInverse(scale));
 
         tableOrValue = (s32)&gSecondarySpriteAffinePD;
-        *(s16 *)tableOrValue = FixedMul(cosine, FixedInverse(scale));
+        *(s16*)tableOrValue = FixedMul(cosine, FixedInverse(scale));
     }
 }
 void ApplySecondarySpriteScaleMotionTableB(void)
 {
     s32 tableOrValue;
-    register s16 *destination asm("r5");
+    register s16* destination asm("r5");
     register s32 cosine asm("r6");
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
     u32 timer;
     s32 scale;
 
@@ -233,23 +226,20 @@ void ApplySecondarySpriteScaleMotionTableB(void)
     tableOrValue = (u16)sUnk_84165F4[timer];
     scale = sUnk_8416834[timer];
 
-    if (scale == 0x7FFF)
-    {
+    if (scale == 0x7FFF) {
         sprite->status = 0;
-    }
-    else
-    {
+    } else {
         sprite->status |= 2;
         sprite->timer = timer + 1;
         sprite->yPosition += tableOrValue;
 
         destination = &gSecondarySpriteAffinePA;
         tableOrValue = (s32)sSinCosTable;
-        cosine = *(const s16 *)(tableOrValue + 0x80);
+        cosine = *(const s16*)(tableOrValue + 0x80);
         *destination = FixedMul(cosine, FixedInverse(scale));
 
         destination = &gSecondarySpriteAffinePB;
-        tableOrValue = *(const s16 *)tableOrValue;
+        tableOrValue = *(const s16*)tableOrValue;
         *destination = FixedMul(tableOrValue, FixedInverse(scale));
 
         destination = &gSecondarySpriteAffinePC;
@@ -257,7 +247,7 @@ void ApplySecondarySpriteScaleMotionTableB(void)
         *destination = FixedMul(tableOrValue, FixedInverse(scale));
 
         tableOrValue = (s32)&gSecondarySpriteAffinePD;
-        *(s16 *)tableOrValue = FixedMul(cosine, FixedInverse(scale));
+        *(s16*)tableOrValue = FixedMul(cosine, FixedInverse(scale));
     }
 }
 void UpdateSecondarySpriteRisingScaleTrail(void)
@@ -268,8 +258,8 @@ void UpdateSecondarySpriteRisingScaleTrail(void)
     u32 timer;
 
     {
-        register struct SecondarySprite *sprite asm("r4");
-        const s16 *xTable;
+        register struct SecondarySprite* sprite asm("r4");
+        const s16* xTable;
         u32 offsetOrScaleAddress;
         register s32 scaleTableOrSignedX asm("r1");
 
@@ -280,20 +270,17 @@ void UpdateSecondarySpriteRisingScaleTrail(void)
         timer = sprite->timer;
         xTable = sUnk_8416674;
         offsetOrScaleAddress = timer << 1;
-        xTable = (const s16 *)(offsetOrScaleAddress + (u32)xTable);
+        xTable = (const s16*)(offsetOrScaleAddress + (u32)xTable);
         scaleTableOrSignedX = (s32)sUnk_84166F4;
         offsetOrScaleAddress += scaleTableOrSignedX;
-        scale = *(const u16 *)offsetOrScaleAddress;
-        xOrDestination = *(const u16 *)xTable;
+        scale = *(const u16*)offsetOrScaleAddress;
+        xOrDestination = *(const u16*)xTable;
         offsetOrScaleAddress = 0;
-        scaleTableOrSignedX = *(const s16 *)((u32)xTable + offsetOrScaleAddress);
+        scaleTableOrSignedX = *(const s16*)((u32)xTable + offsetOrScaleAddress);
 
-        if (scaleTableOrSignedX == 0x7FFF)
-        {
+        if (scaleTableOrSignedX == 0x7FFF) {
             sprite->status = 0;
-        }
-        else
-        {
+        } else {
             sprite->timer = timer + 1;
             sprite->yPosition -= 6;
             sprite->xPosition += xOrDestination;
@@ -309,23 +296,23 @@ void UpdateSecondarySpriteRisingScaleTrail(void)
                 address = tableOrSine;
                 address += 0x80;
                 zero = 0;
-                trigValue = *(const s16 *)(address + zero);
+                trigValue = *(const s16*)(address + zero);
                 cosine = trigValue;
 
                 scale = (s16)scale;
-                *(s16 *)xOrDestination = FixedMul(cosine, FixedInverse(scale));
+                *(s16*)xOrDestination = FixedMul(cosine, FixedInverse(scale));
 
                 xOrDestination = (s32)&gSecondarySpriteAffinePB;
                 address = 0;
-                tableOrSine = *(const s16 *)(tableOrSine + address);
-                *(s16 *)xOrDestination = FixedMul(tableOrSine, FixedInverse(scale));
+                tableOrSine = *(const s16*)(tableOrSine + address);
+                *(s16*)xOrDestination = FixedMul(tableOrSine, FixedInverse(scale));
 
                 xOrDestination = (s32)&gSecondarySpriteAffinePC;
                 tableOrSine = -tableOrSine;
-                *(s16 *)xOrDestination = FixedMul(tableOrSine, FixedInverse(scale));
+                *(s16*)xOrDestination = FixedMul(tableOrSine, FixedInverse(scale));
 
                 tableOrSine = (s32)&gSecondarySpriteAffinePD;
-                *(s16 *)tableOrSine = FixedMul(cosine, FixedInverse(scale));
+                *(s16*)tableOrSine = FixedMul(cosine, FixedInverse(scale));
             }
         }
     }
@@ -333,9 +320,9 @@ void UpdateSecondarySpriteRisingScaleTrail(void)
 void UpdateWarioCenteredScaleEffectSecondarySprite(void)
 {
     s32 tableOrSine;
-    register s16 *destination asm("r5");
+    register s16* destination asm("r5");
     register s32 cosine asm("r6");
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
     u32 timer;
     s32 scale;
 
@@ -345,23 +332,20 @@ void UpdateWarioCenteredScaleEffectSecondarySprite(void)
     timer = sprite->timer;
     scale = sUnk_8416774[timer];
 
-    if (scale == 0x7FFF)
-    {
+    if (scale == 0x7FFF) {
         sprite->status = 0;
-    }
-    else
-    {
+    } else {
         sprite->timer = timer + 1;
         sprite->yPosition = gWarioData.yPosition - 72;
         sprite->xPosition = gWarioData.xPosition - 32;
 
         destination = &gSecondarySpriteAffinePA;
         tableOrSine = (s32)sSinCosTable;
-        cosine = *(const s16 *)(tableOrSine + 0x80);
+        cosine = *(const s16*)(tableOrSine + 0x80);
         *destination = FixedMul(cosine, FixedInverse(scale));
 
         destination = &gSecondarySpriteAffinePB;
-        tableOrSine = *(const s16 *)tableOrSine;
+        tableOrSine = *(const s16*)tableOrSine;
         *destination = FixedMul(tableOrSine, FixedInverse(scale));
 
         destination = &gSecondarySpriteAffinePC;
@@ -369,15 +353,15 @@ void UpdateWarioCenteredScaleEffectSecondarySprite(void)
         *destination = FixedMul(tableOrSine, FixedInverse(scale));
 
         tableOrSine = (s32)&gSecondarySpriteAffinePD;
-        *(s16 *)tableOrSine = FixedMul(cosine, FixedInverse(scale));
+        *(s16*)tableOrSine = FixedMul(cosine, FixedInverse(scale));
     }
 }
 void UpdateLittleHeartPopSecondarySprite(void)
 {
     s32 tableOrSine;
-    register s16 *destination asm("r5");
+    register s16* destination asm("r5");
     register s32 cosine asm("r6");
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
     u32 timer;
     s32 scale;
 
@@ -387,23 +371,20 @@ void UpdateLittleHeartPopSecondarySprite(void)
     timer = sprite->timer;
     scale = sUnk_8416774[timer];
 
-    if (scale == 0x7FFF)
-    {
+    if (scale == 0x7FFF) {
         sprite->status = 0;
-    }
-    else
-    {
+    } else {
         sprite->timer = timer + 1;
         sprite->yPosition = gWarioData.yPosition - 40;
         sprite->xPosition = gWarioData.xPosition - 16;
 
         destination = &gSecondarySpriteAffinePA;
         tableOrSine = (s32)sSinCosTable;
-        cosine = *(const s16 *)(tableOrSine + 0x80);
+        cosine = *(const s16*)(tableOrSine + 0x80);
         *destination = FixedMul(cosine, FixedInverse(scale));
 
         destination = &gSecondarySpriteAffinePB;
-        tableOrSine = *(const s16 *)tableOrSine;
+        tableOrSine = *(const s16*)tableOrSine;
         *destination = FixedMul(tableOrSine, FixedInverse(scale));
 
         destination = &gSecondarySpriteAffinePC;
@@ -411,7 +392,7 @@ void UpdateLittleHeartPopSecondarySprite(void)
         *destination = FixedMul(tableOrSine, FixedInverse(scale));
 
         tableOrSine = (s32)&gSecondarySpriteAffinePD;
-        *(s16 *)tableOrSine = FixedMul(cosine, FixedInverse(scale));
+        *(s16*)tableOrSine = FixedMul(cosine, FixedInverse(scale));
     }
 }
 void UpdateVerticalMotionEffectSecondarySprite(void)
@@ -449,8 +430,9 @@ void UpdateTimedSecondarySpriteAnimationA(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_840FAD4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateSoundedTimedSecondarySpriteAnimation(void)
@@ -458,11 +440,11 @@ void UpdateSoundedTimedSecondarySpriteAnimation(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_840FB94);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         m4aSongNumStart(58);
         gCurrentSecondarySprite.pose++;
     }
@@ -472,11 +454,13 @@ void UpdateSilentTimedSecondarySpriteAnimation(void)
 {
     AdvanceSecondarySpriteAnimation(sUnk_840FB94);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 
-    if (gCurrentSecondarySprite.pose == 0)
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.pose++;
+    }
 }
 
 void UpdateGoldenDivaBlackChickIntroSecondarySprite(void)
@@ -484,8 +468,9 @@ void UpdateGoldenDivaBlackChickIntroSecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8414614);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateGoldenDivaBlackChickSecondarySprite(void)
@@ -493,8 +478,9 @@ void UpdateGoldenDivaBlackChickSecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sGoldenDivaBlackChickFinalOam);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateGoldenDivaFinalEffectSecondarySprite(void)
@@ -502,8 +488,9 @@ void UpdateGoldenDivaFinalEffectSecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8414824);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateShortShopEffectSecondarySprite(void)
@@ -511,8 +498,9 @@ void UpdateShortShopEffectSecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sShopEffectShortAOam);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateLongShopEffectSecondarySprite(void)
@@ -520,8 +508,9 @@ void UpdateLongShopEffectSecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sShopEffectLongOam);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimationB(void)
@@ -529,8 +518,9 @@ void UpdateTimedSecondarySpriteAnimationB(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_840FC7C);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimationC(void)
@@ -538,8 +528,9 @@ void UpdateTimedSecondarySpriteAnimationC(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_840FE74);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimationD(void)
@@ -547,8 +538,9 @@ void UpdateTimedSecondarySpriteAnimationD(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_840FEA4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateProfessorProjectileSecondarySprite(void)
@@ -556,8 +548,9 @@ void UpdateProfessorProjectileSecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sProfessorProjectileOam);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimationE(void)
@@ -565,8 +558,9 @@ void UpdateTimedSecondarySpriteAnimationE(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_841000C);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimationF(void)
@@ -574,16 +568,16 @@ void UpdateTimedSecondarySpriteAnimationF(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_83D86C4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdatePurchasedShopItemSecondarySprite(void)
 {
     gCurrentSecondarySprite.timer++;
 
-    switch (gCurrentShopItem)
-    {
+    switch (gCurrentShopItem) {
         case 1:
             AdvanceSecondarySpriteAnimation(sPurchasedAppleBombOam);
             break;
@@ -609,14 +603,15 @@ void UpdatePurchasedShopItemSecondarySprite(void)
             break;
     }
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 u32 UpdateBugleNoteDriftMotion(void)
 {
     u32 valueOrDirection;
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
     u32 value;
     u32 timer;
     register u16 xVelocity asm("r4");
@@ -629,24 +624,20 @@ u32 UpdateBugleNoteDriftMotion(void)
     value >>= 27;
     value <<= 1;
     value += valueOrDirection;
-    xVelocity = *(const u16 *)value;
+    xVelocity = *(const u16*)value;
     valueOrDirection = sprite->work0;
 
-    if (valueOrDirection != 0)
-    {
+    if (valueOrDirection != 0) {
         value = sprite->xPosition;
         value += xVelocity;
-    }
-    else
-    {
+    } else {
         value = sprite->xPosition;
         value -= xVelocity;
     }
 
     sprite->xPosition = value;
 
-    if (timer > 94)
-    {
+    if (timer > 94) {
         value = 0;
         sprite->unk5 = value;
         value = 1;
@@ -663,21 +654,19 @@ u32 UpdateBugleNoteDriftMotion(void)
     value = sprite->yPosition;
     value -= 2;
     sprite->yPosition = value;
-
 }
 u32 ApplyBugleNoteRotatingAffine(u8 angle)
 {
-    register struct SecondarySprite *sprite asm("r8");
+    register struct SecondarySprite* sprite asm("r8");
     u32 scale;
-    register s16 *destination asm("r6");
-    const s16 *table;
+    register s16* destination asm("r6");
+    const s16* table;
     register s32 trigValue asm("r4");
-    struct SecondarySprite *current;
+    struct SecondarySprite* current;
     register u32 status asm("r2");
     u32 value;
 
-    if (angle <= 59)
-    {
+    if (angle <= 59) {
         current = &gCurrentSecondarySprite;
         status = current->status;
         value = 2;
@@ -686,16 +675,12 @@ u32 ApplyBugleNoteRotatingAffine(u8 angle)
         current->animationTimer += 4;
         scale = current->animationTimer;
         sprite = current;
-    }
-    else if (angle > 195)
-    {
+    } else if (angle > 195) {
         current = &gCurrentSecondarySprite;
         current->animationTimer -= 4;
         scale = current->animationTimer;
         sprite = current;
-    }
-    else
-    {
+    } else {
         scale = 0x100;
         sprite = &gCurrentSecondarySprite;
     }
@@ -707,7 +692,7 @@ u32 ApplyBugleNoteRotatingAffine(u8 angle)
     value += 0x40;
     value <<= 1;
     value += (u32)table;
-    trigValue = *(const s16 *)value;
+    trigValue = *(const s16*)value;
     *destination = FixedMul(trigValue, FixedInverse(scale));
 
     destination = &gSecondarySpriteAffinePB;
@@ -727,43 +712,36 @@ u32 ApplyBugleNoteRotatingAffine(u8 angle)
     value += 0x40;
     value <<= 1;
     value += (u32)table;
-    trigValue = *(const s16 *)value;
+    trigValue = *(const s16*)value;
     *destination = FixedMul(trigValue, FixedInverse(scale));
 }
 u32 ApplyBugleNotePulseAffine(u8 angle)
 {
     u32 scale;
-    register s16 *destination asm("r5");
+    register s16* destination asm("r5");
     register s32 tableOrSine asm("r4");
     s32 cosine;
 
-    if (angle <= 59)
-    {
+    if (angle <= 59) {
         gCurrentSecondarySprite.status |= 2;
         gCurrentSecondarySprite.animationTimer += 4;
         scale = gCurrentSecondarySprite.animationTimer;
-    }
-    else if (angle > 195)
-    {
+    } else if (angle > 195) {
         gCurrentSecondarySprite.animationTimer -= 4;
         scale = gCurrentSecondarySprite.animationTimer;
-    }
-    else
-    {
+    } else {
         scale = 0x100;
 
-        if (angle > 90)
-        {
+        if (angle > 90) {
             scale = 0x200;
 
-            if (angle > 120)
-            {
+            if (angle > 120) {
                 scale = 0x100;
 
-                if (angle > 150)
-                {
-                    if (angle <= 180)
+                if (angle > 150) {
+                    if (angle <= 180) {
                         scale = 0x200;
+                    }
                 }
             }
         }
@@ -771,11 +749,11 @@ u32 ApplyBugleNotePulseAffine(u8 angle)
 
     destination = &gSecondarySpriteAffinePA;
     tableOrSine = (s32)sSinCosTable;
-    cosine = *(const s16 *)(tableOrSine + 0x80);
+    cosine = *(const s16*)(tableOrSine + 0x80);
     *destination = FixedMul(cosine, FixedInverse(scale));
 
     destination = &gSecondarySpriteAffinePB;
-    tableOrSine = *(const s16 *)tableOrSine;
+    tableOrSine = *(const s16*)tableOrSine;
     *destination = FixedMul(tableOrSine, FixedInverse(scale));
 
     destination = &gSecondarySpriteAffinePC;
@@ -783,14 +761,13 @@ u32 ApplyBugleNotePulseAffine(u8 angle)
     *destination = FixedMul(tableOrSine, FixedInverse(scale));
 
     tableOrSine = (s32)&gSecondarySpriteAffinePD;
-    *(s16 *)tableOrSine = FixedMul(cosine, FixedInverse(scale));
+    *(s16*)tableOrSine = FixedMul(cosine, FixedInverse(scale));
 }
 void UpdateBugleNote6SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 1;
         gCurrentSecondarySprite.pose++;
@@ -799,12 +776,9 @@ void UpdateBugleNote6SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote6OamFrame;
@@ -815,8 +789,7 @@ void UpdateBugleNote1SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 0;
         gCurrentSecondarySprite.pose++;
@@ -825,12 +798,9 @@ void UpdateBugleNote1SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote1OamFrame;
@@ -841,8 +811,7 @@ void UpdateBugleNote10SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 1;
         gCurrentSecondarySprite.pose++;
@@ -851,12 +820,9 @@ void UpdateBugleNote10SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote10OamFrame;
@@ -867,8 +833,7 @@ void UpdateBugleNote2SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 0;
         gCurrentSecondarySprite.pose++;
@@ -877,12 +842,9 @@ void UpdateBugleNote2SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote2OamFrame;
@@ -893,8 +855,7 @@ void UpdateBugleNote9SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 1;
         gCurrentSecondarySprite.pose++;
@@ -903,12 +864,9 @@ void UpdateBugleNote9SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote9OamFrame;
@@ -919,8 +877,7 @@ void UpdateBugleNote3SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 0;
         gCurrentSecondarySprite.pose++;
@@ -929,12 +886,9 @@ void UpdateBugleNote3SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote3OamFrame;
@@ -945,8 +899,7 @@ void UpdateBugleNote8SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 1;
         gCurrentSecondarySprite.pose++;
@@ -955,12 +908,9 @@ void UpdateBugleNote8SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote8OamFrame;
@@ -971,8 +921,7 @@ void UpdateBugleNote4SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 0;
         gCurrentSecondarySprite.pose++;
@@ -981,12 +930,9 @@ void UpdateBugleNote4SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote4OamFrame;
@@ -997,8 +943,7 @@ void UpdateBugleNote7SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 1;
         gCurrentSecondarySprite.pose++;
@@ -1007,12 +952,9 @@ void UpdateBugleNote7SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote7OamFrame;
@@ -1023,8 +965,7 @@ void UpdateBugleNote5SecondarySprite(void)
 {
     u32 timer;
 
-    if (gCurrentSecondarySprite.pose == 0)
-    {
+    if (gCurrentSecondarySprite.pose == 0) {
         gCurrentSecondarySprite.animationTimer = 4;
         gCurrentSecondarySprite.work0 = 0;
         gCurrentSecondarySprite.pose++;
@@ -1033,12 +974,9 @@ void UpdateBugleNote5SecondarySprite(void)
     gCurrentSecondarySprite.timer++;
     timer = gCurrentSecondarySprite.timer;
 
-    if (timer == U8_MAX)
-    {
+    if (timer == U8_MAX) {
         gCurrentSecondarySprite.status = 0;
-    }
-    else
-    {
+    } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
         gCurrentSecondarySpriteOamData = sBugleNote5OamFrame;
@@ -1050,8 +988,9 @@ void UpdateTimedSecondarySpriteAnimation00(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8410544);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation01(void)
@@ -1059,8 +998,9 @@ void UpdateTimedSecondarySpriteAnimation01(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84105A4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation02(void)
@@ -1068,8 +1008,9 @@ void UpdateTimedSecondarySpriteAnimation02(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8410AB4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation03(void)
@@ -1077,8 +1018,9 @@ void UpdateTimedSecondarySpriteAnimation03(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8410B14);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation04(void)
@@ -1086,8 +1028,9 @@ void UpdateTimedSecondarySpriteAnimation04(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84110B8);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation05(void)
@@ -1095,8 +1038,9 @@ void UpdateTimedSecondarySpriteAnimation05(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8411128);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation06(void)
@@ -1104,8 +1048,9 @@ void UpdateTimedSecondarySpriteAnimation06(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8410D90);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation07(void)
@@ -1113,8 +1058,9 @@ void UpdateTimedSecondarySpriteAnimation07(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8410E00);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation08(void)
@@ -1122,8 +1068,9 @@ void UpdateTimedSecondarySpriteAnimation08(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8410484);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation09(void)
@@ -1131,8 +1078,9 @@ void UpdateTimedSecondarySpriteAnimation09(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84104E4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation10(void)
@@ -1140,8 +1088,9 @@ void UpdateTimedSecondarySpriteAnimation10(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84109F4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation11(void)
@@ -1149,8 +1098,9 @@ void UpdateTimedSecondarySpriteAnimation11(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8410A54);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation12(void)
@@ -1158,8 +1108,9 @@ void UpdateTimedSecondarySpriteAnimation12(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8412538);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation13(void)
@@ -1167,8 +1118,9 @@ void UpdateTimedSecondarySpriteAnimation13(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8412598);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation14(void)
@@ -1176,8 +1128,9 @@ void UpdateTimedSecondarySpriteAnimation14(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8412AA8);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation15(void)
@@ -1185,8 +1138,9 @@ void UpdateTimedSecondarySpriteAnimation15(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8412B08);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation16(void)
@@ -1194,8 +1148,9 @@ void UpdateTimedSecondarySpriteAnimation16(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_841317C);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation17(void)
@@ -1203,8 +1158,9 @@ void UpdateTimedSecondarySpriteAnimation17(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84131EC);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation18(void)
@@ -1212,8 +1168,9 @@ void UpdateTimedSecondarySpriteAnimation18(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8412D84);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation19(void)
@@ -1221,8 +1178,9 @@ void UpdateTimedSecondarySpriteAnimation19(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8412DF4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation20(void)
@@ -1230,8 +1188,9 @@ void UpdateTimedSecondarySpriteAnimation20(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8412478);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation21(void)
@@ -1239,8 +1198,9 @@ void UpdateTimedSecondarySpriteAnimation21(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84124D8);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation22(void)
@@ -1248,8 +1208,9 @@ void UpdateTimedSecondarySpriteAnimation22(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84129E8);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation23(void)
@@ -1257,8 +1218,9 @@ void UpdateTimedSecondarySpriteAnimation23(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8412A48);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation24(void)
@@ -1266,8 +1228,9 @@ void UpdateTimedSecondarySpriteAnimation24(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84137E4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation25(void)
@@ -1275,8 +1238,9 @@ void UpdateTimedSecondarySpriteAnimation25(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8413844);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation26(void)
@@ -1284,8 +1248,9 @@ void UpdateTimedSecondarySpriteAnimation26(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8413D54);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation27(void)
@@ -1293,8 +1258,9 @@ void UpdateTimedSecondarySpriteAnimation27(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8413DB4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation28(void)
@@ -1302,8 +1268,9 @@ void UpdateTimedSecondarySpriteAnimation28(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8414428);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation29(void)
@@ -1311,8 +1278,9 @@ void UpdateTimedSecondarySpriteAnimation29(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8414498);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation30(void)
@@ -1320,8 +1288,9 @@ void UpdateTimedSecondarySpriteAnimation30(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8414030);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation31(void)
@@ -1329,8 +1298,9 @@ void UpdateTimedSecondarySpriteAnimation31(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84140A0);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation32(void)
@@ -1338,8 +1308,9 @@ void UpdateTimedSecondarySpriteAnimation32(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8413724);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation33(void)
@@ -1347,8 +1318,9 @@ void UpdateTimedSecondarySpriteAnimation33(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8413784);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation34(void)
@@ -1356,8 +1328,9 @@ void UpdateTimedSecondarySpriteAnimation34(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8413C94);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation35(void)
@@ -1365,8 +1338,9 @@ void UpdateTimedSecondarySpriteAnimation35(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_8413CF4);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation36(void)
@@ -1374,8 +1348,9 @@ void UpdateTimedSecondarySpriteAnimation36(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_841162C);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void UpdateTimedSecondarySpriteAnimation37(void)
@@ -1383,8 +1358,9 @@ void UpdateTimedSecondarySpriteAnimation37(void)
     gCurrentSecondarySprite.timer++;
     AdvanceSecondarySpriteAnimation(sUnk_84116DC);
 
-    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0)
+    if (gCurrentSecondarySprite.animationTimer == 0 && gCurrentSecondarySprite.work0 == 0) {
         gCurrentSecondarySprite.status = 0;
+    }
 }
 
 void ClearCurrentSecondarySprite(void)
@@ -1396,7 +1372,7 @@ void UpdateKeyzerSecondarySprite(void)
 {
     u32 specialWarioPose;
     u32 pose;
-    const struct AnimationFrame *animation;
+    const struct AnimationFrame* animation;
     u16 currentPosition;
     u16 targetPosition;
     u16 step;
@@ -1404,32 +1380,27 @@ void UpdateKeyzerSecondarySprite(void)
     u16 difference;
 
     specialWarioPose = 0;
-    if (gWarioData.reaction == 0)
-    {
+    if (gWarioData.reaction == 0) {
         pose = gWarioData.pose;
-        if ((u8)(pose - 40) <= 6)
-        {
+        if ((u8)(pose - 40) <= 6) {
             specialWarioPose = 1;
-        }
-        else if ((u8)(pose - 17) <= 1)
-        {
+        } else if ((u8)(pose - 17) <= 1) {
             specialWarioPose = 1;
         }
     }
 
-    if (gTimerState > 4)
-    {
+    if (gTimerState > 4) {
         ConvertKeyzerToTimeUpEffect();
         return;
     }
 
-    switch (gCurrentSecondarySprite.pose)
-    {
+    switch (gCurrentSecondarySprite.pose) {
         case 0:
             AdvanceSecondarySpriteAnimation(sKeyzerOam_83B49BC);
             gCurrentSecondarySprite.timer++;
-            if (gCurrentSecondarySprite.timer > 46)
+            if (gCurrentSecondarySprite.timer > 46) {
                 gCurrentSecondarySprite.pose = 1;
+            }
             break;
 
         case 1:
@@ -1439,12 +1410,9 @@ void UpdateKeyzerSecondarySprite(void)
             /* fall through */
         case 2:
             AdvanceSecondarySpriteAnimation(sKeyzerOam_83B47C4);
-            if (specialWarioPose != 0)
-            {
+            if (specialWarioPose != 0) {
                 gCurrentSecondarySprite.pose = 9;
-            }
-            else if (gWarioData.horizontalDirection & 0x10)
-            {
+            } else if (gWarioData.horizontalDirection & 0x10) {
                 gCurrentSecondarySprite.pose = 5;
             }
             break;
@@ -1456,12 +1424,9 @@ void UpdateKeyzerSecondarySprite(void)
             /* fall through */
         case 4:
             AdvanceSecondarySpriteAnimation(sKeyzerOam_83B47EC);
-            if (specialWarioPose != 0)
-            {
+            if (specialWarioPose != 0) {
                 gCurrentSecondarySprite.pose = 11;
-            }
-            else if (gWarioData.horizontalDirection & 0x20)
-            {
+            } else if (gWarioData.horizontalDirection & 0x20) {
                 gCurrentSecondarySprite.pose = 7;
             }
             break;
@@ -1504,11 +1469,12 @@ void UpdateKeyzerSecondarySprite(void)
             /* fall through */
         case 12:
             animation = sKeyzerOam_83B483C;
-animate_to_pose13:
+        animate_to_pose13:
             AdvanceSecondarySpriteAnimation(animation);
             gCurrentSecondarySprite.timer--;
-            if (gCurrentSecondarySprite.timer == 0)
+            if (gCurrentSecondarySprite.timer == 0) {
                 gCurrentSecondarySprite.pose = 13;
+            }
             break;
 
         case 13:
@@ -1518,12 +1484,12 @@ animate_to_pose13:
             /* fall through */
         case 14:
             AdvanceSecondarySpriteAnimation(sKeyzerOam_83B4864);
-            if (specialWarioPose == 0)
-            {
-                if (gWarioData.horizontalDirection & 0x20)
+            if (specialWarioPose == 0) {
+                if (gWarioData.horizontalDirection & 0x20) {
                     gCurrentSecondarySprite.pose = 15;
-                else
+                } else {
                     gCurrentSecondarySprite.pose = 17;
+                }
             }
             break;
 
@@ -1535,11 +1501,12 @@ animate_to_pose13:
             /* fall through */
         case 16:
             animation = sKeyzerOam_83B488C;
-animate_to_pose1:
+        animate_to_pose1:
             AdvanceSecondarySpriteAnimation(animation);
             gCurrentSecondarySprite.timer--;
-            if (gCurrentSecondarySprite.timer == 0)
+            if (gCurrentSecondarySprite.timer == 0) {
                 gCurrentSecondarySprite.pose = 1;
+            }
             break;
 
         case 17:
@@ -1550,11 +1517,12 @@ animate_to_pose1:
             /* fall through */
         case 18:
             animation = sKeyzerOam_83B48B4;
-animate_to_pose3:
+        animate_to_pose3:
             AdvanceSecondarySpriteAnimation(animation);
             gCurrentSecondarySprite.timer--;
-            if (gCurrentSecondarySprite.timer == 0)
+            if (gCurrentSecondarySprite.timer == 0) {
                 gCurrentSecondarySprite.pose = 3;
+            }
             break;
 
         default:
@@ -1562,127 +1530,135 @@ animate_to_pose3:
             break;
     }
 
-    if (gUnk_3000C0E != 0)
-    {
-        u16 *vortexXPosition;
+    if (gUnk_3000C0E != 0) {
+        u16* vortexXPosition;
 
         currentPosition = (u16)(gCurrentSecondarySprite.xPosition + 0x200);
         targetPosition = (u16)(gVortexXPosition + 0x200);
         vortexXPosition = &gVortexXPosition;
-        if (currentPosition > targetPosition)
+        if (currentPosition > targetPosition) {
             difference = currentPosition - targetPosition;
-        else
+        } else {
             difference = targetPosition - currentPosition;
+        }
 
-        if (difference <= 8)
+        if (difference <= 8) {
             step = 0;
-        else
+        } else {
             step = (difference - 8) >> 3;
+        }
 
-        if (currentPosition > targetPosition)
+        if (currentPosition > targetPosition) {
             gCurrentSecondarySprite.xPosition -= step;
-        else if (currentPosition < targetPosition)
+        } else if (currentPosition < targetPosition) {
             gCurrentSecondarySprite.xPosition += step;
+        }
 
         currentPosition = (u16)(gCurrentSecondarySprite.yPosition + 0x200);
         targetPosition = (u16)(gVortexYPosition + 0x200);
-        if (currentPosition > targetPosition)
+        if (currentPosition > targetPosition) {
             difference = currentPosition - targetPosition;
-        else
+        } else {
             difference = targetPosition - currentPosition;
+        }
 
-        if (difference <= 8)
+        if (difference <= 8) {
             secondaryValue = 0;
-        else
+        } else {
             secondaryValue = (difference - 8) >> 3;
+        }
 
-        if (currentPosition > targetPosition)
+        if (currentPosition > targetPosition) {
             gCurrentSecondarySprite.yPosition -= secondaryValue;
-        else if (currentPosition < targetPosition)
+        } else if (currentPosition < targetPosition) {
             gCurrentSecondarySprite.yPosition += secondaryValue;
+        }
 
-        if (step == 0 && secondaryValue == 0)
-        {
+        if (step == 0 && secondaryValue == 0) {
             SpawnHighPriorityPrimarySprite(211, 0, gVortexGfxSlot, gVortexYPosition, *vortexXPosition);
             gCurrentSecondarySprite.status = step;
         }
-    }
-    else
-    {
-        struct WarioData *wario;
+    } else {
+        struct WarioData* wario;
 
         currentPosition = (u16)(gCurrentSecondarySprite.xPosition + 0x200);
         targetPosition = (u16)(gWarioData.xPosition + 0x200);
         secondaryValue = 64;
         wario = &gWarioData;
-        if (specialWarioPose != 0)
+        if (specialWarioPose != 0) {
             secondaryValue = 4;
-
-        if (wario->horizontalDirection & 0x20)
-        {
-            targetPosition = (u16)(targetPosition + secondaryValue);
-            if (currentPosition > targetPosition)
-                difference = currentPosition - targetPosition;
-            else
-                difference = targetPosition - currentPosition;
-
-            if (difference <= 8)
-                step = 0;
-            else
-                step = (difference - 8) >> 3;
-
-            if (currentPosition > targetPosition)
-                gCurrentSecondarySprite.xPosition -= step;
-            else if (currentPosition < targetPosition)
-                gCurrentSecondarySprite.xPosition += step;
         }
-        else
-        {
-            targetPosition = (u16)(targetPosition - secondaryValue);
-            if (currentPosition > targetPosition)
+
+        if (wario->horizontalDirection & 0x20) {
+            targetPosition = (u16)(targetPosition + secondaryValue);
+            if (currentPosition > targetPosition) {
                 difference = currentPosition - targetPosition;
-            else
+            } else {
                 difference = targetPosition - currentPosition;
+            }
 
-            if (difference <= 8)
+            if (difference <= 8) {
                 step = 0;
-            else
+            } else {
                 step = (difference - 8) >> 3;
+            }
 
-            if (currentPosition < targetPosition)
-                gCurrentSecondarySprite.xPosition += step;
-            else if (currentPosition > targetPosition)
+            if (currentPosition > targetPosition) {
                 gCurrentSecondarySprite.xPosition -= step;
+            } else if (currentPosition < targetPosition) {
+                gCurrentSecondarySprite.xPosition += step;
+            }
+        } else {
+            targetPosition = (u16)(targetPosition - secondaryValue);
+            if (currentPosition > targetPosition) {
+                difference = currentPosition - targetPosition;
+            } else {
+                difference = targetPosition - currentPosition;
+            }
+
+            if (difference <= 8) {
+                step = 0;
+            } else {
+                step = (difference - 8) >> 3;
+            }
+
+            if (currentPosition < targetPosition) {
+                gCurrentSecondarySprite.xPosition += step;
+            } else if (currentPosition > targetPosition) {
+                gCurrentSecondarySprite.xPosition -= step;
+            }
         }
 
         currentPosition = (u16)(gCurrentSecondarySprite.yPosition + 0x200);
-        if (specialWarioPose != 0)
+        if (specialWarioPose != 0) {
             targetPosition = (u16)(wario->yPosition + 0x200);
-        else
+        } else {
             targetPosition = (u16)(wario->yPosition + wario->hitboxOffsetTop + 0x200);
+        }
 
-        if (currentPosition > targetPosition)
+        if (currentPosition > targetPosition) {
             difference = currentPosition - targetPosition;
-        else
+        } else {
             difference = targetPosition - currentPosition;
+        }
 
-        if (difference <= 8)
+        if (difference <= 8) {
             step = 0;
-        else
+        } else {
             step = (difference - 8) >> 3;
+        }
 
-        if (currentPosition > targetPosition)
+        if (currentPosition > targetPosition) {
             gCurrentSecondarySprite.yPosition -= step;
-        else if (currentPosition < targetPosition)
+        } else if (currentPosition < targetPosition) {
             gCurrentSecondarySprite.yPosition += step;
+        }
     }
-
-
 }
 
 void UpdateCoin50PointsSecondarySprite(void)
 {
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
     u32 timer;
     u32 value;
     u32 tableOrPosition;
@@ -1690,18 +1666,14 @@ void UpdateCoin50PointsSecondarySprite(void)
     AdvanceSecondarySpriteAnimation(sCoin50PointsOamData);
     sprite = &gCurrentSecondarySprite;
 
-    switch (sprite->pose)
-    {
+    switch (sprite->pose) {
         case 0:
             sprite->yPosition = gWarioData.yPosition - 90;
 
-            if (gWarioData.horizontalDirection & 0x20)
-            {
+            if (gWarioData.horizontalDirection & 0x20) {
                 sprite->xPosition = gWarioData.xPosition + 32;
                 sprite->pose = 1;
-            }
-            else
-            {
+            } else {
                 sprite->xPosition = gWarioData.xPosition - 32;
                 sprite->pose = 2;
             }
@@ -1711,17 +1683,14 @@ void UpdateCoin50PointsSecondarySprite(void)
             sprite->timer++;
             timer = sprite->timer;
 
-            if (timer > 30)
-            {
+            if (timer > 30) {
                 sprite->pose = 3;
-            }
-            else
-            {
+            } else {
                 sprite->xPosition += 4;
                 tableOrPosition = (u32)sUnk_8416A06;
                 value = timer << 1;
                 value += tableOrPosition;
-                value = *(const u16 *)value;
+                value = *(const u16*)value;
                 tableOrPosition = sprite->yPosition;
                 value += tableOrPosition;
                 sprite->yPosition = value;
@@ -1732,17 +1701,14 @@ void UpdateCoin50PointsSecondarySprite(void)
             sprite->timer++;
             timer = sprite->timer;
 
-            if (timer > 30)
-            {
+            if (timer > 30) {
                 sprite->pose = 3;
-            }
-            else
-            {
+            } else {
                 sprite->xPosition -= 4;
                 tableOrPosition = (u32)sUnk_8416A06;
                 value = timer << 1;
                 value += tableOrPosition;
-                value = *(const u16 *)value;
+                value = *(const u16*)value;
                 tableOrPosition = sprite->yPosition;
                 value += tableOrPosition;
                 sprite->yPosition = value;
@@ -1763,15 +1729,13 @@ void UpdateTimeUpSecondarySprite(void)
 
     scale = 0x200;
     pose = (u32)&gCurrentSecondarySprite;
-    pose = *(const u8 *)(pose + 3);
+    pose = *(const u8*)(pose + 3);
 
-    switch (pose)
-    {
-        case 0:
-        {
+    switch (pose) {
+        case 0: {
             u32 entry;
             register u32 table asm("r1");
-            struct SecondarySprite *sprite;
+            struct SecondarySprite* sprite;
             u32 timer;
             u32 signedZero;
             s16 signedMovement;
@@ -1783,17 +1747,14 @@ void UpdateTimeUpSecondarySprite(void)
             timer = sprite->timer;
             entry = timer << 1;
             entry += table;
-            scale = *(const u16 *)entry;
+            scale = *(const u16*)entry;
             signedZero = 0;
-            signedMovement = *(const s16 *)(entry + signedZero);
+            signedMovement = *(const s16*)(entry + signedZero);
 
-            if (signedMovement == 0x7FFF)
-            {
+            if (signedMovement == 0x7FFF) {
                 scale = 0x200;
                 sprite->pose = 1;
-            }
-            else
-            {
+            } else {
                 entry = timer + 1;
                 sprite->timer = entry;
             }
@@ -1804,12 +1765,9 @@ void UpdateTimeUpSecondarySprite(void)
             gCurrentSecondarySprite.status |= 6;
             gCurrentSecondarySpriteOamData = sUnk_840F1C8;
 
-            if ((gCurrentSecondarySprite.yPosition >> 2) > 2)
-            {
+            if ((gCurrentSecondarySprite.yPosition >> 2) > 2) {
                 gCurrentSecondarySprite.yPosition -= 16;
-            }
-            else
-            {
+            } else {
                 gCurrentSecondarySprite.yPosition = 8;
                 gCurrentSecondarySprite.pose = 2;
             }
@@ -1819,34 +1777,29 @@ void UpdateTimeUpSecondarySprite(void)
             gCurrentSecondarySprite.status |= 6;
             gCurrentSecondarySpriteOamData = sUnk_840F1C8;
 
-            if (gTimerState == 2)
-            {
+            if (gTimerState == 2) {
                 gCurrentSecondarySprite.pose = 3;
                 gCurrentSecondarySprite.timer = 7;
-            }
-            else if (gTimerState == 4)
-            {
+            } else if (gTimerState == 4) {
                 gCurrentSecondarySprite.pose = 6;
                 gCurrentSecondarySprite.timer = 30;
-            }
-            else if (gTimerState == 11)
-            {
+            } else if (gTimerState == 11) {
                 gCurrentSecondarySprite.pose = 44;
                 gCurrentSecondarySprite.timer = 30;
                 gCollectedKeyzer = 1;
                 func_801E4D4();
 
-                if (gCurrentPassage == 5)
+                if (gCurrentPassage == 5) {
                     AutosaveFinalBoss();
-                else
+                } else {
                     AutosaveBossClear();
+                }
             }
             break;
 
-        case 3:
-        {
-            struct SecondarySprite *sprite;
-            const u16 **animationDestination;
+        case 3: {
+            struct SecondarySprite* sprite;
+            const u16** animationDestination;
             u32 oldStatus;
             register u32 flag asm("r1");
             u32 status;
@@ -1863,20 +1816,16 @@ void UpdateTimeUpSecondarySprite(void)
             *animationDestination = sUnk_840F1C8;
             timerOrPosition = sprite->timer;
 
-            if (timerOrPosition != 0)
-            {
+            if (timerOrPosition != 0) {
                 timerOrPosition--;
                 sprite->timer = timerOrPosition;
-            }
-            else
-            {
+            } else {
                 timerOrPosition = sprite->yPosition;
                 timerOrPosition -= 16;
                 sprite->yPosition = timerOrPosition;
                 timerOrPosition <<= 16;
 
-                if (timerOrPosition <= 0xFFB70000)
-                {
+                if (timerOrPosition <= 0xFFB70000) {
                     sprite->yPosition = 24;
                     sprite->xPosition = 828;
                     sprite->pose = 4;
@@ -1890,10 +1839,9 @@ void UpdateTimeUpSecondarySprite(void)
             break;
         }
 
-        case 4:
-        {
-            struct SecondarySprite *sprite;
-            const u16 **animationDestination;
+        case 4: {
+            struct SecondarySprite* sprite;
+            const u16** animationDestination;
             u32 oldStatus;
             register u32 flagOrPosition asm("r0");
             register u32 status asm("r2");
@@ -1916,8 +1864,7 @@ void UpdateTimeUpSecondarySprite(void)
             sprite->xPosition = flagOrPosition;
             flagOrPosition <<= 16;
 
-            if (flagOrPosition <= 0x025F0000)
-            {
+            if (flagOrPosition <= 0x025F0000) {
                 register u32 bit asm("r1");
                 register u32 newStatus asm("r0");
 
@@ -1933,18 +1880,17 @@ void UpdateTimeUpSecondarySprite(void)
             break;
         }
 
-        case 5:
-        {
-            struct SecondarySprite *sprite;
+        case 5: {
+            struct SecondarySprite* sprite;
 
             sprite = &gCurrentSecondarySprite;
             sprite->status |= 6;
             gCurrentSecondarySpriteOamData = sUnk_840F214;
 
-            if (gTimerState != 4)
-            {
-                if (gStageScore != 0)
+            if (gTimerState != 4) {
+                if (gStageScore != 0) {
                     break;
+                }
 
                 gTimerState = 4;
                 gWarioPauseTimer = 1000;
@@ -1957,9 +1903,8 @@ void UpdateTimeUpSecondarySprite(void)
             break;
         }
 
-        case 6:
-        {
-            struct SecondarySprite *sprite;
+        case 6: {
+            struct SecondarySprite* sprite;
             register u32 timerOrPosition asm("r0");
 
             sprite = &gCurrentSecondarySprite;
@@ -1967,48 +1912,45 @@ void UpdateTimeUpSecondarySprite(void)
             gCurrentSecondarySpriteOamData = sUnk_840F1C8;
             goto state_6_7_movement;
 
-        case 7:
-            sprite = &gCurrentSecondarySprite;
-            sprite->status |= 6;
-            gCurrentSecondarySpriteOamData = sUnk_840F214;
+            case 7:
+                sprite = &gCurrentSecondarySprite;
+                sprite->status |= 6;
+                gCurrentSecondarySpriteOamData = sUnk_840F214;
 
-state_6_7_movement:
-            timerOrPosition = sprite->timer;
+            state_6_7_movement:
+                timerOrPosition = sprite->timer;
 
-            if (timerOrPosition != 0)
-            {
-                timerOrPosition--;
-                sprite->timer = timerOrPosition;
-            }
-            else
-            {
-                timerOrPosition = sprite->yPosition;
-                timerOrPosition -= 16;
-                sprite->yPosition = timerOrPosition;
-                timerOrPosition <<= 16;
+                if (timerOrPosition != 0) {
+                    timerOrPosition--;
+                    sprite->timer = timerOrPosition;
+                } else {
+                    timerOrPosition = sprite->yPosition;
+                    timerOrPosition -= 16;
+                    sprite->yPosition = timerOrPosition;
+                    timerOrPosition <<= 16;
 
-                if (timerOrPosition <= 0xFFB70000)
-                    sprite->pose = 8;
-            }
-            break;
+                    if (timerOrPosition <= 0xFFB70000) {
+                        sprite->pose = 8;
+                    }
+                }
+                break;
         }
 
-        case 8:
-        {
-            volatile u32 *dmaReg;
+        case 8: {
+            volatile u32* dmaReg;
             u32 dmaSourceA;
             u32 dmaSourceB;
             u32 dmaControlSmall;
             u32 dmaControlLarge;
-            struct SecondarySprite *sprite;
+            struct SecondarySprite* sprite;
             u32 offset;
 
             /* The original object stores through an absolute IWRAM literal here. */
-            *(volatile u8 *)0x03000047 = 5;
+            *(volatile u8*)0x03000047 = 5;
             gDisableWario = 1;
             sprite = &gCurrentSecondarySprite;
             sprite->status &= 0xFB;
-            dmaReg = (volatile u32 *)0x040000D4;
+            dmaReg = (volatile u32*)0x040000D4;
             dmaReg[0] = (u32)sTimeUpTextPal;
             dmaReg[1] = 0x05000240;
             dmaControlSmall = 0x80000010;
@@ -2052,23 +1994,21 @@ state_6_7_movement:
 
             SpawnSecondarySprite(gWarioData.yPosition, gWarioData.xPosition, 76);
 
-            if (gCurrentStageNumber == 4)
+            if (gCurrentStageNumber == 4) {
                 AutosaveDefeat();
+            }
             break;
         }
 
         case 11:
-            if (gTimerState == 6)
-            {
+            if (gTimerState == 6) {
                 gCurrentSecondarySprite.yPosition = 320;
                 gCurrentSecondarySprite.xPosition = 480;
                 gCurrentSecondarySpriteOamData = sUnk_8411B48;
                 scale = 32;
                 gCurrentSecondarySprite.pose++;
                 ConvertObjPaletteBankToGrayscale(8);
-            }
-            else
-            {
+            } else {
                 gCurrentSecondarySpriteOamData = sUnk_8411AFC;
                 scale = 16;
             }
@@ -2203,24 +2143,21 @@ state_6_7_movement:
             gCurrentSecondarySpriteOamData = sUnk_8411FBC;
             scale = 512;
 
-            if (gCurrentSecondarySprite.timer == 50)
+            if (gCurrentSecondarySprite.timer == 50) {
                 gTimerState = 9;
+            }
 
             gCurrentSecondarySprite.timer--;
 
-            if (gCurrentSecondarySprite.timer == 0)
-            {
+            if (gCurrentSecondarySprite.timer == 0) {
                 gTimerState = 10;
                 gCurrentSecondarySprite.pose++;
 
-                if (gCurrentStageNumber == 4)
-                {
+                if (gCurrentStageNumber == 4) {
                     gSubGameMode = 6;
                     gSpriteAiDropTimer = 0;
                     gStageExitType = 4;
-                }
-                else
-                {
+                } else {
                     gSubGameMode = 6;
                     gSpriteAiDropTimer = 0;
                     gStageExitType = 1;
@@ -2233,9 +2170,8 @@ state_6_7_movement:
             scale = 512;
             break;
 
-        case 44:
-        {
-            struct SecondarySprite *sprite;
+        case 44: {
+            struct SecondarySprite* sprite;
             register u32 timerOrPosition asm("r0");
 
             sprite = &gCurrentSecondarySprite;
@@ -2243,20 +2179,18 @@ state_6_7_movement:
             gCurrentSecondarySpriteOamData = sUnk_840F1C8;
             timerOrPosition = sprite->timer;
 
-            if (timerOrPosition != 0)
-            {
+            if (timerOrPosition != 0) {
                 timerOrPosition--;
                 sprite->timer = timerOrPosition;
-            }
-            else
-            {
+            } else {
                 timerOrPosition = sprite->yPosition;
                 timerOrPosition -= 16;
                 sprite->yPosition = timerOrPosition;
                 timerOrPosition <<= 16;
 
-                if (timerOrPosition <= 0xFFB70000)
+                if (timerOrPosition <= 0xFFB70000) {
                     sprite->status = 0;
+                }
             }
             break;
         }
@@ -2268,9 +2202,8 @@ state_6_7_movement:
             break;
     }
 
-    if (gCurrentSecondarySprite.status & 2)
-    {
-        register s16 *destination asm("r6");
+    if (gCurrentSecondarySprite.status & 2) {
+        register s16* destination asm("r6");
         register s32 tableOrSine asm("r4");
         s32 fixedScale;
 
@@ -2289,7 +2222,7 @@ state_6_7_movement:
         *destination = FixedMul(tableOrSine, FixedInverse(fixedScale));
 
         tableOrSine = (s32)&gSecondarySpriteAffinePD;
-        *(s16 *)tableOrSine = FixedMul(cosine, FixedInverse(fixedScale));
+        *(s16*)tableOrSine = FixedMul(cosine, FixedInverse(fixedScale));
     }
 }
 void UpdateCDIconSecondarySprite(void)
@@ -2298,7 +2231,7 @@ void UpdateCDIconSecondarySprite(void)
     u32 scale;
     register u32 countOrDestination asm("r6");
     register s32 cosine asm("r8");
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
     u32 angle;
     u32 pose;
     u32 position;
@@ -2307,10 +2240,10 @@ void UpdateCDIconSecondarySprite(void)
     countOrDestination = 0;
     scale = 0x100;
     {
-        struct SecondarySprite *current;
+        struct SecondarySprite* current;
 
         current = &gCurrentSecondarySprite;
-        sprite = (struct SecondarySprite *)(u32)current->status;
+        sprite = (struct SecondarySprite*)(u32)current->status;
         pose = 4;
         pose |= (u32)sprite;
         current->status = pose;
@@ -2318,10 +2251,8 @@ void UpdateCDIconSecondarySprite(void)
         sprite = current;
     }
 
-    switch (pose)
-    {
-        case 0:
-        {
+    switch (pose) {
+        case 0: {
             u32 value;
 
             value = sprite->timer;
@@ -2329,17 +2260,14 @@ void UpdateCDIconSecondarySprite(void)
             sprite->timer = value;
             value <<= 24;
 
-            if (value != 0)
-            {
+            if (value != 0) {
                 {
                     u32 timer;
 
                     timer = sprite->timer;
                     scale = timer << 1;
                 }
-            }
-            else
-            {
+            } else {
                 scale = 0x200;
                 sprite->pose = 1;
             }
@@ -2350,8 +2278,7 @@ void UpdateCDIconSecondarySprite(void)
             break;
         }
 
-        case 1:
-        {
+        case 1: {
             register u32 value asm("r0");
             u32 temporary;
 
@@ -2361,15 +2288,12 @@ void UpdateCDIconSecondarySprite(void)
             value = position - 9;
             value <<= 16;
 
-            if (value > 0x02770000)
-            {
+            if (value > 0x02770000) {
                 sprite->yPosition = 8;
                 value = countOrDestination + 1;
                 countOrDestination = (u8)value;
                 stepOrSine = 4;
-            }
-            else
-            {
+            } else {
                 value = position;
                 value -= 8;
                 sprite->yPosition = value;
@@ -2378,18 +2302,13 @@ void UpdateCDIconSecondarySprite(void)
             value = sprite->xPosition;
             temporary = value >> 2;
 
-            if (temporary > 80)
-            {
+            if (temporary > 80) {
                 value -= stepOrSine;
                 sprite->xPosition = value;
-            }
-            else if (temporary < 80)
-            {
+            } else if (temporary < 80) {
                 value = stepOrSine + value;
                 sprite->xPosition = value;
-            }
-            else
-            {
+            } else {
                 sprite->xPosition = 320;
                 value = countOrDestination + 1;
                 countOrDestination = (u8)value;
@@ -2397,8 +2316,7 @@ void UpdateCDIconSecondarySprite(void)
 
             angle = sprite->timer;
 
-            if (countOrDestination == 2 && angle == 0)
-            {
+            if (countOrDestination == 2 && angle == 0) {
                 sprite->pose = countOrDestination;
                 sprite->timer = 10;
             }
@@ -2409,8 +2327,7 @@ void UpdateCDIconSecondarySprite(void)
             break;
         }
 
-        case 2:
-        {
+        case 2: {
             u32 value;
 
             angle = 0;
@@ -2423,13 +2340,13 @@ void UpdateCDIconSecondarySprite(void)
             sprite->timer = value;
             value <<= 24;
 
-            if (value == 0)
+            if (value == 0) {
                 sprite->pose = 3;
+            }
             break;
         }
 
-        case 3:
-        {
+        case 3: {
             register u32 temporary asm("r1");
             u32 value;
 
@@ -2441,8 +2358,7 @@ void UpdateCDIconSecondarySprite(void)
             sprite->timer = value;
             value <<= 24;
 
-            if (value != 0)
-            {
+            if (value != 0) {
                 sprite->status |= 2;
                 sprite->yPosition--;
                 sprite->xPosition--;
@@ -2457,9 +2373,7 @@ void UpdateCDIconSecondarySprite(void)
                     asm("" : "+r"(mask));
                     scale |= mask;
                 }
-            }
-            else
-            {
+            } else {
                 sprite->status &= 0xFD;
                 sprite->yPosition = 8;
                 sprite->xPosition = 320;
@@ -2473,13 +2387,13 @@ void UpdateCDIconSecondarySprite(void)
             sprite->status &= 0xFD;
             gCurrentSecondarySpriteOamData = sUnk_8411A4CFrame0;
 
-            if (gWarioPauseTimer == 0)
+            if (gWarioPauseTimer == 0) {
                 sprite->pose = 5;
+            }
             break;
 
-        case 6:
-        {
-            register struct SecondarySprite *current asm("r4");
+        case 6: {
+            register struct SecondarySprite* current asm("r4");
             u8 timer;
             u32 position;
 
@@ -2490,20 +2404,18 @@ void UpdateCDIconSecondarySprite(void)
 
             timer = current->timer;
 
-            if (timer != 0)
-            {
+            if (timer != 0) {
                 timer--;
                 current->timer = timer;
-            }
-            else
-            {
+            } else {
                 position = current->yPosition;
                 position -= 16;
                 current->yPosition = position;
                 position <<= 16;
 
-                if (position <= 0xFFB70000)
+                if (position <= 0xFFB70000) {
                     current->status = 0;
+                }
             }
             break;
         }
@@ -2512,21 +2424,20 @@ void UpdateCDIconSecondarySprite(void)
             sprite = &gCurrentSecondarySprite;
             sprite->status &= 0xFD;
 
-            if (gTimerState == 11)
-            {
+            if (gTimerState == 11) {
                 sprite->pose = 6;
                 sprite->timer = 30;
             }
 
-            if (gWarioPauseTimer != 0 || gSubGameMode != 2)
+            if (gWarioPauseTimer != 0 || gSubGameMode != 2) {
                 sprite->work0--;
+            }
 
             AdvanceSecondarySpriteAnimation(sUnk_8411A4C);
             break;
     }
 
-    if (gCurrentSecondarySprite.status | 2)
-    {
+    if (gCurrentSecondarySprite.status | 2) {
         u32 value;
 
         countOrDestination = (u32)&gSecondarySpriteAffinePA;
@@ -2534,44 +2445,45 @@ void UpdateCDIconSecondarySprite(void)
         value = angle + 0x40;
         value <<= 1;
         value += stepOrSine;
-        cosine = *(const s16 *)value;
-        *(s16 *)countOrDestination = FixedMul(cosine, FixedInverse(scale));
+        cosine = *(const s16*)value;
+        *(s16*)countOrDestination = FixedMul(cosine, FixedInverse(scale));
 
         countOrDestination = (u32)&gSecondarySpriteAffinePB;
         value = angle << 1;
         value += stepOrSine;
-        stepOrSine = *(const s16 *)value;
-        *(s16 *)countOrDestination = FixedMul(stepOrSine, FixedInverse(scale));
+        stepOrSine = *(const s16*)value;
+        *(s16*)countOrDestination = FixedMul(stepOrSine, FixedInverse(scale));
 
         countOrDestination = (u32)&gSecondarySpriteAffinePC;
         stepOrSine = -stepOrSine;
-        *(s16 *)countOrDestination = FixedMul(stepOrSine, FixedInverse(scale));
+        *(s16*)countOrDestination = FixedMul(stepOrSine, FixedInverse(scale));
 
         stepOrSine = (s32)&gSecondarySpriteAffinePD;
-        *(s16 *)stepOrSine = FixedMul(cosine, FixedInverse(scale));
+        *(s16*)stepOrSine = FixedMul(cosine, FixedInverse(scale));
     }
 }
 void PlayAllJewelPiecesCollectedJingle(void)
 {
-    if (gCollectedNEJewelPiece & gCollectedSEJewelPiece & gCollectedSWJewelPiece & gCollectedNWJewelPiece)
+    if (gCollectedNEJewelPiece & gCollectedSEJewelPiece & gCollectedSWJewelPiece & gCollectedNWJewelPiece) {
         m4aSongNumStart(342);
+    }
 }
 
 void ApplyJewelPieceIconAffine(void)
 {
-    s16 *destination;
+    s16* destination;
     register s32 tableOrSine asm("r4");
     register s32 cosine asm("r8");
     s32 scale;
 
     destination = &gSecondarySpriteAffinePA;
     tableOrSine = (s32)sSinCosTable;
-    cosine = *(const s16 *)(tableOrSine + 0x80);
+    cosine = *(const s16*)(tableOrSine + 0x80);
     scale = 0x200;
     *destination = FixedMul(cosine, FixedInverse(scale));
 
     destination = &gSecondarySpriteAffinePB;
-    tableOrSine = *(const s16 *)tableOrSine;
+    tableOrSine = *(const s16*)tableOrSine;
     *destination = FixedMul(tableOrSine, FixedInverse(scale));
 
     destination = &gSecondarySpriteAffinePC;
@@ -2579,23 +2491,23 @@ void ApplyJewelPieceIconAffine(void)
     *destination = FixedMul(tableOrSine, FixedInverse(scale));
 
     tableOrSine = (s32)&gSecondarySpriteAffinePD;
-    *(s16 *)tableOrSine = FixedMul(cosine, FixedInverse(scale));
+    *(s16*)tableOrSine = FixedMul(cosine, FixedInverse(scale));
 
     gCurrentSecondarySprite.timer++;
     gCurrentSecondarySprite.status |= 2;
 }
 void UpdateJewelPieceIconSecondarySprite(void)
 {
-    struct SecondarySprite *current;
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* current;
+    struct SecondarySprite* sprite;
     register u32 value asm("r0");
     u32 status;
     u32 neState;
     u32 seState;
     u32 swState;
     u32 nwState;
-    u8 *treasureState;
-    volatile u32 *dma;
+    u8* treasureState;
+    volatile u32* dma;
     u32 timer;
 
     current = &gCurrentSecondarySprite;
@@ -2607,15 +2519,13 @@ void UpdateJewelPieceIconSecondarySprite(void)
     value = current->pose;
     sprite = current;
 
-    switch (value)
-    {
+    switch (value) {
         case 0:
             treasureState = &gCollectedNEJewelPiece;
             value = *treasureState;
             neState = value;
 
-            if (neState == 1)
-            {
+            if (neState == 1) {
                 value++;
                 *treasureState = value;
                 value = 0;
@@ -2628,8 +2538,7 @@ void UpdateJewelPieceIconSecondarySprite(void)
             value = *treasureState;
             seState = value;
 
-            if (seState == 1)
-            {
+            if (seState == 1) {
                 value++;
                 *treasureState = value;
                 neState = 0;
@@ -2643,8 +2552,7 @@ void UpdateJewelPieceIconSecondarySprite(void)
             value = *treasureState;
             swState = value;
 
-            if (swState == 1)
-            {
+            if (swState == 1) {
                 value++;
                 *treasureState = value;
                 neState = 0;
@@ -2658,8 +2566,7 @@ void UpdateJewelPieceIconSecondarySprite(void)
             value = *treasureState;
             nwState = value;
 
-            if (nwState == 1)
-            {
+            if (nwState == 1) {
                 value++;
                 *treasureState = value;
                 neState = 0;
@@ -2669,11 +2576,13 @@ void UpdateJewelPieceIconSecondarySprite(void)
                 break;
             }
 
-            if (gTimerState <= 7)
+            if (gTimerState <= 7) {
                 break;
+            }
 
-            if (neState != 2 && seState != 2 && swState != 2 && nwState != 2)
+            if (neState != 2 && seState != 2 && swState != 2 && nwState != 2) {
                 break;
+            }
 
             neState = 0;
             value = 6;
@@ -2684,19 +2593,15 @@ void UpdateJewelPieceIconSecondarySprite(void)
         case 1:
             timer = sprite->timer;
 
-            if (timer > 59)
-            {
+            if (timer > 59) {
                 sprite->timer = 20;
                 sprite->pose = 5;
                 sprite->status &= 0xFD;
                 sprite->xPosition += 32;
-            }
-            else
-            {
-                if (timer == 20)
-                {
+            } else {
+                if (timer == 20) {
                     PlayAllJewelPiecesCollectedJingle();
-                    dma = (volatile u32 *)0x040000D4;
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sJewelPieceIconPartialNEGfx;
                     dma[1] = 0x06011C20;
                     dma[2] = 0x80000010;
@@ -2710,19 +2615,15 @@ void UpdateJewelPieceIconSecondarySprite(void)
         case 2:
             timer = sprite->timer;
 
-            if (timer > 59)
-            {
+            if (timer > 59) {
                 sprite->timer = 20;
                 sprite->pose = 5;
                 sprite->status &= 0xFD;
                 sprite->xPosition += 32;
-            }
-            else
-            {
-                if (timer == 20)
-                {
+            } else {
+                if (timer == 20) {
                     PlayAllJewelPiecesCollectedJingle();
-                    dma = (volatile u32 *)0x040000D4;
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sJewelPieceIconPartialSEGfx;
                     dma[1] = 0x06012020;
                     dma[2] = 0x80000010;
@@ -2736,19 +2637,15 @@ void UpdateJewelPieceIconSecondarySprite(void)
         case 3:
             timer = sprite->timer;
 
-            if (timer > 59)
-            {
+            if (timer > 59) {
                 sprite->timer = 20;
                 sprite->pose = 5;
                 sprite->status &= 0xFD;
                 sprite->xPosition += 32;
-            }
-            else
-            {
-                if (timer == 20)
-                {
+            } else {
+                if (timer == 20) {
                     PlayAllJewelPiecesCollectedJingle();
-                    dma = (volatile u32 *)0x040000D4;
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sJewelPieceIconPartialSWGfx;
                     dma[1] = 0x06012000;
                     dma[2] = 0x80000010;
@@ -2762,19 +2659,15 @@ void UpdateJewelPieceIconSecondarySprite(void)
         case 4:
             timer = sprite->timer;
 
-            if (timer > 59)
-            {
+            if (timer > 59) {
                 sprite->timer = 20;
                 sprite->pose = 5;
                 sprite->status &= 0xFD;
                 sprite->xPosition += 32;
-            }
-            else
-            {
-                if (timer == 20)
-                {
+            } else {
+                if (timer == 20) {
                     PlayAllJewelPiecesCollectedJingle();
-                    dma = (volatile u32 *)0x040000D4;
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sJewelPieceIconPartialNWGfx;
                     dma[1] = 0x06011C00;
                     dma[2] = 0x80000010;
@@ -2792,47 +2685,38 @@ void UpdateJewelPieceIconSecondarySprite(void)
             sprite->timer = value;
             value = (u8)value;
 
-            if (value == U8_MAX)
+            if (value == U8_MAX) {
                 sprite->status = 0;
+            }
             break;
 
         case 6:
             timer = sprite->timer;
 
-            if (timer > 119)
-            {
+            if (timer > 119) {
                 sprite->pose = 7;
                 sprite->status &= 0xFD;
-            }
-            else
-            {
-                if (timer == 20)
-                {
-                    dma = (volatile u32 *)0x040000D4;
+            } else {
+                if (timer == 20) {
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sJewelPieceIconPartialNEGfx;
                     dma[1] = 0x06011C20;
                     dma[2] = 0x80000010;
                     dma[2];
-                }
-                else if (timer == 40)
-                {
-                    dma = (volatile u32 *)0x040000D4;
+                } else if (timer == 40) {
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sJewelPieceIconPartialSEGfx;
                     dma[1] = 0x06012020;
                     dma[2] = 0x80000010;
                     dma[2];
-                }
-                else if (timer == 60)
-                {
-                    dma = (volatile u32 *)0x040000D4;
+                } else if (timer == 60) {
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sJewelPieceIconPartialSWGfx;
                     dma[1] = 0x06012000;
                     dma[2] = 0x80000010;
                     dma[2];
-                }
-                else if (timer == 80)
-                {
-                    dma = (volatile u32 *)0x040000D4;
+                } else if (timer == 80) {
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sJewelPieceIconPartialNWGfx;
                     dma[1] = 0x06011C00;
                     dma[2] = 0x80000010;
@@ -2846,11 +2730,11 @@ void UpdateJewelPieceIconSecondarySprite(void)
 }
 void UpdateCollectedCDSecondarySprite(void)
 {
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* sprite;
     s32 pose;
     register s32 status asm("r2");
-    u8 *collectedCD;
-    volatile u32 *dma;
+    u8* collectedCD;
+    volatile u32* dma;
     u32 timer;
     register u32 value asm("r0");
 
@@ -2864,25 +2748,23 @@ void UpdateCollectedCDSecondarySprite(void)
     gCurrentSecondarySpriteOamData = sUnk_8414A4C;
     pose = sprite->pose;
 
-    switch (pose)
-    {
+    switch (pose) {
         case 0:
             collectedCD = &gCollectedCD;
             value = *collectedCD;
             status = value;
 
-            if (status == 1)
-            {
+            if (status == 1) {
                 value++;
                 *collectedCD = value;
-            }
-            else
-            {
-                if (status != 2)
+            } else {
+                if (status != 2) {
                     break;
+                }
 
-                if (gTimerState <= 8)
+                if (gTimerState <= 8) {
                     break;
+                }
             }
 
             sprite->pose = status;
@@ -2892,19 +2774,15 @@ void UpdateCollectedCDSecondarySprite(void)
         case 1:
             timer = sprite->timer;
 
-            if (timer > 59)
-            {
+            if (timer > 59) {
                 sprite->timer = 20;
                 sprite->pose = 3;
                 status &= 0xFD;
                 sprite->status = status;
                 sprite->xPosition += 16;
-            }
-            else
-            {
-                if (timer == 20)
-                {
-                    dma = (volatile u32 *)0x040000D4;
+            } else {
+                if (timer == 20) {
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sCDIconPartialGfx;
                     dma[1] = 0x060114C0;
                     dma[2] = 0x80000010;
@@ -2918,17 +2796,13 @@ void UpdateCollectedCDSecondarySprite(void)
         case 2:
             timer = sprite->timer;
 
-            if (timer > 59)
-            {
+            if (timer > 59) {
                 sprite->pose = 3;
                 status &= 0xFD;
                 sprite->status = status;
-            }
-            else
-            {
-                if (timer == 20)
-                {
-                    dma = (volatile u32 *)0x040000D4;
+            } else {
+                if (timer == 20) {
+                    dma = (volatile u32*)0x040000D4;
                     dma[0] = (u32)sCDIconPartialGfx;
                     dma[1] = 0x060114C0;
                     dma[2] = 0x80000010;
@@ -2946,8 +2820,9 @@ void UpdateCollectedCDSecondarySprite(void)
             sprite->timer = value;
             value = (u8)value;
 
-            if (value == U8_MAX)
+            if (value == U8_MAX) {
                 sprite->status = 0;
+            }
             break;
     }
 }
@@ -2956,8 +2831,8 @@ void UpdateTreasureExitSecondarySprite(void)
     s32 scale;
     u32 angle;
     s32 cosine;
-    struct SecondarySprite *current;
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* current;
+    struct SecondarySprite* sprite;
     u32 pose;
     u32 flags;
     u32 position;
@@ -2971,10 +2846,8 @@ void UpdateTreasureExitSecondarySprite(void)
     pose = current->pose;
     sprite = current;
 
-    switch (pose)
-    {
-        case 0:
-        {
+    switch (pose) {
+        case 0: {
             u32 stateFlags;
             register u32 condition asm("r0");
 
@@ -2987,12 +2860,11 @@ void UpdateTreasureExitSecondarySprite(void)
             condition &= stateFlags;
             cosine = (s32)&gCurrentSecondarySpriteOamData;
 
-            if (condition == 0)
-            {
+            if (condition == 0) {
                 u32 mask;
                 u32 background;
                 register u32 backgroundPosition asm("r4");
-                volatile u16 *backgroundAddress;
+                volatile u16* backgroundAddress;
                 u32 difference;
                 u32 scaleCopy;
 
@@ -3008,18 +2880,13 @@ void UpdateTreasureExitSecondarySprite(void)
                 mask &= difference;
                 difference = mask >> 16;
 
-                if (difference > 0x280)
-                {
+                if (difference > 0x280) {
                     condition = background;
                     condition -= 8;
-                }
-                else if (difference <= 0x27F)
-                {
+                } else if (difference <= 0x27F) {
                     condition = background;
                     condition += 8;
-                }
-                else
-                {
+                } else {
                     condition = 1;
                     condition |= stateFlags;
                     sprite->timer = condition;
@@ -3032,7 +2899,7 @@ void UpdateTreasureExitSecondarySprite(void)
             }
 
             {
-                register struct SecondarySprite *xSprite asm("r4");
+                register struct SecondarySprite* xSprite asm("r4");
                 u32 xFlags;
 
                 xSprite = sprite;
@@ -3040,13 +2907,12 @@ void UpdateTreasureExitSecondarySprite(void)
                 condition = 2;
                 condition &= xFlags;
 
-                if (condition == 0)
-                {
+                if (condition == 0) {
                     u32 mask;
                     u32 background;
                     register u32 backgroundPosition asm("r6");
                     u32 difference;
-                    volatile u16 *backgroundAddress;
+                    volatile u16* backgroundAddress;
 
                     backgroundAddress = &gBg1XPosition;
                     background = xSprite->xPosition;
@@ -3059,20 +2925,15 @@ void UpdateTreasureExitSecondarySprite(void)
                     mask &= difference;
                     difference = mask >> 16;
 
-                    if (difference > 0x2E0)
-                    {
+                    if (difference > 0x2E0) {
                         condition = background;
                         condition -= 16;
                         xSprite->xPosition = condition;
-                    }
-                    else if (difference <= 0x2DF)
-                    {
+                    } else if (difference <= 0x2DF) {
                         condition = background;
                         condition += 16;
                         xSprite->xPosition = condition;
-                    }
-                    else
-                    {
+                    } else {
                         condition = 2;
                         condition |= xFlags;
                         sprite->timer = condition;
@@ -3082,15 +2943,14 @@ void UpdateTreasureExitSecondarySprite(void)
                 }
             }
 
-            if (gCurrentSecondarySprite.timer == 3 && angle == 0)
-            {
-                const u16 *animation;
-                const u16 **animationDestination;
+            if (gCurrentSecondarySprite.timer == 3 && angle == 0) {
+                const u16* animation;
+                const u16** animationDestination;
 
                 gCurrentSecondarySprite.pose++;
                 gTimerState = 6;
                 animation = sUnk_8411FEA;
-                animationDestination = (const u16 **)cosine;
+                animationDestination = (const u16**)cosine;
                 *animationDestination = animation;
                 VoiceSetPlay(11);
             }
@@ -3100,13 +2960,12 @@ void UpdateTreasureExitSecondarySprite(void)
         case 1:
             scale = 0x100;
 
-            if (gTimerState == 7)
-            {
-                volatile u32 *dmaReg;
+            if (gTimerState == 7) {
+                volatile u32* dmaReg;
                 u32 dmaValue;
                 register u32 dmaControl asm("r2");
 
-                dmaReg = (volatile u32 *)0x040000D4;
+                dmaReg = (volatile u32*)0x040000D4;
                 dmaValue = (u32)sTimeUpEffect0Gfx;
                 dmaReg[0] = dmaValue;
                 dmaValue = 0x06010B00;
@@ -3123,9 +2982,7 @@ void UpdateTreasureExitSecondarySprite(void)
                 scale += 32;
                 gCurrentSecondarySpriteOamData = sUnk_8411FF8;
                 gCurrentSecondarySprite.pose++;
-            }
-            else
-            {
+            } else {
                 gCurrentSecondarySpriteOamData = sUnk_8411FEA;
             }
             break;
@@ -3160,15 +3017,14 @@ void UpdateTreasureExitSecondarySprite(void)
             gCurrentSecondarySprite.pose++;
             break;
 
-        case 7:
-        {
-            volatile u32 *dmaReg;
+        case 7: {
+            volatile u32* dmaReg;
             u32 dmaValue;
             register u32 dmaControl asm("r2");
 
             scale = 0x1E0;
             gCurrentSecondarySpriteOamData = sUnk_841204C;
-            dmaReg = (volatile u32 *)0x040000D4;
+            dmaReg = (volatile u32*)0x040000D4;
             dmaValue = (u32)sTimeUpEffect2Gfx;
             dmaReg[0] = dmaValue;
             dmaValue = 0x06010B00;
@@ -3193,15 +3049,13 @@ void UpdateTreasureExitSecondarySprite(void)
             gCurrentSecondarySpriteOamData = sUnk_841205A;
             gCurrentSecondarySprite.timer--;
 
-            if (gCurrentSecondarySprite.timer == 0)
-            {
+            if (gCurrentSecondarySprite.timer == 0) {
                 gCurrentSecondarySprite.timer = 0;
                 gCurrentSecondarySprite.pose++;
             }
             break;
 
-        case 9:
-        {
+        case 9: {
             u32 timer;
             u16 movement;
             s16 signedMovement;
@@ -3212,12 +3066,9 @@ void UpdateTreasureExitSecondarySprite(void)
             movement = (u16)sUnk_8416A46[timer];
             signedMovement = sUnk_8416A46[timer];
 
-            if (signedMovement == 0x7FFF)
-            {
+            if (signedMovement == 0x7FFF) {
                 gCurrentSecondarySprite.pose++;
-            }
-            else
-            {
+            } else {
                 u32 newPosition;
 
                 gCurrentSecondarySprite.timer = timer + 1;
@@ -3235,8 +3086,7 @@ void UpdateTreasureExitSecondarySprite(void)
             position += 6;
             gCurrentSecondarySprite.yPosition = position;
 
-            if ((u32)((position - gBg1YPosition) << 16) > 0x037F0000)
-            {
+            if ((u32)((position - gBg1YPosition) << 16) > 0x037F0000) {
                 gCurrentSecondarySprite.pose++;
             }
             break;
@@ -3248,9 +3098,8 @@ void UpdateTreasureExitSecondarySprite(void)
             break;
     }
 
-    if (gCurrentSecondarySprite.status & 2)
-    {
-        s16 *destination;
+    if (gCurrentSecondarySprite.status & 2) {
+        s16* destination;
         s32 tableOrSine;
         register s32 fixedScale asm("r5");
 
@@ -3269,7 +3118,7 @@ void UpdateTreasureExitSecondarySprite(void)
         *destination = FixedMul(tableOrSine, FixedInverse(fixedScale));
 
         tableOrSine = (s32)&gSecondarySpriteAffinePD;
-        *(s16 *)tableOrSine = FixedMul(cosine, FixedInverse(fixedScale));
+        *(s16*)tableOrSine = FixedMul(cosine, FixedInverse(fixedScale));
     }
 }
 void UpdateStageExitVortexSecondarySprite(void)
@@ -3277,8 +3126,8 @@ void UpdateStageExitVortexSecondarySprite(void)
     register s32 scale asm("sl");
     register u32 angle asm("r9");
     register s32 cosine asm("r8");
-    struct SecondarySprite *current;
-    struct SecondarySprite *sprite;
+    struct SecondarySprite* current;
+    struct SecondarySprite* sprite;
     s32 pose;
     u32 position;
     u32 relative;
@@ -3302,10 +3151,8 @@ void UpdateStageExitVortexSecondarySprite(void)
     pose = current->pose;
     sprite = current;
 
-    switch (pose)
-    {
-        case 0:
-        {
+    switch (pose) {
+        case 0: {
             register u32 stateFlags asm("r6");
             u32 condition;
 
@@ -3317,8 +3164,7 @@ void UpdateStageExitVortexSecondarySprite(void)
             condition &= stateFlags;
             cosine = (s32)&gCurrentSecondarySpriteOamData;
 
-            if (condition == 0)
-            {
+            if (condition == 0) {
                 u32 mask;
                 u32 background;
                 u32 backgroundPosition;
@@ -3326,7 +3172,7 @@ void UpdateStageExitVortexSecondarySprite(void)
 
                 mask = (u32)&gBg1YPosition;
                 background = current->yPosition;
-                backgroundPosition = *(const u16 *)mask;
+                backgroundPosition = *(const u16*)mask;
                 difference = background - backgroundPosition;
                 difference += scale;
                 difference <<= 16;
@@ -3335,18 +3181,13 @@ void UpdateStageExitVortexSecondarySprite(void)
                 mask &= difference;
                 difference = mask >> 16;
 
-                if (difference > 0x280)
-                {
+                if (difference > 0x280) {
                     condition = background;
                     condition -= 8;
-                }
-                else if (difference <= 0x27F)
-                {
+                } else if (difference <= 0x27F) {
                     condition = background;
                     condition += 8;
-                }
-                else
-                {
+                } else {
                     condition = 1;
                     condition |= stateFlags;
                     current->timer = condition;
@@ -3359,15 +3200,14 @@ void UpdateStageExitVortexSecondarySprite(void)
             }
 
             {
-                register struct SecondarySprite *xSprite asm("r3");
+                register struct SecondarySprite* xSprite asm("r3");
 
                 xSprite = sprite;
                 stateFlags = xSprite->timer;
                 condition = 2;
                 condition &= stateFlags;
 
-                if (condition == 0)
-                {
+                if (condition == 0) {
                     u32 mask;
                     u32 background;
                     u32 backgroundPosition;
@@ -3375,7 +3215,7 @@ void UpdateStageExitVortexSecondarySprite(void)
 
                     mask = (u32)&gBg1XPosition;
                     background = xSprite->xPosition;
-                    backgroundPosition = *(const u16 *)mask;
+                    backgroundPosition = *(const u16*)mask;
                     difference = background - backgroundPosition;
                     mask = 0x100;
                     difference += mask;
@@ -3385,20 +3225,15 @@ void UpdateStageExitVortexSecondarySprite(void)
                     mask &= difference;
                     difference = mask >> 16;
 
-                    if (difference > 0x2E0)
-                    {
+                    if (difference > 0x2E0) {
                         condition = background;
                         condition -= 16;
                         xSprite->xPosition = condition;
-                    }
-                    else if (difference <= 0x2DF)
-                    {
+                    } else if (difference <= 0x2DF) {
                         condition = background;
                         condition += 16;
                         xSprite->xPosition = condition;
-                    }
-                    else
-                    {
+                    } else {
                         condition = 2;
                         condition |= stateFlags;
                         sprite->timer = condition;
@@ -3411,28 +3246,25 @@ void UpdateStageExitVortexSecondarySprite(void)
             }
 
             relative = (u32)&gCurrentSecondarySprite;
-            if (((struct SecondarySprite *)relative)->timer == 3)
-            {
+            if (((struct SecondarySprite*)relative)->timer == 3) {
                 position = angle;
-                if (position == 0)
-                {
-                    ((struct SecondarySprite *)relative)->pose++;
+                if (position == 0) {
+                    ((struct SecondarySprite*)relative)->pose++;
                     {
-                        const u16 *animation;
+                        const u16* animation;
 
                         animation = sUnk_8411FEA;
-                        sprite = (struct SecondarySprite *)cosine;
-                        *(const u16 **)sprite = animation;
+                        sprite = (struct SecondarySprite*)cosine;
+                        *(const u16**)sprite = animation;
                     }
-                    ((struct SecondarySprite *)relative)->timer = 30;
+                    ((struct SecondarySprite*)relative)->timer = 30;
                     m4aSongNumStart(23);
                 }
             }
             break;
         }
 
-        case 1:
-        {
+        case 1: {
             u32 value;
 
             gCurrentSecondarySpriteOamData = sUnk_8411FEA;
@@ -3441,8 +3273,7 @@ void UpdateStageExitVortexSecondarySprite(void)
             current->timer = value;
             value <<= 24;
 
-            if (value == 0)
-            {
+            if (value == 0) {
                 register u32 zero asm("r0");
 
                 zero = angle;
@@ -3453,8 +3284,7 @@ void UpdateStageExitVortexSecondarySprite(void)
             break;
         }
 
-        case 2:
-        {
+        case 2: {
             u32 timer;
             u32 movementWord;
             u32 signedZero;
@@ -3466,16 +3296,13 @@ void UpdateStageExitVortexSecondarySprite(void)
             relative = (u32)sUnk_8416A88;
             tableAddress = timer << 1;
             tableAddress += relative;
-            movementWord = *(const u16 *)tableAddress;
+            movementWord = *(const u16*)tableAddress;
             signedZero = 0;
-            signedMovement = *(const s16 *)(tableAddress + signedZero);
+            signedMovement = *(const s16*)(tableAddress + signedZero);
 
-            if (signedMovement == 0x7FFF)
-            {
+            if (signedMovement == 0x7FFF) {
                 current->pose++;
-            }
-            else
-            {
+            } else {
                 tableAddress = timer + 1;
                 current->timer = tableAddress;
                 current->yPosition += movementWord;
@@ -3483,8 +3310,7 @@ void UpdateStageExitVortexSecondarySprite(void)
             break;
         }
 
-        case 3:
-        {
+        case 3: {
             u32 noValue;
             u32 statePosition;
 
@@ -3494,18 +3320,14 @@ void UpdateStageExitVortexSecondarySprite(void)
             noValue = 0;
             current->yPosition = statePosition;
 
-            if ((u32)((statePosition - gBg1YPosition) << 16) > 0x037F0000)
-            {
+            if ((u32)((statePosition - gBg1YPosition) << 16) > 0x037F0000) {
                 current->pose++;
 
-                if (gCurrentStageNumber == 4)
-                {
+                if (gCurrentStageNumber == 4) {
                     gSubGameMode = 6;
                     gSpriteAiDropTimer = noValue;
                     gStageExitType = pose;
-                }
-                else
-                {
+                } else {
                     gSubGameMode = 6;
                     gSpriteAiDropTimer = noValue;
                     gStageExitType = noValue;
@@ -3519,9 +3341,8 @@ void UpdateStageExitVortexSecondarySprite(void)
             break;
     }
 
-    if (gCurrentSecondarySprite.status & 2)
-    {
-        s16 *destination;
+    if (gCurrentSecondarySprite.status & 2) {
+        s16* destination;
         register s32 tableOrSine asm("r4");
         s32 fixedScale;
 
@@ -3540,7 +3361,7 @@ void UpdateStageExitVortexSecondarySprite(void)
         *destination = FixedMul(tableOrSine, FixedInverse(fixedScale));
 
         tableOrSine = (s32)&gSecondarySpriteAffinePD;
-        *(s16 *)tableOrSine = FixedMul(cosine, FixedInverse(fixedScale));
+        *(s16*)tableOrSine = FixedMul(cosine, FixedInverse(fixedScale));
     }
 
     /* Keep the zero temporary live so agbcc reserves r7 through the function. */
@@ -3553,8 +3374,7 @@ void ClampFallingSecondarySpriteAtBottom(u16 xVelocity)
     position = (gCurrentSecondarySprite.yPosition >> 2) & 0xFF;
     position -= 0xB5;
 
-    if (position <= 0x12)
-    {
+    if (position <= 0x12) {
         gCurrentSecondarySprite.xPosition += xVelocity * 4;
         gCurrentSecondarySprite.yPosition = 0x380;
     }

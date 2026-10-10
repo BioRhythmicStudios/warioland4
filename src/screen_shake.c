@@ -1,4 +1,3 @@
-
 #include "global_data.h"
 
 u8 ScreenShakeRequestY(u8 duration, u8 amplitude)

@@ -7,4 +7,4 @@ void InitHomerunDerby(void);
 s32 UpdateHomerunDerby(void);
 void DrawHomerunDerby(void);
 
-#endif // MINIGAME_HOMERUN_DERBY_H
+#endif  // MINIGAME_HOMERUN_DERBY_H

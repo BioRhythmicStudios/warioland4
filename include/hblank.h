@@ -29,4 +29,4 @@ void UpdateSineWaveHBlank(void);
 void UpdatePaletteFadeHBlankTable(void);
 void UpdateGoldenBossTransitionHBlank(void);
 
-#endif // HBLANK_H
+#endif  // HBLANK_H

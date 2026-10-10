@@ -1,8 +1,8 @@
 #ifndef SPRITE_AI_CHANCE_WHEEL_H
 #define SPRITE_AI_CHANCE_WHEEL_H
 
-#include "types.h"
 #include "sprite.h"
+#include "types.h"
 
 extern const u8 sBigBoardSpaces[];
 extern const struct AnimationFrame sChanceWheelIdleOam[];

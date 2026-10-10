@@ -1,10 +1,10 @@
 #include "save_data_clear.h"
-#include "global_data.h"
 #include "background_registers.h"
 #include "game_screen_helpers.h"
+#include "gba/syscall.h"
+#include "global_data.h"
 #include "init_helpers.h"
 #include "interrupt_callbacks.h"
-#include "gba/syscall.h"
 
 extern struct SaveDataClearData gUnk_3004A70;
 extern u8 gUnk_3004AB8;
@@ -21,7 +21,7 @@ extern u8 sUnk_8746480[];
 extern u8 sUnk_8746680[];
 extern u8 sUnk_8746880[];
 extern u8 sUnk_8746926[];
-extern const u8 *const sUnk_878F93C[];
+extern const u8* const sUnk_878F93C[];
 
 extern void func_8092DA0(void);
 extern void func_8092DEC(void);
@@ -30,7 +30,7 @@ s32 SaveResetSubroutine(void)
 {
     s32 result;
     s32 saveResult;
-    u8 *saveResultPtr;
+    u8* saveResultPtr;
 
     result = 0;
     gUnk_300188E++;
@@ -59,7 +59,7 @@ s32 SaveResetSubroutine(void)
                 gSubGameMode++;
                 gUnk_300188E = 0;
                 if ((s8)saveResult != 1) {
-                    *(vu16 *)0x04000050 = 0xFF;
+                    *(vu16*)0x04000050 = 0xFF;
                 }
             }
             break;
@@ -103,7 +103,7 @@ void func_8092914(void)
 {
     u8 mode;
     u8 value;
-    u8 *table;
+    u8* table;
 
     if (gUnk_3004A70.unk_0A != 2) {
         value = gUnk_3004AB9 & 0x7F;
@@ -282,8 +282,8 @@ void func_8092B30(void)
         dma[2];
     }
     new_var3 = 0x0600D000;
-    LZ77UnCompVram((const u32 *)sUnk_8745350, (void*)0x06000000);
-    LZ77UnCompVram((const u32 *)sUnk_8745B58, (void*)0x06010000);
+    LZ77UnCompVram((const u32*)sUnk_8745350, (void*)0x06000000);
+    LZ77UnCompVram((const u32*)sUnk_8745B58, (void*)0x06010000);
     {
         const u8* source;
         s32 size;
@@ -294,7 +294,7 @@ void func_8092B30(void)
             source = new_var;
         }
         size = 0x0201F040;
-        source = (const u8 *)DecompressRoomBackground(0, source, (u8 *)size);
+        source = (const u8*)DecompressRoomBackground(0, source, (u8*)size);
         {
             volatile u32* dma;
             s32 word;
@@ -358,40 +358,37 @@ void func_8092CC4(void)
 
 void func_8092D2C(void)
 {
-    register struct SaveDataClearData *data asm("r2");
-    u8 *tbl;
-    u8 *ptr;
+    register struct SaveDataClearData* data asm("r2");
+    u8* tbl;
+    u8* ptr;
     s32 value;
 
-    if (gUnk_3004AB8 <= 1)
-    {
+    if (gUnk_3004AB8 <= 1) {
         data = &gUnk_3004A70;
         tbl = sUnk_8746D78;
         value = tbl[gUnk_3004AB8 * 2];
         value <<= 0x18;
         value >>= 0x18;
         value += data->unk_18;
-        *(u16 *)&data->pad_00[0] = value;
+        *(u16*)&data->pad_00[0] = value;
 
-        ptr = (u8 *)(gUnk_3004AB8 * 2);
+        ptr = (u8*)(gUnk_3004AB8 * 2);
         tbl++;
         ptr += (u32)tbl;
         value = *ptr;
         value <<= 0x18;
         value >>= 0x18;
         value += data->unk_1A;
-    }
-    else
-    {
+    } else {
         data = &gUnk_3004A70;
         tbl = sUnk_8746D78;
         value = tbl[gUnk_3004AB8 * 2];
         value <<= 0x18;
         value >>= 0x18;
         value += data->unk_0C;
-        *(u16 *)&data->pad_00[0] = value;
+        *(u16*)&data->pad_00[0] = value;
 
-        ptr = (u8 *)(gUnk_3004AB8 * 2);
+        ptr = (u8*)(gUnk_3004AB8 * 2);
         tbl++;
         ptr += (u32)tbl;
         value = *ptr;
@@ -400,22 +397,22 @@ void func_8092D2C(void)
         value += data->unk_0E;
     }
 
-    *(u16 *)&data->pad_00[2] = value;
+    *(u16*)&data->pad_00[2] = value;
 }
 
 void func_8092DA0(void)
 {
-    vu32 *dma;
+    vu32* dma;
 
     m4aSoundVSync();
-    dma = (vu32 *)0x040000D4;
+    dma = (vu32*)0x040000D4;
     dma[0] = (u32)&gOamBuffer;
     dma[1] = 0x07000000;
     dma[2] = 0x84000100;
     dma[2];
-    *(vu16 *)0x04000054 = gBldy;
-    *(vu16 *)0x04000014 = gBg1XPosition;
-    *(vu16 *)0x04000016 = gBg1YPosition;
+    *(vu16*)0x04000054 = gBldy;
+    *(vu16*)0x04000014 = gBg1XPosition;
+    *(vu16*)0x04000016 = gBg1YPosition;
 }
 
 void func_8092DEC(void)
@@ -426,34 +423,34 @@ void func_8092DEC(void)
 
 void func_8092DFC(void)
 {
-    u16 *dest;
+    u16* dest;
     u32 slots;
     u32 oldSlots;
     register u32 i asm("r4");
     register u32 next asm("r8");
     u32 yoff;
     register s32 xoff asm("ip");
-    register const u8 *anim asm("r5");
-    const u16 *src;
+    register const u8* anim asm("r5");
+    const u16* src;
     u32 idx;
     u32 twice;
     register u32 off asm("r1");
     register u32 cidx asm("r0");
-    register struct SaveClearAnimationState *firstData asm("r3");
-    const u8 *const *tbl;
+    register struct SaveClearAnimationState* firstData asm("r3");
+    const u8* const* tbl;
     u32 type;
     register u32 switchType asm("r0");
     u32 xhalf;
     u32 count;
-    u8 *oam;
+    u8* oam;
     u32 attr;
     u32 attr1;
-    register u8 *oamBase asm("r0");
+    register u8* oamBase asm("r0");
 
-    dest = (u16 *)gOamBuffer;
+    dest = (u16*)gOamBuffer;
     idx = (u32)&gOamSlotsUsed;
-    type = *(u8 *)idx;
-    dest = (u16 *)((u8 *)dest + (type << 3));
+    type = *(u8*)idx;
+    dest = (u16*)((u8*)dest + (type << 3));
     slots = type;
     oldSlots = slots;
     i = 0;
@@ -462,7 +459,7 @@ loop:
     twice = i << 1;
     off = twice + i;
     off <<= 2;
-    firstData = (struct SaveClearAnimationState *)((u8 *)&gUnk_3004A70 + off);
+    firstData = (struct SaveClearAnimationState*)((u8*)&gUnk_3004A70 + off);
     type = firstData->type;
     idx = twice;
     next = i + 1;
@@ -482,13 +479,12 @@ loop:
         case 9:
         case 10:
         case 11:
-        case 12:
-        {
-            struct SaveClearAnimationState *data;
+        case 12: {
+            struct SaveClearAnimationState* data;
             tbl = sUnk_878F93C;
             cidx = idx;
             cidx += i;
-            data = (struct SaveClearAnimationState *)((u8 *)&gUnk_3004A70 + (cidx << 2));
+            data = (struct SaveClearAnimationState*)((u8*)&gUnk_3004A70 + (cidx << 2));
             anim = tbl[data->type];
             if (data->timer >= anim[(data->frame << 3) + 4]) {
                 data->timer = 0;
@@ -499,13 +495,12 @@ loop:
             }
             break;
         }
-        case 2:
-        {
-            struct SaveClearAnimationState *data;
+        case 2: {
+            struct SaveClearAnimationState* data;
             tbl = sUnk_878F93C;
             cidx = idx;
             cidx += i;
-            data = (struct SaveClearAnimationState *)((u8 *)&gUnk_3004A70 + (cidx << 2));
+            data = (struct SaveClearAnimationState*)((u8*)&gUnk_3004A70 + (cidx << 2));
             anim = tbl[data->type];
             if (data->timer >= anim[(data->frame << 3) + 4]) {
                 data->timer = 0;
@@ -522,8 +517,8 @@ loop:
     }
 
     {
-        struct SaveClearAnimationState *data2;
-        data2 = (struct SaveClearAnimationState *)((u8 *)&gUnk_3004A70 + ((idx + i) << 2));
+        struct SaveClearAnimationState* data2;
+        data2 = (struct SaveClearAnimationState*)((u8*)&gUnk_3004A70 + ((idx + i) << 2));
         data2->timer++;
         yoff = (u16)(data2->y - gBg1YPosition);
         {
@@ -531,12 +526,12 @@ loop:
             u32 bgx;
             bgx = (u32)&gBg1XPosition;
             xpos = data2->x;
-            bgx = *(u16 *)bgx;
+            bgx = *(u16*)bgx;
             xpos -= bgx;
             xhalf = (u16)xpos;
         }
         anim += data2->frame << 3;
-        src = *(const u16 * const *)anim;
+        src = *(const u16* const*)anim;
         slots += *src;
         src++;
     }
@@ -545,9 +540,9 @@ loop:
     if ((s32)oldSlots >= (s32)slots) {
         goto end_iter;
     }
-    oamBase = (u8 *)gOamBuffer;
+    oamBase = (u8*)gOamBuffer;
     xoff = (s16)xhalf;
-    oam = (u8 *)((oldSlots << 3) + (u32)oamBase);
+    oam = (u8*)((oldSlots << 3) + (u32)oamBase);
     {
         register u32 tmpCount asm("r1");
         tmpCount = slots;
@@ -573,11 +568,11 @@ loop:
         {
             u32 old2;
             u32 keep;
-            old2 = *(u16 *)&oam[2];
+            old2 = *(u16*)&oam[2];
             keep = 0xFFFFFE00;
             keep &= old2;
             keep |= attr1;
-            *(u16 *)&oam[2] = keep;
+            *(u16*)&oam[2] = keep;
         }
         attr = *src;
         *dest = attr;
@@ -605,8 +600,8 @@ end_iter:
         {
             register u32 finalSlots asm("r0");
             finalSlots = slots;
-            anim = (const u8 *)&gOamSlotsUsed;
-            *(u8 *)anim = finalSlots;
+            anim = (const u8*)&gOamSlotsUsed;
+            *(u8*)anim = finalSlots;
         }
         return;
     }

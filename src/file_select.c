@@ -1,15 +1,15 @@
 #include "file_select.h"
-#include "global_data.h"
 #include "background_registers.h"
-#include "interrupt_callbacks.h"
-#include "init_helpers.h"
 #include "color_effects.h"
 #include "gba/syscall.h"
+#include "global_data.h"
+#include "init_helpers.h"
+#include "interrupt_callbacks.h"
 #include "save_file.h"
 
 #define DMA3 ((vu32 *)0x040000D4)
 
-extern u32 DecompressRoomBackground(u32 arg0, const u8 *src, u8 *dst);
+extern u32 DecompressRoomBackground(u32 arg0, const u8* src, u8* dst);
 extern void UploadColorFadePalettes(void);
 extern void PrepareColorFadeBuffers(void);
 extern void func_8000D98(u32 arg0);
@@ -57,13 +57,13 @@ extern const u8 sFileSelectBaseTilemapCompressed[];
 extern const u8 sFileSelectDefaultTilemapCompressed[];
 extern const u8 sFileSelectAlternateTilemapCompressed[];
 extern const u8 sFileSelectInterfaceTiles[];
-extern const u8 *const sFileSelectCursorPositionPaths[];
-extern const u8 *const sFileSelectCursorPathOffsets[];
-extern const u8 *const sFileSelectSpriteAnimations[];
-extern const u8 *const sFileSelectStageNameTableLanguage1[];
-extern const u8 *const sFileSelectStageNameTableLanguage0[];
-extern const u8 *const sFileSelectPassageNameTableLanguage1[];
-extern const u8 *const sFileSelectPassageNameTableLanguage0[];
+extern const u8* const sFileSelectCursorPositionPaths[];
+extern const u8* const sFileSelectCursorPathOffsets[];
+extern const u8* const sFileSelectSpriteAnimations[];
+extern const u8* const sFileSelectStageNameTableLanguage1[];
+extern const u8* const sFileSelectStageNameTableLanguage0[];
+extern const u8* const sFileSelectPassageNameTableLanguage1[];
+extern const u8* const sFileSelectPassageNameTableLanguage0[];
 
 void FileSelectVBlankCallback(void);
 void FileSelectSoundMainCallback(void);
@@ -103,8 +103,6 @@ void SetFileSelectActionAndSound(u8 action, u8 sound);
 void ResetFileSelectMainAnimation(void);
 void StartFileSelectClosingAnimation(void);
 
-
-
 void SetFileSelectVBlankCallback(void)
 {
     InterruptCallbackSetVBlank(FileSelectVBlankCallback);
@@ -112,7 +110,7 @@ void SetFileSelectVBlankCallback(void)
 
 void FileSelectVBlankCallback(void)
 {
-    vu32 *dma;
+    vu32* dma;
 
     m4aSoundVSync();
     dma = DMA3;
@@ -120,12 +118,12 @@ void FileSelectVBlankCallback(void)
     dma[1] = 0x07000000;
     dma[2] = 0x84000100;
     dma[2];
-    *(vu16 *)0x04000018 = gBg2XPosition;
-    *(vu16 *)0x0400001A = gBg2YPosition;
-    *(vu16 *)0x04000014 = gBg1XPosition;
-    *(vu16 *)0x04000016 = gBg1YPosition;
-    *(vu16 *)0x04000010 = gBg0XPosition;
-    *(vu16 *)0x04000012 = gBg0YPosition;
+    *(vu16*)0x04000018 = gBg2XPosition;
+    *(vu16*)0x0400001A = gBg2YPosition;
+    *(vu16*)0x04000014 = gBg1XPosition;
+    *(vu16*)0x04000016 = gBg1YPosition;
+    *(vu16*)0x04000010 = gBg0XPosition;
+    *(vu16*)0x04000012 = gBg0YPosition;
 }
 
 void FileSelectSoundMainCallback(void)
@@ -137,71 +135,71 @@ void FileSelectSoundMainCallback(void)
 u32 InitializeFileSelect(void)
 {
     register u32 mode asm("r6");
-    u8 *workPointer;
+    u8* workPointer;
     u32 narrowedMode;
     u32 count;
 
-    *(vu16 *)0x04000208 = 0;
-    *(vu16 *)0x04000004 &= 0xFFEF;
-    *(vu16 *)0x04000200 &= 0xFFFD;
-    *(vu16 *)0x04000208 = 1;
+    *(vu16*)0x04000208 = 0;
+    *(vu16*)0x04000004 &= 0xFFEF;
+    *(vu16*)0x04000200 &= 0xFFFD;
+    *(vu16*)0x04000208 = 1;
     InterruptCallbackSetVBlank(FileSelectSoundMainCallback);
 
-    *(vu16 *)0x04000050 = 0x00FF;
-    *(vu16 *)0x04000054 = 0x0010;
-    *(vu16 *)0x04000000 = 0;
+    *(vu16*)0x04000050 = 0x00FF;
+    *(vu16*)0x04000054 = 0x0010;
+    *(vu16*)0x04000000 = 0;
     InitializeVideoMemory();
     gOamSlotsUsed = 0;
     ResetFreeOam();
 
-    while ((u16)(*(vu16 *)0x04000006 - 21) <= 139) {
+    while ((u16)(*(vu16*)0x04000006 - 21) <= 139) {
     }
 
     {
-        const u32 *graphicsSource;
-        const u32 *paletteSource;
-        const u32 *objectPaletteSource;
+        const u32* graphicsSource;
+        const u32* paletteSource;
+        const u32* objectPaletteSource;
         u32 dmaAddress;
         register u32 scanline asm("r0");
 
         dmaAddress = 0x040000D4;
-        ((vu32 *)dmaAddress)[0] = (u32)sFileSelectBackgroundTiles;
-        ((vu32 *)dmaAddress)[1] = 0x06000000;
-        ((vu32 *)dmaAddress)[2] = 0x80002000;
-        (void)((vu32 *)dmaAddress)[2];
+        ((vu32*)dmaAddress)[0] = (u32)sFileSelectBackgroundTiles;
+        ((vu32*)dmaAddress)[1] = 0x06000000;
+        ((vu32*)dmaAddress)[2] = 0x80002000;
+        (void)((vu32*)dmaAddress)[2];
 
         dmaAddress -= 0xCE;
-        scanline = (u16)(*(vu16 *)dmaAddress - 21);
-        paletteSource = (const u32 *)sFileSelectBackgroundPalette;
-        objectPaletteSource = (const u32 *)sFileSelectObjectPalette;
-        graphicsSource = (const u32 *)sFileSelectInterfaceTiles;
+        scanline = (u16)(*(vu16*)dmaAddress - 21);
+        paletteSource = (const u32*)sFileSelectBackgroundPalette;
+        objectPaletteSource = (const u32*)sFileSelectObjectPalette;
+        graphicsSource = (const u32*)sFileSelectInterfaceTiles;
         if (scanline <= 139) {
             do {
-                scanline = (u16)(*(vu16 *)dmaAddress - 21);
+                scanline = (u16)(*(vu16*)dmaAddress - 21);
             } while (scanline <= 139);
         }
 
         scanline = 0x040000D4;
-        ((vu32 *)scanline)[0] = (u32)paletteSource;
-        ((vu32 *)scanline)[1] = 0x05000000;
-        ((vu32 *)scanline)[2] = 0x80000100;
-        (void)((vu32 *)scanline)[2];
-        ((vu32 *)scanline)[0] = (u32)objectPaletteSource;
-        ((vu32 *)scanline)[1] = 0x05000200;
-        ((vu32 *)scanline)[2] = 0x80000100;
-        (void)((vu32 *)scanline)[2];
+        ((vu32*)scanline)[0] = (u32)paletteSource;
+        ((vu32*)scanline)[1] = 0x05000000;
+        ((vu32*)scanline)[2] = 0x80000100;
+        (void)((vu32*)scanline)[2];
+        ((vu32*)scanline)[0] = (u32)objectPaletteSource;
+        ((vu32*)scanline)[1] = 0x05000200;
+        ((vu32*)scanline)[2] = 0x80000100;
+        (void)((vu32*)scanline)[2];
 
-        LZ77UnCompVram(graphicsSource, (void *)0x06004000);
+        LZ77UnCompVram(graphicsSource, (void*)0x06004000);
     }
 
-    LZ77UnCompVram((const u32 *)sFileSelectSpriteTiles, (void *)0x06010000);
+    LZ77UnCompVram((const u32*)sFileSelectSpriteTiles, (void*)0x06010000);
 
     {
-        u8 *destination;
+        u8* destination;
         register s32 remaining asm("r2");
         register u8 zero asm("r0");
 
-        destination = (u8 *)0x06003FE0;
+        destination = (u8*)0x06003FE0;
         zero = 0;
         remaining = 31;
         do {
@@ -210,17 +208,17 @@ u32 InitializeFileSelect(void)
         } while (remaining >= 0);
     }
 
-    *(vu16 *)0x05000000 = 0;
+    *(vu16*)0x05000000 = 0;
     InitializeSaveFileStatuses();
 
     {
-        vu32 *dma;
-        const u8 *backgroundSource;
+        vu32* dma;
+        const u8* backgroundSource;
         register s32 decompressedSize asm("r2");
         register u32 dmaCount asm("r0");
 
         backgroundSource = sFileSelectBaseTilemapCompressed;
-        workPointer = (u8 *)0x0201F040;
+        workPointer = (u8*)0x0201F040;
         decompressedSize = (s32)DecompressRoomBackground(0, backgroundSource, workPointer);
         asm("" : "+r"(decompressedSize));
         dma = DMA3;
@@ -250,11 +248,11 @@ u32 InitializeFileSelect(void)
     }
 
     {
-        vu16 *destination;
+        vu16* destination;
         register u16 tile asm("r1");
         register s32 remaining asm("r2");
 
-        destination = (vu16 *)0x0600C000;
+        destination = (vu16*)0x0600C000;
         remaining = 0x01FE;
         tile = remaining;
         remaining = 1024;
@@ -269,33 +267,33 @@ u32 InitializeFileSelect(void)
         mode = gUnk_3003BF8[13];
     }
     if (mode == 1) {
-        LZ77UnCompVram((const u32 *)sFileSelectStyle1SpriteTiles, (void *)0x06015800);
+        LZ77UnCompVram((const u32*)sFileSelectStyle1SpriteTiles, (void*)0x06015800);
     } else if (mode == 2) {
-        LZ77UnCompVram((const u32 *)sFileSelectStyle2SpriteTiles, (void *)0x06015800);
+        LZ77UnCompVram((const u32*)sFileSelectStyle2SpriteTiles, (void*)0x06015800);
     } else if (mode == 3) {
-        LZ77UnCompVram((const u32 *)sFileSelectStyle3SpriteTiles, (void *)0x06015800);
+        LZ77UnCompVram((const u32*)sFileSelectStyle3SpriteTiles, (void*)0x06015800);
     }
 
     {
         register u32 byteZero asm("r3");
         u32 halfwordZero;
-        register vu16 *blendAlphaRegister asm("r1");
-        vu16 *blendAlphaEvbPointer;
+        register vu16* blendAlphaRegister asm("r1");
+        vu16* blendAlphaEvbPointer;
         u32 blendValue;
-        vu32 *dma;
-        vu16 *scrollRegister;
+        vu32* dma;
+        vu16* scrollRegister;
 
         gSpriteAiDropTimer = 0;
-        *(vu16 *)0x0400000C = 0x3C07;
-        *(vu16 *)0x0400000A = 0x3A06;
-        *(vu16 *)0x04000008 = 0x7801;
+        *(vu16*)0x0400000C = 0x3C07;
+        *(vu16*)0x0400000A = 0x3A06;
+        *(vu16*)0x04000008 = 0x7801;
         gBldy = 16;
 
         blendAlphaEvbPointer = &gBlendAlphaEvb;
         byteZero = 0;
         *blendAlphaEvbPointer = byteZero;
 
-        blendAlphaRegister = (vu16 *)0x04000052;
+        blendAlphaRegister = (vu16*)0x04000052;
         halfwordZero = 0;
         blendValue = 16;
         *blendAlphaRegister = blendValue;
@@ -313,13 +311,13 @@ u32 InitializeFileSelect(void)
         gBg0XPosition = halfwordZero;
         gOamSlotsUsed = byteZero;
 
-        dma = (vu32 *)((u8 *)blendAlphaRegister + 0x82);
+        dma = (vu32*)((u8*)blendAlphaRegister + 0x82);
         dma[0] = (u32)gOamBuffer;
         dma[1] = 0x07000000;
         dma[2] = 0x84000100;
         (void)dma[2];
 
-        scrollRegister = (vu16 *)0x04000018;
+        scrollRegister = (vu16*)0x04000018;
         *scrollRegister = halfwordZero;
         scrollRegister++;
         *scrollRegister = halfwordZero;
@@ -335,7 +333,7 @@ u32 InitializeFileSelect(void)
         gDisableSoftReset = byteZero;
 
         {
-            u8 *stateBase;
+            u8* stateBase;
 
             stateBase = gFileSelectState;
             stateBase[0] = byteZero;
@@ -348,20 +346,20 @@ u32 InitializeFileSelect(void)
         }
 
         {
-            u8 *selectedFilePointer;
+            u8* selectedFilePointer;
             u32 animationZero;
-            u8 *animationState;
+            u8* animationState;
             s32 remaining;
 
             selectedFilePointer = &gSelectedSaveFile;
             narrowedMode = mode << 24;
             animationZero = 0;
-            animationState = (u8 *)&gUnk_3004A70;
+            animationState = (u8*)&gUnk_3004A70;
             remaining = 5;
             do {
                 animationState[10] = animationZero;
-                *(u16 *)(animationState + 0) = animationZero;
-                *(u16 *)(animationState + 2) = animationZero;
+                *(u16*)(animationState + 0) = animationZero;
+                *(u16*)(animationState + 2) = animationZero;
                 animationState[8] = animationZero;
                 animationState[9] = animationZero;
                 animationState += 12;
@@ -371,15 +369,15 @@ u32 InitializeFileSelect(void)
             {
                 u32 windowZero;
                 u32 callZero;
-                vu16 *windowRegister;
-                vu8 *windowBoundary;
+                vu16* windowRegister;
+                vu8* windowBoundary;
                 u32 boundaryValue;
 
                 windowZero = 0;
                 *workPointer = *selectedFilePointer != 0;
                 SetFileSelectInteractionMode(3);
 
-                windowRegister = (vu16 *)0x04000040;
+                windowRegister = (vu16*)0x04000040;
                 callZero = 0;
                 *windowRegister = windowZero;
                 windowRegister += 2;
@@ -389,8 +387,8 @@ u32 InitializeFileSelect(void)
                 windowRegister += 2;
                 *windowRegister = windowZero;
 
-                *(vu8 *)0x0400004A = 63;
-                windowBoundary = (vu8 *)0x04000049;
+                *(vu8*)0x0400004A = 63;
+                windowBoundary = (vu8*)0x04000049;
                 boundaryValue = 31;
                 *windowBoundary = boundaryValue;
                 windowBoundary--;
@@ -409,49 +407,48 @@ u32 InitializeFileSelect(void)
     }
 
     {
-        const struct MusicPlayer *musicTable;
-        const u8 *songTable;
+        const struct MusicPlayer* musicTable;
+        const u8* songTable;
         u32 songOffset;
         u32 songIndex;
-        struct MusicPlayerInfo *musicPlayer;
+        struct MusicPlayerInfo* musicPlayer;
 
         musicTable = gMPlayTable;
-        songTable = (const u8 *)gSongTable;
+        songTable = (const u8*)gSongTable;
         songOffset = 0x13E4;
-        songIndex = *(const u16 *)(songTable + songOffset);
+        songIndex = *(const u16*)(songTable + songOffset);
         musicPlayer = musicTable[songIndex].info;
         m4aMPlayVolumeControl(musicPlayer, 0xFFFF, 180);
     }
 
     gColorFading.type = 2;
     PrepareColorFadeBuffers();
-    *(vu16 *)0x04000000 = 0x5700;
-    *(vu16 *)0x04000050 = 0x00EF;
-    *(vu16 *)0x04000054 = 8;
+    *(vu16*)0x04000000 = 0x5700;
+    *(vu16*)0x04000050 = 0x00EF;
+    *(vu16*)0x04000054 = 8;
     SetFileSelectVBlankCallback();
 
     return mode;
 }
 
-
 void InitializeFileSelectAnimations(u32 inputMode)
 {
-    u8 *data;
-    const u8 *styleTable;
-    u8 *field58;
+    u8* data;
+    const u8* styleTable;
+    u8* field58;
     register u32 mode asm("r4");
     u8 value;
     register u8 zero asm("r0");
-    u8 *languagePointer;
+    u8* languagePointer;
     u32 language;
     u32 tableIndex;
-    const u8 *messageTable;
+    const u8* messageTable;
     u16 coordinate;
 
     /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
     asm("" : "=r"(mode) : "0"(inputMode));
     mode = (u8)mode;
-    data = (u8 *)&gUnk_3004A70;
+    data = (u8*)&gUnk_3004A70;
     styleTable = sFileSelectStyleAnimationTypes;
     value = styleTable[gTitleScreenStyle * 3];
     zero = 0;
@@ -481,24 +478,23 @@ void InitializeFileSelectAnimations(u32 inputMode)
         if (language != 0) {
             coordinate = 104;
         }
-        *(u16 *)&data[0] = coordinate;
-        *(u16 *)&data[2] = 144;
+        *(u16*)&data[0] = coordinate;
+        *(u16*)&data[2] = 144;
         messageTable = sFileSelectRecoveryMessageAnimationTypes;
         tableIndex = *languagePointer;
         tableIndex <<= 1;
         tableIndex = (mode) - (-(tableIndex));
         tableIndex += (u32)messageTable;
-        data[22] = *(const u8 *)tableIndex;
+        data[22] = *(const u8*)tableIndex;
         coordinate = 104;
         if (language != 0) {
             coordinate = 80;
         }
-        *(u16 *)&data[12] = coordinate;
-        *(u16 *)&data[14] = 112;
+        *(u16*)&data[12] = coordinate;
+        *(u16*)&data[14] = 112;
         *field58 = 0;
     }
 }
-
 
 void DrawFileSelectSlotText(void)
 {
@@ -510,8 +506,8 @@ void DrawFileSelectSlotText(void)
 
 void DrawFileSelectDifficultyTiles(u8 saveIndex)
 {
-    const u16 *table;
-    u8 *saveData;
+    const u16* table;
+    u8* saveData;
     u32 saveOffset;
     u32 language;
     register u32 tableIndex asm("r1");
@@ -521,21 +517,21 @@ void DrawFileSelectDifficultyTiles(u8 saveIndex)
     register u32 attributes asm("r6");
     register u32 attributeLiteral asm("r0");
     u32 bottomTile;
-    vu16 *bottomRow;
-    register vu16 *topRow asm("r2");
+    vu16* bottomRow;
+    register vu16* topRow asm("r2");
     u32 address;
 
-    table = (const u16 *)sFileSelectDifficultyTileBases;
+    table = (const u16*)sFileSelectDifficultyTileBases;
     saveData = gUnk_3003BF8;
     saveOffset = saveIndex << 3;
-    saveData = (u8 *)(saveOffset + (u32)saveData);
+    saveData = (u8*)(saveOffset + (u32)saveData);
     language = gLanguage;
     tableIndex = language << 1;
     tableIndex += language;
     tableIndex += saveData[4];
     tableIndex <<= 1;
     tableIndex += (u32)table;
-    baseTile = *(const u16 *)tableIndex;
+    baseTile = *(const u16*)tableIndex;
     tilemapOffset = saveOffset + saveIndex;
     tilemapOffset <<= 6;
     i = 0;
@@ -549,9 +545,9 @@ void DrawFileSelectDifficultyTiles(u8 saveIndex)
     address <<= 1;
     tilemapOffset += address;
     address = 0x0600D040;
-    bottomRow = (vu16 *)(tilemapOffset + address);
+    bottomRow = (vu16*)(tilemapOffset + address);
     address -= 64;
-    topRow = (vu16 *)(tilemapOffset + address);
+    topRow = (vu16*)(tilemapOffset + address);
     do {
         address = baseTile + i;
         address |= attributes;
@@ -566,12 +562,11 @@ void DrawFileSelectDifficultyTiles(u8 saveIndex)
     } while (i <= 4);
 }
 
-
 void DrawFileSelectSaveStatistics(void)
 {
     s32 i;
     u8 hidden;
-    u8 *save;
+    u8* save;
 
     i = 0;
     save = gUnk_3003BF8;
@@ -595,12 +590,12 @@ void DrawFileSelectScoreTiles(u8 idx, u8 hidden)
     u32 value;
     u16 attributes;
     s32 i;
-    vu16 *topRow;
-    vu16 *bottomRow;
+    vu16* topRow;
+    vu16* bottomRow;
 
     {
         u32 zero;
-        u16 *digitPointer;
+        u16* digitPointer;
 
         zero = 0;
         digitPointer = &digits[5];
@@ -616,7 +611,7 @@ void DrawFileSelectScoreTiles(u8 idx, u8 hidden)
         {
             u32 hiddenTile;
             register u32 hiddenDigit asm("r0");
-            u16 *digitPointer;
+            u16* digitPointer;
 
             u32 hiddenAddress;
 
@@ -627,14 +622,14 @@ void DrawFileSelectScoreTiles(u8 idx, u8 hidden)
             /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
             asm("" : "+r"(hiddenAddress));
             hiddenAddress += 10;
-            digitPointer = (u16 *)hiddenAddress;
+            digitPointer = (u16*)hiddenAddress;
             do {
                 *digitPointer = hiddenTile;
                 digitPointer--;
             } while ((s32)digitPointer >= (s32)digits);
         }
     } else {
-        value = *(u32 *)(sPrimarySaveHeaderBuffers[idx] + 32);
+        value = *(u32*)(sPrimarySaveHeaderBuffers[idx] + 32);
         digits[0] = (value / 10000) % 10;
         if (digits[0] != 0) {
             digits[0] |= attributes;
@@ -662,12 +657,12 @@ void DrawFileSelectScoreTiles(u8 idx, u8 hidden)
     {
         u32 selectedOffset;
         u32 tilemapOffset;
-        u16 *source;
+        u16* source;
         u32 rowOffset;
         u32 bottomBase;
-        register vu16 *bottom asm("r1");
+        register vu16* bottom asm("r1");
         u32 topBase;
-        vu16 *top;
+        vu16* top;
         s32 remaining;
 
         selectedOffset = saveOffset;
@@ -678,9 +673,9 @@ void DrawFileSelectScoreTiles(u8 idx, u8 hidden)
         rowOffset <<= 1;
         tilemapOffset += rowOffset;
         bottomBase = 0x0600D040;
-        bottom = (vu16 *)(tilemapOffset + bottomBase);
+        bottom = (vu16*)(tilemapOffset + bottomBase);
         topBase = 0x0600D000;
-        top = (vu16 *)(tilemapOffset + topBase);
+        top = (vu16*)(tilemapOffset + topBase);
         remaining = 5;
         do {
             register u32 digit asm("r0");
@@ -698,7 +693,6 @@ void DrawFileSelectScoreTiles(u8 idx, u8 hidden)
             remaining--;
         } while (remaining >= 0);
     }
-
 }
 
 void DrawFileSelectTreasureCountTiles(u8 idx, u8 hidden)
@@ -722,16 +716,16 @@ void DrawFileSelectTreasureCountTiles(u8 idx, u8 hidden)
     } else {
         register u32 entryAddress asm("r0");
         u32 tableOffset;
-        const u8 *entry;
+        const u8* entry;
         u32 loopMask;
 
         entryAddress = (u32)sPrimarySaveHeaderBuffers;
         tableOffset = idx << 2;
         tableOffset += entryAddress;
-        entryAddress = *(u32 *)tableOffset;
+        entryAddress = *(u32*)tableOffset;
         /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
         asm("" : "+r"(entryAddress));
-        entry = (const u8 *)entryAddress;
+        entry = (const u8*)entryAddress;
         entry += 36;
         row = 0;
         column = idx << 3;
@@ -759,14 +753,14 @@ void DrawFileSelectTreasureCountTiles(u8 idx, u8 hidden)
             row++;
         } while (row <= 4);
         {
-            u16 *digitPointer;
+            u16* digitPointer;
             u32 digit;
 
             digitPointer = digits;
             digit = (count / 10) % 10;
             digitPointer[0] = digit;
             if ((digit << 16) != 0) {
-                u16 *storePointer;
+                u16* storePointer;
                 u32 tile;
 
                 storePointer = digits;
@@ -776,9 +770,9 @@ void DrawFileSelectTreasureCountTiles(u8 idx, u8 hidden)
             }
         }
         {
-            u16 *digitPointer;
+            u16* digitPointer;
             u32 digit;
-            u16 *storePointer;
+            u16* storePointer;
             u32 tile;
 
             digitPointer = digits;
@@ -794,12 +788,12 @@ void DrawFileSelectTreasureCountTiles(u8 idx, u8 hidden)
         u32 savedOffset;
         u32 combinedOffset;
         register u32 tilemapOffset asm("r5");
-        u16 *source;
+        u16* source;
         register u32 rowOffset asm("r4");
         u32 bottomBase;
-        register vu16 *bottomRow asm("r2");
+        register vu16* bottomRow asm("r2");
         register u32 topBase asm("r4");
-        vu16 *topRow;
+        vu16* topRow;
         s32 remaining;
 
         savedOffset = saveOffset;
@@ -812,11 +806,11 @@ void DrawFileSelectTreasureCountTiles(u8 idx, u8 hidden)
         asm("" : "+r"(rowOffset));
         combinedOffset = tilemapOffset + rowOffset;
         bottomBase = 0x0600D040;
-        bottomRow = (vu16 *)(combinedOffset + bottomBase);
+        bottomRow = (vu16*)(combinedOffset + bottomBase);
         topBase = 0x0600D000;
         /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
         asm("" : "+r"(topBase));
-        topRow = (vu16 *)(combinedOffset + topBase);
+        topRow = (vu16*)(combinedOffset + topBase);
         remaining = 1;
         do {
             register u32 tile asm("r0");
@@ -840,13 +834,13 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
 {
     u16 primary[6];
     u16 secondary[6];
-    const u8 *saveData;
-    const u8 *entry;
+    const u8* saveData;
+    const u8* entry;
     volatile u32 saveOffset;
     register u32 commonFlag asm("r6");
     u32 saveIndex;
-    u16 *secondaryBase;
-    const u8 *const *saveTable;
+    u16* secondaryBase;
+    const u8* const* saveTable;
     u32 hiddenFlag;
 
     saveIndex = idx;
@@ -856,8 +850,8 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
     {
         u32 zero;
         u32 fillTile;
-        u16 *secondaryPointer;
-        u16 *primaryPointer;
+        u16* secondaryPointer;
+        u16* primaryPointer;
         s32 remaining;
 
         zero = 0;
@@ -920,9 +914,9 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
 
             entryFlags = *entry;
             if ((bitMask & entryFlags) != 0 || commonFlag != 0) {
-                *(u16 *)primaryAddress = (s16)0xB1EA + tileOffset;
+                *(u16*)primaryAddress = (s16)0xB1EA + tileOffset;
                 if (secondaryAddress > secondaryStart + 4) {
-                    *(u16 *)primaryAddress = specialTile;
+                    *(u16*)primaryAddress = specialTile;
                 }
             }
             entryFlags = *entry;
@@ -930,7 +924,7 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
                 s32 secondaryTile;
 
                 secondaryTile = (s16)0xB220;
-                *(u16 *)secondaryAddress = secondaryTile;
+                *(u16*)secondaryAddress = secondaryTile;
             }
             entry += 24;
             secondaryAddress += 2;
@@ -941,11 +935,11 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
     }
 
     {
-        u16 *secondaryPointer;
-        u16 *primaryPointer;
-        vu16 *thirdRow;
-        vu16 *secondRow;
-        register vu16 *firstRow asm("r2");
+        u16* secondaryPointer;
+        u16* primaryPointer;
+        vu16* thirdRow;
+        vu16* secondRow;
+        register vu16* firstRow asm("r2");
         register u32 tilemapOffset asm("r0");
         register u32 rowBase asm("r6");
 
@@ -955,11 +949,11 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
         secondaryPointer = secondaryBase;
         primaryPointer = primary;
         tilemapOffset += 204;
-        thirdRow = (vu16 *)(tilemapOffset + 0x0600D080);
+        thirdRow = (vu16*)(tilemapOffset + 0x0600D080);
         rowBase = 0x0600D040;
-        secondRow = (vu16 *)(tilemapOffset + rowBase);
+        secondRow = (vu16*)(tilemapOffset + rowBase);
         rowBase -= 64;
-        firstRow = (vu16 *)(tilemapOffset + rowBase);
+        firstRow = (vu16*)(tilemapOffset + rowBase);
         do {
             u32 tile;
 
@@ -993,7 +987,7 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
             secondaryPointer++;
             primaryPointer++;
             {
-                register u16 *endPointer asm("r0");
+                register u16* endPointer asm("r0");
 
                 endPointer = primary;
                 endPointer += 5;
@@ -1008,42 +1002,42 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
 void RefreshFileSelectSaveSummary(u8 saveIndex)
 {
     u8 index;
-    register u8 *saveData asm("r2");
+    register u8* saveData asm("r2");
     u32 tableOffset;
     u32 saveOffset;
-    u8 *save;
-    const u8 *const *tableEntry;
+    u8* save;
+    const u8* const* tableEntry;
     u8 saveType;
 
     index = saveIndex;
     saveData = gUnk_3003BF8;
     saveOffset = index << 3;
-    save = (u8 *)(saveOffset + (u32)saveData);
+    save = (u8*)(saveOffset + (u32)saveData);
     tableEntry = sPrimarySaveHeaderBuffers;
     tableOffset = index << 2;
-    tableEntry = (const u8 *const *)(tableOffset + (u32)tableEntry);
+    tableEntry = (const u8* const*)(tableOffset + (u32)tableEntry);
     save[2] = (*tableEntry)[25];
     save[3] = (*tableEntry)[26];
     save[4] = (*tableEntry)[24];
     saveType = save[0];
     if (saveType == 3) {
-        const u8 *const *alternateEntry;
+        const u8* const* alternateEntry;
 
-        alternateEntry = (const u8 *const *)((const u8 *)sStageSelectionSaveBuffers + tableOffset);
+        alternateEntry = (const u8* const*)((const u8*)sStageSelectionSaveBuffers + tableOffset);
         save[2] = (*alternateEntry)[1];
         save[3] = (*alternateEntry)[2];
     } else if (saveType == 2) {
-        const u8 *const *alternateEntry;
+        const u8* const* alternateEntry;
 
-        alternateEntry = (const u8 *const *)((const u8 *)sMainSaveDataBuffers + tableOffset);
+        alternateEntry = (const u8* const*)((const u8*)sMainSaveDataBuffers + tableOffset);
         save[2] = (*alternateEntry)[25];
         save[3] = (*alternateEntry)[26];
     }
     {
-        u8 *finalSave;
+        u8* finalSave;
         u8 finalType;
 
-        finalSave = (u8 *)((index << 3) + (u32)saveData);
+        finalSave = (u8*)((index << 3) + (u32)saveData);
         finalType = finalSave[0];
         if (finalType == 0) {
             finalSave[4] = finalType;
@@ -1051,24 +1045,23 @@ void RefreshFileSelectSaveSummary(u8 saveIndex)
     }
 }
 
-
 void DrawFileSelectSaveNameTiles(u8 saveIndex)
 {
     u32 index;
-    vu16 *destination;
-    u8 *save;
-    register const u8 *text asm("r5");
-    u8 *saveBase;
+    vu16* destination;
+    u8* save;
+    register const u8* text asm("r5");
+    u8* saveBase;
     u32 offset;
 
     index = saveIndex;
-    destination = (vu16 *)0x0600C044;
+    destination = (vu16*)0x0600C044;
     if (index != 0) {
-        destination = (vu16 *)0x0600C284;
+        destination = (vu16*)0x0600C284;
     }
     saveBase = gUnk_3003BF8;
     offset = index << 3;
-    save = (u8 *)(offset + (u32)saveBase);
+    save = (u8*)(offset + (u32)saveBase);
     if (save[0] == 0 || save[0] == 0x80) {
         u32 language;
 
@@ -1079,7 +1072,7 @@ void DrawFileSelectSaveNameTiles(u8 saveIndex)
         }
     } else if (save[3] <= 5) {
         u32 language;
-        register const u8 *const *table asm("r3");
+        register const u8* const* table asm("r3");
         u32 tableIndex;
         u32 saveValue;
         register u32 valueOffset asm("r0");
@@ -1098,10 +1091,10 @@ void DrawFileSelectSaveNameTiles(u8 saveIndex)
         valueOffset <<= 3;
         tableIndex += valueOffset;
         tableIndex += (u32)table;
-        text = *(const u8 **)tableIndex;
+        text = *(const u8**)tableIndex;
     } else {
         u32 language;
-        register const u8 *const *table asm("r1");
+        register const u8* const* table asm("r1");
         u32 tableIndex;
 
         language = gLanguage;
@@ -1113,15 +1106,15 @@ void DrawFileSelectSaveNameTiles(u8 saveIndex)
         tableIndex = save[2];
         tableIndex <<= 2;
         tableIndex += (u32)table;
-        text = *(const u8 **)tableIndex;
+        text = *(const u8**)tableIndex;
     }
     {
         u32 highMask;
         register u32 lowMask asm("r8");
         u32 attributeLiteral;
         u32 attributes;
-        vu16 *bottomRow;
-        vu16 *topRow;
+        vu16* bottomRow;
+        vu16* topRow;
         s32 remaining;
 
         highMask = 0xE0;
@@ -1162,15 +1155,15 @@ void DrawFileSelectSaveNameTiles(u8 saveIndex)
 
 void DrawFileSelectLabelTiles(void)
 {
-    vu16 *topRow;
-    vu16 *bottomRow;
-    const u8 *source;
+    vu16* topRow;
+    vu16* bottomRow;
+    const u8* source;
     register u32 index asm("r1");
 
     {
-        vu16 *base;
+        vu16* base;
 
-        base = (vu16 *)0x0600C4AC;
+        base = (vu16*)0x0600C4AC;
         asm("" : "+r"(base));
         index = 0;
         source = sFileSelectLabelTileData;
@@ -1181,7 +1174,7 @@ void DrawFileSelectLabelTiles(void)
     do {
         s32 tile;
 
-        tile = *(const u8 *)(index + (u32)source);
+        tile = *(const u8*)(index + (u32)source);
         if (tile > 96) {
             tile -= 29;
         } else if (tile > 64) {
@@ -1198,31 +1191,30 @@ void DrawFileSelectLabelTiles(void)
     } while (index <= 4);
 }
 
-
 void FinalizeFileSelect(void)
 {
     InterruptCallbackSetVBlank(FileSelectSoundMainCallback);
-    *(vu8 *)0x04000049 = 0x3F;
-    *(vu16 *)0x04000050 = 0xFF;
-    *(vu16 *)0x04000054 = 0x10;
+    *(vu8*)0x04000049 = 0x3F;
+    *(vu16*)0x04000050 = 0xFF;
+    *(vu16*)0x04000054 = 0x10;
     if ((s8)gStageEntrySoftResetDisabled != 2) {
         LoadSelectedFileState();
     }
     BuildSelectedSaveValidationHeader();
     gOamSlotsUsed = 0;
     ResetFreeOam();
-    *(vu16 *)0x04000040 = 0;
-    *(vu16 *)0x04000044 = 0;
-    *(vu16 *)0x04000042 = 0;
-    *(vu16 *)0x04000046 = 0;
+    *(vu16*)0x04000040 = 0;
+    *(vu16*)0x04000044 = 0;
+    *(vu16*)0x04000042 = 0;
+    *(vu16*)0x04000046 = 0;
     SetFileSelectVBlankCallback();
 }
 
 void LoadSelectedFileState(void)
 {
-    u8 *output;
-    u8 *saveData;
-    u8 *selectedFile;
+    u8* output;
+    u8* saveData;
+    u8* selectedFile;
     register u8 loadedFlag asm("r1");
     u32 saveFlag;
     u32 offset;
@@ -1233,19 +1225,19 @@ void LoadSelectedFileState(void)
     offset = *selectedFile;
     offset <<= 3;
     offset += (u32)saveData;
-    loadedFlag = *(u8 *)offset;
+    loadedFlag = *(u8*)offset;
     *output = loadedFlag;
     output = &gHasTemporarySave;
     offset = *selectedFile;
     offset <<= 3;
     offset += (u32)saveData;
-    *output = *(u8 *)(offset + 1);
+    *output = *(u8*)(offset + 1);
     saveFlag = loadedFlag;
     if (saveFlag == 0) {
-        u8 *destination;
-        u8 *stageDestination;
+        u8* destination;
+        u8* stageDestination;
         u32 stage;
-        u8 *difficulty;
+        u8* difficulty;
 
         FlushSaveFileAndRefreshSaveData();
         destination = &gCurrentPassage;
@@ -1257,14 +1249,14 @@ void LoadSelectedFileState(void)
         offset = *selectedFile;
         offset <<= 3;
         offset += (u32)saveData;
-        *difficulty = *(u8 *)(offset + 4);
+        *difficulty = *(u8*)(offset + 4);
         BuildMainSaveWorkingBuffer();
     } else {
         FlushSaveFileAndMaybeRestoreTempSave();
     }
     {
-        u8 *difficulty;
-        u8 *finalSaveData;
+        u8* difficulty;
+        u8* finalSaveData;
         u32 finalOffset;
 
         difficulty = &gDifficulty;
@@ -1272,10 +1264,9 @@ void LoadSelectedFileState(void)
         finalOffset = gSelectedSaveFile;
         finalOffset <<= 3;
         finalOffset += (u32)finalSaveData;
-        *difficulty = *(u8 *)(finalOffset + 4);
+        *difficulty = *(u8*)(finalOffset + 4);
     }
 }
-
 
 u32 UpdateFileSelectSaveRecovery(void)
 {
@@ -1318,9 +1309,9 @@ u32 UpdateFileSelectSaveRecovery(void)
             break;
         case 4:
             if (gUnk_300188E > 8) {
-                u8 *selectedFilePointer;
+                u8* selectedFilePointer;
                 u32 selectedFile;
-                u8 *saveData;
+                u8* saveData;
                 u32 selectedIndex;
                 u8 saveType;
 
@@ -1334,48 +1325,46 @@ u32 UpdateFileSelectSaveRecovery(void)
                 selectedIndex = *selectedFilePointer;
                 saveType = saveData[selectedIndex * 8 + 5];
                 switch (saveType) {
-                    case 1:
-                    {
-                        vu32 *dma;
-                        const u8 *const *destinationTable;
+                    case 1: {
+                        vu32* dma;
+                        const u8* const* destinationTable;
                         u32 destinationAddress;
 
-                        u16 *fillPointer;
+                        u16* fillPointer;
                         u32 sourceAddress;
                         u32 dmaControl;
 
                         fillPointer = &fillValue;
                         sourceAddress = 0;
                         *fillPointer = sourceAddress;
-                        dma = (vu32 *)0x040000D4;
+                        dma = (vu32*)0x040000D4;
                         sourceAddress = (u32)&fillValue;
                         dma[0] = sourceAddress;
                         destinationTable = sMainSaveDataBuffers;
                         destinationAddress = *selectedFilePointer;
                         destinationAddress <<= 2;
                         destinationAddress += (u32)destinationTable;
-                        dma[1] = *(u32 *)destinationAddress;
+                        dma[1] = *(u32*)destinationAddress;
                         dma[2] = 0x81001C00;
                         dmaControl = dma[2];
                         func_8000FBC();
                         break;
                     }
-                    case 2:
-                    {
-                        vu32 *dma;
-                        register const u8 *const *table asm("r1");
+                    case 2: {
+                        vu32* dma;
+                        register const u8* const* table asm("r1");
                         u32 tableAddress;
 
-                        dma = (vu32 *)0x040000D4;
+                        dma = (vu32*)0x040000D4;
                         table = sSecondarySaveHeaderBuffers;
                         tableAddress = selectedIndex << 2;
                         tableAddress += (u32)table;
-                        dma[0] = *(u32 *)tableAddress;
+                        dma[0] = *(u32*)tableAddress;
                         table = sPrimarySaveHeaderBuffers;
                         tableAddress = *selectedFilePointer;
                         tableAddress <<= 2;
                         tableAddress += (u32)table;
-                        dma[1] = *(u32 *)tableAddress;
+                        dma[1] = *(u32*)tableAddress;
                         {
                             u32 dmaControl;
 
@@ -1385,20 +1374,19 @@ u32 UpdateFileSelectSaveRecovery(void)
                         func_8000F64();
                         break;
                     }
-                    case 3:
-                    {
-                        vu32 *dma;
-                        const u8 *const *destinationTable;
+                    case 3: {
+                        vu32* dma;
+                        const u8* const* destinationTable;
                         u32 destinationAddress;
 
                         fillValue = 0;
-                        dma = (vu32 *)0x040000D4;
+                        dma = (vu32*)0x040000D4;
                         dma[0] = (u32)&fillValue;
                         destinationTable = sPrimarySaveHeaderBuffers;
                         destinationAddress = *selectedFilePointer;
                         destinationAddress <<= 2;
                         destinationAddress += (u32)destinationTable;
-                        dma[1] = *(u32 *)destinationAddress;
+                        dma[1] = *(u32*)destinationAddress;
                         {
                             u32 dmaControl;
 
@@ -1425,7 +1413,6 @@ u32 UpdateFileSelectSaveRecovery(void)
     return finished;
 }
 
-
 u32 FileSelectSubroutine(void)
 {
     u32 finished;
@@ -1433,9 +1420,8 @@ u32 FileSelectSubroutine(void)
     finished = 0;
     gUnk_300188E++;
     switch (gSubGameMode) {
-        case 0:
-        {
-            register s16 *modePointer asm("r4");
+        case 0: {
+            register s16* modePointer asm("r4");
             u32 nextMode;
 
             u32 initResult;
@@ -1457,15 +1443,14 @@ u32 FileSelectSubroutine(void)
                 gSubGameMode++;
             }
             break;
-        case 2:
-        {
+        case 2: {
             u32 softResetOrAction;
             u32 rawAction;
             s32 action;
 
             softResetOrAction = (u32)&gStageEntrySoftResetDisabled;
             rawAction = GetFileSelectActionResult();
-            *(u8 *)softResetOrAction = rawAction;
+            *(u8*)softResetOrAction = rawAction;
             action = (s8)rawAction;
             softResetOrAction = action;
             if (action != 0) {
@@ -1474,7 +1459,7 @@ u32 FileSelectSubroutine(void)
                 gUnk_300188E = 0;
                 if (action == 2) {
                     {
-                        const struct MusicPlayer *musicPlayers;
+                        const struct MusicPlayer* musicPlayers;
                         register u32 songAddress asm("r0");
                         u32 songOffsetOrIndex;
 
@@ -1482,27 +1467,27 @@ u32 FileSelectSubroutine(void)
                         songAddress = (u32)gSongTable;
                         songOffsetOrIndex = 0x13E4;
                         songAddress += songOffsetOrIndex;
-                        songOffsetOrIndex = *(u16 *)songAddress;
+                        songOffsetOrIndex = *(u16*)songAddress;
                         songAddress = songOffsetOrIndex << 1;
                         songAddress += songOffsetOrIndex;
                         songAddress <<= 2;
                         songAddress += (u32)musicPlayers;
-                        m4aMPlayFadeOut(*(struct MusicPlayerInfo **)songAddress, 2);
+                        m4aMPlayFadeOut(*(struct MusicPlayerInfo**)songAddress, 2);
                     }
                     {
-                        u8 *cutsceneState;
-                        const u8 *styleTable;
+                        u8* cutsceneState;
+                        const u8* styleTable;
                         u32 styleIndex;
                         u32 style;
 
-                        cutsceneState = (u8 *)&gUnk_3004A70;
+                        cutsceneState = (u8*)&gUnk_3004A70;
                         styleTable = sFileSelectStyleAnimationTypes;
                         style = gTitleScreenStyle;
                         styleIndex = style << 1;
                         styleIndex += style;
                         styleTable += 2;
                         styleIndex += (u32)styleTable;
-                        cutsceneState[10] = *(u8 *)styleIndex;
+                        cutsceneState[10] = *(u8*)styleIndex;
                         cutsceneState[8] = 0;
                         cutsceneState[9] = 0;
                     }
@@ -1513,9 +1498,9 @@ u32 FileSelectSubroutine(void)
                     selectedEntry = gSelectedSaveFile;
                     selectedEntry <<= 3;
                     selectedEntry += (u32)gUnk_3003BF8;
-                    if ((*(u8 *)(selectedEntry + 1) & 0x80) != 0) {
+                    if ((*(u8*)(selectedEntry + 1) & 0x80) != 0) {
                         ResetFileSelectSelectedSlotAnimation(1);
-                    m4aSongNumStart(0x11F);
+                        m4aSongNumStart(0x11F);
                         gSubGameMode = 3;
                     } else {
                         gSubGameMode = 4;
@@ -1526,14 +1511,13 @@ u32 FileSelectSubroutine(void)
             }
             break;
         }
-        case 3:
-        {
-            u8 *cutsceneState;
-            u8 *selectedFile;
+        case 3: {
+            u8* cutsceneState;
+            u8* selectedFile;
             u32 selectedIndex;
             u32 entryAddress;
 
-            cutsceneState = (u8 *)&gUnk_3004A70;
+            cutsceneState = (u8*)&gUnk_3004A70;
             selectedFile = &gSelectedSaveFile;
             selectedIndex = *selectedFile;
             selectedIndex += 2;
@@ -1541,7 +1525,7 @@ u32 FileSelectSubroutine(void)
             entryAddress += selectedIndex;
             entryAddress <<= 2;
             entryAddress += (u32)cutsceneState;
-            if (*(u8 *)(entryAddress + 10) == 0) {
+            if (*(u8*)(entryAddress + 10) == 0) {
                 gUnk_300188E = 0;
                 gSubGameMode++;
             }
@@ -1590,12 +1574,11 @@ u32 FileSelectSubroutine(void)
     return finished;
 }
 
-
 void SetFileSelectInteractionMode(u8 inputMode)
 {
     s32 mode;
     register u32 value asm("r3");
-    register u8 *state asm("r0");
+    register u8* state asm("r0");
 
     mode = inputMode;
     if (mode == 1) {
@@ -1612,16 +1595,15 @@ void SetFileSelectInteractionMode(u8 inputMode)
     }
     goto other_mode;
 
-mode_one:
-    {
-        u8 *saveData;
-        u32 offset;
+mode_one: {
+    u8* saveData;
+    u32 offset;
 
-        saveData = gUnk_3003BF8;
-        offset = gSelectedSaveFile << 3;
-        offset += (u32)saveData;
-        value = *(u8 *)(offset + 4);
-    }
+    saveData = gUnk_3003BF8;
+    offset = gSelectedSaveFile << 3;
+    offset += (u32)saveData;
+    value = *(u8*)(offset + 4);
+}
     if (value == 2) {
         state = gFileSelectState;
         state[2] = value;
@@ -1633,46 +1615,43 @@ mode_one:
         goto set_mode;
     }
 
-other_mode:
-    {
-        u8 *otherState;
-        register u32 zero asm("r0");
+other_mode: {
+    u8* otherState;
+    register u32 zero asm("r0");
 
-        otherState = gFileSelectState;
-        zero = 0;
-        otherState[2] = zero;
-        state = otherState;
-    }
+    otherState = gFileSelectState;
+    zero = 0;
+    otherState[2] = zero;
+    state = otherState;
+}
     goto set_mode;
 
-mode_three:
-    {
-        u8 *modeThreeState;
-        register u32 zero asm("r0");
+mode_three: {
+    u8* modeThreeState;
+    register u32 zero asm("r0");
 
-        modeThreeState = gFileSelectState;
-        zero = 0;
-        modeThreeState[2] = zero;
-        value = gUnk_3003BF8[gSelectedSaveFile << 3];
-        state = modeThreeState;
-        if (value == 0) {
-            state[1] = value;
-            return;
-        }
+    modeThreeState = gFileSelectState;
+    zero = 0;
+    modeThreeState[2] = zero;
+    value = gUnk_3003BF8[gSelectedSaveFile << 3];
+    state = modeThreeState;
+    if (value == 0) {
+        state[1] = value;
+        return;
     }
+}
 
 set_mode:
     state[1] = mode;
 }
 
-
 u32 GetFileSelectActionResult(void)
 {
     u32 result;
-    char *state;
+    char* state;
 
     result = 0;
-    state = (char *)gFileSelectState;
+    state = (char*)gFileSelectState;
     switch (state[0]) {
         case 0:
         case 1:
@@ -1687,12 +1666,11 @@ u32 GetFileSelectActionResult(void)
     return result;
 }
 
-
 void UpdateFileSelectInteraction(void)
 {
-    char *state;
+    char* state;
 
-    state = (char *)gFileSelectState;
+    state = (char*)gFileSelectState;
     if (state[3] != 0) {
         ExecuteFileSelectAction();
     } else {
@@ -1712,20 +1690,19 @@ void UpdateFileSelectInteraction(void)
     UpdateFileSelectOperationLabelAnimation();
 }
 
-
 void ExecuteFileSelectAction(void)
 {
     u16 fillValue;
     u32 preserveAction;
-    u8 *state;
+    u8* state;
     u32 switchIndex;
     register u32 actionValue asm("r0");
     u8 expectedAnimation;
 
     {
-        struct SaveDataClearData *data;
-        const u8 *animationTable;
-        u8 *stylePointer;
+        struct SaveDataClearData* data;
+        const u8* animationTable;
+        u8* stylePointer;
         u32 style;
         u32 animationIndex;
         u32 currentAnimation;
@@ -1739,7 +1716,7 @@ void ExecuteFileSelectAction(void)
         animationTable++;
         animationIndex += (u32)animationTable;
         currentAnimation = data->unk_0A;
-        expectedAnimation = *(const u8 *)animationIndex;
+        expectedAnimation = *(const u8*)animationIndex;
         if (currentAnimation == expectedAnimation) {
             goto return_from_dispatcher;
         }
@@ -1750,7 +1727,7 @@ void ExecuteFileSelectAction(void)
 
     preserveAction = 0;
     {
-        register u8 *stateBase asm("r1");
+        register u8* stateBase asm("r1");
 
         stateBase = gFileSelectState;
         switchIndex = stateBase[3];
@@ -1817,71 +1794,68 @@ action_four:
     UpdateFileSelectWindow();
     goto finish_action;
 
-action_six:
-    {
-        u8 *saveData;
-        u8 *selectedFile;
-        u32 offset;
-        u32 flag;
+action_six: {
+    u8* saveData;
+    u8* selectedFile;
+    u32 offset;
+    u32 flag;
 
-        saveData = gUnk_3003BF8;
-        selectedFile = &gSelectedSaveFile;
-        offset = *selectedFile;
-        offset <<= 3;
-        offset += (u32)saveData;
-        flag = 0x80;
-        *(u8 *)offset = flag;
-        BuildSelectedSaveValidationHeader();
-        goto set_action_seventeen;
-    }
+    saveData = gUnk_3003BF8;
+    selectedFile = &gSelectedSaveFile;
+    offset = *selectedFile;
+    offset <<= 3;
+    offset += (u32)saveData;
+    flag = 0x80;
+    *(u8*)offset = flag;
+    BuildSelectedSaveValidationHeader();
+    goto set_action_seventeen;
+}
 
-action_seven:
-    {
-        u32 selectedDifficulty;
-        u32 difficulty;
-        u8 *saveData;
-        u8 *selectedFile;
-        u32 offset;
+action_seven: {
+    u32 selectedDifficulty;
+    u32 difficulty;
+    u8* saveData;
+    u8* selectedFile;
+    u32 offset;
 
-        selectedDifficulty = state[2];
-        difficulty = 2;
-        if (selectedDifficulty != 2) {
-            difficulty = 0;
-            if (selectedDifficulty == 1) {
-                difficulty = 1;
-            }
+    selectedDifficulty = state[2];
+    difficulty = 2;
+    if (selectedDifficulty != 2) {
+        difficulty = 0;
+        if (selectedDifficulty == 1) {
+            difficulty = 1;
         }
-        saveData = gUnk_3003BF8;
-        selectedFile = &gSelectedSaveFile;
-        offset = *selectedFile;
-        offset <<= 3;
-        offset += (u32)saveData;
-        *(u8 *)(offset + 4) = difficulty;
-        actionValue = *selectedFile;
-        DrawFileSelectDifficultyTiles(actionValue);
-        goto finish_action;
     }
+    saveData = gUnk_3003BF8;
+    selectedFile = &gSelectedSaveFile;
+    offset = *selectedFile;
+    offset <<= 3;
+    offset += (u32)saveData;
+    *(u8*)(offset + 4) = difficulty;
+    actionValue = *selectedFile;
+    DrawFileSelectDifficultyTiles(actionValue);
+    goto finish_action;
+}
 
-action_eight:
-    {
-        u8 *saveData;
-        u8 *selectedFile;
-        u32 offset;
-        u32 zero;
+action_eight: {
+    u8* saveData;
+    u8* selectedFile;
+    u32 offset;
+    u32 zero;
 
-        actionValue = 0;
-        SetFileSelectInteractionMode(actionValue);
-        saveData = gUnk_3003BF8;
-        selectedFile = &gSelectedSaveFile;
-        offset = *selectedFile;
-        offset <<= 3;
-        offset += (u32)saveData;
-        zero = 0;
-        *(u8 *)(offset + 4) = zero;
-        actionValue = *selectedFile;
-        DrawFileSelectDifficultyTiles(actionValue);
-        goto finish_action;
-    }
+    actionValue = 0;
+    SetFileSelectInteractionMode(actionValue);
+    saveData = gUnk_3003BF8;
+    selectedFile = &gSelectedSaveFile;
+    offset = *selectedFile;
+    offset <<= 3;
+    offset += (u32)saveData;
+    zero = 0;
+    *(u8*)(offset + 4) = zero;
+    actionValue = *selectedFile;
+    DrawFileSelectDifficultyTiles(actionValue);
+    goto finish_action;
+}
 
 action_eleven:
     actionValue = 1;
@@ -1893,84 +1867,82 @@ action_twelve:
     state[2] = actionValue;
     goto finish_action;
 
-action_nine:
-    {
-        vu32 *dma;
-        register u32 zero asm("r6");
-        register u8 *selectedFile asm("r4");
-        u8 *saveData;
-        u32 index;
-        const u8 *const *table;
-        u32 tableAddress;
+action_nine: {
+    vu32* dma;
+    register u32 zero asm("r6");
+    register u8* selectedFile asm("r4");
+    u8* saveData;
+    u32 index;
+    const u8* const* table;
+    u32 tableAddress;
 
-        u16 *fillPointer;
+    u16* fillPointer;
 
-        fillPointer = &fillValue;
-        zero = 0;
-        *fillPointer = zero;
-        dma = DMA3;
-        dma[0] = (u32)fillPointer;
-        table = sPrimarySaveHeaderBuffers;
-        selectedFile = &gSelectedSaveFile;
-        index = *selectedFile;
-        index <<= 2;
-        tableAddress = index + (u32)table;
-        dma[1] = *(u32 *)tableAddress;
-        dma[2] = 0x81000200;
-        (void)dma[2];
-        fillValue = zero;
-        dma[0] = (u32)&fillValue;
-        table = sMainSaveDataBuffers;
-        index = *selectedFile;
-        index <<= 2;
-        tableAddress = index + (u32)table;
-        dma[1] = *(u32 *)tableAddress;
-        dma[2] = 0x81001C00;
-        (void)dma[2];
-        actionValue = *selectedFile;
-        func_8000D98(actionValue);
-        saveData = gUnk_3003BF8;
-        index = *selectedFile;
-        index <<= 3;
-        if ((saveData[index + 1] & 0x80) != 0) {
-            actionValue = 0;
-            ResetFileSelectSelectedSlotAnimation(actionValue);
-        }
-        index = *selectedFile;
-        index <<= 3;
-        index += (u32)saveData;
-        *(u8 *)index = zero;
-        index = *selectedFile;
-        index <<= 3;
-        saveData[index + 1] = zero;
-        actionValue = *selectedFile;
-        RefreshFileSelectSaveSummary(actionValue);
-        DrawFileSelectSlotText();
-        actionValue = *selectedFile;
-        DrawFileSelectScoreTiles(actionValue, 1);
-        actionValue = *selectedFile;
-        DrawFileSelectTreasureCountTiles(actionValue, 1);
-        actionValue = *selectedFile;
-        DrawFileSelectCollectionTiles(actionValue, 1);
-        goto reset_file_select_state;
+    fillPointer = &fillValue;
+    zero = 0;
+    *fillPointer = zero;
+    dma = DMA3;
+    dma[0] = (u32)fillPointer;
+    table = sPrimarySaveHeaderBuffers;
+    selectedFile = &gSelectedSaveFile;
+    index = *selectedFile;
+    index <<= 2;
+    tableAddress = index + (u32)table;
+    dma[1] = *(u32*)tableAddress;
+    dma[2] = 0x81000200;
+    (void)dma[2];
+    fillValue = zero;
+    dma[0] = (u32)&fillValue;
+    table = sMainSaveDataBuffers;
+    index = *selectedFile;
+    index <<= 2;
+    tableAddress = index + (u32)table;
+    dma[1] = *(u32*)tableAddress;
+    dma[2] = 0x81001C00;
+    (void)dma[2];
+    actionValue = *selectedFile;
+    func_8000D98(actionValue);
+    saveData = gUnk_3003BF8;
+    index = *selectedFile;
+    index <<= 3;
+    if ((saveData[index + 1] & 0x80) != 0) {
+        actionValue = 0;
+        ResetFileSelectSelectedSlotAnimation(actionValue);
     }
+    index = *selectedFile;
+    index <<= 3;
+    index += (u32)saveData;
+    *(u8*)index = zero;
+    index = *selectedFile;
+    index <<= 3;
+    saveData[index + 1] = zero;
+    actionValue = *selectedFile;
+    RefreshFileSelectSaveSummary(actionValue);
+    DrawFileSelectSlotText();
+    actionValue = *selectedFile;
+    DrawFileSelectScoreTiles(actionValue, 1);
+    actionValue = *selectedFile;
+    DrawFileSelectTreasureCountTiles(actionValue, 1);
+    actionValue = *selectedFile;
+    DrawFileSelectCollectionTiles(actionValue, 1);
+    goto reset_file_select_state;
+}
 
-reset_file_select_state:
-    {
-        u8 *resetState;
-        u32 zero;
-        u32 mode;
+reset_file_select_state: {
+    u8* resetState;
+    u32 zero;
+    u32 mode;
 
-        resetState = gFileSelectState;
-        zero = 0;
-        resetState[5] = zero;
-        mode = 2;
-        resetState[0] = mode;
-        resetState[2] = zero;
-        resetState[1] = zero;
-        UpdateFileSelectWindow();
-        goto finish_action;
-    }
+    resetState = gFileSelectState;
+    zero = 0;
+    resetState[5] = zero;
+    mode = 2;
+    resetState[0] = mode;
+    resetState[2] = zero;
+    resetState[1] = zero;
+    UpdateFileSelectWindow();
+    goto finish_action;
+}
 
 set_display_state_one:
     actionValue = 1;
@@ -1987,40 +1959,38 @@ action_fourteen:
     state[5] = actionValue;
     goto finish_action;
 
-action_sixteen:
-    {
-        const void *mplayTable;
-        const u8 *songTable;
-        u32 songTableOffset;
-        u32 songIndex;
-        u32 tableOffset;
-        void *mplayInfo;
-        u32 trackMask;
-        u32 volume;
+action_sixteen: {
+    const void* mplayTable;
+    const u8* songTable;
+    u32 songTableOffset;
+    u32 songIndex;
+    u32 tableOffset;
+    void* mplayInfo;
+    u32 trackMask;
+    u32 volume;
 
-        mplayTable = gMPlayTable;
-        songTable = (const u8 *)gSongTable;
-        songTableOffset = 0x13E4;
-        songTable = (const u8 *)((u32)songTable + songTableOffset);
-        songIndex = *(const u16 *)songTable;
-        tableOffset = songIndex << 1;
-        tableOffset += songIndex;
-        tableOffset <<= 2;
-        tableOffset += (u32)mplayTable;
-        mplayInfo = *(void **)tableOffset;
-        trackMask = 0xFFFF;
-        volume = 40;
-        m4aMPlayVolumeControl(mplayInfo, trackMask, volume);
-    }
-set_action_seventeen:
-    {
-        u8 *actionState;
+    mplayTable = gMPlayTable;
+    songTable = (const u8*)gSongTable;
+    songTableOffset = 0x13E4;
+    songTable = (const u8*)((u32)songTable + songTableOffset);
+    songIndex = *(const u16*)songTable;
+    tableOffset = songIndex << 1;
+    tableOffset += songIndex;
+    tableOffset <<= 2;
+    tableOffset += (u32)mplayTable;
+    mplayInfo = *(void**)tableOffset;
+    trackMask = 0xFFFF;
+    volume = 40;
+    m4aMPlayVolumeControl(mplayInfo, trackMask, volume);
+}
+set_action_seventeen: {
+    u8* actionState;
 
-        actionState = gFileSelectState;
-        actionValue = 17;
-        actionState[3] = actionValue;
-        goto return_from_dispatcher;
-    }
+    actionState = gFileSelectState;
+    actionValue = 17;
+    actionState[3] = actionValue;
+    goto return_from_dispatcher;
+}
 
 action_five:
     actionValue = 2;
@@ -2042,14 +2012,14 @@ finish_action:
         goto return_from_dispatcher;
     }
     {
-        u8 *finalState;
+        u8* finalState;
         u32 finalMode;
 
         finalState = gFileSelectState;
         finalState[3] = preserveAction;
         finalMode = finalState[5];
         if (finalMode != 0) {
-            struct SaveDataClearData *data;
+            struct SaveDataClearData* data;
             u32 currentAnimation;
 
             data = &gUnk_3004A70;
@@ -2062,9 +2032,9 @@ finish_action:
             }
             goto return_from_dispatcher;
         } else {
-            struct SaveDataClearData *data;
-            const u8 *animationTable;
-            u8 *stylePointer;
+            struct SaveDataClearData* data;
+            const u8* animationTable;
+            u8* stylePointer;
             u32 style;
             u32 animationIndex;
             u32 expected;
@@ -2077,7 +2047,7 @@ finish_action:
             animationIndex = style << 1;
             animationIndex += style;
             animationIndex += (u32)animationTable;
-            expected = *(const u8 *)animationIndex;
+            expected = *(const u8*)animationIndex;
             current = data->unk_0A;
             if (current != expected) {
                 data->unk_0A = expected;
@@ -2091,87 +2061,83 @@ return_from_dispatcher:
     return;
 }
 
-
 void SetFileSelectActionAndSound(u8 action, u8 sound)
 {
     u16 songId;
 
     gFileSelectState[3] = action;
     switch (sound) {
-    case 1:
-        ResetFileSelectMainAnimation();
-    case 5:
-        songId = 0x125;
-        break;
-    case 2:
-        songId = 0x129;
-        break;
-    case 3:
-        songId = 0x27D;
-        m4aSongNumStart(songId);
-        goto after_special_sound;
-    case 4:
-        {
-            const void *mplayTable;
-            const u8 *songTable;
+        case 1:
+            ResetFileSelectMainAnimation();
+        case 5:
+            songId = 0x125;
+            break;
+        case 2:
+            songId = 0x129;
+            break;
+        case 3:
+            songId = 0x27D;
+            m4aSongNumStart(songId);
+            goto after_special_sound;
+        case 4: {
+            const void* mplayTable;
+            const u8* songTable;
             u32 songTableOffset;
             u32 songIndex;
             u32 tableOffset;
-            void *mplayInfo;
+            void* mplayInfo;
             u32 trackMask;
             u32 volume;
 
             mplayTable = gMPlayTable;
-            songTable = (const u8 *)gSongTable;
+            songTable = (const u8*)gSongTable;
             songTableOffset = 0x13E4;
-            songTable = (const u8 *)((u32)songTable + songTableOffset);
-            songIndex = *(const u16 *)songTable;
+            songTable = (const u8*)((u32)songTable + songTableOffset);
+            songIndex = *(const u16*)songTable;
             tableOffset = songIndex << 1;
             tableOffset += songIndex;
             tableOffset <<= 2;
             tableOffset += (u32)mplayTable;
-            mplayInfo = *(void **)tableOffset;
+            mplayInfo = *(void**)tableOffset;
             trackMask = 0xFFFF;
             volume = 0x8C;
             m4aMPlayVolumeControl(mplayInfo, trackMask, volume);
         }
-after_special_sound:
-        ResetFileSelectMainAnimation();
-        songId = 0x126;
-        break;
-    case 6:
-        StartFileSelectClosingAnimation();
-        songId = 0x128;
-        break;
-    case 0:
-    default:
-        songId = 0x124;
-        break;
+        after_special_sound:
+            ResetFileSelectMainAnimation();
+            songId = 0x126;
+            break;
+        case 6:
+            StartFileSelectClosingAnimation();
+            songId = 0x128;
+            break;
+        case 0:
+        default:
+            songId = 0x124;
+            break;
     }
     m4aSongNumStart(songId);
 }
 
-
 void ResetFileSelectMainAnimation(void)
 {
-  struct SaveDataClearData *data;
-  int new_var2;
-  const u8 *table;
-  u8 *stylePtr;
-  u32 style;
-  u8 value;
-  data = &gUnk_3004A70;
-  table = sFileSelectStyleAnimationTypes;
-  stylePtr = &gTitleScreenStyle;
-  style = *stylePtr;
-  new_var2 = style * 3;
-  table++;
-  value = table[new_var2];
-  data->unk_0A = value;
-  data->unk_08 = 0;
-  data->unk_09 = 0;
+    struct SaveDataClearData* data;
+    int new_var2;
+    const u8* table;
+    u8* stylePtr;
+    u32 style;
+    u8 value;
+    data = &gUnk_3004A70;
+    table = sFileSelectStyleAnimationTypes;
+    stylePtr = &gTitleScreenStyle;
+    style = *stylePtr;
+    new_var2 = style * 3;
+    table++;
+    value = table[new_var2];
+    data->unk_0A = value;
+    data->unk_08 = 0;
+    data->unk_09 = 0;
 }
-
 
 void StartFileSelectClosingAnimation(void)
 {
@@ -2182,9 +2148,9 @@ void StartFileSelectClosingAnimation(void)
 
 void HandleFileSelectInput(void)
 {
-    register char *state asm("r0");
+    register char* state asm("r0");
 
-    state = (char *)gFileSelectState;
+    state = (char*)gFileSelectState;
     switch (state[1]) {
         case 0:
         case 3:
@@ -2199,84 +2165,55 @@ void HandleFileSelectInput(void)
     }
 }
 
-
 void HandleFileSlotNavigationInput(u8 mode)
 {
-  u32 handled;
-  handled = 0;
-  if ((gButtonsPressed & 0x40) != 0)
-  {
-    if (gFileSelectState[0] == 1)
-    {
-      SetFileSelectActionAndSound(1, 0);
-      return;
-    }
-    if (gFileSelectState[0] == 2)
-    {
-      SetFileSelectActionAndSound(2, 0);
-      return;
-    }
-  }
-  else
-    if ((gButtonsPressed & 0x80) != 0)
-  {
-    if (gFileSelectState[0] == 0)
-    {
-      SetFileSelectActionAndSound(2, 0);
-      return;
-    }
-    if (gFileSelectState[0] == 1)
-    {
-      SetFileSelectActionAndSound(4, 0);
-      handled = 1;
-    }
-  }
-  if (handled == 0)
-  {
-    if ((gButtonsPressed & 2) != 0)
-    {
-      if (gFileSelectState[5] != 0)
-      {
-        SetFileSelectActionAndSound(15, 2);
-      }
-      else
-      {
-        SetFileSelectActionAndSound(18, 2);
-      }
-    }
-    else
-      if (mode == 3)
-    {
-      if ((gButtonsPressed & 1) != 0)
-      {
-        if (gFileSelectState[5] != 0)
-        {
-          SetFileSelectActionAndSound(5, 5);
+    u32 handled;
+    handled = 0;
+    if ((gButtonsPressed & 0x40) != 0) {
+        if (gFileSelectState[0] == 1) {
+            SetFileSelectActionAndSound(1, 0);
+            return;
         }
-        else
-        {
-          SetFileSelectActionAndSound(16, 4);
+        if (gFileSelectState[0] == 2) {
+            SetFileSelectActionAndSound(2, 0);
+            return;
         }
-      }
+    } else if ((gButtonsPressed & 0x80) != 0) {
+        if (gFileSelectState[0] == 0) {
+            SetFileSelectActionAndSound(2, 0);
+            return;
+        }
+        if (gFileSelectState[0] == 1) {
+            SetFileSelectActionAndSound(4, 0);
+            handled = 1;
+        }
     }
-    else
-      if (mode == 0)
-    {
-      if ((gButtonsPressed & 1) != 0)
-      {
-        if (gFileSelectState[5] != 0)
-        {
-          m4aSongNumStart(0x129);
+    if (handled == 0) {
+        if ((gButtonsPressed & 2) != 0) {
+            if (gFileSelectState[5] != 0) {
+                SetFileSelectActionAndSound(15, 2);
+            } else {
+                SetFileSelectActionAndSound(18, 2);
+            }
+        } else if (mode == 3) {
+            if ((gButtonsPressed & 1) != 0) {
+                if (gFileSelectState[5] != 0) {
+                    SetFileSelectActionAndSound(5, 5);
+                } else {
+                    SetFileSelectActionAndSound(16, 4);
+                }
+            }
+        } else if (mode == 0) {
+            if ((gButtonsPressed & 1) != 0) {
+                if (gFileSelectState[5] != 0) {
+                    m4aSongNumStart(0x129);
+                } else {
+                    SetFileSelectActionAndSound(3, 5);
+                }
+            }
         }
-        else
-        {
-          SetFileSelectActionAndSound(3, 5);
-        }
-      }
     }
-  }
 }
-
 
 void HandleFileDifficultyInput(void)
 {
@@ -2302,10 +2239,10 @@ void HandleFileDifficultyInput(void)
         maskedButtons = 0x80;
         maskedButtons &= buttons;
         if (maskedButtons != 0) {
-        if (gFileSelectState[2] < max) {
-            gFileSelectState[2]++;
-            max = 0;
-        }
+            if (gFileSelectState[2] < max) {
+                gFileSelectState[2]++;
+                max = 0;
+            }
         }
     }
     if (max != 0) {
@@ -2315,47 +2252,28 @@ selection_changed:
     SetFileSelectActionAndSound(7, 0);
 }
 
-
 void HandleFileOperationInput(void)
 {
-  if ((gButtonsPressed & 2) != 0)
-  {
-    SetFileSelectActionAndSound(10, 2);
-  }
-  else
-    if ((gButtonsPressed & 0x10) != 0)
-  {
-    if (gFileSelectState[2] != 1)
-    {
-      SetFileSelectActionAndSound(11, 0);
+    if ((gButtonsPressed & 2) != 0) {
+        SetFileSelectActionAndSound(10, 2);
+    } else if ((gButtonsPressed & 0x10) != 0) {
+        if (gFileSelectState[2] != 1) {
+            SetFileSelectActionAndSound(11, 0);
+        }
+    } else if ((gButtonsPressed & 0x20) != 0) {
+        if (gFileSelectState[2] != 0) {
+            SetFileSelectActionAndSound(12, 0);
+        }
+    } else if (gFileSelectState[2] == 0) {
+        if ((gButtonsPressed & 1) != 0) {
+            SetFileSelectActionAndSound(10, 2);
+        }
+    } else if (gFileSelectState[2] == 1) {
+        if ((gButtonsPressed & 1) != 0) {
+            SetFileSelectActionAndSound(9, 6);
+        }
     }
-  }
-  else
-    if ((gButtonsPressed & 0x20) != 0)
-  {
-    if (gFileSelectState[2] != 0)
-    {
-      SetFileSelectActionAndSound(12, 0);
-    }
-  }
-  else
-    if (gFileSelectState[2] == 0)
-  {
-    if ((gButtonsPressed & 1) != 0)
-    {
-      SetFileSelectActionAndSound(10, 2);
-    }
-  }
-  else
-    if (gFileSelectState[2] == 1)
-  {
-    if ((gButtonsPressed & 1) != 0)
-    {
-      SetFileSelectActionAndSound(9, 6);
-    }
-  }
 }
-
 
 void HandleFileConfirmationInput(void)
 {
@@ -2375,33 +2293,31 @@ void HandleFileConfirmationInput(void)
     }
 }
 
-
 void UpdateFileSelectWindow(void)
 {
-    char *state;
+    char* state;
     u8 mode;
 
-    state = (char *)gFileSelectState;
+    state = (char*)gFileSelectState;
     mode = state[0];
     switch (mode) {
         case 0:
-            *(vu16 *)0x04000042 = 0xF0;
-            *(vu16 *)0x04000046 = 0x48;
+            *(vu16*)0x04000042 = 0xF0;
+            *(vu16*)0x04000046 = 0x48;
             gSelectedSaveFile = mode;
             break;
         case 1:
-            *(vu16 *)0x04000042 = 0xF0;
-            *(vu16 *)0x04000046 = 0x4890;
+            *(vu16*)0x04000042 = 0xF0;
+            *(vu16*)0x04000046 = 0x4890;
             gSelectedSaveFile = mode;
             break;
         case 2:
-            *(vu16 *)0x04000042 = 0xF0;
-            *(vu16 *)0x04000046 = 0x8FA0;
+            *(vu16*)0x04000042 = 0xF0;
+            *(vu16*)0x04000046 = 0x8FA0;
             break;
     }
     RefreshFileSelectSlotAnimationTypes();
 }
-
 
 u32 UpdateFileSelectFadeIn(void)
 {
@@ -2415,40 +2331,40 @@ u32 UpdateFileSelectFadeOut(void)
 
 void UpdateFileSelectMainAnimationPosition(void)
 {
-    register u8 *statePointer asm("r0");
-    u8 *state;
+    register u8* statePointer asm("r0");
+    u8* state;
     u32 stateMode;
 
     statePointer = gFileSelectState;
     stateMode = statePointer[0];
     state = statePointer;
     if (stateMode == 2) {
-        u8 *data;
+        u8* data;
         u32 coordinate;
 
-        data = (u8 *)&gUnk_3004A70;
+        data = (u8*)&gUnk_3004A70;
         coordinate = 160;
-        *(u16 *)(data + 0) = coordinate;
+        *(u16*)(data + 0) = coordinate;
         coordinate = 12;
-        *(u16 *)(data + 2) = coordinate;
+        *(u16*)(data + 2) = coordinate;
         return;
     }
     {
-        u8 *saveData;
+        u8* saveData;
         u32 saveOffset;
         u32 saveValue;
         register u32 maskedValue asm("r1");
         u32 hasSave;
-        const u8 *const *offsetTables;
+        const u8* const* offsetTables;
         u32 tableOffset;
         s32 stateIndex;
-        const u8 *offsetTable;
+        const u8* offsetTable;
         u32 offsetAddress;
         u32 pathOffset;
-        const u8 *const *pathTables;
+        const u8* const* pathTables;
         u32 pathTableOffset;
-        const u8 *const *pathEntry;
-        register const u8 *path asm("r3");
+        const u8* const* pathEntry;
+        register const u8* path asm("r3");
         u32 markerAddress;
         s32 marker;
 
@@ -2456,7 +2372,7 @@ void UpdateFileSelectMainAnimationPosition(void)
         saveOffset = state[0];
         saveOffset <<= 3;
         saveOffset += (u32)saveData;
-        saveValue = *(u8 *)saveOffset;
+        saveValue = *(u8*)saveOffset;
         maskedValue = 0x7F;
         maskedValue &= saveValue;
         saveValue = -maskedValue;
@@ -2467,13 +2383,12 @@ void UpdateFileSelectMainAnimationPosition(void)
         tableOffset = hasSave << 2;
         tableOffset += (u32)offsetTables;
         stateIndex = state[1];
-        offsetTable = *(const u8 *const *)tableOffset;
+        offsetTable = *(const u8* const*)tableOffset;
         offsetAddress = (u32)offsetTable + stateIndex;
-        pathOffset = *(const u8 *)offsetAddress;
+        pathOffset = *(const u8*)offsetAddress;
         switch (stateIndex) {
             case 1:
-            case 2:
-            {
+            case 2: {
                 u32 animationOffset;
 
                 animationOffset = state[2];
@@ -2483,68 +2398,66 @@ void UpdateFileSelectMainAnimationPosition(void)
             }
         }
 
-
         pathTables = sFileSelectCursorPositionPaths;
         pathTableOffset = hasSave << 2;
-        pathEntry = (const u8 *const *)(pathTableOffset + (u32)pathTables);
+        pathEntry = (const u8* const*)(pathTableOffset + (u32)pathTables);
         path = *pathEntry;
         markerAddress = (u32)path + pathOffset;
-        marker = *(const s8 *)markerAddress;
+        marker = *(const s8*)markerAddress;
         pathOffset++;
         if (marker == 1) {
-            u8 *data;
+            u8* data;
             register u32 valueAddress asm("r0");
             s32 value;
             u32 coordinate;
-            const u8 *secondPath;
+            const u8* secondPath;
             u32 secondAddress;
             s32 secondValue;
             u32 secondCoordinate;
 
-            data = (u8 *)&gUnk_3004A70;
+            data = (u8*)&gUnk_3004A70;
             valueAddress = (u32)path + pathOffset;
-            value = *(const s8 *)valueAddress;
-            coordinate = *(u16 *)(data + 12);
+            value = *(const s8*)valueAddress;
+            coordinate = *(u16*)(data + 12);
             value += coordinate;
-            *(u16 *)(data + 0) = value;
+            *(u16*)(data + 0) = value;
             secondPath = *pathEntry;
             secondAddress = pathOffset + (u32)secondPath;
-            secondValue = *(const s8 *)(secondAddress + 2);
-            secondCoordinate = *(u16 *)(data + 14);
+            secondValue = *(const s8*)(secondAddress + 2);
+            secondCoordinate = *(u16*)(data + 14);
             secondValue += secondCoordinate;
-            *(u16 *)(data + 2) = secondValue;
+            *(u16*)(data + 2) = secondValue;
         } else {
-            u8 *data;
+            u8* data;
             u32 stateValue;
             u32 valueAddress;
             s32 value;
-            const u8 *secondPath;
+            const u8* secondPath;
             u32 secondAddress;
             s32 secondValue;
 
-            data = (u8 *)&gUnk_3004A70;
-            stateValue = *(volatile u8 *)state;
+            data = (u8*)&gUnk_3004A70;
+            stateValue = *(volatile u8*)state;
             /* Keep the path offset live so agbcc preserves the original add operand order. */
             /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
             asm("" : : "r"(pathOffset));
             valueAddress = pathOffset + stateValue;
             valueAddress = ((u32)path) - (-(valueAddress));
-            value = *(const s8 *)valueAddress;
-            *(u16 *)(data + 0) = value;
+            value = *(const s8*)valueAddress;
+            *(u16*)(data + 0) = value;
             secondPath = *pathEntry;
             secondAddress = pathOffset + (u32)secondPath;
-            secondValue = *(const s8 *)(secondAddress + 2);
-            *(u16 *)(data + 2) = secondValue;
+            secondValue = *(const s8*)(secondAddress + 2);
+            *(u16*)(data + 2) = secondValue;
         }
     }
 }
 
-
 void UpdateFileSelectPromptAnimation(void)
 {
     u32 value;
-    u8 *statePointer;
-    u8 *state;
+    u8* statePointer;
+    u8* state;
     s32 mode;
     u32 style;
 
@@ -2563,188 +2476,176 @@ void UpdateFileSelectPromptAnimation(void)
     }
     goto update_display;
 
-mode_one:
-    {
-            u8 *stylePointer;
+mode_one: {
+    u8* stylePointer;
 
-            stylePointer = &gTitleScreenStyle;
-            if (*stylePointer != 0) {
-                const u8 *table;
-                u8 *saveData;
-                u32 saveOffset;
-                u8 *languagePointer;
-                u32 language;
-                register u32 tableIndex asm("r0");
-                u32 difficulty;
+    stylePointer = &gTitleScreenStyle;
+    if (*stylePointer != 0) {
+        const u8* table;
+        u8* saveData;
+        u32 saveOffset;
+        u8* languagePointer;
+        u32 language;
+        register u32 tableIndex asm("r0");
+        u32 difficulty;
 
-                table = sFileSelectStyle1DifficultyAnimationTypes;
-                saveData = gUnk_3003BF8;
-                saveOffset = state[0];
-                saveOffset <<= 3;
-                saveOffset += (u32)saveData;
-                languagePointer = &gLanguage;
-                language = *languagePointer;
-                tableIndex = language << 1;
-                tableIndex += language;
-                difficulty = *(u8 *)(saveOffset + 4);
-                tableIndex += difficulty;
-                tableIndex += (u32)table;
-                value = *(const u8 *)tableIndex;
-            } else {
-                const u8 *table;
-                u8 *saveData;
-                u32 saveOffset;
-                u8 *languagePointer;
-                register u32 tableIndex asm("r0");
-                u32 difficulty;
+        table = sFileSelectStyle1DifficultyAnimationTypes;
+        saveData = gUnk_3003BF8;
+        saveOffset = state[0];
+        saveOffset <<= 3;
+        saveOffset += (u32)saveData;
+        languagePointer = &gLanguage;
+        language = *languagePointer;
+        tableIndex = language << 1;
+        tableIndex += language;
+        difficulty = *(u8*)(saveOffset + 4);
+        tableIndex += difficulty;
+        tableIndex += (u32)table;
+        value = *(const u8*)tableIndex;
+    } else {
+        const u8* table;
+        u8* saveData;
+        u32 saveOffset;
+        u8* languagePointer;
+        register u32 tableIndex asm("r0");
+        u32 difficulty;
 
-                table = sFileSelectStyle0DifficultyAnimationTypes;
-                saveData = gUnk_3003BF8;
-                saveOffset = state[0];
-                saveOffset <<= 3;
-                saveOffset += (u32)saveData;
-                languagePointer = &gLanguage;
-                tableIndex = *languagePointer;
-                tableIndex <<= 1;
-                difficulty = *(u8 *)(saveOffset + 4);
-                tableIndex += difficulty;
-                tableIndex += (u32)table;
-                value = *(const u8 *)tableIndex;
-            }
-            style = 1;
+        table = sFileSelectStyle0DifficultyAnimationTypes;
+        saveData = gUnk_3003BF8;
+        saveOffset = state[0];
+        saveOffset <<= 3;
+        saveOffset += (u32)saveData;
+        languagePointer = &gLanguage;
+        tableIndex = *languagePointer;
+        tableIndex <<= 1;
+        difficulty = *(u8*)(saveOffset + 4);
+        tableIndex += difficulty;
+        tableIndex += (u32)table;
+        value = *(const u8*)tableIndex;
     }
+    style = 1;
+}
     goto update_display;
 
-mode_two:
-    {
-            const u8 *table;
-            u8 *languagePointer;
-            register u32 tableIndex asm("r0");
-            u32 stateValue;
+mode_two: {
+    const u8* table;
+    u8* languagePointer;
+    register u32 tableIndex asm("r0");
+    u32 stateValue;
 
-            table = sFileSelectOperationChoiceAnimationTypes;
-            languagePointer = &gLanguage;
-            tableIndex = *languagePointer;
-            tableIndex <<= 1;
-            stateValue = state[2];
-            tableIndex += stateValue;
-            tableIndex += (u32)table;
-            value = *(const u8 *)tableIndex;
-            style = 0;
-    }
-
-update_display:
-    {
-        u8 *data;
-        u32 oldValue;
-
-        data = (u8 *)&gUnk_3004A70;
-        oldValue = data[22];
-        if (value != oldValue) {
-            u32 zero;
-            const u8 *positionTable;
-            u32 positionIndex;
-            u32 xIndex;
-            u32 positionValue;
-
-            zero = 0;
-            data[22] = value;
-            data[20] = zero;
-            data[21] = zero;
-            positionTable = sFileSelectPromptPositions;
-            xIndex = state[0];
-            positionIndex = style << 1;
-            positionIndex += style;
-            xIndex += positionIndex;
-            xIndex += (u32)positionTable;
-            positionValue = *(const u8 *)xIndex;
-            *(u16 *)(data + 12) = positionValue;
-            positionTable += 2;
-            positionIndex += (u32)positionTable;
-            positionValue = *(const u8 *)positionIndex;
-            *(u16 *)(data + 14) = positionValue;
-        }
-    }
+    table = sFileSelectOperationChoiceAnimationTypes;
+    languagePointer = &gLanguage;
+    tableIndex = *languagePointer;
+    tableIndex <<= 1;
+    stateValue = state[2];
+    tableIndex += stateValue;
+    tableIndex += (u32)table;
+    value = *(const u8*)tableIndex;
+    style = 0;
 }
 
+update_display: {
+    u8* data;
+    u32 oldValue;
+
+    data = (u8*)&gUnk_3004A70;
+    oldValue = data[22];
+    if (value != oldValue) {
+        u32 zero;
+        const u8* positionTable;
+        u32 positionIndex;
+        u32 xIndex;
+        u32 positionValue;
+
+        zero = 0;
+        data[22] = value;
+        data[20] = zero;
+        data[21] = zero;
+        positionTable = sFileSelectPromptPositions;
+        xIndex = state[0];
+        positionIndex = style << 1;
+        positionIndex += style;
+        xIndex += positionIndex;
+        xIndex += (u32)positionTable;
+        positionValue = *(const u8*)xIndex;
+        *(u16*)(data + 12) = positionValue;
+        positionTable += 2;
+        positionIndex += (u32)positionTable;
+        positionValue = *(const u8*)positionIndex;
+        *(u16*)(data + 14) = positionValue;
+    }
+}
+}
 
 void UpdateFileSelectSlotMarkerAnimation(void)
 {
-  u8 value;
-  u8 hasSave;
-  int zero;
-  u32 x;
-  u8 *data;
-  value = 0;
-  if (gFileSelectState[0] != 2)
-  {
-    hasSave = gFileSelectState[5];
-    value = 29;
-    if (hasSave != 0)
-    {
-      value = 28;
+    u8 value;
+    u8 hasSave;
+    int zero;
+    u32 x;
+    u8* data;
+    value = 0;
+    if (gFileSelectState[0] != 2) {
+        hasSave = gFileSelectState[5];
+        value = 29;
+        if (hasSave != 0) {
+            value = 28;
+        }
     }
-  }
-  x = (((3 * gSelectedSaveFile) * 3) * 8) + 10;
-  data = (u8 *) (&gUnk_3004A70);
-  if (value != data[0x3A])
-  {
-    zero = 0;
-    data[0x3A] = value;
-    data[0x38] = zero;
-    data[0x39] = zero;
-  }
-  if (x != (*((s16 *) (&data[0x30]))))
-  {
-    *((u16 *) (&data[0x30])) = x;
-    *((u16 *) (&data[0x32])) = 0x78;
-  }
+    x = (((3 * gSelectedSaveFile) * 3) * 8) + 10;
+    data = (u8*)(&gUnk_3004A70);
+    if (value != data[0x3A]) {
+        zero = 0;
+        data[0x3A] = value;
+        data[0x38] = zero;
+        data[0x39] = zero;
+    }
+    if (x != (*((s16*)(&data[0x30])))) {
+        *((u16*)(&data[0x30])) = x;
+        *((u16*)(&data[0x32])) = 0x78;
+    }
 }
-
 
 void UpdateFileSelectOperationLabelAnimation(void)
 {
-  u8 value;
-  int new_var6;
-  u8 *new_var5;
-  const u8 *new_var3;
-  const u8 *new_var2;
-  u8 new_var;
-  u8 *new_var4;
-  u8 *data;
-  value = sFileSelectOperationAnimationTypes[gLanguage * 2];
-  new_var2 = sFileSelectOperationAnimationTypes;
-  if (gFileSelectState[0] == 2)
-  {
-    new_var3 = new_var2 + 1;
-    value = new_var3[gLanguage * 2];
-  }
-  data = (u8 *) (&gUnk_3004A70);
-  new_var = data[0x46];
-  if (value != new_var)
-  {
-    new_var6 = 0;
-    data[0x46] = value;
-    data[0x44] = new_var6;
-    data[0x45] = new_var6;
-    *((u16 *) (&data[0x3C])) = 0x9C;
-    new_var5 = &data[0x3E];
-    new_var4 = new_var5;
-    *((u16 *) new_var4) = 0x32;
-  }
+    u8 value;
+    int new_var6;
+    u8* new_var5;
+    const u8* new_var3;
+    const u8* new_var2;
+    u8 new_var;
+    u8* new_var4;
+    u8* data;
+    value = sFileSelectOperationAnimationTypes[gLanguage * 2];
+    new_var2 = sFileSelectOperationAnimationTypes;
+    if (gFileSelectState[0] == 2) {
+        new_var3 = new_var2 + 1;
+        value = new_var3[gLanguage * 2];
+    }
+    data = (u8*)(&gUnk_3004A70);
+    new_var = data[0x46];
+    if (value != new_var) {
+        new_var6 = 0;
+        data[0x46] = value;
+        data[0x44] = new_var6;
+        data[0x45] = new_var6;
+        *((u16*)(&data[0x3C])) = 0x9C;
+        new_var5 = &data[0x3E];
+        new_var4 = new_var5;
+        *((u16*)new_var4) = 0x32;
+    }
 }
-
 
 void UpdateFileSelectSlotAnimationTypes(void)
 {
-    u8 *data;
-    u8 *firstType;
-    u8 *saveData;
-    u8 *persistentSaveData;
+    u8* data;
+    u8* firstType;
+    u8* saveData;
+    u8* persistentSaveData;
     u32 zero;
-    u8 *secondType;
+    u8* secondType;
 
-    data = (u8 *)&gUnk_3004A70;
+    data = (u8*)&gUnk_3004A70;
     firstType = data + 0x22;
     zero = 0;
     *firstType = zero;
@@ -2760,36 +2661,36 @@ void UpdateFileSelectSlotAnimationTypes(void)
         firstMask &= firstValue;
         persistentSaveData = saveData;
         if (firstMask != 0) {
-        const u8 *table;
-        u32 language;
-        register u32 index asm("r2");
-        u32 currentSlot;
-        register u32 address asm("r0");
-        u8 value;
-        u8 *destination;
+            const u8* table;
+            u32 language;
+            register u32 index asm("r2");
+            u32 currentSlot;
+            register u32 address asm("r0");
+            u8 value;
+            u8* destination;
 
-        table = sFileSelectSlotAnimationTypes;
-        language = gLanguage;
-        index = language << 1;
-        currentSlot = gFileSelectState[0];
-        index += language;
-        if (currentSlot == 0) {
-            index++;
-        }
-        address = index + (u32)table;
-        value = *(u8 *)address;
-        destination = firstType;
-        *destination = value;
+            table = sFileSelectSlotAnimationTypes;
+            language = gLanguage;
+            index = language << 1;
+            currentSlot = gFileSelectState[0];
+            index += language;
+            if (currentSlot == 0) {
+                index++;
+            }
+            address = index + (u32)table;
+            value = *(u8*)address;
+            destination = firstType;
+            *destination = value;
         }
     }
     if ((persistentSaveData[9] & 0x80) != 0) {
-        const u8 *table;
+        const u8* table;
         u32 language;
         u32 index;
         u32 currentSlot;
         u32 address;
         u8 value;
-        register u8 *destination asm("r1");
+        register u8* destination asm("r1");
 
         table = sFileSelectSlotAnimationTypes;
         language = gLanguage;
@@ -2800,12 +2701,12 @@ void UpdateFileSelectSlotAnimationTypes(void)
             index++;
         }
         address = index + (u32)table;
-        value = *(u8 *)address;
+        value = *(u8*)address;
         destination = data + 0x2E;
         *destination = value;
     }
     {
-        u8 *field;
+        u8* field;
         u32 finalZero;
         u32 y;
 
@@ -2814,64 +2715,58 @@ void UpdateFileSelectSlotAnimationTypes(void)
         *field = finalZero;
         field++;
         *field = finalZero;
-        *(u16 *)(data + 0x18) = 0x18;
+        *(u16*)(data + 0x18) = 0x18;
         y = 0xD8;
-        *(u16 *)(data + 0x1A) = y;
+        *(u16*)(data + 0x1A) = y;
         field = data + 0x2C;
         *field = finalZero;
         field++;
         *field = finalZero;
-        *(u16 *)(data + 0x24) = 0x60;
-        *(u16 *)(data + 0x26) = y;
+        *(u16*)(data + 0x24) = 0x60;
+        *(u16*)(data + 0x26) = y;
     }
 }
 
-
 void ResetFileSelectSelectedSlotAnimation(u8 clearFirst)
 {
-  u8 *new_var;
-  u32 slot;
-  struct SaveClearAnimationState *anim;
-  u8 value;
-  const u8 *table;
-  u8 language;
-  u32 tableIndex;
-  if (gSelectedSaveFile == 0)
-  {
-    slot = 2;
-  }
-  else
-  {
-    slot = 3;
-  }
-  new_var = (u8 *) (&gUnk_3004A70);
-  anim = (struct SaveClearAnimationState *) (new_var + (slot * 12));
-  value = 0;
-  anim->timer = value;
-  anim->frame = 0;
-  value = 0;
-  if (clearFirst == 1)
-  {
-    table = sFileSelectSlotAnimationTypes;
-    language = gLanguage;
-    tableIndex = language * 3;
-    table += 2;
-    value = table[tableIndex];
-  }
-  anim->type = value;
+    u8* new_var;
+    u32 slot;
+    struct SaveClearAnimationState* anim;
+    u8 value;
+    const u8* table;
+    u8 language;
+    u32 tableIndex;
+    if (gSelectedSaveFile == 0) {
+        slot = 2;
+    } else {
+        slot = 3;
+    }
+    new_var = (u8*)(&gUnk_3004A70);
+    anim = (struct SaveClearAnimationState*)(new_var + (slot * 12));
+    value = 0;
+    anim->timer = value;
+    anim->frame = 0;
+    value = 0;
+    if (clearFirst == 1) {
+        table = sFileSelectSlotAnimationTypes;
+        language = gLanguage;
+        tableIndex = language * 3;
+        table += 2;
+        value = table[tableIndex];
+    }
+    anim->type = value;
 }
-
 
 void RefreshFileSelectSlotAnimationTypes(void)
 {
     int zeroFirst;
-    u8 *base;
-    u8 *data;
-    u8 *slot;
+    u8* base;
+    u8* data;
+    u8* slot;
     int zeroSecond;
     u8 value;
 
-    base = (u8 *)&gUnk_3004A70;
+    base = (u8*)&gUnk_3004A70;
     slot = base + 0x22;
     value = *slot;
     data = base;
@@ -2893,37 +2788,36 @@ void RefreshFileSelectSlotAnimationTypes(void)
     }
 }
 
-
 void UpdateAndDrawFileSelectSprites(void)
 {
-    u16 *destination;
+    u16* destination;
     register u32 slots asm("r9");
     u32 oldSlots;
     u32 i;
     register u32 next asm("r6");
     u32 yOffset;
     s32 xOffset;
-    register const u8 *animation asm("r5");
-    const u16 *source;
+    register const u8* animation asm("r5");
+    const u16* source;
     u32 indexOffset;
     u32 twice;
     register u32 offset asm("r1");
     register u32 combinedIndex asm("r0");
-    register struct SaveClearAnimationState *firstState asm("r3");
-    const u8 *const *animationTable;
+    register struct SaveClearAnimationState* firstState asm("r3");
+    const u8* const* animationTable;
     u32 type;
     register u32 switchType asm("r0");
     u32 xPosition;
-    u8 *oam;
+    u8* oam;
 
-    destination = (u16 *)gOamBuffer;
+    destination = (u16*)gOamBuffer;
     {
-        register u8 *slotsPointer asm("r2");
+        register u8* slotsPointer asm("r2");
         u32 initialSlots;
 
         slotsPointer = &gOamSlotsUsed;
         initialSlots = *slotsPointer;
-        destination = (u16 *)((u8 *)destination + (initialSlots << 3));
+        destination = (u16*)((u8*)destination + (initialSlots << 3));
         slots = initialSlots;
     }
     oldSlots = slots;
@@ -2934,10 +2828,10 @@ loop:
     offset = twice + i;
     offset <<= 2;
     {
-        register u8 *stateBase asm("r2");
+        register u8* stateBase asm("r2");
 
-        stateBase = (u8 *)&gUnk_3004A70;
-        firstState = (struct SaveClearAnimationState *)(offset + (u32)stateBase);
+        stateBase = (u8*)&gUnk_3004A70;
+        firstState = (struct SaveClearAnimationState*)(offset + (u32)stateBase);
         type = firstState->type;
     }
     indexOffset = twice;
@@ -2984,17 +2878,16 @@ loop:
         case 40:
         case 41:
         case 42:
-        case 43:
-        {
-            struct SaveClearAnimationState *state;
-            register u8 *stateBase asm("r5");
+        case 43: {
+            struct SaveClearAnimationState* state;
+            register u8* stateBase asm("r5");
 
             animationTable = sFileSelectSpriteAnimations;
             combinedIndex = indexOffset;
             combinedIndex += i;
             combinedIndex <<= 2;
-            stateBase = (u8 *)&gUnk_3004A70;
-            state = (struct SaveClearAnimationState *)(combinedIndex + (u32)stateBase);
+            stateBase = (u8*)&gUnk_3004A70;
+            state = (struct SaveClearAnimationState*)(combinedIndex + (u32)stateBase);
             animation = animationTable[state->type];
             if (state->timer >= animation[(state->frame << 3) + 4]) {
                 state->timer = 0;
@@ -3006,17 +2899,16 @@ loop:
             break;
         }
         case 2:
-        case 34:
-        {
-            struct SaveClearAnimationState *state;
-            register u8 *stateBase asm("r5");
+        case 34: {
+            struct SaveClearAnimationState* state;
+            register u8* stateBase asm("r5");
 
             animationTable = sFileSelectSpriteAnimations;
             combinedIndex = indexOffset;
             combinedIndex += i;
             combinedIndex <<= 2;
-            stateBase = (u8 *)&gUnk_3004A70;
-            state = (struct SaveClearAnimationState *)(combinedIndex + (u32)stateBase);
+            stateBase = (u8*)&gUnk_3004A70;
+            state = (struct SaveClearAnimationState*)(combinedIndex + (u32)stateBase);
             animation = animationTable[state->type];
             if (state->timer >= animation[(state->frame << 3) + 4]) {
                 state->timer = 0;
@@ -3032,17 +2924,16 @@ loop:
         }
         case 22:
         case 23:
-        case 32:
-        {
-            struct SaveClearAnimationState *state;
-            register u8 *stateBase asm("r5");
+        case 32: {
+            struct SaveClearAnimationState* state;
+            register u8* stateBase asm("r5");
 
             animationTable = sFileSelectSpriteAnimations;
             combinedIndex = indexOffset;
             combinedIndex += i;
             combinedIndex <<= 2;
-            stateBase = (u8 *)&gUnk_3004A70;
-            state = (struct SaveClearAnimationState *)(combinedIndex + (u32)stateBase);
+            stateBase = (u8*)&gUnk_3004A70;
+            state = (struct SaveClearAnimationState*)(combinedIndex + (u32)stateBase);
             animation = animationTable[state->type];
             if (state->timer >= animation[(state->frame << 3) + 4]) {
                 state->timer = 0;
@@ -3064,43 +2955,43 @@ loop:
     }
 
     {
-        struct SaveClearAnimationState *state;
+        struct SaveClearAnimationState* state;
         u32 drawOffset;
-        u8 *stateBase;
+        u8* stateBase;
         u32 x;
         u32 backgroundX;
 
         drawOffset = indexOffset;
         drawOffset += i;
         drawOffset <<= 2;
-        stateBase = (u8 *)&gUnk_3004A70;
-        state = (struct SaveClearAnimationState *)(drawOffset + (u32)stateBase);
+        stateBase = (u8*)&gUnk_3004A70;
+        state = (struct SaveClearAnimationState*)(drawOffset + (u32)stateBase);
         state->timer++;
         yOffset = (u16)(state->y - gBg1YPosition);
         backgroundX = (u32)&gBg1XPosition;
         x = state->x;
-        backgroundX = *(u16 *)backgroundX;
+        backgroundX = *(u16*)backgroundX;
         x -= backgroundX;
         xPosition = (u16)x;
         animation += state->frame << 3;
-        source = *(const u16 *const *)animation;
+        source = *(const u16* const*)animation;
         slots += *source;
         source++;
     }
     next = i;
-                    next++;
+    next++;
     if ((s32)oldSlots >= (s32)slots) {
         goto end_iteration;
     }
     {
-        register u8 *oamBase asm("r0");
+        register u8* oamBase asm("r0");
         u32 oamOffset;
         u32 count;
 
-        oamBase = (u8 *)gOamBuffer;
+        oamBase = (u8*)gOamBuffer;
         xOffset = (s16)xPosition;
         oamOffset = oldSlots << 3;
-        oam = (u8 *)(oamOffset + (u32)oamBase);
+        oam = (u8*)(oamOffset + (u32)oamBase);
         count = slots - oldSlots;
         do {
             u32 attribute;
@@ -3109,7 +3000,7 @@ loop:
             attribute = *source;
             source++;
             {
-                register u16 *writePointer asm("r2");
+                register u16* writePointer asm("r2");
 
                 writePointer = destination;
                 asm("" : "+r"(writePointer));
@@ -3120,7 +3011,7 @@ loop:
             attribute1 = *source;
             source++;
             {
-                register u16 *writePointer asm("r2");
+                register u16* writePointer asm("r2");
 
                 writePointer = destination;
                 asm("" : "+r"(writePointer));
@@ -3138,11 +3029,11 @@ loop:
                 u32 oldAttribute;
                 u32 keepMask;
 
-                oldAttribute = *(u16 *)&oam[2];
+                oldAttribute = *(u16*)&oam[2];
                 keepMask = 0xFFFFFE00;
                 keepMask &= oldAttribute;
                 keepMask |= attribute1;
-                *(u16 *)&oam[2] = keepMask;
+                *(u16*)&oam[2] = keepMask;
             }
             attribute = *source;
             *destination = attribute;
@@ -3164,7 +3055,7 @@ loop:
 
                 destinationStep = 4;
                 asm("" : "+r"(destinationStep));
-                destination = (u16 *)((u8 *)destination + destinationStep);
+                destination = (u16*)((u8*)destination + destinationStep);
             }
             oam += 8;
             count--;
@@ -3179,11 +3070,10 @@ end_iteration:
     }
     {
         register u32 finalSlots asm("r0");
-        register u8 *slotsPointer asm("r5");
+        register u8* slotsPointer asm("r5");
 
         finalSlots = slots;
         slotsPointer = &gOamSlotsUsed;
         *slotsPointer = finalSlots;
     }
 }
-
