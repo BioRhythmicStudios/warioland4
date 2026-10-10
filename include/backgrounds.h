@@ -1,6 +1,8 @@
 #ifndef BACKGROUNDS_H
 #define BACKGROUNDS_H
 
+#include "types.h"
+
 struct BgTileLookupPointers {
     u8* bg0;
     u8* bg1;
