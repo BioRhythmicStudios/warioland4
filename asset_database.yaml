@@ -1,0 +1,365 @@
+- path: sprites/vortex.pal
+  count: 512
+  addr:
+    us_jp: 0x3B508C
+  size: 2
+
+- path: common_sprites.pal
+  count: 64
+  addr:
+    us_jp: 0x400A68
+  size: 2
+
+- path: common_sprites.4bpp
+  count: 0x3000
+  addr:
+    us_jp: 0x400AE8
+  size: 1
+
+- path: hud/score_digits.4bpp
+  count: 0x160
+  addr:
+    us_jp: 0x403AE8
+  size: 1
+
+- path: hud/time_digits_upper.4bpp
+  count: 0x140
+  addr:
+    us_jp: 0x403C48
+  size: 1
+
+- path: hud/time_colon_upper.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x403D88
+  size: 1
+
+- path: hud/time_colon_empty_upper.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x403DA8
+  size: 1
+
+- path: hud/time_digits_lower.4bpp
+  count: 0x140
+  addr:
+    us_jp: 0x403DC8
+  size: 1
+
+- path: hud/time_colon_lower.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x403F08
+  size: 1
+
+- path: hud/time_colon_empty_lower.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x403F28
+  size: 1
+
+- path: hud/time_digits_yellow_upper.4bpp
+  count: 0x140
+  addr:
+    us_jp: 0x403F48
+  size: 1
+
+- path: hud/time_colon_yellow_upper.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404088
+  size: 1
+
+- path: hud/time_colon_empty_yellow_upper.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x4040A8
+  size: 1
+
+- path: hud/time_digits_yellow_lower.4bpp
+  count: 0x140
+  addr:
+    us_jp: 0x4040C8
+  size: 1
+
+- path: hud/time_colon_yellow_lower.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404208
+  size: 1
+
+- path: hud/time_colon_empty_yellow_lower.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404228
+  size: 1
+
+- path: hud/time_digits_red_upper.4bpp
+  count: 0x140
+  addr:
+    us_jp: 0x404248
+  size: 1
+
+- path: hud/time_colon_red_upper.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404388
+  size: 1
+
+- path: hud/time_colon_empty_red_upper.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x4043A8
+  size: 1
+
+- path: hud/time_digits_red_lower.4bpp
+  count: 0x140
+  addr:
+    us_jp: 0x4043C8
+  size: 1
+
+- path: hud/time_colon_red_lower.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404508
+  size: 1
+
+- path: hud/time_colon_empty_red_lower.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404528
+  size: 1
+
+- path: hud/jewel_piece_icon_partial_ne.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404548
+  size: 1
+
+- path: hud/jewel_piece_icon_partial_se.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404568
+  size: 1
+
+- path: hud/jewel_piece_icon_partial_sw.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404588
+  size: 1
+
+- path: hud/jewel_piece_icon_partial_nw.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x4045A8
+  size: 1
+
+- path: hud/jewel_piece_icon_ne.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x4045C8
+  size: 1
+
+- path: hud/jewel_piece_icon_se.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x4045E8
+  size: 1
+
+- path: hud/jewel_piece_icon_sw.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404608
+  size: 1
+
+- path: hud/jewel_piece_icon_nw.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404628
+  size: 1
+
+- path: hud/cd_icon.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x404648
+  size: 1
+
+- path: hud/time_up_base.4bpp
+  count: 0x300
+  addr:
+    us_jp: 0x404688
+  size: 1
+
+- path: hud/time_up_text.4bpp
+  count: 0x400
+  addr:
+    us_jp: 0x404988
+  size: 1
+
+- path: hud/time_up_wario.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x404D88
+  size: 1
+
+- path: hud/time_up_effect_0.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x404E88
+  size: 1
+
+- path: hud/time_up_effect_1.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x404F88
+  size: 1
+
+- path: hud/time_up_effect_2.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x405088
+  size: 1
+
+- path: hud/time_up_effect_3.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x405188
+  size: 1
+
+- path: hud/heart_meter_heart_empty.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x405288
+  size: 1
+
+- path: hud/heart_meter_heart_filled.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x405388
+  size: 1
+
+- path: hud/heart_meter_heart_flashing.4bpp
+  count: 0x20
+  addr:
+    us_jp: 0x405B88
+  size: 1
+
+- path: hud/heart_gauge_empty.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x405C88
+  size: 1
+
+- path: hud/heart_gauge_fill_1.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x405D88
+  size: 1
+
+- path: hud/heart_gauge_fill_2.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x405E88
+  size: 1
+
+- path: hud/heart_gauge_fill_3.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x405F88
+  size: 1
+
+- path: hud/heart_gauge_fill_4.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x406088
+  size: 1
+
+- path: hud/heart_gauge_fill_5.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x406188
+  size: 1
+
+- path: hud/heart_gauge_fill_6.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x406288
+  size: 1
+
+- path: hud/heart_gauge_fill_7.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x406388
+  size: 1
+
+- path: hud/heart_gauge_full.4bpp
+  count: 0x100
+  addr:
+    us_jp: 0x406488
+  size: 1
+
+- path: boss_stage_sprites.4bpp
+  count: 0xC00
+  addr:
+    us_jp: 0x406588
+  size: 1
+
+- path: sprites/apple_bomb.4bpp
+  count: 0x1000
+  addr:
+    us_jp: 0x407188
+  size: 1
+
+- path: sprites/blast_cannon.4bpp
+  count: 0x1000
+  addr:
+    us_jp: 0x408188
+  size: 1
+
+- path: sprites/vizorman.4bpp
+  count: 0x1000
+  addr:
+    us_jp: 0x409188
+  size: 1
+
+- path: sprites/bugle.4bpp
+  count: 0x1000
+  addr:
+    us_jp: 0x40A188
+  size: 1
+
+- path: sprites/black_dog.4bpp
+  count: 0x1000
+  addr:
+    us_jp: 0x40B188
+  size: 1
+
+- path: sprites/large_lips.4bpp
+  count: 0x1000
+  addr:
+    us_jp: 0x40C188
+  size: 1
+
+- path: sprites/big_fist.4bpp
+  count: 0x1000
+  addr:
+    us_jp: 0x40D188
+  size: 1
+
+- path: sprites/black_dragon.4bpp
+  count: 0x1000
+  addr:
+    us_jp: 0x40E188
+  size: 1
+
+- path: hud/time_up_text.pal
+  count: 16
+  addr:
+    us_jp: 0x40F188
+  size: 2
+
+- path: hud/time_up_wario.pal
+  count: 16
+  addr:
+    us_jp: 0x40F1A8
+  size: 2
