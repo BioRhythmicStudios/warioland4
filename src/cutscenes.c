@@ -2198,25 +2198,16 @@ void InitializeSubGameTransitionGraphics(void)
     REG_DISPCNT = 0;
 }
 
-void UpdateLayeredSubGameCutscene(s32 inputFrame)
+void UpdateLayeredSubGameCutscene(s32 frame)
 {
-    s32 frame;
-    u32 fillValue;
-    const u16* oamData;
     u16* destination;
-    s32 oldValue;
-    s16 value;
-    s16* valuePointer;
-    vu32* dma;
-    vu16* scrollRegister;
-    u32 dmaDestination;
+    const u16* oamData;
+    u32 fillValue;
+    vu16* bg0Vofs;
     u16* alphaA;
     u16* alphaB;
-    u32 rawValue;
-    s32 verticalValue;
-    u32 middleRawValue;
-    s32 middleValue;
-    frame = inputFrame;
+    vu32* dma;
+
     switch (gUnk_3002C60) {
         case 0:
             LZ77UnCompVram(sUnk_829443C, (void*)0x06000000);
@@ -2234,114 +2225,53 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
                 *((vu16*)0x04000004) |= 0x9720;
                 *((vu16*)0x04000200) |= 4;
                 gUnk_3002C60++;
+                WaitForVBlankInterrupt();
+                *((vu16*)0x04000000) = 0x1F00;
             }
-            WaitForVBlankInterrupt();
-            *((vu16*)0x04000000) = 0x1F00;
             break;
 
-        case 2: {
-            s16* positionPointer;
-            u32 positionRaw;
-            s32 positionSigned;
-            s32 positionZero;
-
-            positionPointer = &gUnk_3002C9A;
-            positionRaw = *(u16*)positionPointer;
-            positionZero = 0;
-            positionSigned = *(s16*)((u8*)positionPointer + positionZero);
-            if (positionSigned > 148) {
-                s32 positionResult;
-
-                positionResult = positionRaw - 1;
-                *positionPointer = positionResult;
+        case 2:
+            if (gUnk_3002C9A > 148) {
+                gUnk_3002C9A--;
             }
-        }
-            {
-                vu16* bg0Horizontal;
-                s32 bg0HorizontalValue;
-
-                bg0Horizontal = (vu16*)0x04000010;
-                bg0HorizontalValue = frame << 1;
-                bg0HorizontalValue = -bg0HorizontalValue;
-                *bg0Horizontal = bg0HorizontalValue;
-            }
-            {
-                s16* verticalBase;
-                s32 initialSigned;
-                s16* initialPointer;
-                u32 initialRaw;
-                s32 initialZero;
-
-                verticalBase = &gCutsceneBackgroundVerticalOffset;
-                initialRaw = *(u16*)verticalBase;
-                initialZero = 0;
-                initialSigned = *(s16*)((u8*)verticalBase + initialZero);
-                initialPointer = verticalBase;
-                rawValue = initialRaw;
-                verticalValue = initialSigned;
-                valuePointer = initialPointer;
-            }
-            if (verticalValue > 0) {
-                if ((verticalValue > 10) && ((frame & 3) == 3)) {
-                    *valuePointer = rawValue - 1;
-                } else {
-                    s16* middlePointer;
-                    u32 middleRaw;
-                    s32 middleSigned;
-                    s32 middleZero;
-
-                    middlePointer = valuePointer;
-                    middleRaw = *(u16*)middlePointer;
-                    middleZero = 0;
-                    middleSigned = *(s16*)((u8*)middlePointer + middleZero);
-                    middleRawValue = middleRaw;
-                    middleValue = middleSigned;
-                    valuePointer = middlePointer;
-                    if ((middleValue > 4) && ((frame & 7) == 7)) {
-                        *valuePointer = middleRawValue - 1;
-                    } else if ((frame & 15) == 15) {
-                        *valuePointer = *((u16*)valuePointer) - 1;
-                    }
+            *((vu16*)0x04000010) = -(frame << 1);
+            if (gCutsceneBackgroundVerticalOffset > 0) {
+                if (gCutsceneBackgroundVerticalOffset > 10 && (frame & 3) == 3) {
+                    gCutsceneBackgroundVerticalOffset--;
+                } else if (gCutsceneBackgroundVerticalOffset > 4 && (frame & 7) == 7) {
+                    gCutsceneBackgroundVerticalOffset--;
+                } else if ((frame & 15) == 15) {
+                    gCutsceneBackgroundVerticalOffset--;
                 }
             }
-            *((vu16*)0x04000012) = *valuePointer;
-            if ((frame > 400) && ((frame & 15) == 15)) {
-                alphaA = (u16*)(&gUnk_3002C5A);
-                if ((*alphaA) != 0) {
+            bg0Vofs = (vu16*)0x04000012;
+            *bg0Vofs = gCutsceneBackgroundVerticalOffset;
+            if (frame > 400 && (frame & 15) == 15) {
+                alphaA = (u16*)&gUnk_3002C5A;
+                if (*alphaA != 0) {
                     (*alphaA)--;
                 }
-                alphaB = (u16*)(&gUnk_3002C5C);
-                if ((*alphaB) <= 15) {
+                alphaB = (u16*)&gUnk_3002C5C;
+                if (*alphaB <= 15) {
                     (*alphaB)++;
                 }
-                *((vu16*)0x04000052) = ((*alphaB) << 8) | (*alphaA);
+                *((vu16*)0x04000052) = (*alphaB << 8) | *alphaA;
                 CutsceneLoadObjPalette(*alphaB);
-                if ((*alphaB) == 16) {
+                if (*alphaB == 16) {
                     *((vu16*)0x04000200) &= 0xFFFB;
-                    *((vu16*)0x04000012) = 0;
+                    *bg0Vofs = 0;
                     gUnk_3002C60++;
                 }
             }
             break;
 
-        case 3: {
-            u32* counterPointer;
-            u32 counterValue;
-            u32 destinationValue;
-            u32 backgroundBase;
-
-            counterPointer = (u32*)&gUnk_3002C64;
-            counterValue = *counterPointer;
-            if (counterValue <= 7) {
-                destinationValue = counterValue << 9;
-                backgroundBase = 0x06008000;
-                destinationValue += backgroundBase;
-                counterValue++;
-                *counterPointer = counterValue;
+        case 3:
+            if ((u32)gUnk_3002C64 <= 7) {
+                u32 dst = 0x06008000 + (gUnk_3002C64++ << 9);
                 fillValue = 0x03FF03FF;
                 dma = (vu32*)0x040000D4;
-                dma[0] = (u32)(&fillValue);
-                dma[1] = destinationValue;
+                dma[0] = (u32)&fillValue;
+                dma[1] = dst;
                 dma[2] = 0x85000080;
                 dma[2];
             } else {
@@ -2352,56 +2282,37 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
                 }
                 DecodeCutsceneTileRuns(oamData, (u16*)0x06008000);
                 {
-                    vu16* scrollPointer;
-                    register s32 zeroValue asm("r2");
-                    register s32 negativeTwo asm("r3");
-                    register s32 verticalStoreValue asm("r1");
+                    vu16* scroll;
+                    s32 negTwo;
 
-                    scrollPointer = (vu16*)&gCutsceneBackgroundHorizontalOffset;
-                    zeroValue = 0;
-                    *scrollPointer = zeroValue;
-                    scrollPointer = (vu16*)&gCutsceneBackgroundVerticalOffset;
-                    negativeTwo = 2;
-                    negativeTwo = -negativeTwo;
-                    verticalStoreValue = negativeTwo;
-                    *scrollPointer = verticalStoreValue;
-                    scrollPointer = (vu16*)0x04000010;
-                    *scrollPointer = zeroValue;
-                    scrollPointer++;
-                    asm("" : "+r"(verticalStoreValue), "+r"(negativeTwo));
-                    *scrollPointer = verticalStoreValue;
+                    gCutsceneBackgroundHorizontalOffset = 0;
+                    negTwo = -2;
+                    gCutsceneBackgroundVerticalOffset = negTwo;
+                    scroll = (vu16*)0x04000010;
+                    *scroll = 0;
+                    scroll++;
+                    *scroll = negTwo;
                 }
                 gUnk_3002C64 = 0;
                 gUnk_3002C60++;
             }
-        } break;
+            break;
 
-        case 4:;
+        case 4:
             if ((u32)(gUnk_3002C64++) > 300) {
-                {
-                    u16* case4AlphaA;
-                    u16* case4AlphaB;
-                    u16 case4ValueA;
-                    u16 case4ValueB;
-                    oldValue = frame & 15;
-                    case4AlphaA = (u16*)&gUnk_3002C5A;
-                    if (oldValue == 15) {
-                        case4ValueA = *case4AlphaA;
-                        if (case4ValueA <= 15) {
-                            case4ValueA++;
-                            *case4AlphaA = case4ValueA;
-                        }
-                        case4AlphaB = (u16*)&gUnk_3002C5C;
-                        case4ValueB = *case4AlphaB;
-                        if (case4ValueB != 0) {
-                            case4ValueB--;
-                            *case4AlphaB = case4ValueB;
-                        }
-                        *((vu16*)0x04000052) = (*case4AlphaB << 8) | *case4AlphaA;
+                alphaA = (u16*)&gUnk_3002C5A;
+                alphaB = (u16*)&gUnk_3002C5C;
+                if ((frame & 15) == 15) {
+                    if (*alphaA <= 15) {
+                        (*alphaA)++;
                     }
-                    if (*case4AlphaA == 16) {
-                        gUnk_3002C60++;
+                    if (*alphaB != 0) {
+                        (*alphaB)--;
                     }
+                    *((vu16*)0x04000052) = (*alphaB << 8) | *alphaA;
+                }
+                if (*alphaA == 16) {
+                    gUnk_3002C60++;
                 }
             }
             break;
@@ -2411,22 +2322,14 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
             if (gCutsceneAnimationFinished <= 108) {
                 gCutsceneAnimationFinished = 109;
             }
-
-        case 6: {
-            s32 animationValue;
-            register s32 animationZero asm("r7");
-
-            animationValue = (s32)&gCutsceneAnimationFinished;
-            asm("" : "+r"(animationValue));
-            animationZero = 0;
-            asm("" : "+r"(animationZero));
-            asm("ldrsh %0, [%0, %1]" : "+r"(animationValue) : "r"(animationZero));
-            if (animationValue == 109) {
+            // fallthrough
+        case 6:
+            if (gCutsceneAnimationFinished == 109) {
                 InitCutsceneDarkenBlend(63);
                 gUnk_3002C64 = 0;
                 gUnk_3002C60++;
             }
-        } break;
+            break;
 
         case 7:
             if (gButtonsPressed != 0) {
@@ -2435,11 +2338,11 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
                 *((vu16*)0x04000054) = 0;
             }
             gUnk_3002C64++;
-            if (((u32)gUnk_3002C64) > 3600) {
+            if ((u32)gUnk_3002C64 > 3600) {
                 if (IncreaseCutsceneBlendCoefficient(3) != 0) {
                     StartDemoPlayback();
                 }
-            } else if ((gButtonsPressed == 1) || (gButtonsPressed == 8)) {
+            } else if (gButtonsPressed == 1 || gButtonsPressed == 8) {
                 m4aSongNumStartOrChange(298);
                 VoiceSetPlay(3);
                 gUnk_3002C64 = 0;
@@ -2447,11 +2350,8 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
             }
             break;
 
-        case 8:;
-            ;
-            ;
-            ;
-            if (((u32)(gUnk_3002C64++)) <= 15) {
+        case 8:
+            if ((u32)(gUnk_3002C64++) <= 15) {
                 gUnk_3002C9A++;
             } else {
                 gUnk_3002C9E = gUnk_3002C9A + 40;
@@ -2462,10 +2362,9 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
             break;
 
         case 9:
-
         case 10:
             gUnk_3002C9A -= 4;
-            if (gUnk_3002C9A < (-100)) {
+            if (gUnk_3002C9A < -100) {
                 InitCutsceneDarkenBlend(63);
                 gUnk_3002C60++;
             }
@@ -2480,24 +2379,11 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
 
     destination = gOamBuffer;
     if (gUnk_3002C60 == 9) {
-        ;
         if (SelectCutsceneOamAnimation08(gUnk_3002C64++, &oamData) != 0) {
             gUnk_3002C60++;
         }
-        {
-            const u16* appendOamData;
-            s16* appendYPointer;
-            s32 appendYValue;
-            register s32 appendYZero asm("r1");
-
-            appendOamData = oamData;
-            appendYPointer = &gUnk_3002C9E;
-            appendYZero = 0;
-            asm("ldrsh %0, [%1, %2]" : "=r"(appendYValue) : "r"(appendYPointer), "r"(appendYZero));
-            destination =
-                AppendCutsceneOamTemplate(appendOamData, destination, appendYValue, gLayeredCutsceneOamOffsetX);
-            (*appendYPointer)++;
-        }
+        destination = AppendCutsceneOamTemplate(oamData, destination, gUnk_3002C9E, gLayeredCutsceneOamOffsetX);
+        gUnk_3002C9E++;
     }
     destination = AppendLayeredWarioCutsceneOam(destination, gUnk_3002C60, frame);
     if (gUnk_3002C60 > 4) {
@@ -2521,19 +2407,10 @@ void UpdateLayeredSubGameCutscene(s32 inputFrame)
         destination = AppendCutsceneOamTemplate(oamData, destination, 74, 76);
     }
     FinalizeCutsceneOamBuffer(destination);
-    scrollRegister = (vu16*)0x04000014;
-    *scrollRegister = -(frame << 2);
-    scrollRegister += 2;
-    *scrollRegister = -(frame >> 3);
-    scrollRegister += 2;
-    {
-        s32 finalScrollValue;
-
-        finalScrollValue = frame >> 4;
-        finalScrollValue = -finalScrollValue;
-        *scrollRegister = finalScrollValue;
-    }
-    if ((gUnk_3002C60 <= 5) && ((gButtonsPressed & 9) != 0)) {
+    *((vu16*)0x04000014) = -(frame << 2);
+    *((vu16*)0x04000018) = -(frame >> 3);
+    *((vu16*)0x0400001C) = -(frame >> 4);
+    if (gUnk_3002C60 <= 5 && (gButtonsPressed & 9) != 0) {
         *((vu16*)0x04000200) &= 0xFFFB;
         gSubGameMode = 46;
     }
