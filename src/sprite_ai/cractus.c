@@ -3272,145 +3272,62 @@ void UpdateCractusArmSegmentBPose23(void)
 
 void UpdateCractusArmSegmentPose24(void)
 {
-    struct PrimarySpriteData *sprite;
     u32 slot;
-    register const s16 *table asm("r5");
-    register u8 *indexPtr asm("r12");
+    const s16 *table;
+    u8 *indexPtr;
     u32 index;
-    register u32 velocity asm("r4");
-    s32 signedVelocity;
+    u32 velocity;
+    struct PrimarySpriteData *parent;
+    struct PrimarySpriteData *sprite;
 
     slot = SpriteUtilFindSpriteSlot(216);
     sprite = &gCurrentSprite;
     if (sprite->globalID == 219) {
-        u32 pointer;
-        pointer = 41;
-        asm("" : "+r"(pointer));
-        pointer += (u32)sprite;
-        indexPtr = (u8 *)pointer;
-        index = *(u8 *)pointer;
+        indexPtr = &sprite->work2;
+        index = *indexPtr;
         table = sCractusArmPose24XVelocityA;
     } else {
-        register u32 pointer asm("r7");
-        pointer = 41;
-        pointer -= -(int)sprite;
-        indexPtr = (u8 *)pointer;
-        /* Keep the byte load based directly on r7 without an intermediate copy. */
-        asm("ldrb %0, [%1, #0]" : "=r"(index) : "r"(pointer));
+        indexPtr = &sprite->work2;
+        index = *indexPtr;
         table = sCractusArmPose24XVelocityB;
     }
 
-    {
-        u32 offset;
-        const s16 *entry;
-        s32 zero;
-        offset = index << 1;
-        offset += (u32)table;
-        entry = (const s16 *)offset;
-        velocity = *(const u16 *)entry;
-        zero = 0;
-        signedVelocity = *(const s16 *)((const u8 *)entry + zero);
-    }
-    if (signedVelocity == 0x7FFF) {
-        velocity = *(const u16 *)table;
+    velocity = (u16)table[index];
+    if (table[index] == 0x7FFF) {
+        velocity = (u16)table[0];
         index = 0;
     }
-    {
-        u32 nextIndex;
-        register u8 *destination asm("r1");
-        nextIndex = index + 1;
-        destination = indexPtr;
-        *destination = nextIndex;
-    }
+    *indexPtr = index + 1;
     sprite->xPosition += velocity;
 
-    {
-        struct PrimarySpriteData *sprites;
-        register u32 size asm("r1");
-        struct PrimarySpriteData *parent;
-        s32 pose;
-
-        sprites = gSpriteData;
-        size = sizeof(struct PrimarySpriteData);
-        size *= slot;
-        parent = (struct PrimarySpriteData *)(size + (u32)sprites);
-        pose = parent->pose;
-        switch (pose) {
-        case 110:
-        case 111:
-            return;
-        case 113:
-            {
-                struct PrimarySpriteData *current;
-                u32 position;
-                current = &gCurrentSprite;
-                position = parent->yPosition;
-                position += 144;
-                current->yPosition = position;
-            }
-            return;
-        case 15:
-            {
-                struct PrimarySpriteData *current;
-                register u32 zero asm("r1");
-                u8 *field;
-                current = &gCurrentSprite;
-                zero = 0;
-                current->pose = pose;
-                field = &current->work2;
-                *field = zero;
-                current->work1 = zero;
-            }
-            return;
-        case 112:
-            UpdateCractusArmAngleTowardWario();
-            break;
-        }
+    parent = &gSpriteData[slot];
+    switch (parent->pose) {
+    case 110:
+    case 111:
+        return;
+    case 113:
+        gCurrentSprite.yPosition = parent->yPosition + 144;
+        return;
+    case 15:
+        gCurrentSprite.pose = parent->pose;
+        gCurrentSprite.work2 = 0;
+        gCurrentSprite.work1 = 0;
+        return;
+    case 112:
+        UpdateCractusArmAngleTowardWario();
+        break;
     }
 
-    {
-        struct PrimarySpriteData *current;
-        register u8 *field asm("r6");
-        register u8 *destination;
-        const s16 *verticalTable;
-        u32 verticalIndex;
-        u32 verticalVelocity;
-        s32 signedVertical;
-        const s16 *entry;
-
-        current = &gCurrentSprite;
-        field = (u8 *)42;
-        asm("" : "+r"(field));
-        field = (u8 *)((u32)field + (u32)current);
-        destination = field;
-        verticalIndex = *field;
-        verticalTable = sCractusBossIntroYVelocity;
-        {
-            u32 offset;
-            offset = verticalIndex << 1;
-            offset += (u32)verticalTable;
-            entry = (const s16 *)offset;
-        }
-        verticalVelocity = *(const u16 *)entry;
-        {
-            u32 loadZero;
-            loadZero = 0;
-            signedVertical = *(const s16 *)((const u8 *)entry + loadZero);
-            asm("" : : "r"(field));
-        }
-        if (signedVertical == 0x7FFF) {
-            verticalVelocity = *(const u16 *)verticalTable;
-            verticalIndex = 0;
-        }
-        {
-            u32 nextIndex;
-            register u8 *target;
-            nextIndex = verticalIndex + 1;
-            target = destination;
-            *target = nextIndex;
-        }
-        current->yPosition += verticalVelocity;
+    sprite = &gCurrentSprite;
+    indexPtr = &sprite->work3;
+    index = *indexPtr;
+    velocity = (u16)sCractusBossIntroYVelocity[index];
+    if (sCractusBossIntroYVelocity[index] == 0x7FFF) {
+        velocity = (u16)sCractusBossIntroYVelocity[0];
+        index = 0;
     }
+    *indexPtr = index + 1;
+    sprite->yPosition += velocity;
 }
 
 

@@ -5970,7 +5970,7 @@ u8 ResolveWarioStandardCollision(void)
             side2 = gWarioCollisionData.unk_0A;
         }
 
-        x = gWarioData.xPosition + sWarioCollisionPoints[side][left];
+        x = gWarioData.xPosition + WARIO_POINT(side, left);
         y = gWarioData.yPosition;
         result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
         if (result != 0 && sec != 0) {
@@ -5980,14 +5980,14 @@ u8 ResolveWarioStandardCollision(void)
             return 0xFF;
         }
 
-        x = gWarioData.xPosition + sWarioCollisionPoints[side2][left];
+        x = gWarioData.xPosition + WARIO_POINT(side2, left);
         y = y + 1;
         CheckWarioTileCollision(x, y, &adjX, &adjY, &sec);
         if (sec != 0) {
             goto clear;
         }
 
-        x = gWarioData.xPosition + sWarioCollisionPoints[side][right];
+        x = gWarioData.xPosition + WARIO_POINT(side, right);
         result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
         if (result != 0) {
             gWarioData.unk_1C = result;
@@ -5996,7 +5996,7 @@ u8 ResolveWarioStandardCollision(void)
             return 0xFF;
         }
 
-        x = gWarioData.xPosition + sWarioCollisionPoints[side2][right];
+        x = gWarioData.xPosition + WARIO_POINT(side2, right);
         CheckWarioTileCollision(x, y, &adjX, &adjY, &sec);
         if (sec != 0) {
             goto clear;
@@ -6025,7 +6025,7 @@ u8 ResolveWarioStandardCollision(void)
                 return 0xFC;
             }
         }
-        x = gWarioData.xPosition + sWarioCollisionPoints[side][left];
+        x = gWarioData.xPosition + WARIO_POINT(side, left);
         y = gWarioData.yPosition;
         result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
         gWarioData.unk_1C = result;
@@ -6052,7 +6052,7 @@ u8 ResolveWarioStandardCollision(void)
         return 0xFF;
     }
 
-    x = gWarioData.xPosition + sWarioCollisionPoints[side][right];
+    x = gWarioData.xPosition + WARIO_POINT(side, right);
     y = gWarioData.yPosition;
     result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
     if (result != 0) {
@@ -6073,9 +6073,9 @@ u8 ResolveWarioStandardCollision(void)
         return 0xFF;
     }
     if (gWarioData.horizontalDirection & 0x10) {
-        gWarioData.xPosition = adjX - sWarioCollisionPoints[side][0];
+        gWarioData.xPosition = adjX - WARIO_POINT(side, 0);
     } else {
-        gWarioData.xPosition = adjX - sWarioCollisionPoints[side][1] + 63;
+        gWarioData.xPosition = adjX - WARIO_POINT(side, 1) + 63;
     }
     gWarioData.yPosition = adjY - 1;
     return 0xFF;

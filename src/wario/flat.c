@@ -121,6 +121,8 @@ u8 FlatWarioFloating(void)
     u16 direction;
     s32 directionTest;
     u16 heldButtons;
+    const struct WarioAnimationFrame* animation;
+    register int frame asm("r1");
 
     temp = &gWarioData;
     direction = temp->horizontalDirection;
@@ -140,34 +142,20 @@ u8 FlatWarioFloating(void)
     current->yPosition += yTable[value >> 2];
 
     if (value <= 0x2E) {
-        const struct WarioAnimationFrame* animation;
-        int nextCounter;
-        register int frame asm("r1");
-
-        nextCounter = counter + 1;
-        current->unk_0A = nextCounter;
+        current->unk_0A = counter + 1;
         animation = sFlatWarioFloatingAnimation;
         frame = current->unk_1F;
         if (current->unk_1E < animation[frame].time) {
-            goto returnFF;
+            return 0xFF;
         }
-        {
-            u8 frameTime;
-
-            temp = current;
-            temp->unk_1E = 0;
-            temp->unk_1F++;
-            frame = temp->unk_1F;
-            frameTime = animation[frame].time;
-            /* agbcc otherwise swaps the two equivalent branch targets around its literal pool. */
-            asm volatile(
-                "cmp %0, #0\n"
-                "bne .LflatReturnFF"
-                :
-                : "r"(frameTime), "X"(&&returnFF)
-                : "cc");
-            goto decrementFrame;
+        temp = current;
+        temp->unk_1E = 0;
+        temp->unk_1F++;
+        frame = temp->unk_1F;
+        if (animation[frame].time != 0) {
+            return 0xFF;
         }
+        goto decrementFrame;
     }
 
     heldButtons = gButtonsHeld;
@@ -183,14 +171,10 @@ u8 FlatWarioFloating(void)
 
 decrementFrame:
     {
-        register int finalFrame asm("r1");
-        register int decrementedFrame asm("r0");
-
-        decrementedFrame = finalFrame - 1;
-        temp->unk_1F = decrementedFrame;
+        register int dec asm("r0");
+        dec = frame - 1;
+        temp->unk_1F = dec;
     }
-returnFF:
-    asm volatile(".LflatReturnFF:");
     return 0xFF;
 }
 

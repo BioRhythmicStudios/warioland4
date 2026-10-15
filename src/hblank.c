@@ -847,11 +847,11 @@ void UpdateWaterSplitHBlank(u8 arg0)
 
 void UpdateEscapeRippleHBlank(u8 arg0)
 {
-    u32 arg_r5;
+    register u32 arg_r5 asm("r5");
     u8* state_r2;
     register s32 index_r1 asm("r1");
-    u8* table_r4;
-    u32 temp_r0;
+    register u8* table_r4 asm("r4");
+    register u32 temp_r0 asm("r0");
 
     arg_r5 = arg0;
     state_r2 = gHBlankPrimaryState;
@@ -869,7 +869,8 @@ void UpdateEscapeRippleHBlank(u8 arg0)
         }
 
         index_r1 <<= 5;
-        table_r4 = &sHBlankEscapeRipple32[index_r1];
+        temp_r0 = (u32)sHBlankEscapeRipple32;
+        table_r4 = (u8*)(index_r1 + temp_r0);
 
         state_r2[0x3] = zero_r3;
 
@@ -890,8 +891,8 @@ void UpdateEscapeRippleHBlank(u8 arg0)
 
         if (arg_r5 == 0) {
             s32 i_r1;
-            u8* phase_r6;
-            struct BackgroundScroll* scroll_r5;
+            register u8* phase_r6 asm("r6");
+            register struct BackgroundScroll* scroll_r5 asm("r5");
             register s32 mask_r3 asm("r3");
             s16* dst_r2;
 
@@ -910,9 +911,9 @@ void UpdateEscapeRippleHBlank(u8 arg0)
             register s32 i_r1 asm("r1");
             register u8* phase_ip asm("r12");
             register struct BackgroundScroll* scroll_r8 asm("r8");
-            s16* dst_r3;
-            s32 mask_r5;
-            u16* src_r2;
+            register s16* dst_r3 asm("r3");
+            register s32 mask_r5 asm("r5");
+            register u16* src_r2 asm("r2");
 
             i_r1 = 0;
             phase_ip = phase_r3;
@@ -923,22 +924,16 @@ void UpdateEscapeRippleHBlank(u8 arg0)
 
             do {
                 register struct BackgroundScroll* scroll_r6 asm("r6");
-                register u32 phaseval_r7 asm("r7");
-                s32 idx;
+                register u32 phase_r7 asm("r7");
+                register u32 idx_r0 asm("r0");
 
                 scroll_r6 = scroll_r8;
-                idx = scroll_r6->bg3Vertical + i_r1;
-
-                // agbcc compiler boundary
-                {
-                    register u8* phaseBase asm("r7") = phase_ip;
-                    asm("ldrb r7, [r7]" : "=r"(phaseval_r7) : "r"(phaseBase));
-                }
-
-                idx += phaseval_r7;
-                idx &= mask_r5;
-
-                *dst_r3 = (s8)table_r4[idx] + *src_r2;
+                idx_r0 = scroll_r6->bg3Vertical;
+                idx_r0 += i_r1;
+                phase_r7 = *phase_ip;
+                idx_r0 += phase_r7;
+                idx_r0 &= mask_r5;
+                *dst_r3 = (s8)table_r4[idx_r0] + *src_r2;
 
                 dst_r3++;
                 src_r2++;

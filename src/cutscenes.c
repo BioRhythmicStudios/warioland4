@@ -2204,8 +2204,6 @@ void UpdateLayeredSubGameCutscene(s32 frame)
     const u16* oamData;
     u32 fillValue;
     vu16* bg0Vofs;
-    u16* alphaA;
-    u16* alphaB;
     vu32* dma;
 
     switch (gUnk_3002C60) {
@@ -2247,7 +2245,8 @@ void UpdateLayeredSubGameCutscene(s32 frame)
             bg0Vofs = (vu16*)0x04000012;
             *bg0Vofs = gCutsceneBackgroundVerticalOffset;
             if (frame > 400 && (frame & 15) == 15) {
-                alphaA = (u16*)&gUnk_3002C5A;
+                u16* alphaA = (u16*)&gUnk_3002C5A;
+                u16* alphaB;
                 if (*alphaA != 0) {
                     (*alphaA)--;
                 }
@@ -2300,12 +2299,14 @@ void UpdateLayeredSubGameCutscene(s32 frame)
 
         case 4:
             if ((u32)(gUnk_3002C64++) > 300) {
-                alphaA = (u16*)&gUnk_3002C5A;
-                alphaB = (u16*)&gUnk_3002C5C;
-                if ((frame & 15) == 15) {
+                s32 low = frame & 15;
+                u16* alphaA = (u16*)&gUnk_3002C5A;
+                if (low == 15) {
+                    u16* alphaB;
                     if (*alphaA <= 15) {
                         (*alphaA)++;
                     }
+                    alphaB = (u16*)&gUnk_3002C5C;
                     if (*alphaB != 0) {
                         (*alphaB)--;
                     }

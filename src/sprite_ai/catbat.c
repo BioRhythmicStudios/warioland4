@@ -660,258 +660,118 @@ void InitCatbatPatrol(void)
 }
 void UpdateCatbatPatrol(void)
 {
+    struct PrimarySpriteData *sprite;
     struct WarioData *wario;
-    register struct PrimarySpriteData *sprite asm("r4");
-    register int oldX asm("r6");
-    register int oldXLeft asm("r9");
-    register int zeroHigh asm("r10");
-    volatile int warioXLeft;
-    volatile int warioXRight;
-    register int warioPosition asm("r1");
+    int index;
+    const s16 *table;
+    u32 velocity;
+    int signedVelocity;
+    u16 warioXRight;
+    u16 warioXLeft;
+    u16 oldX;
 
     wario = &gWarioData;
-    warioPosition = wario->xPosition;
-    warioXRight = warioPosition;
-    warioXLeft = warioPosition;
+    warioXRight = wario->xPosition;
+    warioXLeft = wario->xPosition;
     sprite = &gCurrentSprite;
     oldX = sprite->xPosition;
-    oldXLeft = oldX;
 
     UpdateCatbatGraphicsAnimation((const u8 *)sUnk_83CF8FC);
-    {
-        register u8 *indexPtr asm("r7");
-        register u8 *storePtr asm("r12");
-        int index;
-        int nextIndex;
-        register u8 *finalStore;
-        const s16 *table;
-        register int entryAddress asm("r0");
-        int velocity;
-        register int zero asm("r7");
-        register int signedVelocity asm("r1");
-
-        indexPtr = (u8 *)42;
-        indexPtr -= -(int)sprite;
-        storePtr = indexPtr;
-        /* Keep the target's direct byte load from the r7 work pointer. */
-        asm("ldrb %0, [%1]" : "=r"(index) : "r"(indexPtr));
-        table = sUnk_83CF980;
-        entryAddress = index << 1;
-        entryAddress += (int)table;
-        velocity = *(const u16 *)entryAddress;
-        zero = 0;
-        /* agbcc otherwise spills the fixed r0 address while forming ldrsh. */
-        asm("ldrsh %0, [%1, %2]" : "=r"(signedVelocity) : "r"(entryAddress), "r"(zero));
-        if (signedVelocity == 0x7FFF) {
-            velocity = *(const u16 *)table;
-            index = 0;
-        }
-        {
-            int yPosition;
-            nextIndex = index + 1;
-            finalStore = storePtr;
-            *finalStore = nextIndex;
-            yPosition = sprite->yPosition;
-            yPosition += velocity;
-            /* Preserve the target's zero setup before the delayed position store. */
-            asm volatile("" : "=r"(zero));
-            zero = 0;
-            asm volatile("" : "+r"(zero));
-            zeroHigh = zero;
-            sprite->yPosition = yPosition;
-        }
+    index = sprite->work3;
+    table = sUnk_83CF980;
+    velocity = *(const u16 *)&table[index];
+    signedVelocity = table[index];
+    if (signedVelocity == 0x7FFF) {
+        velocity = *(const u16 *)&table[0];
+        index = 0;
     }
+    sprite->work3 = index + 1;
+    sprite->yPosition += velocity;
 
-    {
-        u8 *timer;
-        int value;
-
-        timer = &sprite->work2;
-        value = *timer;
-        if (value != 0) {
-            value--;
-            *timer = value;
-        }
-    }
+    if (sprite->work2 != 0)
+        sprite->work2--;
 
     if (sprite->status & SPRITE_STATUS_FACING_RIGHT) {
         func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition + 100));
-        {
-            register u8 *collision asm("r5");
-            collision = &gSpriteCollisionTileType;
-            if (*collision == 17) {
-                int one;
-                register int slot asm("r2");
-
-                gCuckooCondorPendulumLength = 1;
-                one = 1;
-                sprite->disableWarioCollisionTimer = one;
-                slot = SpriteUtilFindSpriteSlotOrU8Max(PSPRITE_CATBAT_MINE_SPAWNER);
-                slot = (u8)slot;
-                if (slot != 0xFF)
-                    gSpriteData[slot].disableWarioCollisionTimer = one;
-                sprite->xPosition += 4;
-                {
-                    int oldStatus;
-                    register int toggledStatus asm("r0");
-                    oldStatus = sprite->status;
-                    if (oldStatus & SPRITE_STATUS_ONSCREEN)
-                        goto finalCheck;
-                    toggledStatus = SPRITE_STATUS_FACING_RIGHT;
-                    toggledStatus ^= oldStatus;
-                    sprite->status = toggledStatus;
-                }
+        if (gSpriteCollisionTileType == 17) {
+            gCuckooCondorPendulumLength = 1;
+            sprite->disableWarioCollisionTimer = 1;
+            index = SpriteUtilFindSpriteSlotOrU8Max(PSPRITE_CATBAT_MINE_SPAWNER);
+            if ((u8)index != 0xFF)
+                gSpriteData[(u8)index].disableWarioCollisionTimer = 1;
+            sprite->xPosition += 4;
+            if (!(sprite->status & SPRITE_STATUS_ONSCREEN)) {
+                sprite->status ^= SPRITE_STATUS_FACING_RIGHT;
                 UpdateCatbatHitboxFacing();
                 sprite->xPosition -= 32;
-                goto finalCheck;
             }
-
-            gCuckooCondorPendulumLength = zeroHigh;
+        } else {
+            gCuckooCondorPendulumLength = 0;
             sprite->status &= ~SPRITE_STATUS_HIDDEN;
-            {
-                register int comparison;
-                comparison = warioXRight;
-                if ((u32)comparison > (u32)oldX) {
-                    struct WarioData *warioCheck;
-                    warioCheck = wario;
-                    if (warioCheck->reaction != 8) {
-                        func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 160));
-                        collision += (u16)((u32)comparison * 0x10000u);
-                if (*collision == 17)
+            if (warioXRight > oldX && gWarioData.reaction != 8) {
+                func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 160));
+                if (gSpriteCollisionTileType == 17)
                     sprite->xPosition += 2;
                 else
                     sprite->xPosition += 1;
-
                 sprite = &gCurrentSprite;
                 if (sprite->health <= 1 && sprite->work2 == 25) {
                     DespawnActiveCatbatProjectile();
                     SpawnPrimarySpriteWithStatus(PSPRITE_CATBAT_PROJECTILE, 1, 0, sprite->yPosition,
                         sprite->xPosition, SPRITE_STATUS_FACING_RIGHT);
                 }
-                        goto finalCheck;
-                    }
-                }
+            } else {
+                gCurrentSprite.xPosition += 4;
+                gCurrentSprite.currentAnimationFrame++;
+                return;
             }
         }
-
-        {
-            struct PrimarySpriteData *fallback;
-            int xPosition;
-            fallback = &gCurrentSprite;
-            xPosition = fallback->xPosition + 4;
-            fallback->xPosition = xPosition;
-            fallback->currentAnimationFrame++;
-        }
-        goto end;
-    }
-
-    func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 100));
-    {
-        u8 *collision;
-        collision = &gSpriteCollisionTileType;
-        if (*collision == 17) {
-            int one;
-            register int slot asm("r2");
-
+    } else {
+        func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 100));
+        if (gSpriteCollisionTileType == 17) {
             gCuckooCondorPendulumLength = 1;
-            one = 1;
-            sprite->disableWarioCollisionTimer = one;
-            slot = SpriteUtilFindSpriteSlotOrU8Max(PSPRITE_CATBAT_MINE_SPAWNER);
-            slot = (u8)slot;
-            if (slot != 0xFF)
-                gSpriteData[slot].disableWarioCollisionTimer = one;
+            sprite->disableWarioCollisionTimer = 1;
+            index = SpriteUtilFindSpriteSlotOrU8Max(PSPRITE_CATBAT_MINE_SPAWNER);
+            if ((u8)index != 0xFF)
+                gSpriteData[(u8)index].disableWarioCollisionTimer = 1;
             sprite->xPosition -= 4;
-            {
-                int oldStatus;
-                register int toggledStatus asm("r0");
-                oldStatus = sprite->status;
-                if (oldStatus & SPRITE_STATUS_ONSCREEN)
-                    goto finalCheck;
-                toggledStatus = SPRITE_STATUS_FACING_RIGHT;
-                toggledStatus ^= oldStatus;
-                sprite->status = toggledStatus;
+            if (!(sprite->status & SPRITE_STATUS_ONSCREEN)) {
+                sprite->status ^= SPRITE_STATUS_FACING_RIGHT;
+                UpdateCatbatHitboxFacing();
+                sprite->xPosition += 32;
             }
-            UpdateCatbatHitboxFacing();
-            sprite->xPosition += 32;
-            goto finalCheck;
-        }
-
-        {
-            s8 *flag;
-            register int clearValue asm("r7");
-            flag = &gCuckooCondorPendulumLength;
-            clearValue = zeroHigh;
-            *flag = clearValue;
-        }
-        {
-            int oldStatus;
-            int clearedStatus;
-            oldStatus = sprite->status;
-            clearedStatus = 0xFFFB;
-            clearedStatus &= oldStatus;
-            sprite->status = clearedStatus;
-        }
-        if ((u32)warioXLeft < (u32)oldXLeft) {
-            struct WarioData *warioCheck;
-            warioCheck = wario;
-            if (warioCheck->reaction != 8) {
+        } else {
+            gCuckooCondorPendulumLength = 0;
+            sprite->status &= ~SPRITE_STATUS_HIDDEN;
+            if (warioXLeft < oldX && gWarioData.reaction != 8) {
                 func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition + 160));
-            if (*collision == 17)
-                sprite->xPosition -= 2;
-            else
-                sprite->xPosition -= 1;
-
-            sprite = &gCurrentSprite;
-            if (sprite->health <= 1 && sprite->work2 == 25) {
-                DespawnActiveCatbatProjectile();
-                SpawnPrimarySpriteWithStatus(PSPRITE_CATBAT_PROJECTILE, 1, 0, sprite->yPosition,
-                    sprite->xPosition, 0);
-            }
-                goto finalCheck;
+                if (gSpriteCollisionTileType == 17)
+                    sprite->xPosition -= 2;
+                else
+                    sprite->xPosition -= 1;
+                sprite = &gCurrentSprite;
+                if (sprite->health <= 1 && sprite->work2 == 25) {
+                    DespawnActiveCatbatProjectile();
+                    SpawnPrimarySpriteWithStatus(PSPRITE_CATBAT_PROJECTILE, 1, 0, sprite->yPosition,
+                        sprite->xPosition, 0);
+                }
+            } else {
+                gCurrentSprite.xPosition -= 4;
+                gCurrentSprite.currentAnimationFrame++;
+                return;
             }
         }
     }
 
-    {
-        struct PrimarySpriteData *fallback;
-        int xPosition;
-        fallback = &gCurrentSprite;
-        xPosition = fallback->xPosition - 4;
-        fallback->xPosition = xPosition;
-        fallback->currentAnimationFrame++;
-    }
-    goto end;
-
-finalCheck:
     sprite = &gCurrentSprite;
-    if (sprite->work2 == 0 && *(vu8 *)&gCuckooCondorPendulumLength == 0) {
-        int status;
-        int facing;
-        int collisionY;
-        int collisionX;
-
-        status = sprite->status;
-        facing = SPRITE_STATUS_FACING_RIGHT;
-        facing &= status;
-        if (facing != 0) {
-            collisionY = sprite->yPosition;
-            collisionX = sprite->xPosition;
-            collisionX -= 160;
-            goto callFinalCollision;
-        }
-        collisionY = sprite->yPosition;
-        collisionX = sprite->xPosition;
-        collisionX += 160;
-callFinalCollision:
-        collisionX <<= 16;
-        collisionX = (u32)collisionX >> 16;
-        ((void (*)(int, int))func_8023BFC)(collisionY, collisionX);
+    if (sprite->work2 == 0 && gCuckooCondorPendulumLength == 0) {
+        if (sprite->status & SPRITE_STATUS_FACING_RIGHT)
+            func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 160));
+        else
+            func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition + 160));
         if (gSpriteCollisionTileType != 17)
             sprite->pose = 17;
     }
-
-end:
-    ;
 }
 void InitCatbatLandingAttack(void)
 {

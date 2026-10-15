@@ -563,41 +563,27 @@ void SetupShopkeeperSelectedItem(void)
     struct PrimarySpriteData* s;
     u32 zero;
     u32 sixteen;
-    u32 r0;
-    register u32 r1 asm("r1");
+    u32 old;
     u32 status;
     register u32 temp asm("r3");
+    register u32 flag asm("r1");
+    u32 flagCopy;
 
     s = &gCurrentSprite;
-    r0 = s->status;
+    old = s->status;
     status = 0xFFFB;
-    status &= r0;
+    status &= old;
     temp = 0;
-
     zero = 0;
-
-    r1 = 0x80;
-    r1 <<= 3;
-    asm volatile("" : "+r"(r1));
-    r0 = r1;
-    asm volatile("" : "+r"(r0));
-    status |= r0;
+    flag = 0x80;
+    flag <<= 3;
+    flagCopy = flag;
+    status |= flagCopy;
     status |= temp;
     s->status = status;
     s->warioCollision = temp;
     s->drawDistanceDown = 32;
     s->drawDistanceUp = temp;
-    /*
-     * Pure C schedules the later mov r6, #16 before incrementing r0, changing
-     * the original byte sequence. This boundary emits only the required add;
-     * the temporary macro suppresses agbcc's duplicate add afterward.
-     */
-    asm volatile(
-        "add r0, #1\n"
-        ".macro add a, b, c\n"
-        ".purgem add\n"
-        ".endm"
-    );
     sixteen = 16;
     s->drawDistanceLeftRight = sixteen;
     s->hitboxExtentUp = 4;
@@ -635,12 +621,11 @@ void SetupShopkeeperSelectedItem(void)
                 s->status = zero;
                 break;
         }
-        goto end;
+        return;
     }
 
     switch (gCurrentShopItem) {
         case 1:
-
             s = &gCurrentSprite;
             s->pose = 17;
             ShopkeeperUpdateGraphicsScript(sShopkeeperAppleBombGraphicsScript);
@@ -648,7 +633,6 @@ void SetupShopkeeperSelectedItem(void)
             SpriteUtilFindSpriteSlotWork3(188);
             break;
         case 2:
-
             s = &gCurrentSprite;
             s->status |= 8;
             s->pose = 19;
@@ -657,7 +641,6 @@ void SetupShopkeeperSelectedItem(void)
             SpriteUtilFindSpriteSlotWork3(190);
             break;
         case 3:
-
             s = &gCurrentSprite;
             s->status |= 8;
             s->pose = 110;
@@ -666,7 +649,6 @@ void SetupShopkeeperSelectedItem(void)
             SpriteUtilFindSpriteSlotWork3(191);
             break;
         case 4:
-
             s = &gCurrentSprite;
             s->status |= 8;
             s->pose = 114;
@@ -678,13 +660,8 @@ void SetupShopkeeperSelectedItem(void)
         case 6:
         case 7:
         case 8:
-            r1 = (u32)&gCurrentSprite;
-            status = *(u16*)r1;
-            r0 = 8;
-            r0 |= status;
-            *(u16*)r1 = r0;
-            r0 = 118;
-            *(u8*)(r1 + 28) = r0;
+            gCurrentSprite.status |= 8;
+            gCurrentSprite.pose = 118;
             ShopkeeperUpdateGraphicsScript(sShopkeeperTransformationGraphicsScript);
             break;
         default:
@@ -705,14 +682,11 @@ void SetupShopkeeperSelectedItem(void)
     }
 
     if (gCurrentSprite.status != 0 && gCurrentPassage != 5) {
-        if (gCurrentShopItem == 1) {
+        if (gCurrentShopItem == 1)
             m4aSongNumStart(171 << 2);
-        } else {
+        else
             m4aSongNumStart(0x2AB);
-        }
     }
-end:
-    return;
 }
 
 void StartShopkeeperSmileJump(void)
@@ -6577,182 +6551,66 @@ void UpdateBlackDragonAttackReturn(void)
 
 void UpdateBlackDragonAttack(void)
 {
-    u32 r0;
-    register s32 r1 asm("r1");
-    struct PrimarySpriteData* r2;
-    struct PrimarySpriteData* r3;
-    register s32 r4 asm("r4");
-    register const s16* r5 asm("r5");
-    register u32 r6 asm("r6");
-    register u8* ip asm("r12");
-    u32 remaining;
+    u16 offset;
+    u32 index;
+    u8* counter;
 
-    r0 = gCurrentPassage;
-    if (r0 == 2) {
-        goto passage2;
-    }
-    if (r0 == 5) {
-        goto passage5;
+    switch (gCurrentPassage) {
+        case 2:
+            if (gCurrentSprite.work0 <= 71) {
+                gCurrentSprite.xPosition -= 8;
+                counter = &gCurrentSprite.work3;
+                index = *counter;
+                goto bob;
+            } else if (gCurrentSprite.work0 == 73) {
+                gCurrentSprite.status ^= 0x40;
+                m4aSongNumStart(0x2AD);
+            }
+            break;
+        case 5:
+            if (gCurrentSprite.work0 <= 31) {
+                gCurrentSprite.xPosition -= 4;
+                counter = &gCurrentSprite.work3;
+                index = *counter;
+            bob:
+                offset = sBlackDragonBobPath[index];
+                if (sBlackDragonBobPath[index] == 0x7FFF) {
+                    offset = sBlackDragonBobPath[0];
+                    index = 0;
+                }
+                *counter = index + 1;
+                gCurrentSprite.yPosition += offset;
+            } else if (gCurrentSprite.work0 == 33) {
+                gCurrentSprite.status ^= 0x40;
+            }
+            break;
+        default:
+            if (gCurrentSprite.work0 <= 144) {
+                gCurrentSprite.xPosition -= 4;
+                counter = &gCurrentSprite.work3;
+                index = *counter;
+                offset = sBlackDragonBobPath[index];
+                if (sBlackDragonBobPath[index] == 0x7FFF) {
+                    offset = sBlackDragonBobPath[0];
+                    index = 0;
+                }
+                *counter = index + 1;
+                gCurrentSprite.yPosition += offset;
+            } else if (gCurrentSprite.work0 == 145) {
+                gCurrentSprite.status ^= 0x40;
+                m4aSongNumStart(0x2AD);
+            }
+            break;
     }
 
-    r2 = &gCurrentSprite;
-    r0 = r2->work0;
-    if (r0 > 144) {
-        goto default_end;
+    if (--gCurrentSprite.work0 == 0) {
+        if (gCurrentPassage == 5) {
+            gCurrentSprite.status ^= 0x40;
+            gCurrentSprite.pose = 20;
+        } else {
+            gCurrentSprite.status = 0;
+        }
     }
-    r3 = r2;
-    r0 = r3->xPosition;
-    r0 -= 4;
-    r3->xPosition = r0;
-    r0 = 42;
-    r0 += (u32)r3;
-    ip = (u8*)r0;
-    r2 = (struct PrimarySpriteData*)(u32)(*ip);
-    r5 = sBlackDragonBobPath;
-    r0 = (u32)r2 << 1;
-    r0 += (u32)r5;
-    r4 = *(u16*)r0;
-    r6 = 0;
-    r1 = *(s16*)(r0 + r6);
-    r0 = 0x7FFF;
-    /* agbcc chooses beq-reset/b-done here. Rewrite only those two branches
-     * to the original bne-done/b-reset form without emitting extra code. */
-    asm volatile(
-        ".macro beq target\n"
-        ".set .L52_saved_reset, \\target\n"
-        ".endm\n"
-        ".macro b target\n"
-        ".purgem beq\n"
-        ".purgem b\n"
-        "bne \\target\n"
-        "b .L52_saved_reset\n"
-        ".endm"
-    );
-    if (r1 == r0) {
-        goto default_table_reset;
-    }
-    goto default_table_done;
-
-passage2:
-    r2 = &gCurrentSprite;
-    r0 = r2->work0;
-    if (r0 > 71) {
-        goto passage2_end;
-    }
-    r0 = r2->xPosition;
-    r0 -= 8;
-    r2->xPosition = r0;
-    r0 = 42;
-    r0 += (u32)r2;
-    ip = (u8*)r0;
-    r3 = (struct PrimarySpriteData*)(u32)(*ip);
-    goto shared_table;
-passage2_end:
-    if (r0 != 73) {
-        goto common;
-    }
-    r0 = r2->status;
-    r1 = 0x40;
-    r0 ^= r1;
-    r2->status = r0;
-    r0 = 0x2AD;
-    m4aSongNumStart(r0);
-    goto common;
-
-passage5:
-    r2 = &gCurrentSprite;
-    r0 = r2->work0;
-    if (r0 > 31) {
-        goto passage5_end;
-    }
-    r0 = r2->xPosition;
-    r0 -= 4;
-    r2->xPosition = r0;
-    r6 = 42;
-    asm volatile("" : "+r"(r6));
-    r6 += (u32)r2;
-    ip = (u8*)r6;
-    r3 = (struct PrimarySpriteData*)(u32)(*(u8*)r6);
-shared_table:
-    r5 = sBlackDragonBobPath;
-    r0 = (u32)r3 << 1;
-    r0 += (u32)r5;
-    r4 = *(u16*)r0;
-    r6 = 0;
-    r1 = *(s16*)(r0 + r6);
-    r0 = 0x7FFF;
-    if (r1 != r0) {
-        goto shared_table_done;
-    }
-    r4 = *(u16*)r5;
-    r3 = 0;
-shared_table_done:
-    r0 = (u32)r3 + 1;
-    r1 = (u32)ip;
-    *(u8*)r1 = r0;
-    r0 = r2->yPosition;
-    r0 += r4;
-    r2->yPosition = r0;
-    goto common;
-passage5_end:
-    if (r0 != 33) {
-        goto common;
-    }
-    r0 = r2->status;
-    r1 = 0x40;
-    r0 ^= r1;
-    r2->status = r0;
-    goto common;
-
-default_table_reset:
-
-    r4 = *(u16*)r5;
-    r2 = 0;
-default_table_done:
-    r0 = (u32)r2 + 1;
-    r6 = (u32)ip;
-    *(u8*)r6 = r0;
-    r0 = r3->yPosition;
-    r0 += r4;
-    r3->yPosition = r0;
-    goto common;
-
-default_end:
-    if (r0 != 145) {
-        goto common;
-    }
-    r0 = *(volatile u16*)r2;
-    r1 = 0x40;
-    r0 ^= r1;
-    *(volatile u16*)r2 = r0;
-    r0 = 0x2AD;
-    m4aSongNumStart(r0);
-
-common:
-    r2 = &gCurrentSprite;
-    r1 = (u32)&r2->work0;
-    r0 = *(volatile u8*)r1;
-    r0--;
-    *(volatile u8*)r1 = r0;
-    remaining = (u8)r0;
-
-    if (remaining != 0) {
-        goto end;
-    }
-    r0 = gCurrentPassage;
-    if (r0 != 5) {
-        goto clear_status;
-    }
-    r0 = r2->status;
-    r1 = 0x40;
-    r0 ^= r1;
-    r2->status = r0;
-    r0 = 20;
-    r2->pose = r0;
-    goto end;
-clear_status:
-    r2->status = remaining;
-end:
 }
 
 void UpdateBlackDragonBob(void)

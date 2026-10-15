@@ -1043,57 +1043,35 @@ void PinballCounterInit(void)
 
 void PinballCounterUpdateDisplay(void)
 {
-    s32 completedCount;
-    s32 index;
-    register const u8 *entries asm("ip");
-    register const u8 *globalIDPtr asm("r2");
+    s32 count;
+    s32 i;
+    u8 *p;
+    u8 *entries;
     struct PrimarySpriteData *sprite;
 
-    completedCount = 0;
-    index = 0;
-    globalIDPtr = gRoomSpriteData;
-    {
-        s32 firstEntry;
-
-        firstEntry = *globalIDPtr;
-        entries = globalIDPtr;
-        sprite = &gCurrentSprite;
-        if (firstEntry != 255) {
-            u8 *persistentData;
-            u8 *room;
-            s32 byteOffset;
-
-            persistentData = &gPersistentSpriteData[0][0];
-            room = &gCurrentRoom;
-            byteOffset = 0;
-            globalIDPtr += 2;
-            do {
-                s32 globalID;
-
-                globalID = *globalIDPtr;
-                if (globalID <= 20) {
-                    u32 destination;
-
-                    /* agbcc canonicalizes this as cmp #16; ble. The original uses cmp #17; blt. */
-                    asm("cmp %0, #17\n\tblt .L_pinball_counter_next_entry" : : "r"(globalID));
-                    destination = index + ((*room) << 6);
-                    destination += (u32)persistentData;
-                    if (*(u8 *)destination == 2) {
-                        completedCount++;
+    count = 0;
+    i = 0;
+    entries = &gRoomSpriteData[0][0];
+    sprite = &gCurrentSprite;
+    if (*entries != 255) {
+        s32 off = 0;
+        p = entries + 2;
+        do {
+            s32 id = *p;
+            if (id <= 20) {
+                if (id > 16) {
+                    if (gPersistentSpriteData[gCurrentRoom][i] == 2) {
+                        count++;
                     }
                 }
-                asm(".L_pinball_counter_next_entry:");
-                byteOffset += 3;
-                globalIDPtr += 3;
-                index++;
-                if (index > 63) {
-                    break;
-                }
-            } while (*(u8 *)((u32)byteOffset + (u32)entries) != 255);
-        }
+            }
+            off += 3;
+            p += 3;
+            i++;
+        } while (i <= 63 && entries[off] != 255);
     }
 
-    switch (completedCount) {
+    switch (count) {
         case 0:
             sprite->pOamData = sPinballCounterZeroOam;
             break;

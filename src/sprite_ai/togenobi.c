@@ -133,127 +133,52 @@ void InitTogenobiOuterPart(void)
 
 void UpdateTogenobiOuterPartPosition(void)
 {
-    struct PrimarySpriteData* current;
-    struct PrimarySpriteData* data;
-    u8* parentSlot;
-    int spriteSize;
-    int radius;
-    u32 dataBase;
-    register struct PrimarySpriteData* currentIp asm("r12");
+    s32 radius;
+    s32 value;
+    u32 offset;
+    u32 angle;
     const s16* table;
     const s16* table2;
-    register s32 value asm("r0");
-    register u32 other asm("r1");
-    register u32 offsetX asm("r2");
 
-    current = &gCurrentSprite;
-    data = gSpriteData;
-    parentSlot = (u8*)&current->work3;
-    value = *parentSlot;
-    asm("" : "+r"(value));
-    spriteSize = sizeof(struct PrimarySpriteData);
-    other = value;
-    other *= spriteSize;
-    other = other + (u32)data;
-    other += 39;
-    value = current->work1;
-    value <<= 6;
-    other = *(u8*)other;
-    value += other;
-    other = 39;
-    asm("" : "+r"(other));
-    other = other + (u32)current;
-    currentIp = (struct PrimarySpriteData*)other;
-    *(u8*)other = value;
+    gCurrentSprite.work0 = gSpriteData[gCurrentSprite.work3].work0 + (gCurrentSprite.work1 << 6);
 
     radius = 192;
     table = sSinCosTable;
-    /* agbcc does not otherwise account for the fixed r7 temporary in the prologue. */
-    {
-        register u8 *bytePtr asm("r7") = (u8 *)currentIp;
-        asm("ldrb %0, [r7]" : "=r"(value) : "r"(bytePtr), "r"(currentIp));
-    }
-    value <<= 1;
-    value += (u32)table;
-    /* agbcc otherwise chooses the signed-load destination as the address register. */
-    {
-        register u32 zeroIndex asm("r7") = 0;
-        asm("ldrsh %0, [%0, r7]" : "+r"(value) : "r"(zeroIndex));
-    }
-    currentIp = current;
-    dataBase = (u32)data;
+    value = table[gCurrentSprite.work0];
     table2 = table;
-
     if (value < 0) {
-        value = -value;
-        value *= radius;
+        value = -value * radius;
         if (value < 0) {
             value += 255;
         }
-        value <<= 8;
-        other = (u32)value >> 16;
-        value = *parentSlot;
-        value *= spriteSize;
-        value += dataBase;
-        value = ((struct PrimarySpriteData *)value)->yPosition;
-        value -= other;
+        offset = (u32)(value << 8) >> 16;
+        gCurrentSprite.yPosition = gSpriteData[gCurrentSprite.work3].yPosition - offset;
     } else {
         value *= radius;
         if (value < 0) {
             value += 255;
         }
-        value <<= 8;
-        other = *parentSlot;
-        other *= spriteSize;
-        other += dataBase;
-        value = (u32)value >> 16;
-        other = ((struct PrimarySpriteData *)other)->yPosition;
-        value += other;
+        offset = (u32)(value << 8) >> 16;
+        gCurrentSprite.yPosition = offset + gSpriteData[gCurrentSprite.work3].yPosition;
     }
-    currentIp->yPosition = value;
 
-    current = currentIp;
-    value = current->work0;
-    value += 64;
-    value <<= 1;
-    value += (u32)table2;
-    other = 0;
-    value = *(s16 *)(value + other);
+    angle = gCurrentSprite.work0;
+    angle += ANGLE_HALF_PI;
+    value = table2[angle];
     if (value < 0) {
-        value = -value;
-        value *= radius;
+        value = -value * radius;
         if (value < 0) {
             value += 255;
         }
-        value <<= 8;
-        offsetX = (u32)value >> 16;
-        value = (u32)current + 42;
-        other = *(u8*)value;
-        value = sizeof(struct PrimarySpriteData);
-        value *= other;
-        value += dataBase;
-        value = ((struct PrimarySpriteData *)value)->xPosition;
-        value -= offsetX;
-        current->xPosition = value;
+        offset = (u32)(value << 8) >> 16;
+        gCurrentSprite.xPosition = gSpriteData[gCurrentSprite.work3].xPosition - offset;
     } else {
         value *= radius;
         if (value < 0) {
             value += 255;
         }
-        other = value << 8;
-        value = (u32)currentIp + 42;
-        offsetX = *(u8*)value;
-        value = sizeof(struct PrimarySpriteData);
-        value *= offsetX;
-        value += dataBase;
-        other = (u32)other >> 16;
-        value = ((struct PrimarySpriteData *)value)->xPosition;
-        other += value;
-        /* agbcc otherwise materializes the offset address instead of using strh #10. */
-        {
-            register u8 *currentStore asm("r7") = (u8 *)&currentIp->status;
-            asm("strh %0, [r7, #10]" : : "r"(other), "r"(currentStore));
-        }
+        offset = (u32)(value << 8) >> 16;
+        gCurrentSprite.xPosition = offset + gSpriteData[gCurrentSprite.work3].xPosition;
     }
 }
 

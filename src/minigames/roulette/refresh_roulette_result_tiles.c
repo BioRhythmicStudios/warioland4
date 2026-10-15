@@ -2,87 +2,51 @@
 
 void RefreshRouletteResultTiles(void)
 {
-    register u8 *src asm("r1");
-    s32 quotient;
-    struct RouletteSmallState *nextState;
+    s32 idx;
+    s32 i;
+    u8 *src;
+    u8 *dst;
+    volatile u32 *dma;
 
-    CALC_PARTS_FROM_VALUE(GetRouletteFrameIndex(gRouletteTopResult.frame), sRouletteTopResultTiles);
-    {
-        struct RouletteSmallState *stateLoad;
-        stateLoad = &gRouletteMiddleResult;
-        nextState = stateLoad;
-    }
-    RUN_FOUR_DMAS(0x06017000);
-
-    {
-        struct RouletteSmallState *stateLow;
-        stateLow = nextState;
-        CALC_PARTS_FROM_VALUE(GetRouletteFrameIndex(stateLow->frame), sRouletteMiddleResultTiles);
-    }
-    {
-        struct RouletteSmallState *stateLoad;
-        stateLoad = &gRouletteBottomResult;
-        nextState = stateLoad;
-    }
-    RUN_FOUR_DMAS(0x06017100);
-
-    {
-        register s32 frame asm("r3");
-        register s32 frameOffset asm("r0");
-        u8 *graphics;
-        register u8 *dstBase asm("r12");
-        register int i asm("r5");
-        register volatile u32 *dma asm("r2");
-        u32 control;
-        u32 busy;
-
-        {
-            struct RouletteSmallState *stateLow;
-            stateLow = nextState;
-            frameOffset = GetRouletteFrameIndex(stateLow->frame);
-        }
-        frame = frameOffset;
-        if (frame < 0)
-            frameOffset = frame + 3;
-        frameOffset >>= 2;
-        asm volatile("" : "+r"(frameOffset));
-        quotient = frameOffset;
-        frameOffset = quotient << 2;
-        frameOffset = frame - frameOffset;
-        quotient <<= 12;
-        frameOffset <<= 8;
-        {
-            u8 *base;
-            base = sRouletteBottomResultTiles;
-            frameOffset += (s32)base;
-        }
-        graphics = (u8 *)(quotient + frameOffset);
-        dstBase = (u8 *)0x06017200;
-        i = 0;
+    idx = GetRouletteFrameIndex(gRouletteTopResult.frame);
+    src = sRouletteTopResultTiles + (idx % 4) * 0x100 + (idx / 4) * 0x1000;
+    dst = (u8 *)0x06017000;
+    for (i = 3; i >= 0; i--) {
         dma = (volatile u32 *)0x040000D4;
-        control = 0x80000080;
-        busy = 0x80000000;
-        do {
-            register u32 offset asm("r1");
-            u32 value;
-            register int next asm("r1");
-            offset = i << 10;
-            dma[0] = (u32)(graphics + offset);
-            dma[1] = (u32)(dstBase + offset);
-            dma[2] = control;
-            value = dma[2];
-            value = dma[2];
-            value &= busy;
-            next = i + 1;
-            if (value != 0) {
-                u32 pollMask;
-                pollMask = 0x80000000;
-                do {
-                    value = dma[2];
-                    value &= pollMask;
-                } while (value != 0);
-            }
-            i = next;
-        } while (i <= 3);
+        dma[0] = (u32)src;
+        dma[1] = (u32)dst;
+        dma[2] = 0x80000080;
+        dma[2];
+        while (dma[2] & 0x80000000)
+            ;
+        dst += 0x400;
+        src += 0x400;
+    }
+
+    idx = GetRouletteFrameIndex(gRouletteMiddleResult.frame);
+    src = sRouletteMiddleResultTiles + (idx % 4) * 0x100 + (idx / 4) * 0x1000;
+    dst = (u8 *)0x06017100;
+    for (i = 3; i >= 0; i--) {
+        dma = (volatile u32 *)0x040000D4;
+        dma[0] = (u32)src;
+        dma[1] = (u32)dst;
+        dma[2] = 0x80000080;
+        dma[2];
+        while (dma[2] & 0x80000000)
+            ;
+        dst += 0x400;
+        src += 0x400;
+    }
+
+    idx = GetRouletteFrameIndex(gRouletteBottomResult.frame);
+    src = sRouletteBottomResultTiles + (idx % 4) * 0x100 + (idx / 4) * 0x1000;
+    for (i = 0; i <= 3; i++) {
+        dma = (volatile u32 *)0x040000D4;
+        dma[0] = (u32)(src + (i << 10));
+        dma[1] = (u32)((u8 *)0x06017200 + (i << 10));
+        dma[2] = 0x80000080;
+        dma[2];
+        while (dma[2] & 0x80000000)
+            ;
     }
 }

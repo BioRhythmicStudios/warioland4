@@ -507,7 +507,6 @@ void ResetHomerunDerbyRound(void)
 void InitHomerunDerby(void)
 {
     u32 dmaStatus;
-    u32 dmaMask;
 
     HR_DMA(sHomerunBgPalette, 0x05000000, 0x80000100);
     HR_DMA(sHomerunObjPalette, 0x05000200, 0x80000100);
