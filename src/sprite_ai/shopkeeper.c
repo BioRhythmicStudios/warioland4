@@ -5117,163 +5117,52 @@ void StartLargeLipsKiss(void)
 
 void UpdateLargeLipsKiss(void)
 {
-    register s32 r0 asm("r0");
-    register u32 r1 asm("r1");
-    u32 r2;
-    u32 r3;
-    u8* r4;
-    struct PrimarySpriteData* s;
-    volatile u32 stackSlot;
+    struct PrimarySpriteData *s = &gCurrentSprite;
+    u8 *work2 = &s->work2;
+    u8 timer;
 
-    s = &gCurrentSprite;
-    r4 = &s->work2;
-    r0 = *r4;
-    r1 = r0 + 1;
-    *r4 = r1;
-    r0 <<= 24;
-    r1 = (u32)r0 >> 24;
-    r0 = gCurrentPassage;
-    if (r0 == 1) {
-        goto passage1;
-    }
-    /*
-     * Equivalent C comparisons make agbcc invert and reorder this branch tree.
-     * Keep only the target cmp/blt pair; all state logic remains in C.
-     */
-    asm volatile("cmp r0, #1\n\tblt .L_test51ed8_countdown");
-    if (r0 > 5) {
-        goto countdown;
-    }
-    if (r1 != 25) {
-        goto check50;
-    }
+    timer = (*work2)++;
 
-    r3 = s->yPosition;
-    r3 -= 128;
-    r0 = s->xPosition;
-    r0 -= 64;
-    stackSlot = r0;
-    r0 = 201;
-    r1 = 1;
-
-    goto call_spawn;
-
-passage1:
-    if (r1 != 40) {
-        goto passage1_check80;
+    switch (gCurrentPassage) {
+        case 1:
+            if (timer == 40) {
+                SpawnHighPriorityPrimarySprite(201, 1, 0, s->yPosition - 128, s->xPosition - 64);
+            } else if (timer == 80) {
+                SpawnHighPriorityPrimarySprite(201, 2, 0, s->yPosition - 128, s->xPosition - 64);
+            } else if (timer == 120) {
+                SpawnHighPriorityPrimarySprite(201, 0, 0, s->yPosition - 128, s->xPosition - 64);
+            } else if (timer == 160) {
+                SpawnHighPriorityPrimarySprite(201, 1, 0, s->yPosition - 128, s->xPosition - 64);
+            }
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            if (timer == 25) {
+                SpawnHighPriorityPrimarySprite(201, 1, 0, s->yPosition - 128, s->xPosition - 64);
+            } else if (timer == 50) {
+                SpawnHighPriorityPrimarySprite(201, 2, 0, s->yPosition - 128, s->xPosition - 64);
+            } else if (timer == 75) {
+                SpawnHighPriorityPrimarySprite(201, 0, 0, s->yPosition - 128, s->xPosition - 64);
+                *work2 = 0;
+            }
+            break;
     }
 
-    r3 = s->yPosition;
-    r3 -= 128;
-    r0 = s->xPosition;
-    r0 -= 64;
-    stackSlot = r0;
-    r0 = 201;
-    r1 = 1;
-    asm volatile("" : : "i"(140));
-    goto call_spawn;
-passage1_check80:
-    if (r1 == 80) {
-        goto spawn2;
+    if (--gCurrentSprite.work0 == 0) {
+        gCurrentSprite.status ^= 0x40;
+        gCurrentSprite.pose = 20;
+        gCurrentSprite.pOamData = sLargeLipsIdleOam;
+        gCurrentSprite.currentAnimationFrame = 0;
+        gCurrentSprite.animationTimer = 0;
+        gCurrentSprite.work0 = 112;
+        gCurrentSprite.work3 = 0;
+        if (gCurrentPassage == 5) {
+            m4aSongNumStart(0x2AD);
+            gCurrentSprite.pose = 110;
+        }
     }
-    if (r1 != 120) {
-        goto passage1_check160;
-    }
-    r3 = s->yPosition;
-    r3 -= 128;
-    r0 = s->xPosition;
-    r0 -= 64;
-    stackSlot = r0;
-    r0 = 201;
-    r1 = 0;
-    goto call_spawn;
-passage1_check160:
-    if (r1 != 160) {
-        goto countdown;
-    }
-
-    r3 = s->yPosition;
-    r3 -= 128;
-    r0 = s->xPosition;
-    r0 -= 64;
-    stackSlot = r0;
-    r0 = 201;
-    r1 = 1;
-    asm volatile("" : : "i"(260));
-    goto call_spawn;
-
-check50:
-    if (r1 == 50) {
-        goto spawn2;
-    }
-    goto check75;
-
-spawn2:
-    r3 = s->yPosition;
-    r3 -= 128;
-    r0 = s->xPosition;
-    r0 -= 64;
-    stackSlot = r0;
-    r0 = 201;
-    r1 = 2;
-call_spawn:
-    r2 = 0;
-    ((void (*)(u32, u32, u32, u32))SpawnHighPriorityPrimarySprite)(r0, r1, r2, r3);
-    goto countdown;
-
-check75:
-    if (r1 != 75) {
-        goto countdown;
-    }
-    r3 = s->yPosition;
-    r3 -= 128;
-    r0 = s->xPosition;
-    r0 -= 64;
-    stackSlot = r0;
-    r0 = 201;
-    r1 = 0;
-    r2 = 0;
-    ((void (*)(u32, u32, u32, u32))SpawnHighPriorityPrimarySprite)(r0, r1, r2, r3);
-    r0 = 0;
-    *r4 = r0;
-
-countdown:
-    /* Target of the localized cmp/blt boundary above; emits no instruction. */
-    asm volatile(".L_test51ed8_countdown:");
-    r4 = (u8*)&gCurrentSprite;
-    r3 = (u32)r4;
-    r3 += 39;
-    r0 = *(u8*)r3;
-    r0--;
-    *(u8*)r3 = r0;
-    r2 = (u8)r0;
-    if (r2 != 0) {
-        goto end;
-    }
-    r0 = *(u16*)r4;
-    r1 = 64;
-    r0 ^= r1;
-    r1 = 0;
-    *(u16*)r4 = r0;
-    r0 = 20;
-    r4[28] = r0;
-    *(const struct AnimationFrame**)(r4 + 4) = sLargeLipsIdleOam;
-    r4[22] = r1;
-    ((struct PrimarySpriteData*)r4)->animationTimer = r2;
-    r0 = 112;
-    *(u8*)r3 = r0;
-    r0 = (u32)r4;
-    r0 += 42;
-    *(u8*)r0 = r1;
-    r0 = gCurrentPassage;
-    if (r0 != 5) {
-        goto end;
-    }
-    r0 = 0x2AD;
-    m4aSongNumStart(r0);
-    r0 = 110;
-    r4[28] = r0;
-end:;
 }
 
 void UpdateLargeLipsRetreat(void)
