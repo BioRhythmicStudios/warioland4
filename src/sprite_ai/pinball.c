@@ -1043,54 +1043,28 @@ void PinballCounterInit(void)
 
 void PinballCounterUpdateDisplay(void)
 {
-    s32 count;
-    s32 i;
-    u8 *p;
-    u8 *entries;
-    struct PrimarySpriteData *sprite;
-
-    count = 0;
-    i = 0;
-    entries = &gRoomSpriteData[0][0];
-    sprite = &gCurrentSprite;
-    if (*entries != 255) {
-        s32 off = 0;
-        p = entries + 2;
-        do {
-            s32 id = *p;
-            if (id <= 20) {
-                if (id > 16) {
-                    if (gPersistentSpriteData[gCurrentRoom][i] == 2) {
-                        count++;
-                    }
-                }
-            }
-            off += 3;
-            p += 3;
-            i++;
-        } while (i <= 63 && entries[off] != 255);
+    s32 count = 0;
+    s32 i = 0;
+    for (; i < 64 && gRoomSpriteData[i][0] != 255; i++) {
+        switch (gRoomSpriteData[i][2]) {
+            case 17:
+            case 18:
+            case 19:
+            case 20:
+                if (gPersistentSpriteData[gCurrentRoom][i] == 2)
+                    count++;
+                break;
+        }
     }
-
     switch (count) {
-        case 0:
-            sprite->pOamData = sPinballCounterZeroOam;
-            break;
-        case 1:
-            sprite->pOamData = sPinballCounterOneOam;
-            break;
-        case 2:
-            sprite->pOamData = sPinballCounterTwoOam;
-            break;
-        case 3:
-            sprite->pOamData = sPinballCounterThreeOam;
-            break;
-        case 4:
-            sprite->pOamData = sPinballCounterFourOam;
-            sprite->pose = 49;
-            break;
+        case 0: gCurrentSprite.pOamData = sPinballCounterZeroOam; break;
+        case 1: gCurrentSprite.pOamData = sPinballCounterOneOam; break;
+        case 2: gCurrentSprite.pOamData = sPinballCounterTwoOam; break;
+        case 3: gCurrentSprite.pOamData = sPinballCounterThreeOam; break;
+        case 4: gCurrentSprite.pOamData = sPinballCounterFourOam; gCurrentSprite.pose = 49; break;
     }
-    sprite->currentAnimationFrame = 0;
-    sprite->animationTimer = 0;
+    gCurrentSprite.currentAnimationFrame = 0;
+    gCurrentSprite.animationTimer = 0;
 }
 
 void PinballCounterReady(void)
