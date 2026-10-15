@@ -186,6 +186,13 @@ $(BUILT_ASM)/%.s: $(SRC)/%.c
 	$Q$(CPP) $(CPPFLAGS) $< | $(CC) $(CFLAGS) -o $@
 	@echo '    .align 2, 0' >> $@
 
+# objdiff base objects: functions written in asm are renamed so they count as unmatched
+$(BUILD)/objdiff/%.o: $(OBJ)/%.o $(SRC)/%.c $(TOOL_DIR)/asm_functions.py
+	$(MSG) OBJDIFF $@
+	$Qmkdir -p $(shell dirname $@)
+	$Q$(PYTHON) $(TOOL_DIR)/asm_functions.py -v $(VERSION) --redefine-syms $(SRC)/$*.c > $@.syms
+	$Q$(OBJCOPY) --redefine-syms=$@.syms $< $@
+
 $(BUILT_ASM)/m4a.s: CC = $(TOOL_DIR)/agbcc/old_agbcc
 $(BUILT_ASM)/m4a.s: CFLAGS = -O2 -mthumb-interwork -fhex-asm -Wall
 

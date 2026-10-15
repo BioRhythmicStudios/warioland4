@@ -86,3 +86,5 @@ asm_cleaning*
 *.json*
 .asmclean_autoapply
 experiments/
+# objdiff targets (made from the base ROM)
+expected/

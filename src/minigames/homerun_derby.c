@@ -2008,7 +2008,16 @@ asm(".set $t.hd_085c, DrawHomerunDerby + 0x85c\n"
     ".set $d.hd_0958, DrawHomerunDerby + 0x958\n"
     ".set $t.hd_095c, DrawHomerunDerby + 0x95c\n"
     ".set $d.hd_0aa8, DrawHomerunDerby + 0xaa8\n"
-    ".set $t.hd_0aac, DrawHomerunDerby + 0xaac");
+    ".set $t.hd_0aac, DrawHomerunDerby + 0xaac\n"
+    // .set copies DrawHomerunDerby's type and size; these are mapping symbols, not functions
+    ".type $t.hd_085c, %notype\n.size $t.hd_085c, 0\n"
+    ".type $d.hd_0860, %notype\n.size $d.hd_0860, 0\n"
+    ".type $t.hd_0914, %notype\n.size $t.hd_0914, 0\n"
+    ".type $d.hd_0918, %notype\n.size $d.hd_0918, 0\n"
+    ".type $d.hd_0958, %notype\n.size $d.hd_0958, 0\n"
+    ".type $t.hd_095c, %notype\n.size $t.hd_095c, 0\n"
+    ".type $d.hd_0aa8, %notype\n.size $d.hd_0aa8, 0\n"
+    ".type $t.hd_0aac, %notype\n.size $t.hd_0aac, 0");
 
 s32 UpdateHomerunScoreSequence(void)
 {
