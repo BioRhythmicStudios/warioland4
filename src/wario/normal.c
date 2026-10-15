@@ -5479,71 +5479,149 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
 }
 u32 CheckWarioHorizontalCollision(u32 side, u16 *newXPosition, u32 verticalOffset)
 {
+    volatile struct { u16 *output; u32 offset; } locals;
+    register u32 index asm("r8");
     u32 result;
-    u32 xPosition;
-    u32 yPosition;
-    u32 collision;
-
-    side = (u8)side;
-    verticalOffset = (u16)verticalOffset;
+    u32 xPosition, yPosition, collision;
+    register u32 indexDouble asm("r10");
+    register u32 shiftedOffset asm("r9");
+    locals.output = newXPosition;
+    index = (u8)side;
+    locals.offset = (u16)verticalOffset;
     result = 0;
-    gWarioCollisionData.unk_0E = 0;
-    xPosition = (u16)(sWarioCollisionPointTable[gWarioCollisionData.unk_04 + side * 3] + gWarioData.xPosition);
-    yPosition = (u16)(sWarioCollisionPointTable[side * 3 + 2] + gWarioData.yPosition);
-
+    {
+    register struct WarioCollisionData *data asm("r4");
+    data = &gWarioCollisionData;
+    data->unk_0E = 0;
+    {
+        register struct WarioData *wario asm("r3");
+        register const u16 *points asm("r2");
+        register u32 offset asm("r0");
+        register u32 row asm("r1");
+        register u32 warioY asm("r3");
+        wario = &gWarioData;
+        points = sWarioCollisionPointTable;
+        offset = data->unk_04 << 1;
+        row = index << 1;
+        row += index;
+        row <<= 1;
+        offset += row;
+        offset += (u32)points;
+        offset = *(const u16 *)offset;
+        offset += wario->xPosition;
+        xPosition = (u16)offset;
+        points += 2;
+        row += (u32)points;
+        offset = *(const u16 *)row;
+        warioY = wario->yPosition;
+        offset += warioY;
+        yPosition = (u16)offset;
+    }
     collision = GetWarioBlockCollisionAtPosition(yPosition, xPosition);
     if (collision & 0x01000000) {
-        switch (collision & 0xFF) {
-            case 2: case 3: case 4: case 5: case 6: case 7:
-                break;
-            default:
-                if (gWarioCollisionData.unk_0B != 0) {
-                    if (ProcessHorizontalTileInteraction(yPosition, xPosition) != 0)
-                        gWarioCollisionData.unk_0E += 1;
-                }
-                result += 1;
-                break;
+        switch ((s32)(collision & 0xFF)) {
+        case 2: case 3: case 4: case 5: case 6: case 7: break;
+        default:
+            if (data->unk_0B && ProcessHorizontalTileInteraction(yPosition, xPosition))
+                data->unk_0E += 1;
+            result += 1;
+            break;
         }
     }
-
-    if ((s16)verticalOffset > (s16)sWarioCollisionPointTable[side * 3 + 2] + 64) {
-        yPosition = (u16)(yPosition + 64);
-        collision = GetWarioBlockCollisionAtPosition(yPosition, xPosition);
-        if (collision & 0x01000000) {
-            switch (collision & 0xFF) {
-                case 2: case 3: case 4: case 5: case 6: case 7:
-                    break;
-                default:
-                    if (gWarioCollisionData.unk_0B != 0) {
-                        if (ProcessHorizontalTileInteraction(yPosition, xPosition) != 0)
-                            gWarioCollisionData.unk_0E += 2;
-                    }
-                    result += 2;
-                    break;
+    }
+    {
+        register const s16 *points asm("r1");
+        register u32 row asm("r0");
+        u32 doubled;
+        register u32 shifted asm("r3");
+        register s32 height asm("r12");
+        {
+            register u32 value asm("r0");
+            register s32 signedValue asm("r1");
+            value = locals.offset;
+            shifted = value << 16;
+            signedValue = shifted;
+            signedValue >>= 16;
+            height = signedValue;
+        }
+        points = (const s16 *)sWarioCollisionPointTable;
+        doubled = index << 1;
+        row = doubled + index;
+        row <<= 1;
+        points += 2;
+        row += (u32)points;
+        row = *(const s16 *)row + 64;
+        indexDouble = doubled;
+        shiftedOffset = shifted;
+        if (height > (s32)row) {
+            yPosition = (u16)(yPosition + 64);
+            collision = GetWarioBlockCollisionAtPosition(yPosition, xPosition);
+    if (collision & 0x01000000) {
+        switch ((s32)(collision & 0xFF)) {
+        case 2: case 3: case 4: case 5: case 6: case 7: break;
+        default:
+            if (gWarioCollisionData.unk_0B && ProcessHorizontalTileInteraction(yPosition, xPosition))
+                gWarioCollisionData.unk_0E += 2;
+            result += 2;
+            break;
+        }
+    }
+        }
+    }
+    {
+        const s16 *points;
+        u32 row;
+        points = (const s16 *)sWarioCollisionPointTable;
+        row = indexDouble + index;
+        row <<= 1;
+        points += 2;
+        row += (u32)points;
+        if (((s32)shiftedOffset >> 16) > *(const s16 *)row) {
+            {
+                register u32 value asm("r0");
+                register u32 offset asm("r5");
+                value = gWarioData.yPosition;
+                offset = locals.offset;
+                value += offset;
+                yPosition = (u16)value;
             }
+            collision = GetWarioBlockCollisionAtPosition(yPosition, xPosition);
+    if (collision & 0x01000000) {
+        switch ((s32)(collision & 0xFF)) {
+        case 2: case 3: case 4: case 5: case 6: case 7: break;
+        default:
+            if (gWarioCollisionData.unk_0B && ProcessHorizontalTileInteraction(yPosition, xPosition))
+                gWarioCollisionData.unk_0E += 4;
+            result += 4;
+            break;
         }
     }
-
-    if ((s16)verticalOffset > (s16)sWarioCollisionPointTable[side * 3 + 2]) {
-        yPosition = (u16)(gWarioData.yPosition + verticalOffset);
-        collision = GetWarioBlockCollisionAtPosition(yPosition, xPosition);
-        if (collision & 0x01000000) {
-            switch (collision & 0xFF) {
-                case 2: case 3: case 4: case 5: case 6: case 7:
-                    break;
-                default:
-                    if (gWarioCollisionData.unk_0B != 0) {
-                        if (ProcessHorizontalTileInteraction(yPosition, xPosition) != 0)
-                            gWarioCollisionData.unk_0E += 4;
-                    }
-                    result += 4;
-                    break;
-            }
         }
     }
-
-    if (result != 0) {
-        *newXPosition = (xPosition & 0xFFC0) - sWarioCollisionPointTable[side * 3 + gWarioCollisionData.unk_04] + gWarioCollisionData.unk_06;
+    if (result) {
+        register u32 value asm("r1");
+        register const u16 *points asm("r3");
+        register struct WarioCollisionData *data asm("r2");
+        register u32 row asm("r0");
+        register u8 sideOffset asm("r4");
+        register u16 *output asm("r5");
+        register u32 adjustment asm("r2");
+        value = 0xFFC0;
+        value &= xPosition;
+        points = sWarioCollisionPointTable;
+        data = &gWarioCollisionData;
+        row = indexDouble;
+        row += index;
+        sideOffset = data->unk_04;
+        row += sideOffset;
+        row <<= 1;
+        row += (u32)points;
+        row = *(const u16 *)row;
+        value -= row;
+        adjustment = data->unk_06;
+        value += adjustment;
+        output = locals.output;
+        *output = value;
     }
     return result;
 }
@@ -5970,7 +6048,13 @@ u8 ResolveWarioStandardCollision(void)
             side2 = gWarioCollisionData.unk_0A;
         }
 
-        x = gWarioData.xPosition + WARIO_POINT(side, left);
+        {
+            const u16 *points = sWarioCollisionPointTable;
+            u32 leftOffset = left * 2;
+            u32 sideDouble = side * 2;
+            u32 offset = leftOffset + (sideDouble + side) * 2;
+            x = gWarioData.xPosition + *(const u16 *)((u32)points + offset);
+        }
         y = gWarioData.yPosition;
         result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
         if (result != 0 && sec != 0) {
@@ -5980,7 +6064,12 @@ u8 ResolveWarioStandardCollision(void)
             return 0xFF;
         }
 
-        x = gWarioData.xPosition + WARIO_POINT(side2, left);
+        {
+            struct WarioData *wario = &gWarioData;
+            const u16 *points = sWarioCollisionPointTable;
+            u32 offset = left * 2 + side2 * 6;
+            x = wario->xPosition + *(const u16 *)((u32)points + offset);
+        }
         y = y + 1;
         CheckWarioTileCollision(x, y, &adjX, &adjY, &sec);
         if (sec != 0) {
@@ -6025,26 +6114,35 @@ u8 ResolveWarioStandardCollision(void)
                 return 0xFC;
             }
         }
-        x = gWarioData.xPosition + WARIO_POINT(side, left);
-        y = gWarioData.yPosition;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
-        gWarioData.unk_1C = result;
+        {
+        struct WarioData *wario = &gWarioData;
+        const u16 *points = sWarioCollisionPointTable;
+        register u16 *newY asm("r5");
+        register u16 *water asm("r4");
+        {
+            register u32 offset asm("r1") = (side * 3 + left) * 2;
+            x = wario->xPosition + *(const u16 *)((u32)points + offset);
+        }
+        y = wario->yPosition;
+        newY = &adjY;
+        water = &sec;
+        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, newY, water);
+        wario->unk_1C = result;
+        if (result == 0) {
+            if (*water == 0) {
+                return 0xFF;
+            }
+            y = y - 64;
+            result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, newY, water);
+            wario->unk_1C = result;
+        }
         if (result != 0) {
-            gWarioData.yPosition = adjY;
+            wario->yPosition = *newY;
             return 0xFF;
         }
-        if (sec == 0) {
-            return 0xFF;
-        }
-        y = y - 64;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
-        gWarioData.unk_1C = result;
-        if (result != 0) {
-            gWarioData.yPosition = adjY;
-        } else {
-            gWarioData.yPosition = adjY + 63;
-        }
+        wario->yPosition = *newY + 63;
         return 0xFF;
+        }
     }
 
     if (gWarioData.unk_1A == 1) {
@@ -6052,7 +6150,11 @@ u8 ResolveWarioStandardCollision(void)
         return 0xFF;
     }
 
-    x = gWarioData.xPosition + WARIO_POINT(side, right);
+    {
+        const u16 *points = sWarioCollisionPointTable;
+        u32 offset = right * 2 + side * 6;
+        x = gWarioData.xPosition + *(const u16 *)((u32)points + offset);
+    }
     y = gWarioData.yPosition;
     result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
     if (result != 0) {
@@ -6353,7 +6455,7 @@ main:
     pointValue = sWarioCollisionPointTable[side * 3 + left];
     x = (u16)(pointValue + gWarioData.xPosition);
     y = gWarioData.yPosition;
-    result = CheckWarioTileCollision(x, y, &adjX, &adjY, &sec);
+    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
     if (sec != 0) {
         if (result != 0) {
             gWarioData.unk_1C = result;
@@ -6362,7 +6464,7 @@ main:
         }
         if (gPreviousYPosition < adjY) {
             y = gPreviousYPosition;
-            result = CheckWarioTileCollision(x, y, &adjX, &adjY, &sec);
+            result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
             gWarioData.unk_1C = result;
             if (result != 0) {
                 gWarioData.yPosition = adjY;
@@ -6374,7 +6476,7 @@ main:
         if (sec != 0x10) {
             gWarioData.xPosition = offset + (adjX - pointValue);
             x = gWarioData.xPosition;
-            result = CheckWarioTileCollision(x, y, &adjX, &adjY, &sec);
+            result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
             gWarioData.unk_1C = result;
             if (result != 0) {
                 gWarioData.yPosition = adjY;
@@ -6406,7 +6508,7 @@ main:
 
     x = (u16)(sWarioCollisionPointTable[side * 3 + right] + gWarioData.xPosition);
     y = gWarioData.yPosition;
-    result = CheckWarioTileCollision(x, y, &adjX, &adjY, &sec);
+    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
     if (sec != 0) {
         if (result != 0) {
             gWarioData.unk_1C = result;
@@ -6417,7 +6519,7 @@ main:
             return 0xFF;
         }
         y = gPreviousYPosition;
-        result = CheckWarioTileCollision(x, y, &adjX, &adjY, &sec);
+        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
         gWarioData.unk_1C = result;
         if (result != 0) {
             gWarioData.yPosition = adjY;
@@ -6428,7 +6530,7 @@ main:
     }
     if ((s16)sWarioCollisionPointTable[side * 3 + 1] > 31) {
         x = gWarioData.xPosition;
-        result = CheckWarioTileCollision(x, y, &adjX, &adjY, &sec);
+        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
         if (sec != 0 && gPreviousYPosition < adjY) {
             gWarioData.unk_1C = result;
             gWarioData.yPosition = adjY - 1;
