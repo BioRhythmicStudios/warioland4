@@ -3793,73 +3793,42 @@ void BeginGoldenDivaMaskBounce(void)
 
 void UpdateGoldenDivaMaskBounce(void)
 {
-    struct PrimarySpriteData *sprite;
-    u8 *work0;
-    register u32 value asm("r0");
-    u32 temp;
-    register u32 frame asm("r3");
-    register u32 velocity asm("r4");
+    struct PrimarySpriteData *s;
+    register u32 timer asm("r6");
+    u32 frame;
+    u32 velocity;
     const s16 *table;
-    u32 timer;
-    register u8 *work0Store asm("r7");
+    register u32 next asm("r0");
+    register u32 value asm("r1");
 
-    sprite = &gCurrentSprite;
-    value = 39;
-    asm("" : "+r"(value));
-    value += (u32)sprite;
-    work0 = (u8 *)value;
-    timer = *(u8 *)value;
+    s = &gCurrentSprite;
+    timer = s->work0;
     velocity = timer;
     if (velocity != 0) {
-        temp = 42;
-        asm("" : "+r"(temp));
-        temp += (u32)sprite;
-        {
-            register u8 *work3 asm("ip");
-
-            work3 = (u8 *)temp;
-            frame = *(u8 *)temp;
-            table = sGoldenDivaMaskBounceMotion;
-            value = frame << 1;
-            value += (u32)table;
-            velocity = *(u16 *)value;
-            temp = *(s16 *)value;
-            value = 0x7FFF;
-            if (temp == value) {
-                velocity = *(u16 *)table;
-                frame = 0;
-            }
-            value = frame + 1;
-            *work3 = value;
+        frame = s->work3;
+        table = sGoldenDivaMaskBounceMotion;
+        velocity = (u16)table[frame];
+        if (table[frame] == 0x7FFF) {
+            velocity = (u16)table[0];
+            frame = 0;
         }
-        value = sprite->yPosition;
-        value += velocity;
-        sprite->yPosition = value;
-        value = timer - 1;
-        work0Store = work0;
-        /* Compiler boundary: pure C inserts an extra r7-to-r1 copy before this store. */
-        asm("strb %0, [%1]" : : "r"(value), "r"(work0Store) : "memory");
-        temp = (u8)value;
-        if (temp == 0) {
-            sprite->warioCollision = 21;
-            sprite->currentAnimationFrame = 0;
-            sprite->animationTimer = temp;
-            sprite->pOamData = sGoldenDivaMaskAttackOam;
+        s->work3 = frame + 1;
+        s->yPosition += velocity;
+        next = timer - 1;
+        s->work0 = next;
+        value = (u8)next;
+        if (value == 0) {
+            s->warioCollision = 21;
+            s->currentAnimationFrame = 0;
+            s->animationTimer = value;
+            s->pOamData = sGoldenDivaMaskAttackOam;
         }
     } else {
-        frame = sprite->yPosition;
-        value = frame >> 2;
-        temp = gBg1YPosition;
-        temp >>= 2;
-        value -= temp;
-        value = (u16)value;
-        if (value > 80) {
-            value = frame - 4;
-            sprite->yPosition = value;
+        if ((u16)((s->yPosition >> 2) - (gBg1YPosition >> 2)) > 80) {
+            s->yPosition -= 4;
         } else {
-            sprite->pose = 117;
-            value = (u32)sprite + 42;
-            *(u8 *)value = velocity;
+            s->pose = 117;
+            s->work3 = velocity;
         }
     }
 }
