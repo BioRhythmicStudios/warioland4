@@ -507,18 +507,87 @@ void ResetHomerunDerbyRound(void)
 void InitHomerunDerby(void)
 {
     u32 dmaStatus;
+    struct HomerunCameraState* camera;
+    register u32 dmaMask asm("r2");
 
-    HR_DMA(sHomerunBgPalette, 0x05000000, 0x80000100);
-    HR_DMA(sHomerunObjPalette, 0x05000200, 0x80000100);
-    HR_DMA(sHomerunBgTiles, 0x06000000, 0x80002600);
-    HR_DMA(sHomerunObjTiles, 0x06010000, 0x80004000);
-    if (gDifficulty == 2) {
-        HR_DMA(sHomerunHardModeObjTiles, 0x06010000, 0x80000800);
+    DMA3->src = (u32)sHomerunBgPalette;
+    DMA3->dst = 0x05000000;
+    DMA3->cnt = 0x80000100;
+    dmaStatus = DMA3->cnt;
+    dmaStatus = DMA3->cnt;
+    dmaMask = 0x80000000;
+    if ((s32)dmaStatus < 0) {
+        do { dmaStatus = DMA3->cnt & dmaMask; } while (dmaStatus != 0);
     }
-    HR_DMA(sHomerunBgTilemapA, 0x0600C000, 0x80000400);
-    HR_DMA(sHomerunBgTilemapC, 0x0600C800, 0x80000400);
-    HR_DMA(sHomerunBgTilemapB, 0x0600D000, 0x80001000);
-    HR_DMA(sHomerunBgTilemapD, 0x0600F000, 0x80000400);
+    DMA3->src = (u32)sHomerunObjPalette;
+    DMA3->dst = 0x05000200;
+    DMA3->cnt = 0x80000100;
+    dmaStatus = DMA3->cnt;
+    dmaStatus = DMA3->cnt;
+    dmaMask = 0x80000000;
+    if ((s32)dmaStatus < 0) {
+        do { dmaStatus = DMA3->cnt & dmaMask; } while (dmaStatus != 0);
+    }
+    DMA3->src = (u32)sHomerunBgTiles;
+    DMA3->dst = 0x06000000;
+    DMA3->cnt = 0x80002600;
+    dmaStatus = DMA3->cnt;
+    dmaStatus = DMA3->cnt;
+    dmaMask = 0x80000000;
+    if ((s32)dmaStatus < 0) {
+        do { dmaStatus = DMA3->cnt & dmaMask; } while (dmaStatus != 0);
+    }
+    DMA3->src = (u32)sHomerunObjTiles;
+    DMA3->dst = 0x06010000;
+    DMA3->cnt = 0x80004000;
+    dmaStatus = DMA3->cnt;
+    dmaStatus = DMA3->cnt;
+    dmaMask = 0x80000000;
+    if ((s32)dmaStatus < 0) {
+        do { dmaStatus = DMA3->cnt & dmaMask; } while (dmaStatus != 0);
+    }
+    if (gDifficulty == 2) {
+        DMA3->src = (u32)sHomerunHardModeObjTiles;
+    DMA3->dst = 0x06010000;
+    DMA3->cnt = 0x80000800;
+    dmaStatus = DMA3->cnt;
+    dmaStatus = DMA3->cnt;
+    dmaMask = 0x80000000;
+    if ((s32)dmaStatus < 0) {
+        do { dmaStatus = DMA3->cnt & dmaMask; } while (dmaStatus != 0);
+    }
+    }
+    DMA3->src = (u32)sHomerunBgTilemapA;
+    DMA3->dst = 0x0600C000;
+    DMA3->cnt = 0x80000400;
+    dmaStatus = DMA3->cnt;
+    dmaStatus = DMA3->cnt;
+    dmaMask = 0x80000000;
+    if ((s32)dmaStatus < 0) {
+        do { dmaStatus = DMA3->cnt & dmaMask; } while (dmaStatus != 0);
+    }
+    DMA3->src = (u32)sHomerunBgTilemapC;
+    DMA3->dst = 0x0600C800;
+    DMA3->cnt = 0x80000400;
+    dmaStatus = DMA3->cnt;
+    dmaStatus = DMA3->cnt;
+    dmaMask = 0x80000000;
+    if ((s32)dmaStatus < 0) {
+        do { dmaStatus = DMA3->cnt & dmaMask; } while (dmaStatus != 0);
+    }
+    DMA3->src = (u32)sHomerunBgTilemapB;
+    DMA3->dst = 0x0600D000;
+    DMA3->cnt = 0x80001000;
+    dmaStatus = DMA3->cnt;
+    dmaStatus = DMA3->cnt;
+    dmaMask = 0x80000000;
+    if ((s32)dmaStatus < 0) {
+        do { dmaStatus = DMA3->cnt & dmaMask; } while (dmaStatus != 0);
+    }
+    DMA3->src = (u32)sHomerunBgTilemapD;
+    DMA3->dst = 0x0600F000;
+    DMA3->cnt = 0x80000400;
+    dmaStatus = DMA3->cnt;
 
     *(vu16 *)0x0400000E = 0x1803;
     *(vu16 *)0x0400000A = 0x1901;
@@ -548,11 +617,12 @@ void InitHomerunDerby(void)
     ((u8 *)gHomerunBonusAnimation)[10] = 0;
     gHomerunBonusCycle = 0;
 
-    *(u16 *)(gMinigameCamera + 4) = 0x200;
-    *(u16 *)(gMinigameCamera + 8) = 0x68;
-    *(u16 *)(gMinigameCamera + 10) = 0x40;
-    *(u16 *)(gMinigameCamera + 6) = 0;
-    gMinigameCamera[12] = 1;
+    camera = (struct HomerunCameraState*)gMinigameCamera;
+    camera->scale = 0x200;
+    camera->xPosition = 0x68;
+    *(u16*)&camera->yPosition = 0x40;
+    camera->rotation = 0;
+    camera->oamMode = 1;
 
     gMinigameState = 0;
     gMinigameSubstate = 0;
@@ -566,7 +636,7 @@ void InitHomerunDerby(void)
     *(vu16 *)0x04000054 = 0;
     *(vu16 *)0x04000050 = 0x1C42;
     *(vu16 *)0x04000052 = 0x060A;
-    *(vu16 *)0x04000000 = 0x1000;
+    *(vu16 *)0x04000000 = 0x0800;
 }
 
 void ResetHomerunDerbyPitch(void)
@@ -1032,7 +1102,6 @@ void DrawHomerunDerby(void)
   register struct HomerunPitcherState *pitcherState asm("r3");
   register struct HomerunSimpleAnimation *activeAnimationState asm("r3");
   struct AnimationFrame *activeAnimation;
-  register u8 *stackFrame asm("sp");
   u32 animationCounterLimit;
   register u32 oamXMask asm("sl");
   s32 oamAttributeMask;
@@ -1162,9 +1231,9 @@ void DrawHomerunDerby(void)
     }
     nextOamIndex += *frameData;
     frameData = (u16 *) (((u8 *) frameData) + 2);
-    affinePointer = (u16 *) (stackFrame + 2);
+    affinePointer = (u16 *) (((u8 *)affineMatrix) + 2);
     affinePb = affinePointer;
-    affinePc = (u16 *) (stackFrame + 4);
+    affinePc = (u16 *) (((u8 *)affineMatrix) + 4);
     affinePointerReference = &affinePointer;
     affinePd = (*affinePointerReference) + 2;
     if (firstOamIndex < nextOamIndex)
@@ -1251,9 +1320,9 @@ void DrawHomerunDerby(void)
       secondaryFrameData = sHomerunBallHitAnimation[*((u16 *) (((u8 *) objectState) + 2))].oam;
       nextOamIndex += *secondaryFrameData;
       frameData = secondaryFrameData + 1;
-      affinePb = (u16 *) (stackFrame + 2);
-      affinePc = (u16 *) (stackFrame + 4);
-      affinePd = (u16 *) (stackFrame + 6);
+      affinePb = (u16 *) (((u8 *)affineMatrix) + 2);
+      affinePc = (u16 *) (((u8 *)affineMatrix) + 4);
+      affinePd = (u16 *) (((u8 *)affineMatrix) + 6);
       if (((s32) firstOamIndex) < ((s32) nextOamIndex))
       {
         positionValue = (s32) ((OamByte *) gOamBuffer);
@@ -1279,7 +1348,6 @@ void DrawHomerunDerby(void)
           positionValue = oamAttribute6 + positionValue;
           positionValue -= 0x20;
           coordinateMask = oamXMask;
-          asm("" : "+r"(coordinateMask));
           positionValue &= coordinateMask;
           oamAttribute2 = *((u16 *) (((u8 *) oamEntry) + 2));
           preservedOamBits = 0xFFFFFE00;
@@ -1312,9 +1380,9 @@ void DrawHomerunDerby(void)
     }
     else
     {
-      affinePb = (u16 *) (stackFrame + 2);
-      affinePc = (u16 *) (stackFrame + 4);
-      affinePd = (u16 *) (stackFrame + 6);
+      affinePb = (u16 *) (((u8 *)affineMatrix) + 2);
+      affinePc = (u16 *) (((u8 *)affineMatrix) + 4);
+      affinePd = (u16 *) (((u8 *)affineMatrix) + 6);
       if (gMinigameState == 7)
       {
         dataPointer = (OamByte *) (&gHomerunBallRenderState);
@@ -1337,7 +1405,7 @@ void DrawHomerunDerby(void)
         ballFrameData = sHomerunBallPitchAnimation[*((u16 *) (((u8 *) objectState) + 2))].oam;
         nextOamIndex += *ballFrameData;
         frameData = ballFrameData + 1;
-        stackPointer = stackFrame;
+        stackPointer = ((u8 *)affineMatrix);
         affinePointerReference = (u16 **) (&stackPointer);
         affinePb = (u16 *) (((u8 *) (*affinePointerReference)) + 2);
         affinePc = (u16 *) (((u8 *) (*affinePointerReference)) + 4);
@@ -1513,7 +1581,7 @@ void DrawHomerunDerby(void)
       positionValue = (s32) ((OamByte *) gOamBuffer);
       {
         register u32 maskSeed asm("r2");
-        asm("ldr %0, [pc, #356]" : "=r"(maskSeed));
+        maskSeed = 0xFFFFFE00;
         oamAttributeMask = maskSeed;
       }
       workingOffset = firstOamIndex << 3;
@@ -1525,7 +1593,7 @@ void DrawHomerunDerby(void)
       }
       {
         register s32 nextCount asm("r1") = nextOamIndex;
-        asm("sub %0, %1, %0" : "+r"(firstOamIndex) : "r"(nextCount) : "cc");
+        firstOamIndex = nextCount - firstOamIndex;
       }
       do
       {
@@ -1562,7 +1630,6 @@ void DrawHomerunDerby(void)
     savedOamIndex = nextOamIndex;
     cameraData = cameraTransform;
     dataPointer = (OamByte *) cameraData;
-    asm("" : "+r" (dataPointer));
     animationMatrixPa = sSinCosTable[(*((u16 *) (((u8 *) dataPointer) + 4))) + 0x40];
     affineMatrix[0] = (u16) FixedMul((s32) animationMatrixPa, (s32) ((s16) FixedInverse(0x100)));
     objectState = (OamByte *) 0x100;
@@ -1593,7 +1660,7 @@ void DrawHomerunDerby(void)
       bonusAnimationTimer = gHomerunBonusRender.animationTimer + 1;
       gHomerunBonusRender.animationTimer = bonusAnimationTimer;
       bonusFrame = (struct AnimationFrame *) ((u32) gHomerunBonusRender.animationFrame);
-      asm(".word 0x190000c0");
+      bonusFrame = &bonusAnimationFrames[(u32)bonusFrame];
       frameDuration = (u32) bonusFrame->time;
       if (frameDuration < ((u32) ((u16) bonusAnimationTimer)))
       {
@@ -1628,11 +1695,10 @@ void DrawHomerunDerby(void)
       if (((s32) firstOamIndex) < ((s32) nextOamIndex))
       {
         OamByte *render_state;
-        positionValue = 0x03001444;
+        positionValue = (s32)gOamBuffer;
         render_state = (OamByte *) (&gHomerunBonusRender);
         cameraTransform = (struct HomerunCameraState *) 0x1FF;
         oamXMask = 0xFFFFFE00;
-        asm("" : : "r"(positionValue));
         bonusOamBytes = (OamByte *)((firstOamIndex << 3) + positionValue);
         bonusEntryCount = nextOamIndex - firstOamIndex;
         do
@@ -1700,7 +1766,7 @@ void DrawHomerunDerby(void)
         }
 
       }
-      pitcherState = (struct HomerunPitcherState *) 0x03004A10;
+      pitcherState = (struct HomerunPitcherState *) &gHomerunPitcherAnimation;
       pitcherFrameTime = ((struct AnimationFrame *) pitcherAnimation)[pitcherState->animationFrame].time;
       if (pitcherFrameTime == 0)
       {
@@ -1726,7 +1792,7 @@ void DrawHomerunDerby(void)
           entryCounter = (gHomerunPitchPath * 5) - 1;
           pitcherState->animationIndex = (u8) (*((u8 *) ((entryCounter + pitcherState->pitchCounter) + ((s32) dataPointer))));
           dataPointer = (OamByte *) sHomerunPitcherAnimations;
-          objectState = (OamByte *) 0x03004A10;
+          objectState = (OamByte *) &gHomerunPitcherAnimation;
           pitcherAnimationType = *((u8 *) (((u8 *) objectState) + 4));
           pitcherAnimation = (OamByte *) ((struct AnimationFrame **) dataPointer)[pitcherAnimationType];
           if (pitcherAnimationType == 3)
@@ -1741,7 +1807,7 @@ void DrawHomerunDerby(void)
         }
       }
     }
-    pitcherFrameData = ((struct AnimationFrame *) pitcherAnimation)[((struct HomerunPitcherState *) 0x03004A10)->animationFrame].oam;
+    pitcherFrameData = ((struct AnimationFrame *) pitcherAnimation)[((struct HomerunPitcherState *) &gHomerunPitcherAnimation)->animationFrame].oam;
     nextOamIndex += *pitcherFrameData;
     frameData = pitcherFrameData + 1;
     if (((s32) firstOamIndex) < ((s32) nextOamIndex))
