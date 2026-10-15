@@ -149,7 +149,8 @@ def main():
     config = {
         "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
         "custom_make": args.make,
-        "custom_args": ["make"] if args.make == "wsl" else [],
+        # objdiff passes Windows paths; the wrapper turns their backslashes into slashes for make
+        "custom_args": ["--exec", "sh", "tools/wsl_make.sh"] if args.make == "wsl" else [],
         "build_target": False,
         "build_base": True,
         "watch_patterns": ["*.c", "*.h", "*.s", "*.inc", "*.ld"],
