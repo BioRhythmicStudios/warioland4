@@ -15,6 +15,18 @@ struct Dma3Regs {
 
 #define DMA3 ((volatile struct Dma3Regs *)0x040000D4)
 
+#define HR_DMA(s, d, c) \
+    DMA3->src = (u32)(s); \
+    DMA3->dst = (d); \
+    DMA3->cnt = (c); \
+    dmaStatus = DMA3->cnt; \
+    dmaStatus = DMA3->cnt; \
+    if ((s32)dmaStatus < 0) { \
+        do { \
+            dmaStatus = DMA3->cnt & 0x80000000; \
+        } while (dmaStatus != 0); \
+    }
+
 
 typedef u8 OamByte;
 
