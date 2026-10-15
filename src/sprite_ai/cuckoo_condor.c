@@ -1645,11 +1645,9 @@ commonSmall:
 void UpdateCuckooCondorClockPiece(void)
 {
     struct PrimarySpriteData *sprite;
-    u32 size;
     struct PrimarySpriteData *sprites;
     struct PrimarySpriteData *parent;
     u32 value;
-    u8 *timer;
 
     sprite = &gCurrentSprite;
     if (sprite->roomSlot == 1)
@@ -1660,14 +1658,9 @@ void UpdateCuckooCondorClockPiece(void)
 
 room1:
     sprites = gSpriteData;
-    value = sprite->work3;
-    size = sizeof(struct PrimarySpriteData);
-    value *= size;
-    parent = (struct PrimarySpriteData *)(value + (u32)sprites);
-    value = parent->pose;
-    /* agbcc lengthens this in C by four bytes when the final label is just
-     * outside its conservative range estimate; the original uses one cmp/bls. */
-    asm("cmp %0, #15\n\tbls .LCuckooCondorClockPieceUpdateEnd" : : "r"(value));
+    parent = &sprites[sprite->work3];
+    if (parent->pose <= 15)
+        goto end;
     if (gTimerState != 1)
         goto end;
     if (parent->health > 10)
@@ -1676,43 +1669,24 @@ room1:
         goto end;
     if (*(u8 *)&gBossState != 0)
         goto end;
-    timer = &sprite->work1;
-    if (*timer != 0) {
-        (*timer)--;
+    if (sprite->work1 != 0) {
+        sprite->work1--;
         goto end;
     }
     func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 0x20));
     if (gSpriteCollisionTileType == 0x11)
         goto end;
     value = SpriteUtilFindSprite(0xE7, 4);
-    value *= size;
-    value += (u32)sprites;
-    if (((struct PrimarySpriteData *)value)->pose != 16)
+    if (sprites[value].pose != 16)
         goto end;
     sprite->pose = 0x6E;
     goto end;
 
 room4:
-    {
-        u8 *work0Ptr;
-        u32 value;
-        u32 zero;
-        register u8 *work2Ptr asm("r0");
-        work0Ptr = &sprite->work0;
-        value = *work0Ptr;
-        value--;
-        zero = 0;
-        *work0Ptr = value;
-        work2Ptr = &sprite->work2;
-        *work2Ptr = zero;
-        sprites = gSpriteData;
-        work2Ptr++;
-        asm("" : "+r"(work2Ptr));
-        value = *work2Ptr;
-        size = sizeof(struct PrimarySpriteData);
-        value *= size;
-        parent = (struct PrimarySpriteData *)(value + (u32)sprites);
-    }
+    sprite->work0--;
+    sprite->work2 = 0;
+    sprites = gSpriteData;
+    parent = &sprites[sprite->work3];
     if (parent->pose <= 15)
         goto end;
     if (gTimerState != 1)
@@ -1723,22 +1697,18 @@ room4:
         goto end;
     if (*(u8 *)&gBossState != 0)
         goto end;
-    timer = &sprite->work1;
-    if (*timer != 0) {
-        (*timer)--;
+    if (sprite->work1 != 0) {
+        sprite->work1--;
         goto end;
     }
     func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition + 0x80));
     if (gSpriteCollisionTileType == 0x11)
         goto end;
     value = SpriteUtilFindSprite(0xE7, 1);
-    value *= size;
-    value += (u32)sprites;
-    if (((struct PrimarySpriteData *)value)->pose != 16)
+    if (sprites[value].pose != 16)
         goto end;
     sprite->pose = 0x11;
-end:
-    asm(".LCuckooCondorClockPieceUpdateEnd:");
+end:;
 }
 
 void CuckooCondorClockPieceStartSpin(void)
