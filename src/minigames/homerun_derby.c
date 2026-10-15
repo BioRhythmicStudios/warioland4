@@ -506,196 +506,40 @@ void ResetHomerunDerbyRound(void)
 
 void InitHomerunDerby(void)
 {
-    register u8 *difficultyPointer asm("r12");
-    register u8 *pitchLevelPointer asm("r8");
-    register u8 *backgroundTilemapB asm("r9");
-    register u8 *backgroundTilemapD asm("r10");
-    u8 *backgroundTiles;
-    u8 *objectPalette;
-    u8 *objectTiles;
-    u8 *backgroundTilemapA;
-    register u32 dmaBusyMask asm("r2");
-    u32 zeroValue;
     u32 dmaStatus;
+    u32 dmaMask;
 
-    DMA3->src = (u32)sHomerunBgPalette;
-    DMA3->dst = 0x05000000;
-    DMA3->cnt = 0x80000100;
-    dmaStatus = DMA3->cnt;
-    dmaStatus = DMA3->cnt;
-    dmaBusyMask = 0x80000000;
-    objectPalette = sHomerunObjPalette;
-    backgroundTiles = sHomerunBgTiles;
-    objectTiles = sHomerunObjTiles;
-    difficultyPointer = &gDifficulty;
-    backgroundTilemapA = sHomerunBgTilemapA;
-    backgroundTilemapB = sHomerunBgTilemapB;
-    backgroundTilemapD = sHomerunBgTilemapD;
-    pitchLevelPointer = &gHomerunPitchLevel;
-    if ((s32)dmaStatus < 0) {
-        do {
-            dmaStatus = DMA3->cnt & dmaBusyMask;
-        } while (dmaStatus != 0);
+    HR_DMA(sHomerunBgPalette, 0x05000000, 0x80000100);
+    HR_DMA(sHomerunObjPalette, 0x05000200, 0x80000100);
+    HR_DMA(sHomerunBgTiles, 0x06000000, 0x80002600);
+    HR_DMA(sHomerunObjTiles, 0x06010000, 0x80004000);
+    if (gDifficulty == 2) {
+        HR_DMA(sHomerunHardModeObjTiles, 0x06010000, 0x80000800);
     }
-
-    DMA3->src = (u32)objectPalette;
-    DMA3->dst = 0x05000200;
-    DMA3->cnt = 0x80000100;
-    dmaStatus = DMA3->cnt;
-    dmaStatus = DMA3->cnt;
-    dmaBusyMask = 0x80000000;
-    if ((s32)dmaStatus < 0) {
-        do {
-            dmaStatus = DMA3->cnt & dmaBusyMask;
-        } while (dmaStatus != 0);
-    }
-
-    DMA3->src = (u32)backgroundTiles;
-    DMA3->dst = 0x06000000;
-    DMA3->cnt = 0x80002600;
-    dmaStatus = DMA3->cnt;
-    dmaStatus = DMA3->cnt;
-    dmaBusyMask = 0x80000000;
-    if ((s32)dmaStatus < 0) {
-        do {
-            dmaStatus = DMA3->cnt & dmaBusyMask;
-        } while (dmaStatus != 0);
-    }
-
-    DMA3->src = (u32)objectTiles;
-    DMA3->dst = 0x06010000;
-    DMA3->cnt = 0x80004000;
-    dmaStatus = DMA3->cnt;
-    dmaStatus = DMA3->cnt;
-    dmaBusyMask = 0x80000000;
-    if ((s32)dmaStatus < 0) {
-        do {
-            dmaStatus = DMA3->cnt & dmaBusyMask;
-        } while (dmaStatus != 0);
-    }
-
-    {
-        register u8 *difficultyForHardMode asm("r1");
-        difficultyForHardMode = difficultyPointer;
-        if (*difficultyForHardMode == 2) {
-            DMA3->src = (u32)sHomerunHardModeObjTiles;
-            DMA3->dst = 0x06010000;
-            DMA3->cnt = 0x80000800;
-            dmaStatus = DMA3->cnt;
-            dmaStatus = DMA3->cnt;
-            dmaBusyMask = 0x80000000;
-            if ((s32)dmaStatus < 0) {
-                do {
-                    dmaStatus = DMA3->cnt & dmaBusyMask;
-                } while (dmaStatus != 0);
-            }
-        }
-    }
-
-    DMA3->src = (u32)backgroundTilemapA;
-    DMA3->dst = 0x0600C000;
-    dmaStatus = (DMA3->cnt = 0x80000400);
-    dmaStatus = DMA3->cnt;
-    dmaBusyMask = 0x80000000;
-    if ((s32)dmaStatus < 0) {
-        do {
-            dmaStatus = DMA3->cnt & dmaBusyMask;
-        } while (dmaStatus != 0);
-    }
-
-    {
-        volatile struct Dma3Regs *dmaRegisters;
-        register u8 *backgroundTilemapC asm("r2");
-        dmaRegisters = DMA3;
-        backgroundTilemapC = sHomerunBgTilemapC;
-        dmaRegisters->src = (u32)backgroundTilemapC;
-        dmaRegisters->dst = 0x0600C800;
-        dmaRegisters->cnt = 0x80000400;
-        dmaStatus = dmaRegisters->cnt;
-        dmaStatus = dmaRegisters->cnt;
-        dmaBusyMask = 0x80000000;
-        if ((s32)dmaStatus < 0) {
-            do {
-                dmaStatus = dmaRegisters->cnt & dmaBusyMask;
-            } while (dmaStatus != 0);
-        }
-    }
-
-    {
-        volatile struct Dma3Regs *dmaRegisters;
-        register u8 *backgroundTilemapBReload asm("r6");
-        dmaRegisters = DMA3;
-        backgroundTilemapBReload = backgroundTilemapB;
-        dmaRegisters->src = (u32)backgroundTilemapBReload;
-        dmaRegisters->dst = 0x0600D000;
-        dmaRegisters->cnt = 0x80001000;
-        dmaStatus = dmaRegisters->cnt;
-        dmaStatus = dmaRegisters->cnt;
-        dmaBusyMask = 0x80000000;
-        if ((s32)dmaStatus < 0) {
-            do {
-                dmaStatus = dmaRegisters->cnt & dmaBusyMask;
-            } while (dmaStatus != 0);
-        }
-    }
-
-    {
-        volatile struct Dma3Regs *dmaRegisters;
-        dmaRegisters = DMA3;
-        asm("mov r7, %0\n\tstr r7, [r1]" : : "r"(backgroundTilemapD));
-        dmaRegisters->dst = 0x0600F000;
-        dmaRegisters->cnt = 0x80000400;
-        dmaStatus = dmaRegisters->cnt;
-    }
+    HR_DMA(sHomerunBgTilemapA, 0x0600C000, 0x80000400);
+    HR_DMA(sHomerunBgTilemapC, 0x0600C800, 0x80000400);
+    HR_DMA(sHomerunBgTilemapB, 0x0600D000, 0x80001000);
+    HR_DMA(sHomerunBgTilemapD, 0x0600F000, 0x80000400);
 
     *(vu16 *)0x0400000E = 0x1803;
     *(vu16 *)0x0400000A = 0x1901;
     *(vu16 *)0x04000008 = 0xDA00;
     *(vu16 *)0x0400000C = 0x1E02;
+    *(vu16 *)0x0400001A = 0;
+    *(vu16 *)0x04000018 = 0;
+    *(vu16 *)0x0400001E = 0;
+    *(vu16 *)0x0400001C = 0;
+    gHomerunBgX = 0;
+    gHomerunBgY = 0;
+    *(vu16 *)0x04000012 = 0;
+    *(vu16 *)0x04000010 = 0;
 
-    {
-        vu16 *displayRegister;
-        displayRegister = (vu16 *)0x0400001A;
-        zeroValue = 0;
-        *displayRegister = zeroValue;
-        displayRegister--;
-        *displayRegister = zeroValue;
-        displayRegister += 3;
-        *displayRegister = zeroValue;
-        displayRegister--;
-        *displayRegister = zeroValue;
-        gHomerunBgX = zeroValue;
-        gHomerunBgY = zeroValue;
-        displayRegister -= 5;
-        *displayRegister = zeroValue;
-        displayRegister--;
-        *displayRegister = zeroValue;
+    if (gDifficulty == 2) {
+        gHomerunPitchLevel = 1;
+    } else {
+        gHomerunPitchLevel = 0;
     }
-
-    {
-        register u8 *difficultyForPitchLevel asm("r2");
-        difficultyForPitchLevel = difficultyPointer;
-        if (*difficultyForPitchLevel == 2) {
-            register u8 *pitchLevelOutput asm("r6");
-            dmaStatus = 1;
-            pitchLevelOutput = pitchLevelPointer;
-            *pitchLevelOutput = dmaStatus;
-        } else {
-            {
-                register u8 *pitchLevelStore asm("r7") = pitchLevelPointer;
-
-                asm("strb r1, [r7]" : : "r"(pitchLevelStore) : "memory");
-            }
-        }
-    }
-
-    {
-        u8 *pitchResultPointer;
-        dmaStatus = 4;
-        pitchResultPointer = &gHomerunPitchResult;
-        *pitchResultPointer = dmaStatus;
-    }
-
+    gHomerunPitchResult = 4;
     ResetHomerunDerbyRound();
 
     gHomerunBonusAnimation[0] = 0;
@@ -705,16 +549,11 @@ void InitHomerunDerby(void)
     ((u8 *)gHomerunBonusAnimation)[10] = 0;
     gHomerunBonusCycle = 0;
 
-    {
-        u8 *cameraData;
-        cameraData = gMinigameCamera;
-        dmaStatus = 0x200;
-        *(u16 *)(cameraData + 4) = dmaStatus;
-        *(u16 *)(cameraData + 8) = 0x68;
-        *(u16 *)(cameraData + 10) = 0x40;
-        *(u16 *)(cameraData + 6) = 0;
-        cameraData[12] = 1;
-    }
+    *(u16 *)(gMinigameCamera + 4) = 0x200;
+    *(u16 *)(gMinigameCamera + 8) = 0x68;
+    *(u16 *)(gMinigameCamera + 10) = 0x40;
+    *(u16 *)(gMinigameCamera + 6) = 0;
+    gMinigameCamera[12] = 1;
 
     gMinigameState = 0;
     gMinigameSubstate = 0;
@@ -726,20 +565,9 @@ void InitHomerunDerby(void)
     gHomerunMissCount = 0;
     InitMinigameScoreDisplay();
     *(vu16 *)0x04000054 = 0;
-    {
-        vu16 *displayRegister = (vu16 *)0x04000050;
-        register u32 displayControl asm("r7");
-        register u32 displayControlValue asm("r0");
-
-        *displayRegister = 0x1C42;
-        displayRegister++;
-        *displayRegister = 0x060A;
-        displayRegister -= 0x29;
-        displayControl = 0x80;
-        displayControl <<= 4;
-        displayControlValue = displayControl;
-        *displayRegister = displayControlValue;
-    }
+    *(vu16 *)0x04000050 = 0x1C42;
+    *(vu16 *)0x04000052 = 0x060A;
+    *(vu16 *)0x04000000 = 0x1000;
 }
 
 void ResetHomerunDerbyPitch(void)
