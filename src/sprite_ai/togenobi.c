@@ -136,6 +136,7 @@ void UpdateTogenobiOuterPartPosition(void)
     s32 radius;
     s32 value;
     u32 offset;
+    u32 xOffset;
     u32 angle;
     const s16* table;
     const s16* table2;
@@ -145,7 +146,6 @@ void UpdateTogenobiOuterPartPosition(void)
     radius = 192;
     table = sSinCosTable;
     value = table[gCurrentSprite.work0];
-    table2 = table;
     if (value < 0) {
         value = -value * radius;
         if (value < 0) {
@@ -164,21 +164,21 @@ void UpdateTogenobiOuterPartPosition(void)
 
     angle = gCurrentSprite.work0;
     angle += ANGLE_HALF_PI;
-    value = table2[angle];
+    value = sSinCosTable[angle];
     if (value < 0) {
         value = -value * radius;
         if (value < 0) {
             value += 255;
         }
-        offset = (u32)(value << 8) >> 16;
-        gCurrentSprite.xPosition = gSpriteData[gCurrentSprite.work3].xPosition - offset;
+        xOffset = (u32)(value << 8) >> 16;
+        gCurrentSprite.xPosition = gSpriteData[gCurrentSprite.work3].xPosition - xOffset;
     } else {
         value *= radius;
         if (value < 0) {
             value += 255;
         }
-        offset = (u32)(value << 8) >> 16;
-        gCurrentSprite.xPosition = offset + gSpriteData[gCurrentSprite.work3].xPosition;
+        xOffset = (u32)(value << 8) >> 16;
+        gCurrentSprite.xPosition = xOffset + gSpriteData[gCurrentSprite.work3].xPosition;
     }
 }
 
