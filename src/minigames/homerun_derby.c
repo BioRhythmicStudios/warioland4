@@ -1299,6 +1299,7 @@ void DrawHomerunDerby(void)
   {
     if (((u32) ((u8) (gMinigameState - 8))) <= 1U)
     {
+      register s32 countSource asm("r2");
       dataPointer = (OamByte *) (&gHomerunBallRenderState);
       frameCounter = (*((u16 *) (((u8 *) dataPointer) + 0))) + 1;
       *((u16 *) (((u8 *) dataPointer) + 0)) = frameCounter;
@@ -1329,7 +1330,12 @@ void DrawHomerunDerby(void)
         workingOffset = firstOamIndex << 3;
         oamEntry = (OamByte *) (workingOffset + positionValue);
         oamXMask = 0x1FF;
-        secondaryEntryCount = nextOamIndex - firstOamIndex;
+        if (firstOamIndex) {
+          countSource = nextOamIndex;
+        } else {
+          countSource = nextOamIndex;
+        }
+        secondaryEntryCount = countSource - firstOamIndex;
         do
         {
           oamAttribute5 = *(frameData++);
@@ -1579,16 +1585,17 @@ void DrawHomerunDerby(void)
       positionValue = (s32) ((OamByte *) gOamBuffer);
       {
         register u32 maskSeed asm("r2");
-        maskSeed = 0xFFFFFE00;
+        if (firstOamIndex) {
+          maskSeed = 0xFFFFFE00;
+        } else {
+          maskSeed = 0xFFFFFE00;
+        }
         oamAttributeMask = maskSeed;
       }
       workingOffset = firstOamIndex << 3;
       staticOamBytes = (OamByte *) (workingOffset + positionValue);
       objectState = (OamByte *) oamXMaskValue;
-      {
-        register u8 negativeMaskSeed asm("r0") = 15;
-        oamByteMask = -(int)negativeMaskSeed;
-      }
+      oamByteMask = -15;
       {
         register s32 nextCount asm("r1") = nextOamIndex;
         firstOamIndex = nextCount - firstOamIndex;
