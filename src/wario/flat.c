@@ -146,16 +146,21 @@ u8 FlatWarioFloating(void)
         animation = sFlatWarioFloatingAnimation;
         frame = current->unk_1F;
         if (current->unk_1E < animation[frame].time) {
-            return 0xFF;
+            goto returnFF;
         }
         temp = current;
         temp->unk_1E = 0;
         temp->unk_1F++;
         frame = temp->unk_1F;
-        if (animation[frame].time != 0) {
-            return 0xFF;
+        if (counter) {
+            if (animation[frame].time != 0)
+                goto returnFF;
+            goto decrementFrame;
+        } else {
+            if (animation[frame].time != 0)
+                goto returnFF;
+            goto decrementFrame;
         }
-        goto decrementFrame;
     }
 
     heldButtons = gButtonsHeld;
@@ -175,6 +180,7 @@ decrementFrame:
         dec = frame - 1;
         temp->unk_1F = dec;
     }
+returnFF:
     return 0xFF;
 }
 
