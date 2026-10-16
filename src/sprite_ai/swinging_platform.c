@@ -65,22 +65,11 @@ void func_804A508(void)
   u32 xDelta;
   u32 frame;
   register struct PrimarySpriteData *current asm("r9");
-  register struct PrimarySpriteData *sprite asm("r2");
-  struct PrimarySpriteData *sprites;
-  struct WarioData *wario;
-  int offset60;
-  int frameOffset;
-  int offset48;
-  struct
-  {
-    u32 mode;
-    u32 roomSlot;
-    const s16 *mode1HighY;
-    const s16 *mode1LowY;
-    const s16 *mode0HighY;
-    const s16 *mode0LowY;
-    u8 *childWork1;
-  } locals;
+  register struct PrimarySpriteData *spriteBase asm("r2");
+  s32 i;
+  s32 xLoad;
+  u32 mode;
+  u32 roomSlot;
   u32 angle;
   const u8 *lowAngleTable;
   s32 cosine;
@@ -88,7 +77,7 @@ void func_804A508(void)
   u32 flagValue;
   yDelta = 0;
   xDelta = 0;
-  sprite = &gCurrentSprite;
+  spriteBase = &gCurrentSprite;
   {
     u32 frameValue;
     register u32 nextFrame asm("r1");
@@ -99,7 +88,7 @@ void func_804A508(void)
     }
     nextFrame = frameValue + 1;
     {
-      u8 *frameStore;
+      register u8 *frameStore asm("r3");
       frameStore = &gUnk_3000A4B;
       *frameStore = nextFrame;
     }
@@ -108,260 +97,81 @@ void func_804A508(void)
   }
   {
     register u8 *modePtr asm("r4");
-    modePtr = &sprite->work2;
-    locals.mode = *modePtr;
+    modePtr = &spriteBase->work2;
+    mode = *modePtr;
   }
+  roomSlot = spriteBase->roomSlot;
+  current = spriteBase;
+  for (i = 0; i < 24; i++)
   {
-    register u32 roomSlot asm("r1");
-    roomSlot = sprite->roomSlot;
-    locals.roomSlot = roomSlot;
-  }
-  current = sprite;
-  sprite = gSpriteData;
-  sprites = sprite;
-  {
-    s32 offset;
-    const s16 *table;
-    table = sUnk_83D00E8;
-    offset = frame;
-    offset -= 60;
-    offset <<= 1;
-    offset60 = offset;
-    frameOffset = offset60;
-    
-    locals.mode1HighY = (const s16 *) (frameOffset + ((s32) table));
-    frameOffset = frame << 1;
-    table = (const s16 *) (frameOffset + ((s32) table));
-    locals.mode1LowY = table;
-  }
-  locals.childWork1 = &sprites->work1;
-  wario = &gWarioData;
-  {
-    s32 offset;
-    const s16 *table;
-    table = sUnk_83CFF98;
-    offset = frame;
-    offset -= 48;
-    offset48 = offset << 1;
-    locals.mode0HighY = (const s16 *) (offset48 + ((s32) table));
-    table = (const s16 *) (frameOffset + ((s32) table));
-    locals.mode0LowY = table;
-  }
-  loop:
-  {
-    u32 childRoomSlot;
-    register u32 roomSlot asm("r1");
-    childRoomSlot = sprite->roomSlot;
-    roomSlot = locals.roomSlot;
-    if (childRoomSlot == roomSlot)
+    if (gSpriteData[i].roomSlot != roomSlot)
+      continue;
+    if (gSpriteData[i].globalID != PSPRITE_AC)
+      continue;
+    if (!(gSpriteData[i].status & SPRITE_STATUS_EXISTS))
+      continue;
+    if (mode != 0)
     {
+      if (frame > 59)
+      {
+        yDelta = (u16) (sUnk_83D00E8[frame - 60] * 4);
+        xDelta = (u16) (xDelta + sUnk_83D0070[frame - 60] * 4);
+      }
+      else
+      {
+        yDelta = (u16) (yDelta + sUnk_83D00E8[frame] * 4);
+        do { xLoad = sUnk_83CFFF8[frame]; } while (0);
+        xDelta = (u16) (xDelta + xLoad * 4);
+      }
+      if (gSpriteData[i].work1 != 0)
+      {
+        gWarioData.yPosition += yDelta;
+        { u32 xPosition; xPosition = gWarioData.xPosition; xPosition = (xDelta) - (-(xPosition)); gWarioData.xPosition = xPosition; }
+      }
+      else if (frame == 59)
+      {
+        gUnk_3000A4B = 48;
+        gUnk_3000A4D = 0;
+      }
+      else if (frame == 119)
+      {
+        gUnk_3000A4D = 0;
+      }
     }
     else
     {
-      goto next;
-    }
-  }
-
-  if (sprite->globalID != PSPRITE_AC)
-  {
-    goto next;
-  }
-  if (!(sprite->status & SPRITE_STATUS_EXISTS))
-  {
-    goto next;
-  }
-  if (locals.mode != 0)
-  {
-    {
-      s32 xVelocity;
-      if (frame > 59)
-      {
-        register const s16 *yPointer asm("r1");
-        s32 zero;
-        yPointer = *(const s16 *volatile *)&locals.mode1HighY;
-        zero = 0;
-        
-        yDelta = (u16) (yPointer[zero] * 4);
-        {
-          s32 xZero;
-          xZero = 0;
-          xVelocity = ((const s16 *) (((const u8 *) sUnk_83D0070) + offset60))[xZero];
-        }
-      }
-      else
-      {
-        register const s16 *yPointer asm("r1");
-        s32 zero;
-        yPointer = *(const s16 *volatile *)&locals.mode1LowY;
-        zero = 0;
-        
-        yDelta = (u16) (yDelta + (yPointer[zero] * 4));
-        {
-          register const s16 *xTable asm("r1");
-          register u32 xAddress asm("r0");
-          register u32 xZero;
-          xTable = sUnk_83CFFF8;
-          xAddress = frameOffset;
-          xAddress += (u32)xTable;
-          xZero = 0;
-           xVelocity = ((const s16 *)xAddress)[xZero]; 
-        }
-      }
-      xDelta = (u16) (xDelta + (xVelocity * 4));
-    }
-    {
-      register u8 *workPointer asm("r4");
-      register u32 work asm("r1");
-      workPointer = locals.childWork1;
-      work = *workPointer;
-      if (work != 0)
-      {
-        wario->yPosition += yDelta;
-        {
-          u32 xPosition;
-          xPosition = wario->xPosition;
-          xPosition = (xDelta) - (-(xPosition));
-          wario->xPosition = xPosition;
-        }
-        goto applyChildMovement;
-      }
-      else
-        if (frame == 59)
-      {
-        u8 value;
-        register u8 *framePtr asm("r3");
-        register u8 *flagPtr asm("r4");
-        value = 48;
-        framePtr = &gUnk_3000A4B;
-        *framePtr = value;
-        flagPtr = &gUnk_3000A4D;
-        *flagPtr = work;
-        goto applyChildMovement;
-      }
-      else
-      {
-        if (frame != 119)
-        {
-          goto applyChildMovement;
-        }
-        flagValue = work;
-        goto storeFlag;
-      }
-    }
-  }
-  else
-  {
-    {
-      s32 xVelocity;
       if (frame > 47)
       {
-        register const s16 *yPointer asm("r1");
-        s32 zero;
-        yPointer = *(const s16 *volatile *)&locals.mode0HighY;
-        zero = 0;
-        
-        yDelta = (u16) (yPointer[zero] * 4);
-        {
-          register const s16 *xTable asm("r1");
-          register const s16 *xPointer;
-
-          xTable = sUnk_83CFF38;
-          xPointer = (const s16 *)(offset48 + (s32)xTable);
-          {
-            register u32 xZero;
-            xZero = 0;
-            xVelocity = xPointer[xZero];
-            
-          }
-        }
+        yDelta = (u16) (sUnk_83CFF98[frame - 48] * 4);
+        do { do { xLoad = sUnk_83CFF38[frame - 48]; } while (0); } while (0);
+        xDelta = (u16) (xDelta + xLoad * 4);
       }
       else
       {
-        register const s16 *yPointer asm("r4");
-        s32 zero;
-        yPointer = *(const s16 *volatile *)&locals.mode0LowY;
-        zero = 0;
-        
-        yDelta = (u16) (yDelta + (yPointer[zero] * 4));
+        yDelta = (u16) (yDelta + sUnk_83CFF98[frame] * 4);
+        do { xLoad = sUnk_83CFED8[frame]; } while (0);
+        xDelta = (u16) (xDelta + xLoad * 4);
+      }
+      if (gSpriteData[i].work1 != 0)
+      {
+        gWarioData.yPosition += yDelta;
+        { u32 xPosition; xPosition = gWarioData.xPosition; xPosition = (xDelta) - (-(xPosition)); gWarioData.xPosition = xPosition; }
+        if (frame == 47)
         {
-          register const s16 *xTable asm("r4");
-          register u32 xAddress;
-          register u32 xZero;
-          xTable = sUnk_83CFED8;
-          xAddress = frameOffset + (u32)xTable;
-          xZero = 0;
-          xVelocity = ((const s16 *)xAddress)[xZero]; 
+          gUnk_3000A4B = 60;
+          gUnk_3000A4D = 1;
+        }
+        else if (frame == 95)
+        {
+          gUnk_3000A4D = 1;
         }
       }
-      xDelta = (u16) (xDelta + (xVelocity * 4));
     }
-    {
-      register u8 *workPointer asm("r3");
-      u32 work;
-      workPointer = locals.childWork1;
-      work = *workPointer;
-      if (work == 0)
-      {
-        goto applyChildMovement;
-      }
-      wario->yPosition += yDelta;
-      {
-        u32 xPosition;
-        xPosition = wario->xPosition;
-        xPosition = (xDelta) - (-(xPosition));
-        wario->xPosition = xPosition;
-      }
-      if (frame != 47)
-      {
-        goto checkFrame95;
-      }
-      {
-        u8 value;
-        u8 one;
-        register u8 *framePtr asm("r4");
-        value = 60;
-        framePtr = &gUnk_3000A4B;
-        *framePtr = value;
-        one = 1;
-        flagValue = one;
-        goto storeFlag;
-      }
-    }
+    gSpriteData[i].yPosition += yDelta;
+    { u32 xPosition; xPosition = gSpriteData[i].xPosition; xPosition = (xDelta) - (-(xPosition)); gSpriteData[i].xPosition = xPosition; }
+    break;
   }
-  storeFlag:
-  gUnk_3000A4D = flagValue;
-
-  goto applyChildMovement;
-  checkFrame95:
-  if (frame == 95)
-  {
-    register u8 one asm("r4");
-    register u8 *flagPtr asm("r3");
-    one = 1;
-    flagPtr = &gUnk_3000A4D;
-    *flagPtr = one;
-  }
-
-  applyChildMovement:
-  sprite->yPosition += yDelta;
-
-  {
-    u32 xPosition;
-    xPosition = sprite->xPosition;
-    xPosition = (xDelta) - (-(xPosition));
-    sprite->xPosition = xPosition;
-  }
-  goto afterLoop;
-  next:
-  locals.childWork1 += sizeof(struct PrimarySpriteData);
-
-  sprite++;
-  if (((s32) sprite) <= ((s32) (&sprites[24 - 1])))
-  {
-    goto loop;
-  }
-  afterLoop:
-  flagValue = locals.mode;
+  flagValue = mode;
   if (flagValue != 0)
   {
     if (frame > 59)
