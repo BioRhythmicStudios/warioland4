@@ -3273,10 +3273,14 @@ void UpdateCractusArmSegmentBPose23(void)
 void UpdateCractusArmSegmentPose24(void)
 {
     u32 slot;
-    const s16 *table;
+    register const s16 *entry asm("r0");
+    register const s16 *table asm("r5");
     u8 *indexPtr;
     u32 index;
-    u32 velocity;
+    register u32 velocity asm("r4");
+    register u32 base asm("r0");
+    register u32 stride asm("r1");
+    register s32 pose asm("r2");
     struct PrimarySpriteData *parent;
     struct PrimarySpriteData *sprite;
 
@@ -3286,22 +3290,36 @@ void UpdateCractusArmSegmentPose24(void)
         indexPtr = &sprite->work2;
         index = *indexPtr;
         table = sCractusArmPose24XVelocityA;
+        entry = (const s16*)(index << 1);
+        entry = (const s16*)((u32)entry + (u32)table);
+        velocity = *(const u16*)entry;
+        if (*entry == 0x7FFF) {
+            velocity = (u16)table[0];
+            index = 0;
+        }
+        *indexPtr = index + 1;
+        sprite->xPosition += velocity;
     } else {
         indexPtr = &sprite->work2;
         index = *indexPtr;
         table = sCractusArmPose24XVelocityB;
+        entry = (const s16*)(index << 1);
+        entry = (const s16*)((u32)entry + (u32)table);
+        velocity = *(const u16*)entry;
+        if (*entry == 0x7FFF) {
+            velocity = (u16)table[0];
+            index = 0;
+        }
+        *indexPtr = index + 1;
+        sprite->xPosition += velocity;
     }
 
-    velocity = (u16)table[index];
-    if (table[index] == 0x7FFF) {
-        velocity = (u16)table[0];
-        index = 0;
-    }
-    *indexPtr = index + 1;
-    sprite->xPosition += velocity;
-
-    parent = &gSpriteData[slot];
-    switch (parent->pose) {
+    base = (u32)gSpriteData;
+    stride = sizeof(struct PrimarySpriteData);
+    stride *= slot;
+    parent = (struct PrimarySpriteData*)(stride + base);
+    pose = parent->pose;
+    switch (pose) {
     case 110:
     case 111:
         return;
@@ -3309,25 +3327,34 @@ void UpdateCractusArmSegmentPose24(void)
         gCurrentSprite.yPosition = parent->yPosition + 144;
         return;
     case 15:
-        gCurrentSprite.pose = parent->pose;
-        gCurrentSprite.work2 = 0;
-        gCurrentSprite.work1 = 0;
-        return;
+        {
+            register u32 zero asm("r1");
+            parent = &gCurrentSprite;
+            zero = 0;
+            parent->pose = pose;
+            gCurrentSprite.work2 = zero;
+            gCurrentSprite.work1 = zero;
+            return;
+        }
     case 112:
         UpdateCractusArmAngleTowardWario();
         break;
     }
 
-    sprite = &gCurrentSprite;
-    indexPtr = &sprite->work3;
+    {
+    register struct PrimarySpriteData *ySprite asm("r4");
+    u32 yVelocity;
+    ySprite = &gCurrentSprite;
+    indexPtr = &ySprite->work3;
     index = *indexPtr;
-    velocity = (u16)sCractusBossIntroYVelocity[index];
+    yVelocity = (u16)sCractusBossIntroYVelocity[index];
     if (sCractusBossIntroYVelocity[index] == 0x7FFF) {
-        velocity = (u16)sCractusBossIntroYVelocity[0];
+        yVelocity = (u16)sCractusBossIntroYVelocity[0];
         index = 0;
     }
     *indexPtr = index + 1;
-    sprite->yPosition += velocity;
+    ySprite->yPosition += yVelocity;
+    }
 }
 
 
