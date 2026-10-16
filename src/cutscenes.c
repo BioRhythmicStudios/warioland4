@@ -2223,9 +2223,9 @@ void UpdateLayeredSubGameCutscene(s32 frame)
                 *((vu16*)0x04000004) |= 0x9720;
                 *((vu16*)0x04000200) |= 4;
                 gUnk_3002C60++;
-                WaitForVBlankInterrupt();
-                *((vu16*)0x04000000) = 0x1F00;
             }
+            WaitForVBlankInterrupt();
+            *((vu16*)0x04000000) = 0x1F00;
             break;
 
         case 2:
@@ -2283,10 +2283,11 @@ void UpdateLayeredSubGameCutscene(s32 frame)
                 {
                     vu16* scroll;
                     s32 negTwo;
+                    
 
                     gCutsceneBackgroundHorizontalOffset = 0;
-                    negTwo = -2;
-                    gCutsceneBackgroundVerticalOffset = negTwo;
+                    gCutsceneBackgroundVerticalOffset = -2;
+                    negTwo = (u16)-2;
                     scroll = (vu16*)0x04000010;
                     *scroll = 0;
                     scroll++;
@@ -5558,7 +5559,6 @@ void func_800A43C(s32 inputFrame)
                 SelectEndingCutsceneOamSequence10(gUnk_3002C64, (u16**)&mainOam);
             } else {
                 register s32 frameOffset asm("r1") = -480;
-                asm("" : "+r"(frameOffset));
                 SelectEndingCutsceneOamSequence16(gUnk_3002C64 + frameOffset, (u16**)&mainOam);
             }
             gUnk_3002C64++;
@@ -5570,7 +5570,6 @@ void func_800A43C(s32 inputFrame)
             s32 mask;
             mask = 15;
             frameCheck = frame;
-            asm("" : "+r"(mask), "+r"(frameCheck));
             mask &= frameCheck;
             if (mask == 15) {
                 u16* coeffAPtr = (u16*)&gUnk_3002C5A;
@@ -5618,7 +5617,6 @@ void func_800A43C(s32 inputFrame)
                     register s32 selectorOffset asm("r3");
                     selectorFrame = gUnk_3002C64;
                     selectorOffset = -312;
-                    asm("" : "+r"(selectorOffset) : "r"(selectorFrame));
                     selectorFrame += selectorOffset;
                     if (SelectEndingCutsceneOamSequence13(selectorFrame, (u16**)&mainOam) != 0) {
                         gUnk_3002C64 = 0;
@@ -5707,8 +5705,8 @@ void func_800A43C(s32 inputFrame)
     }
 
     if ((u16)gUnk_3002C5A > 7) {
-        register s16* xPositions asm("r8");
-        register s16* yPositions asm("r9");
+        s16* xPositions;
+        s16* yPositions;
         xPositions = gCutsceneObjectXPositions;
         yPositions = gCutsceneObjectYPositions;
         UpdateEndingCutsceneParticlePositions();
@@ -5716,650 +5714,227 @@ void func_800A43C(s32 inputFrame)
         do {
             if (SelectEndingCutsceneOamSequence27(frame + (0), &particleOam) != 0) {
                 s16* randomPointer;
-                s32 value;
-                s32 multiplier;
-                s32 constantValue;
                 s32 product;
                 s32 sum;
-                register s32 remainderBase asm("r0");
-                register s16* yStore asm("r3");
+                s32 remainderBase;
                 randomPointer = &gUnk_3002CA6;
-                value = *randomPointer;
-                multiplier = 109;
-                value *= multiplier;
-                constantValue = 1021;
-                value += constantValue;
-                value = -value;
-                value %= 24;
-                yStore = yPositions;
-                *yStore = value;
-                {
-                    register s32 zeroIndex asm("r1");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                product = value * multiplier;
-                sum = product + constantValue;
+                *yPositions = -(*randomPointer * 109 + 1021) % 24;
+                product = *randomPointer * 109;
+                sum = product + 1021;
                 remainderBase = sum;
-                if (sum < 0) {
-                    s32 negativeBase;
-                    negativeBase = 1084;
-                    remainderBase = product + negativeBase;
-                }
-                remainderBase >>= 6;
-                remainderBase <<= 6;
-                remainderBase = sum - remainderBase;
-                *randomPointer = remainderBase;
-                value = *randomPointer;
-                value += 24;
-                value <<= 8;
+                if (sum < 0)
+                    remainderBase = product + 1084;
+                *randomPointer = sum - ((remainderBase >> 6) << 6);
                 {
-                    register s16* xStore asm("r5");
-                    xStore = xPositions;
-                    *xStore = value;
+                    register s32 value asm("r0");
+                    value = *randomPointer;
+                    value += 24;
+                    value <<= 8;
+                    *xPositions = value;
                 }
             }
-            {
-                register s16 xStep asm("r3");
-                s32 yStep;
-                destination = AppendCutsceneOamTemplate(
-                    particleOam,
-                    destination,
-                    ({
-                        s16* xPointer;
-                        u32 xValue;
-                        xPointer = xPositions;
-                        xValue = ((u16)*xPointer) >> 8;
-                        xStep = 2;
-                        xPositions = (s16*)((u8*)xPositions + xStep);
-                        xValue;
-                    }),
-                    ({
-                        register s16* yPointer asm("r4");
-                        u32 yValue;
-                        yPointer = yPositions;
-                        yValue = (u16)*yPointer;
-                        yStep = 2;
-                        yPositions = (s16*)((u8*)yPositions + yStep);
-                        yValue;
-                    })
-                );
-            }
+            destination = AppendCutsceneOamTemplate(particleOam, destination,
+                (u16)*xPositions++ >> 8, (u16)*yPositions++);
         } while (0);
 
         do {
             if (SelectEndingCutsceneOamSequence27(frame + (9), &particleOam) != 0) {
                 s16* randomPointer;
-                register s32 value asm("r0");
-                s32 multiplier;
-                register s32 constantValue asm("r4");
                 s32 product;
                 s32 sum;
-                register s32 remainderBase asm("r0");
-                register s16* yStore asm("r2");
+                s32 remainderBase;
                 randomPointer = &gUnk_3002CA6;
-                value = *randomPointer;
-                multiplier = 109;
-                value *= multiplier;
-                constantValue = 1021;
-                value += constantValue;
-                value = -value;
-                value %= 24;
-                yStore = yPositions;
-                *yStore = value;
-                {
-                    register s32 zeroIndex asm("r3");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                product = value * multiplier;
-                sum = product + constantValue;
+                *yPositions = -(*randomPointer * 109 + 1021) % 24;
+                product = *randomPointer * 109;
+                sum = product + 1021;
                 remainderBase = sum;
-                if (sum < 0) {
-                    constantValue += 63;
-                    remainderBase = product + constantValue;
-                }
-                remainderBase >>= 6;
-                remainderBase <<= 6;
-                remainderBase = sum - remainderBase;
-                *randomPointer = remainderBase;
+                if (sum < 0)
+                    remainderBase = product + 1084;
+                *randomPointer = sum - ((remainderBase >> 6) << 6);
                 {
-                    register s32 zeroIndex asm("r5");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
+                    register s32 value asm("r0");
+                    value = *randomPointer;
+                    value += 24;
+                    value <<= 8;
+                    *xPositions = value;
                 }
-                value += 24;
-                value <<= 8;
-                *xPositions = value;
             }
-            {
-                register s32 coordinateStep asm("r4");
-                destination = AppendCutsceneOamTemplate(
-                    particleOam,
-                    destination,
-                    ({
-                        register s16* xPointer asm("r3");
-                        u32 xValue;
-                        xPointer = xPositions;
-                        xValue = ((u16)*xPointer) >> 8;
-                        coordinateStep = 2;
-                        xPositions = (s16*)((u8*)xPositions + coordinateStep);
-                        xValue;
-                    }),
-                    ({
-                        register s16* yPointer asm("r5");
-                        u32 yValue;
-                        yPointer = yPositions;
-                        yValue = (u16)*yPointer;
-                        yPositions = (s16*)((u8*)yPositions + coordinateStep);
-                        yValue;
-                    })
-                );
-            }
+            destination = AppendCutsceneOamTemplate(particleOam, destination,
+                (u16)*xPositions++ >> 8, (u16)*yPositions++);
         } while (0);
 
         do {
             if (SelectEndingCutsceneOamSequence27(frame + (18), &particleOam) != 0) {
                 s16* randomPointer;
-                register s32 value asm("r0");
-                s32 multiplier;
-                register s32 constantValue asm("r4");
                 s32 product;
                 s32 sum;
-                register s32 remainderBase asm("r0");
-                register s16* yStore asm("r2");
+                s32 remainderBase;
                 randomPointer = &gUnk_3002CA6;
-                {
-                    register s32 zeroIndex asm("r1");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                multiplier = 109;
-                value *= multiplier;
-                constantValue = 1021;
-                value += constantValue;
-                value = -value;
-                value %= 24;
-                yStore = yPositions;
-                *yStore = value;
-                {
-                    register s32 zeroIndex asm("r3");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                product = value * multiplier;
-                sum = product + constantValue;
+                *yPositions = -(*randomPointer * 109 + 1021) % 24;
+                product = *randomPointer * 109;
+                sum = product + 1021;
                 remainderBase = sum;
-                if (sum < 0) {
-                    constantValue += 63;
-                    remainderBase = product + constantValue;
-                }
-                remainderBase >>= 6;
-                remainderBase <<= 6;
-                remainderBase = sum - remainderBase;
-                *randomPointer = remainderBase;
+                if (sum < 0)
+                    remainderBase = product + 1084;
+                *randomPointer = sum - ((remainderBase >> 6) << 6);
                 {
-                    register s32 zeroIndex asm("r5");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
+                    register s32 value asm("r0");
+                    value = *randomPointer;
+                    value += 24;
+                    value <<= 8;
+                    *xPositions = value;
                 }
-                value += 24;
-                value <<= 8;
-                *xPositions = value;
             }
-            {
-                register s32 coordinateStep asm("r4");
-                destination = AppendCutsceneOamTemplate(
-                    particleOam,
-                    destination,
-                    ({
-                        register s16* xPointer asm("r3");
-                        u32 xValue;
-                        xPointer = xPositions;
-                        xValue = ((u16)*xPointer) >> 8;
-                        coordinateStep = 2;
-                        xPositions = (s16*)((u8*)xPositions + coordinateStep);
-                        xValue;
-                    }),
-                    ({
-                        register s16* yPointer asm("r5");
-                        u32 yValue;
-                        yPointer = yPositions;
-                        yValue = (u16)*yPointer;
-                        yPositions = (s16*)((u8*)yPositions + coordinateStep);
-                        yValue;
-                    })
-                );
-            }
+            destination = AppendCutsceneOamTemplate(particleOam, destination,
+                (u16)*xPositions++ >> 8, (u16)*yPositions++);
         } while (0);
 
         do {
             if (SelectEndingCutsceneOamSequence27(frame + (27), &particleOam) != 0) {
                 s16* randomPointer;
-                register s32 value asm("r0");
-                s32 multiplier;
-                register s32 constantValue asm("r4");
                 s32 product;
                 s32 sum;
-                register s32 remainderBase asm("r0");
-                register s16* yStore asm("r2");
+                s32 remainderBase;
                 randomPointer = &gUnk_3002CA6;
-                {
-                    register s32 zeroIndex asm("r1");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                multiplier = 109;
-                value *= multiplier;
-                constantValue = 1021;
-                value += constantValue;
-                value = -value;
-                value %= 24;
-                yStore = yPositions;
-                *yStore = value;
-                {
-                    register s32 zeroIndex asm("r3");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                product = value * multiplier;
-                sum = product + constantValue;
+                *yPositions = -(*randomPointer * 109 + 1021) % 24;
+                product = *randomPointer * 109;
+                sum = product + 1021;
                 remainderBase = sum;
-                if (sum < 0) {
-                    constantValue += 63;
-                    remainderBase = product + constantValue;
-                }
-                remainderBase >>= 6;
-                remainderBase <<= 6;
-                remainderBase = sum - remainderBase;
-                *randomPointer = remainderBase;
+                if (sum < 0)
+                    remainderBase = product + 1084;
+                *randomPointer = sum - ((remainderBase >> 6) << 6);
                 {
-                    register s32 zeroIndex asm("r5");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
+                    register s32 value asm("r0");
+                    value = *randomPointer;
+                    value += 24;
+                    value <<= 8;
+                    *xPositions = value;
                 }
-                value += 24;
-                value <<= 8;
-                *xPositions = value;
             }
-            {
-                register s32 coordinateStep asm("r4");
-                destination = AppendCutsceneOamTemplate(
-                    particleOam,
-                    destination,
-                    ({
-                        register s16* xPointer asm("r3");
-                        u32 xValue;
-                        xPointer = xPositions;
-                        xValue = ((u16)*xPointer) >> 8;
-                        coordinateStep = 2;
-                        xPositions = (s16*)((u8*)xPositions + coordinateStep);
-                        xValue;
-                    }),
-                    ({
-                        register s16* yPointer asm("r5");
-                        u32 yValue;
-                        yPointer = yPositions;
-                        yValue = (u16)*yPointer;
-                        yPositions = (s16*)((u8*)yPositions + coordinateStep);
-                        yValue;
-                    })
-                );
-            }
+            destination = AppendCutsceneOamTemplate(particleOam, destination,
+                (u16)*xPositions++ >> 8, (u16)*yPositions++);
         } while (0);
 
         do {
             if (SelectEndingCutsceneOamSequence27(frame + (36), &particleOam) != 0) {
                 s16* randomPointer;
-                register s32 value asm("r0");
-                s32 multiplier;
-                register s32 constantValue asm("r4");
                 s32 product;
                 s32 sum;
-                register s32 remainderBase asm("r0");
-                register s16* yStore asm("r2");
+                s32 remainderBase;
                 randomPointer = &gUnk_3002CA6;
-                {
-                    register s32 zeroIndex asm("r1");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                multiplier = 109;
-                value *= multiplier;
-                constantValue = 1021;
-                value += constantValue;
-                value = -value;
-                value %= 24;
-                yStore = yPositions;
-                *yStore = value;
-                {
-                    register s32 zeroIndex asm("r3");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                product = value * multiplier;
-                sum = product + constantValue;
+                *yPositions = -(*randomPointer * 109 + 1021) % 24;
+                product = *randomPointer * 109;
+                sum = product + 1021;
                 remainderBase = sum;
-                if (sum < 0) {
-                    constantValue += 63;
-                    remainderBase = product + constantValue;
-                }
-                remainderBase >>= 6;
-                remainderBase <<= 6;
-                remainderBase = sum - remainderBase;
-                *randomPointer = remainderBase;
+                if (sum < 0)
+                    remainderBase = product + 1084;
+                *randomPointer = sum - ((remainderBase >> 6) << 6);
                 {
-                    register s32 zeroIndex asm("r5");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
+                    register s32 value asm("r0");
+                    value = *randomPointer;
+                    value += 24;
+                    value <<= 8;
+                    *xPositions = value;
                 }
-                value += 24;
-                value <<= 8;
-                *xPositions = value;
             }
-            {
-                register s32 coordinateStep asm("r4");
-                destination = AppendCutsceneOamTemplate(
-                    particleOam,
-                    destination,
-                    ({
-                        register s16* xPointer asm("r3");
-                        u32 xValue;
-                        xPointer = xPositions;
-                        xValue = ((u16)*xPointer) >> 8;
-                        coordinateStep = 2;
-                        xPositions = (s16*)((u8*)xPositions + coordinateStep);
-                        xValue;
-                    }),
-                    ({
-                        register s16* yPointer asm("r5");
-                        u32 yValue;
-                        yPointer = yPositions;
-                        yValue = (u16)*yPointer;
-                        yPositions = (s16*)((u8*)yPositions + coordinateStep);
-                        yValue;
-                    })
-                );
-            }
+            destination = AppendCutsceneOamTemplate(particleOam, destination,
+                (u16)*xPositions++ >> 8, (u16)*yPositions++);
         } while (0);
 
         do {
             if (SelectEndingCutsceneOamSequence27(frame + (45), &particleOam) != 0) {
                 s16* randomPointer;
-                register s32 value asm("r0");
-                s32 multiplier;
-                register s32 constantValue asm("r4");
                 s32 product;
                 s32 sum;
-                register s32 remainderBase asm("r0");
-                register s16* yStore asm("r2");
+                s32 remainderBase;
                 randomPointer = &gUnk_3002CA6;
-                {
-                    register s32 zeroIndex asm("r1");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                multiplier = 109;
-                value *= multiplier;
-                constantValue = 1021;
-                value += constantValue;
-                value = -value;
-                value %= 24;
-                yStore = yPositions;
-                *yStore = value;
-                {
-                    register s32 zeroIndex asm("r3");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                product = value * multiplier;
-                sum = product + constantValue;
+                *yPositions = -(*randomPointer * 109 + 1021) % 24;
+                product = *randomPointer * 109;
+                sum = product + 1021;
                 remainderBase = sum;
-                if (sum < 0) {
-                    constantValue += 63;
-                    remainderBase = product + constantValue;
-                }
-                remainderBase >>= 6;
-                remainderBase <<= 6;
-                remainderBase = sum - remainderBase;
-                *randomPointer = remainderBase;
+                if (sum < 0)
+                    remainderBase = product + 1084;
+                *randomPointer = sum - ((remainderBase >> 6) << 6);
                 {
-                    register s32 zeroIndex asm("r5");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
+                    register s32 value asm("r0");
+                    value = *randomPointer;
+                    value += 24;
+                    value <<= 8;
+                    *xPositions = value;
                 }
-                value += 24;
-                value <<= 8;
-                *xPositions = value;
             }
-            {
-                register s32 coordinateStep asm("r4");
-                destination = AppendCutsceneOamTemplate(
-                    particleOam,
-                    destination,
-                    ({
-                        register s16* xPointer asm("r3");
-                        u32 xValue;
-                        xPointer = xPositions;
-                        xValue = ((u16)*xPointer) >> 8;
-                        coordinateStep = 2;
-                        xPositions = (s16*)((u8*)xPositions + coordinateStep);
-                        xValue;
-                    }),
-                    ({
-                        register s16* yPointer asm("r5");
-                        u32 yValue;
-                        yPointer = yPositions;
-                        yValue = (u16)*yPointer;
-                        yPositions = (s16*)((u8*)yPositions + coordinateStep);
-                        yValue;
-                    })
-                );
-            }
+            destination = AppendCutsceneOamTemplate(particleOam, destination,
+                (u16)*xPositions++ >> 8, (u16)*yPositions++);
         } while (0);
 
         do {
             if (SelectEndingCutsceneOamSequence27(frame + (54), &particleOam) != 0) {
                 s16* randomPointer;
-                register s32 value asm("r0");
-                s32 multiplier;
-                register s32 constantValue asm("r4");
                 s32 product;
                 s32 sum;
-                register s32 remainderBase asm("r0");
-                register s16* yStore asm("r2");
+                s32 remainderBase;
                 randomPointer = &gUnk_3002CA6;
-                {
-                    register s32 zeroIndex asm("r1");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                multiplier = 109;
-                value *= multiplier;
-                constantValue = 1021;
-                value += constantValue;
-                value = -value;
-                value %= 24;
-                yStore = yPositions;
-                *yStore = value;
-                {
-                    register s32 zeroIndex asm("r3");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                product = value * multiplier;
-                sum = product + constantValue;
+                *yPositions = -(*randomPointer * 109 + 1021) % 24;
+                product = *randomPointer * 109;
+                sum = product + 1021;
                 remainderBase = sum;
-                if (sum < 0) {
-                    constantValue += 63;
-                    remainderBase = product + constantValue;
-                }
-                remainderBase >>= 6;
-                remainderBase <<= 6;
-                remainderBase = sum - remainderBase;
-                *randomPointer = remainderBase;
+                if (sum < 0)
+                    remainderBase = product + 1084;
+                *randomPointer = sum - ((remainderBase >> 6) << 6);
                 {
-                    register s32 zeroIndex asm("r5");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
+                    register s32 value asm("r0");
+                    value = *randomPointer;
+                    value += 24;
+                    value <<= 8;
+                    *xPositions = value;
                 }
-                value += 24;
-                value <<= 8;
-                *xPositions = value;
             }
-            {
-                register s32 coordinateStep asm("r4");
-                destination = AppendCutsceneOamTemplate(
-                    particleOam,
-                    destination,
-                    ({
-                        register s16* xPointer asm("r3");
-                        u32 xValue;
-                        xPointer = xPositions;
-                        xValue = ((u16)*xPointer) >> 8;
-                        coordinateStep = 2;
-                        xPositions = (s16*)((u8*)xPositions + coordinateStep);
-                        xValue;
-                    }),
-                    ({
-                        register s16* yPointer asm("r5");
-                        u32 yValue;
-                        yPointer = yPositions;
-                        yValue = (u16)*yPointer;
-                        yPositions = (s16*)((u8*)yPositions + coordinateStep);
-                        yValue;
-                    })
-                );
-            }
+            destination = AppendCutsceneOamTemplate(particleOam, destination,
+                (u16)*xPositions++ >> 8, (u16)*yPositions++);
         } while (0);
 
         do {
             if (SelectEndingCutsceneOamSequence27(frame + (63), &particleOam) != 0) {
                 s16* randomPointer;
-                register s32 value asm("r0");
-                s32 multiplier;
-                register s32 constantValue asm("r4");
                 s32 product;
                 s32 sum;
-                register s32 remainderBase asm("r0");
-                register s16* yStore asm("r2");
+                s32 remainderBase;
                 randomPointer = &gUnk_3002CA6;
-                {
-                    register s32 zeroIndex asm("r1");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                multiplier = 109;
-                value *= multiplier;
-                constantValue = 1021;
-                value += constantValue;
-                value = -value;
-                value %= 24;
-                yStore = yPositions;
-                *yStore = value;
-                {
-                    register s32 zeroIndex asm("r3");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
-                }
-                product = value * multiplier;
-                sum = product + constantValue;
+                *yPositions = -(*randomPointer * 109 + 1021) % 24;
+                product = *randomPointer * 109;
+                sum = product + 1021;
                 remainderBase = sum;
-                if (sum < 0) {
-                    constantValue += 63;
-                    remainderBase = product + constantValue;
-                }
-                remainderBase >>= 6;
-                remainderBase <<= 6;
-                remainderBase = sum - remainderBase;
-                *randomPointer = remainderBase;
+                if (sum < 0)
+                    remainderBase = product + 1084;
+                *randomPointer = sum - ((remainderBase >> 6) << 6);
                 {
-                    register s32 zeroIndex asm("r5");
-                    zeroIndex = 0;
-                    /* Thumb-1 LDRSH has no immediate-offset form, so this load needs a zero
-                     * index register; in plain C agbcc picks it and the choice mismatches. */
-                    asm volatile("ldrsh %0, [%1, %2]" : "=r"(value) : "r"(randomPointer), "r"(zeroIndex));
+                    register s32 value asm("r0");
+                    value = *randomPointer;
+                    value += 24;
+                    value <<= 8;
+                    *xPositions = value;
                 }
-                value += 24;
-                value <<= 8;
-                *xPositions = value;
             }
-            destination = AppendCutsceneOamTemplate(
-                particleOam,
-                destination,
-                ({
-                    register s16* xPointer asm("r3");
-                    xPointer = xPositions;
-                    ((u16)*xPointer) >> 8;
-                }),
-                ({
-                    register s16* yPointer asm("r4");
-                    yPointer = yPositions;
-                    (u16) * yPointer;
-                })
-            );
+            destination = AppendCutsceneOamTemplate(particleOam, destination,
+                (u16)*xPositions++ >> 8, (u16)*yPositions++);
         } while (0);
     }
 
     {
         register s32 renderPathsCheck asm("r5");
         u32* timerPointer;
-        u32* timerPointerLow;
         u16** pathOamAddress;
-        register u16** pathOamAddressLow asm("r1");
         renderPathsCheck = renderTreasurePaths;
         if (renderPathsCheck != 0) {
-            timerPointerLow = &gUnk_3002C68;
-            timerPointer = timerPointerLow;
-            timer = *timerPointerLow;
+            timerPointer = &gUnk_3002C68;
+            timer = *timerPointer;
             pathFrame = 0;
             if (timer > 115) {
                 pathFrame = timer;
             }
 
-            pathOamAddressLow = (u16**)&pathOam;
-            pathOamAddress = pathOamAddressLow;
-            SelectEndingCutsceneOamSequence38(pathFrame, pathOamAddressLow);
+            pathOamAddress = (u16**)&pathOam;
+            SelectEndingCutsceneOamSequence38(pathFrame, pathOamAddress);
             {
                 s32* readPointer;
                 readPointer = (s32*)timerPointer;
@@ -6456,7 +6031,6 @@ void func_800A43C(s32 inputFrame)
             }
         }
     }
-    asm("" : "+m"(renderTreasurePaths));
 
     destination = AppendCutsceneOamTemplate(treasureOam, destination, gCutsceneAnimationFinished, gUnk_3002C9A);
     if (gUnk_3002CA4 != 0) {
