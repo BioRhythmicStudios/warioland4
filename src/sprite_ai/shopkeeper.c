@@ -567,7 +567,7 @@ void SetupShopkeeperSelectedItem(void)
     u32 status;
     register u32 temp asm("r3");
     register u32 flag asm("r1");
-    u32 flagCopy;
+    register u16 flagCopy asm("r0");
 
     s = &gCurrentSprite;
     old = s->status;
@@ -582,10 +582,14 @@ void SetupShopkeeperSelectedItem(void)
     status |= temp;
     s->status = status;
     s->warioCollision = temp;
-    s->drawDistanceDown = 32;
+    flag = (u32)&s->drawDistanceDown;
+    *(u8*)flag = 32;
     s->drawDistanceUp = temp;
-    sixteen = 16;
-    s->drawDistanceLeftRight = sixteen;
+    {
+        u8* p = &s->drawDistanceLeftRight;
+        sixteen = 16;
+        *p = sixteen;
+    }
     s->hitboxExtentUp = 4;
     s->hitboxExtentDown = 4;
     s->hitboxExtentLeft = 4;
@@ -6551,17 +6555,23 @@ void UpdateBlackDragonAttackReturn(void)
 
 void UpdateBlackDragonAttack(void)
 {
-    u16 offset;
-    u32 index;
-    u8* counter;
+    register u16 offset asm("r4");
 
     switch (gCurrentPassage) {
         case 2:
             if (gCurrentSprite.work0 <= 71) {
+                u32 index;
+                u8* counter;
                 gCurrentSprite.xPosition -= 8;
                 counter = &gCurrentSprite.work3;
                 index = *counter;
-                goto bob;
+                offset = sBlackDragonBobPath[index];
+                if (sBlackDragonBobPath[index] == 0x7FFF) {
+                    offset = sBlackDragonBobPath[0];
+                    index = 0;
+                }
+                *counter = index + 1;
+                gCurrentSprite.yPosition += offset;
             } else if (gCurrentSprite.work0 == 73) {
                 gCurrentSprite.status ^= 0x40;
                 m4aSongNumStart(0x2AD);
@@ -6569,10 +6579,11 @@ void UpdateBlackDragonAttack(void)
             break;
         case 5:
             if (gCurrentSprite.work0 <= 31) {
+                u32 index;
+                u8* counter;
                 gCurrentSprite.xPosition -= 4;
                 counter = &gCurrentSprite.work3;
                 index = *counter;
-            bob:
                 offset = sBlackDragonBobPath[index];
                 if (sBlackDragonBobPath[index] == 0x7FFF) {
                     offset = sBlackDragonBobPath[0];
@@ -6586,6 +6597,8 @@ void UpdateBlackDragonAttack(void)
             break;
         default:
             if (gCurrentSprite.work0 <= 144) {
+                u32 index;
+                u8* counter;
                 gCurrentSprite.xPosition -= 4;
                 counter = &gCurrentSprite.work3;
                 index = *counter;
