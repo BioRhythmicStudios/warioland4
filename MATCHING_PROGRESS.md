@@ -112,6 +112,13 @@ Deprioritised:
 
 ## Session log
 
+- **2026-10-16, Claude Code (session 8):**
+  - **UpdateEscapeRippleHBlank, Catbat lesson (3 local trials; not matched; best 5 untouched).**
+    - Reading the phase byte through the symbol makes it an add-operand reload, but the pointer pseudo is `pref LO_REGS`. It's set by a copy or ldr; Catbat's was set by an `add`, which can target a high register. So the pointer lands in a low register instead of `ip`.
+    - Added a Session 2 section to `reports/escaperipple_for_gpt6.md`.
+  - **High-register pin scan** of the remaining near-misses: our `asm("r8".."r12")` pins compared with the target's `mov rLow, rHigh; ld/st [rLow]` reload signatures.
+    - Candidates: func_804A508 / func_804A84C (`current`@r9, 9 target reloads each), func_800A43C (`xPositions`@r8 and `yPositions`@r9, 16 and 20 reloads), DrawHomerunDerby (`cameraTransform`@r9, 12 reloads), WarioHopInit (`speedBase`@r8 and `scrollA`@r10, 1 reload each).
+    - Not candidates: the high pins in BossDoor, WarioHopDrawSprites, DrawSoundRoomSprites and DrawRoulette are integers or masks, not dereferenced pointers.
 - **2026-10-16, Claude Code (session 7):**
   - **Matched UpdateCatbatPatrol**, following GPT-6's plan (`reports/catbat_gpt6_plan.md`, Experiment A): 4 local trials and 1 decomp.wtf compile.
     - Fix on top of P4: `wario` unpinned, and x read as `gWarioData.xPosition` into `right`, with `left = right`.
