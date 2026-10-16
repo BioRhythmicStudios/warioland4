@@ -45,27 +45,27 @@ extern const u32 sUnk_863D920[];
 extern const u32 sUnk_863D948[];
 extern const u32 sUnk_863D8A0[];
 extern const u32 sUnk_863D8E0[];
-extern const u32 sUnk_863C694[];
-extern const u32 sUnk_863C6D4[];
+extern const u32 sUnk_863C694[][4];
+extern const u32 sUnk_863C6D4[][4];
 extern const u32 sUnk_863C714[];
 extern const u32 sUnk_863C754[];
 extern const u32 sUnk_863C794[];
-extern const u32 sUnk_863C7D4[];
-extern const u32 sUnk_863C814[];
-extern const u32 sUnk_863C854[];
+extern const u16* const sUnk_863C7D4[][4];
+extern const u16* const sUnk_863C814[][4];
+extern const struct AnimationFrame* const sUnk_863C854[];
 extern const u32 sUnk_863C85C[];
 extern const u16 sUnk_863D85C[];
 extern const u16 sUnk_863D97C[];
 extern const s16 sUnk_863D984[];
 extern const u16 sUnk_863D9A0[];
 extern const struct AnimationFrame sUnk_8642860[];
-extern const u8* const sUnk_864261C[];
-extern const u8* const sUnk_864262A[];
-extern const u8* const sUnk_8642638[];
-extern const u8* const sUnk_86427A0[];
+extern const u16 sUnk_864261C[];
+extern const u16 sUnk_864262A[];
+extern const u16 sUnk_8642638[];
+extern const u16 sUnk_86427A0[];
 extern const u16 sUnk_86427BA[];
-extern const u16 sUnk_8642820[];
-extern const u16 sUnk_8642898[];
+extern const struct AnimationFrame sUnk_8642820[];
+extern const struct AnimationFrame sUnk_8642898[];
 
 void Shop_DrawText(const u8* text, u32 destination, s32 length);
 
@@ -1018,104 +1018,293 @@ void LoadSoundRoomTrackGraphics(s32 index)
 
 void DrawSoundRoomSprites(void)
 {
-    register s32 i asm("r7") = 0;
-    register s32 total asm("r8") = gOamSlotsUsed;
-    u16 *raw = (u16 *)((u8 *)gOamBuffer + (total << 3));
-    const u16 *frame;
-    OamData *oam;
+    /* The shared OamData merges attr1 bits 9..13 into one 5-bit matrixNum. The
+       selected track icon only clears the 3-bit affine index the hardware reads
+       in affine mode, leaving the two flip bits alone (as in RenderVortexCutsceneOam). */
+    typedef union {
+        struct {
+            u32 y : 8;
+            u32 affineMode : 2;
+            u32 objMode : 2;
+            u32 mosaic : 1;
+            u32 bpp : 1;
+            u32 shape : 2;
+
+            u32 x : 9;
+            u32 affineIndex : 3;
+            u32 preserved : 2;
+            u32 size : 2;
+
+            u16 tileNum : 10;
+            u16 priority : 2;
+            u16 paletteNum : 4;
+
+            u16 fractional : 8;
+            u16 integer : 7;
+            u16 sign : 1;
+        } split;
+
+        struct {
+            u16 attr0;
+            u16 attr1;
+            u16 attr2;
+            u16 affineParam;
+        } all;
+    } SoundRoomOamData;
+
+    const struct AnimationFrame* animation;
+    const u16* src;
+    u16* dest;
+    s32 currentSlot;
+    s32 nextSlot;
+    u16 attr;
+    u16 timer;
+    s32 cycle;
+    u16 matrixD;
+    u16 matrix[4];
+    u16* matrix1Ptr;
+    u16* matrix2Ptr;
+    u16* matrix3Ptr;
     s32 passage;
     s32 stage;
-    s32 index;
-    s32 x;
-    s32 y;
 
-#define DRAW_SOUND_FRAME(xOffset, yOffset, selected) \
-    do { \
-        total += *frame++; \
-        if (i < total) { \
-            oam = &gOamBuffer[i]; \
-            do { \
-                u16 value; \
-                value = *frame++; \
-                *raw++ = value; \
-                oam->split.y = value + (yOffset); \
-                if (selected) { oam->split.affineMode = 3; } \
-                value = *frame++; \
-                *raw++ = value; \
-                oam->split.x = value + (xOffset); \
-                if (selected) { oam->split.matrixNum = 0; } \
-                *raw = *frame++; \
-                oam->split.priority = 0; \
-                raw += 2; \
-                oam++; \
-                i++; \
-            } while (i < total); \
-        } \
-    } while (0)
+    currentSlot = 0;
+    nextSlot = gOamSlotsUsed;
+    dest = (u16*)&gOamBuffer[nextSlot];
 
-    if (*(u8 *)&gSoundRoomMenuState != 4 && *(u8 *)&gSoundRoomMenuState != 2) {
-        const struct AnimationFrame *anim = (const struct AnimationFrame *)sUnk_8642898;
+    if ((u8)gSoundRoomMenuState != 4 && (u8)gSoundRoomMenuState != 2) {
         gStageEntryMainSpriteState[0]++;
-        if (anim[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
+        if (sUnk_8642898[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
             gStageEntryMainSpriteState[0] = 0;
             gStageEntryMainSpriteState[1]++;
-            if (anim[gStageEntryMainSpriteState[1]].time == 0) {
+            if (sUnk_8642898[gStageEntryMainSpriteState[1]].time == 0) {
                 gStageEntryMainSpriteState[1] = 0;
             }
         }
-        frame = anim[gStageEntryMainSpriteState[1]].oam;
-        if (total + *frame > 128) { return; }
-        DRAW_SOUND_FRAME((s16)gStageEntryMainSpriteState[4], (u8)gStageEntryMainSpriteState[5], 0);
+        src = sUnk_8642898[gStageEntryMainSpriteState[1]].oam;
+        nextSlot += *(src++);
+        if (nextSlot > 128) {
+            return;
+        }
+        for (; currentSlot < nextSlot; currentSlot++) {
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.y = attr + gStageEntryMainSpriteState[5];
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.x = (attr + (s16)gStageEntryMainSpriteState[4]) & 0x1FF;
+            *(dest++) = *(src++);
+            gOamBuffer[currentSlot].split.priority = 0;
+            dest++;
+        }
     }
-    if (*(u8 *)&gSoundRoomBonusTrackUnlocked != 0) {
-        frame = sUnk_8642860[gSoundRoomPreviewAnimState[1]].oam;
-        if (total + *frame > 128) { return; }
-        DRAW_SOUND_FRAME(56, 8, 0);
+
+    if (*(u8*)&gSoundRoomBonusTrackUnlocked != 0) {
+        src = sUnk_8642860[gSoundRoomPreviewAnimState[1]].oam;
+        nextSlot += *(src++);
+        if (nextSlot > 128) {
+            return;
+        }
+        for (; currentSlot < nextSlot; currentSlot++) {
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.y = attr + 8;
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.x = (attr + 56) & 0x1FF;
+            *(dest++) = *(src++);
+            gOamBuffer[currentSlot].split.priority = 0;
+            dest++;
+        }
     }
+
     for (passage = 0; passage < 4; passage++) {
         for (stage = 0; stage < 4; stage++) {
-            index = passage * 4 + stage;
-            if (passage == *(u8 *)&gSoundRoomSelectedPassage &&
-                stage == *(u8 *)&gSoundRoomSelectedStage &&
-                *(u8 *)&gSoundRoomMenuState > 2) {
-                frame = (const u16 *)sUnk_863C7D4[index];
-                y = sUnk_863C6D4[index];
-                x = sUnk_863C694[index];
-                DRAW_SOUND_FRAME(x - 8, y - 8, 1);
-            } else if (((u8 *)gCurrentCollection)[(passage + 1) * 24 + stage * 4] & 0x10) {
-                frame = (const u16 *)sUnk_863C7D4[index];
-                y = sUnk_863C6D4[index];
-                x = sUnk_863C694[index];
-                DRAW_SOUND_FRAME(x, y, 0);
+            if (passage == (u8)gSoundRoomSelectedPassage && stage == (u8)gSoundRoomSelectedStage &&
+                (u8)gSoundRoomMenuState > 2) {
+                src = sUnk_863C7D4[passage][stage];
+                nextSlot += *(src++);
+                for (; currentSlot < nextSlot; currentSlot++) {
+                    attr = *(src++);
+                    *(dest++) = attr;
+                    gOamBuffer[currentSlot].split.y = sUnk_863C6D4[passage][stage] + attr - 8;
+                    gOamBuffer[currentSlot].split.affineMode = 3;
+                    attr = *(src++);
+                    *(dest++) = attr;
+                    gOamBuffer[currentSlot].split.x = (attr + sUnk_863C694[passage][stage] - 8) & 0x1FF;
+                    ((SoundRoomOamData*)gOamBuffer)[currentSlot].split.affineIndex = 0;
+                    *(dest++) = *(src++);
+                    gOamBuffer[currentSlot].split.priority = 0;
+                    dest++;
+                }
+            } else if (gCurrentCollection[passage + 1][stage].cd) {
+                src = sUnk_863C7D4[passage][stage];
+                nextSlot += *(src++);
+                for (; currentSlot < nextSlot; currentSlot++) {
+                    attr = *(src++);
+                    *(dest++) = attr;
+                    gOamBuffer[currentSlot].split.y = sUnk_863C6D4[passage][stage] + attr;
+                    attr = *(src++);
+                    *(dest++) = attr;
+                    gOamBuffer[currentSlot].split.x = (attr + sUnk_863C694[passage][stage]) & 0x1FF;
+                    *(dest++) = *(src++);
+                    gOamBuffer[currentSlot].split.priority = 0;
+                    dest++;
+                }
             }
         }
     }
-    if (*(u8 *)&gSoundRoomMenuState > 2) {
-        frame = (const u16 *)sUnk_863C814[*(u8 *)&gSoundRoomSelectedPassage * 4 + *(u8 *)&gSoundRoomSelectedStage];
-    } else if (*(u8 *)&gSoundRoomMusicEnabled != 0) {
-        frame = (const u16 *)sUnk_8642638;
-        if ((gMPlayMemAccArea[0] & 1) == 1 && gMPlayMemAccArea[0] <= 99) {
-            frame = (const u16 *)sUnk_864262A;
+
+    if ((u8)gSoundRoomMenuState > 2) {
+        src = sUnk_863C814[(u8)gSoundRoomSelectedPassage][(u8)gSoundRoomSelectedStage];
+    } else if (*(u8*)&gSoundRoomMusicEnabled != 0) {
+        if (gMPlayMemAccArea[0] % 2 == 1 && gMPlayMemAccArea[0] <= 99) {
+            src = sUnk_864262A;
+        } else {
+            src = sUnk_8642638;
         }
     } else {
-        frame = (const u16 *)sUnk_864261C;
+        src = sUnk_864261C;
     }
-    if (*(u8 *)&gSoundRoomMenuState != 0) {
-        DRAW_SOUND_FRAME(160, 88, 0);
+    if (*(u8*)&gSoundRoomMenuState != 0) {
+        nextSlot += *(src++);
+        for (; currentSlot < nextSlot; currentSlot++) {
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.y = attr + 88;
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.x = (attr + 160) & 0x1FF;
+            *(dest++) = *(src++);
+            gOamBuffer[currentSlot].split.priority = 0;
+            dest++;
+        }
     }
-#undef DRAW_SOUND_FRAME
-    {
-        s16 a, b, c, d;
-        a = FixedMul(sSinCosTable[64], (s16)FixedInverse(384));
-        b = FixedMul(sSinCosTable[0], (s16)FixedInverse(384));
-        c = FixedMul((s16)-sSinCosTable[0], (s16)FixedInverse(384));
-        d = FixedMul(sSinCosTable[64], (s16)FixedInverse(384));
-        gOamBuffer[0].all.affineParam = a;
-        gOamBuffer[1].all.affineParam = b;
-        gOamBuffer[2].all.affineParam = c;
-        gOamBuffer[3].all.affineParam = d;
+
+    if ((u8)gSoundRoomMenuState == 2) {
+        timer = gStageEntrySequenceTimer % 7;
+        if (timer == 0) {
+            if (MinigameRandom() % 10 < 5) {
+                gSoundRoomPreviewRequest = 1;
+            } else {
+                gSoundRoomPreviewRequest = 0;
+            }
+        }
+        if (*(u8*)&gSoundRoomPreviewRequest == 0) {
+            src = sUnk_86427A0;
+        }
+        if (*(u8*)&gSoundRoomPreviewRequest == 1) {
+            src = sUnk_86427BA;
+        }
+        nextSlot += *(src++);
+        for (; currentSlot < nextSlot; currentSlot++) {
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.y = attr + 16;
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.x = (attr + 160) & 0x1FF;
+            *(dest++) = *(src++);
+            gOamBuffer[currentSlot].split.priority = 0;
+            dest++;
+        }
+    } else if ((u8)gSoundRoomMenuState == 4) {
+        if (gStageEntrySequenceTimer % 1200 < 300) {
+            timer = gStageEntrySequenceTimer % 7;
+            if (timer == 0) {
+                if (MinigameRandom() % 10 < 5) {
+                    gSoundRoomPreviewRequest = 1;
+                } else {
+                    gSoundRoomPreviewRequest = 0;
+                }
+            }
+            if (*(u8*)&gSoundRoomPreviewRequest == 0) {
+                src = sUnk_86427A0;
+            }
+            if (*(u8*)&gSoundRoomPreviewRequest == 1) {
+                src = sUnk_86427BA;
+            }
+            nextSlot += *(src++);
+            for (; currentSlot < nextSlot; currentSlot++) {
+                attr = *(src++);
+                *(dest++) = attr;
+                gOamBuffer[currentSlot].split.y = attr + 16;
+                attr = *(src++);
+                *(dest++) = attr;
+                gOamBuffer[currentSlot].split.x = (attr + 160) & 0x1FF;
+                *(dest++) = *(src++);
+                gOamBuffer[currentSlot].split.priority = 0;
+                dest++;
+            }
+        } else {
+            cycle = gStageEntrySequenceTimer % 600;
+            if (cycle == 0 || cycle == 300) {
+                gSoundRoomTrackAnimState[0] = 1;
+                gSoundRoomTrackAnimState[1] = 0;
+            }
+            if (cycle < 300) {
+                animation = sUnk_863C854[0];
+            } else {
+                animation = sUnk_863C854[1];
+            }
+            gSoundRoomTrackAnimState[0]++;
+            if (animation[gSoundRoomTrackAnimState[1]].time < gSoundRoomTrackAnimState[0]) {
+                gSoundRoomTrackAnimState[0] = 0;
+                gSoundRoomTrackAnimState[1]++;
+                if (animation[gSoundRoomTrackAnimState[1]].time == 0) {
+                    gSoundRoomTrackAnimState[1] = 0;
+                }
+            }
+            src = animation[gSoundRoomTrackAnimState[1]].oam;
+            nextSlot += *(src++);
+            for (; currentSlot < nextSlot; currentSlot++) {
+                attr = *(src++);
+                *(dest++) = attr;
+                gOamBuffer[currentSlot].split.y = attr + 16;
+                attr = *(src++);
+                *(dest++) = attr;
+                gOamBuffer[currentSlot].split.x = (attr + 160) & 0x1FF;
+                *(dest++) = *(src++);
+                gOamBuffer[currentSlot].split.priority = 0;
+                dest++;
+            }
+        }
+    } else {
+        animation = sUnk_8642820;
+        gSoundRoomTrackAnimState[0]++;
+        if (animation[gSoundRoomTrackAnimState[1]].time < gSoundRoomTrackAnimState[0]) {
+            gSoundRoomTrackAnimState[0] = 1;
+            gSoundRoomTrackAnimState[1]++;
+            if (animation[gSoundRoomTrackAnimState[1]].time == 0) {
+                gSoundRoomTrackAnimState[1] = 0;
+            }
+        }
+        src = animation[gSoundRoomTrackAnimState[1]].oam;
+        nextSlot += *(src++);
+        for (; currentSlot < nextSlot; currentSlot++) {
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.y = attr + 16;
+            attr = *(src++);
+            *(dest++) = attr;
+            gOamBuffer[currentSlot].split.x = (attr + 160) & 0x1FF;
+            *(dest++) = *(src++);
+            gOamBuffer[currentSlot].split.priority = 0;
+            dest++;
+        }
     }
-    gOamSlotsUsed = total;
+
+    matrix[0] = FixedMul(sSinCosTable[(u16)gSoundRoomTileWaveOffset + 64], (s16)FixedInverse(384));
+    *(matrix1Ptr = &matrix[1]) = FixedMul(sSinCosTable[(u16)gSoundRoomTileWaveOffset], (s16)FixedInverse(384));
+    *(matrix2Ptr = &matrix[2]) =
+        FixedMul((s16)(-((u16)sSinCosTable[(u16)gSoundRoomTileWaveOffset])), (s16)FixedInverse(384));
+    matrixD = FixedMul(sSinCosTable[(u16)gSoundRoomTileWaveOffset + 64], (s16)FixedInverse(384));
+    *(matrix3Ptr = &matrix[3]) = matrixD;
+    gOamBuffer[0].all.affineParam = matrix[0];
+    gOamBuffer[1].all.affineParam = *matrix1Ptr;
+    gOamBuffer[2].all.affineParam = *matrix2Ptr;
+    gOamBuffer[3].all.affineParam = matrixD;
+    gOamSlotsUsed = nextSlot;
 }
 
 void LoadRandomSoundRoomPreview(void)
