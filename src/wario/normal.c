@@ -5536,13 +5536,10 @@ u32 CheckWarioHorizontalCollision(u32 side, u16 *newXPosition, u32 verticalOffse
         register u32 shifted asm("r3");
         register s32 height asm("r12");
         {
-            register u32 value asm("r0");
-            register s32 signedValue asm("r1");
+            register u32 value asm("r12");
             value = locals.offset;
             shifted = value << 16;
-            signedValue = shifted;
-            signedValue >>= 16;
-            height = signedValue;
+            height = (s32)shifted >> 16;
         }
         points = (const s16 *)sWarioCollisionPointTable;
         doubled = index << 1;
