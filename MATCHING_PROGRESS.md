@@ -6,10 +6,10 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 - **Working tree**: present in the local `src/` files but not committed.
 - **decomp.wtf saved best**: the "best attempt" stored in the decomp.wtf database. It can differ from the local file.
 
-## Status (updated 2026-10-16, session 15, by Claude via decomp.wtf MCP; count unchanged since session 13)
+## Status (updated 2026-10-16, session 17, by Claude via decomp.wtf MCP)
 
-- **4,009 / 4,024 functions matched, 97.1% of code** (decomp.wtf `progress()`). It was 4,000 at the start of 2026-10-16. Matched that day: UpdateCractusArmSegmentPose24, CheckWarioHorizontalCollision, UpdateBlackDragonAttack, UpdateCatbatPatrol and func_800A43C (Claude); UpdateTogenobiOuterPartPosition, SetupShopkeeperSelectedItem and FlatWarioFloating (Codex); DrawHomerunDerby (Codex's code, recorded in session 13 after a reference-object fix; see the session log).
-- **15 unmatched:** 12 have been scored and 3 are blocked by SWI (never scored).
+- **4,010 / 4,024 functions matched, 97.5% of code** (decomp.wtf `progress()`). It was 4,000 at the start of 2026-10-16. Matched that day: UpdateCractusArmSegmentPose24, CheckWarioHorizontalCollision, UpdateBlackDragonAttack, UpdateCatbatPatrol, func_800A43C and DrawSoundRoomSprites (Claude); UpdateTogenobiOuterPartPosition, SetupShopkeeperSelectedItem and FlatWarioFloating (Codex); DrawHomerunDerby (Codex's code, recorded in session 13 after a reference-object fix; see the session log).
+- **14 unmatched:** 11 have been scored and 3 are blocked by SWI (never scored).
 - `project_info()` still reports a stale 3,994 / 95.28%. Use `progress()` and `list_functions()`, which agree with `tools/objcmp.py`.
 
 ## Build check (how to confirm nothing regressed)
@@ -19,6 +19,7 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
   - 2026-10-16 before work: exactly the 24 unmatched differed and all 4,000 matched were identical.
   - 2026-10-16 after two matches: exactly 22 differ.
   - 2026-10-16 session 13: exactly 15 differ, the same 15 that decomp.wtf lists as open.
+  - 2026-10-16 session 17: exactly 14 differ (DrawSoundRoomSprites matched; every other function unchanged).
   - objcmp compares disassembly text, so a stale mapping symbol (`$d`) or a raw address in place of a relocation in `expected/` shows up as a difference even when the bytes are equal. If it disagrees with decomp.wtf, check raw bytes against the ROM (see session 13).
 - Nobody currently has a function claimed.
 - Three functions need an inline SWI and can't match under the no-inline-asm rule: `AgbMain`, `WaitForVBlankInterrupt` (`swi 2`) and `MusicPlayerJumpTableCopy` (`swi 0x2A`). The realistic ceiling is therefore **4,021**, unless the rule is relaxed for SWI.
@@ -66,7 +67,7 @@ Checked in session 13. For 13 of the 15 open functions the local file and the sa
 | ResolveWarioCeilingCollision | 2236 | 88.7 | Codex improved it from 4044. Stack-slot order of right/offset/savedX; pointValue spill width. See `reports/ceiling_collision_for_gpt6.md` |
 | DrawRoulette | 6984 | 87.7 | Large; register allocation |
 | RenderPauseScreenOam | 28807 | 45.4 | **Incomplete**: the last ~505 target instructions are not written yet |
-| DrawSoundRoomSprites | 29282 | 42.9 | **Incomplete**: menu-state branches are missing |
+| ~~DrawSoundRoomSprites~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude, session 17), commit 8c3a47a**. Rewritten from scratch in RenderStageEntrySprites/RenderVortexCutsceneOam style |
 | AgbMain | – | – | Blocked: inline `svc 2` |
 | WaitForVBlankInterrupt | – | – | Blocked: inline `svc 2` |
 | MusicPlayerJumpTableCopy | – | – | Blocked: whole body is `swi 0x2A` |
@@ -112,9 +113,23 @@ The already-matched siblings `MoveBlackDragonIntoAttackPosition` and `MoveLargeL
 Deprioritised:
 - FlatWarioFloating: exhaustively tried; wait for a genuinely new idea from GPT-6.
 - SetupShopkeeperSelectedItem (124): a reasonable fourth.
-- The two incomplete functions (RenderPauseScreenOam, DrawSoundRoomSprites): need structural work, not register tuning.
+- The incomplete function RenderPauseScreenOam needs structural work, not register tuning. (DrawSoundRoomSprites, the other one, matched in session 17 by copying the matched OAM-drawing siblings; try the same for RenderPauseScreenOam.)
 
 ## Session log
+
+- **2026-10-16, Claude Code (session 17): DrawSoundRoomSprites MATCHED (42.9% / score 29282 → 0), commit 8c3a47a.**
+  - Used 6 local trials (`try.py`, candidates A-F) plus 1 decomp.wtf compile (the match). decomp.wtf truncates the target at ~580 lines, so the full 1,026-line target came from `arm-none-eabi-objdump` of `expected/us/obj/sound_room.o`.
+  - **Approach:** threw away the macro-based attempt and wrote every OAM draw loop exactly like the matched siblings `RenderStageEntrySprites` (stage_entry.c) and `RenderVortexCutsceneOam` (vortex_cutscene.c): `for (; currentSlot < nextSlot; currentSlot++) { attr = *(src++); *(dest++) = attr; gOamBuffer[currentSlot].split.y = ...; ... .split.x = (attr + X) & 0x1FF; *(dest++) = *(src++); .split.priority = 0; dest++; }`. loop.c then produces the target's reversed counters, `mov r7, r8` final values and hoisted masks on its own. No register pins, no asm.
+  - **What each fix did:**
+    - First draft (A): 449 changed lines.
+    - Explicit `& 0x1FF` on the x stores (C): the 0x1ff and 0xfffffe00 masks are hoisted into sl/ip, as in the target. A separate `u32 objectX` (B) shifted the loop registers instead.
+    - The grid and music tables are 2-D `[passage][stage]`: the target computes `stage*4 + passage*16`.
+    - The selected icon clears only the 3-bit affine index (`and #~0xE`), so it uses a local union with `affineIndex : 3` (D, copied from vortex). That also restored the strength-reduced oam pointer in that loop. D: 122 changed lines.
+    - The music frame is `if (x % 2 == 1 && x <= 99) A; else B;`, giving the target's `cmp #1` and load order. State 4 uses `s32 cycle = gStageEntrySequenceTimer % 600` (shortened u16 modulo then a signed compare), and the default branch uses an `animation = sUnk_8642820` local (E: 104).
+    - The last affine value is a `u16 matrixD` used for both `*matrix3Ptr` and `gOamBuffer[3]`, giving the target's zero-extension, as in vortex's `warioPd` (F: match).
+  - **File-level changes:** in sound_room.c, retyped the externs only this function uses: `sUnk_8642898`/`8642820` as `struct AnimationFrame[]`, `sUnk_863C854` as an `AnimationFrame` pointer array, `sUnk_863C7D4`/`C814` as `const u16 *const [][4]`, the five raw OAM frames as `const u16[]`. `sUnk_863C694`/`6D4` became `const u32 [][4]`; their other users cast them to `u8 *`, so they are unaffected. The data file defines all of them as raw bytes.
+  - **Verification:** full objdiff build + `tools/objcmp.py`: 4,024 compared, exactly 14 differ (the 11 scored open functions + 3 SWI), all matched functions identical. `progress()`: **4010/4024, 97.5%**.
+  - **Lesson for RenderPauseScreenOam** (the other "incomplete" one): look for a matched sibling with the same OAM idiom and copy its loop shape literally before tuning anything.
 
 - **2026-10-16, Claude Code (session 16): func_804A508 reload rotation; no improvement (best 25 unchanged).**
   - Used 5 local trials (C13-C17) plus 4 diagnostic compiler runs (3 reload traces with Codex's ptrace tracer, 1 `-da` dump). Nothing submitted; src/ unchanged. Candidates in `reports/swinging_platform_candidates/`, write-up in the session 16 section of `reports/swinging_platform_for_gpt6.md`.
