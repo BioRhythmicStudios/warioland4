@@ -45,7 +45,7 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 |---|---|---|---|
 | ~~CheckWarioHorizontalCollision~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit 4e06c44** |
 | ~~UpdateCractusArmSegmentPose24~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit 91ba73b** |
-| UpdateEscapeRippleHBlank | 5 | 99.8 | 2 operands: target `mov r7, r12; ldrb r7, [r7]`, ours `mov r6, r12; ldrb r7, [r6]` |
+| UpdateEscapeRippleHBlank (parked) | 5 | 99.8 | 2 operands: target `mov r7, r12; ldrb r7, [r7]`, ours `mov r6, r12; ldrb r7, [r6]` |
 | FlatWarioFloating | 8 | 99.8 | One branch pair inverted (`bne/b` vs `beq/b`). About 45 compiles across 3 agents, all at the same score |
 | ~~UpdateCatbatPatrol~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude, from GPT-6's plan), commit 8654129** |
 | UpdateLayeredSubGameCutscene | 85 | 99.7 | Case 3 BG0 stores. The 85 version uses a `(u16)-2` literal hack; Codex prefers its cleaner 133 version |
@@ -96,7 +96,7 @@ The already-matched siblings `MoveBlackDragonIntoAttackPosition` and `MoveLargeL
 
 1. ~~UpdateCatbatPatrol~~: matched in session 7 (commit 8654129), following GPT-6's Experiment A.
 2. ~~UpdateBlackDragonAttack~~: matched in session 4. Its lesson (separate variables per branch) may also apply to Catbat's duplicated facing-right/left branches: try branch-local `zero`/x variables there.
-3. **UpdateEscapeRippleHBlank** (5): mechanism understood but not solved; see `reports/escaperipple_for_gpt6.md`. Ready for a GPT-6 consult.
+3. **UpdateEscapeRippleHBlank** (5): **PARKED, 2 bytes off** (ROM offsets 0x9c and 0x9e). Codex session 4 (6 candidates plus a read-only allocator audit) found no justified new mechanism; see `reports/escaperipple_for_gpt6.md` Session 4 and `reports/escaperipple_codex_results.md`. Resume only with a new mechanism or a matching analogue.
 4. ~~func_800A43C~~ matched in session 11. **DrawHomerunDerby**: score 663 -> 174 in session 12. What's left is one reload-rotation offset in the ball-hit block and the static-OAM `ip` load; see `reports/drawhomerunderby_for_gpt6.md`.
 5. **func_804A508 / func_804A84C**: session 12 found that the original is a natural loop optimized by loop.c: hoisted, spilled table addresses and a strength-reduced `&sprite->work1` giv at sp+24. A natural rewrite (N1) reproduces the prologue layout; the loop form is still open. See `reports/func_804A508_for_gpt6.md`.
 
@@ -124,6 +124,7 @@ Deprioritised:
     - Plain spilled locals (L3) give the exact loop-body reload rotation, but global alloc then keeps childWork1 in r7.
     - The natural-loop rewrite (N1) reproduces the prologue hoisting and layout, but adds a loop entry test and an extra `sprite+10` giv.
     - Wrote `reports/func_804A508_for_gpt6.md`; released with notes. func_804A84C not attempted (it was conditional on 804A508 matching).
+  - **UpdateEscapeRippleHBlank parked (2 bytes off at 0x9c/0x9e).** Recorded Codex's session 4 (`reports/escaperipple_codex_results.md`; 6 candidates, none better, plus a read-only allocator audit). Verified its correction in `tools/agbcc/gcc/thumb.h`: `STACK_REG` = sp only (`0x02000`), `HI_REGS` = `0x0ff00`, `LO_REGS` = `0x000ff`. Fixed the `STACK_REG` wording in the Catbat and EscapeRipple reports and in this log.
 - **2026-10-16, Claude Code (session 11):**
   - **Matched func_800A43C** (15 compiles: 13 local, 2 decomp.wtf).
     - Path: rewrote block 1 only (K1); unpinned `xPositions`/`yPositions` (K2); put an `r0` pin on the re-read destination to stop CSE forwarding (K4); moved x/y into the call arguments (K5, 88 lines); gave all 8 blocks identical C (K9, decomp.wtf score 6); removed the `pathOamAddressLow` pin and the `timerPointerLow` temp (K12, **MATCH**).
@@ -136,7 +137,7 @@ Deprioritised:
     - **DrawHomerunDerby:** 97 real lines in 23 hunks; the only `r9` hunk is epilogue literal-alignment noise. The rest are ldrsh zero-index registers, the affine stack-pointer setup (`sp+4`/`sp+6`) and table temporaries.
     - **Verdict:** neither is a Catbat-style pin problem. Both are the reload-rotation family, like func_804A508, so Cractus/BlackDragon-style source-shape attempts are the right tool, not unpinning.
 - **2026-10-16, Claude Code (session 9):**
-  - Committed e216e88 (EscapeRipple sessions 2–3, its GPT-6 plan and the pin scan). EscapeRipple Session 3 (GPT-6 pointer-arithmetic plan, 3 compiles): no candidate changed `LO_REGS` to `STACK_REG`. A Thumb `add` can only target a high register in the tied two-operand form, and the target's set is a bare `mov ip, r3`.
+  - Committed e216e88 (EscapeRipple sessions 2–3, its GPT-6 plan and the pin scan). EscapeRipple Session 3 (GPT-6 pointer-arithmetic plan, 3 compiles): no candidate changed `LO_REGS` to `STACK_REG`. (Correction, session 12: in agbcc's `thumb.h`, `STACK_REG` is sp only (`0x02000`); the high-register class is `HI_REGS` (`0x0ff00`).) A Thumb `add` can only target a high register in the tied two-operand form, and the target's set is a bare `mov ip, r3`.
   - **func_804A508, Catbat lesson (2 local compiles; not matched; best 425 untouched).** Unpinning `current` (F1, 343 lines) or reading through `gCurrentSprite` (F2, 213 lines) both regress against the baseline's 114. The `r9` pin already matches the target. The real diffs are reload rotation in the loop body (`mov r3, r10`, ldrsh zero-index registers, table temporaries). func_804A84C was not tried (that was conditional on a match).
 - **2026-10-16, Claude Code (session 8):**
   - **UpdateEscapeRippleHBlank, Catbat lesson (3 local trials; not matched; best 5 untouched).**

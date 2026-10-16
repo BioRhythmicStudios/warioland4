@@ -268,7 +268,7 @@ Spill registers in our build:
 
 ### B. The pointer's home is a global-allocation choice
 
-`global.c find_reg` scans hard registers in plain numeric order (`r0`..`r15`) in two passes. Pass 0 only accepts registers already in `regs_used_so_far` (ever-live or call-clobbered). The pointer pseudo has a high-register preferred class (`pref STACK_REG`).
+`global.c find_reg` scans hard registers in plain numeric order (`r0`..`r15`) in two passes. Pass 0 only accepts registers already in `regs_used_so_far` (ever-live or call-clobbered). The `-dg` dump reports the pointer pseudo's preferred class as `pref STACK_REG`. **Correction (session 12, from Codex's EscapeRipple audit):** In agbcc's `tools/agbcc/gcc/thumb.h`, `STACK_REG` is **sp only** (mask `0x02000`); the high registers are `HI_REGS` (`0x0ff00`) and `LO_REGS` is `0x000ff`. `STACK_REG` is therefore not "high registers". Because sp is fixed, that preferred class contains nothing allocatable, so the pointer's home was effectively decided by its alternate class, which admitted `r10`/`r12`. The alternate class itself was never dumped, so treat this as inference.
 
 - **Ours:** `r8` and `r9` conflict (pinned variables). `r10` is already ever-live because of the **pinned** `zero asm("r10")`, so pass 0 takes `r10`.
 - **Target:** `r10` cannot have been in use yet when the pointer was allocated, so the scan reached `r12`, which is call-clobbered and therefore accepted in pass 0.

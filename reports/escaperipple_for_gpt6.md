@@ -225,7 +225,7 @@ UpdateCatbatPatrol matched once its high-register pointer was **unpinned** and t
 
 Global allocation decides placement partly from a pseudo's *preferred class*, which comes from the instructions that set and use it.
 
-- **Catbat's work3 pointer** was set by `sprite + 42`. A Thumb `add` can write a high register, so in `-dg` it had **`pref STACK_REG`** (high registers) and global allocation put it straight into `r12`.
+- **Catbat's work3 pointer** was set by `sprite + 42`. A Thumb `add` can write a high register, so in `-dg` it had **`pref STACK_REG`**, and global allocation put it into `r12`. (Correction, session 12: In agbcc's `tools/agbcc/gcc/thumb.h`, `STACK_REG` is **sp only** (mask `0x02000`); the high registers are `HI_REGS` (`0x0ff00`) and `LO_REGS` is `0x000ff`. So `STACK_REG` is not "high registers"; see Session 4.)
 - **The loop-2 phase pointer here** can only be set by a copy of `r3` or by `ldr` from the literal pool. In every variant (E1 pseudo 75; v7a/v7c pseudo 67) it shows **`pref LO_REGS`**, so it lands in `r6`/`r7`.
 
 For the target's `mov ip, r3` … `mov r7, ip; ldrb r7, [r7]`, the loop-2 pointer must end up in `ip`. Either its setter must give it a high-register preference, or reload must evict it from `r7`, which needs `r7` as a spill register at an instruction where the pointer is live.
@@ -258,7 +258,7 @@ Each candidate changes only the `phase_ip = ...` line (C also changes the read).
 | B | `i_r1 = 0; phase_ip = &phase_r3[i_r1];` | **Survives** as `(set (reg 67) (plus (reg r3) (reg r1)))`: `i_r1` is a pinned hard register, so CSE doesn't fold the zero | `LO_REGS` | `r7` | Emits `adds r7, r3, r1` (a real 3-operand add) instead of `mov ip, r3`; loop body same as A | 15 |
 | C | `phase_ip = phase_r3 + 1;` … `idx_r0 += phase_ip[-1];` | **Survives** as `(set (reg 67) (plus (reg r3) (const_int 1)))`; the loop optimiser hoists the `- 1` into a new pseudo 77 (`(plus (reg 67) (const_int -1))`) before the loop | `LO_REGS` (pseudo 67, put in `r0`) | 67 → `r0`, 77 → `r7` | Two extra instructions: `adds r0, r3, #1` … `subs r7, r0, #1`; loop body `ldrb r6, [r7]` | 14 |
 
-**No candidate changed the pointer's preference from `LO_REGS` to `STACK_REG`.** In each case global allocation chose a low register itself; no reload moved the pointer to `r12`. None reproduced the target's `mov ip, r3` without extra instructions.
+**No candidate changed the pointer's preference from `LO_REGS` to `STACK_REG`** (which, per the session-12 correction, is sp only, not the high registers). In each case global allocation chose a low register itself; no reload moved the pointer to `r12`. None reproduced the target's `mov ip, r3` without extra instructions.
 
 ### Why this family can't work
 
@@ -275,7 +275,7 @@ That leaves two outcomes, both seen here:
 - The arithmetic collapses to a copy (A), which gives `LO_REGS`.
 - The arithmetic survives (B, C), which costs at least one instruction the target doesn't have.
 
-Catbat's pointer got `STACK_REG` because its set really was an addition that stays in the target (`movs r7, #42; adds r7, r7, r4; mov ip, r7`). EscapeRipple has nothing equivalent.
+Catbat's pointer got a non-`LO_REGS` preference (`STACK_REG`, i.e. sp only) because its set really was an addition that stays in the target (`movs r7, #42; adds r7, r7, r4; mov ip, r7`). EscapeRipple has nothing equivalent.
 
 ### Remaining route
 
@@ -291,3 +291,25 @@ TARGET                         OURS (saved best, score 5)
 mov  r7, ip                    mov  r6, ip
 ldrb r7, [r7, #0]              ldrb r7, [r6, #0]
 ```
+
+## Session 4 (Codex, 2026-10-16): ordinary-pointer lifetimes and allocator audit. PARKED
+
+**Status: parked, 2 bytes off.** The saved best (score 5) is unchanged. Linked against the ROM, it differs at exactly function offsets **0x9c** and **0x9e** of the 212-byte function. Changing only those two register operands in an assembly-only control matches all 212 bytes. Full details: `reports/escaperipple_codex_results.md`.
+
+**Candidates (6 compiles in an isolated worktree, none better).** All replace the loop-2 `phase_r7` with `idx_r0 += *pointer` and use an ordinary (unpinned) phase pointer:
+- C1: one shared pointer.
+- C2: unpinned `phase_r3`.
+- C3/C4/C5: an ordinary copy before or after the phase update.
+- C6: the pointer initialised early.
+
+Every one leaves the pointer in **r7** with `pref LO_REGS`, never in ip. The best of them, C4, is 7 assembly lines and 88 bytes off, against the baseline's 4 lines and 2 bytes.
+
+**Allocator audit (read-only, 0 compiles). Findings:**
+1. **r7 can't be a global conflict.** `global.c` clears conflicts with eliminable registers before allocation, and r7 is `FRAME_POINTER_REGNUM` in `ELIMINABLE_REGS` (`thumb.h:581,589-592`). So extending a hard-r7 lifetime can't force the pointer out, and this also explains the earlier r7-pin miscompile. Local alloc likewise never chooses r7.
+2. **The four loop-2 temporaries that conflict with the pointer were all locally allocated to r0.** They add no r7 interference.
+3. **Reload choices:** in C4 the loop-2 byte and halfword operands reserve **r6**, which is free at zero cost. The loop-2 `r6 = r8` is an *original* insn, not a reload. That corrects this report's earlier premise that it was a preceding round-robin reload.
+4. **Baseline's wrong `mov r6, ip` is created before reload,** as the address-copy pseudo 77, locally allocated to r6. Reload rotation alone can't fix it.
+5. **Eviction to ip is plausible but not established.** It would need a real overlapping global pseudo in r7, or a reload where r6 is unavailable. Even then, whether the alternate class admits ip wasn't traced.
+6. **Correction:** in agbcc's `thumb.h` (verified in session 12), **`STACK_REG` is sp only** (`0x02000`), **`HI_REGS` is the high-register class** (`0x0ff00`), and `LO_REGS` is `0x000ff`. Earlier statements here that `STACK_REG` means "high registers" were wrong. Catbat's `pref STACK_REG` means its preferred class had nothing allocatable, not a high-register preference.
+
+**Disposition:** no justified new C mechanism; further C trials aren't warranted without one. Resume only with an alternate-class/reallocation trace for a concrete new mechanism, or a matched analogue with the same constraints.
