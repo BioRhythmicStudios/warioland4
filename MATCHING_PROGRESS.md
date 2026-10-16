@@ -28,7 +28,7 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 - Branch `decomp-wtf`. The session-13 snapshot commit ("Snapshot working-tree bests, reports and progress log") holds every working-tree best attempt (all open functions), the GPT-6/Codex reports and both handover files. After it, the working tree is clean apart from `tools/agbcc`. Backup branch `backup-before-codex` = `9862bed`.
 - `myfork/decomp-wtf` = `d92fce8` (session 13 commits plus the path clean-up, pushed without force and confirmed with `git ls-remote`).
 - Session 14: `src/sprite_ai/swinging_platform.c` has an **uncommitted** working-tree change: func_804A84C's new best (score 165, written by `compile_and_diff`). It equals the decomp.wtf saved best. func_804A508 is unchanged (HEAD = saved best 165). Session 14's func_804A84C change was committed in `e4a35e0`.
-- Session 15: `src/sprite_ai/swinging_platform.c` has an **uncommitted** func_804A508 change: the new saved best (score 25, written by `compile_and_diff`). func_804A84C is unchanged from `e4a35e0` (= saved best 165). New uncommitted files: `reports/swinging_platform_candidates/` and the session 15 section of `reports/swinging_platform_for_gpt6.md`.
+- Session 15: func_804A508 (score 25) and the session 15 reports were committed in `6f94b8c` and pushed to `myfork/decomp-wtf` without force (confirmed with `git ls-remote`). func_804A84C (score 25) was committed separately after it; both equal their decomp.wtf saved bests.
 - `tools/agbcc` is a dirty submodule (`gcc_arm/obstack.c`, `gcc_arm/splay-tree.c`) and was deliberately left untouched and uncommitted.
 - decomp.wtf's "current source" for each function **is the local working-tree file**. It builds from `src/`. `compile_and_diff` writes the function into `src/` and **auto-commits on a match**, so it is not a read-only check.
 - `expected/` is gitignored and local only. Back it up before changing it. The original `expected/us/obj/minigames/homerun_derby.o` is kept as `homerun_derby.o.bak-asm-era-2026-10-15` next to it.
@@ -58,7 +58,7 @@ Checked in session 13. For 13 of the 15 open functions the local file and the sa
 | ~~func_800A43C~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit b0321e0** |
 | ~~DrawHomerunDerby~~ | 0 | 100 | **MATCHED**: code by Codex (commit 89a6f56); recorded by decomp.wtf in session 13 after the `expected/` fix (commit 7fc2668) |
 | func_804A508 | 25 | 99.8 | Session 15: natural index loop plus `do { } while (0)` X-load wrappers (165 → 25). Left: 9 operand diffs, all reload register choices (two prologue output reloads r4 vs r0, two post-loop ldrsh zero indices). Before: Codex improved it from 425. Missing `mov r3, r10` at the first `mode1HighY` stack store; X-address and ldrsh scratch registers. Session 14: the `locals` struct form can't produce the `mov r3, r10` (needs a spilled pseudo); next step is the natural loop. See `reports/swinging_platform_for_gpt6.md` |
-| func_804A84C | 165 | 99.2 | Session 14: ported func_804A508's changes (370 → 165). Next: port session 15's func_804A508 source (score 25) |
+| func_804A84C | 25 | 99.8 | Session 15: ported func_804A508's natural-loop source (AC→AD, six child tables), 165 → 25. Same 9-operand reload residual as the twin. Before: session 14 ported Codex's changes (370 → 165) |
 | WarioHopDrawSprites | 709 | 98.5 | Register scheduling throughout |
 | WarioHopInit | 1004 | 95.5 | Register allocation of hoisted DMA sources and struct copies |
 | UpdateBossDoorOpeningSprites | 1235 | 97.9 | Limit init registers; stack slot offsets |
@@ -124,7 +124,8 @@ Deprioritised:
   - **xPosition adds (C11).** Session 12's `(xDelta) - (-(x))` form fixes the operand order. Submitted: **score 25**, saved best.
   - Rejected: C5/C6 (pinned work1 pointers break the giv), C7/C8 (hard pins inside the loop change hoisting), C10 (`xDelta + x` is canonicalised), C12 (an r0-pinned mode temp is folded by combine).
   - **Left (9 operands):** the output reloads for `mode` (insn 56) and the work1-pointer setup (insn 1450) take r4 (target r0), and the two post-loop ldrsh zero indices take r3/r4 (target r2). All are reload rotation (`last_spill_reg`).
-  - **Next:** investigate those reloads, then port the source to func_804A84C (swap AC→AD and its six tables).
+  - **func_804A84C (1 decomp.wtf compile, plus 1 local trial).** Ported C11 unchanged apart from AC→AD and the six child tables: **165 → 25**, saved best, with the same 9 operand differences as the twin. `tools/objcmp.py` after a full objdiff build: 4,024 compared, the same 15 differ, every matched function identical.
+  - **Next:** the remaining reloads in both functions. Try the DrawHomerunDerby technique: coordinate when values are materialised so reload's `last_spill_reg` rotation lands on r0 for the `mode` and work1-pointer output reloads and on r2 for the two post-loop zero indices. A fix should port 1:1 between the twins.
 
 - **2026-10-16, Claude Code (session 14): func_804A84C 370 → 165; func_804A508 root cause found, not matched.**
   - Budget: about 20 compiles. Used 12: 1 decomp.wtf compile plus 11 local trials (`try.py`), with RTL dumps (`-dc -dl -dg`) of already-compiled variants.
