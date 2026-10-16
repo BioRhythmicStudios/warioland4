@@ -491,3 +491,60 @@ Starting from P4 (allocation identical to the target), what C makes these two th
 2. Make `wario->reaction` load into a real pseudo (r0) with the `wario` (r8) address reloaded through `r1`, in both halves.
 
 Both are "reload must not share with the other operand" situations. That suggests the original's intermediate values were ordinary pseudos where ours collapse into reload outputs.
+
+---
+
+## Session 3 (2026-10-16): GPT-6 plan, Experiment A → **MATCH**
+
+This session followed `reports/catbat_gpt6_plan.md`. The base was P4 (kept unchanged as a separate scratch copy), and the saved 99.9% best was preserved until the match. Every candidate was checked against the actual `-dg`/`-dl` RTL. It took **4 local trial compiles plus 1 decomp.wtf compile**, well inside the plan's 6–8.
+
+**Result: UpdateCatbatPatrol matches byte-for-byte.** decomp.wtf auto-committed it as `8654129`, and the commit touches only this function. `tools/objcmp.py` over all 4,024 functions now reports exactly 20 differing (previously 21). The project is at **4,004 / 4,024 (96.0%)**.
+
+### Experiment A: why the x load reused `r0` (answered from the RTL)
+
+In P4/P6a, `wario` is pinned to `r8`. A hard high register isn't a legitimate Thumb base address, so the **expander** emits `(set (reg 34) (reg r8))` before the load.
+
+Local allocation gives pseudo 34 `r0`. Pseudo 34 dies in the `ldrh`, so local allocation also ties the loaded x pseudo to `r0`, giving `ldrh r0, [r0, #18]`. That is a pseudo assignment, **not a reload event**, so the reload rotation never advances.
+
+The target's `ldr r0, =gWarioData; mov r8, r0; ldrh r1, [r0, #18]` means three things:
+
+- `wario` is an ordinary pseudo that global allocation placed in `r8`.
+- The load address comes from the inherited `r0`, which holds the same constant. A register used for an inherited reload is never shared.
+- The x value is stored straight into the spilled `right` pseudo through an **output reload**. That reload rotates from `r0` to `r1`, setting `last_spill_reg = r1`. The work3 address reload then rotates to `r7`.
+
+### Trials
+
+| # | Change from P4 | Global allocation | Reload events | Result |
+|---|---|---|---|---|
+| A1 | `wario` unpinned (x still read via `wario->xPosition`) | **Regressed.** `wario` (4 refs/192 insns, priority ≈416) beats `right` (312) and takes `r7`; `right` → `r8` | n/a | 138 lines. Stopped per rule |
+| A2 | `warioX` as a natural `u16` intermediate (`right = wx; left = wx;`) | **Regressed.** CSE merges `right`/`left` into one pseudo | Still `ldrh r0,[r0]` | 116 lines |
+| A3 | Independent `right = wario->xPosition; left = wario->xPosition;` | Allocation is fine, but there's a duplicate load | `ldrh r0,[r0]` (the output reload shares the dying force-copy pseudo) | 106 lines |
+| **A4** | `wario` unpinned **and** x read through the symbol: `right = gWarioData.xPosition; left = right;` (no `warioX` variable) | **Exactly the target's.** `wario` has 3 refs (set + two reaction checks), priority ≈156, so `right` → `r7` (later evicted to `sp+12`), `zero` → `r10`, `wario` → `r8`, `left` → `sp+8`, pointer → `r12` | Insn 14 is an output reload into **`r1`** with the inherited `r0` address. The work3 address then rotates to **`r7`**, and the left-half zero copy (`r7`) and compare (`r0`) also fall into place | **MATCH** |
+
+Experiments B (block-local `u8` reaction value) and C (duplicating regions across the facing split) were **not needed**. P4's pinned `reactionWario` turned out to be harmless once the prologue reload history was right.
+
+### The matching source (diff from P4)
+
+```c
+    struct WarioData *wario;                       /* was: register ... asm("r8") */
+    /* removed: register u32 warioX asm("r1"); */
+    ...
+    wario = &gWarioData;
+    right = gWarioData.xPosition;                  /* was: warioX = wario->xPosition; right = warioX; */
+    left = right;                                  /* was: left = warioX; */
+```
+
+Everything else is identical to P4:
+
+- plain `u32 right, left, zero`
+- the left half's `{register u16 status asm("r1"); register u32 mask asm("r0"); ... mask = 0xFFFB; ...}` block
+- `reactionWario` pinned to `r1`, `oldX` to `r6` and `oldXLeft` to `r9`
+
+### Exact remaining differences
+
+None. The function is byte-identical.
+
+### Lessons for the remaining functions
+
+1. **Pinning a pointer to a high register (`r8`–`r12`) that's later dereferenced inserts an expand-time copy pseudo.** That removes a reload event from the rotation. This was also the root cause in UpdateEscapeRippleHBlank. Prefer an ordinary pseudo that global allocation places high, plus inherited reloads.
+2. **How a value is reached (symbol vs pointer) changes reference counts**, and therefore global-allocation priority. Reading through the global symbol instead of a cached pointer can be the whole difference.

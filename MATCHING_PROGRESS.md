@@ -8,8 +8,8 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 
 ## Status (updated 2026-10-16 by Claude via decomp.wtf MCP)
 
-- **4,003 / 4,024 functions matched, 95.9% of code by size.** It was 4,000 at the start of 2026-10-16; UpdateCractusArmSegmentPose24, CheckWarioHorizontalCollision and UpdateBlackDragonAttack were matched that day.
-- **21 unmatched:** 18 have been tried and 3 are new (never scored).
+- **4,004 / 4,024 functions matched, 96.0% of code by size.** It was 4,000 at the start of 2026-10-16; UpdateCractusArmSegmentPose24, CheckWarioHorizontalCollision, UpdateBlackDragonAttack and UpdateCatbatPatrol were matched that day.
+- **20 unmatched:** 17 have been tried and 3 are new (never scored).
 
 ## Build check (how to confirm nothing regressed)
 
@@ -47,7 +47,7 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 | ~~UpdateCractusArmSegmentPose24~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit 91ba73b** |
 | UpdateEscapeRippleHBlank | 5 | 99.8 | 2 operands: target `mov r7, r12; ldrb r7, [r7]`, ours `mov r6, r12; ldrb r7, [r6]` |
 | FlatWarioFloating | 8 | 99.8 | One branch pair inverted (`bne/b` vs `beq/b`). About 45 compiles across 3 agents, all at the same score |
-| UpdateCatbatPatrol | 17 | 99.9 | 5 operands: work3 address temp `r1` / saved in `r10`; target uses `r7` / `r12` |
+| ~~UpdateCatbatPatrol~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude, from GPT-6's plan), commit 8654129** |
 | UpdateLayeredSubGameCutscene | 85 | 99.7 | Case 3 BG0 stores. The 85 version uses a `(u16)-2` literal hack; Codex prefers its cleaner 133 version |
 | SetupShopkeeperSelectedItem | 124 | 99.3 | `u16 flagCopy asm("r0")` adds `lsl/lsr #16`; with `u32` the score is 132 and only `mov r0, r1` is missing |
 | UpdateTogenobiOuterPartPosition | 254 | 95.5 | `table2` lands in `r8` (extra push/pop); target keeps it in `r2` |
@@ -112,6 +112,12 @@ Deprioritised:
 
 ## Session log
 
+- **2026-10-16, Claude Code (session 7):**
+  - **Matched UpdateCatbatPatrol**, following GPT-6's plan (`reports/catbat_gpt6_plan.md`, Experiment A): 4 local trials and 1 decomp.wtf compile.
+    - Fix on top of P4: `wario` unpinned, and x read as `gWarioData.xPosition` into `right`, with `left = right`.
+    - Mechanism: the pinned `r8` pointer forced an expand-time copy (no reload event). Unpinned, `wario` has lower priority and lands in `r8`, and the x load becomes an output reload into `r1` that advances the rotation.
+  - `objcmp.py`: exactly 20 differ. Session 3 written in `reports/catbat_for_gpt6.md`.
+  - Note: `reports/catbat_for_gpt6.md` had been overwritten with the plan's text. It was restored from git (the plan is kept in its own file) before appending.
 - **2026-10-16, Claude Code (session 6):**
   - Committed the reports and the progress log (3197079). Catbat left alone (GPT-6 is reviewing it).
   - **SetupShopkeeperSelectedItem (13 local trials; not matched; saved best 124 untouched).**
