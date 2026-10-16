@@ -575,9 +575,7 @@ void SetupShopkeeperSelectedItem(void)
     status &= old;
     temp = 0;
     zero = 0;
-    flag = 0x80;
-    flag <<= 3;
-    flagCopy = flag;
+    flagCopy = 0x400;
     status |= flagCopy;
     status |= temp;
     s->status = status;
