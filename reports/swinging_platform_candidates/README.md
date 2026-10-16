@@ -16,3 +16,8 @@ Each file is one complete `func_804A508` definition. "Lines" = changed lines fro
 | C10 | C9 with `x = xDelta + x` for the three xPosition adds | 24 | No change; the operand order is canonicalised |
 | C11 | C9 with session-12's `xPosition = (xDelta) - (-(xPosition))` form for the three xPosition adds | **18** | **decomp.wtf score 25 (99.8%), new saved best, now in `src/`.** Left: output reload r4 (target r0) for `mode` and the work1-pointer setup, plus two post-loop ldrsh zero indices (r3/r4, target r2) |
 | C12 | C11 with `mode` loaded through `register u32 modeValue asm("r0")` | 18 | Identical code; combine folds the hard-r0 copy away |
+| C13 | C11 with `volatile u32 mode` (a real stack variable) | 89 | Fixes the `mode` store (`ldrb r0,[r4]; str r0,[sp]`), but mode's in-loop reload event disappears, every later reload rotates one step and two X loads cross-jump. Shows the target's `mode` is a spilled pseudo like ours |
+| C14 | C11 with `modePtr` unpinned | 20 | Address and output both r0 (local-alloc gives modePtr r0; output reuses it). Target: address r4, output r0 |
+| C15 | C11 with `mode = spriteBase->work2` (no modePtr) | 20 | Same code as C14 |
+| C16 | C11 with the post-loop mode1-low X load inside `do { } while (0)` | 18 | No change: combine still folds the hard-r2 zero (LOG_LINKS exist within the basic block) |
+| C17 | C11 with plain C for the four post-loop position updates (`current->yPosition += tbl[idx] * 4` etc.) | 221 | Rejected: changes global allocation and the whole rotation |

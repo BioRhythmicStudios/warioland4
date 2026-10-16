@@ -116,6 +116,13 @@ Deprioritised:
 
 ## Session log
 
+- **2026-10-16, Claude Code (session 16): func_804A508 reload rotation; no improvement (best 25 unchanged).**
+  - Used 5 local trials (C13-C17) plus 4 diagnostic compiler runs (3 reload traces with Codex's ptrace tracer, 1 `-da` dump). Nothing submitted; src/ unchanged. Candidates in `reports/swinging_platform_candidates/`, write-up in the session 16 section of `reports/swinging_platform_for_gpt6.md`.
+  - The tracer (`trace_reload.py`, copied from the Derby scratch folder and generalised) shows every rotation event in C11 except three already matches the target. `spill_regs` = [r0..r4].
+  - **Prologue:** `mode`'s output reuses the dying pinned `modePtr` r4 (reload.c single-output rule), not a rotation event. The work1 setup (insn 1450) is an event at cursor 3 → r4; the target's r0 needs r4 busy there or no event. If 1450 gets r0, all later events stay as they are.
+  - **Post-loop:** at 911 and 1121 the target's `movs r2,#0; ldrsh r0,[rA,r2]` must be a `(plus reg reg)` address with a real zero register (the pattern then hides the scratch event, so the events still match ours). Combine folds our pinned `zero asm("r2")`, because flow links hard-reg sets to their uses inside a basic block.
+  - Rejected: volatile stack `mode` (C13, shifts the in-loop rotation), unpinned/direct `mode` reads (C14/C15), `do { } while (0)` around the post-loop load (C16), plain-C post-loop updates (C17, 221 lines).
+  - **Next:** find a zero register that survives combine, and a work1 giv-init shape with no reload event; check each candidate with the tracer.
 - **2026-10-16, Claude Code (session 15): func_804A508 165 → 25; not matched.**
   - Budget: about 15 compiles. Used 14: 12 local trials (`try.py`), 1 RTL dump and 1 decomp.wtf compile. Candidates and a per-step table are in `reports/swinging_platform_candidates/`; the write-up is the session 15 section of `reports/swinging_platform_for_gpt6.md`.
   - **Loop form (C1).** `for (i = 0; i < 24; i++)` with every access written `gSpriteData[i].field` and a `break` after the match gives the target loop exactly: no entry test, an r2 pointer with `adds #44`, no muls, and the in-loop bound `movs #253; lsls #2; add ip; cmp; bgt`.
