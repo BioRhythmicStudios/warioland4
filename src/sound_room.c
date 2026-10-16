@@ -1018,15 +1018,43 @@ void LoadSoundRoomTrackGraphics(s32 index)
 
 void DrawSoundRoomSprites(void)
 {
-    s32 i = 0;
-    s32 total = gOamSlotsUsed;
+    register s32 i asm("r7") = 0;
+    register s32 total asm("r8") = gOamSlotsUsed;
     u16 *raw = (u16 *)((u8 *)gOamBuffer + (total << 3));
     const u16 *frame;
     OamData *oam;
+    s32 passage;
+    s32 stage;
+    s32 index;
+    s32 x;
+    s32 y;
 
-    if (gSoundRoomMenuState != 4 && gSoundRoomMenuState != 2) {
-        const struct AnimationFrame *anim = sUnk_8642898;
+#define DRAW_SOUND_FRAME(xOffset, yOffset, selected) \
+    do { \
+        total += *frame++; \
+        if (i < total) { \
+            oam = &gOamBuffer[i]; \
+            do { \
+                u16 value; \
+                value = *frame++; \
+                *raw++ = value; \
+                oam->split.y = value + (yOffset); \
+                if (selected) { oam->split.affineMode = 3; } \
+                value = *frame++; \
+                *raw++ = value; \
+                oam->split.x = value + (xOffset); \
+                if (selected) { oam->split.matrixNum = 0; } \
+                *raw = *frame++; \
+                oam->split.priority = 0; \
+                raw += 2; \
+                oam++; \
+                i++; \
+            } while (i < total); \
+        } \
+    } while (0)
 
+    if (*(u8 *)&gSoundRoomMenuState != 4 && *(u8 *)&gSoundRoomMenuState != 2) {
+        const struct AnimationFrame *anim = (const struct AnimationFrame *)sUnk_8642898;
         gStageEntryMainSpriteState[0]++;
         if (anim[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
             gStageEntryMainSpriteState[0] = 0;
@@ -1036,20 +1064,56 @@ void DrawSoundRoomSprites(void)
             }
         }
         frame = anim[gStageEntryMainSpriteState[1]].oam;
-        total += *frame++;
-        if (total > 128) {
-            return;
+        if (total + *frame > 128) { return; }
+        DRAW_SOUND_FRAME((s16)gStageEntryMainSpriteState[4], (u8)gStageEntryMainSpriteState[5], 0);
+    }
+    if (*(u8 *)&gSoundRoomBonusTrackUnlocked != 0) {
+        frame = sUnk_8642860[gSoundRoomPreviewAnimState[1]].oam;
+        if (total + *frame > 128) { return; }
+        DRAW_SOUND_FRAME(56, 8, 0);
+    }
+    for (passage = 0; passage < 4; passage++) {
+        for (stage = 0; stage < 4; stage++) {
+            index = passage * 4 + stage;
+            if (passage == *(u8 *)&gSoundRoomSelectedPassage &&
+                stage == *(u8 *)&gSoundRoomSelectedStage &&
+                *(u8 *)&gSoundRoomMenuState > 2) {
+                frame = (const u16 *)sUnk_863C7D4[index];
+                y = sUnk_863C6D4[index];
+                x = sUnk_863C694[index];
+                DRAW_SOUND_FRAME(x - 8, y - 8, 1);
+            } else if (((u8 *)gCurrentCollection)[(passage + 1) * 24 + stage * 4] & 0x10) {
+                frame = (const u16 *)sUnk_863C7D4[index];
+                y = sUnk_863C6D4[index];
+                x = sUnk_863C694[index];
+                DRAW_SOUND_FRAME(x, y, 0);
+            }
         }
-        while (i < total) {
-            oam = &gOamBuffer[i];
-            *raw++ = *frame;
-            oam->split.y = *frame++;
-            *raw++ = *frame;
-            oam->split.x = *frame++;
-            *raw = *frame++;
-            raw += 2;
-            i++;
+    }
+    if (*(u8 *)&gSoundRoomMenuState > 2) {
+        frame = (const u16 *)sUnk_863C814[*(u8 *)&gSoundRoomSelectedPassage * 4 + *(u8 *)&gSoundRoomSelectedStage];
+    } else if (*(u8 *)&gSoundRoomMusicEnabled != 0) {
+        frame = (const u16 *)sUnk_8642638;
+        if ((gMPlayMemAccArea[0] & 1) == 1 && gMPlayMemAccArea[0] <= 99) {
+            frame = (const u16 *)sUnk_864262A;
         }
+    } else {
+        frame = (const u16 *)sUnk_864261C;
+    }
+    if (*(u8 *)&gSoundRoomMenuState != 0) {
+        DRAW_SOUND_FRAME(160, 88, 0);
+    }
+#undef DRAW_SOUND_FRAME
+    {
+        s16 a, b, c, d;
+        a = FixedMul(sSinCosTable[64], (s16)FixedInverse(384));
+        b = FixedMul(sSinCosTable[0], (s16)FixedInverse(384));
+        c = FixedMul((s16)-sSinCosTable[0], (s16)FixedInverse(384));
+        d = FixedMul(sSinCosTable[64], (s16)FixedInverse(384));
+        gOamBuffer[0].all.affineParam = a;
+        gOamBuffer[1].all.affineParam = b;
+        gOamBuffer[2].all.affineParam = c;
+        gOamBuffer[3].all.affineParam = d;
     }
     gOamSlotsUsed = total;
 }

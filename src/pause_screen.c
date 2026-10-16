@@ -748,5 +748,120 @@ void RenderPauseScreenOam(void)
         } while (currentSlot != 0);
         currentSlot = nextSlot;
     }
+if ((u8)(gPauseScreenState.selection - 3) <= 1) {
+    if (gLanguage == 0)
+        src = sUnk_86D370C[0][gPauseScreenState.selection - 3][0].oam;
+    else
+        src = sUnk_86D370C[1][gPauseScreenState.selection - 3][0].oam;
+    nextSlot += *(src++);
+    if (nextSlot > 128) return;
+    if (currentSlot < nextSlot) {
+        oam = &gOamBuffer[currentSlot];
+        currentSlot = nextSlot - currentSlot;
+        do {
+            attr = *(src++);
+            *(dest++) = attr;
+            oam->split.y = attr + 80;
+            attr = *(src++);
+            *(dest++) = attr;
+            oam->split.x = attr + 120;
+            *(dest++) = *(src++);
+            oam->split.priority = 0;
+            dest++;
+            oam++;
+            currentSlot--;
+        } while (currentSlot != 0);
+        currentSlot = nextSlot;
+    }
+    }
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.y = 32;
+
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.x = 176;
+
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.tileNum = 203;
+gOamBuffer[currentSlot].split.paletteNum = 6;
+currentSlot++;
+dest += 2;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.y = 32;
+gOamBuffer[currentSlot].split.shape = 1;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.x = 184;
+gOamBuffer[currentSlot].split.size = 0;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.tileNum = 132;
+gOamBuffer[currentSlot].split.paletteNum = 4;
+currentSlot++;
+dest += 2;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.y = 32;
+gOamBuffer[currentSlot].split.shape = 1;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.x = 200;
+gOamBuffer[currentSlot].split.size = 1;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.tileNum = 134;
+gOamBuffer[currentSlot].split.paletteNum = 4;
+currentSlot++;
+dest += 2;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.y = 32;
+gOamBuffer[currentSlot].split.shape = 1;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.x = 8;
+gOamBuffer[currentSlot].split.size = 2;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.tileNum = 144;
+gOamBuffer[currentSlot].split.paletteNum = 7;
+currentSlot++;
+dest += 2;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.y = 32;
+gOamBuffer[currentSlot].split.shape = 1;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.x = 40;
+gOamBuffer[currentSlot].split.size = 2;
+*(dest++) = 0;
+gOamBuffer[currentSlot].split.tileNum = 148;
+gOamBuffer[currentSlot].split.paletteNum = 7;
+currentSlot++;
+dest += 2;
+nextSlot += 5;
+for (i = 0; i < 4; i++) {
+    if (gPauseJewelPieceStates[i] == 2) {
+        animation = sUnk_86D36DC[i];
+        gPauseJewelAnimationStates[i].animationTimer++;
+        if (animation[gPauseJewelAnimationStates[i].animationFrame].time < gPauseJewelAnimationStates[i].animationTimer) {
+            gPauseJewelAnimationStates[i].animationTimer = 1;
+            gPauseJewelAnimationStates[i].animationFrame++;
+            if (animation[gPauseJewelAnimationStates[i].animationFrame].time == 0)
+                gPauseJewelAnimationStates[i].animationFrame = 0;
+        }
+        src = animation[gPauseJewelAnimationStates[i].animationFrame].oam;
+        nextSlot += *(src++);
+    if (nextSlot > 128) return;
+    if (currentSlot < nextSlot) {
+        oam = &gOamBuffer[currentSlot];
+        currentSlot = nextSlot - currentSlot;
+        do {
+            attr = *(src++);
+            *(dest++) = attr;
+            oam->split.y = attr + 88;
+            attr = *(src++);
+            *(dest++) = attr;
+            oam->split.x = attr + sUnk_86D36CC[gCurrentPassage];
+            *(dest++) = *(src++);
+            oam->split.priority = 0;
+            dest++;
+            oam++;
+            currentSlot--;
+        } while (currentSlot != 0);
+        currentSlot = nextSlot;
+    }
+    }
+}
     gOamSlotsUsed = nextSlot;
 }

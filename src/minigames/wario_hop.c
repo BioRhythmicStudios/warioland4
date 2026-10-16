@@ -147,12 +147,11 @@ void WarioHopInit(void)
     const void *dmaSrc2;
     register const void *dmaSrc4 asm("r12");
     register const void *dmaSrc5 asm("r9");
-    /* Keep the long-lived BG0 scroll pointer in sl; this lets the later BG zero stores stay pure C. */
+
     register u16 *scrollA asm("r10");
     register u8 *speedBase asm("r8");
     register struct WarioHopObjState *playerBase asm("r6");
     u16 *scrollPtr;
-    u32 i;
     u32 randomBit;
     register s32 zero asm("r4");
     register u8 persistentByteZero asm("r5");
@@ -181,7 +180,7 @@ void WarioHopInit(void)
         tmpSrc4 = sUnk_871A4F8;
         dmaSrc4 = tmpSrc4;
         playerBase = (struct WarioHopObjState *)sUnk_871ACF8;
-        asm("" : "+r"(playerBase));
+
         dmaSrc5 = playerBase;
         {
             register u16 *tmpScrollA asm("r7") = gWarioHopBg0Scroll;
@@ -266,7 +265,7 @@ void WarioHopInit(void)
 
         dmaRegs = (vu32 *)((u8 *)dmaRegs - 0xCC);
         bg0Control = 0x1801;
-        asm("" : : "r"(bg0Control));
+
         storeValue = bg0Control;
         *(vu16 *)dmaRegs = storeValue;
         dmaRegs = (vu32 *)((u8 *)dmaRegs + 2);
@@ -275,36 +274,23 @@ void WarioHopInit(void)
         *(vu16 *)dmaRegs = storeValue;
         dmaRegs = (vu32 *)((u8 *)dmaRegs + 2);
         bg2Control = 0x5C03;
-        asm("" : : "r"(bg2Control));
+
         storeValue = bg2Control;
         *(vu16 *)dmaRegs = storeValue;
         dmaRegs = (vu32 *)((u8 *)dmaRegs + 2);
         bg3Control = 0x1E00;
-        asm("" : : "r"(bg3Control));
+
         storeValue = bg3Control;
         *(vu16 *)dmaRegs = storeValue;
     }
 
-    /*
-     * The original keeps two equivalent zero values: byte zero in r5 and
-     * halfword zero in r4. Pure C merges them; binding the byte zero to r5
-     * makes agbcc spill it to the stack and changes the prologue. Preserve the
-     * compiler's live ranges and rewrite only the generated destination here.
-     */
-    asm(".macro mov args:vararg\n\t.purgem mov\n\tmov r5, #0\n\t.endm");
-    i = 0;
+    persistentByteZero = 0;
     zero = 0;
-    /*
-     * A pure-C pointer assignment selects r5 because the compiler cannot see
-     * the hidden byte zero already occupying it. An explicit r7 C binding was
-     * also tested, but it changes allocation before the DMA blocks. Rewrite
-     * only this move and the affected zero stores.
-     */
-    asm(".macro mov args:vararg\n\t.purgem mov\n\tmov r7, sl\n\t.endm");
+
     scrollPtr = scrollA;
-    asm(".macro strh args:vararg\n\t.purgem strh\n\tstrh r4, [r7]\n\t.endm");
+
     scrollPtr[0] = zero;
-    asm(".macro strh args:vararg\n\t.purgem strh\n\tstrh r4, [r7, #2]\n\t.endm");
+
     scrollPtr[1] = zero;
     *(volatile u16 *)&gWarioHopBg1Scroll[0] = zero;
     *(volatile u16 *)&gWarioHopBg1Scroll[1] = zero;
@@ -327,42 +313,30 @@ void WarioHopInit(void)
 
         selectedSpeed = sUnk_870CE04[gWarioHopSpeedLevel];
         speedPtr = speedBase;
-        asm("strb %1, [%0]" : : "r"(speedPtr), "r"(selectedSpeed) : "memory");
-        /* Force the single direct byte load selected by the original compiler schedule. */
-        asm("ldrb r0, [r7]" : "=r"(speed) : : "memory");
+        *speedPtr = selectedSpeed;
+        speed = *speedPtr;
+
         gWarioHopJumpAcceleration = 0x2800 / (speed * speed);
         {
             s32 speed2;
             s32 accel;
-            /* The original reloads the duration directly into r1. */
-            asm("ldrb r1, [r7]" : "=r"(speed2) : : "memory");
+
+            speed2 = *speedPtr;
             accel = gWarioHopJumpAcceleration;
             gWarioHopJumpStartVelocity = (accel * speed2) >> 1;
         }
     }
-    asm("" : : "r"(scrollPtr), "r"(zero));
 
-    /*
-     * Pure C materializes the player X coordinate in r5. Binding it to r7
-     * changes the complete function's register graph and introduces spills;
-     * rewrite only the three instructions that establish r7/r8.
-     */
-    asm(".macro mov dst:req, src:vararg\n\t.ifc \\dst,r5\n\tmovs r7, #160\n\t.else\n\t.purgem mov\n\t.hword 0x46b8\n\t.endif\n\t.endm\n\t.macro lsl args:vararg\n\t.purgem lsl\n\tlsl r7, r7, #4\n\t.endm");
     playerBase->x = 0xA00;
     playerBase->y = 0x8C0;
-    /* Volatile halfword lvalues preserve the original direct r4 zero stores without asm rewrites. */
+
     *(volatile u16 *)&playerBase->unkC = zero;
     *(volatile u16 *)&playerBase->yOffset = zero;
     playerBase->scale = 0x100;
     *(volatile u16 *)&playerBase->angle = zero;
     *(volatile u16 *)&playerBase->animTimer = zero;
     *(volatile u16 *)&playerBase->animFrame = zero;
-    /*
-     * Pure structure assignment selects {r1, r3, r5}; fixed-register C forms
-     * alter the stack frame and literal pool. Keep the assignment in C and
-     * rewrite only its 16-byte destructive copy schedule to {r3, r6, r7}.
-     */
-    asm(".macro ldr dst:req, rest:vararg\n\t.purgem ldr\n\tldr r1, \\rest\n\tadd r0, r6, #0\n\t.macro ldr dst2:req, rest2:vararg\n\t.purgem ldr\n\tldr r0, [r0]\n\t.endm\n\t.endm\n\t.macro ldmia args:vararg\n\t.purgem ldmia\n\tldmia r0!, {r3, r6, r7}\n\t.endm\n\t.macro stmia args:vararg\n\t.purgem stmia\n\tstmia r1!, {r3, r6, r7}\n\t.endm\n\t.macro str args:vararg\n\t.purgem str\n\tstr r0, [r1]\n\t.endm");
+
     gWarioHopPlayerShadow = *playerBase;
 
     gWarioHopRollingObject[0] = 0xA00;
@@ -375,15 +349,8 @@ void WarioHopInit(void)
         u16 *scorePtr;
         register u8 *highScorePtr asm("r6");
 
-        /*
-         * The original assembler macro establishes byte zero in r5 while
-         * agbcc keeps the halfword zero in r4.  The three natural C stores
-         * below use a register-bound value from that existing assembler
-         * boundary.  No store instructions are handwritten here.
-         */
         subStatePtr = &gMinigameState;
-        /* Read the byte zero established in r5 by the existing assembler macro. */
-        asm("" : "=r"(persistentByteZero));
+
         *subStatePtr = persistentByteZero;
         scorePtr = &gMinigameScore;
         *scorePtr = zero;
@@ -394,7 +361,7 @@ void WarioHopInit(void)
     {
         u8 *medalTimerPtr;
         medalTimerPtr = &gWarioHopMedalRewardTimer;
-        /* Same persistent r5 byte zero as above. */
+
         *medalTimerPtr = persistentByteZero;
     }
     InitMinigameScoreDisplay();
@@ -411,7 +378,7 @@ void WarioHopInit(void)
         item = gWarioHopObstacles;
         j = 6;
         do {
-            asm volatile("" : : "r"(item), "r"(i), "r"(loopZero), "r"(one), "r"(zero) : "memory");
+
             item->x = loopZero;
             item->type = zero;
             item->animTimer = loopZero;
@@ -455,15 +422,8 @@ void WarioHopInit(void)
         bonusEffect->animFrame = 0;
         bonusEffect->type = 0;
         medalEffect = &gWarioHopMedalEffect;
-        /*
-         * Pure structure assignment chooses {r2,r4,r5} after the preceding
-         * compiler boundaries. The original uses {r2,r4,r7}; keep only this
-         * 12-byte copy as a two-instruction compiler boundary.
-         */
-        asm volatile(
-            "ldmia r0!, {r2, r4, r7}\n\t"
-            "stmia r1!, {r2, r4, r7}"
-            : "+r"(bonusEffect), "+r"(medalEffect) : : "r2", "r4", "r7", "memory");
+        *medalEffect = *bonusEffect;
+
     }
 
     gWarioHopHitLock = 0;
@@ -929,10 +889,10 @@ void WarioHopDrawSprites(void)
     s32 i;
     s32 total;
     u16 *raw;
-    const u16 *frame;
+    register const u16 *frame asm("r4");
     struct WarioHopObjState *player;
     struct WarioHopMidState *stateBase;
-    OamData *oam;
+    register OamData *oam asm("r3");
     u32 oamOffset;
     u32 count;
     u32 active;
@@ -948,22 +908,19 @@ void WarioHopDrawSprites(void)
      * are reached through affineBPtr/affineCPtr/affineDPtr rather than by name;
      * replacing them with an array changes agbcc's stack layout and codegen.
      */
-    s16 affineA;
-    s16 affineB UNUSED;
-    s16 affineC UNUSED;
-    s16 affineD UNUSED;
+    s16 affine[4];
+#define affineA affine[0]
     s16 *affineBPtr;
     s16 *affineCPtr;
     s16 *affineDPtr;
     u16 affineDResult;
     s32 affineDResult2;
 
-    asm("" : : "m"(stackPad));
     i = 0;
     total = gOamSlotsUsed;
     oamOffset = total << 3;
     oam = gOamBuffer;
-    raw = (u16 *)((u8 *)oam + oamOffset);
+    raw = (u16 *)(oamOffset + (u8 *)oam);
     stateBase = &gMinigameCamera;
     active = stateBase->active;
     affinePtr = &affineA;
@@ -1036,7 +993,7 @@ void WarioHopDrawSprites(void)
                 s32 coord;
                 s32 finalValue;
                 register s32 attrHigh asm("r1");
-                u8 *oamBytes;
+                register u8 *oamBytes asm("r3");
 
                 value = *frame++;
                 *raw++ = value;
@@ -1218,11 +1175,11 @@ void WarioHopDrawSprites(void)
         if (i < total) {
             oamBase = gOamBuffer;
             tempClearX = 0xFFFFFE00;
-            asm volatile("mov %0, %1" : "=r"(clearX) : "r"(tempClearX));
+            clearX = tempClearX;
             tempPriority = -13;
-            asm("" : "+r"(tempPriority));
+
             drawPriorityMask = tempPriority;
-            asm("" : "+r"(drawPriorityMask));
+
             oamByteOffset = i << 3;
             loopOam = (OamData *)(oamByteOffset + (u8 *)oamBase);
             tempCoordMask = 0x1FF;
@@ -1495,7 +1452,7 @@ void WarioHopDrawSprites(void)
             itemType = currentItem->type;
             savedIndexTwice = indexTwice;
             nextIndexTemp = itemIndex + 1;
-            asm volatile("mov %0, %1" : "=r"(nextIndex) : "r"(nextIndexTemp));
+            nextIndex = nextIndexTemp;
             if (itemType != 0) {
                 const struct AnimationFrame *const *animationTable;
                 u32 typeOffset;
@@ -1550,7 +1507,7 @@ void WarioHopDrawSprites(void)
                     s32 remainingBase;
 
                     drawItemBase = drawBase;
-                    asm("" : "+r"(drawItemBase) : "r"(itemOffset));
+
                     drawItem = (struct WarioHopSmallState *)(itemOffset - -(int)drawItemBase);
                     byteOffset = i << 3;
                     oamBase = gOamBuffer;
@@ -1679,15 +1636,15 @@ void WarioHopDrawSprites(void)
                 oamBase = gOamBuffer;
                 drawState = drawStateSource;
                 xTable = sUnk_870CC18;
-                asm("" : "+r"(xTable));
+
                 xTableHigh = xTable;
                 byteOffset = i << 3;
                 loopOam = (OamData *)(byteOffset + (u32)oamBase);
                 tempCoordMask = 0x1FF;
-                asm("" : "+r"(tempCoordMask));
+
                 coordMask = tempCoordMask;
                 tempPriorityMask = -13;
-                asm("" : "+r"(tempPriorityMask));
+
                 drawPriorityMask = tempPriorityMask;
                 remainingBase = total;
                 i = remainingBase - i;
@@ -1788,7 +1745,7 @@ warioHopEffectDone:
                     oamBase = gOamBuffer;
                     coordMask = 0x1FF;
                     tempClearX = 0xFFFFFE00;
-                    asm("" : "+r"(tempClearX));
+
                     clearX = tempClearX;
                     byteOffset = i << 3;
                     loopOam = (OamData *)(byteOffset + (u32)oamBase);
@@ -1937,7 +1894,7 @@ warioHopEffectDone:
         affineZero = 0;
         affineSine = *(s16 *)((u8 *)affineAddress + affineZero);
         affineScaleOffset = 6;
-        asm("ldrsh %0, [%1, %2]" : "=r"(affineInverse) : "r"(affineState), "r"(affineScaleOffset));
+        affineInverse = *(s16 *)((u8 *)affineState + affineScaleOffset);
         affineInverse = FixedInverse(affineInverse);
         affineDResult = FixedMul(affineSine, (s16)affineInverse);
         affineDst = affineDPtr;
@@ -2030,5 +1987,6 @@ warioHopEffectDone:
     gOamBuffer[6].all.affineParam = *affineCPtr;
     gOamBuffer[7].all.affineParam = affineDResult2;
 
+#undef affineA
     gOamSlotsUsed = total;
 }

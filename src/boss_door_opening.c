@@ -642,7 +642,7 @@ void UpdateBossDoorOpeningSprites(void)
     s16* affineCPtr;
     s16* affineDPtr;
 
-    asm("" : : "m"(i), "m"(limit));
+    
 
     oldSlot = 0;
     slot = gOamSlotsUsed;
@@ -765,10 +765,10 @@ void UpdateBossDoorOpeningSprites(void)
                     register s32 activeOffsetZero asm("r1");
                     register s32 iconOffsetZero asm("r2");
                     activeOffsetZero = 0;
-                    asm("" : "+r"(activeOffsetZero));
+                    
                     activeTableOffset = activeOffsetZero;
                     iconOffsetZero = 0;
-                    asm("" : "+r"(iconOffsetZero));
+                    
                     iconOffset = iconOffsetZero;
                 }
                 do {
@@ -800,7 +800,7 @@ void UpdateBossDoorOpeningSprites(void)
                                 register s32 activeIconOffset asm("r2");
                                 iconBase = (u8*)gUnk_3004738;
                                 activeIconOffset = iconOffset;
-                                asm("" : "+r"(activeIconOffset));
+                                
                                 activeIcon = (struct BossDoorOpeningIcon*)((u32)activeIconOffset + (u32)iconBase);
                                 activeState = activeIcon->state;
                             }
@@ -810,7 +810,7 @@ void UpdateBossDoorOpeningSprites(void)
                                 const u8* tableBase;
                                 register const struct AnimationFrame* activeAnimation asm("r3");
                                 tableIndex = activeState;
-                                asm("" : "+r"(tableIndex));
+                                
                                 tableIndex--;
                                 tableIndex <<= 4;
                                 {
@@ -828,9 +828,9 @@ void UpdateBossDoorOpeningSprites(void)
                                 {
                                     register s32 activeSlotCheck asm("r1");
                                     activeSlotCheck = slot;
-                                    asm("" : "+r"(activeSlotCheck));
+                                    
                                     if (activeSlotCheck > MAX_OAM_SLOTS) {
-                                        asm("b .Lboss_return_only");
+                                        return;
                                     }
                                 }
                                 if (oldSlot < slot) {
@@ -845,7 +845,7 @@ void UpdateBossDoorOpeningSprites(void)
                                     register s32 remaining asm("r2");
                                     s32 loopRemaining;
                                     matrixInit = 15;
-                                    asm("" : : "r"(matrixInit));
+                                    
                                     matrixInit = -matrixInit;
                                     matrixMask = matrixInit;
                                     verticalAddress = (const u8*)&gUnk_300476C;
@@ -859,12 +859,12 @@ void UpdateBossDoorOpeningSprites(void)
                                     }
                                     xMask = 0x1FF;
                                     priorityInit = -13;
-                                    asm("" : "+r"(priorityInit));
+                                    
                                     priorityMask = priorityInit;
                                     remaining = slot;
-                                    asm("" : "+r"(remaining));
+                                    
                                     remaining -= previousSlot;
-                                    asm("" : "+r"(remaining));
+                                    
                                     oldSlot = remaining;
                                     do {
                                         attr = *source++;
@@ -917,10 +917,10 @@ void UpdateBossDoorOpeningSprites(void)
                                             register s32 decrement asm("r2");
                                             decrement = 1;
                                             decrement = -decrement;
-                                            asm("" : "+r"(decrement));
+                                            
                                             oldSlot += decrement;
                                             loopRemaining = oldSlot;
-                                            asm("" : "+r"(loopRemaining));
+                                            
                                         }
                                     } while (loopRemaining != 0);
                                     oldSlot = slot;
@@ -1043,7 +1043,7 @@ void UpdateBossDoorOpeningSprites(void)
                         u8* savedIconsBase;
                         iconsBase = (u8*)gUnk_3004738;
                         currentIconOffset = iconOffset;
-                        asm("" : "+r"(currentIconOffset));
+                        
                         loopIcon = (struct BossDoorOpeningIcon*)((u32)currentIconOffset + (u32)iconsBase);
                         activeState = loopIcon->state;
                         savedIconsBase = iconsBase;
@@ -1142,12 +1142,12 @@ void UpdateBossDoorOpeningSprites(void)
                                     {
                                         register s32 decrement asm("r1");
                                         decrement = 1;
-                                        asm("" : "+r"(decrement));
+                                        
                                         decrement = -decrement;
-                                        asm("" : "+r"(decrement));
+                                        
                                         oldSlot += decrement;
                                         loopRemaining = oldSlot;
-                                        asm("" : : "r"(oldSlot));
+                                        
                                     }
                                     if (loopRemaining != 0) {
                                         goto center_first_loop;
@@ -1171,11 +1171,11 @@ void UpdateBossDoorOpeningSprites(void)
                                 const u8* tableBase;
                                 register const struct AnimationFrame* secondAnimation asm("r3");
                                 tableIndex = secondState;
-                                asm("" : "+r"(tableIndex));
+                                
                                 tableIndex--;
                                 tableIndex <<= 4;
                                 tableOffset = activeTableOffset;
-                                asm("" : "+r"(tableOffset));
+                                
                                 tableIndex = (tableOffset) - (-(tableIndex));
                                 modeAddress = &gUnk_3003C4A;
                                 modeOffset = *modeAddress;
@@ -1253,12 +1253,12 @@ void UpdateBossDoorOpeningSprites(void)
                                         {
                                             register s32 decrement asm("r1");
                                             decrement = 1;
-                                            asm("" : "+r"(decrement));
+                                            
                                             decrement = -decrement;
-                                            asm("" : "+r"(decrement));
+                                            
                                             oldSlot += decrement;
                                             loopRemaining = oldSlot;
-                                            asm("" : "+r"(loopRemaining));
+                                            
                                         }
                                     } while (loopRemaining != 0);
                                     oldSlot = slot;
@@ -1270,14 +1270,14 @@ void UpdateBossDoorOpeningSprites(void)
                 active_next: {
                     register s32 nextTableOffset asm("r3");
                     nextTableOffset = activeTableOffset;
-                    asm("" : "+r"(nextTableOffset));
+                    
                     nextTableOffset += 4;
                     activeTableOffset = nextTableOffset;
                 }
                     {
                         s32 nextIconOffset;
                         nextIconOffset = iconOffset;
-                        asm("" : "+r"(nextIconOffset));
+                        
                         nextIconOffset += 8;
                         iconOffset = nextIconOffset;
                     }
@@ -1334,7 +1334,7 @@ void UpdateBossDoorOpeningSprites(void)
             {
                 s32 slotCheck;
                 slotCheck = slot;
-                asm("" : "+r"(slotCheck));
+                
                 if (slotCheck > MAX_OAM_SLOTS) {
                     return;
                 }
@@ -1392,7 +1392,7 @@ void UpdateBossDoorOpeningSprites(void)
                         newPriority |= oldPriority;
                         ((u8*)oam)[5] = newPriority;
                     }
-                    asm("" : : : "r1");
+                    
                     rawDestination += 2;
                     oam++;
                     {
@@ -1449,13 +1449,13 @@ void UpdateBossDoorOpeningSprites(void)
         bPointer++;
         affineBPtr = bPointer;
         cPointer = affine;
-        asm("" : "+r"(cPointer));
+        
         cPointer += 2;
         affineCPtr = cPointer;
         dPointer = &affine[3];
         affineDPtr = dPointer;
     }
-    asm("" : "+m"(affineBPtr), "+m"(affineCPtr), "+m"(affineDPtr));
+    
     if (oldSlot < slot) {
         OamData* inactiveBuffer;
         struct BossDoorOpeningBackground* inactiveBackground;
@@ -1603,7 +1603,7 @@ void UpdateBossDoorOpeningSprites(void)
             register s32 initialOffset asm("r0");
             struct BossDoorOpeningIcon* currentIcon;
             initialOffset = 0;
-            asm("" : "+r"(initialOffset));
+            
             inactiveTableOffset = initialOffset;
             currentIcon = gUnk_3004738;
             do {
@@ -1718,7 +1718,7 @@ void UpdateBossDoorOpeningSprites(void)
                         }
                     }
                 }
-                asm("" : : : "memory");
+                
                 {
                     register u32 tableIndex asm("r0");
                     tableIndex = currentIcon->state;
@@ -1753,7 +1753,7 @@ void UpdateBossDoorOpeningSprites(void)
                             register OamData* gateBuffer asm("r1");
                             s32 remaining;
                             slotCheck = slot;
-                            asm("" : "+r"(slotCheck));
+                            
                             if (slotCheck > MAX_OAM_SLOTS) {
                                 return;
                             }
@@ -1902,10 +1902,7 @@ void UpdateBossDoorOpeningSprites(void)
                     register u32 oldX asm("r2");
                     register u32 mergedX;
                     finalWork = attr + 0x78 + (u16)(finalWork * 0x10000u);
-                    asm("mov r2, r8; and r1, r2; ldrh r2, [r4, #2]; mov r0, ip; and r0, r2; orr r0, r1"
-                        : "=r"(mergedX), "=r"(oldX), "+r"(finalWork)
-                        : "r"(oam), "r"(clearMask), "r"(r8Work)
-                        : "cc");
+                    mergedX = (oam->all.attr1 & clearMask) | (finalWork & r8Work);
                     oam->all.attr1 = mergedX;
                 }
                 {
@@ -1932,7 +1929,7 @@ void UpdateBossDoorOpeningSprites(void)
                     register s32 remainingCount asm("r1");
                     decrement = 1;
                     decrement = -decrement;
-                    asm("" : "+r"(decrement));
+                    
                     oldSlot += decrement;
                     remainingCount = oldSlot;
                 }
@@ -1947,5 +1944,5 @@ finish: {
     finalSlot = slot;
     *slotsUsed = finalSlot;
 }
-    asm(".Lboss_return_only:");
+    
 }

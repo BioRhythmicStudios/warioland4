@@ -6,38 +6,39 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 - **Working tree**: present in the local `src/` files but not committed.
 - **decomp.wtf saved best**: the "best attempt" stored in the decomp.wtf database. It can differ from the local file.
 
-## Status (updated 2026-10-16 by Claude via decomp.wtf MCP)
+## Status (updated 2026-10-16, session 13, by Claude via decomp.wtf MCP)
 
-- **4,005 / 4,024 functions matched.** It was 4,000 at the start of 2026-10-16; UpdateCractusArmSegmentPose24, CheckWarioHorizontalCollision, UpdateBlackDragonAttack, UpdateCatbatPatrol and func_800A43C were matched that day.
-- **19 unmatched:** 16 have been tried and 3 are new (never scored).
+- **4,009 / 4,024 functions matched, 97.1% of code** (decomp.wtf `progress()`). It was 4,000 at the start of 2026-10-16. Matched that day: UpdateCractusArmSegmentPose24, CheckWarioHorizontalCollision, UpdateBlackDragonAttack, UpdateCatbatPatrol and func_800A43C (Claude); UpdateTogenobiOuterPartPosition, SetupShopkeeperSelectedItem and FlatWarioFloating (Codex); DrawHomerunDerby (Codex's code, recorded in session 13 after a reference-object fix; see the session log).
+- **15 unmatched:** 12 have been scored and 3 are blocked by SWI (never scored).
+- `project_info()` still reports a stale 3,994 / 95.28%. Use `progress()` and `list_functions()`, which agree with `tools/objcmp.py`.
 
 ## Build check (how to confirm nothing regressed)
 
 - `make check` (via WSL) **builds and links**, but the ROM MD5 **does not match**, and won't until all unmatched functions match. The unmatched C is compiled straight in (there's no NONMATCHING/asm fallback), and `AgbMain` near the start of ROM has a different size, so everything after it shifts. The last 100% report (`report.json`, 2026-10-15 13:40) predates the asm-free rewrites.
-- The real regression check is per function. Build every objdiff unit (`make -k build/us/objdiff/...`), then compare each function's disassembly with `expected/us/obj/*.o`, normalising branch targets, jump tables and `.has_asm` symbol suffixes. The script is in Claude's scratchpad (`objcmp.py`).
+- The real regression check is per function. Build every objdiff unit (`make -k build/us/objdiff/...`), then compare each function's disassembly with `expected/us/obj/*.o`, normalising branch targets, jump tables and `.has_asm` symbol suffixes. The script is `tools/objcmp.py` (committed; usage in its docstring).
   - 2026-10-16 before work: exactly the 24 unmatched differed and all 4,000 matched were identical.
   - 2026-10-16 after two matches: exactly 22 differ.
-- Nobody currently has a function claimed. The latest matches are Codex's three: PinballCounterUpdateDisplay, InitHomerunDerby and ResolveWarioStandardCollision.
+  - 2026-10-16 session 13: exactly 15 differ, the same 15 that decomp.wtf lists as open.
+  - objcmp compares disassembly text, so a stale mapping symbol (`$d`) or a raw address in place of a relocation in `expected/` shows up as a difference even when the bytes are equal. If it disagrees with decomp.wtf, check raw bytes against the ROM (see session 13).
+- Nobody currently has a function claimed.
 - Three functions need an inline SWI and can't match under the no-inline-asm rule: `AgbMain`, `WaitForVBlankInterrupt` (`swi 2`) and `MusicPlayerJumpTableCopy` (`swi 0x2A`). The realistic ceiling is therefore **4,021**, unless the rule is relaxed for SWI.
 
 ## Git and working-tree state
 
-- Branch `decomp-wtf`, HEAD `51c24e5` (Match ResolveWarioStandardCollision). Backup branch `backup-before-codex` = `9862bed`.
-- 13 source files have **uncommitted** changes that hold the current best attempts: boss_door_opening, cutscenes, draw_roulette, refresh_roulette_result_tiles, wario_hop, pause_screen, sound_room, catbat, cractus, shopkeeper, swinging_platform, togenobi and wario/normal.
-  - Example: CheckWarioHorizontalCollision went from score 5 to score 3 (the `sideCopy` change) and exists **only in the working tree**.
-  - Committing a snapshot is recommended. It has not been done; waiting for the user's OK.
-- `HANDOVER.md` is untracked. `tools/agbcc` is a dirty submodule and was deliberately left untouched.
-- decomp.wtf's "current source" for each function **is the local working-tree file**. It builds from `src/`.
+- Branch `decomp-wtf`. The session-13 snapshot commit ("Snapshot working-tree bests, reports and progress log") holds every working-tree best attempt (all open functions), the GPT-6/Codex reports and both handover files. After it, the working tree is clean apart from `tools/agbcc`. Backup branch `backup-before-codex` = `9862bed`.
+- `myfork/decomp-wtf` was at `89a6f56` at the start of session 13. The session-13 commits (`7fc2668` and the snapshot) are **not pushed yet**.
+- `tools/agbcc` is a dirty submodule (`gcc_arm/obstack.c`, `gcc_arm/splay-tree.c`) and was deliberately left untouched and uncommitted.
+- decomp.wtf's "current source" for each function **is the local working-tree file**. It builds from `src/`. `compile_and_diff` writes the function into `src/` and **auto-commits on a match**, so it is not a read-only check.
+- `expected/` is gitignored and local only. Back it up before changing it. The original `expected/us/obj/minigames/homerun_derby.o` is kept as `homerun_derby.o.bak-asm-era-2026-10-15` next to it.
 
 ## Local file vs decomp.wtf saved best
 
-21 of the 24 functions have identical text in both places. Three differ. In all three the current build scores the same % as the saved best, so the difference looks codegen-neutral. That is **not** verified by compiling.
+Checked in session 13. For 13 of the 15 open functions the local file and the saved best are the same text. The other two differ in text but **compile to byte-identical objects** (verified with the project's exact compile commands), so their scores are equal. The cleaner local versions are kept.
 
 | Function | Difference |
 |---|---|
-| func_800A43C | The saved best (362) wraps each `value = *randomPointer;` in dead `register s32 zeroIndex asm("rN")` blocks; the local file has plain loads. Codex notes say the explicit zero "folds away". |
-| DrawRoulette | The saved best uses `(s16 *)&stack` + 2 and `*(s16 *)((u8 *)sinPtr + zero)`; the local file uses `&stack.affineC` and `*sinPtr`. |
-| WarioHopInit | The saved best has an unused `u32 i; i = 0;`; the local file removed it. |
+| DrawRoulette (6984) | The saved best uses byte-offset loads (`*(s16 *)((u8 *)p + zero)`) and `(s16 *)&stack + 2` in 13 places; the local file uses plain field access and `&stack.affineC`. |
+| WarioHopInit (1004) | The saved best has an unused `u32 i; i = 0;`; the local file removed it. |
 
 ## Unmatched functions (best score: lower is better, 0 = match)
 
@@ -46,21 +47,21 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 | ~~CheckWarioHorizontalCollision~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit 4e06c44** |
 | ~~UpdateCractusArmSegmentPose24~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit 91ba73b** |
 | UpdateEscapeRippleHBlank (parked) | 5 | 99.8 | 2 operands: target `mov r7, r12; ldrb r7, [r7]`, ours `mov r6, r12; ldrb r7, [r6]` |
-| FlatWarioFloating | 8 | 99.8 | One branch pair inverted (`bne/b` vs `beq/b`). About 45 compiles across 3 agents, all at the same score |
+| ~~FlatWarioFloating~~ | 0 | 100 | **MATCHED 2026-10-16 (Codex), commit 0e4db9a**. Final time check duplicated in both arms of `if (counter)` |
 | ~~UpdateCatbatPatrol~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude, from GPT-6's plan), commit 8654129** |
 | UpdateLayeredSubGameCutscene | 85 | 99.7 | Case 3 BG0 stores. The 85 version uses a `(u16)-2` literal hack; Codex prefers its cleaner 133 version |
-| SetupShopkeeperSelectedItem | 124 | 99.3 | `u16 flagCopy asm("r0")` adds `lsl/lsr #16`; with `u32` the score is 132 and only `mov r0, r1` is missing |
-| UpdateTogenobiOuterPartPosition | 254 | 95.5 | `table2` lands in `r8` (extra push/pop); target keeps it in `r2` |
+| ~~SetupShopkeeperSelectedItem~~ | 0 | 100 | **MATCHED 2026-10-16 (Codex), commit b501a4f** |
+| ~~UpdateTogenobiOuterPartPosition~~ | 0 | 100 | **MATCHED 2026-10-16 (Codex), commit 19ffaff**. `sSinCosTable` used directly on the second lookup |
 | ~~UpdateBlackDragonAttack~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit 8be1759** |
 | ~~func_800A43C~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit b0321e0** |
-| func_804A84C | 370 | 98.2 | Missing `mov r3, r10`; ldrsh zero-index and pointer registers |
-| func_804A508 | 425 | 97.9 | Same shape as func_804A84C |
-| DrawHomerunDerby | 663 | 99.0 | Affine pointer setup registers; ball-hit matrix table register |
+| ~~DrawHomerunDerby~~ | 0 | 100 | **MATCHED**: code by Codex (commit 89a6f56); recorded by decomp.wtf in session 13 after the `expected/` fix (commit 7fc2668) |
+| func_804A508 | 165 | 99.2 | Codex improved it from 425. Missing `mov r3, r10` at the first `mode1HighY` stack store; X-address and ldrsh scratch registers. See `reports/swinging_platform_for_gpt6.md` |
+| func_804A84C | 370 | 98.2 | Missing `mov r3, r10`; ldrsh zero-index and pointer registers. Same shape as func_804A508; port its 165 changes first |
 | WarioHopDrawSprites | 709 | 98.5 | Register scheduling throughout |
 | WarioHopInit | 1004 | 95.5 | Register allocation of hoisted DMA sources and struct copies |
 | UpdateBossDoorOpeningSprites | 1235 | 97.9 | Limit init registers; stack slot offsets |
 | RefreshRouletteResultTiles | 1690 | 80.3 | Loop form and register allocation (extra `r9` saved) |
-| ResolveWarioCeilingCollision | 4044 | 79.5 | Register and local layout; shared tails |
+| ResolveWarioCeilingCollision | 2236 | 88.7 | Codex improved it from 4044. Stack-slot order of right/offset/savedX; pointValue spill width. See `reports/ceiling_collision_for_gpt6.md` |
 | DrawRoulette | 6984 | 87.7 | Large; register allocation |
 | RenderPauseScreenOam | 28807 | 45.4 | **Incomplete**: the last ~505 target instructions are not written yet |
 | DrawSoundRoomSprites | 29282 | 42.9 | **Incomplete**: menu-state branches are missing |
@@ -97,7 +98,7 @@ The already-matched siblings `MoveBlackDragonIntoAttackPosition` and `MoveLargeL
 1. ~~UpdateCatbatPatrol~~: matched in session 7 (commit 8654129), following GPT-6's Experiment A.
 2. ~~UpdateBlackDragonAttack~~: matched in session 4. Its lesson (separate variables per branch) may also apply to Catbat's duplicated facing-right/left branches: try branch-local `zero`/x variables there.
 3. **UpdateEscapeRippleHBlank** (5): **PARKED, 2 bytes off** (ROM offsets 0x9c and 0x9e). Codex session 4 (6 candidates plus a read-only allocator audit) found no justified new mechanism; see `reports/escaperipple_for_gpt6.md` Session 4 and `reports/escaperipple_codex_results.md`. Resume only with a new mechanism or a matching analogue.
-4. ~~func_800A43C~~ matched in session 11. **DrawHomerunDerby**: score 663 -> 174 in session 12. What's left is one reload-rotation offset in the ball-hit block and the static-OAM `ip` load; see `reports/drawhomerunderby_for_gpt6.md`.
+4. ~~func_800A43C~~ matched in session 11. ~~DrawHomerunDerby~~: 663 -> 174 (session 12), byte-exact by Codex (89a6f56), recorded as matched in session 13.
 5. **func_804A508 / func_804A84C**: session 12 found that the original is a natural loop optimized by loop.c: hoisted, spilled table addresses and a strength-reduced `&sprite->work1` giv at sp+24. A natural rewrite (N1) reproduces the prologue layout; the loop form is still open. See `reports/func_804A508_for_gpt6.md`.
 
 ### Original recommendations (session 1, kept for history)
@@ -113,6 +114,28 @@ Deprioritised:
 
 ## Session log
 
+- **2026-10-16, Claude Code (session 13): DrawHomerunDerby recorded as matched; snapshot commit.**
+  - **Read-only audit.**
+    - decomp.wtf `progress()` was 4008/4024 and `objcmp.py` showed 16 differing, the same 16 as decomp.wtf's open list.
+    - `myfork/decomp-wtf` = `89a6f56` (pushed).
+  - **Why decomp.wtf scored the byte-exact DrawHomerunDerby as 87.**
+    - `expected/us/obj/minigames/homerun_derby.o` was captured by `tools/gen_objdiff.py` (commit 330b9b1, 2026-10-15) from the asm-era source.
+    - That source emitted two Thumb instructions as `asm(".word 0x190000c0")` at DrawHomerunDerby+0x6e8, so the reference object marked those 4 bytes `$d` (data).
+    - objdiff showed the target as one `.word` and ours as `lsls r0,r0,#3; adds r0,r0,r4`: "1 different, 1 extra" = 87. Same bytes.
+    - The reference also held raw addresses instead of relocations at +0x85c (gOamBuffer = 0x03001444) and +0x914/+0xabc (gHomerunPitcherAnimation = 0x03004A10). These are equal after linking and did not affect the score.
+    - The scan found no other `asm(".word")` in the snapshot source, so no other unit has this problem.
+  - **Fix.**
+    1. Checked **all 16 functions** of `homerun_derby.o` against the base ROM (`.text` at 0x0808DFD0). All non-relocation bytes are equal. 339 relocations are identical to the reference; the 3 extra ones resolve through the ROM to the reference's raw words.
+    2. Backed up the old reference (`homerun_derby.o.bak-asm-era-2026-10-15`).
+    3. Removed the leftover file-scope `asm(".set $t.hd_* ...")` mapping-symbol block from `homerun_derby.c`, rebuilt and rechecked: all 16 functions still match the ROM.
+    4. Installed the ROM-verified build object as the new reference, as `gen_objdiff.py` does.
+  - **Result.**
+    - `compile_and_diff` with the unchanged function returned a match; decomp.wtf auto-committed `7fc2668` (the `.set` removal only).
+    - `progress()`: **4009/4024, 97.1%**. `objcmp.py`: exactly 15 differ.
+  - **DrawRoulette / WarioHopInit.** The working-tree text differs from the saved best, but both compile to byte-identical objects with the project's exact commands, so the scores are equal (6984 / 1004). The cleaner working-tree versions are kept.
+  - **Housekeeping.**
+    - Deleted the junk file `tatus --short` (a captured `git diff --stat`) and `reports/WARIOLAND4_CLAUDE_HANDOVER - Copy.md` (identical duplicate).
+    - Committed all working-tree bests, reports and handover files (excluding `tools/agbcc`). Not pushed.
 - **2026-10-16, Claude Code (session 12):**
   - **DrawHomerunDerby (13 compiles: 12 local, 1 decomp.wtf; not matched; decomp.wtf best 663 -> 174, 99.7%).** Saved on decomp.wtf only; the repo source is unchanged.
     - Fixes: camera affine pointers as `&affineMatrix[1]`/`&affineMatrix[2]`/`affinePb + 2`; the bat loop counts with `firstOamIndex` itself (frees r5 for `activeAnimation`, 216 -> 77 local diff lines); index-first bonus frame lookup.
