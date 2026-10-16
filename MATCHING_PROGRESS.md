@@ -96,7 +96,8 @@ The already-matched siblings `MoveBlackDragonIntoAttackPosition` and `MoveLargeL
 
 1. **UpdateCatbatPatrol** (17): root cause known (see session 3 log and the decomp.wtf note), but the C form isn't found yet. Good candidate for a GPT-6 consult: we need a natural way for `zero` to avoid `REG_EQUIV` or to win the priority race.
 2. ~~UpdateBlackDragonAttack~~: matched in session 4. Its lesson (separate variables per branch) may also apply to Catbat's duplicated facing-right/left branches: try branch-local `zero`/x variables there.
-3. **UpdateEscapeRippleHBlank** (5): `mov r7, r12; ldrb r7, [r7]` is a reload of the `r12` pointer, so treat it as a rotation problem.
+3. **UpdateEscapeRippleHBlank** (5): mechanism understood but not solved; see `reports/escaperipple_for_gpt6.md`. Ready for a GPT-6 consult.
+4. **Catbat** is now three reload choices from a match, starting from P4; see the session 2 section of `reports/catbat_for_gpt6.md`. Also ready for a GPT-6 consult.
 
 ### Original recommendations (session 1, kept for history)
 
@@ -111,6 +112,18 @@ Deprioritised:
 
 ## Session log
 
+- **2026-10-16, Claude Code (session 5):**
+  - **UpdateCatbatPatrol (9 local trials; not matched; saved best 17 untouched).**
+    - Per-branch asymmetry solved the global allocation. Variant P4 (plain `right`/`left` locals, plain `zero`, and only the left half's status update rewritten with `r1`/`r0` pins and `u16 status`) gives the target's exact allocation: pointer `r12`, `zero` `r10`, both x copies spilled to `sp+12`/`sp+8`.
+    - What's left are 3 reload-rotation choices (`r1`/`r7`/`r0`).
+    - Added a Session 2 section to `reports/catbat_for_gpt6.md`.
+  - **UpdateEscapeRippleHBlank (12 local trials; not matched; saved best 5 untouched).**
+    - Found the mechanism: local allocation never uses `r7` (the Thumb frame pointer), so the target's `mov r7, ip; ldrb r7, [r7]` must be reloads.
+    - Our pinned `r12` pointer makes the expander copy it into a block-local pseudo (`r6`).
+    - Unpinning the pointer makes the address a reload, but the pointer then goes to a low register.
+    - **Warning:** pinning a variable to `r7` can miscompile (V7c).
+    - Wrote `reports/escaperipple_for_gpt6.md`.
+  - Nothing was submitted to decomp.wtf for either function; both are released with notes.
 - **2026-10-16, Claude Code (session 4):**
   - **Matched UpdateBlackDragonAttack** in 1 decomp.wtf compile, after 6 local trial compiles.
     - Baseline `-dg`: spill regs `{r0, r1, r6}`, matching the target's temporaries.
