@@ -97,8 +97,8 @@ The already-matched siblings `MoveBlackDragonIntoAttackPosition` and `MoveLargeL
 1. **UpdateCatbatPatrol** (17): root cause known (see session 3 log and the decomp.wtf note), but the C form isn't found yet. Good candidate for a GPT-6 consult: we need a natural way for `zero` to avoid `REG_EQUIV` or to win the priority race.
 2. ~~UpdateBlackDragonAttack~~: matched in session 4. Its lesson (separate variables per branch) may also apply to Catbat's duplicated facing-right/left branches: try branch-local `zero`/x variables there.
 3. **UpdateEscapeRippleHBlank** (5): mechanism understood but not solved; see `reports/escaperipple_for_gpt6.md`. Ready for a GPT-6 consult.
+4. **func_800A43C / DrawHomerunDerby**: as the session-10 check showed, the diffs are reload rotation (ldrsh zero-index registers, temporaries), not the high-register pins. Treat them like item 5 below. func_800A43C has 7–8 unrolled near-identical particle blocks, which suits the per-block (BlackDragon) technique.
 5. **func_804A508 / func_804A84C**: the loop-body diffs look like reload rotation (missing `mov r3, r10`, ldrsh zero-index registers, table-pointer temporaries); the `current`@r9 pin is not the cause. A capped attempt with the Cractus technique (duplicate code per branch) and the BlackDragon technique (block-local variables per branch/case) is worth trying later. The mode-1/mode-0 and frame-threshold branches are natural places to apply them.
-4. **Catbat** is now three reload choices from a match, starting from P4; see the session 2 section of `reports/catbat_for_gpt6.md`. Also ready for a GPT-6 consult.
 
 ### Original recommendations (session 1, kept for history)
 
@@ -113,6 +113,11 @@ Deprioritised:
 
 ## Session log
 
+- **2026-10-16, Claude Code (session 10):**
+  - **Pin-scan follow-up.** Classified each baseline's diff hunks (local harness; literal-pool and branch-offset lines excluded) by whether they involve the pinned high-register pointers:
+    - **func_800A43C:** 103 real changed lines in 26 hunks; only 2 hunks touch `r8`/`r9`. Even those differ only in the low temporary (`movs r5,#2; add r9,r5` vs `r1`; `mov r2,r9; ldr [r2]` vs `r4`). The other 24 are ldrsh zero-index registers and one `ldr r3,=1084` vs `adds r4,#63`.
+    - **DrawHomerunDerby:** 97 real lines in 23 hunks; the only `r9` hunk is epilogue literal-alignment noise. The rest are ldrsh zero-index registers, the affine stack-pointer setup (`sp+4`/`sp+6`) and table temporaries.
+    - **Verdict:** neither is a Catbat-style pin problem. Both are the reload-rotation family, like func_804A508, so Cractus/BlackDragon-style source-shape attempts are the right tool, not unpinning.
 - **2026-10-16, Claude Code (session 9):**
   - Committed e216e88 (EscapeRipple sessions 2–3, its GPT-6 plan and the pin scan). EscapeRipple Session 3 (GPT-6 pointer-arithmetic plan, 3 compiles): no candidate changed `LO_REGS` to `STACK_REG`. A Thumb `add` can only target a high register in the tied two-operand form, and the target's set is a bare `mov ip, r3`.
   - **func_804A508, Catbat lesson (2 local compiles; not matched; best 425 untouched).** Unpinning `current` (F1, 343 lines) or reading through `gCurrentSprite` (F2, 213 lines) both regress against the baseline's 114. The `r9` pin already matches the target. The real diffs are reload rotation in the loop body (`mov r3, r10`, ldrsh zero-index registers, table temporaries). func_804A84C was not tried (that was conditional on a match).
