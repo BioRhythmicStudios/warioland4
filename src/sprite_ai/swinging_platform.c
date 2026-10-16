@@ -687,7 +687,7 @@ void func_804A84C(void)
       {
         register const s16 *yPointer asm("r1");
         s32 zero;
-        yPointer = locals.mode1HighY;
+        yPointer = *(const s16 *volatile *)&locals.mode1HighY;
         zero = 0;
         
         yDelta = (u16) (yPointer[zero] * 4);
@@ -701,16 +701,17 @@ void func_804A84C(void)
       {
         register const s16 *yPointer asm("r1");
         s32 zero;
-        yPointer = locals.mode1LowY;
+        yPointer = *(const s16 *volatile *)&locals.mode1LowY;
         zero = 0;
         
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
         {
-          register const s16 *xTable;
+          register const s16 *xTable asm("r1");
           register u32 xAddress asm("r0");
           register u32 xZero;
           xTable = sUnk_83D0280;
-          xAddress = frameOffset + (u32)xTable;
+          xAddress = frameOffset;
+          xAddress += (u32)xTable;
           xZero = 0;
            xVelocity = ((const s16 *)xAddress)[xZero]; 
         }
@@ -752,7 +753,7 @@ void func_804A84C(void)
         {
           goto applyChildMovement;
         }
-        flagValue = 1;
+        flagValue = work;
         goto storeFlag;
       }
     }
@@ -765,12 +766,12 @@ void func_804A84C(void)
       {
         register const s16 *yPointer asm("r1");
         s32 zero;
-        yPointer = locals.mode0HighY;
+        yPointer = *(const s16 *volatile *)&locals.mode0HighY;
         zero = 0;
         
         yDelta = (u16) (yPointer[zero] * 4);
         {
-          const s16 *xTable;
+          register const s16 *xTable asm("r1");
           register const s16 *xPointer;
 
           xTable = sUnk_83D01C0;
@@ -787,7 +788,7 @@ void func_804A84C(void)
       {
         register const s16 *yPointer asm("r4");
         s32 zero;
-        yPointer = locals.mode0LowY;
+        yPointer = *(const s16 *volatile *)&locals.mode0LowY;
         zero = 0;
         
         yDelta = (u16) (yDelta + (yPointer[zero] * 4));
@@ -917,11 +918,11 @@ void func_804A84C(void)
     else
     {
       const s16 *table;
-      int byteOffset;
+      register int byteOffset asm("r1");
       register int zero asm("r2");
-      register short delta asm("r0");
+      register s32 delta asm("r0");
       register u32 position asm("r3");
-      struct PrimarySpriteData *storeSprite;
+      register struct PrimarySpriteData *storeSprite asm("r4");
       table = sUnk_83CFDE8;
       byteOffset = frame << 1;
       table = (const s16 *) (byteOffset + ((s32) table));
@@ -934,7 +935,7 @@ void func_804A84C(void)
       storeSprite->yPosition = delta;
       {
         const s16 *xPointer;
-        register u32 xPosition asm("r3");
+        register u16 xPosition asm("r3");
         table = sUnk_83CFCF8;
         xPointer = (const s16 *) (byteOffset + ((s32) table));
         

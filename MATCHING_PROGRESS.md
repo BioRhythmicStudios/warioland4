@@ -6,7 +6,7 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 - **Working tree**: present in the local `src/` files but not committed.
 - **decomp.wtf saved best**: the "best attempt" stored in the decomp.wtf database. It can differ from the local file.
 
-## Status (updated 2026-10-16, session 13, by Claude via decomp.wtf MCP)
+## Status (updated 2026-10-16, session 14, by Claude via decomp.wtf MCP; count unchanged since session 13)
 
 - **4,009 / 4,024 functions matched, 97.1% of code** (decomp.wtf `progress()`). It was 4,000 at the start of 2026-10-16. Matched that day: UpdateCractusArmSegmentPose24, CheckWarioHorizontalCollision, UpdateBlackDragonAttack, UpdateCatbatPatrol and func_800A43C (Claude); UpdateTogenobiOuterPartPosition, SetupShopkeeperSelectedItem and FlatWarioFloating (Codex); DrawHomerunDerby (Codex's code, recorded in session 13 after a reference-object fix; see the session log).
 - **15 unmatched:** 12 have been scored and 3 are blocked by SWI (never scored).
@@ -26,7 +26,8 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 ## Git and working-tree state
 
 - Branch `decomp-wtf`. The session-13 snapshot commit ("Snapshot working-tree bests, reports and progress log") holds every working-tree best attempt (all open functions), the GPT-6/Codex reports and both handover files. After it, the working tree is clean apart from `tools/agbcc`. Backup branch `backup-before-codex` = `9862bed`.
-- `myfork/decomp-wtf` was at `89a6f56` at the start of session 13. The session-13 commits (`7fc2668` and the snapshot) are **not pushed yet**.
+- `myfork/decomp-wtf` = `d92fce8` (session 13 commits plus the path clean-up, pushed without force and confirmed with `git ls-remote`).
+- Session 14: `src/sprite_ai/swinging_platform.c` has an **uncommitted** working-tree change: func_804A84C's new best (score 165, written by `compile_and_diff`). It equals the decomp.wtf saved best. func_804A508 is unchanged (HEAD = saved best 165).
 - `tools/agbcc` is a dirty submodule (`gcc_arm/obstack.c`, `gcc_arm/splay-tree.c`) and was deliberately left untouched and uncommitted.
 - decomp.wtf's "current source" for each function **is the local working-tree file**. It builds from `src/`. `compile_and_diff` writes the function into `src/` and **auto-commits on a match**, so it is not a read-only check.
 - `expected/` is gitignored and local only. Back it up before changing it. The original `expected/us/obj/minigames/homerun_derby.o` is kept as `homerun_derby.o.bak-asm-era-2026-10-15` next to it.
@@ -55,8 +56,8 @@ Checked in session 13. For 13 of the 15 open functions the local file and the sa
 | ~~UpdateBlackDragonAttack~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit 8be1759** |
 | ~~func_800A43C~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit b0321e0** |
 | ~~DrawHomerunDerby~~ | 0 | 100 | **MATCHED**: code by Codex (commit 89a6f56); recorded by decomp.wtf in session 13 after the `expected/` fix (commit 7fc2668) |
-| func_804A508 | 165 | 99.2 | Codex improved it from 425. Missing `mov r3, r10` at the first `mode1HighY` stack store; X-address and ldrsh scratch registers. See `reports/swinging_platform_for_gpt6.md` |
-| func_804A84C | 370 | 98.2 | Missing `mov r3, r10`; ldrsh zero-index and pointer registers. Same shape as func_804A508; port its 165 changes first |
+| func_804A508 | 165 | 99.2 | Codex improved it from 425. Missing `mov r3, r10` at the first `mode1HighY` stack store; X-address and ldrsh scratch registers. Session 14: the `locals` struct form can't produce the `mov r3, r10` (needs a spilled pseudo); next step is the natural loop. See `reports/swinging_platform_for_gpt6.md` |
+| func_804A84C | 165 | 99.2 | Session 14: ported func_804A508's changes (370 → 165). Now has exactly the twin's residual, so fix func_804A508 first and port again |
 | WarioHopDrawSprites | 709 | 98.5 | Register scheduling throughout |
 | WarioHopInit | 1004 | 95.5 | Register allocation of hoisted DMA sources and struct copies |
 | UpdateBossDoorOpeningSprites | 1235 | 97.9 | Limit init registers; stack slot offsets |
@@ -113,6 +114,21 @@ Deprioritised:
 - The two incomplete functions (RenderPauseScreenOam, DrawSoundRoomSprites): need structural work, not register tuning.
 
 ## Session log
+
+- **2026-10-16, Claude Code (session 14): func_804A84C 370 → 165; func_804A508 root cause found, not matched.**
+  - Budget: about 20 compiles. Used 12: 1 decomp.wtf compile plus 11 local trials (`try.py`), with RTL dumps (`-dc -dl -dg`) of already-compiled variants.
+  - **func_804A84C (1 submitted compile).** Ported Codex's func_804A508 changes: volatile private-pointer Y loads, pinned `xTable` r1 / `xAddress` r0, `flagValue = work` on frame 119, and the post-loop mode1-low pins. Score went from 370 to **165**, saved as best; it is now in the working tree but not committed (no match). Its remaining diff is the same as its twin's.
+  - **func_804A508 (8 local trials, nothing submitted, best 165 unchanged).** What causes the first diff:
+    - Combine folds `offset <<= 1` into `offset60 = offset`, so `r0` is an *output reload* of offset60 (r10). Reload then *inherits* `r0` for the `mode1HighY` add (`adds r0,r0,r1`), where the target re-reads r10 (`mov r3,sl; adds r3,r3,r1`).
+    - E1 (offset60 `asm("r10")`) and E2 (plus `offset asm("r0")`): no change. Combine still merges the shift into the hard r10 set.
+    - N1 (session 12's natural loop) does produce the copy (`mov r7,sl; adds r7,r7,r1`).
+    - X2 (offset60 r10 plus mode1High as a long-lived pseudo the loop reads) gives `mov r3,sl; adds r3,r3,r1` **exactly**, but the pseudo spills to its own slot (sp+28, frame 0x20). The target pattern needs the add's destination to be a spilled pseudo (a combined in/out reload gets a fresh register).
+    - A struct field can't be that spill. Store equivalence (`REG_EQUIV`, local-alloc.c) only applies to block-local pseudos, and local-alloc always finds them a register. So the `locals` struct form has a ceiling here.
+    - L3b/L3c (the struct split into 7 plain locals): slots sp+0..20 and the r10 copy come out right, but **childWork1 beats xDelta for r7**. Global priority is log2(refs)·refs/live_length: about 5/92 insns for childWork1 against 8/338 for xDelta. In a goto-loop every reference counts once, because `REG_N_REFS += loop_depth` needs real loop notes, so the original natural loop weighted these differently.
+    - Reconfirmed the session-5 warning: never pin `r7`. It is `FRAME_POINTER_REGNUM` in Thumb RTL, and L3c put both childWork1 and xDelta in r7.
+    - X-address residual: combine folds the pinned r0 `xAddress` into a new pseudo (frameOffset + r1), and local-alloc suggests the dying hard r1 for it.
+  - **Next:** the natural-loop rewrite (N1/N3 family): remove the loop entry test and the +10 giv. Real loop notes then also fix the allocation priorities. Port the result to func_804A84C.
+  - Nothing committed. Notes are on decomp.wtf (both functions released) and in `reports/swinging_platform_for_gpt6.md` (session 14 section).
 
 - **2026-10-16, Claude Code (session 13): DrawHomerunDerby recorded as matched; snapshot commit.**
   - **Read-only audit.**

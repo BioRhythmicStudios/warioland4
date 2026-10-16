@@ -732,3 +732,43 @@ void func_804A508(void)
 +ldrsh	r0, [r0, r4]
  lsls	r0, r0, #2
 ```
+
+## Session 14 (Claude, 2026-10-16): root cause of the missing `mov r3, sl`
+
+Budget: about 20 compiles; 12 used. func_804A84C: 1 decomp.wtf compile, 370 → **165** (Codex's changes ported). func_804A508: 8 local trials plus RTL dumps; nothing beat 165, so the saved best is unchanged. Every trial below starts from best O and changes only what is listed. "Lines" is the local changed-line count against `expected/` (best O = 46).
+
+### What actually happens at the first store
+
+The greg dump for best O, with registers already assigned:
+
+    insn 97:   r0 = r0 << 1          ; dest is offset60 (pseudo 29, global-allocated r10): OUTPUT reload in r0
+    insn 1533: sl = r0               ; the output-reload store
+    insn 107:  r0 = r0 + r1          ; input offset60 INHERITED from r0; dest pseudo 52 (REG_EQUIV [sp+8]) local-allocated r0
+    insn 109:  [sp+8] = r0
+
+Combine merged `offset <<= 1` with `offset60 = offset` (offset dies there). That makes r0 a reload copy of offset60, and `choose_reload_regs` reuses it. The target instead re-reads r10 into r3, which is also the destination register: a fresh reload with no inheritance.
+
+### Experiments
+
+| ID | Change from best O | Lines | Result |
+|---|---|---|---|
+| E1 | `register int offset60 asm("r10")`; mode1HighY add uses `offset60` directly | 46 | Same code. Combine still merges the shift into the hard r10 set (`sl = r49 << 1`), so the output-reload inheritance stays |
+| E2 | E1 + `register s32 offset asm("r0")` | 46 | Same; combine merges `r0 <<= 1` into `sl = r0` even with both registers hard |
+| N1 | session 12's natural loop (unchanged) | 340 | **`mov sl,r0; mov r7,sl; adds r7,r7,r1; str r7,[sp,#8]`**: the target pattern (r7 because of N1's swapped allocation) |
+| X1 | function-scope `const s16 *mode1High` = the add; `locals.mode1HighY = mode1High`; the loop reads `yPointer = mode1High` | 122 | mode1High takes r10 and offset60 spills to a new sp+28; frame 0x20 |
+| X2 | E1 + X1 | 122 | **`mov r3,sl; adds r3,r3,r1`** exactly as the target, then `str r3,[sp,#28]; str r3,[sp,#8]`: mode1High spilled to its *own* slot, frame 0x20 |
+| L3b | `locals` struct → 7 plain locals (no `&`), Y reads plain | 160 | offset60 spilled (sp+0), xDelta r10 |
+| L3c | L3b + `xDelta asm("r7")` + `offset60 asm("r10")` | 136 | Prologue matches, including `mov r3,sl; adds r3,r3,r1; str r3,[sp,#8]` and the slots sp+0..20. But childWork1 lands in r7 **together with xDelta** (r7 = FRAME_POINTER_REGNUM, so the pin is not reserved) and the frame is 0x18 |
+
+### Conclusions
+
+1. The target's `mov r3, sl` needs the add's **destination to be a spilled pseudo**. Reload then merges the input and output reloads (`combine_reloads`, RELOAD_OTHER) and picks a fresh register, with no inheritance from r0. X2 and N1 both show this.
+2. With the `locals` struct, that spill can't be the struct's own slot. Store equivalence (`REG_EQUIV` to the struct field, `update_equiv_regs` in local-alloc.c) requires `REG_BASIC_BLOCK >= 0` (block-local), and local-alloc always finds a block-local pseudo a register. **The struct form has a ceiling at this instruction.** Pinning, copies and compound adds can't get past it (Codex B, L1, E1, E2).
+3. In the target, all 7 "locals" are spilled pseudos. Spill slots are assigned in pseudo order, above any stack variables, which is why mode..childWork1 land at sp+0..24. L3c reproduces this, apart from childWork1.
+4. The L3 blocker is global-alloc priority, `floor_log2(refs) * refs / live_length`. In L3b the dump gives childWork1 (pseudo 38) 5 refs over 92 insns and xDelta (pseudo 23) 8 refs over 338, so childWork1 gets r7 first. flow.c adds `loop_depth` per reference, and depth only rises inside real `for`/`while`/`do` loop notes. A goto-loop therefore counts every in-loop reference once, while the original natural loop weighted them up, which is another reason the original was a natural loop.
+5. **Never pin r7** (also seen in session 5, EscapeRipple V7c). In Thumb RTL, r7 is the frame pointer before elimination, so an asm("r7") variable is not treated as occupying it.
+6. The X-address residual (`adds r1,r3,r1` vs target `adds r0,r3,r1`) has a different cause. Combine folds the pinned-r0 `xAddress` into a new pseudo (`pseudo115 = frameOffset + r1`, then `ldrsh` via a scratch), and local-alloc gives that pseudo a hard-register suggestion of the dying r1 (`combine_regs`). The target ties it to the load result r0 instead.
+
+### Recommended next session
+
+Go back to the natural loop (N1/N3), now that the prologue mechanism is understood. It's the only form that gives both the spilled-invariant reloads and loop-weighted priorities. Open problems from session 12 still apply: the loop entry test, the extra `sprite+10` giv, and xDelta/frame*2 swapped between r3 and r7. Then port to func_804A84C (twin; it now has the same 165 residual).
