@@ -112,6 +112,13 @@ Deprioritised:
 
 ## Session log
 
+- **2026-10-16, Claude Code (session 6):**
+  - Committed the reports and the progress log (3197079). Catbat left alone (GPT-6 is reviewing it).
+  - **SetupShopkeeperSelectedItem (13 local trials; not matched; saved best 124 untouched).**
+    - Key finding: the target's `movs r1,#128; lsls r1,#3; adds r0,r1,#0` is a 16-bit (HImode) move of the constant `0x400`. That's how matched `BossTreasureInit` (`status |= 0x400`, plain C) and `InitCatbatMineSpawner` get it.
+    - A 16-bit OR reproduces the copy (b1), but then loses the `orrs r2, r3` and adds a re-truncation.
+    - No form found that gives the 16-bit constant copy and keeps `status` as a 32-bit value.
+    - Wrote `reports/shopkeeper_for_gpt6.md`; released with notes.
 - **2026-10-16, Claude Code (session 5):**
   - **UpdateCatbatPatrol (9 local trials; not matched; saved best 17 untouched).**
     - Per-branch asymmetry solved the global allocation. Variant P4 (plain `right`/`left` locals, plain `zero`, and only the left half's status update rewritten with `r1`/`r0` pins and `u16 status`) gives the target's exact allocation: pointer `r12`, `zero` `r10`, both x copies spilled to `sp+12`/`sp+8`.
