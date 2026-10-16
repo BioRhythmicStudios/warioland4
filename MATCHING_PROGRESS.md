@@ -8,8 +8,8 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 
 ## Status (updated 2026-10-16 by Claude via decomp.wtf MCP)
 
-- **4,004 / 4,024 functions matched, 96.0% of code by size.** It was 4,000 at the start of 2026-10-16; UpdateCractusArmSegmentPose24, CheckWarioHorizontalCollision, UpdateBlackDragonAttack and UpdateCatbatPatrol were matched that day.
-- **20 unmatched:** 17 have been tried and 3 are new (never scored).
+- **4,005 / 4,024 functions matched.** It was 4,000 at the start of 2026-10-16; UpdateCractusArmSegmentPose24, CheckWarioHorizontalCollision, UpdateBlackDragonAttack, UpdateCatbatPatrol and func_800A43C were matched that day.
+- **19 unmatched:** 16 have been tried and 3 are new (never scored).
 
 ## Build check (how to confirm nothing regressed)
 
@@ -52,7 +52,7 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 | SetupShopkeeperSelectedItem | 124 | 99.3 | `u16 flagCopy asm("r0")` adds `lsl/lsr #16`; with `u32` the score is 132 and only `mov r0, r1` is missing |
 | UpdateTogenobiOuterPartPosition | 254 | 95.5 | `table2` lands in `r8` (extra push/pop); target keeps it in `r2` |
 | ~~UpdateBlackDragonAttack~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit 8be1759** |
-| func_800A43C | 362 | 99.5 | Zero-index `ldrsh` registers in 8 unrolled particle blocks, plus `1084` literal vs `add #63` |
+| ~~func_800A43C~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude), commit b0321e0** |
 | func_804A84C | 370 | 98.2 | Missing `mov r3, r10`; ldrsh zero-index and pointer registers |
 | func_804A508 | 425 | 97.9 | Same shape as func_804A84C |
 | DrawHomerunDerby | 663 | 99.0 | Affine pointer setup registers; ball-hit matrix table register |
@@ -97,7 +97,7 @@ The already-matched siblings `MoveBlackDragonIntoAttackPosition` and `MoveLargeL
 1. ~~UpdateCatbatPatrol~~: matched in session 7 (commit 8654129), following GPT-6's Experiment A.
 2. ~~UpdateBlackDragonAttack~~: matched in session 4. Its lesson (separate variables per branch) may also apply to Catbat's duplicated facing-right/left branches: try branch-local `zero`/x variables there.
 3. **UpdateEscapeRippleHBlank** (5): mechanism understood but not solved; see `reports/escaperipple_for_gpt6.md`. Ready for a GPT-6 consult.
-4. **func_800A43C / DrawHomerunDerby**: as the session-10 check showed, the diffs are reload rotation (ldrsh zero-index registers, temporaries), not the high-register pins. Treat them like item 5 below. func_800A43C has 7–8 unrolled near-identical particle blocks, which suits the per-block (BlackDragon) technique.
+4. ~~func_800A43C~~ matched in session 11. **DrawHomerunDerby** is next in that family: apply the same recipe (identical C per repeated block, no high-register pointer pins, no `...Low` copy temps).
 5. **func_804A508 / func_804A84C**: the loop-body diffs look like reload rotation (missing `mov r3, r10`, ldrsh zero-index registers, table-pointer temporaries); the `current`@r9 pin is not the cause. A capped attempt with the Cractus technique (duplicate code per branch) and the BlackDragon technique (block-local variables per branch/case) is worth trying later. The mode-1/mode-0 and frame-threshold branches are natural places to apply them.
 
 ### Original recommendations (session 1, kept for history)
@@ -113,6 +113,12 @@ Deprioritised:
 
 ## Session log
 
+- **2026-10-16, Claude Code (session 11):**
+  - **Matched func_800A43C** (15 compiles: 13 local, 2 decomp.wtf).
+    - Path: rewrote block 1 only (K1); unpinned `xPositions`/`yPositions` (K2); put an `r0` pin on the re-read destination to stop CSE forwarding (K4); moved x/y into the call arguments (K5, 88 lines); gave all 8 blocks identical C (K9, decomp.wtf score 6); removed the `pathOamAddressLow` pin and the `timerPointerLow` temp (K12, **MATCH**).
+    - Dead ends: blocks 2–8 with a `constant` variable (K6), with a shared-step tail (K7) or with a pinned `constantValue` (K8); assignment inside the call argument (K11, normalised away).
+    - **Lesson: post-reload `move2add` and reload inheritance make identical C look different per block** (`ldr =1084` vs `adds r4,#63`; one vs two `movs #2`). Before writing per-block variants, try making repeated blocks identical.
+  - `objcmp.py`: exactly 19 differ. decomp.wtf commit b0321e0 also swept in the previously uncommitted working-tree attempt for `UpdateLayeredSubGameCutscene` (same file; still unmatched).
 - **2026-10-16, Claude Code (session 10):**
   - **Pin-scan follow-up.** Classified each baseline's diff hunks (local harness; literal-pool and branch-offset lines excluded) by whether they involve the pinned high-register pointers:
     - **func_800A43C:** 103 real changed lines in 26 hunks; only 2 hunks touch `r8`/`r9`. Even those differ only in the low temporary (`movs r5,#2; add r9,r5` vs `r1`; `mov r2,r9; ldr [r2]` vs `r4`). The other 24 are ldrsh zero-index registers and one `ldr r3,=1084` vs `adds r4,#63`.
