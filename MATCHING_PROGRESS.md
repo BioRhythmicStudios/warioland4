@@ -94,7 +94,7 @@ The already-matched siblings `MoveBlackDragonIntoAttackPosition` and `MoveLargeL
 
 ## Recommended next (updated after session 2)
 
-1. **UpdateCatbatPatrol** (17): root cause known (see session 3 log and the decomp.wtf note), but the C form isn't found yet. Good candidate for a GPT-6 consult: we need a natural way for `zero` to avoid `REG_EQUIV` or to win the priority race.
+1. ~~UpdateCatbatPatrol~~: matched in session 7 (commit 8654129), following GPT-6's Experiment A.
 2. ~~UpdateBlackDragonAttack~~: matched in session 4. Its lesson (separate variables per branch) may also apply to Catbat's duplicated facing-right/left branches: try branch-local `zero`/x variables there.
 3. **UpdateEscapeRippleHBlank** (5): mechanism understood but not solved; see `reports/escaperipple_for_gpt6.md`. Ready for a GPT-6 consult.
 4. **func_800A43C / DrawHomerunDerby**: as the session-10 check showed, the diffs are reload rotation (ldrsh zero-index registers, temporaries), not the high-register pins. Treat them like item 5 below. func_800A43C has 7–8 unrolled near-identical particle blocks, which suits the per-block (BlackDragon) technique.
