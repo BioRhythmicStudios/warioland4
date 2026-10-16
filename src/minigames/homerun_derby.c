@@ -1231,11 +1231,9 @@ void DrawHomerunDerby(void)
     }
     nextOamIndex += *frameData;
     frameData = (u16 *) (((u8 *) frameData) + 2);
-    affinePointer = (u16 *) (((u8 *)affineMatrix) + 2);
-    affinePb = affinePointer;
-    affinePc = (u16 *) (((u8 *)affineMatrix) + 4);
-    affinePointerReference = &affinePointer;
-    affinePd = (*affinePointerReference) + 2;
+    affinePb = &affineMatrix[1];
+    affinePc = &affineMatrix[2];
+    affinePd = affinePb + 2;
     if (firstOamIndex < nextOamIndex)
     {
       cameraForSprites = cameraTransform;
@@ -1532,7 +1530,7 @@ void DrawHomerunDerby(void)
       oamByteMask = -0xD;
       workingOffset = firstOamIndex << 3;
       batOamBytes = (OamByte *) (workingOffset + positionValue);
-      batEntryCount = nextOamIndex - firstOamIndex;
+      firstOamIndex = nextOamIndex - firstOamIndex;
       do
       {
         oamCoordinate9 = *(frameData++);
@@ -1553,9 +1551,9 @@ void DrawHomerunDerby(void)
         *((u8 *) (((u8 *) batOamBytes) + 5)) = (oamByteMask & positionValue) | 8;
         oamDataDestination += 4;
         batOamBytes += 8;
-        batEntryCount -= 1;
+        firstOamIndex -= 1;
       }
-      while (batEntryCount != 0);
+      while (firstOamIndex != 0);
       firstOamIndex = nextOamIndex;
     }
     activeAnimationState = (struct HomerunSimpleAnimation *) cameraTransform;
@@ -1659,9 +1657,7 @@ void DrawHomerunDerby(void)
       bonusOamBytes = (OamByte *) bonusAnimationFrames;
       bonusAnimationTimer = gHomerunBonusRender.animationTimer + 1;
       gHomerunBonusRender.animationTimer = bonusAnimationTimer;
-      bonusFrame = (struct AnimationFrame *) ((u32) gHomerunBonusRender.animationFrame);
-      bonusFrame = &bonusAnimationFrames[(u32)bonusFrame];
-      frameDuration = (u32) bonusFrame->time;
+      frameDuration = (u32) ((struct AnimationFrame *) ((gHomerunBonusRender.animationFrame << 3) + (u32) bonusAnimationFrames))->time;
       if (frameDuration < ((u32) ((u16) bonusAnimationTimer)))
       {
         gHomerunBonusRender.animationTimer = 1U;
