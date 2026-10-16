@@ -97,7 +97,7 @@ The already-matched siblings `MoveBlackDragonIntoAttackPosition` and `MoveLargeL
 1. ~~UpdateCatbatPatrol~~: matched in session 7 (commit 8654129), following GPT-6's Experiment A.
 2. ~~UpdateBlackDragonAttack~~: matched in session 4. Its lesson (separate variables per branch) may also apply to Catbat's duplicated facing-right/left branches: try branch-local `zero`/x variables there.
 3. **UpdateEscapeRippleHBlank** (5): mechanism understood but not solved; see `reports/escaperipple_for_gpt6.md`. Ready for a GPT-6 consult.
-4. ~~func_800A43C~~ matched in session 11. **DrawHomerunDerby** is next in that family: apply the same recipe (identical C per repeated block, no high-register pointer pins, no `...Low` copy temps).
+4. ~~func_800A43C~~ matched in session 11. **DrawHomerunDerby**: score 663 -> 174 in session 12. What's left is one reload-rotation offset in the ball-hit block and the static-OAM `ip` load; see `reports/drawhomerunderby_for_gpt6.md`.
 5. **func_804A508 / func_804A84C**: the loop-body diffs look like reload rotation (missing `mov r3, r10`, ldrsh zero-index registers, table-pointer temporaries); the `current`@r9 pin is not the cause. A capped attempt with the Cractus technique (duplicate code per branch) and the BlackDragon technique (block-local variables per branch/case) is worth trying later. The mode-1/mode-0 and frame-threshold branches are natural places to apply them.
 
 ### Original recommendations (session 1, kept for history)
@@ -113,6 +113,12 @@ Deprioritised:
 
 ## Session log
 
+- **2026-10-16, Claude Code (session 12):**
+  - **DrawHomerunDerby (13 compiles: 12 local, 1 decomp.wtf; not matched; decomp.wtf best 663 -> 174, 99.7%).** Saved on decomp.wtf only; the repo source is unchanged.
+    - Fixes: camera affine pointers as `&affineMatrix[1]`/`&affineMatrix[2]`/`affinePb + 2`; the bat loop counts with `firstOamIndex` itself (frees r5 for `activeAnimation`, 216 -> 77 local diff lines); index-first bonus frame lookup.
+    - Left: in the ball-hit block, the `sl` reload goes to r0 where target has r2, shifting every later temp. Most likely target's `mov r2, r8` is not a reload. The static-OAM preheader has the same r0-vs-r2 pattern.
+    - Raw-address pool words in `expected/` (gOamBuffer, gHomerunPitcherAnimation) are equivalent to our relocations.
+    - Wrote `reports/drawhomerunderby_for_gpt6.md` (it includes the best C); released with notes.
 - **2026-10-16, Claude Code (session 11):**
   - **Matched func_800A43C** (15 compiles: 13 local, 2 decomp.wtf).
     - Path: rewrote block 1 only (K1); unpinned `xPositions`/`yPositions` (K2); put an `r0` pin on the re-read destination to stop CSE forwarding (K4); moved x/y into the call arguments (K5, 88 lines); gave all 8 blocks identical C (K9, decomp.wtf score 6); removed the `pathOamAddressLow` pin and the `timerPointerLow` temp (K12, **MATCH**).
