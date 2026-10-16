@@ -663,18 +663,21 @@ void UpdateCatbatPatrol(void)
     struct PrimarySpriteData *sprite;
     struct WarioData *wario;
     int index;
+    register struct WarioData *reactionWario asm("r1");
     const s16 *table;
     u32 velocity;
     int signedVelocity;
-    u16 warioXRight;
-    u16 warioXLeft;
-    u16 oldX;
+    u32 right;
+    u32 left;
+    register u32 oldX asm("r6");
+    register u32 oldXLeft asm("r9");
 
     wario = &gWarioData;
-    warioXRight = wario->xPosition;
-    warioXLeft = wario->xPosition;
+    right = gWarioData.xPosition;
+    left = right;
     sprite = &gCurrentSprite;
     oldX = sprite->xPosition;
+    oldXLeft = oldX;
 
     UpdateCatbatGraphicsAnimation((const u8 *)sUnk_83CF8FC);
     index = sprite->work3;
@@ -686,7 +689,14 @@ void UpdateCatbatPatrol(void)
         index = 0;
     }
     sprite->work3 = index + 1;
-    sprite->yPosition += velocity;
+    {
+    u32 zero;
+    {
+        u32 y;
+        y = sprite->yPosition + velocity;
+        zero = 0;
+        sprite->yPosition = y;
+    }
 
     if (sprite->work2 != 0)
         sprite->work2--;
@@ -694,21 +704,39 @@ void UpdateCatbatPatrol(void)
     if (sprite->status & SPRITE_STATUS_FACING_RIGHT) {
         func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition + 100));
         if (gSpriteCollisionTileType == 17) {
-            gCuckooCondorPendulumLength = 1;
+            {
+                register u8 *length asm("r1");
+                register u32 one asm("r0");
+                length = &gCuckooCondorPendulumLength;
+                one = 1;
+                *length = one;
+            }
             sprite->disableWarioCollisionTimer = 1;
-            index = SpriteUtilFindSpriteSlotOrU8Max(PSPRITE_CATBAT_MINE_SPAWNER);
-            if ((u8)index != 0xFF)
-                gSpriteData[(u8)index].disableWarioCollisionTimer = 1;
+            {
+                u8 slot;
+                slot = SpriteUtilFindSpriteSlotOrU8Max(PSPRITE_CATBAT_MINE_SPAWNER);
+                if (slot != 0xFF)
+                    gSpriteData[slot].disableWarioCollisionTimer = 1;
+            }
             sprite->xPosition += 4;
-            if (!(sprite->status & SPRITE_STATUS_ONSCREEN)) {
-                sprite->status ^= SPRITE_STATUS_FACING_RIGHT;
+            {
+                register u32 status asm("r1");
+                status = sprite->status;
+                if (!(status & SPRITE_STATUS_ONSCREEN)) {
+                {
+                register u32 mask asm("r0");
+                mask = SPRITE_STATUS_FACING_RIGHT;
+                mask ^= status;
+                sprite->status = mask;
+            }
                 UpdateCatbatHitboxFacing();
                 sprite->xPosition -= 32;
             }
+            }
         } else {
-            gCuckooCondorPendulumLength = 0;
+            gCuckooCondorPendulumLength = zero;
             sprite->status &= ~SPRITE_STATUS_HIDDEN;
-            if (warioXRight > oldX && gWarioData.reaction != 8) {
+            if (right > oldX && (reactionWario = wario)->reaction != 8) {
                 func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 160));
                 if (gSpriteCollisionTileType == 17)
                     sprite->xPosition += 2;
@@ -729,21 +757,46 @@ void UpdateCatbatPatrol(void)
     } else {
         func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 100));
         if (gSpriteCollisionTileType == 17) {
-            gCuckooCondorPendulumLength = 1;
+            {
+                register u8 *length asm("r1");
+                register u32 one asm("r0");
+                length = &gCuckooCondorPendulumLength;
+                one = 1;
+                *length = one;
+            }
             sprite->disableWarioCollisionTimer = 1;
-            index = SpriteUtilFindSpriteSlotOrU8Max(PSPRITE_CATBAT_MINE_SPAWNER);
-            if ((u8)index != 0xFF)
-                gSpriteData[(u8)index].disableWarioCollisionTimer = 1;
+            {
+                u8 slot;
+                slot = SpriteUtilFindSpriteSlotOrU8Max(PSPRITE_CATBAT_MINE_SPAWNER);
+                if (slot != 0xFF)
+                    gSpriteData[slot].disableWarioCollisionTimer = 1;
+            }
             sprite->xPosition -= 4;
-            if (!(sprite->status & SPRITE_STATUS_ONSCREEN)) {
-                sprite->status ^= SPRITE_STATUS_FACING_RIGHT;
+            {
+                register u32 status asm("r1");
+                status = sprite->status;
+                if (!(status & SPRITE_STATUS_ONSCREEN)) {
+                {
+                register u32 mask asm("r0");
+                mask = SPRITE_STATUS_FACING_RIGHT;
+                mask ^= status;
+                sprite->status = mask;
+            }
                 UpdateCatbatHitboxFacing();
                 sprite->xPosition += 32;
             }
+            }
         } else {
-            gCuckooCondorPendulumLength = 0;
-            sprite->status &= ~SPRITE_STATUS_HIDDEN;
-            if (warioXLeft < oldX && gWarioData.reaction != 8) {
+            gCuckooCondorPendulumLength = zero;
+            {
+                register u16 status asm("r1");
+                register u32 mask asm("r0");
+                status = sprite->status;
+                mask = 0xFFFB;
+                mask &= status;
+                sprite->status = mask;
+            }
+            if (left < oldXLeft && (reactionWario = wario)->reaction != 8) {
                 func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition + 160));
                 if (gSpriteCollisionTileType == 17)
                     sprite->xPosition -= 2;
@@ -764,13 +817,20 @@ void UpdateCatbatPatrol(void)
     }
 
     sprite = &gCurrentSprite;
-    if (sprite->work2 == 0 && gCuckooCondorPendulumLength == 0) {
-        if (sprite->status & SPRITE_STATUS_FACING_RIGHT)
-            func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 160));
-        else
-            func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition + 160));
+    if (sprite->work2 == 0 && *(u8 *)&gCuckooCondorPendulumLength == 0) {
+        register u16 x asm("r1");
+        u32 y;
+        if (sprite->status & SPRITE_STATUS_FACING_RIGHT) {
+            y = sprite->yPosition;
+            x = sprite->xPosition - 160;
+        } else {
+            y = sprite->yPosition;
+            x = sprite->xPosition + 160;
+        }
+        func_8023BFC(y, (u16)x);
         if (gSpriteCollisionTileType != 17)
             sprite->pose = 17;
+    }
     }
 }
 void InitCatbatLandingAttack(void)
