@@ -173,7 +173,7 @@ Potentially worthwhile for a focused second pass.
 
 Local repository:
 
-`C:\Users\Benny\Decomp\warioland4-2`
+`.` (repository root)
 
 Branch:
 

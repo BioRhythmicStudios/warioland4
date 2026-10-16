@@ -956,7 +956,7 @@ Codex follow-up: improved DrawHomerunDerby from 99.7% score174 to VERIFIED 99.8%
 Improvement: ball states8/9 branch declare block-local register s32 countSource asm("r2"); replace secondaryEntryCount=nextOamIndex-firstOamIndex with if(firstOamIndex){countSource=nextOamIndex;}else{countSource=nextOamIndex;} then secondaryEntryCount=countSource-firstOamIndex. Ordinary copy survives combine; jump2 removes duplicate conditional. Removes cyclic reload allocation event and fixes ball-loop sl mask scratch plus four affine calculations.
 Follow-ups Q/Y duplicated static maskSeed initialization (or oamAttributeMask assignment) into identical firstOamIndex arms: fixes mask ldr r2 but downstream count r8->r0 insteadr1 and matrix reloads rotate backwards one (score169). R additionally duplicate hard-r1 nextCount copy: fixes count, matrix registers rotate backwards two (score163). Need compensate reload cursor without adding final instructions.
 Failures: global mask SI->HI score4674; count via hard2 compoundsubtract174; global count hardr7 5079; local unpinned ballcamera2227; attr6 hardu32r2 unchanged174; volatile scale303; signedHI staticseed402(extra mov2r0); unpin OAM base1021; unpin nextIndex4390; local ballcount174; local staticmask hardip174; volatile hard2seed190(frame24); move firstIndex updatebeforeloop4665; loopliteral mask614. Q169,R163,S duplicated u8negativeMaskSeed adds redundant shifts494; T duplicated hard2 matrix pointer copy163 unchanged; U duplicate entire first static matrix lookup3058; V 3-arm mask seed981; W duplicate workingOffset=coordinate12 before+96 163 unchanged; X duplicate workingOffset=oamXMask static loop163 unchanged; Y169; Z duplicate count subtraction2311 (branches remain).
-RTL diagnostics retained at C:/Users/Benny/AppData/Local/Temp/wl4-derby-codex. Use exact function marker ';; Function DrawHomerunDerby\n' (avoid DrawHomerunDerbyScore). base/Q combine+greg dumps. Q static mask ordinary hardr2 constant; baseline hardip constant gets reload scratchr0. Compile dump via existing flags cc -E -DVERSION_US -Iinclude -nostdinc then tools/agbcc/agbcc -O2 -mthumb-interwork -fhex-asm -fprologue-bugfix -Wall -da. No tool or flag changes. Report appended reports/drawhomerunderby_for_gpt6.md. Unrelated working tree untouched. No exact-match claim or commit.
+RTL diagnostics retained at %TEMP%/wl4-derby-codex (local scratch, not in the repo). Use exact function marker ';; Function DrawHomerunDerby\n' (avoid DrawHomerunDerbyScore). base/Q combine+greg dumps. Q static mask ordinary hardr2 constant; baseline hardip constant gets reload scratchr0. Compile dump via existing flags cc -E -DVERSION_US -Iinclude -nostdinc then tools/agbcc/agbcc -O2 -mthumb-interwork -fhex-asm -fprologue-bugfix -Wall -da. No tool or flag changes. Report appended reports/drawhomerunderby_for_gpt6.md. Unrelated working tree untouched. No exact-match claim or commit.
 
 ### Best source as restored
 
@@ -2090,7 +2090,7 @@ Compiler files were read only. Existing flags were unchanged. Diagnostic -da dum
 
 ### Artifacts and preservation
 
-C:/Users/Benny/AppData/Local/Temp/wl4-derby-codex:
+%TEMP%/wl4-derby-codex (local scratch, not in the repo):
 - before-r1-experiment.c: exact whole-file snapshot of score93 before this experiment.
 - score93-full.c, Qcompare-full.c, reuseR1-full.c: comparison inputs.
 - score93/Qcompare/reuseR1.i and .s, with .rtl/.cse/.combine/.lreg/.greg/.jump2 and other -da dumps.
@@ -2166,7 +2166,7 @@ Rejected prior approaches without retesting: Q/Y duplicated mask alone removes a
 
 The existing build ELF places this function at a different address (0x0808E658), so it was not used as authority for original code addresses. An initial comparison at that stale build address correctly failed; resolving against original ROM addresses and proper Thumb symbol types produced the final exact comparison.
 
-Artifacts under C:/Users/Benny/AppData/Local/Temp/wl4-derby-codex: trace_reload.py; trace-score93.json; trace-Qcompare.json; byte-exact-best.c; before-r1-experiment.c (score93 whole-file backup); cursor-candidate-raw-verification.txt; cursor-independent-verification.txt; rom-verify-{expected,candidate}.elf/.text; original-rom-symbols.s/.o/.json. Symbol helper assembly contains only symbol definitions and no instructions; no inline assembly was added to C.
+Artifacts under %TEMP%/wl4-derby-codex (local scratch, not in the repo): trace_reload.py; trace-score93.json; trace-Qcompare.json; byte-exact-best.c; before-r1-experiment.c (score93 whole-file backup); cursor-candidate-raw-verification.txt; cursor-independent-verification.txt; rom-verify-{expected,candidate}.elf/.text; original-rom-symbols.s/.o/.json. Symbol helper assembly contains only symbol definitions and no instructions; no inline assembly was added to C.
 
 Score93 remains preserved in the earlier report and whole-file snapshot. The working source now contains the verified byte-exact improvement. Outside DrawHomerunDerby, source text is unchanged against that snapshot. Commit staging must exclude the pre-existing whole-file line-ending differences and all unrelated working-tree modifications.
 

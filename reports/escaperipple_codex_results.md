@@ -1,6 +1,6 @@
 # UpdateEscapeRippleHBlank investigation
 
-Date: 2026-10-16. Worktree: `C:/Users/Benny/Decomp/warioland4-escaperipple`.
+Date: 2026-10-16. Worktree: `../warioland4-escaperipple`.
 Branch: `codex-escaperipple`; starting commit: `10b8238`.
 
 ## Result

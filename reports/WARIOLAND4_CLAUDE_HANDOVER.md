@@ -51,7 +51,7 @@ Claude also achieved exact matches during this period, notably `UpdateCatbatPatr
 
 - Best remains **99.8%, decomp.wtf score 5**. Codex independently verified only **two differing bytes** in the 212-byte function.
 - Target `mov r7, ip; ldrb r7,[r7,#0]`; current `mov r6, ip; ldrb r7,[r6,#0]`.
-- Reports: `reports/escaperipple_for_gpt6.md` in main repository; `ESCAPERIPPLE_CODEX_RESULTS.md` in **separate worktree** `C:/Users/Benny/Decomp/warioland4-escaperipple`.
+- Reports: `reports/escaperipple_for_gpt6.md` in main repository; `ESCAPERIPPLE_CODEX_RESULTS.md` in **separate worktree** `../warioland4-escaperipple`.
 - Six pointer-lifetime/source-shape candidates all regressed. Subsequent read-only allocator audit found ordinary phase-pointer pseudos prefer `LO_REGS` and remain in `r7`; forced-conflict ideas weren't substantiated. No safe matching change found; don't repeat these variants or unsafe `r7` pins.
 - Codex's control experiment changing the two operands in a **separate assembly copy** matched all 212 bytes, but **that is not a C-source match**.
 
@@ -63,12 +63,12 @@ Claude also achieved exact matches during this period, notably `UpdateCatbatPatr
 ## 5. Git and worktree state
 
 **Primary working tree**  
-`C:/Users/Benny/Decomp/warioland4-2`  
+`.` (repository root)  
 Branch: `decomp-wtf`  
 Latest confirmed HEAD in terminal: **`89a6f56`** (`Match DrawHomerunDerby reload allocation`).
 
 **Separate Codex scratch worktree**  
-`C:/Users/Benny/Decomp/warioland4-escaperipple`  
+`../warioland4-escaperipple`  
 Branch: `codex-escaperipple` (shown at `10b8238` in worktree listing). It contains isolated scratch evidence. **Do not delete before reviewing/copying any useful report.**
 
 **Remotes**
