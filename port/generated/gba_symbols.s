@@ -1162,6 +1162,8 @@
     .set SoundMainRAM_Buffer, 0x03004B28
     .globl gSoundInfo
     .set gSoundInfo, 0x03004F30
+    .globl gMPlayJumpTable
+    .set gMPlayJumpTable, 0x03005EE0
     .globl gCgbChans
     .set gCgbChans, 0x03005F70
     .globl gMPlayInfo_0

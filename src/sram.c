@@ -25,6 +25,12 @@ void SramWriteUnchecked(u8* src, u8* dest, u32 size)
 
     REG_WAITCNT = (REG_WAITCNT & ~WAITCNT_SRAM_MASK) | WAITCNT_SRAM_8;
 
+#ifdef PORTABLE
+    // The GBA runs a copy of the function from RAM, because code running from ROM cannot read
+    // SRAM. Native code calls it directly.
+    SramWriteUncheckedInternal(src, dest, size);
+    return;
+#endif
     func_ptr = (u16*)SramWriteUncheckedInternal;
     func_ptr = (u16*)((u32)func_ptr ^ 1);
     code_ptr = code;
@@ -67,6 +73,9 @@ u8* SramCheck(u8* src, u8* dest, u32 size)
 
     REG_WAITCNT = (REG_WAITCNT & ~WAITCNT_SRAM_MASK) | WAITCNT_SRAM_8;
 
+#ifdef PORTABLE
+    return SramCheckInternal(src, dest, size);
+#endif
     func_ptr = (u16*)SramCheckInternal;
     func_ptr = (u16*)((u32)func_ptr ^ 1);
     code_ptr = code;

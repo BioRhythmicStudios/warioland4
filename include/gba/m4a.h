@@ -151,6 +151,8 @@ struct AGB_ALIGN SoundChannel {
 typedef void (*CgbSoundFunc)(void);
 typedef void (*CgbOscOffFunc)(u8);
 typedef u32 (*MidiKeyToCgbFreqFunc)(u8, u8, u8);
+struct MusicPlayerInfo;
+typedef void (*PlyNoteFunc)(struct MusicPlayerInfo *, struct MusicPlayerTrack *);
 
 struct AGB_ALIGN SoundInfo {
     // This field is normally equal to ID_NUMBER but it is set to other
@@ -182,7 +184,7 @@ struct AGB_ALIGN SoundInfo {
     GBA_FUNC_PTR(CgbOscOffFunc) CgbOscOff;
     GBA_FUNC_PTR(MidiKeyToCgbFreqFunc) MidiKeyToCgbFreq;
     u32 MPlayJumpTable;
-    GBA_PTR(void *) plynote;
+    GBA_FUNC_PTR(PlyNoteFunc) plynote;
     GBA_FUNC_PTR(CgbSoundFunc) ExtVolPit;
     u8 gap2[16];
     struct SoundChannel chans[MAX_DIRECTSOUND_CHANNELS];
@@ -302,7 +304,7 @@ extern u8 gMPlayMemAccArea[0x10];
 extern char SoundMainRAM[];
 
 typedef void (*MPlayFunc)();
-extern MPlayFunc gMPlayJumpTable[36];
+extern GBA_FUNC_PTR(MPlayFunc) gMPlayJumpTable[36];
 extern struct MusicPlayerInfo gMPlayInfo_0;
 extern struct MusicPlayerInfo gMPlayInfo_1;
 extern struct MusicPlayerInfo gMPlayInfo_2;
@@ -351,7 +353,7 @@ void CgbSound(void);
 void CgbOscOff(u8);
 u32 MidiKeyToCgbFreq(u8, u8, u8);
 void nullsub_141(void);
-void MPlayJumpTableCopy(MPlayFunc *);
+void MPlayJumpTableCopy(GBA_TYPEOF(MPlayFunc *, &gMPlayJumpTable[0]));
 void SampleFreqSet(u32 freq);
 void m4aSoundVSyncOn(void);
 void m4aSoundVSyncOff(void);

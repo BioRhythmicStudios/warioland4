@@ -11,8 +11,8 @@ struct SoundInfo gSoundInfo __attribute__((section("common_data"))) = {};
 extern char SoundMainRAM_Buffer[0x400];
 extern struct SoundInfo gSoundInfo;
 #endif
-MPlayFunc gMPlayJumpTable[36] __attribute__((section("common_data"))) = {};
 #ifndef PORTABLE
+MPlayFunc gMPlayJumpTable[36] __attribute__((section("common_data"))) = {};
 struct CgbChannel gCgbChans[4] __attribute__((section("common_data"))) = {};
 struct MusicPlayerInfo gMPlayInfo_0 __attribute__((section("common_data"))) = {};
 struct MusicPlayerInfo gMPlayInfo_1 __attribute__((section("common_data"))) = {};
@@ -267,15 +267,15 @@ void MPlayExtender(struct CgbChannel *cgbChans)
     if (ident != ID_NUMBER)
         return;
     ++soundInfo->ident;
-    gMPlayJumpTable[8] = ply_memacc;
-    gMPlayJumpTable[17] = ply_lfos;
-    gMPlayJumpTable[19] = ply_mod;
-    gMPlayJumpTable[28] = ply_xcmd;
-    gMPlayJumpTable[29] = ply_endtie;
-    gMPlayJumpTable[30] = SampleFreqSet;
-    gMPlayJumpTable[31] = TrackStop;
-    gMPlayJumpTable[32] = FadeOutBody;
-    gMPlayJumpTable[33] = TrkVolPitSet;
+    GF_SET(gMPlayJumpTable[8], ply_memacc);
+    GF_SET(gMPlayJumpTable[17], ply_lfos);
+    GF_SET(gMPlayJumpTable[19], ply_mod);
+    GF_SET(gMPlayJumpTable[28], ply_xcmd);
+    GF_SET(gMPlayJumpTable[29], ply_endtie);
+    GF_SET(gMPlayJumpTable[30], SampleFreqSet);
+    GF_SET(gMPlayJumpTable[31], TrackStop);
+    GF_SET(gMPlayJumpTable[32], FadeOutBody);
+    GF_SET(gMPlayJumpTable[33], TrkVolPitSet);
     GP_SET(soundInfo->cgbChans, cgbChans);
     GF_SET(soundInfo->CgbSound, CgbSound);
     GF_SET(soundInfo->CgbOscOff, CgbOscOff);
@@ -299,13 +299,13 @@ void MusicPlayerJumpTableCopy(void) {
 
 void ClearChain(void *x)
 {
-    void (*func)(void *) = *(&gMPlayJumpTable[34]);
+    void (*func)(void *) = GF(*(&gMPlayJumpTable[34]));
     func(x);
 }
 
 void Clear64byte(void *x)
 {
-    void (*func)(void *) = *(&gMPlayJumpTable[35]);
+    void (*func)(void *) = GF(*(&gMPlayJumpTable[35]));
     func(x);
 }
 
@@ -335,7 +335,7 @@ void SoundInit(struct SoundInfo *soundInfo)
     CpuFill32(0, soundInfo, sizeof(struct SoundInfo));
     soundInfo->maxChans = 8;
     soundInfo->masterVolume = 15;
-    GP_SET(soundInfo->plynote, ply_note);
+    GF_SET(soundInfo->plynote, ply_note);
     GF_SET(soundInfo->CgbSound, nullsub_141);
     GF_SET(soundInfo->CgbOscOff, (void (*)(u8))nullsub_141);
     GF_SET(soundInfo->MidiKeyToCgbFreq, (u32 (*)(u8, u8, u8))nullsub_141);
@@ -1328,7 +1328,7 @@ void ply_memacc(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *trac
     }
 cond_true:
     {
-        void (*func)(struct MusicPlayerInfo *, struct MusicPlayerTrack *) = *(&gMPlayJumpTable[1]);
+        void (*func)(struct MusicPlayerInfo *, struct MusicPlayerTrack *) = GF(*(&gMPlayJumpTable[1]));
         func(mplayInfo, track);
         return;
     }
@@ -1346,7 +1346,7 @@ void ply_xcmd(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track)
 
 void ply_xxx(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track)
 {
-    void (*func)(struct MusicPlayerInfo *, struct MusicPlayerTrack *) = *(&gMPlayJumpTable[0]);
+    void (*func)(struct MusicPlayerInfo *, struct MusicPlayerTrack *) = GF(*(&gMPlayJumpTable[0]));
 
     func(mplayInfo, track);
 }

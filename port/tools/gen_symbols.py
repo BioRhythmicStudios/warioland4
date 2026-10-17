@@ -13,7 +13,7 @@ Writes, in port/generated/:
   game code reads ROM data from the loaded ROM and RAM variables from the mapped RAM.
   The linker constants (gNumMusicPlayers, gMaxLines) come out the same way.
 - gba_functions.c: the dispatch table from the GBA address of each function to its
-  native function, for function pointers that the game reads from GBA memory.
+  native function (or stub), for function pointers that the game keeps in GBA memory.
 - gba_stubs.c: weak stubs for the GBA functions the game calls that have no native
   version yet (the asm functions). Each one reports its name and address and stops;
   a platform definition replaces it.
@@ -114,6 +114,8 @@ def main():
                        if is_function(kind) and defined.get(name) == 'T')
     stubs = sorted(n for n in unresolved if n in elf and elf[n] and is_function(elf[n][1])
                    and n not in NATIVE_RUNTIME and n not in FUNCTIONS_USED_AS_DATA)
+    # The stubs dispatch too: game code stores pointers to asm functions in GBA memory.
+    functions = sorted(functions + [(elf[n][0], n) for n in stubs])
     missing = sorted(n for n in unresolved if n not in elf and n not in NATIVE_RUNTIME)
     # Local code symbols are asm labels unless a game source defines a static function of that
     # name. A static function has no native symbol, so a GBA pointer to it could not dispatch.
@@ -144,7 +146,7 @@ def main():
                      % (name, name, elf[name][0]))
     (OUT / 'gba_stubs.c').write_bytes(''.join(lines).encode())
 
-    print('%d data symbols, %d native functions in the dispatch table, %d stubs'
+    print('%d data symbols, %d functions in the dispatch table (%d of them stubs)'
           % (len(data), len(functions), len(stubs)))
     print('stubs: ' + ' '.join(stubs))
     if local_functions:
