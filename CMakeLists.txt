@@ -1,6 +1,6 @@
 # PC port build. The GBA ROM is still built with make; see port/README.md.
 cmake_minimum_required(VERSION 3.20)
-project(warioland4_pc C)
+project(warioland4_pc C ASM)
 
 option(WL4_CAST_WARNINGS "Show the pointer/integer cast warnings (the GbaPtr worklist)" OFF)
 
@@ -36,3 +36,19 @@ if(NOT WL4_CAST_WARNINGS)
 endif()
 
 add_library(wl4_platform_stub STATIC port/platform/stub/platform_stub.c)
+
+# The port runtime and the executable. port/generated/gba_*.{c,s} come from
+# port/tools/gen_symbols.py: GBA addresses for the game's data, the function dispatch table,
+# and stubs for the functions that are still asm.
+add_executable(wl4
+    port/src/main.c
+    port/src/gba_functions.c
+    port/src/gba_runtime.c
+    port/generated/gba_symbols.s
+    port/generated/gba_functions.c
+    port/generated/gba_stubs.c
+)
+target_include_directories(wl4 PRIVATE port/include)
+# gba_functions.c declares every game function as void(void) to take its address.
+set_source_files_properties(port/generated/gba_functions.c PROPERTIES COMPILE_OPTIONS -Wno-incompatible-library-redeclaration)
+target_link_libraries(wl4 PRIVATE wl4_game wl4_platform_stub)

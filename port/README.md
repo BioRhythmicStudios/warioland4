@@ -40,5 +40,26 @@ The rewrites are done by scripts. Run them again after merging new matches, and 
 | `tools/port_data_codemod.py` | data definitions in `src/` → `#ifndef PORTABLE` blocks |
 | `tools/port_struct_align_codemod.py` | `struct Foo {` → `struct AGB_ALIGN Foo {` |
 
+## Links to the GBA symbol table
+
+`port/tools/gen_symbols.py` reads the GBA symbol table and the PC build of the game code,
+and writes three files to `port/generated/`:
+
+- `gba_symbols.s` defines every data symbol as an absolute symbol at its GBA address,
+  together with the linker constants (`gNumMusicPlayers`, `gMaxLines`). Clang reaches
+  extern data through 64-bit `.refptr` slots, so the executable can load at any address.
+- `gba_functions.c` is the dispatch table from each function's GBA address to the native
+  function (`PortLookupGbaFunction()`), for function pointers read from GBA memory.
+- `gba_stubs.c` holds weak stubs for GBA functions that are still asm. Each one reports
+  its name and address and stops. A platform definition with the same name replaces it.
+
+The symbol table must keep every symbol at its base-ROM address, which `build/us` does not
+(the unmatched functions move what follows them). Build the playtest ELF under WSL, then
+generate from Windows after `cmake --build`:
+
+    make -k; python3 tools/build_playtest_rom.py        (WSL; needs expected/us/obj)
+    python port/tools/gen_symbols.py --elf build/playtest/warioland4_us_playtest.elf ^
+        --lib build_pc/libwl4_game.a --nm C:/path/to/llvm-mingw/bin/llvm-nm.exe
+
 `port/tools/gen_layout_asserts.py` regenerates the layout checks. It runs under WSL,
 because it needs agbcc and libclang (`pip install libclang`).
