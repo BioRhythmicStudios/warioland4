@@ -2,6 +2,7 @@
 #define SPRITE_AI_TOBAWANI_H
 
 #include "sprite.h"
+#include "oam.h"
 #include "types.h"
 
 extern const struct AnimationFrame sTobawaniPatrolOam[];

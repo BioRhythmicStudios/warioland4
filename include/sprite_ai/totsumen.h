@@ -2,6 +2,7 @@
 #define TOTSUMEN_H
 
 #include "sprite.h"
+#include "oam.h"
 #include "types.h"
 
 extern const struct AnimationFrame sTotsumenOam_83BB0E8[];

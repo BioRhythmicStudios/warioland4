@@ -256,7 +256,7 @@ void ToyBlockSquareFalling(void)
     struct PrimarySpriteData* sprite;
     u32 newY;
     u8 index;
-    const u16 new_var2;
+    u16 new_var2;
     s16 movement;
 
     ToyBlockSquareCheckSpriteCollisions();

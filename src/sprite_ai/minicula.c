@@ -1,5 +1,6 @@
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sMiniculaOam_83C4CD8[];
 void func_8026450(void);

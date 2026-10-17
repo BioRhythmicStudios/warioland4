@@ -2,6 +2,7 @@
 #define SPRITE_AI_BOSS_CORRIDOR_CAT_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sBossCorridorCatRunOam[];
 extern const struct AnimationFrame sBossCorridorCatWalkLeftOam[];

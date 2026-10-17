@@ -2,6 +2,7 @@
 #define SPRITE_AI_GHOST_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const s16 sUnk_83C5598[];
 extern const s16 sUnk_83C55EA[];

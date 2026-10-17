@@ -2,6 +2,7 @@
 #define SPRITE_AI_RINGOSUKI_H
 
 #include "types.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sRingosukiIdleOam[];
 extern const struct AnimationFrame sRingosukiTurnStartOam[];

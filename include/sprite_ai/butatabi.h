@@ -2,6 +2,7 @@
 #define SPRITE_AI_BUTATABI_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sButatabiMovingOam[];
 extern const struct AnimationFrame sButatabiTurningOam[];

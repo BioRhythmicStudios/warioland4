@@ -2,6 +2,7 @@
 #define SPRITE_AI_CHANDELIER_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sChandelierIdleOam[];
 extern const struct AnimationFrame sChandelierShakingOam[];

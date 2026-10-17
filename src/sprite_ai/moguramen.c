@@ -91,7 +91,10 @@ void InitMoguramen(void)
 
 void UpdateMoguramenAttackWindup(void)
 {
+#ifndef PORTABLE
+    // Called without a prototype, as in the original. The callee narrows its own arguments.
     extern void func_8023BFC();
+#endif
     struct PrimarySpriteData *currentSprite;
     u32 animationState;
     register u32 frontY PIN("r0");
