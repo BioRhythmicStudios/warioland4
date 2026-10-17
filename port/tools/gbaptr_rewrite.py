@@ -85,6 +85,9 @@ def scan_targets(item):
         if k == 'TypedefDecl':
             types.typedefs[node.get('name')] = node.get('type')
         elif k == 'FieldDecl':
+            # The t_/f_ members of a GBA_PTR/GBA_FUNC_PTR union are already converted.
+            if node.get('name') in ('t_', 'f_') and not parents[-1].get('name'):
+                continue
             kind = types.kind(node.get('type'))
             f = in_project(node['_loc'].file) if node['_loc'] else None
             if kind and f:
