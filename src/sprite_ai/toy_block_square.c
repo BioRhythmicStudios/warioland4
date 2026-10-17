@@ -59,7 +59,7 @@ void ToyBlockSquareCheckSpriteCollisions(void)
             {
                 register u32 baseSeed PIN("r1");
                 baseSeed = 0x1000;
-                asm("" : : "r"(baseSeed));
+                ASM_BARRIER(: : "r"(baseSeed));
                 basePosition = baseSeed;
             }
 

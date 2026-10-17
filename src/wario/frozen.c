@@ -168,7 +168,7 @@ void UpdateFrozenWarioMovement(void)
     temp >>= 19;
     movement = (u16)temp;
     /* Keep the normalized movement live in r2 before loading gWarioData. */
-    asm("" : "+r"(movement));
+    ASM_BARRIER(: "+r"(movement));
     gWarioData.xPosition += movement;
 }
 
@@ -219,7 +219,7 @@ void ProcessFrozenWarioCollision(void)
     mask &= flags;
     if (mask != 0) {
         callResult = ResolveWarioCeilingCollision();
-        asm("");
+        ASM_BARRIER();
         goto normalize;
     }
     if (*(u16*)hitbox != 0) {

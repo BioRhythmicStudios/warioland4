@@ -63,7 +63,7 @@ void MoveCameraTowardTarget(s32 x, s32 y)
     if (gSubGameMode != 0) {
         pointer = &gBg1YPosition;
         /* Preserve the original pointer register lifetime across this smoothing path. */
-        asm volatile("" : "+r"(pointer));
+        ASM_BARRIER_VOLATILE(: "+r"(pointer));
         positionY = pointer;
         if (targetY != *positionY) {
             movement = gWarioData.yPosition - gPreviousYPosition;
@@ -99,7 +99,7 @@ void MoveCameraTowardTarget(s32 x, s32 y)
 
         pointer = &gBg1XPosition;
         /* Preserve the original pointer register lifetime across this smoothing path. */
-        asm volatile("" : "+r"(pointer));
+        ASM_BARRIER_VOLATILE(: "+r"(pointer));
         positionX = pointer;
         if (targetX != *positionX) {
             movement = gWarioData.xPosition - gPreviousXPosition;
@@ -466,7 +466,7 @@ updateOtherCameraModes:
 
 dispatchClamp:
     /* Taking this label as a zero-output operand preserves agbcc's original block split. */
-    asm volatile("" : : "g"(&&dispatchClamp));
+    ASM_BARRIER_VOLATILE(: : "g"(&&dispatchClamp));
     goto clampCamera;
 
 clampCamera:

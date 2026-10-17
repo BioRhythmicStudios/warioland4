@@ -27,7 +27,7 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
         {
             register u32 bias PIN("r0");
             bias = 0x1000;
-            asm("" : "=r"(currentX) : "0"(bias));
+            ASM_BARRIER(: "=r"(currentX) : "0"(bias));
         }
         value = current->yPosition;
         currentY = currentX + value;
@@ -84,7 +84,7 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
 
             value = 0x1000;
             /* Keep the position bias in r0 before copying it to r2. */
-            asm("" : "=r"(spriteX) : "0"(value));
+            ASM_BARRIER(: "=r"(spriteX) : "0"(value));
             value = sprite->yPosition;
             spriteY = spriteX + value;
             spriteY = (u16)spriteY;
@@ -392,13 +392,13 @@ void UnlockMatchingToyBlockTriangleLock(void)
         {
             register u32 yValue PIN("r0");
             yValue = sprite->yPosition;
-            asm("" : "=r"(temp) : "0"(yValue));
+            ASM_BARRIER(: "=r"(temp) : "0"(yValue));
         }
         temp += 252;
         y = temp >> 6;
         temp = sprite->xPosition;
         /* Preserve the target's copy from r1 to r0 before subtracting. */
-        asm("" : "=r"(value) : "0"(temp));
+        ASM_BARRIER(: "=r"(value) : "0"(temp));
         value -= 32;
     }
 
@@ -412,7 +412,7 @@ void UnlockMatchingToyBlockTriangleLock(void)
         register u8* rawData PIN("r0");
 
         rawData = &gRoomSpriteData[0][0];
-        asm("" : "=r"(data) : "0"(rawData));
+        ASM_BARRIER(: "=r"(data) : "0"(rawData));
     }
 
     value = data[0];

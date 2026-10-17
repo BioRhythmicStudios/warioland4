@@ -20,7 +20,7 @@ int UpdateRouletteGame(void)
             return 0;
         {
             register int barrier PIN("r2");
-            asm volatile("" : "=r"(barrier));
+            ASM_BARRIER_VOLATILE(: "=r"(barrier));
         }
         goto advanceStateReload;
 
@@ -37,7 +37,7 @@ int UpdateRouletteGame(void)
             return 0;
         { 
             register int barrier PIN("r2");
-            asm volatile("" : "=r"(barrier));
+            ASM_BARRIER_VOLATILE(: "=r"(barrier));
         }
         goto advanceStateReload;
 
@@ -239,7 +239,7 @@ advanceStateCached:
         UpdateRouletteResultTiles();
         {
             register int barrier PIN("r2");
-            asm volatile("" : "=r"(barrier));
+            ASM_BARRIER_VOLATILE(: "=r"(barrier));
         }
         goto advanceStateReload;
 
@@ -311,7 +311,7 @@ advanceStateCached:
         UpdateRouletteResultTiles();
         {
             register int barrier PIN("r2");
-            asm volatile("" : "=r"(barrier));
+            ASM_BARRIER_VOLATILE(: "=r"(barrier));
         }
         goto advanceStateReload;
 

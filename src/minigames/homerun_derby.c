@@ -980,7 +980,7 @@ s32 UpdateHomerunHitBall(void)
 
                     xPosition = 0xC0;
                     xPosition <<= 1;
-                    asm("" : "+r"(xPosition));
+                    ASM_BARRIER(: "+r"(xPosition));
                     screenOffset = xPosition;
                     backgroundY += screenOffset;
                     backgroundY &= coordinateMask;

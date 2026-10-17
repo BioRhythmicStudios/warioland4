@@ -249,10 +249,10 @@ void InitializeItemShop(void)
         while ((dma[2] & 0x80000000) != 0) {
         }
     }
-    asm("" : : "X"(0));
-    asm("" : : "X"(0));
-    asm("" : : "X"(0));
-    asm("" : : "X"(0));
+    ASM_BARRIER(: : "X"(0));
+    ASM_BARRIER(: : "X"(0));
+    ASM_BARRIER(: : "X"(0));
+    ASM_BARRIER(: : "X"(0));
     {
         vu32* dma;
         dma = (vu32*)0x040000D4;
@@ -284,19 +284,19 @@ void InitializeItemShop(void)
         backgroundControl = (vu16*)(((u32)dma) - 0xCC);
         {
             u32 bgValue;
-            asm("" : : "l"(0x1800));
+            ASM_BARRIER(: : "l"(0x1800));
             bgValue = 0x1800;
             *backgroundControl = bgValue;
             backgroundControl++;
-            asm("" : : "l"(0x1A01));
+            ASM_BARRIER(: : "l"(0x1A01));
             bgValue = 0x1A01;
             *backgroundControl = bgValue;
             backgroundControl++;
-            asm("" : : "l"(0x1C02), "r"(bgValue));
+            ASM_BARRIER(: : "l"(0x1C02), "r"(bgValue));
             bgValue = 0x1C02;
             *backgroundControl = bgValue;
             backgroundControl++;
-            asm("" : : "l"(0x1E03));
+            ASM_BARRIER(: : "l"(0x1E03));
             bgValue = 0x1E03;
             *backgroundControl = bgValue;
         }
@@ -726,7 +726,7 @@ void Shop_DrawText(const u8* text, u32 destination, u32 length)
                 u32 tempR0 = 0x80000000;
                 u32 busy = tempR0;
 
-                asm("" : : "r"(tempR4), "r"(tempR5));
+                ASM_BARRIER(: : "r"(tempR4), "r"(tempR5));
                 do {
                     register u32 character PIN("r4");
                     u32 r1Value;
@@ -871,7 +871,7 @@ void Shop_DrawText(const u8* text, u32 destination, u32 length)
             sourceHigh += sourceBase;
             sourceOffset += sourceHigh;
             character = 0x400;
-            asm("" : "+r"(character));
+            ASM_BARRIER(: "+r"(character));
             sourceOffset += character;
             dma[0] = sourceOffset;
 
@@ -928,7 +928,7 @@ void DrawItemShopSprites(void)
             animationFrame = state[1];
             animationPointer = &gItemShopShopkeeperAnimation;
             loadedAnimation = *animationPointer;
-            asm("" : "+r"(loadedAnimation));
+            ASM_BARRIER(: "+r"(loadedAnimation));
             animation = loadedAnimation;
             if (animation[animationFrame].time < timer) {
                 register u16 zeroTimer PIN("r0") = slot;

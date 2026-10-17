@@ -17,9 +17,9 @@ void InitMinicula(void)
     status = sprite->status;
     statusMask = 0x80;
     statusMask <<= 3;
-    asm("" : : "r"(statusMask));
+    ASM_BARRIER(: : "r"(statusMask));
     newStatus = statusMask;
-    asm("" : : "r"(newStatus));
+    ASM_BARRIER(: : "r"(newStatus));
     zero = 0;
     zeroHalfword = 0;
     newStatus |= status;

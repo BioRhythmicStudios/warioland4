@@ -36,13 +36,13 @@ void InitRouletteGame(void)
     objectTiles = sRouletteObjTiles;
     /* agbcc cannot retain these addresses in high registers from pure assignments. Each boundary emits one target move; the literal load remains compiler-generated. */
     loadTemp = sRouletteTopResultTiles;
-    asm volatile("" : "=r"(firstTileBlock) : "0"(loadTemp));
+    ASM_BARRIER_VOLATILE(: "=r"(firstTileBlock) : "0"(loadTemp));
     loadTemp = sRouletteMiddleResultTiles;
-    asm volatile("" : "=r"(secondTileBlock) : "0"(loadTemp));
+    ASM_BARRIER_VOLATILE(: "=r"(secondTileBlock) : "0"(loadTemp));
     loadTemp = sRouletteBottomResultTiles;
-    asm volatile("" : "=r"(thirdTileBlock) : "0"(loadTemp));
+    ASM_BARRIER_VOLATILE(: "=r"(thirdTileBlock) : "0"(loadTemp));
     loadTemp = sRouletteExtraBgTiles;
-    asm volatile("" : "=r"(postLoopTiles) : "0"(loadTemp));
+    ASM_BARRIER_VOLATILE(: "=r"(postLoopTiles) : "0"(loadTemp));
     if ((s32)waitValue < 0)
     {
       do { waitValue = dmaRegs[2] & busyMask; } while (waitValue != 0);
@@ -196,7 +196,7 @@ void InitRouletteGame(void)
         do { value = ((volatile u32 *)dmaIndex)[2] & 0x80000000; } while (value != 0);
       }
       /* Keep the tile offset live in r1 so the wait mask uses target r3. */
-      asm volatile("" : "+r"(tileOffset));
+      ASM_BARRIER_VOLATILE(: "+r"(tileOffset));
 
       dmaIndex = nextIndex;
     } while (dmaIndex <= 3);
@@ -298,7 +298,7 @@ void InitRouletteGame(void)
 
       activeZero = 0;
       /* agbcc proves the cached r4 is already zero and removes this target write. */
-      asm volatile("" : "=r"(tileZero));
+      ASM_BARRIER_VOLATILE(: "=r"(tileZero));
       tileZero = 0;
       angle = 7168;
 
@@ -429,7 +429,7 @@ void InitRouletteGame(void)
 
         alphaRegister = (volatile u16 *)0x04000052;
         fadePtr = (s8 *)secondTileBlock;
-        asm("" : "+r"(fadePtr));
+        ASM_BARRIER(: "+r"(fadePtr));
         fadeValue = 0;
         fadeValue = *(s8 *)((u8 *)fadePtr + fadeValue);
         *alphaRegister = (fadeValue << 8) | 16;

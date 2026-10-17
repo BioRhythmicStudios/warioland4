@@ -682,7 +682,7 @@ void InitGoldenDivaSpawner(void)
 
     yOffset = -0x3A0;
     /* Keep the signed offset in r1 before copying it to the addition result. */
-    asm("" : "=r"(yValue) : "0"(yOffset));
+    ASM_BARRIER(: "=r"(yValue) : "0"(yOffset));
     yOffset = sprite->yPosition;
     yValue += yOffset;
     sprite->yPosition = yValue;
@@ -718,12 +718,12 @@ void InitGoldenDivaBody(void)
             statusBits = SPRITE_STATUS_DISABLE_DRAW_DISTANCE | SPRITE_STATUS_IGNORE_SPRITE_COLLISION |
                 SPRITE_STATUS_BACKGROUND;
             /* Materialize the status bits in r2 before copying them to r0. */
-            asm("" : "+r"(statusBits));
+            ASM_BARRIER(: "+r"(statusBits));
             status = statusBits;
-            asm("" : "+r"(status));
+            ASM_BARRIER(: "+r"(status));
         }
         zeroByte = 0;
-        asm("" : "+r"(zeroByte));
+        ASM_BARRIER(: "+r"(zeroByte));
         zeroHalf = 0;
         status |= temp;
         temp = 0xFFFB;
@@ -895,7 +895,7 @@ void UpdateGoldenDivaShopItemHit(void)
             break;
         case 7:
             field = (u32)spriteCopy;
-            asm("" : "+r"(field));
+            ASM_BARRIER(: "+r"(field));
             goto setWork1To120;
         default:
             field = (u32)sprite;
@@ -932,7 +932,7 @@ void TriggerGoldenDivaShopItem(void)
     switch (gCurrentShopItem) {
     case 1:
         slot = SpriteUtilFindSpriteSlot(PSPRITE_SHOPKEEPER);
-        asm("" : "+r"(slot));
+        ASM_BARRIER(: "+r"(slot));
         base = (u32)gSpriteData;
         address = sizeof(struct PrimarySpriteData);
         address *= slot;
@@ -942,7 +942,7 @@ void TriggerGoldenDivaShopItem(void)
         break;
     case 2:
         slot = SpriteUtilFindSpriteSlot(PSPRITE_SHOPKEEPER);
-        asm("" : "+r"(slot));
+        ASM_BARRIER(: "+r"(slot));
         spriteData = (u32)gSpriteData;
         stride = sizeof(struct PrimarySpriteData);
         address = slot;
@@ -955,7 +955,7 @@ void TriggerGoldenDivaShopItem(void)
         goto findItemSlot;
     case 3:
         slot = SpriteUtilFindSpriteSlot(PSPRITE_SHOPKEEPER);
-        asm("" : "+r"(slot));
+        ASM_BARRIER(: "+r"(slot));
         spriteData = (u32)gSpriteData;
         stride = sizeof(struct PrimarySpriteData);
         address = slot;
@@ -968,7 +968,7 @@ void TriggerGoldenDivaShopItem(void)
         goto findItemSlot;
     case 4:
         slot = SpriteUtilFindSpriteSlot(PSPRITE_SHOPKEEPER);
-        asm("" : "+r"(slot));
+        ASM_BARRIER(: "+r"(slot));
         spriteData = (u32)gSpriteData;
         stride = sizeof(struct PrimarySpriteData);
         address = slot;
@@ -982,7 +982,7 @@ findItemSlot:
         /* Compiler boundary: the u8 prototype would truncate the live u32 ID in r0 before the direct call. */
         address = ((u32 (*)(u32))SpriteUtilFindSpriteSlot)(address);
         slot = address;
-        asm("" : "+r"(slot));
+        ASM_BARRIER(: "+r"(slot));
         address = slot;
         address *= stride;
         address += spriteData;
@@ -1124,7 +1124,7 @@ void BeginGoldenDivaIntro(void)
     u32 temp;
 
     spriteBase = &gCurrentSprite;
-    asm("" : "+r"(spriteBase));
+    ASM_BARRIER(: "+r"(spriteBase));
     timer = (u8 *)spriteBase;
     timer += 39;
     value = *timer;
@@ -1205,7 +1205,7 @@ void UpdateGoldenDivaIntro(void)
 
     sprite3 = &gCurrentSprite;
     value = 39;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += (u32)sprite3;
     timer = (u8 *)value;
     value = *(u8 *)value;
@@ -1254,7 +1254,7 @@ void UpdateGoldenDivaIntro(void)
 
     sprite4 = &gCurrentSprite;
     value = 42;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += (u32)sprite4;
     timer = (u8 *)value;
     zero = *(u8 *)value;
@@ -1330,7 +1330,7 @@ void FinishGoldenDivaIntro(void)
             x -= offset;
             x = (u16)x;
             offset = *work1;
-            asm("" : : "r"(offset));
+            ASM_BARRIER(: : "r"(offset));
             y += 56;
             SpriteSpawnAsChild(PSPRITE_AB, offset, 0, y, x);
         }
@@ -1360,7 +1360,7 @@ void FinishGoldenDivaIntro(void)
     default:
         sprite4 = &gCurrentSprite;
         reg6 = 42;
-        asm("" : "+r"(reg6));
+        ASM_BARRIER(: "+r"(reg6));
         reg6 += (u32)sprite4;
         work3 = (u8 *)reg6;
         oldTimer = *(u8 *)reg6;
@@ -1463,14 +1463,14 @@ void UpdateGoldenDivaFirstPhase(void)
             value = sprite->status;
             index = 0x80;
             index <<= 6;
-            asm("" : "+r"(index));
+            ASM_BARRIER(: "+r"(index));
             statusMask = index;
             value |= statusMask;
             sprite->status = value;
 
             value = SpriteUtilFindSpriteSlot(PSPRITE_ED);
             index = value;
-            asm("" : "+r"(index));
+            ASM_BARRIER(: "+r"(index));
             data = (u32)gSpriteData;
             stride = sizeof(struct PrimarySpriteData);
             index *= stride;
@@ -1489,7 +1489,7 @@ void UpdateGoldenDivaFirstPhase(void)
 
             value = SpriteUtilFindSpriteSlot(PSPRITE_EF);
             index = value;
-            asm("" : "+r"(index));
+            ASM_BARRIER(: "+r"(index));
             value = index;
             value *= stride;
             value += data;
@@ -1575,7 +1575,7 @@ void BeginGoldenDivaMaskRecall(void)
 
     sprite4 = &gCurrentSprite;
     value = 42;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += (u32)sprite4;
     work3 = (u8 *)value;
     index = *(u8 *)value;
@@ -1611,7 +1611,7 @@ void UpdateGoldenDivaMaskRecall(void)
 
     sprite = &gCurrentSprite;
     value = 42;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += (u32)sprite;
     work3 = (u8 *)value;
     index = *(u8 *)value;
@@ -1701,7 +1701,7 @@ void UpdateGoldenDivaMaskDamage(void)
 
     sprite = &gCurrentSprite;
     value = 42;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += (u32)sprite;
     work3 = (u8 *)value;
     index = *(u8 *)value;
@@ -1772,7 +1772,7 @@ void UpdateGoldenDivaFaceAnimation(void)
     u32 statusMask;
 
     value = (u32)&gCurrentSprite;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     temp = value;
     temp += 39;
     value = *(u8 *)temp;
@@ -1796,7 +1796,7 @@ void UpdateGoldenDivaFaceAnimation(void)
         sprite->yPosition = value;
     } else {
         value = 39;
-        asm("" : "+r"(value));
+        ASM_BARRIER(: "+r"(value));
         value += (u32)sprite;
         work0 = (u8 *)value;
         zero = *(u8 *)value;
@@ -2044,7 +2044,7 @@ void UpdateGoldenDivaAttack(void)
 
     sprite = &gCurrentSprite;
     value = 42;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += (u32)sprite;
     {
         register u8 *work3 PIN("r12");
@@ -2134,7 +2134,7 @@ void UpdateGoldenDivaAttack(void)
         *(u8 *)temp = value;
     } else {
         temp = gWarioData.xPosition;
-        asm("" : "+r"(temp));
+        ASM_BARRIER(: "+r"(temp));
         index = sprite->xPosition;
         value = temp;
         value += 32;
@@ -2190,9 +2190,9 @@ void BeginGoldenDivaHitReaction(void)
     sprite = &gCurrentSprite;
     temp = 0x90;
     temp <<= 1;
-    asm("" : "+r"(temp));
+    ASM_BARRIER(: "+r"(temp));
     value = temp;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     temp2 = sprite->yPosition;
     value += temp2;
     value = (u16)value;
@@ -2206,7 +2206,7 @@ void BeginGoldenDivaHitReaction(void)
         temp2 = 4;
         *(u8 *)temp3 = temp2;
         zero = 0x80;
-        asm("" : "+r"(zero));
+        ASM_BARRIER(: "+r"(zero));
         zero <<= 11;
         value += zero;
         value >>= 16;
@@ -2240,7 +2240,7 @@ void BeginGoldenDivaHitReaction(void)
         register u8 *work3 PIN("r12");
 
         temp2 = 42;
-        asm("" : "+r"(temp2));
+        ASM_BARRIER(: "+r"(temp2));
         temp2 += (u32)sprite;
         work3 = (u8 *)temp2;
         temp2 = *(u8 *)temp2;
@@ -2408,7 +2408,7 @@ void UpdateGoldenDivaBodyMovement(void)
     timer = value >> 24;
     if (timer != 0) {
         value = timer;
-        asm("" : "+r"(value));
+        ASM_BARRIER(: "+r"(value));
         if (value == 26) {
             value = sprite->health;
             if (value == 1) {
@@ -2952,7 +2952,7 @@ waitOne:
                 *(u8 *)(value + 28) = pointer;
             }
             value = (u32)&gCurrentSprite;
-            asm("" : "+r"(value));
+            ASM_BARRIER(: "+r"(value));
             pointer = value;
             pointer += 41;
             value = *(u8 *)pointer;
@@ -2963,7 +2963,7 @@ waitOne:
                 goto storeCase14;
             }
             value++;
-            asm("" : "+r"(value), "+r"(pointer));
+            ASM_BARRIER(: "+r"(value), "+r"(pointer));
 storeCase14:
             *(u8 *)pointer = value;
             break;
@@ -3125,9 +3125,9 @@ void InitGoldenDivaRobe(void)
     sprite = value;
     temp = *(u16 *)value;
     constant = 0x8408;
-    asm("" : "+r"(constant));
+    ASM_BARRIER(: "+r"(constant));
     value = constant;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero8 = 0;
     zero16 = 0;
     value |= temp;
@@ -3154,7 +3154,7 @@ void InitGoldenDivaRobe(void)
     value += 37;
     *(u8 *)value = constant;
     temp += 2;
-    asm("" : "+r"(temp));
+    ASM_BARRIER(: "+r"(temp));
     value = 92;
     *(u8 *)temp = value;
     value = (u32)sGoldenDivaRobeOam;
@@ -3179,7 +3179,7 @@ void InitGoldenDivaLowerBody(void)
     sprite = value;
     temp = *(u16 *)value;
     constant = 0x8408;
-    asm("" : "+r"(constant));
+    ASM_BARRIER(: "+r"(constant));
     value = constant;
     constant = 0;
     zero16 = 0;
@@ -3237,9 +3237,9 @@ void InitGoldenDivaFaceHitbox(void)
     sprite = value;
     temp = *(u16 *)value;
     constant = 0x8428;
-    asm("" : "+r"(constant));
+    ASM_BARRIER(: "+r"(constant));
     value = constant;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero8 = 0;
     zero16 = 0;
     value |= temp;
@@ -3364,9 +3364,9 @@ void InitGoldenDivaFan(void)
     temp = *(u16 *)value;
     constant = 0x84;
     constant <<= 8;
-    asm("" : "+r"(constant));
+    ASM_BARRIER(: "+r"(constant));
     value = constant;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero8 = 0;
     zero16 = 0;
     value |= temp;
@@ -3490,9 +3490,9 @@ void InitGoldenDivaMask(void)
     temp = *(u16 *)value;
     constant = 0xA4;
     constant <<= 8;
-    asm("" : "+r"(constant));
+    ASM_BARRIER(: "+r"(constant));
     value = constant;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero8 = 0;
     zero16 = 0;
     value |= temp;
@@ -4048,7 +4048,7 @@ void InitGoldenDivaExplosiveBall(void)
     value = *(u16 *)value;
     zero = 128;
     zero <<= 8;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     status = zero;
     zero = 0;
     zero16 = 0;
@@ -4933,7 +4933,7 @@ void InitGoldenDivaGreenEnemy(void)
     value = 10;
     *(u8 *)zero = value;
     zero += 2;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     value = 5;
     *(u8 *)zero = value;
     value = status;
@@ -4955,7 +4955,7 @@ void UpdateGoldenDivaGreenEnemy(void)
     ((struct PrimarySpriteData *)sprite)->disableWarioCollisionTimer = value;
     temp = *(u16 *)sprite;
     zero = 0x400;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     value = zero;
     zero = 0;
     value |= temp;
@@ -5112,7 +5112,7 @@ void UpdateGoldenDivaGreenEnemyTransformation(void)
     }
 
     value = 39;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += sprite;
     work0 = value;
     value = *(u8 *)value;
@@ -5126,7 +5126,7 @@ void UpdateGoldenDivaGreenEnemyTransformation(void)
     temp = *(u16 *)sprite;
     zero = 128;
     zero <<= 3;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     value = zero;
     zero = 0;
     value |= temp;
@@ -5369,7 +5369,7 @@ void UpdateGoldenDivaBlackChickFall(void)
 
     value = (u32)&gCurrentSprite;
     temp = 39;
-    asm("" : "+r"(temp));
+    ASM_BARRIER(: "+r"(temp));
     temp += value;
     work0 = temp;
     index = *(u8 *)temp;
@@ -5485,9 +5485,9 @@ void ResetGoldenDivaBlackChickAnimation(void)
     value = 0xFEFF;
     value &= zero;
     constant = 0x280;
-    asm("" : "+r"(constant));
+    ASM_BARRIER(: "+r"(constant));
     zero = constant;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     value |= zero;
     *(u16 *)sprite = value;
 }
@@ -5779,7 +5779,7 @@ void BeginGoldenDivaBlackChickPose112(void)
     temp = *(u16 *)value;
     zero = 128;
     zero <<= 3;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     value = zero;
     zero = 0;
     zero16 = 0;
@@ -6265,7 +6265,7 @@ void UpdateGoldenDivaHammerAffine(void)
     *(u16 *)sprite = value;
     table = (u32)sSinCosTable;
     value = 39;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += sprite;
     work0 = value;
     value = *(u8 *)value;
@@ -6638,9 +6638,9 @@ void InitGoldenDivaDebris(void)
     temp = *(u16 *)value;
     constant = 144;
     constant <<= 3;
-    asm("" : "+r"(constant));
+    ASM_BARRIER(: "+r"(constant));
     value = constant;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero8 = 0;
     zero16 = 0;
     value |= temp;
@@ -6918,11 +6918,11 @@ updateProjectile:
         spriteData = (u32)gSpriteData;
         sprite = (u32)&gCurrentSprite;
         value = 41;
-        asm("" : "+r"(value));
+        ASM_BARRIER(: "+r"(value));
         value += sprite;
         work2Pointer = value;
         value = *(u8 *)value;
-        asm("" : "+r"(value));
+        ASM_BARRIER(: "+r"(value));
         multiplier = 44;
         destination = value;
         destination *= multiplier;
@@ -6995,7 +6995,7 @@ void SpriteGoldenDivaLowerBody(void)
     sprite = (u32)&gCurrentSprite;
     spriteData = (u32)gSpriteData;
     value = 42;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += sprite;
     work3 = value;
     value = *(u8 *)value;
@@ -7046,7 +7046,7 @@ void SpriteGoldenDivaFan(void)
     sprite = (u32)&gCurrentSprite;
     spriteData = (u32)gSpriteData;
     value = 42;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += sprite;
     work3 = value;
     value = *(u8 *)value;
@@ -8542,7 +8542,7 @@ void SpriteGoldenDivaAttackEffect(void)
         temp = *(u16 *)sprite;
         zero = 128;
         zero <<= 3;
-        asm("" : "+r"(zero));
+        ASM_BARRIER(: "+r"(zero));
         value = zero;
         zero = 0;
         value |= temp;

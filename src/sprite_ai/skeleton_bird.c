@@ -301,7 +301,7 @@ void UpdateSkeletonBirdAttackWindup(void)
         currentSprite->pOamData = sSkeletonBirdStunnedOam;
         currentSprite->currentAnimationFrame = remaining;
         zero = 0;
-        asm("" : "+r"(zero) : "r"(savedSprite));
+        ASM_BARRIER(: "+r"(zero) : "r"(savedSprite));
         savedSprite->animationTimer = remaining;
         {
             register u16 status PIN("r1") = savedSprite->status;

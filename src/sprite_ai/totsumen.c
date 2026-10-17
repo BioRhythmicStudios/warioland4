@@ -197,10 +197,10 @@ void func_803262C(void)
     }
     timer = next;
     /* Keep next live through the byte conversion so agbcc assigns timer to r1. This emits no instructions. */
-    asm("" : : "r"(next));
+    ASM_BARRIER(: : "r"(next));
     if (timer != 0) {
         /* Force the comparison copy through r0; the empty constraint itself emits no instructions. */
-        asm("" : "=r"(check) : "0"(timer));
+        ASM_BARRIER(: "=r"(check) : "0"(timer));
         if (check == 42)
             sprite->warioCollision = 3;
         func_80238A4();

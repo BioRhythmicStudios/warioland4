@@ -465,7 +465,7 @@ void PetbottomHeldInit(void)
     sprite->pOamData = oam;
     zero8 = 0;
     zero16 = 0;
-    asm("" : "+r"(sprite), "+r"(zero8), "+r"(zero16));
+    ASM_BARRIER(: "+r"(sprite), "+r"(zero8), "+r"(zero16));
     sprite->animationTimer = zero16;
     sprite->currentAnimationFrame = zero8;
 }

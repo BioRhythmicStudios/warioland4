@@ -1549,9 +1549,9 @@ repeat: {
                 register u32 r4Live PIN("r4");
 
                 /* Keep r4 live across the C read to preserve the target index register. */
-                asm("" : "=r"(r4Live));
+                ASM_BARRIER(: "=r"(r4Live));
                 work = *(const s16*)((const u8*)wario + hitboxIndex);
-                asm("" : : "r"(r4Live));
+                ASM_BARRIER(: : "r"(r4Live));
             }
         }
         work = xPosition + work;
@@ -2092,7 +2092,7 @@ void UpdateWarioEnvironmentalTiles(void)
     {
         register u32* bg2Ptr PIN("r1");
         bg2Ptr = (u32*)&frame;
-        asm volatile("" : "+r"(bg2Ptr) : : "memory");
+        ASM_BARRIER_VOLATILE(: "+r"(bg2Ptr) : : "memory");
         bg2Ptr += 4;
         frame.bg2AttributesPtr = bg2Ptr;
     }
@@ -2137,7 +2137,7 @@ void UpdateWarioEnvironmentalTiles(void)
         {
             register u32 bgDest PIN("r1");
             bgDest = (u32)bg1Attributes;
-            asm volatile("" : "+r"(value), "+r"(bgDest) : "r"(offset), "r"(attributes) : "memory");
+            ASM_BARRIER_VOLATILE(: "+r"(value), "+r"(bgDest) : "r"(offset), "r"(attributes) : "memory");
             bgDest += offset;
             value <<= 1;
             value += (u32)attributes;
@@ -2172,7 +2172,7 @@ void UpdateWarioEnvironmentalTiles(void)
             value = 0;
         }
         *(volatile u32*)outputCursor = value;
-        asm volatile("" : "+r"(outputCursor) : "r"(value) : "memory");
+        ASM_BARRIER_VOLATILE(: "+r"(outputCursor) : "r"(value) : "memory");
         outputCursor++;
         i++;
     } while (i <= 1);

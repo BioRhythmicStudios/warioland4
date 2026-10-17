@@ -19,7 +19,7 @@ void TransparencyProcessTiles(s32 isMoving)
         } else {
             alpha = gPreviousXPosition - gWarioData.xPosition;
         }
-        asm volatile("" : : "r"(alpha));
+        ASM_BARRIER_VOLATILE(: : "r"(alpha));
 
         if (gUnk_30000D8.blendTimer < (temp = 1)) {
             gUnk_30000D8.blendTimer++;

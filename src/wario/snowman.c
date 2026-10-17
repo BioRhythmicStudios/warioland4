@@ -436,7 +436,7 @@ void UpdateSnowmanWarioMovement(void)
     xMovement = (s32)xMovement >> 19;
     movement = (u16)xMovement;
     /* Keep the completed movement in r2 before loading the position pointer. */
-    asm("" : "+r"(movement));
+    ASM_BARRIER(: "+r"(movement));
 
     {
         struct WarioData* positionWario;

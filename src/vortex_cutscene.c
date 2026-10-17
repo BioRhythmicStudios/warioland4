@@ -307,7 +307,7 @@ void InitializeVortexCutsceneFromPassage(void)
         u16 spriteZero;
         firstZero = 0;
         /* Keep the first zero live in r1 until the sprite-state zero is introduced in r2. */
-        asm("" : : "r"(firstZero));
+        ASM_BARRIER(: : "r"(firstZero));
         gUnk_3003D6C = firstZero;
         gUnk_3003D70 = firstZero;
         gUnk_3003D6E = firstZero;

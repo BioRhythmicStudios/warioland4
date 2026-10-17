@@ -409,7 +409,7 @@ void InitMapScreen(void)
         vu16* blendReg;
         register u16 blendValue PIN("r0");
         blendReg = (vu16*)0x04000052;
-        asm("" : "=r"(blendValue) : "0"(0x0A0A), "r"(blendReg));
+        ASM_BARRIER(: "=r"(blendValue) : "0"(0x0A0A), "r"(blendReg));
         *blendReg = blendValue;
     }
 }
@@ -586,14 +586,14 @@ int UpdateMapScreenPassageInput(void)
             {
                 u8* transitionInit;
                 transitionInit = &gUnk_3003C6E;
-                asm("" : : "r"(transitionInit));
+                ASM_BARRIER(: : "r"(transitionInit));
                 transitionPointer = (u32)transitionInit;
             }
             {
                 const s32* transitionTable;
                 u32 transitionAddress;
                 transitionTable = sUnk_8639420;
-                asm("" : : "r"(transitionTable));
+                ASM_BARRIER(: : "r"(transitionTable));
                 transitionAddress = directionOffset + ((*currentPassagePointer) << 4);
                 transitionAddress += (u32)transitionTable;
                 passageOrTransition = *(const s32*)transitionAddress;
@@ -750,7 +750,7 @@ void UpdateMapScreenPassageTransition(void)
 
     transitionIndex = &gUnk_3003C6E;
     transition = *transitionIndex;
-    asm("" : "+r"(transition) : : "memory");
+    ASM_BARRIER(: "+r"(transition) : : "memory");
     durationTable = sUnk_86394C8;
     xVelocity = &gUnk_3003C46;
 
@@ -1028,7 +1028,7 @@ void UpdateMapScreenFinalPassageSequence(void)
                         velocityPtr = &gUnk_3003C48;
                         velocity = 33;
                         velocity = -velocity;
-                        asm("" : "+r"(velocity));
+                        ASM_BARRIER(: "+r"(velocity));
                         storedVelocity = velocity;
                         *velocityPtr = storedVelocity;
                     }
@@ -1041,9 +1041,9 @@ void UpdateMapScreenFinalPassageSequence(void)
             register u32 yPosition PIN("r1");
 
             gStageEntryMainSpriteState[5] += gUnk_3003C48;
-            asm("" : "=r"(yPosition));
+            ASM_BARRIER(: "=r"(yPosition));
             gUnk_3003C6C += gUnk_3003C70;
-            asm("" : : "r"(yPosition));
+            ASM_BARRIER(: : "r"(yPosition));
         }
             gStageEntrySequenceTimer++;
             if (gStageEntrySequenceTimer == 40) {
@@ -1766,7 +1766,7 @@ void DrawMapScreenSprites(void)
                             low = attr1 + *xEntry;
                             low &= xMask;
                             oldAttr1Local = screenDst->all.attr1;
-                            asm("" : : "r"(xEntry));
+                            ASM_BARRIER(: : "r"(xEntry));
                             merged = highMask;
                             merged &= oldAttr1Local;
                             merged |= low;

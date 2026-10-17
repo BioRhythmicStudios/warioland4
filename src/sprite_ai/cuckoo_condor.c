@@ -63,7 +63,7 @@ void UpdateCuckooCondorPendulumOrbit(void)
 
     sprite = &gCurrentSprite;
     work = sprite->work0;
-    asm("" : "+r"(work));
+    ASM_BARRIER(: "+r"(work));
     angle = work;
     angle += 0x40;
     angle &= 0xFF;
@@ -80,13 +80,13 @@ void UpdateCuckooCondorPendulumOrbit(void)
     case 2:
         temp = radius << 16;
         adjustmentR2 = 0xFF980000;
-        asm("" : "+r"(adjustmentR2));
+        ASM_BARRIER(: "+r"(adjustmentR2));
         temp += adjustmentR2;
         goto finishRadius;
     case 3:
         temp = radius << 16;
         adjustmentR4 = 0xFF780000;
-        asm("" : "+r"(adjustmentR4));
+        ASM_BARRIER(: "+r"(adjustmentR4));
         temp += adjustmentR4;
         goto finishRadius;
     case 4:
@@ -241,7 +241,7 @@ void UpdateCuckooCondorPendulumHeight(void)
     temp -= offset;
     base = 0x80;
     base <<= 2;
-    asm("" : "+r"(base));
+    ASM_BARRIER(: "+r"(base));
     targetY = base;
     temp += targetY;
     currentY = (u16)temp;
@@ -275,7 +275,7 @@ void UpdateCuckooCondorPendulumHeight(void)
             speed = 1;
     }
 
-    asm("" ::: "memory");
+    ASM_BARRIER(::: "memory");
     if (currentY > targetY) {
         temp = sprite->yPosition;
         temp -= speed;
@@ -655,7 +655,7 @@ storeWarioX:
 
 updateTimer:
     temp = (u32)&gCurrentSprite;
-    asm("" : "+r"(temp));
+    ASM_BARRIER(: "+r"(temp));
     value = temp;
     value += 0x29;
     temp = *(u8 *)value;
@@ -787,7 +787,7 @@ void CuckooCondorRaisePendulum(void)
             timer = (u8)value;
             if (timer != 0) {
                 value = timer;
-                asm("" : "+r"(value));
+                ASM_BARRIER(: "+r"(value));
                 if (value != 0x30)
                     return;
                 slot = SpriteUtilFindSprite(0xE8, 0);
@@ -1080,7 +1080,7 @@ void CuckooCondorFlyAndBob(void)
 
     spriteBase = (u32)&gCurrentSprite;
     temp = 0x2A;
-    asm("" : "+r"(temp));
+    ASM_BARRIER(: "+r"(temp));
     temp += spriteBase;
     workPtr = temp;
     index = *(u8 *)temp;
@@ -1144,7 +1144,7 @@ void CuckooCondorFlyAndBob(void)
         temp = ((volatile struct PrimarySpriteData *)sprite)->yPosition;
         x = 0x80;
         x <<= 1;
-        asm("" : "+r"(x));
+        ASM_BARRIER(: "+r"(x));
         value = x;
         x = ((struct PrimarySpriteData *)sprite)->xPosition;
         value += x;
@@ -1172,7 +1172,7 @@ void CuckooCondorFlyAndBob(void)
         }
         temp = ((volatile struct PrimarySpriteData *)sprite)->yPosition;
         x = (u32)-0x100;
-        asm("" : "+r"(x));
+        ASM_BARRIER(: "+r"(x));
         value = x;
         x = ((struct PrimarySpriteData *)sprite)->xPosition;
         value += x;
@@ -1475,7 +1475,7 @@ void CuckooCondorHandleShopItemHit(void)
 
         temp = 8;
         temp &= value;
-        asm("" : "+r"(temp));
+        ASM_BARRIER(: "+r"(temp));
         temp <<= 24;
         value = temp >> 24;
         if (value != 0) {
@@ -1537,7 +1537,7 @@ void InitCuckooCondorClockPiece(void)
     sprite = &gCurrentSprite;
     status = sprite->status;
     zeroByte = 0x8408;
-    asm("" : "+r"(zeroByte));
+    ASM_BARRIER(: "+r"(zeroByte));
     value = zeroByte;
     zeroByte = 0;
     zeroHalf = 0;
@@ -1738,7 +1738,7 @@ void CuckooCondorClockPieceSpinUp(void)
     sprite = baseSprite;
     if (value != 0) {
         temp = value;
-        asm("" : "+r"(temp));
+        ASM_BARRIER(: "+r"(temp));
         temp >>= 24;
         if (temp > 0x32) {
             work0 = &sprite->work0;
@@ -1924,7 +1924,7 @@ void InitCuckooCondorPendulumPart(void)
     sprite = &gCurrentSprite;
     status = sprite->status;
     zero = 0x8408;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     value = zero;
     zero = 0;
     value |= status;
@@ -2311,7 +2311,7 @@ void InitCuckooCondorHead(void)
     sprite = &gCurrentSprite;
     status = sprite->status;
     zeroByte = 0x8408;
-    asm("" : "+r"(zeroByte));
+    ASM_BARRIER(: "+r"(zeroByte));
     value = zeroByte;
     zeroByte = 0;
     zeroHalf = 0;
@@ -2542,7 +2542,7 @@ void CuckooCondorHeadAttack(void)
         temp = *(u16 *)child;
         base = 0x80;
         base <<= 3;
-        asm("" : "+r"(base));
+        ASM_BARRIER(: "+r"(base));
         value = base;
         temp |= value;
         *(u16 *)child = temp;
@@ -2631,7 +2631,7 @@ void InitCuckooCondorClockBody(void)
     sprite = &gCurrentSprite;
     status = sprite->status;
     constant = 0x8408;
-    asm("" : "+r"(constant));
+    ASM_BARRIER(: "+r"(constant));
     value = constant;
     zero = 0;
     timer = 0;
@@ -2681,7 +2681,7 @@ void InitCuckooCondorSmallDebris(void)
     status = sprite->status;
     zeroByte = 0x80;
     zeroByte <<= 3;
-    asm("" : "+r"(zeroByte));
+    ASM_BARRIER(: "+r"(zeroByte));
     value = zeroByte;
     zeroByte = 0;
     zeroHalf = 0;
@@ -2826,7 +2826,7 @@ void InitCuckooCondorLargeDebris(void)
     status = sprite->status;
     zeroByte = 0x90;
     zeroByte <<= 3;
-    asm("" : "+r"(zeroByte));
+    ASM_BARRIER(: "+r"(zeroByte));
     value = zeroByte;
     zeroByte = 0;
     zeroHalf = 0;
@@ -2992,7 +2992,7 @@ void InitCuckooCondorEgg(void)
     tmp = 10;
     *(u8 *)zero = tmp;
     zero += 2;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     tmp = 5;
     *(u8 *)zero = tmp;
     tmp = (u32)sp2;
@@ -3015,7 +3015,7 @@ void CuckooCondorEggStartHatching(void)
     sprite->disableWarioCollisionTimer = value;
     mask = sprite->status;
     zeroByte = 0x400;
-    asm("" : "+r"(zeroByte));
+    ASM_BARRIER(: "+r"(zeroByte));
     value = zeroByte;
     zeroByte = 0;
     value |= mask;
@@ -3252,7 +3252,7 @@ void UpdateCuckooCondorChickWalk(void)
         base = (u32)&gCurrentSprite;
         workPtr = (u8 *)0x27;
         /* Prevent agbcc from folding the offset into a copy-plus-immediate pair. */
-        asm("" : "+r"(workPtr));
+        ASM_BARRIER(: "+r"(workPtr));
         workPtr += base;
         work0 = workPtr;
         workValue = *workPtr;
@@ -3585,7 +3585,7 @@ void CuckooCondorChickStartExplosion(void)
     status = ptr->status;
     zeroByte = 0x80;
     zeroByte <<= 3;
-    asm("" : "+r"(zeroByte));
+    ASM_BARRIER(: "+r"(zeroByte));
     value = zeroByte;
     zeroByte = 0;
     zeroHalf = 0;
@@ -3869,9 +3869,9 @@ void SpriteCuckooCondorClockPiece(void)
                      * r1 for the zero offset. Both ASM constraints emit no instructions.
                      * All seven paired lifetimes are required for an exact object match. */
                     register u32 r2Live PIN("r2");
-                    asm("" : "=r"(r2Live));
+                    ASM_BARRIER(: "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
-                    asm("" : : "r"(r2Live));
+                    ASM_BARRIER(: : "r"(r2Live));
                 }
                 {
                     register u8 *scaleRead PIN("r2");
@@ -3886,9 +3886,9 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex += r5Value;
                 {
                     register u32 r2Live PIN("r2");
-                    asm("" : "=r"(r2Live));
+                    ASM_BARRIER(: "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
-                    asm("" : : "r"(r2Live));
+                    ASM_BARRIER(: : "r"(r2Live));
                     trig = -trig;
                 }
                 {
@@ -3905,9 +3905,9 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex += r5Value;
                 {
                     register u32 r2Live PIN("r2");
-                    asm("" : "=r"(r2Live));
+                    ASM_BARRIER(: "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
-                    asm("" : : "r"(r2Live));
+                    ASM_BARRIER(: : "r"(r2Live));
                 }
                 {
                     register u8 *scaleRead PIN("r2");
@@ -3922,7 +3922,7 @@ void SpriteCuckooCondorClockPiece(void)
                     register u32 angleValue;
 
                     angleValue = 39;
-                    asm("" : "+r"(angleValue));
+                    ASM_BARRIER(: "+r"(angleValue));
                     angleValue += (u32)sprite;
                     workPtr = (u8 *)angleValue;
                     angleValue = *(u8 *)angleValue;
@@ -3931,9 +3931,9 @@ void SpriteCuckooCondorClockPiece(void)
                     angleValue += r6Value;
                     {
                         register u32 r2Live PIN("r2");
-                        asm("" : "=r"(r2Live));
+                        ASM_BARRIER(: "=r"(r2Live));
                         trig = *(const s16 *)angleValue;
-                        asm("" : : "r"(r2Live));
+                        ASM_BARRIER(: : "r"(r2Live));
                     }
                 }
                 r5Value = 0x100;
@@ -3950,9 +3950,9 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex += r6Value;
                 {
                     register u32 r2Live PIN("r2");
-                    asm("" : "=r"(r2Live));
+                    ASM_BARRIER(: "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
-                    asm("" : : "r"(r2Live));
+                    ASM_BARRIER(: : "r"(r2Live));
                 }
                 inverse = FixedInverse(r5Value);
                 sprite->affinePB = FixedMul(trig, inverse);
@@ -3967,9 +3967,9 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex += r6Value;
                 {
                     register u32 r2Live PIN("r2");
-                    asm("" : "=r"(r2Live));
+                    ASM_BARRIER(: "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
-                    asm("" : : "r"(r2Live));
+                    ASM_BARRIER(: : "r"(r2Live));
                     trig = -trig;
                 }
                 inverse = FixedInverse(r5Value);
@@ -3986,9 +3986,9 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex += r6Value;
                 {
                     register u32 r2Live PIN("r2");
-                    asm("" : "=r"(r2Live));
+                    ASM_BARRIER(: "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
-                    asm("" : : "r"(r2Live));
+                    ASM_BARRIER(: : "r"(r2Live));
                 }
                 inverse = FixedInverse(r5Value);
                 sprite->affinePD = FixedMul(trig, inverse);
@@ -4103,7 +4103,7 @@ void SpriteCuckooCondorHead(void)
     slot *= size;
     slot += (u32)sprites;
     base = 0xFF68;
-    asm("" : "+r"(base));
+    ASM_BARRIER(: "+r"(base));
     out = base;
     yoff = ((struct PrimarySpriteData *)slot)->yPosition;
     out += yoff;

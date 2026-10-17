@@ -117,7 +117,7 @@ void MayubirdFloat(void)
         int zero;
 
         pointerTemp = (u8 *)42;
-        asm("" : "+r"(pointerTemp));
+        ASM_BARRIER(: "+r"(pointerTemp));
         pointerTemp = (u8 *)((u32)pointerTemp + (u32)sprite);
         counterPointer = pointerTemp;
         counter = *pointerTemp;

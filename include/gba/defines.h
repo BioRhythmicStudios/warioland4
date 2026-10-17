@@ -21,6 +21,17 @@
 #define PIN(reg) asm(reg)
 #endif
 
+// Empty asm statements that only steer agbcc's register allocation and scheduling.
+// The operands follow the template, e.g. ASM_BARRIER(: "+r"(x)).
+// Portable builds drop them.
+#ifdef PORTABLE
+#define ASM_BARRIER(...)
+#define ASM_BARRIER_VOLATILE(...)
+#else
+#define ASM_BARRIER(...) asm("" __VA_ARGS__)
+#define ASM_BARRIER_VOLATILE(...) asm volatile("" __VA_ARGS__)
+#endif
+
 #define SOUND_INFO_PTR (*(struct SoundInfo **)0x3007FF0)
 #define INTR_CHECK     (*(u16 *)0x3007FF8)
 #define INTR_VECTOR    (*(void **)0x3007FFC)

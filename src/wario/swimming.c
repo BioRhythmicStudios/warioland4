@@ -146,7 +146,7 @@ u8 UpdateWarioSwimmingFreely(void)
     heldPointer = &gButtonsHeld;
     wario = &gWarioData;
     value = wario->horizontalDirection;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     temp = 0x30;
     opposite = value;
     opposite ^= temp;
@@ -305,7 +305,7 @@ u8 UpdateWarioFloating(void)
     }
 
     /* Prevent agbcc from hoisting the animation-frame load across the state update. */
-    asm volatile("" ::: "memory");
+    ASM_BARRIER_VOLATILE(::: "memory");
     animation = sWarioFloatingAnimation;
     frame = wario->unk_1F;
     value = frame << 1;
@@ -514,7 +514,7 @@ u8 UpdateWarioWaterSuperGroundPound(void)
         temp = value;
         temp &= held;
         temp <<= 16;
-        asm("" : "+r"(temp));
+        ASM_BARRIER(: "+r"(temp));
         if (temp != 0)
             wario->horizontalDirection = value;
         wario->xVelocity = moving;
@@ -690,7 +690,7 @@ u8 UpdateBubbleWarioInWater(void)
     } else {
         wario = (struct WarioData *)&gButtonsHeld;
         value = initialWario->horizontalDirection;
-        asm("" : "+r"(value));
+        ASM_BARRIER(: "+r"(value));
         temp = 0x30;
         aux = value;
         aux ^= temp;
@@ -1175,9 +1175,9 @@ void ProcessWarioWaterCollision(void)
         case 3:
         case 5:
             if (result == 0xFF) {
-                asm volatile("" : "=r"(holdR1), "=r"(holdR2));
+                ASM_BARRIER_VOLATILE(: "=r"(holdR1), "=r"(holdR2));
                 if (gWarioTileHorizontalSpeed == 0) {
-                    asm volatile("" : : "r"(holdR1), "r"(holdR2));
+                    ASM_BARRIER_VOLATILE(: : "r"(holdR1), "r"(holdR2));
                     if (gWarioTileVerticalSpeed == 0)
                         result = CheckWarioTileMovement();
                 }
@@ -1231,7 +1231,7 @@ processCollision:
     negativeMask = 0x40;
     negativeMask = -negativeMask;
     alignMask = negativeMask;
-    asm("" : "+r"(alignMask), "+r"(negativeMask));
+    ASM_BARRIER(: "+r"(alignMask), "+r"(negativeMask));
     alignedY &= alignMask;
     alignedY += 0x60;
     alignWario->yPosition = alignedY;
@@ -1299,7 +1299,7 @@ u8 ResolveWarioWaterCollision(void)
     tableOffset <<= 16;
     index = tableOffset >> 16;
     point = wario->yPosition;
-    asm volatile("" : : "r"(index));
+    ASM_BARRIER_VOLATILE(: : "r"(index));
     firstProbeX = index;
     newYPointer = &newY;
     result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(firstProbeX, point, &newX, newYPointer, &collision);
@@ -1323,7 +1323,7 @@ u8 ResolveWarioWaterCollision(void)
                 goto storeYWithR1;
             }
             wario->yPosition = newY + 0x3F;
-            asm volatile("" : : "r"(wario), "r"(result));
+            ASM_BARRIER_VOLATILE(: : "r"(wario), "r"(result));
             goto returnFD;
         }
         if (collision == 0x10)
@@ -1366,7 +1366,7 @@ secondProbe:
         const u8 *tableBase;
         struct WarioData *positionWario;
         secondValue = alternatePoint;
-        asm volatile("" : "+r"(secondValue));
+        ASM_BARRIER_VOLATILE(: "+r"(secondValue));
         tableOffset = secondValue << 1;
         tableOffset += indexOffset;
         /* Preserve the original pointer lifetime across the second collision probe. */
@@ -1377,14 +1377,14 @@ secondProbe:
         {
             register struct WarioData *xWario PIN("r2");
             xWario = wario;
-            asm volatile("" : "+r"(xWario));
+            ASM_BARRIER_VOLATILE(: "+r"(xWario));
             secondValue = xWario->xPosition;
         }
         tableOffset += secondValue;
         tableOffset <<= 16;
         index = tableOffset >> 16;
         positionWario = wario;
-        asm volatile("" : "+r"(positionWario));
+        ASM_BARRIER_VOLATILE(: "+r"(positionWario));
         point = positionWario->yPosition;
     }
 
@@ -1473,7 +1473,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
         collisionData = &gWarioCollisionData;
         index = collisionData->unk_08;
         status = collisionData->unk_09;
-        asm volatile("" : : "r"(status));
+        ASM_BARRIER_VOLATILE(: : "r"(status));
         point = collisionData->unk_04;
         offsetData = (const u8 *) sWarioCollisionPointTable;
         tableIndex = index << 1;
@@ -1560,7 +1560,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
         {
             struct WarioCollisionData *address;
             address = &gWarioCollisionData;
-            asm("" : : "r"(address));
+            ASM_BARRIER(: : "r"(address));
             collisionData = address;
         }
         if (collisionData->unk_00 != 0)
@@ -1574,7 +1574,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                     register u32 tableIndex PIN("r0");
                     table = (const s16 *)sWarioCollisionPointTable;
                     indexTemp = index;
-                    asm("" : : "r"(indexTemp));
+                    ASM_BARRIER(: : "r"(indexTemp));
                     tableIndex = indexTemp << 1;
                     tableIndex += index;
                     tableIndex += point;
@@ -1584,8 +1584,8 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                 }
                 { register u32 xTemp PIN("r0"); xTemp = wario->xPosition + point; xTemp <<= 16; xTemp >>= 16; x = xTemp; }
                 y = wario->yPosition;
-                asm volatile("" : "+r"(collisionData), "+r"(wario) : "r"(y));
-                asm volatile("" : : : "r0", "r1", "r2", "r5");
+                ASM_BARRIER_VOLATILE(: "+r"(collisionData), "+r"(wario) : "r"(y));
+                ASM_BARRIER_VOLATILE(: : : "r0", "r1", "r2", "r5");
                 result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &newX, &newY, &collision);
                 if (collision != 0)
                 {
@@ -1629,7 +1629,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                                 goto noCollision;
                             }
                         }
-                        asm volatile("" : : "r"(&collision));
+                        ASM_BARRIER_VOLATILE(: : "r"(&collision));
                         wario->yPosition = newY;
                         return 0xFD;
                     }
@@ -1670,9 +1670,9 @@ noCollision:
             {
                 register u32 reserve PIN("r2");
                 s32 velocity;
-                asm("" : "=r"(reserve));
+                ASM_BARRIER(: "=r"(reserve));
                 velocity = wario->yVelocity;
-                asm("" : : "r"(reserve));
+                ASM_BARRIER(: : "r"(reserve));
                 if (velocity > 0xF)
                     return 10;
             }

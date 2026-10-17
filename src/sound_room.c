@@ -266,8 +266,10 @@ void InitSoundRoomScreen(void)
     m4aSongNumStart(0x26A);
 }
 
+#ifndef PORTABLE
 asm(".set $t, InitSoundRoomScreen + 0x240\n"
     ".set $d, InitSoundRoomScreen + 0x246\n");
+#endif
 
 void SoundRoomVBlank(void)
 {
@@ -314,7 +316,7 @@ void SoundRoomVBlank(void)
             li = 1;
             tileMask = 0x0FFF;
             paletteLoad = 0x2000;
-            asm volatile("" : "=r"(paletteBase) : "0"(paletteLoad));
+            ASM_BARRIER_VOLATILE(: "=r"(paletteBase) : "0"(paletteLoad));
             row0 = (u16*)0x0600C444;
             row1 = (u16*)0x0600C484;
             do {
@@ -440,7 +442,9 @@ void SoundRoomVBlank(void)
     }
 }
 
+#ifndef PORTABLE
 asm(".set $t, UpdateSoundRoomMenu + 0x258\n");
+#endif
 
 s32 UpdateSoundRoomMenu(void)
 {
@@ -727,9 +731,9 @@ s32 UpdateSoundRoomMenu(void)
                     tileIndex = 1;
                     new_var4 = 0x0FFF;
                     paletteTemp = 0x2000;
-                    asm volatile("" : : "r"(paletteTemp));
+                    ASM_BARRIER_VOLATILE(: : "r"(paletteTemp));
                     paletteBits = paletteTemp;
-                    asm volatile("" : "+r"(tileIndex), "+r"(new_var4), "+r"(paletteBits));
+                    ASM_BARRIER_VOLATILE(: "+r"(tileIndex), "+r"(new_var4), "+r"(paletteBits));
                     row0 = (u16*)0x0600C444;
                     row1 = (u16*)0x0600C484;
                     do {

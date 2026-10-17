@@ -5,7 +5,7 @@
 
 #ifndef AGBCC_SPLIT_REGISTER_LIFETIME
 #define AGBCC_SPLIT_REGISTER_LIFETIME(value) \
-    __asm__ volatile("" : "=r"(value))
+    ASM_BARRIER_VOLATILE(: "=r"(value))
 #endif
 
 u32 UpdateVortexCutscene(void);

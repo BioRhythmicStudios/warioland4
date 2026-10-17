@@ -37,7 +37,7 @@ int AerodentWeakPointCheckThrowableCollision(void)
         offset = 0x80;
         offset <<= 5;
         /* Prevent agbcc from folding this materialized shift into the following copy. */
-        asm("" : "+r"(offset));
+        ASM_BARRIER(: "+r"(offset));
         center = offset;
     }
     {
@@ -91,7 +91,7 @@ int AerodentWeakPointCheckThrowableCollision(void)
             v1 = 0x80;
             v1 <<= 5;
             /* Keep the shifted screen-center constant separate from its later copy. */
-            asm("" : "+r"(v1));
+            ASM_BARRIER(: "+r"(v1));
             v2 = v1;
             {
                 register u32 temp PIN("r0");
@@ -114,7 +114,7 @@ int AerodentWeakPointCheckThrowableCollision(void)
                 v4 >>= 16;
                 extent++;
                 /* Preserve the explicit pointer increment instead of folding +1 into the load. */
-                asm("" : "+r"(extent));
+                ASM_BARRIER(: "+r"(extent));
                 v3 += *extent;
                 v3 <<= 16;
                 v3 >>= 16;
@@ -124,7 +124,7 @@ int AerodentWeakPointCheckThrowableCollision(void)
                 v1 >>= 16;
                 extent++;
                 /* Preserve the explicit pointer increment instead of folding +1 into the load. */
-                asm("" : "+r"(extent));
+                ASM_BARRIER(: "+r"(extent));
                 v2 += *extent;
                 v2 <<= 16;
                 v2 >>= 16;
@@ -158,7 +158,7 @@ int AerodentMoveUpWithinCamera(void)
     offset = 128;
     offset <<= 1;
     /* agbcc otherwise coalesces the two live 0x100 values and removes the required register copy. */
-    asm("" : "+r"(offset));
+    ASM_BARRIER(: "+r"(offset));
     value = offset;
     bgLimit = (value + *bg) << 16;
     sprite = &gCurrentSprite;
@@ -447,7 +447,7 @@ void AerodentInit(void)
         status = sprite->status;
         bits = 0xC488;
         /* Preserve the literal in r2 before copying it to the status accumulator. */
-        asm("" : "+r"(bits));
+        ASM_BARRIER(: "+r"(bits));
         value = bits;
         bits = 0;
         value |= status;
@@ -504,10 +504,10 @@ void AerodentInit(void)
         register int oldY PIN("r2");
 
         /* Keep -0x100 as the original literal-pool load rather than synthesized shifts. */
-        asm("" : "=r"(offset) : "0"(-256));
+        ASM_BARRIER(: "=r"(offset) : "0"(-256));
         nextY = offset;
         /* Prevent the copy from folding into the following three-operand add. */
-        asm("" : "+r"(nextY));
+        ASM_BARRIER(: "+r"(nextY));
         oldY = sprite->yPosition;
         nextY += oldY;
         sprite->yPosition = nextY;
@@ -714,7 +714,7 @@ void AerodentDefeat(void)
         int value;
 
         /* Keep the second byte cast distinct from the zero test above. */
-        asm("" : "+r"(timer));
+        ASM_BARRIER(: "+r"(timer));
         if ((u8)timer > 49)
             return;
         if (timer & 4) {
@@ -1398,7 +1398,7 @@ void AerodentCompanionReturnToParent(void)
         parentOffset += (u32)sprites;
         yOffset = 156;
         yOffset <<= 1;
-        asm volatile("" : "+r"(yOffset) : "r"(index), "r"(parentOffset));
+        ASM_BARRIER_VOLATILE(: "+r"(yOffset) : "r"(index), "r"(parentOffset));
         index = yOffset;
         parentOffset = ((struct PrimarySpriteData *)parentOffset)->yPosition;
         index += parentOffset;
@@ -1576,7 +1576,7 @@ void AerodentCompanionDefeat(void)
             if (flash != 0) {
                 current->palette = 4;
                 /* Preserve the explicit byte normalization used by the original source. */
-                asm("" : "+r"(value));
+                ASM_BARRIER(: "+r"(value));
                 normalized = (u8)value;
                 if (normalized == 24)
                     VoiceSetPlay(1);
@@ -2445,7 +2445,7 @@ void AerodentEmitterInit(void)
     status = gCurrentSprite.status & 0xFFFB;
     frame = 0;
     /* agbcc otherwise delays this live zero until after the status OR. */
-    asm("" : "+r"(frame));
+    ASM_BARRIER(: "+r"(frame));
     status |= 0x400;
     gCurrentSprite.status = status;
     gCurrentSprite.drawDistanceDown = 16;
@@ -2685,7 +2685,7 @@ void SpriteAerodentWeakPoint(void)
             highStatus = 128;
             highStatus <<= 8;
             /* Keep the high status bit in r2 before copying it to the r0 accumulator. */
-            asm("" : "+r"(highStatus));
+            ASM_BARRIER(: "+r"(highStatus));
             value = highStatus;
             frameZero = 0;
             value |= status;
@@ -2802,7 +2802,7 @@ void SpriteAerodentWeakPoint(void)
         current = &gCurrentSprite;
         spritesLoad = gSpriteData;
         /* Preserve the target's r3 load before copying the array base to r8. */
-        asm("" : "+r"(spritesLoad));
+        ASM_BARRIER(: "+r"(spritesLoad));
         sprites = spritesLoad;
         parentSlot = (u8 *)current;
         parentSlot += 42;
@@ -2857,7 +2857,7 @@ void SpriteAerodentWeakPoint(void)
 
             offset = *parentSlot;
             /* Keep the parent slot in r0 before copying it to the r1 address accumulator. */
-            asm("" : "+r"(offset));
+            ASM_BARRIER(: "+r"(offset));
             parent = (struct PrimarySpriteData *)offset;
             parent = (struct PrimarySpriteData *)((u32)parent * stride);
             parent = (struct PrimarySpriteData *)((u32)parent + (u32)sprites);
@@ -2895,7 +2895,7 @@ void SpriteAerodentWeakPoint(void)
 
                 offset = *parentSlot;
                 /* Keep the parent slot in r0 before copying it to the r1 address accumulator. */
-                asm("" : "+r"(offset));
+                ASM_BARRIER(: "+r"(offset));
                 parent = (struct PrimarySpriteData *)offset;
                 parent = (struct PrimarySpriteData *)((u32)parent * stride);
                 parent = (struct PrimarySpriteData *)((u32)parent + (u32)sprites);
@@ -2903,10 +2903,10 @@ void SpriteAerodentWeakPoint(void)
                 high = 128;
                 high <<= 5;
                 /* Preserve the separate r3-to-r2 copy required by the target. */
-                asm("" : "+r"(high));
+                ASM_BARRIER(: "+r"(high));
                 statusBit = high;
                 /* Keep the status-bit copy separate from the subsequent OR. */
-                asm("" : "+r"(statusBit));
+                ASM_BARRIER(: "+r"(statusBit));
                 status |= statusBit;
                 parent->status = status;
             }

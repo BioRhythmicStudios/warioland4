@@ -22,7 +22,7 @@ void InitBallLightningSpawner(void)
     status = 0x40C;
     /* Preserve the target's early zero values in r2 and r3. */
     zero = 0;
-    asm volatile("" : "+r"(zero));
+    ASM_BARRIER_VOLATILE(: "+r"(zero));
     zero16 = 0;
     status |= oldStatus;
     postSprite = sprite;
@@ -91,7 +91,7 @@ void InitBallLightningBolt(void)
     status = 0x420;
     /* Preserve the target's early zero values in r3 and r4. */
     zero = 0;
-    asm volatile("" : "+r"(zero));
+    ASM_BARRIER_VOLATILE(: "+r"(zero));
     zero16 = 0;
     status |= oldStatus;
     status &= 0xFFFB;
@@ -298,7 +298,7 @@ void InitBallLightningTrail(void)
     status = 0x400;
     /* Preserve the target's early zero values in r2 and r3. */
     zero = 0;
-    asm volatile("" : "+r"(zero));
+    ASM_BARRIER_VOLATILE(: "+r"(zero));
     zero16 = 0;
     status |= oldStatus;
     status &= 0xFFFB;

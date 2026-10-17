@@ -109,7 +109,7 @@ u8 BatWarioFlying(void)
         direction ^= 0x30;
         temp = direction;
         temp &= held;
-        asm("" : "+r"(temp));
+        ASM_BARRIER(: "+r"(temp));
         temp <<= 16;
         if (temp != 0) {
             wario->horizontalDirection = direction;
@@ -180,7 +180,7 @@ u8 BatWarioTurning(void)
     wario = &gWarioData;
     direction = wario->horizontalDirection;
     /* Keep the original direction live before constructing the mask. */
-    asm("" : "+r"(direction));
+    ASM_BARRIER(: "+r"(direction));
     mask = 0x30;
     changedDirection = direction;
     changedDirection ^= mask;
@@ -334,7 +334,7 @@ void UpdateBatWarioMovement(void)
     horizontalMovement >>= 19;
     movement = (u16)horizontalMovement;
     /* Keep the normalized movement live before reloading gWarioData. */
-    asm("" : "+r"(movement));
+    ASM_BARRIER(: "+r"(movement));
     gWarioData.xPosition += movement;
 }
 
@@ -386,7 +386,7 @@ void ProcessBatWarioCollision(void)
     if (mask != 0) {
         callResult = ResolveWarioCeilingCollision();
         /* Prevent agbcc from merging this collision call with the next arm. */
-        asm("");
+        ASM_BARRIER();
         goto normalize;
     }
     if (*(u16*)hitbox != 0) {

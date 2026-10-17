@@ -18,7 +18,7 @@ void YetiInit(void)
     heavy = SPRITE_STATUS_HEAVY;
     zero8 = 0;
     zero16 = 0;
-    asm("" : "+r"(sprite), "+r"(status), "+r"(heavy), "+r"(zero8), "+r"(zero16));
+    ASM_BARRIER(: "+r"(sprite), "+r"(status), "+r"(heavy), "+r"(zero8), "+r"(zero16));
     status |= heavy;
     sprite->status = status;
     sprite->warioCollision = 1;
@@ -248,7 +248,7 @@ void YetiAttackRecoverInit(void)
     gCurrentSprite.pOamData = sYetiAttackRecoverOam;
     zero8 = 0;
     zero16 = 0;
-    asm("" : "+r"(zero8), "+r"(zero16));
+    ASM_BARRIER(: "+r"(zero8), "+r"(zero16));
     gCurrentSprite.animationTimer = zero16;
     gCurrentSprite.currentAnimationFrame = zero8;
     gCurrentSprite.pose = SPOSE_71;
@@ -324,7 +324,7 @@ void YetiTackledInit(void)
     sprite->currentAnimationFrame = 0;
     zero = 0;
     sprite->animationTimer = 0;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     sprite->health = zero;
     sprite->work2 = 4;
     {
@@ -508,7 +508,7 @@ void YetiStunnedWithoutTimerInit(void)
     sprite->pOamData = sYetiStunnedOam;
     zero8 = 0;
     zero16 = 0;
-    asm("" : "+r"(zero8), "+r"(zero16));
+    ASM_BARRIER(: "+r"(zero8), "+r"(zero16));
     sprite->animationTimer = zero16;
     sprite->currentAnimationFrame = zero8;
     sprite->work2 = 6;
@@ -635,7 +635,7 @@ void YetiSnowballInit(void)
         status = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
         zero8 = 0;
         zero16 = 0;
-        asm("" : "+r"(sprite), "+r"(originalStatus), "+r"(status), "+r"(zero8), "+r"(zero16));
+        ASM_BARRIER(: "+r"(sprite), "+r"(originalStatus), "+r"(status), "+r"(zero8), "+r"(zero16));
         status |= originalStatus;
         status &= ~SPRITE_STATUS_HIDDEN;
         fieldPointer = (u8 *)sprite;

@@ -151,14 +151,14 @@ void CrumblingBlockCollapse(void)
         register u32 shiftedTimer PIN("r0");
 
         shiftedTimer = nextTimer << 24;
-        asm("" : "+r"(shiftedTimer));
+        ASM_BARRIER(: "+r"(shiftedTimer));
         timer = shiftedTimer >> 24;
     }
     if (timer != 0) {
         u16 comparison;
 
         comparison = timer;
-        asm("" : "+r"(comparison));
+        ASM_BARRIER(: "+r"(comparison));
         if (comparison == 38) {
             ClearCrumblingBlockCollision();
         }
@@ -218,14 +218,14 @@ void CrumblingBlockReform(void)
         register u32 shiftedTimer PIN("r0");
 
         shiftedTimer = nextTimer << 24;
-        asm("" : "+r"(shiftedTimer));
+        ASM_BARRIER(: "+r"(shiftedTimer));
         timer = shiftedTimer >> 24;
     }
     if (timer != 0) {
         u16 comparison;
 
         comparison = timer;
-        asm("" : "+r"(comparison));
+        ASM_BARRIER(: "+r"(comparison));
         if (comparison == 21) {
             SetCrumblingBlockCollision();
         }

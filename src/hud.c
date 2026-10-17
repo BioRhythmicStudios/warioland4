@@ -473,7 +473,7 @@ void DrawGameplayHudOam(void)
     u8* base;
     dest = (u16*)gOamBuffer;
     new_var2 = 0;
-    asm volatile("" : "=r"(count) : "0"(new_var2));
+    ASM_BARRIER_VOLATILE(: "=r"(count) : "0"(new_var2));
     new_var = 6;
     ;
     stage = gCurrentStageNumber;
@@ -503,7 +503,7 @@ void DrawGameplayHudOam(void)
                 ((OamData*)oam)->split.size = 1;
                 *dest = 0;
                 ((OamData*)oam)->split.tileNum = 356;
-                asm volatile("" : "+r"(count));
+                ASM_BARRIER_VOLATILE(: "+r"(count));
                 ((OamData*)oam)->split.paletteNum = 14;
                 dest += 2;
             }
@@ -534,7 +534,7 @@ void DrawGameplayHudOam(void)
                 *(dest++) = tempCount;
                 stage = 6;
                 new_var = stage;
-                asm volatile("" : : "r"(new_var), "r"(base));
+                ASM_BARRIER_VOLATILE(: : "r"(new_var), "r"(base));
                 ((OamData*)base)->split.y = new_var;
                 *(dest++) = tempCount;
             }
@@ -552,12 +552,12 @@ void DrawGameplayHudOam(void)
                 result |= oldAttr;
                 storeOam = base;
                 *(u16*)(storeOam + 2) = result;
-                asm volatile("" : "=r"(xMask) : "0"(hardMask));
+                ASM_BARRIER_VOLATILE(: "=r"(xMask) : "0"(hardMask));
                 oam = storeOam;
             }
             {
                 u32 storeCount;
-                asm volatile("" : "=r"(storeCount) : "0"(count));
+                ASM_BARRIER_VOLATILE(: "=r"(storeCount) : "0"(count));
                 *dest = storeCount;
             }
             ((OamData*)oam)->split.tileNum = 203;

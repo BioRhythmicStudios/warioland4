@@ -78,7 +78,7 @@ int MoveRouletteResultIntoSlot(void)
         {
             register s32 zero PIN("r4");
 
-            asm volatile("" : "=r"(zero));
+            ASM_BARRIER_VOLATILE(: "=r"(zero));
             zero = 0;
             step = *(s16 *)((u8 *)xStepPtr + zero);
         }
@@ -86,7 +86,7 @@ int MoveRouletteResultIntoSlot(void)
         value *= step;
         value >>= 5;
         /* Prevent agbcc from moving the r8 pointer copy before the shift. */
-        asm volatile("" : "+r"(value));
+        ASM_BARRIER_VOLATILE(: "+r"(value));
         step = *xBasePtr;
         value += step;
         item->x = value;
@@ -98,7 +98,7 @@ int MoveRouletteResultIntoSlot(void)
 
             stepBase = yStepPtr;
             zero = 0;
-            asm volatile("" : : "r"(stepBase));
+            ASM_BARRIER_VOLATILE(: : "r"(stepBase));
             step = *(s16 *)((u8 *)stepBase + zero);
         }
         value = *progressPtr;

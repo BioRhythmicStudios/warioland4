@@ -282,7 +282,7 @@ void UpdateCatbatMineSpawnerPosition(void)
     {
         u8 *slotPtr;
         /* Materialize the sprite base only after the volatile X-position store. */
-        asm("" : "=r"(slotPtr) : "0"(sprite));
+        ASM_BARRIER(: "=r"(slotPtr) : "0"(sprite));
         slotPtr += 42;
         slot = *slotPtr;
         value = sprites[slot].yPosition - 216;
@@ -2175,7 +2175,7 @@ void UpdateCatbatLandingDebris(void)
                     int pointerAddress;
                     u8 *pointer;
                     pointerAddress = 42;
-                    asm("" : "+r"(pointerAddress));
+                    ASM_BARRIER(: "+r"(pointerAddress));
                     pointerAddress += (int)sprite;
                     pointer = (u8 *)pointerAddress;
                     indexPtr = pointer;
@@ -2185,7 +2185,7 @@ void UpdateCatbatLandingDebris(void)
                     int pointerAddress;
                     register u8 *pointer PIN("r6");
                     pointerAddress = 42;
-                    asm("" : "+r"(pointerAddress));
+                    ASM_BARRIER(: "+r"(pointerAddress));
                     pointerAddress += (int)sprite;
                     pointer = (u8 *)pointerAddress;
                     indexPtr = pointer;

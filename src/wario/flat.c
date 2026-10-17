@@ -309,7 +309,7 @@ void UpdateFlatWarioMovement(void)
         s32 movementR2;
 
         /* This empty constraint emits no instructions; it prevents agbcc from reusing r0 before the final add. */
-        asm("" : "=r"(movementR2) : "0"(movement));
+        ASM_BARRIER(: "=r"(movementR2) : "0"(movement));
         gWarioData.xPosition += movementR2;
     }
 }

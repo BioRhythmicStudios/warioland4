@@ -588,7 +588,7 @@ void SerializeGameStateToTemporarySave(void)
         source7 = sharedIp;
         value = *source7;
         *(destination++) = value;
-        asm("" : : "r"(source1), "r"(source2), "r"(source3), "r"(source5), "r"(source6));
+        ASM_BARRIER(: : "r"(source1), "r"(source2), "r"(source3), "r"(source5), "r"(source6));
         source1 = southWestJewel;
         value = *source1;
         *(destination++) = value;
@@ -618,7 +618,7 @@ void SerializeGameStateToTemporarySave(void)
         source7 = &gUnk_3000C0E;
         value = *source7;
         *(destination++) = value;
-        asm("" : : "r"(source1), "r"(source2), "r"(source3), "r"(source5), "r"(source6));
+        ASM_BARRIER(: : "r"(source1), "r"(source2), "r"(source3), "r"(source5), "r"(source6));
         padding = destination;
         if ((((u32)destination) & new_var) != 0) {
             u32 padValue;
@@ -865,7 +865,7 @@ void SerializeGameStateToTemporarySave(void)
     }
     destination += 2;
     source7 = (u8*)&gBg3XPosition;
-    asm("" : "+r"(source7) : : "r0", "r1", "r2", "r3", "r5", "r6");
+    ASM_BARRIER(: "+r"(source7) : : "r0", "r1", "r2", "r3", "r5", "r6");
     *((u16*)destination) = *((u16*)source7);
     destination += 2;
     {
@@ -1039,7 +1039,7 @@ void RestoreGameStateFromTemporarySave(void)
             value = *source;
             destination7 = southEastJewel;
             *destination7 = value;
-            __asm__(""
+            ASM_BARRIER(
                     :
                     : "r"(destination1), "r"(destination2), "r"(destination3), "r"(destination5), "r"(destination6));
             source++;
@@ -1076,7 +1076,7 @@ void RestoreGameStateFromTemporarySave(void)
             value = *source;
             destination7 = &gUnk_3000C0E;
             *destination7 = value;
-            __asm__(""
+            ASM_BARRIER(
                     :
                     : "r"(destination1), "r"(destination2), "r"(destination3), "r"(destination5), "r"(destination6));
             source++;
@@ -1265,7 +1265,7 @@ void BuildMainSaveWorkingBuffer(void)
     CopySaveFileBlock16((u8*)0x02038260, sMainSaveHeaderSignature2);
 
     checksum = data + 4;
-    __asm__ volatile("" : "+r"(checksum));
+    ASM_BARRIER_VOLATILE(: "+r"(checksum));
     *checksum++ = 0;
     *checksum = -1;
     checksum--;
@@ -1313,7 +1313,7 @@ void SerializeGlobalSaveDataToWorkingBuffer(void)
     medal = &gMedalCount;
     totalScore = &gTotalScore;
     unknown = &gUnk_300001C;
-    __asm__ volatile("" : "+r"(unknown));
+    ASM_BARRIER_VOLATILE(: "+r"(unknown));
     footer = sSaveFooterSignature;
     zero = 0;
     work = 3;
@@ -1355,7 +1355,7 @@ void SerializeGlobalSaveDataToWorkingBuffer(void)
                 destination += 4;
                 inner--;
             } while (inner >= 0);
-            __asm__ volatile("" : "+r"(offset));
+            ASM_BARRIER_VOLATILE(: "+r"(offset));
             offset += 24;
             outer++;
         } while (outer <= 6);
@@ -1477,7 +1477,7 @@ void RestoreGlobalSaveDataFromWorkingBuffer(void)
                 source += 4;
                 inner--;
             } while (inner >= 0);
-            __asm__ volatile("" : "+r"(offset));
+            ASM_BARRIER_VOLATILE(: "+r"(offset));
             offset += 24;
             outer++;
         } while (outer <= 6);
@@ -1530,7 +1530,7 @@ void RestoreGlobalSaveDataFromWorkingBuffer(void)
 
     *unknown = *source;
     source++;
-    __asm__ volatile("" : "+r"(source));
+    ASM_BARRIER_VOLATILE(: "+r"(source));
     padding = source;
     if (((u32)padding & 3) != 0) {
         mask = 3;
@@ -1623,7 +1623,7 @@ void InitializeSaveFileStatuses(void)
     {
         u8* selectedPtr;
         selectedPtr = &gSelectedSaveFile;
-        __asm__ volatile("" : "+r"(zero1));
+        ASM_BARRIER_VOLATILE(: "+r"(zero1));
         zero1 = 0;
         *selectedPtr = zero1;
     }
@@ -1638,7 +1638,7 @@ void InitializeSaveFileStatuses(void)
     encodedIndex = 0;
     do {
         r4Value = encodedIndex >> 24;
-        __asm__ volatile("" : "+r"(encodedIndex));
+        ASM_BARRIER_VOLATILE(: "+r"(encodedIndex));
         status = ClassifyAndRepairSaveSlotCopy(r4Value);
         status = (status << 24) >> 24;
         if (status == 2) {
@@ -1790,14 +1790,14 @@ u32 ClassifyAndRepairSaveSlotCopy(u8 selectedFile)
 
     statusValue = ((u8*)selected)[5];
     if (statusValue == 4) {
-        __asm__ volatile("" : "+r"(statusValue));
+        ASM_BARRIER_VOLATILE(: "+r"(statusValue));
         func_8000F90(statusValue);
         func_8000F64();
         statusValue = 0;
         ((u8*)selected)[5] = statusValue;
     } else if (firstResult != 0) {
         statusValue = 1;
-        __asm__ volatile("" : "+r"(statusValue));
+        ASM_BARRIER_VOLATILE(: "+r"(statusValue));
     } else {
         statusValue = 2;
     }
@@ -2172,7 +2172,7 @@ u32 ValidateSelectedSaveHeader(void)
     if (*data != 0) {
         u16* sumPtr;
 
-        __asm__ volatile("" : "+r"(data));
+        ASM_BARRIER_VOLATILE(: "+r"(data));
 
         value = 0;
         sumPtr = (u16*)0x02038080;

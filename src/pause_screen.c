@@ -377,7 +377,7 @@ void InitializePauseScreen(void)
         (void*)0x05000240,
         0x80000020
     );
-    __asm__ volatile("" : "+r"(pausePaletteBase));
+    ASM_BARRIER_VOLATILE(: "+r"(pausePaletteBase));
 
     ((struct DmaRegisters*)0x040000D4)->src = (u32)(sUnk_86DEE38 + (gCurrentPassage << 5));
     ((struct DmaRegisters*)0x040000D4)->dst = 0x05000160;
@@ -444,7 +444,7 @@ void InitializePauseScreen(void)
             s32 jewelZero;
             jewelBase = (s32)jewelStates;
             jewelZero = 0;
-            asm("" : : "r"(jewelZero));
+            ASM_BARRIER(: : "r"(jewelZero));
             jewelIt = jewelBase + 3;
             do {
                 *(u8*)jewelIt = 0;

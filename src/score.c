@@ -24,7 +24,7 @@ void UpdateSecondarySprites(void)
         struct SecondarySprite* sprite;
         register u32 byteOffset PIN("r1");
         byteOffset = offset;
-        asm("" : : "r"(byteOffset));
+        ASM_BARRIER(: : "r"(byteOffset));
         sprite = (struct SecondarySprite*)(byteOffset + ((u32)spriteBase));
         if ((sprite->status & 5) == 5) {
             gCurrentSecondarySprite = *sprite;
@@ -51,7 +51,7 @@ void UpdateSecondarySprites(void)
             register void (*const* freshAiTable)(void) PIN("r1");
             freshSpriteBase = gSecondarySpriteData;
             sprite = freshSpriteBase;
-            asm("" : "=r"(freshAiTable) : "0"(sSecondarySpriteAITable) : "r8");
+            ASM_BARRIER(: "=r"(freshAiTable) : "0"(sSecondarySpriteAITable) : "r8");
             secondAiTable = freshAiTable;
         }
         do {
@@ -69,7 +69,7 @@ void UpdateSecondarySprites(void)
                     DrawCurrentSecondarySprite(index);
                 }
                 *sprite = *current;
-                asm("" : : "r"(activeSprite), "r"(current));
+                ASM_BARRIER(: : "r"(activeSprite), "r"(current));
             }
             {
                 u32 stride;
@@ -1001,7 +1001,7 @@ void DrawCurrentSecondarySprite(u32 index)
                 matrixBits = 1;
             }
         }
-        asm("" : : "r"(count));
+        ASM_BARRIER(: : "r"(count));
         yOffset = (u16)((sprite->yPosition >> 2) - (gBg1YPosition >> 2));
         {
             u8* currentSlotPointer;
@@ -1033,7 +1033,7 @@ void DrawCurrentSecondarySprite(u32 index)
                 stackPointer = (volatile u8*)stackWords;
                 stackPointer[4] = modeValue;
                 priorityValue = matrixBits;
-                asm("" : "+r"(priorityValue));
+                ASM_BARRIER(: "+r"(priorityValue));
                 priorityValue <<= 2;
                 stackWords[2] = priorityValue;
             }
@@ -1089,7 +1089,7 @@ void DrawCurrentSecondarySprite(u32 index)
                     modeByte = ((u8*)oam)[1];
                     modeBits = (u32)stackWords;
                     modeBits = *(volatile u8*)(modeBits + 4);
-                    asm("" : "+r"(modeBits));
+                    ASM_BARRIER(: "+r"(modeBits));
                     modeByte |= modeBits;
                     ((u8*)oam)[1] = modeByte;
                     value = ((u8*)oam)[3];
@@ -1104,7 +1104,7 @@ void DrawCurrentSecondarySprite(u32 index)
                     {
                         u32 matrixValue;
                         matrixValue = matrixBits;
-                        asm("" : "+r"(matrixValue));
+                        ASM_BARRIER(: "+r"(matrixValue));
                         value |= matrixValue;
                     }
                     ((u8*)oam)[3] = value;

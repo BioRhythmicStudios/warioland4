@@ -223,7 +223,7 @@ void MenhammerAttack(void)
         spriteBase = &gCurrentSprite;
         r4Value = 42;
         /* Keep the field offset in r4 before adding the sprite base. */
-        asm("" : "+r" (r4Value));
+        ASM_BARRIER(: "+r" (r4Value));
         r4Value += (u32) spriteBase;
         indexPointer = (u8 *) r4Value;
         index = *(const u8 *) r4Value;

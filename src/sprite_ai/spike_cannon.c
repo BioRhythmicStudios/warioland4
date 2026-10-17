@@ -158,7 +158,7 @@ void InitSpikeCannonProjectile(void)
         u32 facingTest;
         facingTest = 64;
         facingTest &= status;
-        asm volatile("" : "+r"(facingTest));
+        ASM_BARRIER_VOLATILE(: "+r"(facingTest));
     }
     {
         const struct AnimationFrame *oam;
