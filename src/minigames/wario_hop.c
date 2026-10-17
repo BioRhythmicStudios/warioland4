@@ -886,1107 +886,286 @@ void WarioHopUpdateMedalReward(void)
 
 void WarioHopDrawSprites(void)
 {
+    /* OamData merges attr1 bits 9..13 into one 5-bit matrixNum. The affine sprites
+       here only write the 3-bit affine index (as in DrawSoundRoomSprites). */
+    typedef union {
+        struct {
+            u32 y : 8;
+            u32 affineMode : 2;
+            u32 objMode : 2;
+            u32 mosaic : 1;
+            u32 bpp : 1;
+            u32 shape : 2;
+
+            u32 x : 9;
+            u32 affineIndex : 3;
+            u32 preserved : 2;
+            u32 size : 2;
+
+            u16 tileNum : 10;
+            u16 priority : 2;
+            u16 paletteNum : 4;
+
+            u16 fractional : 8;
+            u16 integer : 7;
+            u16 sign : 1;
+        } split;
+
+        struct {
+            u16 attr0;
+            u16 attr1;
+            u16 attr2;
+            u16 affineParam;
+        } all;
+    } WarioHopOamData;
+
+    const struct AnimationFrame* animation;
+    const u16* src;
+    u16* raw;
+    u16 attr;
     s32 i;
     s32 total;
-    u16 *raw;
-    register const u16 *frame asm("r4");
-    struct WarioHopObjState *player;
-    struct WarioHopMidState *stateBase;
-    register OamData *oam asm("r3");
-    u32 oamOffset;
-    u32 count;
+    s32 j;
     u32 active;
-    s16 *affinePtr;
-    u32 stackPad;
-    u32 effectActive;
-    u8 *effectActivePtr;
-    s32 xMask;
-    s32 matrixMask;
-    s32 priorityMask;
-    /*
-     * These four scalars intentionally form contiguous stack storage. B/C/D
-     * are reached through affineBPtr/affineCPtr/affineDPtr rather than by name;
-     * replacing them with an array changes agbcc's stack layout and codegen.
-     */
-    s16 affine[4];
-#define affineA affine[0]
-    s16 *affineBPtr;
-    s16 *affineCPtr;
-    s16 *affineDPtr;
-    u16 affineDResult;
-    s32 affineDResult2;
+    s16 matrix[4];
+    s16* matrix1Ptr;
+    s16* matrix2Ptr;
+    s16* matrix3Ptr;
+    u16 matrixD;
+    s32 matrixD2;
 
     i = 0;
     total = gOamSlotsUsed;
-    oamOffset = total << 3;
-    oam = gOamBuffer;
-    raw = (u16 *)(oamOffset + (u8 *)oam);
-    stateBase = &gMinigameCamera;
-    active = stateBase->active;
-    affinePtr = &affineA;
-    affinePtr++;
-    affineBPtr = affinePtr;
-    affinePtr++;
-    affineCPtr = affinePtr;
-    affinePtr++;
-    affineDPtr = affinePtr;
-
-#define DRAW_FRAME_COMMON(_frame, _x, _y, _attr0Set, _attr0Clear, _attr1Set, _attr1Clear, _attr2Set, _attr2Clear) \
-    do { \
-        frame = (_frame); \
-        count = *frame++; \
-        total += count; \
-        while (i < total) { \
-            OamData *oam; \
-            u16 attr0; \
-            u16 attr1; \
-            u16 attr2; \
-            oam = &gOamBuffer[i]; \
-            attr0 = *frame++; \
-            *raw++ = attr0; \
-            oam->split.y = attr0 + (_y); \
-            if ((_attr0Set) != 0 || (_attr0Clear) != 0) { \
-                oam->split.affineMode = (_attr0Set); \
-            } \
-            attr1 = *frame++; \
-            *raw++ = attr1; \
-            oam->split.x = attr1 + (_x); \
-            if ((_attr1Set) != 0 || (_attr1Clear) != 0) { \
-                oam->split.matrixNum = (_attr1Set) >> 1; \
-            } \
-            attr2 = *frame++; \
-            *raw++ = attr2; \
-            oam->split.priority = (_attr2Set) >> 2; \
-            raw++; \
-            i++; \
-        } \
-    } while (0)
+    raw = (u16*)&gOamBuffer[total];
+    active = gMinigameCamera.active;
+    matrix1Ptr = &matrix[1];
+    matrix2Ptr = matrix1Ptr + 1;
+    matrix3Ptr = matrix2Ptr + 1;
 
     if (active != 0) {
         if (active == 1) {
-            frame = sUnk_870D880;
+            src = sUnk_870D880;
         }
         if (active == 2) {
-            frame = sUnk_870D890;
+            src = sUnk_870D890;
         }
-        count = *frame;
-        total += count;
-        frame++;
-        if (i < total) {
-            struct WarioHopMidState *state;
-            s32 tempXMask;
-            s32 tempMatrixMask;
-            s32 tempPriorityMask;
-
-            state = stateBase;
-            tempXMask = 0xFFFFFE00;
-            xMask = tempXMask;
-            tempMatrixMask = -15;
-            matrixMask = tempMatrixMask;
-            tempPriorityMask = -13;
-            priorityMask = tempPriorityMask;
-            do {
-                s32 value;
-                s32 newX;
-                register u16 oldAttr asm("r2");
-                register s32 mergedAttr asm("r0");
-                s32 coord;
-                s32 finalValue;
-                register s32 attrHigh asm("r1");
-                register u8 *oamBytes asm("r3");
-
-                value = *frame++;
-                *raw++ = value;
-                coord = (u8)state->yOffset;
-                coord += value;
-                coord -= 16;
-                oam->split.y = coord;
-                oam->split.affineMode = 3;
-
-                value = *frame++;
-                *raw++ = value;
-                newX = value + (s16)state->xOffset;
-                newX -= 32;
-                newX &= 0x1FF;
-                oldAttr = oam->all.attr1;
-                mergedAttr = xMask;
-                mergedAttr &= oldAttr;
-                mergedAttr |= newX;
-                oam->all.attr1 = mergedAttr;
-                oamBytes = (u8 *)oam;
-                attrHigh = oamBytes[3];
-                mergedAttr = matrixMask;
-                mergedAttr &= attrHigh;
-                mergedAttr |= 2;
-                oamBytes[3] = mergedAttr;
-
-                finalValue = *frame;
-                *raw = finalValue;
-                frame++;
-                attrHigh = oamBytes[5];
-                mergedAttr = priorityMask;
-                mergedAttr &= attrHigh;
-                oamBytes[5] = mergedAttr;
-
-                raw += 2;
-                oam++;
-                i++;
-            } while (i < total);
+        total += *(src++);
+        for (; i < total; i++) {
+            attr = *(src++);
+            *(raw++) = attr;
+            gOamBuffer[i].split.y = gMinigameCamera.yOffset + attr - 16;
+            gOamBuffer[i].split.affineMode = 3;
+            attr = *(src++);
+            *(raw++) = attr;
+            gOamBuffer[i].split.x = (attr + (s16)gMinigameCamera.xOffset - 32) & 0x1FF;
+            ((WarioHopOamData*)gOamBuffer)[i].split.affineIndex = 1;
+            *(raw++) = *(src++);
+            gOamBuffer[i].split.priority = 0;
+            raw++;
         }
     }
 
-    effectActivePtr = &gMinigameMedalHighlight;
-    effectActive = *effectActivePtr;
-    if (effectActive != 0) {
+    if (gMinigameMedalHighlight != 0) {
         gMinigameUiAnimation[0]++;
         if (sWarioHopMedalHighlightOam[gMinigameUiAnimation[1]].time < gMinigameUiAnimation[0]) {
             gMinigameUiAnimation[0] = 1;
             gMinigameUiAnimation[1]++;
             if (sWarioHopMedalHighlightOam[gMinigameUiAnimation[1]].time == 0) {
-                u32 resetZero;
-                u8 *resetActivePtr;
-
                 gMinigameUiAnimation[1] = 0;
                 gMinigameUiAnimation[0] = 0;
-                resetZero = 0;
-                resetActivePtr = &gMinigameMedalHighlight;
-                *resetActivePtr = resetZero;
+                gMinigameMedalHighlight = 0;
                 WarioHopDrawScoreDigits();
             }
         }
     }
-    {
-        OamData *oamBase;
-        OamData *loopOam;
-        u32 offset;
-        s32 remainingBase;
-        s32 tempCoordMask;
-        s32 coordMask;
-        s32 tempClearX;
-        register s32 clearX asm("r12");
-        s32 tempPriority;
-        s32 drawPriorityMask;
-
-        frame = sWarioHopMedalHighlightOam[gMinigameUiAnimation[1]].oam;
-        count = *frame;
-        total += count;
-        frame++;
-        player = &gWarioHopPlayerShadow;
-        if (i < total) {
-            oamBase = gOamBuffer;
-            tempCoordMask = 0x1FF;
-            coordMask = tempCoordMask;
-            tempClearX = 0xFFFFFE00;
-            clearX = tempClearX;
-            tempPriority = -13;
-            drawPriorityMask = tempPriority;
-            offset = i << 3;
-            loopOam = (OamData *)(offset + (u8 *)oamBase);
-            remainingBase = total;
-            i = remainingBase - i;
-            do {
-                register s32 value asm("r2");
-                register s32 coord asm("r0");
-                s32 newX;
-                register u16 oldAttr asm("r2");
-                register s32 mergedAttr asm("r0");
-                s32 finalValue;
-                register s32 attrHigh asm("r1");
-                s32 maskTemp;
-
-                value = *frame++;
-                *raw++ = value;
-                coord = value;
-                coord += 24;
-                loopOam->split.y = coord;
-
-                value = *frame++;
-                *raw++ = value;
-                newX = value;
-                newX += 29;
-                maskTemp = coordMask;
-                newX &= maskTemp;
-                oldAttr = loopOam->all.attr1;
-                mergedAttr = clearX;
-                mergedAttr &= oldAttr;
-                mergedAttr |= newX;
-                loopOam->all.attr1 = mergedAttr;
-
-                finalValue = *frame;
-                *raw = finalValue;
-                frame++;
-                attrHigh = ((u8 *)&loopOam->all.attr2)[1];
-                mergedAttr = drawPriorityMask;
-                mergedAttr &= attrHigh;
-                ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
-
-                raw += 2;
-                loopOam++;
-                i--;
-            } while (i != 0);
-            i = total;
-        }
+    src = sWarioHopMedalHighlightOam[gMinigameUiAnimation[1]].oam;
+    total += *(src++);
+    for (; i < total; i++) {
+        attr = *(src++);
+        *(raw++) = attr;
+        gOamBuffer[i].split.y = attr + 24;
+        attr = *(src++);
+        *(raw++) = attr;
+        gOamBuffer[i].split.x = (attr + 29) & 0x1FF;
+        *(raw++) = *(src++);
+        gOamBuffer[i].split.priority = 0;
+        raw++;
     }
 
-    {
-        register u8 *variantPtr asm("r3");
-        u32 variantOffset;
-        register const struct AnimationFrame *const *animationTable asm("r1");
-        const struct AnimationFrame *playerAnim;
-        const struct AnimationFrame **animationEntry;
-        register u16 playerTimer asm("r1");
-        u32 playerFrameTime;
-        register u8 *phasePtr asm("r2");
-        OamData *oamBase;
-        OamData *loopOam;
-        u32 oamByteOffset;
-        register s32 tempClearX asm("r2");
-        s32 clearX;
-        register s32 tempPriority asm("r3");
-        s32 drawPriorityMask;
-        s32 tempCoordMask;
-        s32 coordMask;
-        s32 remainingBase;
-
-        variantPtr = &gWarioHopSpeedLevel;
-        variantOffset = *variantPtr;
-        variantOffset <<= 2;
-        animationTable = sUnk_870CE14;
-        animationEntry = (const struct AnimationFrame **)(variantOffset + (u32)animationTable);
-        playerAnim = *animationEntry;
-        phasePtr = &gMinigameState;
-        if (*phasePtr <= 2) {
-            player->animTimer++;
+    animation = sUnk_870CE14[gWarioHopSpeedLevel];
+    if (gMinigameState <= 2) {
+        gWarioHopPlayerShadow.animTimer++;
+    }
+    if (animation[gWarioHopPlayerShadow.animFrame].time < gWarioHopPlayerShadow.animTimer) {
+        gWarioHopPlayerShadow.animTimer = 0;
+        gWarioHopPlayerShadow.animFrame++;
+        if (animation[gWarioHopPlayerShadow.animFrame].time == 0) {
+            gWarioHopPlayerShadow.animFrame = 0;
         }
-        playerFrameTime = playerAnim[player->animFrame].time;
-        playerTimer = player->animTimer;
-        if (playerFrameTime < playerTimer) {
-            player->animTimer = 0;
-            player->animFrame++;
-            if (playerAnim[player->animFrame].time == 0) {
-                player->animFrame = 0;
+    }
+    src = animation[gWarioHopPlayerShadow.animFrame].oam;
+    total += *(src++);
+    for (; i < total; i++) {
+        attr = *(src++);
+        *(raw++) = attr;
+        gOamBuffer[i].split.y = ((s16)gWarioHopPlayerShadow.y >> 4) + attr;
+        attr = *(src++);
+        *(raw++) = attr;
+        gOamBuffer[i].split.x = (attr + ((s16)gWarioHopPlayerShadow.x >> 4)) & 0x1FF;
+        *(raw++) = *(src++);
+        gOamBuffer[i].split.priority = 1;
+        raw++;
+    }
+
+    src = sWarioHopPlayerOam->oam;
+    total += *(src++);
+    for (; i < total; i++) {
+        attr = *(src++);
+        *(raw++) = attr;
+        gOamBuffer[i].split.y = ((s16)gWarioHopPlayer.y >> 4) + attr;
+        gOamBuffer[i].split.affineMode = 1;
+        attr = *(src++);
+        *(raw++) = attr;
+        gOamBuffer[i].split.x = (attr + ((s16)gWarioHopPlayer.x >> 4)) & 0x1FF;
+        ((WarioHopOamData*)gOamBuffer)[i].split.affineIndex = 0;
+        *(raw++) = *(src++);
+        gOamBuffer[i].split.priority = 1;
+        raw++;
+    }
+
+    if (gWarioHopJumpState == 0) {
+        gWarioHopRollingObject[3]++;
+        if (sWarioHopRollingObjectOam[gWarioHopRollingObject[4]].time < gWarioHopRollingObject[3]) {
+            gWarioHopRollingObject[3] = 0;
+            gWarioHopRollingObject[4]++;
+            if (sWarioHopRollingObjectOam[gWarioHopRollingObject[4]].time == 0) {
+                gWarioHopRollingObject[4] = 0;
             }
         }
-
-        frame = playerAnim[player->animFrame].oam;
-        count = *frame;
-        total += count;
-        frame++;
-        if (i < total) {
-            oamBase = gOamBuffer;
-            tempClearX = 0xFFFFFE00;
-            clearX = tempClearX;
-            tempPriority = -13;
-
-            drawPriorityMask = tempPriority;
-
-            oamByteOffset = i << 3;
-            loopOam = (OamData *)(oamByteOffset + (u8 *)oamBase);
-            tempCoordMask = 0x1FF;
-            {
-                register s32 coordMaskSeed asm("r2") = tempCoordMask;
-                coordMask = coordMaskSeed;
-            }
-            remainingBase = total;
-            i = remainingBase - i;
-            do {
-                s32 value;
-                s32 coord;
-                s32 newX;
-                s32 maskTemp;
-                register u16 oldAttr asm("r2");
-                register s32 mergedAttr asm("r0");
-                s32 finalValue;
-                register s32 attrHigh asm("r1");
-
-                value = *frame++;
-                *raw++ = value;
-                coord = player->y;
-                coord <<= 16;
-                coord >>= 20;
-                coord += value;
-                loopOam->split.y = coord;
-
-                value = *frame++;
-                *raw++ = value;
-                newX = player->x;
-                newX <<= 16;
-                newX >>= 20;
-                newX = (value) - (-(newX));
-                maskTemp = coordMask;
-                newX &= maskTemp;
-                oldAttr = loopOam->all.attr1;
-                mergedAttr = clearX;
-                mergedAttr &= oldAttr;
-                mergedAttr |= newX;
-                loopOam->all.attr1 = mergedAttr;
-
-                finalValue = *frame;
-                *raw = finalValue;
-                frame++;
-                attrHigh = ((u8 *)&loopOam->all.attr2)[1];
-                mergedAttr = drawPriorityMask;
-                mergedAttr &= attrHigh;
-                mergedAttr |= 4;
-                ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
-
-                raw += 2;
-                loopOam++;
-                i--;
-            } while (i != 0);
-            i = total;
+        src = sWarioHopRollingObjectOam[gWarioHopRollingObject[4]].oam;
+        total += *(src++);
+        for (; i < total; i++) {
+            attr = *(src++);
+            *(raw++) = attr;
+            gOamBuffer[i].split.y = ((s16)gWarioHopRollingObject[1] >> 4) + attr;
+            attr = *(src++);
+            *(raw++) = attr;
+            gOamBuffer[i].split.x = (attr + ((s16)gWarioHopRollingObject[0] >> 4)) & 0x1FF;
+            *(raw++) = *(src++);
+            gOamBuffer[i].split.priority = 1;
+            raw++;
         }
     }
 
-    {
-        const struct AnimationFrame *base;
-        const u16 *currentFrame;
-        struct WarioHopObjState *currentPlayer;
-        OamData *oamBase;
-        OamData *oamBaseHigh;
-        s32 tempMatrixMask;
-        s32 drawMatrixMask;
-        s32 tempPriorityMask;
-        s32 drawPriorityMask;
-
-        base = sWarioHopPlayerOam;
-        currentFrame = base[0].oam;
-        count = *currentFrame;
-        total += count;
-        currentFrame++;
-        if (i < total) {
-            currentPlayer = &gWarioHopPlayer;
-            oamBase = gOamBuffer;
-            oamBaseHigh = oamBase;
-            tempMatrixMask = -15;
-            drawMatrixMask = tempMatrixMask;
-            tempPriorityMask = -13;
-            drawPriorityMask = tempPriorityMask;
-            do {
-                s32 value;
-                u32 byteOffset;
-                OamData *loopOam;
-                s32 coord;
-                s32 attrHigh;
-                s32 newX;
-                u16 oldAttr;
-                register s32 mergedAttr asm("r0");
-                s32 finalValue;
-
-                value = *currentFrame++;
-                *raw++ = value;
-                byteOffset = i << 3;
-                loopOam = oamBaseHigh;
-                loopOam = (OamData *)((u8 *)loopOam + byteOffset);
-                coord = currentPlayer->y;
-                coord <<= 16;
-                coord >>= 20;
-                coord += value;
-                loopOam->split.y = coord;
-                attrHigh = ((u8 *)&loopOam->all.attr0)[1];
-                coord = -4;
-                coord &= attrHigh;
-                attrHigh = 1;
-                coord |= attrHigh;
-                ((u8 *)&loopOam->all.attr0)[1] = coord;
-
-                value = *currentFrame++;
-                *raw++ = value;
-                newX = currentPlayer->x;
-                newX <<= 16;
-                newX >>= 20;
-                newX = (value) - (-(newX));
-                newX &= 0x1FF;
-                oldAttr = loopOam->all.attr1;
-                mergedAttr = 0xFFFFFE00;
-                mergedAttr &= oldAttr;
-                mergedAttr |= newX;
-                loopOam->all.attr1 = mergedAttr;
-                attrHigh = ((u8 *)&loopOam->all.attr1)[1];
-                mergedAttr = drawMatrixMask;
-                mergedAttr &= attrHigh;
-                ((u8 *)&loopOam->all.attr1)[1] = mergedAttr;
-
-                finalValue = *currentFrame;
-                *raw = finalValue;
-                currentFrame++;
-                attrHigh = ((u8 *)&loopOam->all.attr2)[1];
-                mergedAttr = drawPriorityMask;
-                mergedAttr &= attrHigh;
-                attrHigh = 4;
-                mergedAttr |= attrHigh;
-                ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
-
-                raw += 2;
-                i++;
-            } while (i < total);
-        }
-    }
-
-    {
-        u8 *companionActivePtr;
-        u32 zero;
-
-        companionActivePtr = &gWarioHopJumpState;
-        zero = *companionActivePtr;
-        if (zero == 0) {
-            u16 *companion;
-            register const struct AnimationFrame *companionAnim asm("r3");
-            register u16 timer asm("r1");
-            u32 frameTime;
-            const u16 *currentFrame;
-
-            companion = gWarioHopRollingObject;
-            timer = companion[3];
-            timer++;
-            companion[3] = timer;
-            companionAnim = sWarioHopRollingObjectOam;
-            frameTime = companionAnim[companion[4]].time;
-            if (frameTime < timer) {
-                companion[3] = zero;
-                companion[4]++;
-                if (companionAnim[companion[4]].time == 0) {
-                    companion[4] = 0;
+    for (j = 0; j < 7; j++) {
+        if (((struct WarioHopSmallState*)0x03004950)[j].type != 0) {
+            animation = sUnk_870CE24[((struct WarioHopSmallState*)0x03004950)[j].type - 1];
+            ((struct WarioHopSmallState*)0x03004950)[j].animTimer++;
+            if (animation[((struct WarioHopSmallState*)0x03004950)[j].animFrame].time <
+                ((struct WarioHopSmallState*)0x03004950)[j].animTimer) {
+                ((struct WarioHopSmallState*)0x03004950)[j].animTimer = 0;
+                ((struct WarioHopSmallState*)0x03004950)[j].animFrame++;
+                if (animation[((struct WarioHopSmallState*)0x03004950)[j].animFrame].time == 0) {
+                    ((struct WarioHopSmallState*)0x03004950)[j].animFrame = 0;
                 }
             }
-
-            currentFrame = companionAnim[companion[4]].oam;
-            count = *currentFrame;
-            total += count;
-            currentFrame++;
-            if (i < total) {
-                register OamData *oamBase asm("r1");
-                u16 *drawCompanion;
-                s32 tempClearX;
-                s32 clearX;
-                s32 tempPriorityMask;
-                s32 drawPriorityMask;
-                register u32 byteOffset asm("r0");
-                register OamData *loopOam asm("r3");
-                s32 tempCoordMask;
-                s32 coordMask;
-                s32 remainingBase;
-
-                oamBase = gOamBuffer;
-                drawCompanion = companion;
-                tempClearX = 0xFFFFFE00;
-                clearX = tempClearX;
-                tempPriorityMask = -13;
-                drawPriorityMask = tempPriorityMask;
-                byteOffset = i << 3;
-                loopOam = (OamData *)(byteOffset + (u32)oamBase);
-                tempCoordMask = 0x1FF;
-                coordMask = tempCoordMask;
-                remainingBase = total;
-                i = remainingBase - i;
-                do {
-                    s32 value;
-                    s32 coord;
-                    register s32 newX asm("r1");
-                    s32 maskTemp;
-                    register u16 oldAttr asm("r2");
-                    s32 mergedAttr;
-                    s32 finalValue;
-                    register s32 attrHigh asm("r1");
-
-                    value = *currentFrame++;
-                    *raw++ = value;
-                    coord = drawCompanion[1];
-                    coord <<= 16;
-                    coord >>= 20;
-                    coord += value;
-                    loopOam->split.y = coord;
-
-                    value = *currentFrame++;
-                    *raw++ = value;
-                    newX = drawCompanion[0];
-                    newX <<= 16;
-                    newX >>= 20;
-                    newX = value + newX;
-                    maskTemp = coordMask;
-                    newX &= maskTemp;
-                    oldAttr = loopOam->all.attr1;
-                    mergedAttr = clearX;
-                    mergedAttr &= oldAttr;
-                    mergedAttr |= newX;
-                    loopOam->all.attr1 = mergedAttr;
-
-                    finalValue = *currentFrame;
-                    *raw = finalValue;
-                    currentFrame++;
-                    attrHigh = ((u8 *)&loopOam->all.attr2)[1];
-                    mergedAttr = drawPriorityMask;
-                    mergedAttr &= attrHigh;
-                    attrHigh = 4;
-                    mergedAttr |= attrHigh;
-                    ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
-
-                    raw += 2;
-                    loopOam++;
-                    i--;
-                } while (i != 0);
-                i = total;
+            /* The statement expression adds one luid between the gWarioHopObstacles load and
+               its use, so loop.c hoists that load out of the j loop on the first pass. The
+               inner loop then keeps its own copy of the address (adds r0, r2, #0). */
+            src = animation[gWarioHopObstacles[({ j; })].animFrame].oam;
+            total += *(src++);
+            for (; i < total; i++) {
+                attr = *(src++);
+                *(raw++) = attr;
+                gOamBuffer[i].split.y = ((s16)gWarioHopObstacles[j].y >> 4) + attr;
+                attr = *(src++);
+                *(raw++) = attr;
+                gOamBuffer[i].split.x = (attr + ((s16)gWarioHopObstacles[j].x >> 4)) & 0x1FF;
+                *(raw++) = *(src++);
+                gOamBuffer[i].split.priority = 1;
+                raw++;
             }
         }
     }
 
-    {
-        register s32 itemIndex asm("r6");
-        s32 nextIndex;
-
-        itemIndex = 0;
-        do {
-            u32 indexTwice;
-            u32 itemOffset;
-            struct WarioHopSmallState *itemsBase;
-            register struct WarioHopSmallState *currentItem asm("r2");
-            u32 itemType;
-            register u32 savedIndexTwice asm("r12");
-            s32 nextIndexTemp;
-
-            indexTwice = itemIndex << 1;
-            itemOffset = indexTwice + itemIndex;
-            itemOffset <<= 2;
-            itemsBase = (struct WarioHopSmallState *)0x03004950;
-            currentItem = (struct WarioHopSmallState *)((u8 *)itemsBase + itemOffset);
-            itemType = currentItem->type;
-            savedIndexTwice = indexTwice;
-            nextIndexTemp = itemIndex + 1;
-            nextIndex = nextIndexTemp;
-            if (itemType != 0) {
-                const struct AnimationFrame *const *animationTable;
-                u32 typeOffset;
-                const struct AnimationFrame *currentAnim;
-                u32 timer;
-                u32 frameTime;
-                s32 zero;
-                const u16 *currentFrame;
-                register struct WarioHopSmallState *drawBase asm("r2");
-                register struct WarioHopSmallState *drawItemBase asm("r0");
-                register struct WarioHopSmallState *drawItem;
-                u32 savedForOffset;
-                u32 offsetSum;
-                struct WarioHopSmallState *frameState;
-
-                animationTable = sUnk_870CE24;
-                typeOffset = currentItem->type - 1;
-                typeOffset <<= 2;
-                currentAnim = *(const struct AnimationFrame **)(typeOffset + (u32)animationTable);
-                timer = currentItem->animTimer;
-                timer++;
-                zero = 0;
-                currentItem->animTimer = timer;
-                frameTime = currentAnim[currentItem->animFrame].time;
-                if (frameTime < (u16)timer) {
-                    currentItem->animTimer = zero;
-                    currentItem->animFrame++;
-                    if (currentAnim[currentItem->animFrame].time == 0) {
-                        currentItem->animFrame = 0;
-                    }
-                }
-
-                savedForOffset = savedIndexTwice;
-                offsetSum = savedForOffset + itemIndex;
-                itemOffset = offsetSum << 2;
-                drawBase = gWarioHopObstacles;
-                frameState = (struct WarioHopSmallState *)(itemOffset + (u32)drawBase);
-                currentFrame = currentAnim[frameState->animFrame].oam;
-                count = *currentFrame;
-                total += count;
-                currentFrame++;
-                itemIndex++;
-                nextIndex = itemIndex;
-                if (i < total) {
-                    register OamData *oamBase asm("r1");
-                    register u32 byteOffset asm("r0");
-                    register OamData *loopOam asm("r3");
-                    s32 tempCoordMask;
-                    s32 coordMask;
-                    s32 tempPriorityMask;
-                    register s32 drawPriorityMask asm("r12");
-                    s32 remainingBase;
-
-                    drawItemBase = drawBase;
-
-                    drawItem = (struct WarioHopSmallState *)(itemOffset - -(int)drawItemBase);
-                    byteOffset = i << 3;
-                    oamBase = gOamBuffer;
-                    loopOam = (OamData *)(byteOffset + (u32)oamBase);
-                    tempCoordMask = 0x1FF;
-                    coordMask = tempCoordMask;
-                    tempPriorityMask = -13;
-                    drawPriorityMask = tempPriorityMask;
-                    remainingBase = total;
-                    i = remainingBase - i;
-                    do {
-                        s32 value;
-                        s32 coord;
-                        s32 newX;
-                        s32 maskTemp;
-                        u16 oldAttr;
-                        register s32 mergedAttr asm("r0");
-                        s32 finalValue;
-                        s32 attrHigh;
-
-                        value = *currentFrame++;
-                        *raw++ = value;
-                        coord = drawItem->y;
-                        coord <<= 16;
-                        coord >>= 20;
-                        coord += value;
-                        loopOam->split.y = coord;
-
-                        value = *currentFrame++;
-                        *raw++ = value;
-                        newX = drawItem->x;
-                        newX <<= 16;
-                        newX >>= 20;
-                        newX = (value) - (-(newX));
-                        maskTemp = coordMask;
-                        newX &= maskTemp;
-                        oldAttr = loopOam->all.attr1;
-                        mergedAttr = 0xFFFFFE00;
-                        mergedAttr &= oldAttr;
-                        mergedAttr |= newX;
-                        loopOam->all.attr1 = mergedAttr;
-
-                        finalValue = *currentFrame;
-                        *raw = finalValue;
-                        currentFrame++;
-                        attrHigh = ((u8 *)&loopOam->all.attr2)[1];
-                        mergedAttr = drawPriorityMask;
-                        mergedAttr &= attrHigh;
-                        attrHigh = 4;
-                        mergedAttr |= attrHigh;
-                        ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
-
-                        raw += 2;
-                        loopOam++;
-                        i--;
-                    } while (i != 0);
-                    i = total;
-                }
-            }
-            itemIndex = nextIndex;
-        } while (itemIndex <= 6);
-    }
-
-    {
-        register struct WarioHopSmallState *effectState asm("r3");
-        register u32 effectType asm("r1");
-
-        effectState = &gWarioHopBonusEffect;
-        effectType = effectState->type;
-        if (effectType == 0) {
-            goto warioHopEffectDone;
+    if (gWarioHopBonusEffect.type != 0) {
+        gWarioHopBonusEffect.type++;
+        gWarioHopBonusEffect.animTimer++;
+        if (gWarioHopBonusEffect.type > 201) {
+            gWarioHopBonusEffect.type = 0;
         }
-        effectType++;
-        effectState->type = effectType;
-        effectState->animTimer++;
-        if ((u8)effectType > 201) {
-            effectState->type = 0;
-        }
-    }
-    {
-        const struct AnimationFrame *animBase;
-        register u32 r2Value asm("r2");
-        register u32 r3Value asm("r3");
-        u32 frameTime;
-        const u16 *currentFrame;
-        struct WarioHopSmallState *drawStateSource;
-
-        animBase = sWarioHopBonusEffectOam;
-        r2Value = (u32)&gWarioHopBonusEffect;
-        frameTime = animBase[((struct WarioHopSmallState *)r2Value)->animFrame].time;
-        r2Value = (u32)animBase;
-        r3Value = (u32)&gWarioHopBonusEffect;
-        r3Value = ((struct WarioHopSmallState *)r3Value)->animTimer;
-        if (frameTime < r3Value) {
-            u32 one;
-            struct WarioHopSmallState *updateState;
-
-            one = 1;
-            updateState = &gWarioHopBonusEffect;
-            updateState->animTimer = one;
-            updateState->animFrame++;
-            if (((const struct AnimationFrame *)r2Value)[updateState->animFrame].time == 0) {
-                updateState->animFrame = 0;
+        if (sWarioHopBonusEffectOam[gWarioHopBonusEffect.animFrame].time < gWarioHopBonusEffect.animTimer) {
+            gWarioHopBonusEffect.animTimer = 1;
+            gWarioHopBonusEffect.animFrame++;
+            if (sWarioHopBonusEffectOam[gWarioHopBonusEffect.animFrame].time == 0) {
+                gWarioHopBonusEffect.animFrame = 0;
             }
         }
-        r3Value = (u32)&gWarioHopBonusEffect;
-        drawStateSource = (struct WarioHopSmallState *)r3Value;
-        if (drawStateSource->type != 0) {
-            currentFrame = ((const struct AnimationFrame *)r2Value)[drawStateSource->animFrame].oam;
-            count = *currentFrame;
-            total += count;
-            currentFrame++;
-            if (i < total) {
-                register OamData *oamBase asm("r1");
-                struct WarioHopSmallState *drawState;
-                register const u8 *xTable asm("r0");
-                register const u8 *xTableHigh;
-                register u32 byteOffset asm("r0");
-                register OamData *loopOam asm("r3");
-                register s32 tempCoordMask asm("r1");
-                s32 coordMask;
-                register s32 tempPriorityMask asm("r2");
-                register s32 drawPriorityMask asm("r10");
-                s32 remainingBase;
-
-                oamBase = gOamBuffer;
-                drawState = drawStateSource;
-                xTable = sUnk_870CC18;
-
-                xTableHigh = xTable;
-                byteOffset = i << 3;
-                loopOam = (OamData *)(byteOffset + (u32)oamBase);
-                tempCoordMask = 0x1FF;
-
-                coordMask = tempCoordMask;
-                tempPriorityMask = -13;
-
-                drawPriorityMask = tempPriorityMask;
-                remainingBase = total;
-                i = remainingBase - i;
-                do {
-                    s32 value;
-                    s32 coord;
-                    s32 xIndex;
-                    s32 newX;
-                    s32 maskTemp;
-                    u16 oldAttr;
-                    register s32 mergedAttr asm("r0");
-                    s32 finalValue;
-                    s32 attrHigh;
-
-                    value = *currentFrame++;
-                    *raw++ = value;
-                    coord = drawState->type;
-                    coord -= 2;
-                    coord = sUnk_870CCE0[coord];
-                    coord += value;
-                    loopOam->split.y = coord;
-
-                    value = *currentFrame++;
-                    *raw++ = value;
-                    xIndex = drawState->type;
-                    xIndex -= 2;
-                    xIndex += (u32)xTableHigh;
-                    newX = *(u8 *)xIndex;
-                    newX = (value) - (-(newX));
-                    maskTemp = coordMask;
-                    newX &= maskTemp;
-                    oldAttr = loopOam->all.attr1;
-                    mergedAttr = 0xFFFFFE00;
-                    mergedAttr &= oldAttr;
-                    mergedAttr |= newX;
-                    loopOam->all.attr1 = mergedAttr;
-
-                    finalValue = *currentFrame;
-                    *raw = finalValue;
-                    currentFrame++;
-                    attrHigh = ((u8 *)&loopOam->all.attr2)[1];
-                    mergedAttr = drawPriorityMask;
-                    mergedAttr &= attrHigh;
-                    attrHigh = 8;
-                    mergedAttr |= attrHigh;
-                    ((u8 *)&loopOam->all.attr2)[1] = mergedAttr;
-
-                    raw += 2;
-                    loopOam++;
-                    i--;
-                } while (i != 0);
-                i = total;
-            }
-        }
-    }
-warioHopEffectDone:
-;
-
-    {
-        register struct WarioHopSmallState *effectState asm("r3");
-        const struct AnimationFrame *effectAnim;
-        register u16 timer asm("r1");
-
-        effectState = &gWarioHopMedalEffect;
-        if (effectState->type != 0) {
-            timer = effectState->animTimer;
-            timer++;
-            effectState->animTimer = timer;
-            effectAnim = sWarioHopMedalEffectOam;
-            if (effectAnim[effectState->animFrame].time < timer) {
-                effectState->animTimer = 1;
-                effectState->animFrame++;
-                if (effectAnim[effectState->animFrame].time == 0) {
-                    effectState->animFrame = 0;
-                    effectState->animTimer = 0;
-                    effectState->type = 0;
-                }
-            }
-            {
-                struct WarioHopSmallState *drawStateSource;
-                const u16 *currentFrame;
-
-                drawStateSource = &gWarioHopMedalEffect;
-                if (drawStateSource->type != 0) {
-                    currentFrame = effectAnim[drawStateSource->animFrame].oam;
-                count = *currentFrame;
-                total += count;
-                currentFrame++;
-                if (i < total) {
-                    register OamData *oamBase asm("r1");
-                    s32 coordMask;
-                    register s32 tempClearX asm("r2");
-                    register s32 clearX asm("r8");
-                    register u32 byteOffset asm("r0");
-                    register OamData *loopOam asm("r3");
-                    s32 remainingBase;
-
-                    oamBase = gOamBuffer;
-                    coordMask = 0x1FF;
-                    tempClearX = 0xFFFFFE00;
-
-                    clearX = tempClearX;
-                    byteOffset = i << 3;
-                    loopOam = (OamData *)(byteOffset + (u32)oamBase);
-                    remainingBase = total;
-                    i = remainingBase - i;
-                    do {
-                        register s32 value asm("r2");
-                        register s32 coord asm("r0");
-                        s32 newX;
-                        register u16 oldAttr asm("r2");
-                        register s32 mergedAttr asm("r0");
-                        s32 finalValue;
-                        s32 attrHigh;
-                        s32 priorityBits;
-
-                        value = *currentFrame++;
-                        *raw++ = value;
-                        coord = value;
-                        coord += 140;
-                        loopOam->split.y = coord;
-
-                        value = *currentFrame++;
-                        *raw++ = value;
-                        newX = value;
-                        newX += 160;
-                        newX &= coordMask;
-                        oldAttr = loopOam->all.attr1;
-                        mergedAttr = clearX;
-                        mergedAttr &= oldAttr;
-                        mergedAttr |= newX;
-                        loopOam->all.attr1 = mergedAttr;
-
-                        finalValue = *currentFrame;
-                        *raw = finalValue;
-                        currentFrame++;
-                        attrHigh = ((u8 *)&loopOam->all.attr2)[1];
-                        priorityBits = 12;
-                        attrHigh |= priorityBits;
-                        ((u8 *)&loopOam->all.attr2)[1] = attrHigh;
-
-                        raw += 2;
-                        loopOam++;
-                        i--;
-                    } while (i != 0);
-                    i = total;
-                }
-                }
+        if (gWarioHopBonusEffect.type != 0) {
+            src = sWarioHopBonusEffectOam[gWarioHopBonusEffect.animFrame].oam;
+            total += *(src++);
+            for (; i < total; i++) {
+                attr = *(src++);
+                *(raw++) = attr;
+                gOamBuffer[i].split.y = sUnk_870CCE0[gWarioHopBonusEffect.type - 2] + attr;
+                attr = *(src++);
+                *(raw++) = attr;
+                gOamBuffer[i].split.x = (attr + sUnk_870CC18[gWarioHopBonusEffect.type - 2]) & 0x1FF;
+                *(raw++) = *(src++);
+                gOamBuffer[i].split.priority = 2;
+                raw++;
             }
         }
     }
 
-#undef DRAW_FRAME_COMMON
-
-    {
-        register struct WarioHopObjState *affineState;
-        u32 affineAddress;
-        register const s16 *affineTable;
-        s32 affineZero;
-        s32 affineSine;
-        s32 affineScaleOffset;
-        register s32 affineInverse asm("r0");
-        s32 affineResult;
-        s16 *affineDst;
-
-        affineState = &gWarioHopPlayer;
-        affineAddress = affineState->angle;
-        affineAddress += 64;
-        affineAddress <<= 1;
-        affineTable = sSinCosTable;
-        affineAddress += (u32)affineTable;
-        affineZero = 0;
-        affineSine = *(s16 *)((u8 *)affineAddress + affineZero);
-        affineScaleOffset = 6;
-        affineInverse = *(s16 *)((u8 *)affineState + affineScaleOffset);
-        affineInverse = FixedInverse(affineInverse);
-        affineResult = FixedMul(affineSine, (s16)affineInverse);
-        affineDst = &affineA;
-        *affineDst = affineResult;
-    }
-    {
-        register struct WarioHopObjState *affineState;
-        u32 affineAddress;
-        register const s16 *affineTable;
-        s32 affineZero;
-        s32 affineSine;
-        s32 affineScaleOffset;
-        register s32 affineInverse asm("r0");
-        s32 affineResult;
-        s16 *affineDst;
-
-        affineState = &gWarioHopPlayer;
-        affineAddress = affineState->angle;
-        affineAddress <<= 1;
-        affineTable = sSinCosTable;
-        affineAddress += (u32)affineTable;
-        affineZero = 0;
-        affineSine = *(s16 *)(affineAddress + affineZero);
-        affineScaleOffset = 6;
-        affineInverse = *(s16 *)((u8 *)affineState + affineScaleOffset);
-        affineInverse = FixedInverse(affineInverse);
-        affineResult = FixedMul(affineSine, (s16)affineInverse);
-        affineDst = affineBPtr;
-        *affineDst = affineResult;
-    }
-    {
-        register struct WarioHopObjState *affineState;
-        u32 affineAddress;
-        register const u16 *affineTable;
-        register s32 affineSine asm("r4");
-        s32 affineScaleOffset;
-        register s32 affineInverse asm("r0");
-        s32 affineResult;
-        s16 *affineDst;
-
-        affineState = &gWarioHopPlayer;
-        affineAddress = affineState->angle;
-        affineAddress <<= 1;
-        affineTable = (const u16 *)sSinCosTable;
-        affineAddress += (u32)affineTable;
-        affineSine = *(u16 *)affineAddress;
-        affineSine = -affineSine;
-        affineSine = (s16)affineSine;
-        affineScaleOffset = 6;
-        affineInverse = *(s16 *)((u8 *)affineState + affineScaleOffset);
-        affineInverse = FixedInverse(affineInverse);
-        affineResult = FixedMul(affineSine, (s16)affineInverse);
-        affineDst = affineCPtr;
-        *affineDst = affineResult;
-    }
-    {
-        struct WarioHopObjState *affineState;
-        register u32 affineAddress;
-        register const s16 *affineTable;
-        s32 affineZero;
-        s32 affineSine;
-        register s32 affineScaleOffset asm("r2");
-        register s32 affineInverse asm("r0");
-        register s16 *affineDst asm("r3");
-
-        affineState = &gWarioHopPlayer;
-        affineAddress = affineState->angle;
-        affineAddress += 64;
-        affineAddress <<= 1;
-        affineTable = sSinCosTable;
-        affineAddress += (u32)affineTable;
-        affineZero = 0;
-        affineSine = *(s16 *)((u8 *)affineAddress + affineZero);
-        affineScaleOffset = 6;
-        affineInverse = *(s16 *)((u8 *)affineState + affineScaleOffset);
-        affineInverse = FixedInverse(affineInverse);
-        affineDResult = FixedMul(affineSine, (s16)affineInverse);
-        affineDst = affineDPtr;
-        *(volatile s16 *)affineDst = affineDResult;
-    }
-
-    gOamBuffer[0].all.affineParam = affineA;
-    gOamBuffer[1].all.affineParam = *affineBPtr;
-    gOamBuffer[2].all.affineParam = *affineCPtr;
-    gOamBuffer[3].all.affineParam = affineDResult;
-
-    {
-        const s16 *affineTable;
-        s32 affineZero;
-        s32 affineCosTemp;
-        s32 affineSecondCos;
-        struct WarioHopMidState *affineState;
-        s32 affineScaleOffset;
-        register s32 affineInverse asm("r0");
-        s32 affineResult;
-        s16 *affineDst;
-
-        affineTable = sSinCosTable;
-        affineTable += 64;
-        affineZero = 0;
-        affineCosTemp = *(s16 *)((u8 *)affineTable + affineZero);
-        affineSecondCos = affineCosTemp;
-        affineState = &gMinigameCamera;
-        affineScaleOffset = 4;
-        affineInverse = *(s16 *)((u8 *)affineState + affineScaleOffset);
-        affineInverse = FixedInverse(affineInverse);
-        affineResult = FixedMul(affineSecondCos, (s16)affineInverse);
-        affineDst = &affineA;
-        *affineDst = affineResult;
-
-        {
-            register const s16 *affineTableB;
-            s32 affineZeroB;
-            s32 affineSineB;
-            s32 affineScaleOffsetB;
-            register s32 affineInverseB asm("r0");
-            s32 affineResultB;
-            s16 *affineDstB;
-
-            affineTableB = sSinCosTable;
-            affineZeroB = 0;
-            affineSineB = *(s16 *)((u8 *)affineTableB + affineZeroB);
-            affineScaleOffsetB = 4;
-            affineInverseB = *(s16 *)((u8 *)affineState + affineScaleOffsetB);
-            affineInverseB = FixedInverse(affineInverseB);
-            affineResultB = FixedMul(affineSineB, (s16)affineInverseB);
-            affineDstB = affineBPtr;
-            *affineDstB = affineResultB;
+    if (gWarioHopMedalEffect.type != 0) {
+        gWarioHopMedalEffect.animTimer++;
+        if (sWarioHopMedalEffectOam[gWarioHopMedalEffect.animFrame].time < gWarioHopMedalEffect.animTimer) {
+            gWarioHopMedalEffect.animTimer = 1;
+            gWarioHopMedalEffect.animFrame++;
+            if (sWarioHopMedalEffectOam[gWarioHopMedalEffect.animFrame].time == 0) {
+                gWarioHopMedalEffect.animFrame = 0;
+                gWarioHopMedalEffect.animTimer = 0;
+                gWarioHopMedalEffect.type = 0;
+            }
         }
-        {
-            const u16 *affineTableC;
-            register s32 affineSineC asm("r4");
-            s32 affineScaleOffsetC;
-            register s32 affineInverseC asm("r0");
-            s32 affineResultC;
-            s16 *affineDstC;
-
-            affineTableC = (const u16 *)sSinCosTable;
-            affineSineC = *affineTableC;
-            affineSineC = -affineSineC;
-            affineSineC = (s16)affineSineC;
-            affineScaleOffsetC = 4;
-            affineInverseC = *(s16 *)((u8 *)affineState + affineScaleOffsetC);
-            affineInverseC = FixedInverse(affineInverseC);
-            affineResultC = FixedMul(affineSineC, (s16)affineInverseC);
-            affineDstC = affineCPtr;
-            *affineDstC = affineResultC;
-        }
-        {
-            s32 affineScaleOffsetD;
-            register s32 affineInverseD asm("r0");
-            s16 *affineDstD;
-
-            affineScaleOffsetD = 4;
-            affineInverseD = *(s16 *)((u8 *)affineState + affineScaleOffsetD);
-            affineInverseD = FixedInverse(affineInverseD);
-            affineDResult2 = FixedMul(affineSecondCos, (s16)affineInverseD);
-            affineDstD = affineDPtr;
-            *affineDstD = affineDResult2;
+        if (gWarioHopMedalEffect.type != 0) {
+            src = sWarioHopMedalEffectOam[gWarioHopMedalEffect.animFrame].oam;
+            total += *(src++);
+            for (; i < total; i++) {
+                attr = *(src++);
+                *(raw++) = attr;
+                gOamBuffer[i].split.y = attr + 140;
+                attr = *(src++);
+                *(raw++) = attr;
+                gOamBuffer[i].split.x = (attr + 160) & 0x1FF;
+                *(raw++) = *(src++);
+                gOamBuffer[i].split.priority = 3;
+                raw++;
+            }
         }
     }
 
-    gOamBuffer[4].all.affineParam = affineA;
-    gOamBuffer[5].all.affineParam = *affineBPtr;
-    gOamBuffer[6].all.affineParam = *affineCPtr;
-    gOamBuffer[7].all.affineParam = affineDResult2;
+    matrix[0] = FixedMul(sSinCosTable[gWarioHopPlayer.angle + 64], (s16)FixedInverse((s16)gWarioHopPlayer.scale));
+    *matrix1Ptr = FixedMul(sSinCosTable[gWarioHopPlayer.angle], (s16)FixedInverse((s16)gWarioHopPlayer.scale));
+    *matrix2Ptr =
+        FixedMul((s16)(-(u16)sSinCosTable[gWarioHopPlayer.angle]), (s16)FixedInverse((s16)gWarioHopPlayer.scale));
+    matrixD = FixedMul(sSinCosTable[gWarioHopPlayer.angle + 64], (s16)FixedInverse((s16)gWarioHopPlayer.scale));
+    *matrix3Ptr = matrixD;
+    gOamBuffer[0].all.affineParam = matrix[0];
+    gOamBuffer[1].all.affineParam = *matrix1Ptr;
+    gOamBuffer[2].all.affineParam = *matrix2Ptr;
+    gOamBuffer[3].all.affineParam = matrixD;
 
-#undef affineA
+    matrix[0] = FixedMul(sSinCosTable[64], (s16)FixedInverse((s16)gMinigameCamera.angle));
+    *matrix1Ptr = FixedMul(sSinCosTable[0], (s16)FixedInverse((s16)gMinigameCamera.angle));
+    *matrix2Ptr = FixedMul((s16)(-(u16)sSinCosTable[0]), (s16)FixedInverse((s16)gMinigameCamera.angle));
+    matrixD2 = FixedMul(sSinCosTable[64], (s16)FixedInverse((s16)gMinigameCamera.angle));
+    *matrix3Ptr = matrixD2;
+    gOamBuffer[4].all.affineParam = matrix[0];
+    gOamBuffer[5].all.affineParam = *matrix1Ptr;
+    gOamBuffer[6].all.affineParam = *matrix2Ptr;
+    gOamBuffer[7].all.affineParam = matrixD2;
+
     gOamSlotsUsed = total;
 }
