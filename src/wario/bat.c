@@ -440,14 +440,14 @@ void LoadBatWarioGraphics(int index)
         offset += (u32)table;
         frame = *(const struct BatGraphicsFrame**)offset;
         frame += wario->unk_1F;
-        gfx = frame->data;
+        gfx = GP(frame->data);
         wario->objData1Size = gfx[0] << 5;
         gfx++;
         wario->objData2Size = gfx[0] << 5;
         gfx++;
-        wario->pObjData1 = (u8*)gfx;
-        wario->pObjData2 = (u8*)gfx + wario->objData1Size;
-        wario->pOamData = frame->oam;
+        GP_SET(wario->pObjData1, (u8*)gfx);
+        GP_SET(wario->pObjData2, (u8*)gfx + wario->objData1Size);
+        GP_SET(wario->pOamData, GP(frame->oam));
     }
     gWarioPaletteSize = 96;
     CopyWarioPalette(sBatPalette, 0, 48);

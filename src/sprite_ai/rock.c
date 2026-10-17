@@ -54,7 +54,7 @@ void RockInit(void)
 void RockIdleInit(void)
 {
     gCurrentSprite.animationTimer = gCurrentSprite.currentAnimationFrame = 0;
-    gCurrentSprite.pOamData = sRockOamData;
+    GP_SET(gCurrentSprite.pOamData, sRockOamData);
     gCurrentSprite.pose = SPOSE_IDLE;
     gCurrentSprite.warioCollision = 5;
     gCurrentSprite.status &= ~(SPRITE_STATUS_CAN_HIT_OTHER_SPRITES | SPRITE_STATUS_MAYBE_DEAD);

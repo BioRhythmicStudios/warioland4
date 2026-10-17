@@ -1706,7 +1706,7 @@ void DrawPassageScreenSprites(void)
                     animation = *((const struct AnimationFrame* const*)(((const u8*)sUnk_863C4BC) + tableOffset));
                     do {
                         register const u16* drawFrame PIN("r3");
-                        drawFrame = animation[0].oam;
+                        drawFrame = GP(animation[0].oam);
                         used += *(drawFrame++);
                         if (used > 128) {
                             goto overflow;
@@ -1804,7 +1804,7 @@ void DrawPassageScreenSprites(void)
                         if (offset != 0) {
                             do {
                                 register const u16* drawFrame PIN("r3");
-                                drawFrame = sUnk_864131C[0].oam;
+                                drawFrame = GP(sUnk_864131C[0].oam);
                                 used += *(drawFrame++);
                                 if (used > 128) {
                                     goto overflow;
@@ -1895,7 +1895,7 @@ void DrawPassageScreenSprites(void)
                         if (((s32)passage) < 0) {
                             do {
                                 const u16* drawFrame;
-                                drawFrame = sUnk_864133C[0].oam;
+                                drawFrame = GP(sUnk_864133C[0].oam);
                                 used += *(drawFrame++);
                                 if (used > 128) {
                                     goto overflow;
@@ -1976,7 +1976,7 @@ void DrawPassageScreenSprites(void)
                         if (((s32)passage) < 0) {
                             do {
                                 const u16* drawFrame;
-                                drawFrame = sUnk_864132C[0].oam;
+                                drawFrame = GP(sUnk_864132C[0].oam);
                                 used += *(drawFrame++);
                                 if (used > 128) {
                                     goto overflow;
@@ -2057,7 +2057,7 @@ void DrawPassageScreenSprites(void)
                         if (((s32)passage) < 0) {
                             do {
                                 register const u16* drawFrame PIN("r3");
-                                drawFrame = sUnk_864130C[0].oam;
+                                drawFrame = GP(sUnk_864130C[0].oam);
                                 used += *(drawFrame++);
                                 if (used > 128) {
                                     goto overflow;
@@ -2309,7 +2309,7 @@ void DrawPassageScreenSprites(void)
                         do {
                             const u16* drawFrame;
                             register s32 indexTemp PIN("r4");
-                            drawFrame = sUnk_86413CC[0].oam;
+                            drawFrame = GP(sUnk_86413CC[0].oam);
                             used += *(drawFrame++);
                             if (used > 128) {
                                 goto overflow;
@@ -2421,7 +2421,7 @@ void DrawPassageScreenSprites(void)
     if (gUnk_3004700 == 2) {
         do {
             const u16* drawFrame;
-            drawFrame = sUnk_86413CC[0].oam;
+            drawFrame = GP(sUnk_86413CC[0].oam);
             used += *(drawFrame++);
             if (used > 128) {
                 goto overflow;
@@ -2567,7 +2567,7 @@ void DrawPassageScreenSprites(void)
             animationLow = *pointerLow;
             do {
                 const u16* drawFrame;
-                drawFrame = animationLow[frame].oam;
+                drawFrame = GP(animationLow[frame].oam);
                 used += *(drawFrame++);
                 if (used > 128) {
                     goto overflow;

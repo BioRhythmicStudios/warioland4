@@ -20,7 +20,7 @@ void SpikyInit(void)
     sprite->hitboxExtentDown = 0;
     sprite->hitboxExtentLeft = 48;
     sprite->hitboxExtentRight = 44;
-    sprite->pOamData = sSpikyIdleOam;
+    GP_SET(sprite->pOamData, sSpikyIdleOam);
     sprite->currentAnimationFrame = 0;
     zero = 0;
     sprite->animationTimer = 0;
@@ -49,7 +49,7 @@ void SpikyCheckScreenShake(void)
 
 void SpikyIdleInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -108,7 +108,7 @@ void SpikyIdle(void)
 
 void SpikyTurnInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -130,7 +130,7 @@ void SpikyTurn(void)
     }
 
     if (gCurrentSprite.pose == SPOSE_12) {
-        gCurrentSprite.pOamData = sSpikyTurningAroundOam;
+        GP_SET(gCurrentSprite.pOamData, sSpikyTurningAroundOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_14;
@@ -143,7 +143,7 @@ void SpikyTurn(void)
 
 void SpikyRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyRecoveringOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyRecoveringOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -180,7 +180,7 @@ void SpikyRecover(void)
 
 void SpikyGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -230,7 +230,7 @@ void SpikyGetUp(void)
 
 void SpikyFallingInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -239,7 +239,7 @@ void SpikyFallingInit(void)
 
 void SpikyStunnedFallingInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
@@ -251,7 +251,7 @@ void SpikyTackledInit(void)
 {
     u8 scoreType;
 
-    gCurrentSprite.pOamData = sSpikyDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -288,7 +288,7 @@ void SpikyDefeatedInit(void)
 {
     u8 scoreType;
 
-    gCurrentSprite.pOamData = sSpikyDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -321,7 +321,7 @@ void SpikyDefeatedLeftInit(void)
 
 void SpikyPushedInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -347,7 +347,7 @@ void SpikyPushedLeftInit(void)
 
 void SpikyPose27Or29Init(void)
 {
-    gCurrentSprite.pOamData = sSpikyPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -373,7 +373,7 @@ void SpikyPose29Init(void)
 
 void SpikyPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -397,7 +397,7 @@ void SpikyCrushed(void)
     int globalID;
     int scoreType;
 
-    gCurrentSprite.pOamData = sSpikyDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_CRUSHED_OR_COLLECTED;
@@ -432,7 +432,7 @@ void SpikyInstantlyKill(void)
 
 void SpikyStunnedInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -461,7 +461,7 @@ void SpikyPose35Init(void)
 
 void SpikyStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work3 = 0;
@@ -487,7 +487,7 @@ void SpikyPose49Init(void)
 
 void SpikyAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sSpikyAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sSpikyAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;
@@ -518,7 +518,7 @@ void SpikyAirborne(void)
             sprite->yPosition += 16;
         }
     } else {
-        sprite->pOamData = sSpikyStunnedOam;
+        GP_SET(sprite->pOamData, sSpikyStunnedOam);
         sprite->animationTimer = timerCopy;
         sprite->currentAnimationFrame = 0;
         sprite->pose = SPOSE_2F;

@@ -382,7 +382,7 @@ void InitCuckooCondor(void)
     sprite->hitboxExtentDown = 4;
     sprite->hitboxExtentLeft = 4;
     sprite->hitboxExtentRight = 4;
-    sprite->pOamData = sCuckooCondorClockIntroOam;
+    GP_SET(sprite->pOamData, sCuckooCondorClockIntroOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 1;
@@ -457,7 +457,7 @@ void CuckooCondorStartBattle(void)
         zero = value;
         if (zero == 0) {
             SpriteUtilStartBossTimer();
-            sprite->pOamData = sCuckooCondorClockIdleOam;
+            GP_SET(sprite->pOamData, sCuckooCondorClockIdleOam);
             sprite->currentAnimationFrame = zero;
             sprite->animationTimer = zero;
             m4aSongNumStart(SOUND_A2);
@@ -1055,7 +1055,7 @@ void CuckooCondorBreakClock(void)
         sprite->hitboxExtentDown = 0x38;
         sprite->hitboxExtentLeft = 0x28;
         sprite->hitboxExtentRight = 0x28;
-        sprite->pOamData = sCuckooCondorBodyOam;
+        GP_SET(sprite->pOamData, sCuckooCondorBodyOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->warioCollision = 0x47;
@@ -1294,7 +1294,7 @@ void CuckooCondorHandleCondorDamage(void)
             *timer = value;
             m4aSongNumStart(SOUND_A1);
         } else {
-            sprite->pOamData = sCuckooCondorBodyOam;
+            GP_SET(sprite->pOamData, sCuckooCondorBodyOam);
             sprite->currentAnimationFrame = mask;
             sprite->animationTimer = mask;
             sprite->pose = 20;
@@ -1438,7 +1438,7 @@ void CuckooCondorTakeShopItemHit(void)
     }
     sprite = &gCurrentSprite;
     sprite->work2 = timer;
-    sprite->pOamData = sCuckooCondorHurtOam;
+    GP_SET(sprite->pOamData, sCuckooCondorHurtOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     gBossSequenceState = 0x20;
@@ -1502,7 +1502,7 @@ void CuckooCondorHandleShopItemHit(void)
         temp = 3;
         ((struct PrimarySpriteData *)sprite)->pose = temp;
         temp = (u32)sCuckooCondorClockIdleOam;
-        ((struct PrimarySpriteData *)sprite)->pOamData = (const struct AnimationFrame *)temp;
+        GP_SET(((struct PrimarySpriteData *)sprite)->pOamData, (const struct AnimationFrame *)temp);
         ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = value;
         ((struct PrimarySpriteData *)sprite)->animationTimer = value;
         SpriteUtilStartBossTimer();
@@ -1573,7 +1573,7 @@ void InitCuckooCondorClockPiece(void)
         goto commonSmall;
     case 1:
         value = (u32)sCuckooCondorClockPieceUpperLeftOam;
-        ptr->pOamData = (const struct AnimationFrame *)value;
+        GP_SET(ptr->pOamData, (const struct AnimationFrame *)value);
         bytePtr = (u8 *)ptr;
         bytePtr += 0x20;
         status = 0x30;
@@ -1591,7 +1591,7 @@ void InitCuckooCondorClockPiece(void)
     case 2:
         value = (u32)sCuckooCondorClockPieceLowerRightOam;
 commonSmall:
-        ptr->pOamData = (const struct AnimationFrame *)value;
+        GP_SET(ptr->pOamData, (const struct AnimationFrame *)value);
         bytePtr = (u8 *)ptr;
         bytePtr += 0x20;
         status = 0x10;
@@ -1605,7 +1605,7 @@ commonSmall:
         break;
     case 3:
         value = (u32)sCuckooCondorClockPieceUpperRightOam;
-        ptr->pOamData = (const struct AnimationFrame *)value;
+        GP_SET(ptr->pOamData, (const struct AnimationFrame *)value);
         bytePtr = (u8 *)ptr;
         bytePtr += 0x20;
         status = 0x10;
@@ -1617,7 +1617,7 @@ commonSmall:
         break;
     case 4:
         value = (u32)sCuckooCondorClockPieceTopOam;
-        ptr->pOamData = (const struct AnimationFrame *)value;
+        GP_SET(ptr->pOamData, (const struct AnimationFrame *)value);
         bytePtr2 = (u8 *)ptr;
         bytePtr2 += 0x20;
         value = 0x10;
@@ -1826,7 +1826,7 @@ void CuckooCondorClockPieceSpin(void)
 
 void CuckooCondorClockPieceStartDebrisDrop(void)
 {
-    gCurrentSprite.pOamData = sCuckooCondorClockPieceUpperLeftWindupOam;
+    GP_SET(gCurrentSprite.pOamData, sCuckooCondorClockPieceUpperLeftWindupOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 0x6F;
@@ -1878,14 +1878,14 @@ spawnCheck:
     }
     value = (u32)sCuckooCondorClockPieceUpperLeftOam;
 setAnim:
-    sprite->pOamData = (const struct AnimationFrame *)value;
+    GP_SET(sprite->pOamData, (const struct AnimationFrame *)value);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     goto end;
 
 finish:
     value = (u32)sCuckooCondorClockPieceUpperLeftOam;
-    sprite->pOamData = (const struct AnimationFrame *)value;
+    GP_SET(sprite->pOamData, (const struct AnimationFrame *)value);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     value = 0x10;
@@ -1951,7 +1951,7 @@ void InitCuckooCondorPendulumPart(void)
 
     switch (value) {
     case 0:
-        sprite->pOamData = sCuckooCondorClawIdleOam;
+        GP_SET(sprite->pOamData, sCuckooCondorClawIdleOam);
         ptr = (u8 *)sprite + 0x20;
         zero = 0;
         value = 0x20;
@@ -1965,7 +1965,7 @@ void InitCuckooCondorPendulumPart(void)
         sprite->warioCollision = value;
         break;
     case 1:
-        sprite->pOamData = sCuckooCondorPendulumLinkOam;
+        GP_SET(sprite->pOamData, sCuckooCondorPendulumLinkOam);
         ptr = (u8 *)sprite + 0x20;
         zero = 0;
         value = 8;
@@ -1977,7 +1977,7 @@ void InitCuckooCondorPendulumPart(void)
         sprite->animationTimer = zero;
         break;
     case 2:
-        sprite->pOamData = sCuckooCondorPendulumLinkOam;
+        GP_SET(sprite->pOamData, sCuckooCondorPendulumLinkOam);
         ptr = (u8 *)sprite + 0x20;
         value = 8;
         *ptr = value;
@@ -1989,7 +1989,7 @@ void InitCuckooCondorPendulumPart(void)
         sprite->animationTimer = value;
         break;
     case 3:
-        sprite->pOamData = sCuckooCondorPendulumLinkOam;
+        GP_SET(sprite->pOamData, sCuckooCondorPendulumLinkOam);
         ptr = (u8 *)sprite + 0x20;
         value = 8;
         *ptr = value;
@@ -2001,7 +2001,7 @@ void InitCuckooCondorPendulumPart(void)
         sprite->animationTimer = value;
         break;
     case 4:
-        sprite->pOamData = sCuckooCondorPendulumLinkOam;
+        GP_SET(sprite->pOamData, sCuckooCondorPendulumLinkOam);
         ptr = (u8 *)sprite + 0x20;
         value = 8;
         *ptr = value;
@@ -2094,7 +2094,7 @@ loop:
     ptr0 += 0x27;
     *ptr0 = status;
     value = (u32)anim;
-    sprite->pOamData = (const struct AnimationFrame *)value;
+    GP_SET(sprite->pOamData, (const struct AnimationFrame *)value);
     sprite->currentAnimationFrame = status;
     sprite->animationTimer = status;
     value = 0xE5;
@@ -2191,7 +2191,7 @@ loop:
     ptr0 += 0x27;
     *ptr0 = status;
     value = (u32)anim;
-    sprite->pOamData = (const struct AnimationFrame *)value;
+    GP_SET(sprite->pOamData, (const struct AnimationFrame *)value);
     sprite->currentAnimationFrame = status;
     sprite->animationTimer = status;
     value = 0xE5;
@@ -2364,7 +2364,7 @@ void UpdateCuckooCondorHead(void)
 
     if (value == 0x20) {
         temp = (u32)&gCurrentSprite;
-        oam = (u32)((struct PrimarySpriteData *)temp)->pOamData;
+        oam = (u32)GP(((struct PrimarySpriteData *)temp)->pOamData);
         value = (u32)sCuckooCondorHeadIdleOam;
         sprite = (struct PrimarySpriteData *)temp;
 
@@ -2394,7 +2394,7 @@ void UpdateCuckooCondorHead(void)
             }
         }
 
-        sprite->pOamData = sCuckooCondorHeadHurtOam;
+        GP_SET(sprite->pOamData, sCuckooCondorHeadHurtOam);
         temp = 0;
         ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = temp;
         ((struct PrimarySpriteData *)sprite)->animationTimer = temp;
@@ -2413,9 +2413,9 @@ void UpdateCuckooCondorHead(void)
     sprite = (struct PrimarySpriteData *)timerPtr;
 
     if (temp != 0)
-        sprite->pOamData = sCuckooCondorHeadBlinkOam;
+        GP_SET(sprite->pOamData, sCuckooCondorHeadBlinkOam);
     else
-        sprite->pOamData = sCuckooCondorHeadIdleOam;
+        GP_SET(sprite->pOamData, sCuckooCondorHeadIdleOam);
 
     temp = 0;
     sprite->currentAnimationFrame = temp;
@@ -2481,7 +2481,7 @@ void CuckooCondorHeadAttack(void)
     }
 
     temp = (u32)&gCurrentSprite;
-    child = (u32)((struct PrimarySpriteData *)temp)->pOamData;
+    child = (u32)GP(((struct PrimarySpriteData *)temp)->pOamData);
     value = (u32)sCuckooCondorHeadIdleOam;
     sprite = (struct PrimarySpriteData *)temp;
 
@@ -2511,7 +2511,7 @@ void CuckooCondorHeadAttack(void)
         }
     }
 
-    sprite->pOamData = sCuckooCondorHeadAttackOam;
+    GP_SET(sprite->pOamData, sCuckooCondorHeadAttackOam);
     zero = 0;
     sprite->currentAnimationFrame = zero;
     zeroByte = 0;
@@ -2585,9 +2585,9 @@ void CuckooCondorHeadRecover(void)
         status = body->status;
         masked = status & 0x40;
         if (masked != 0)
-            body->pOamData = sCuckooCondorHeadBlinkOam;
+            GP_SET(body->pOamData, sCuckooCondorHeadBlinkOam);
         else
-            body->pOamData = sCuckooCondorHeadIdleOam;
+            GP_SET(body->pOamData, sCuckooCondorHeadIdleOam);
         body->currentAnimationFrame = 0;
         body->animationTimer = 2;
         status = *(volatile u16 *)&body->status;
@@ -2650,7 +2650,7 @@ void InitCuckooCondorClockBody(void)
     sprite->hitboxExtentRight = 4;
     oam = sCuckooCondorClockBodyOam;
     ptr = sprite;
-    ptr->pOamData = oam;
+    GP_SET(ptr->pOamData, oam);
     ptr->currentAnimationFrame = zero;
     ptr->animationTimer = timer;
     ptr->pose = 0x10;
@@ -2663,7 +2663,7 @@ void CuckooCondorClockBodyStartFall(void)
     gCurrentSprite.pose = 0x28;
     gCurrentSprite.work2 = 1;
     gCurrentSprite.work3 = 0;
-    gCurrentSprite.pOamData = sCuckooCondorClockBodyFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sCuckooCondorClockBodyFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
 }
@@ -2976,7 +2976,7 @@ void InitCuckooCondorEgg(void)
     *(volatile u8 *)ptr = tmp;
     tmp = (u32)sCuckooCondorEggOam;
     ptr = (u8 *)sprite;
-    ((struct PrimarySpriteData *)ptr)->pOamData = (const struct AnimationFrame *)tmp;
+    GP_SET(((struct PrimarySpriteData *)ptr)->pOamData, (const struct AnimationFrame *)tmp);
     ((struct PrimarySpriteData *)ptr)->currentAnimationFrame = zero;
     ((struct PrimarySpriteData *)ptr)->animationTimer = zero16;
     tmp = 64;
@@ -3023,7 +3023,7 @@ void CuckooCondorEggStartHatching(void)
     mask = 0xFEF7;
     value &= mask;
     sprite->status = value;
-    sprite->pOamData = sCuckooCondorEggHatchOam;
+    GP_SET(sprite->pOamData, sCuckooCondorEggHatchOam);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     value = 0x7B;
@@ -3187,7 +3187,7 @@ void InitCuckooCondorChick(void)
     *ptr = 0x18;
     ptr++;
     *ptr = 0x14;
-    sprite->pOamData = sCuckooCondorChickWalkOam;
+    GP_SET(sprite->pOamData, sCuckooCondorChickWalkOam);
     *((u8 *)&sprite->currentAnimationFrame) = zero;
     sprite->animationTimer = zero16;
     sprite->pose = 0x1C;
@@ -3300,7 +3300,7 @@ void UpdateCuckooCondorChickWalk(void)
 }
 void ResetCuckooCondorChickMotion(void)
 {
-    gCurrentSprite.pOamData = sCuckooCondorChickWalkOam;
+    GP_SET(gCurrentSprite.pOamData, sCuckooCondorChickWalkOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -3351,7 +3351,7 @@ void CuckooCondorChickFallLeft(void)
 
 void PrepareCuckooCondorChickDash(void)
 {
-    gCurrentSprite.pOamData = sCuckooCondorChickDashOam;
+    GP_SET(gCurrentSprite.pOamData, sCuckooCondorChickDashOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 0x20;
@@ -3388,7 +3388,7 @@ void UpdateCuckooCondorChickDashRight(void)
         value <<= 24;
         zero = value >> 24;
         if (zero == 0) {
-            current->pOamData = sCuckooCondorChickWalkOam;
+            GP_SET(current->pOamData, sCuckooCondorChickWalkOam);
             current->currentAnimationFrame = 0;
             current->animationTimer = zero;
         }
@@ -3410,7 +3410,7 @@ void UpdateCuckooCondorChickDashRight(void)
         zero2 = 0;
         current->status = value;
         current->pose = 0x10;
-        current->pOamData = sCuckooCondorChickWalkOam;
+        GP_SET(current->pOamData, sCuckooCondorChickWalkOam);
         current->currentAnimationFrame = zero;
         current->animationTimer = zero2;
     }
@@ -3447,7 +3447,7 @@ void UpdateCuckooCondorChickDashLeft(void)
         value <<= 24;
         arg = value >> 24;
         if (arg == 0) {
-            current->pOamData = sCuckooCondorChickWalkOam;
+            GP_SET(current->pOamData, sCuckooCondorChickWalkOam);
             current->currentAnimationFrame = 0;
             current->animationTimer = arg;
         }
@@ -3470,7 +3470,7 @@ void UpdateCuckooCondorChickDashLeft(void)
         value |= arg;
         current->status = value;
         current->pose = 0x10;
-        current->pOamData = sCuckooCondorChickWalkOam;
+        GP_SET(current->pOamData, sCuckooCondorChickWalkOam);
         current->currentAnimationFrame = zero;
         current->animationTimer = zero2;
     }
@@ -3478,7 +3478,7 @@ void UpdateCuckooCondorChickDashLeft(void)
 
 void CuckooCondorChickStartChase(void)
 {
-    gCurrentSprite.pOamData = sCuckooCondorChickChaseOam;
+    GP_SET(gCurrentSprite.pOamData, sCuckooCondorChickChaseOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 1;
     gCurrentSprite.pose = 0x6F;
@@ -3557,7 +3557,7 @@ afterCollision:
     if (value == 20) {
         value = (u32)sCuckooCondorChickAttackEndOam;
 setAnim:
-        sprite2->pOamData = (const struct AnimationFrame *)value;
+        GP_SET(sprite2->pOamData, (const struct AnimationFrame *)value);
         sprite2->currentAnimationFrame = zero;
         value = 1;
         sprite2->animationTimer = value;
@@ -3594,7 +3594,7 @@ void CuckooCondorChickStartExplosion(void)
     ptr = sprite;
     ptr->status = value;
     value = (u32)sCuckooCondorChickExplodeOam;
-    ptr->pOamData = (const struct AnimationFrame *)value;
+    GP_SET(ptr->pOamData, (const struct AnimationFrame *)value);
     ptr->currentAnimationFrame = zeroByte;
     ptr->animationTimer = zeroHalf;
     ptr = (struct PrimarySpriteData *)((u8 *)ptr + 0x27);

@@ -12,7 +12,7 @@ struct AGB_ALIGN AnimatedGraphicsState {
     u8 pad5;
     u8 pad6;
     u8 pad7;
-    const void* tiles;
+    GBA_PTR(const void*) tiles;
 };
 
 struct AGB_ALIGN AnimatedGraphicsDefinition {
@@ -20,7 +20,7 @@ struct AGB_ALIGN AnimatedGraphicsDefinition {
     u8 frameDelay;
     u8 frameCount;
     u8 pad3;
-    const void* tiles;
+    GBA_PTR(const void*) tiles;
 };
 
 extern struct AnimatedGraphicsState gAnimatedGraphicsStates[];

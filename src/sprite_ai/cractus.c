@@ -671,7 +671,7 @@ void InitCractusSpawner(void)
     sprite->hitboxExtentDown = 0;
     sprite->hitboxExtentLeft = 56;
     sprite->hitboxExtentRight = 56;
-    sprite->pOamData = sCractusSpawnerIdleOam;
+    GP_SET(sprite->pOamData, sCractusSpawnerIdleOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 1;
@@ -760,7 +760,7 @@ void InitCractusSpawnerDefeat(void)
     sprite->currentAnimationFrame = zero;
     zero2 = 0;
     sprite->animationTimer = zero;
-    sprite->pOamData = sCractusSpawnerDefeatOam;
+    GP_SET(sprite->pOamData, sCractusSpawnerDefeatOam);
     sprite->work0 = 62;
     sprite->health = zero2;
     sprite->drawPriority = zero2;
@@ -851,7 +851,7 @@ void InitCractusBoss(void)
         const struct AnimationFrame *oam;
         oam = sCractusBossInitialOam;
         spriteR2 = sprite;
-        spriteR2->pOamData = oam;
+        GP_SET(spriteR2->pOamData, oam);
     }
     *(u8 *)((u8 *)spriteR2 + 22) = zero;
     spriteR2->animationTimer = zero16;
@@ -902,7 +902,7 @@ void UpdateCractusBossPose1(void)
         sprite->yPosition = yPosition;
     }
     if (*gBossDefeatTimer == 0) {
-        sprite->pOamData = sCractusBossIntroOam;
+        GP_SET(sprite->pOamData, sCractusBossIntroOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->pose = 24;
@@ -952,7 +952,7 @@ void InitCractusBossPose111(void)
 
     sprite = &gCurrentSprite;
     oam = sCractusBossReadyOam;
-    sprite->pOamData = oam;
+    GP_SET(sprite->pOamData, oam);
     zero = 0;
     sprite->currentAnimationFrame = zero;
     zero8 = 0;
@@ -1138,7 +1138,7 @@ void UpdateCractusBossPose112(void)
             target = (struct PrimarySpriteData *)address;
             target->yPosition -= 1;
         } else if (state == 60) {
-            sprite->pOamData = sCractusBossImpactOam;
+            GP_SET(sprite->pOamData, sCractusBossImpactOam);
             sprite->currentAnimationFrame = 0;
             sprite->animationTimer = 0;
             m4aSongNumStart(SE_CRACTUS_ARM_RISE);
@@ -1223,7 +1223,7 @@ void UpdateCractusBossPose112(void)
         UpdateCractusGraphicsAnimation((const u8 *)sCractusBossAttackGraphicsAnimation);
         sprite->work3 = 0;
         sprite->pose = 15;
-        sprite->pOamData = sCractusBossReadyOam;
+        GP_SET(sprite->pOamData, sCractusBossReadyOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
     }
@@ -1762,7 +1762,7 @@ be50_no_reaction:
                 sprite->work2 = 32;
                 *work3 = warioReaction;
                 sprite->pose = 114;
-                sprite->pOamData = sCractusBossDamagedOam;
+                GP_SET(sprite->pOamData, sCractusBossDamagedOam);
                 sprite->currentAnimationFrame = warioReaction;
                 clearZero = 0;
                 sprite->animationTimer = warioReaction;
@@ -1793,7 +1793,7 @@ be50_no_reaction:
                 sprite->work2 = 16;
                 *work3 = warioReaction;
                 sprite->pose = 20;
-                sprite->pOamData = sCractusBossDamagedOam;
+                GP_SET(sprite->pOamData, sCractusBossDamagedOam);
                 sprite->currentAnimationFrame = warioReaction;
                 sprite->animationTimer = warioReaction;
                 gCuckooCondorMoveRight = 1;
@@ -1848,7 +1848,7 @@ be50_reaction:
             *work2 = 32;
             *work3 = zero;
             sprite->pose = 116;
-            sprite->pOamData = sCractusBossDamagedOam;
+            GP_SET(sprite->pOamData, sCractusBossDamagedOam);
             sprite->currentAnimationFrame = zero;
             clearZero = 0;
             sprite->animationTimer = zero;
@@ -2152,7 +2152,7 @@ void UpdateCractusBossPose20(void)
         target->yPosition += 16;
     } else {
         gCurrentSprite.pose = 21;
-        gCurrentSprite.pOamData = sCractusBossImpactOam;
+        GP_SET(gCurrentSprite.pOamData, sCractusBossImpactOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         if (gCurrentSprite.health <= 6) {
@@ -2285,7 +2285,7 @@ void UpdateCractusBossPose21(void)
 
     func_8023BFC(sprite->yPosition, sprite->xPosition - 128);
     if (gSpriteCollisionTileType == 17) {
-        sprite->pOamData = sCractusBossReadyOam;
+        GP_SET(sprite->pOamData, sCractusBossReadyOam);
         sprite->currentAnimationFrame = speed;
         {
             u32 zero;
@@ -2431,7 +2431,7 @@ void UpdateCractusBossPose49(void)
     global = (u8*)&gBossState;
     *global = zeroR1;
     sprite = &gCurrentSprite;
-    sprite->pOamData = sCractusBossDamagedOam;
+    GP_SET(sprite->pOamData, sCractusBossDamagedOam);
     zeroR0 = 0;
     *(volatile u8 *)&sprite->currentAnimationFrame = zeroR0;
     zeroR4 = 0;
@@ -2874,7 +2874,7 @@ void UpdateCractusBossPose122(void)
     field = &sprite->work2;
     zero = 0;
     *field = value;
-    sprite->pOamData = sCractusBossDamagedOam;
+    GP_SET(sprite->pOamData, sCractusBossDamagedOam);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     sprite->work0 = 0;
@@ -2912,7 +2912,7 @@ void UpdateCractusBossPose123(void)
     sprite = &gCurrentSprite;
     if (sprite->health == sprite->work2) {
         sprite->pose = 24;
-        sprite->pOamData = sCractusBossIntroOam;
+        GP_SET(sprite->pOamData, sCractusBossIntroOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->work0 = 0;
@@ -2990,7 +2990,7 @@ void InitCractusStemSegment(void)
         case 3: animation = sCractusStemSegment3Oam; break;
         default: animation = sCractusStemSegment4Oam; break;
     }
-    ((struct PrimarySpriteData *)bytePtr)->pOamData = animation;
+    GP_SET(((struct PrimarySpriteData *)bytePtr)->pOamData, animation);
     {
         u32 roomSlot;
 
@@ -3127,7 +3127,7 @@ void InitCractusArmSegmentA(void)
         case 0:
             sprite = &gCurrentSprite;
             sprite->status |= 0x80;
-            sprite->pOamData = sCractusArmSegmentARootOam;
+            GP_SET(sprite->pOamData, sCractusArmSegmentARootOam);
             sprite->work0 = 224;
             goto end;
         case 1:
@@ -3152,7 +3152,7 @@ void InitCractusArmSegmentA(void)
             animation = sCractusSegmentOam;
             break;
     }
-    sprite->pOamData = animation;
+    GP_SET(sprite->pOamData, animation);
 end:
     ;
 }
@@ -3167,7 +3167,7 @@ void InitCractusArmSegmentB(void)
         case 0:
             sprite = &gCurrentSprite;
             sprite->status |= 0x80;
-            sprite->pOamData = sCractusArmSegmentBRootOam;
+            GP_SET(sprite->pOamData, sCractusArmSegmentBRootOam);
             sprite->work0 = 224;
             sprite->warioCollision = 13;
             goto end;
@@ -3193,7 +3193,7 @@ void InitCractusArmSegmentB(void)
             animation = sCractusSegmentOam;
             break;
     }
-    sprite->pOamData = animation;
+    GP_SET(sprite->pOamData, animation);
 end:
     ;
 }
@@ -4178,7 +4178,7 @@ void InitCractusProjectile(void)
     sprite->hitboxExtentDown = 8;
     sprite->hitboxExtentLeft = 8;
     sprite->hitboxExtentRight = 8;
-    sprite->pOamData = sCractusProjectileFallingOam;
+    GP_SET(sprite->pOamData, sCractusProjectileFallingOam);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     sprite->work0 = 7;
@@ -4217,7 +4217,7 @@ void UpdateCractusProjectilePose16(void)
         timerValue = (u8)value;
         if (timerValue == 0) {
             value = (u32)sCractusProjectileActiveOam;
-            sprite->pOamData = (const struct AnimationFrame *)value;
+            GP_SET(sprite->pOamData, (const struct AnimationFrame *)value);
             sprite->currentAnimationFrame = timerValue;
             sprite->animationTimer = timerValue;
         }
@@ -4235,7 +4235,7 @@ void UpdateCractusProjectilePose16(void)
         zeroHalf = 0;
         current->yPosition = velocity;
         value = (u32)sCractusProjectileLandedOam;
-        current->pOamData = (const struct AnimationFrame *)value;
+        GP_SET(current->pOamData, (const struct AnimationFrame *)value);
         current->currentAnimationFrame = zeroByte;
         current->animationTimer = zeroHalf;
         {
@@ -4296,7 +4296,7 @@ void InitCractusProjectileDespawn(void)
     u8 *timer;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sCractusProjectileDespawnOam;
+    GP_SET(sprite->pOamData, sCractusProjectileDespawnOam);
     value = 0;
     sprite->currentAnimationFrame = value;
     sprite->animationTimer = value;

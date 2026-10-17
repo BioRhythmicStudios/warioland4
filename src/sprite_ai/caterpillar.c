@@ -14,7 +14,7 @@ void CaterpillarInit(void)
     gCurrentSprite.hitboxExtentDown = 0;
     gCurrentSprite.hitboxExtentLeft = 32;
     gCurrentSprite.hitboxExtentRight = 28;
-    gCurrentSprite.pOamData = sCaterpillarCrawlingOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarCrawlingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -23,7 +23,7 @@ void CaterpillarInit(void)
 
 void CaterpillarInitCrawl(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarCrawlingOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarCrawlingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -83,7 +83,7 @@ void CaterpillarCrawl(void)
 
 void CaterpillarTurnInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -106,13 +106,13 @@ void CaterpillarTurn(void)
 
     if (gCurrentSprite.pose == SPOSE_12) {
         gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
-        gCurrentSprite.pOamData = sCaterpillarTurningAroundOam;
+        GP_SET(gCurrentSprite.pOamData, sCaterpillarTurningAroundOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_14;
         gCurrentSprite.work0 = 21;
     } else {
-        gCurrentSprite.pOamData = sCaterpillarCrawlingOam;
+        GP_SET(gCurrentSprite.pOamData, sCaterpillarCrawlingOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_IDLE;
@@ -121,7 +121,7 @@ void CaterpillarTurn(void)
 
 void CaterpillarStunnedInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -146,7 +146,7 @@ void CaterpillarPose35(void)
 
 void CaterpillarRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarCrawlingOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarCrawlingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -155,7 +155,7 @@ void CaterpillarRecoverInit(void)
 
 void CaterpillarGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -180,7 +180,7 @@ void CaterpillarGetUp(void)
 
 void CaterpillarFallingInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -189,7 +189,7 @@ void CaterpillarFallingInit(void)
 
 void CaterpillarStunnedFallingInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
@@ -199,7 +199,7 @@ void CaterpillarStunnedFallingInit(void)
 
 void CaterpillarTackledInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -227,7 +227,7 @@ void CaterpillarTackledLeftInit(void)
 
 void CaterpillarDefeatedInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -263,9 +263,9 @@ void CaterpillarPushedInit(void)
 void CaterpillarPushedRightInit(void)
 {
     if (gCurrentSprite.status & SPRITE_STATUS_FACING_RIGHT) {
-        gCurrentSprite.pOamData = sCaterpillarPushedForwardOam;
+        GP_SET(gCurrentSprite.pOamData, sCaterpillarPushedForwardOam);
     } else {
-        gCurrentSprite.pOamData = sCaterpillarPushedBackwardOam;
+        GP_SET(gCurrentSprite.pOamData, sCaterpillarPushedBackwardOam);
     }
     gCurrentSprite.pose = SPOSE_PUSHED_RIGHT;
     CaterpillarPushedInit();
@@ -274,9 +274,9 @@ void CaterpillarPushedRightInit(void)
 void CaterpillarPushedLeftInit(void)
 {
     if (gCurrentSprite.status & SPRITE_STATUS_FACING_RIGHT) {
-        gCurrentSprite.pOamData = sCaterpillarPushedBackwardOam;
+        GP_SET(gCurrentSprite.pOamData, sCaterpillarPushedBackwardOam);
     } else {
-        gCurrentSprite.pOamData = sCaterpillarPushedForwardOam;
+        GP_SET(gCurrentSprite.pOamData, sCaterpillarPushedForwardOam);
     }
     gCurrentSprite.pose = SPOSE_PUSHED_LEFT;
     CaterpillarPushedInit();
@@ -284,7 +284,7 @@ void CaterpillarPushedLeftInit(void)
 
 void CaterpillarPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -305,7 +305,7 @@ void CaterpillarPose2DInit(void)
 
 void CaterpillarCrushed(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarCrushedOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarCrushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_CRUSHED_OR_COLLECTED;
@@ -325,7 +325,7 @@ void CaterpillarInstantlyKill(void)
 
 void CaterpillarStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -347,7 +347,7 @@ void CaterpillarPose49Init(void)
 
 void CaterpillarAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarFallingOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;
@@ -397,7 +397,7 @@ void CaterpillarAirborne(void)
 
 void CaterpillarLiftedInit(void)
 {
-    gCurrentSprite.pOamData = sCaterpillarCarriedOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarCarriedOam);
     gCurrentSprite.animationTimer = (u16)0;
     gCurrentSprite.currentAnimationFrame = (u8)0;
     gCurrentSprite.hitboxExtentUp = 64;
@@ -418,7 +418,7 @@ void CaterpillarLiftedLeftInit(void)
 void CaterpillarCarriedInit(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sCaterpillarCarriedOam;
+    GP_SET(gCurrentSprite.pOamData, sCaterpillarCarriedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.hitboxExtentUp = 64;

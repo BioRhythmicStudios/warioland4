@@ -232,7 +232,7 @@ void InitDominoActivator(void)
     sprite->warioCollision = 6;
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
-    sprite->pOamData = sDominoActivatorAnimationOam;
+    GP_SET(sprite->pOamData, sDominoActivatorAnimationOam);
     sprite->drawPriority = 1;
     sprite->pose = 16;
 }
@@ -1054,7 +1054,7 @@ void InitDominoLongPieceA(void)
     sprite->hitboxExtentRight = 4;
     sprite->warioCollision = 6;
     sprite->drawPriority = 3;
-    sprite->pOamData = sDominoLongPieceAAnimationOam;
+    GP_SET(sprite->pOamData, sDominoLongPieceAAnimationOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 16;
@@ -1075,7 +1075,7 @@ void InitDominoLongPieceB(void)
     sprite->hitboxExtentRight = 4;
     sprite->warioCollision = 6;
     sprite->drawPriority = 3;
-    sprite->pOamData = sDominoLongPieceBAnimationOam;
+    GP_SET(sprite->pOamData, sDominoLongPieceBAnimationOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 16;
@@ -1097,7 +1097,7 @@ void InitDominoGoalClosed(void)
     sprite->warioCollision = 48;
     sprite->xPosition -= 32;
     sprite->drawPriority = 3;
-    sprite->pOamData = sDominoGoalClosedAnimationOam;
+    GP_SET(sprite->pOamData, sDominoGoalClosedAnimationOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 16;
@@ -1121,7 +1121,7 @@ void InitDominoGoalOpenLeft(void)
     sprite->warioCollision = 29;
     sprite->xPosition -= 32;
     sprite->drawPriority = 3;
-    sprite->pOamData = sDominoGoalOpenLeftAnimationOam;
+    GP_SET(sprite->pOamData, sDominoGoalOpenLeftAnimationOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 24;
@@ -1144,7 +1144,7 @@ void InitDominoGoalOpenRight(void)
     sprite->warioCollision = 29;
     sprite->xPosition -= 32;
     sprite->drawPriority = 3;
-    sprite->pOamData = sDominoGoalOpenRightAnimationOam;
+    GP_SET(sprite->pOamData, sDominoGoalOpenRightAnimationOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 24;
@@ -1177,7 +1177,7 @@ void UpdateDominoGoalClosed(void)
         *(u8 *)temp = value;
         zero = (u8)value;
         if (zero == 0) {
-            sprite->pOamData = sDominoGoalOpeningAnimationOam;
+            GP_SET(sprite->pOamData, sDominoGoalOpeningAnimationOam);
             sprite->currentAnimationFrame = zero;
             sprite->animationTimer = zero;
             *(u8 *)temp = 15;
@@ -1200,7 +1200,7 @@ void UpdateDominoGoalOpenLeft(void)
     sprite = &gCurrentSprite;
     value = --sprite->work0;
     if (value == 0) {
-        sprite->pOamData = sDominoGoalOpenLeftAnimationOam;
+        GP_SET(sprite->pOamData, sDominoGoalOpenLeftAnimationOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->pose = 24;
@@ -1228,7 +1228,7 @@ void StartDominoGoalOpening(void)
     value = 33;
     *persistent = value;
     gSwitchStates[1] = 3;
-    sprite->pOamData = sDominoGoalOpeningAnimationOam;
+    GP_SET(sprite->pOamData, sDominoGoalOpeningAnimationOam);
     sprite->currentAnimationFrame = temp;
     sprite->animationTimer = temp;
     sprite->work0 = 15;
@@ -1249,7 +1249,7 @@ void UpdateDominoGoalOpenRight(void)
     sprite = &gCurrentSprite;
     value = --sprite->work0;
     if (value == 0) {
-        sprite->pOamData = sDominoGoalOpenRightAnimationOam;
+        GP_SET(sprite->pOamData, sDominoGoalOpenRightAnimationOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->pose = 24;
@@ -1542,7 +1542,7 @@ case70:
 useDefault:
     oam = sDominoTile0Animation0Oam;
 store:
-    sprite->pOamData = oam;
+    GP_SET(sprite->pOamData, oam);
 }
 
 void SelectDominoTile1Animation(void)
@@ -1619,7 +1619,7 @@ case70:
 useDefault:
     oam = sDominoTile1Animation0Oam;
 store:
-    sprite->pOamData = oam;
+    GP_SET(sprite->pOamData, oam);
 }
 
 void SelectDominoTile2Animation(void)
@@ -1706,7 +1706,7 @@ case90:
 useDefault:
     oam = sDominoTile2Animation0Oam;
 store:
-    sprite->pOamData = oam;
+    GP_SET(sprite->pOamData, oam);
 }
 
 void SelectDominoTile3Animation(void)
@@ -1793,7 +1793,7 @@ case90:
 useDefault:
     oam = sDominoTile3Animation0Oam;
 store:
-    sprite->pOamData = oam;
+    GP_SET(sprite->pOamData, oam);
 }
 
 void SelectDominoTile4Animation(void)
@@ -1875,7 +1875,7 @@ case80:
 useDefault:
     oam = sDominoTile4Animation0Oam;
 store:
-    sprite->pOamData = oam;
+    GP_SET(sprite->pOamData, oam);
 }
 
 void SelectDominoTile5Animation(void)
@@ -1957,7 +1957,7 @@ case80:
 useDefault:
     oam = sDominoTile5Animation0Oam;
 store:
-    sprite->pOamData = oam;
+    GP_SET(sprite->pOamData, oam);
 }
 
 void SelectDominoTile6Animation(void)
@@ -2039,46 +2039,46 @@ greaterD0:
     goto useDefault;
 
 case20:
-    sprite->pOamData = sDominoTile6Animation1Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation1Oam);
     return;
 case30:
-    sprite->pOamData = sDominoTile6Animation1Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation1Oam);
     return;
 case40:
-    sprite->pOamData = sDominoTile6Animation2Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation2Oam);
     return;
 case50:
-    sprite->pOamData = sDominoTile6Animation2Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation2Oam);
     return;
 case60:
-    sprite->pOamData = sDominoTile6Animation3Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation3Oam);
     return;
 case70:
-    sprite->pOamData = sDominoTile6Animation3Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation3Oam);
     return;
 case80:
-    sprite->pOamData = sDominoTile6Animation4Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation4Oam);
     return;
 case90:
-    sprite->pOamData = sDominoTile6Animation4Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation4Oam);
     return;
 caseA0:
-    sprite->pOamData = sDominoTile6Animation5Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation5Oam);
     return;
 caseB0:
-    sprite->pOamData = sDominoTile6Animation6Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation6Oam);
     return;
 caseC0:
-    sprite->pOamData = sDominoTile6Animation7Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation7Oam);
     return;
 caseD0:
-    sprite->pOamData = sDominoTile6Animation8Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation8Oam);
     return;
 caseE0:
-    sprite->pOamData = sDominoTile6Animation9Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation9Oam);
     return;
 useDefault:
-    sprite->pOamData = sDominoTile6Animation0Oam;
+    GP_SET(sprite->pOamData, sDominoTile6Animation0Oam);
 }
 
 void SelectDominoTile7Animation(void)
@@ -2160,46 +2160,46 @@ greaterD0:
     goto useDefault;
 
 case20:
-    sprite->pOamData = sDominoTile7Animation1Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation1Oam);
     return;
 case30:
-    sprite->pOamData = sDominoTile7Animation1Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation1Oam);
     return;
 case40:
-    sprite->pOamData = sDominoTile7Animation2Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation2Oam);
     return;
 case50:
-    sprite->pOamData = sDominoTile7Animation2Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation2Oam);
     return;
 case60:
-    sprite->pOamData = sDominoTile7Animation3Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation3Oam);
     return;
 case70:
-    sprite->pOamData = sDominoTile7Animation3Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation3Oam);
     return;
 case80:
-    sprite->pOamData = sDominoTile7Animation4Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation4Oam);
     return;
 case90:
-    sprite->pOamData = sDominoTile7Animation4Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation4Oam);
     return;
 caseA0:
-    sprite->pOamData = sDominoTile7Animation5Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation5Oam);
     return;
 caseB0:
-    sprite->pOamData = sDominoTile7Animation6Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation6Oam);
     return;
 caseC0:
-    sprite->pOamData = sDominoTile7Animation7Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation7Oam);
     return;
 caseD0:
-    sprite->pOamData = sDominoTile7Animation8Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation8Oam);
     return;
 caseE0:
-    sprite->pOamData = sDominoTile7Animation9Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation9Oam);
     return;
 useDefault:
-    sprite->pOamData = sDominoTile7Animation0Oam;
+    GP_SET(sprite->pOamData, sDominoTile7Animation0Oam);
 }
 
 void SelectDominoTile8Animation(void)
@@ -2281,46 +2281,46 @@ greaterD0:
     goto useDefault;
 
 case20:
-    sprite->pOamData = sDominoTile8Animation1Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation1Oam);
     return;
 case30:
-    sprite->pOamData = sDominoTile8Animation1Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation1Oam);
     return;
 case40:
-    sprite->pOamData = sDominoTile8Animation2Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation2Oam);
     return;
 case50:
-    sprite->pOamData = sDominoTile8Animation2Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation2Oam);
     return;
 case60:
-    sprite->pOamData = sDominoTile8Animation3Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation3Oam);
     return;
 case70:
-    sprite->pOamData = sDominoTile8Animation3Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation3Oam);
     return;
 case80:
-    sprite->pOamData = sDominoTile8Animation4Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation4Oam);
     return;
 case90:
-    sprite->pOamData = sDominoTile8Animation4Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation4Oam);
     return;
 caseA0:
-    sprite->pOamData = sDominoTile8Animation5Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation5Oam);
     return;
 caseB0:
-    sprite->pOamData = sDominoTile8Animation6Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation6Oam);
     return;
 caseC0:
-    sprite->pOamData = sDominoTile8Animation7Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation7Oam);
     return;
 caseD0:
-    sprite->pOamData = sDominoTile8Animation8Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation8Oam);
     return;
 caseE0:
-    sprite->pOamData = sDominoTile8Animation9Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation9Oam);
     return;
 useDefault:
-    sprite->pOamData = sDominoTile8Animation0Oam;
+    GP_SET(sprite->pOamData, sDominoTile8Animation0Oam);
 }
 
 void SelectDominoTile9Animation(void)
@@ -2402,46 +2402,46 @@ greaterD0:
     goto useDefault;
 
 case20:
-    sprite->pOamData = sDominoTile9Animation1Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation1Oam);
     return;
 case30:
-    sprite->pOamData = sDominoTile9Animation1Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation1Oam);
     return;
 case40:
-    sprite->pOamData = sDominoTile9Animation2Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation2Oam);
     return;
 case50:
-    sprite->pOamData = sDominoTile9Animation2Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation2Oam);
     return;
 case60:
-    sprite->pOamData = sDominoTile9Animation3Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation3Oam);
     return;
 case70:
-    sprite->pOamData = sDominoTile9Animation3Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation3Oam);
     return;
 case80:
-    sprite->pOamData = sDominoTile9Animation4Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation4Oam);
     return;
 case90:
-    sprite->pOamData = sDominoTile9Animation4Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation4Oam);
     return;
 caseA0:
-    sprite->pOamData = sDominoTile9Animation5Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation5Oam);
     return;
 caseB0:
-    sprite->pOamData = sDominoTile9Animation6Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation6Oam);
     return;
 caseC0:
-    sprite->pOamData = sDominoTile9Animation7Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation7Oam);
     return;
 caseD0:
-    sprite->pOamData = sDominoTile9Animation8Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation8Oam);
     return;
 caseE0:
-    sprite->pOamData = sDominoTile9Animation9Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation9Oam);
     return;
 useDefault:
-    sprite->pOamData = sDominoTile9Animation0Oam;
+    GP_SET(sprite->pOamData, sDominoTile9Animation0Oam);
 }
 
 void SpriteDominoActivator(void)
@@ -2529,7 +2529,7 @@ void SpriteDominoTile0(void)
     }
 
 commonUpdate:
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile0();
     goto end;
 
@@ -2540,7 +2540,7 @@ selectAnimation:
 useDefault:
     target = &gCurrentSprite;
     oam = sDominoTile0Animation0Oam;
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile0();
 
 end:
@@ -2592,7 +2592,7 @@ void SpriteDominoTile1(void)
     }
 
 commonUpdate:
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile1();
     goto end;
 
@@ -2603,7 +2603,7 @@ selectAnimation:
 useDefault:
     target = &gCurrentSprite;
     oam = sDominoTile1Animation0Oam;
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile1();
 
 end:
@@ -2663,7 +2663,7 @@ void SpriteDominoTile2(void)
     }
 
 commonUpdate:
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile2();
     goto end;
 
@@ -2674,7 +2674,7 @@ selectAnimation:
 useDefault:
     target = &gCurrentSprite;
     oam = sDominoTile2Animation0Oam;
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile2();
 
 end:
@@ -2734,7 +2734,7 @@ void SpriteDominoTile3(void)
     }
 
 commonUpdate:
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile3();
     goto end;
 
@@ -2745,7 +2745,7 @@ selectAnimation:
 useDefault:
     target = &gCurrentSprite;
     oam = sDominoTile3Animation0Oam;
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile3();
 
 end:
@@ -2761,42 +2761,42 @@ void SpriteDominoTile4(void)
     UpdateDominoPalette();
     switch (sprite->pose) {
     case 1:
-        gCurrentSprite.pOamData = sDominoTile4Animation1Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile4Animation1Oam);
         InitDominoTile4();
         return;
     case 2:
-        gCurrentSprite.pOamData = sDominoTile4Animation2Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile4Animation2Oam);
         InitDominoTile4();
         return;
     case 3:
-        gCurrentSprite.pOamData = sDominoTile4Animation3Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile4Animation3Oam);
         InitDominoTile4();
         return;
     case 4:
-        gCurrentSprite.pOamData = sDominoTile4Animation4Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile4Animation4Oam);
         InitDominoTile4();
         return;
     case 5:
-        gCurrentSprite.pOamData = sDominoTile4Animation5Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile4Animation5Oam);
         InitDominoTile4();
         return;
     case 6:
-        gCurrentSprite.pOamData = sDominoTile4Animation6Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile4Animation6Oam);
         InitDominoTile4();
         return;
     case 7:
-        gCurrentSprite.pOamData = sDominoTile4Animation7Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile4Animation7Oam);
         InitDominoTile4();
         return;
     case 8:
-        gCurrentSprite.pOamData = sDominoTile4Animation8Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile4Animation8Oam);
         InitDominoTile4();
         return;
     case 16:
         SelectDominoTile4Animation();
         return;
     default:
-        gCurrentSprite.pOamData = sDominoTile4Animation0Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile4Animation0Oam);
         InitDominoTile4();
         return;
     }
@@ -2811,42 +2811,42 @@ void SpriteDominoTile5(void)
     UpdateDominoPalette();
     switch (sprite->pose) {
     case 1:
-        gCurrentSprite.pOamData = sDominoTile5Animation1Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile5Animation1Oam);
         InitDominoTile5();
         return;
     case 2:
-        gCurrentSprite.pOamData = sDominoTile5Animation2Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile5Animation2Oam);
         InitDominoTile5();
         return;
     case 3:
-        gCurrentSprite.pOamData = sDominoTile5Animation3Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile5Animation3Oam);
         InitDominoTile5();
         return;
     case 4:
-        gCurrentSprite.pOamData = sDominoTile5Animation4Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile5Animation4Oam);
         InitDominoTile5();
         return;
     case 5:
-        gCurrentSprite.pOamData = sDominoTile5Animation5Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile5Animation5Oam);
         InitDominoTile5();
         return;
     case 6:
-        gCurrentSprite.pOamData = sDominoTile5Animation6Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile5Animation6Oam);
         InitDominoTile5();
         return;
     case 7:
-        gCurrentSprite.pOamData = sDominoTile5Animation7Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile5Animation7Oam);
         InitDominoTile5();
         return;
     case 8:
-        gCurrentSprite.pOamData = sDominoTile5Animation8Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile5Animation8Oam);
         InitDominoTile5();
         return;
     case 16:
         SelectDominoTile5Animation();
         return;
     default:
-        gCurrentSprite.pOamData = sDominoTile5Animation0Oam;
+        GP_SET(gCurrentSprite.pOamData, sDominoTile5Animation0Oam);
         InitDominoTile5();
         return;
     }
@@ -2929,7 +2929,7 @@ void SpriteDominoTile6(void)
     }
 
 commonUpdate:
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile6();
     goto end;
 
@@ -2940,7 +2940,7 @@ selectAnimation:
 useDefault:
     target = &gCurrentSprite;
     oam = sDominoTile6Animation0Oam;
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile6();
 
 end:
@@ -3024,7 +3024,7 @@ void SpriteDominoTile7(void)
     }
 
 commonUpdate:
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile7();
     goto end;
 
@@ -3035,7 +3035,7 @@ selectAnimation:
 useDefault:
     target = &gCurrentSprite;
     oam = sDominoTile7Animation0Oam;
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile7();
 
 end:
@@ -3119,7 +3119,7 @@ void SpriteDominoTile8(void)
     }
 
 commonUpdate:
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile8();
     goto end;
 
@@ -3130,7 +3130,7 @@ selectAnimation:
 useDefault:
     target = &gCurrentSprite;
     oam = sDominoTile8Animation0Oam;
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile8();
 
 end:
@@ -3214,7 +3214,7 @@ void SpriteDominoTile9(void)
     }
 
 commonUpdate:
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile9();
     goto end;
 
@@ -3225,7 +3225,7 @@ selectAnimation:
 useDefault:
     target = &gCurrentSprite;
     oam = sDominoTile9Animation0Oam;
-    target->pOamData = oam;
+    GP_SET(target->pOamData, oam);
     InitDominoTile9();
 
 end:

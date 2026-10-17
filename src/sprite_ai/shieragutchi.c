@@ -29,7 +29,7 @@ void InitShieragutchi(void)
 
 void StartShieragutchiIdle(void)
 {
-    gCurrentSprite.pOamData = sShieragutchiIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sShieragutchiIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -52,7 +52,7 @@ void ShieragutchiIdle(void)
 
 void StartShieragutchiRise(void)
 {
-    gCurrentSprite.pOamData = sShieragutchiRiseOam;
+    GP_SET(gCurrentSprite.pOamData, sShieragutchiRiseOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 111;
@@ -90,7 +90,7 @@ void ShieragutchiRise(void)
 
 void StartShieragutchiFall(void)
 {
-    gCurrentSprite.pOamData = sShieragutchiIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sShieragutchiIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 113;
@@ -130,7 +130,7 @@ void ShieragutchiFall(void)
 
 void DefeatShieragutchi(void)
 {
-    gCurrentSprite.pOamData = sShieragutchiDefeatOam;
+    GP_SET(gCurrentSprite.pOamData, sShieragutchiDefeatOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -157,7 +157,7 @@ void StartShieragutchiFallLeft(void)
 
 void StartShieragutchiGrabbed(void)
 {
-    gCurrentSprite.pOamData = sShieragutchiGrabbedOam;
+    GP_SET(gCurrentSprite.pOamData, sShieragutchiGrabbedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 117;

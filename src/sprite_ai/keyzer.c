@@ -386,7 +386,7 @@ void KeyzerInit()
         gCurrentSprite.hitboxExtentDown = QUARTER_BLOCK_SIZE + PIXEL_SIZE;
         gCurrentSprite.hitboxExtentLeft = HALF_BLOCK_SIZE;
         gCurrentSprite.hitboxExtentRight = HALF_BLOCK_SIZE - PIXEL_SIZE;
-        gCurrentSprite.pOamData = sKeyzerIdleOam;
+        GP_SET(gCurrentSprite.pOamData, sKeyzerIdleOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_IDLE;

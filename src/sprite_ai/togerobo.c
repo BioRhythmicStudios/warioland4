@@ -34,7 +34,7 @@ void func_80356BC(void)
 
 void func_80356EC(void)
 {
-    gCurrentSprite.pOamData = sTogeroboOam_83BD04C;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD04C);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.warioCollision = 5;
@@ -66,7 +66,7 @@ void func_803572C(void)
 
 void func_8035790(void)
 {
-    gCurrentSprite.pOamData = sTogeroboOam_83BCF4C;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BCF4C);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -155,7 +155,7 @@ void func_80357B8(void)
             *work0 = next;
             timer = (u8)next;
             if (timer == 0) {
-                sprite->pOamData = sTogeroboOam_83BCEFC;
+                GP_SET(sprite->pOamData, sTogeroboOam_83BCEFC);
                 sprite->currentAnimationFrame = timer;
                 sprite->animationTimer = timer;
             } else {
@@ -190,7 +190,7 @@ void func_80357B8(void)
 
 void func_8035978(void)
 {
-    gCurrentSprite.pOamData = sTogeroboOam_83BCF94;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BCF94);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 18;
@@ -218,7 +218,7 @@ void func_8035998(void)
         if (timer == 0) {
             switch (sprite->pose) {
                 case 18:
-                    sprite->pOamData = sTogeroboOam_83BCFAC;
+                    GP_SET(sprite->pOamData, sTogeroboOam_83BCFAC);
                     sprite->currentAnimationFrame = timer;
                     sprite->animationTimer = timer;
                     sprite->pose = 20;
@@ -232,7 +232,7 @@ void func_8035998(void)
                     }
                     break;
                 case 20:
-                    sprite->pOamData = sTogeroboOam_83BCFBC;
+                    GP_SET(sprite->pOamData, sTogeroboOam_83BCFBC);
                     sprite->currentAnimationFrame = timer;
                     sprite->animationTimer = timer;
                     sprite->pose = 22;
@@ -256,9 +256,9 @@ void func_8035A34(void)
     gCurrentSprite.pose = 24;
     gCurrentSprite.work0 = 24;
     if (gCurrentSprite.health == 2)
-        gCurrentSprite.pOamData = sTogeroboOam_83BD19C;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD19C);
     else
-        gCurrentSprite.pOamData = sTogeroboOam_83BD18C;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD18C);
 }
 
 void func_8035A64(void)
@@ -291,7 +291,7 @@ void func_8035A64(void)
 
 void func_8035AE0(void)
 {
-    gCurrentSprite.pOamData = sTogeroboOam_83BCEB4;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BCEB4);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 111;
@@ -332,7 +332,7 @@ void func_8035B00(void)
 
 void func_8035B5C(void)
 {
-    gCurrentSprite.pOamData = sTogeroboOam_83BD01C;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD01C);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 113;
@@ -375,7 +375,7 @@ void func_8035B88(void)
 
 void func_8035BE8(void)
 {
-    gCurrentSprite.pOamData = sTogeroboOam_83BD074;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD074);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 26;
@@ -414,7 +414,7 @@ void func_8035C0C(void)
         if (timer == 25) {
             sprite->yPosition -= 24;
         } else if (timer == 20) {
-            sprite->pOamData = sTogeroboOam_83BD09C;
+            GP_SET(sprite->pOamData, sTogeroboOam_83BD09C);
             sprite->animationTimer = 0;
             sprite->currentAnimationFrame = 0;
             sprite->yPosition -= 24;
@@ -437,10 +437,10 @@ void func_8035CD0(void)
     gCurrentSprite.pose = 28;
     gCurrentSprite.work3 = 0;
     if (gCurrentSprite.health == 2) {
-        gCurrentSprite.pOamData = sTogeroboOam_83BCF24;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BCF24);
         gCurrentSprite.warioCollision = 37;
     } else {
-        gCurrentSprite.pOamData = sTogeroboOam_83BD1AC;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD1AC);
         gCurrentSprite.warioCollision = 3;
     }
     func_80356BC();
@@ -457,7 +457,7 @@ void func_8035D2C(void)
 {
     if (gCurrentSprite.health == 2)
         func_8035668();
-    gCurrentSprite.pOamData = sTogeroboOam_83BD164;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD164);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -489,7 +489,7 @@ void func_8035DD4(void)
 {
     if (gCurrentSprite.health == 2)
         func_8035668();
-    gCurrentSprite.pOamData = sTogeroboOam_83BD164;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD164);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -527,7 +527,7 @@ void func_8035E68(void)
 void func_8035E90(void)
 {
     if (gCurrentSprite.status & SPRITE_STATUS_FACING_RIGHT) {
-        gCurrentSprite.pOamData = sTogeroboOam_83BD10C;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD10C);
         if (gCurrentSprite.health == 2) {
             gCurrentSprite.health = 1;
             gCurrentSprite.hitboxExtentUp = 80;
@@ -535,9 +535,9 @@ void func_8035E90(void)
             func_8035668();
         }
     } else if (gCurrentSprite.health == 2) {
-        gCurrentSprite.pOamData = sTogeroboOam_83BD14C;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD14C);
     } else {
-        gCurrentSprite.pOamData = sTogeroboOam_83BD134;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD134);
     }
     gCurrentSprite.pose = 36;
     func_8035E68();
@@ -559,11 +559,11 @@ void func_8035F28(void)
 {
     if (gCurrentSprite.status & SPRITE_STATUS_FACING_RIGHT) {
         if (gCurrentSprite.health == 2)
-            gCurrentSprite.pOamData = sTogeroboOam_83BD14C;
+            GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD14C);
         else
-            gCurrentSprite.pOamData = sTogeroboOam_83BD134;
+            GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD134);
     } else {
-        gCurrentSprite.pOamData = sTogeroboOam_83BD10C;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD10C);
         if (gCurrentSprite.health == 2) {
             gCurrentSprite.health = 1;
             gCurrentSprite.hitboxExtentUp = 80;
@@ -595,9 +595,9 @@ void func_8035FC0(void)
     gCurrentSprite.work1 = 0;
     gCurrentSprite.work2 = 6;
     if (gCurrentSprite.health == 2)
-        gCurrentSprite.pOamData = sTogeroboOam_83BD14C;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD14C);
     else
-        gCurrentSprite.pOamData = sTogeroboOam_83BD134;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD134);
 }
 
 void func_8036000(void)
@@ -674,9 +674,9 @@ void func_80360E8(void)
         gCurrentSprite.xPosition, 20);
     gPersistentSpriteData[gCurrentRoom][gCurrentSprite.roomSlot] = 2;
     if (gCurrentSprite.warioCollision != 5)
-        gCurrentSprite.pOamData = sTogeroboOam_83BD0CC;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD0CC);
     else
-        gCurrentSprite.pOamData = sTogeroboOam_83BD0EC;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD0EC);
 }
 
 void func_803615C(void)
@@ -734,10 +734,10 @@ void func_803622C(void)
     gCurrentSprite.work0 = 20;
     gCurrentSprite.work3 = 0;
     if (gCurrentSprite.health == 2) {
-        gCurrentSprite.pOamData = sTogeroboOam_83BD19C;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD19C);
         gCurrentSprite.warioCollision = 37;
     } else {
-        gCurrentSprite.pOamData = sTogeroboOam_83BD18C;
+        GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD18C);
         gCurrentSprite.warioCollision = 3;
     }
     func_80356BC();
@@ -804,7 +804,7 @@ void func_8036274(void)
 
 void func_8036300(void)
 {
-    gCurrentSprite.pOamData = sTogeroboOam_83BD04C;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD04C);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -824,7 +824,7 @@ void func_803632C(void)
 void func_8036340(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sTogeroboOam_83BD04C;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BD04C);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -913,7 +913,7 @@ void func_803643C(void)
 
 void func_803645C(void)
 {
-    gCurrentSprite.pOamData = sTogeroboOam_83BCFD4;
+    GP_SET(gCurrentSprite.pOamData, sTogeroboOam_83BCFD4);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 50;

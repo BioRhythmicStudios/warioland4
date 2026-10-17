@@ -431,7 +431,7 @@ enum SpriteCollisionFlags {
 
 struct AGB_ALIGN PrimarySpriteData {
     /* 0x00 */ u16 status;
-    /* 0x04 */ const struct AnimationFrame* pOamData;
+    /* 0x04 */ GBA_PTR(const struct AnimationFrame*) pOamData;
     /* 0x08 */ u16 yPosition;
     /* 0x0A */ u16 xPosition;
     /* 0x0C */ u16 affinePA;

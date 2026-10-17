@@ -105,7 +105,7 @@ void InitCrumblingBlock(void)
     gCurrentSprite.hitboxExtentDown = 28;
     gCurrentSprite.hitboxExtentLeft = 32;
     gCurrentSprite.hitboxExtentRight = 28;
-    gCurrentSprite.pOamData = sCrumblingBlockIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sCrumblingBlockIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -115,7 +115,7 @@ void InitCrumblingBlock(void)
 
 void StartCrumblingBlockCollapse(void)
 {
-    gCurrentSprite.pOamData = sCrumblingBlockCrackingOam;
+    GP_SET(gCurrentSprite.pOamData, sCrumblingBlockCrackingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 50;
@@ -163,7 +163,7 @@ void CrumblingBlockCollapse(void)
             ClearCrumblingBlockCollision();
         }
     } else {
-        sprite->pOamData = sCrumblingBlockCollapsedOam;
+        GP_SET(sprite->pOamData, sCrumblingBlockCollapsedOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = SPOSE_12;
@@ -186,7 +186,7 @@ void CrumblingBlockRespawnDelay(void)
     timer = &sprite->work0;
     value = --*timer;
     if (value == 0) {
-        sprite->pOamData = sCrumblingBlockReformingOam;
+        GP_SET(sprite->pOamData, sCrumblingBlockReformingOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->pose = SPOSE_14;
@@ -230,7 +230,7 @@ void CrumblingBlockReform(void)
             SetCrumblingBlockCollision();
         }
     } else {
-        sprite->pOamData = sCrumblingBlockIdleOam;
+        GP_SET(sprite->pOamData, sCrumblingBlockIdleOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = SPOSE_IDLE;

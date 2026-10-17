@@ -30,7 +30,7 @@ void PetbottomIdleInit(void)
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
-    gCurrentSprite.pOamData = sPetbottomIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomIdleOam);
     gCurrentSprite.warioCollision = 3;
     UpdatePetbottomHorizontalHitbox();
 }
@@ -86,7 +86,7 @@ void PetbottomIdle(void)
 
 void PetbottomTurnInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -142,7 +142,7 @@ void PetbottomTurn(void)
                 zero = 0;
                 sprite->status = status;
                 UpdatePetbottomHorizontalHitbox();
-                sprite->pOamData = sPetbottomTurningAroundOam;
+                GP_SET(sprite->pOamData, sPetbottomTurningAroundOam);
                 sprite->currentAnimationFrame = zero;
                 sprite->animationTimer = remaining;
                 sprite->pose = SPOSE_14;
@@ -159,7 +159,7 @@ void PetbottomTurn(void)
 
 void PetbottomRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomRecoveringOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomRecoveringOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -171,7 +171,7 @@ void PetbottomRecoverInit(void)
 
 void PetbottomGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -180,7 +180,7 @@ void PetbottomGetUpInit(void)
 
 void PetbottomFallingInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -190,7 +190,7 @@ void PetbottomFallingInit(void)
 
 void PetbottomStunnedFallingInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
@@ -202,7 +202,7 @@ void PetbottomStunnedFallingInit(void)
 
 void PetbottomTackledInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -230,7 +230,7 @@ void PetbottomTackledLeftInit(void)
 
 void PetbottomDefeatedInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -256,7 +256,7 @@ void PetbottomDefeatedLeftInit(void)
 
 void PetbottomPushedInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -281,7 +281,7 @@ void PetbottomPushedLeftInit(void)
 
 void PetbottomAlternatePushedInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomAlternatePushedOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomAlternatePushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -303,7 +303,7 @@ void PetbottomAlternatePushedLeftInit(void)
 
 void PetbottomPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -326,7 +326,7 @@ void PetbottomPose2DInit(void)
 
 void PetbottomCrushed(void)
 {
-    gCurrentSprite.pOamData = sPetbottomCrushedOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomCrushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_CRUSHED_OR_COLLECTED;
@@ -347,9 +347,9 @@ void PetbottomInstantlyKill(void)
 void PetbottomStunnedInit(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sPetbottomStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sPetbottomStunnedOam);
     } else {
-        gCurrentSprite.pOamData = sPetbottomAlternateStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sPetbottomAlternateStunnedOam);
     }
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
@@ -377,7 +377,7 @@ void PetbottomPose35Init(void)
 
 void PetbottomStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -401,7 +401,7 @@ void PetbottomPose49Init(void)
 
 void PetbottomAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sPetbottomFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sPetbottomFallingOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;
@@ -462,7 +462,7 @@ void PetbottomHeldInit(void)
 
     sprite = &gCurrentSprite;
     oam = sPetbottomStunnedOam;
-    sprite->pOamData = oam;
+    GP_SET(sprite->pOamData, oam);
     zero8 = 0;
     zero16 = 0;
     ASM_BARRIER(: "+r"(sprite), "+r"(zero8), "+r"(zero16));

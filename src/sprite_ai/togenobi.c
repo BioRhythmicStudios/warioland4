@@ -19,7 +19,7 @@ void InitTogenobi(void)
     gCurrentSprite.hitboxExtentDown = 28;
     gCurrentSprite.hitboxExtentLeft = 32;
     gCurrentSprite.hitboxExtentRight = 28;
-    gCurrentSprite.pOamData = sTogenobiOam;
+    GP_SET(gCurrentSprite.pOamData, sTogenobiOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -103,7 +103,7 @@ void InitTogenobiOuterPart(void)
     currentY = current->yPosition;
 
     if (currentY == parentY) {
-        current->pOamData = sTogenobiOuterPartHorizontalOam;
+        GP_SET(current->pOamData, sTogenobiOuterPartHorizontalOam);
         if (current->xPosition > parentX) {
             ptr0 = (u8*)&current->work1;
             *ptr0 = zero;
@@ -116,7 +116,7 @@ void InitTogenobiOuterPart(void)
             *ptr1 = 128;
         }
     } else {
-        current->pOamData = sTogenobiOuterPartVerticalOam;
+        GP_SET(current->pOamData, sTogenobiOuterPartVerticalOam);
         if (currentY > parentY) {
             ptr1 = (u8*)&current->work1;
             *ptr1 = 3;
@@ -275,7 +275,7 @@ void InitTogenobiInnerPart(void)
     *property = extentUp;
     property++;
     *(volatile u8 *)property = 28;
-    current->pOamData = sTogenobiInnerPartOam;
+    GP_SET(current->pOamData, sTogenobiInnerPartOam);
     *(volatile u8*)((u8*)current + 22) = zero;
     current->animationTimer = zeroTimer;
     current->pose = distance;
@@ -532,7 +532,7 @@ void InitTogenobiCenterPart(void)
         struct PrimarySpriteData* destination;
         oam = sTogenobiCenterPartOam;
         destination = sprite;
-        destination->pOamData = oam;
+        GP_SET(destination->pOamData, oam);
         destination->pose = 16;
     }
 }

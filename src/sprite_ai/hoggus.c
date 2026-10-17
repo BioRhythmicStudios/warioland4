@@ -103,7 +103,7 @@ void InitHoggus(void)
         sprite->hitboxExtentDown = 4;
         sprite->hitboxExtentLeft = 4;
         sprite->hitboxExtentRight = 4;
-        sprite->pOamData = sHoggusIdleOam;
+        GP_SET(sprite->pOamData, sHoggusIdleOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = existingSprite;
         sprite->pose = 15;
@@ -119,7 +119,7 @@ void StartHoggusIdle(void)
     u8* direction;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sHoggusIdleOam;
+    GP_SET(sprite->pOamData, sHoggusIdleOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 16;
@@ -182,7 +182,7 @@ void StartHoggusCharge(void)
     struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sHoggusChargeOam;
+    GP_SET(sprite->pOamData, sHoggusChargeOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 18;
@@ -217,9 +217,9 @@ void StartHoggusAttack(void)
         work1 = initialSprite->work1;
         sprite = initialSprite;
         if (work1 != 0)
-            sprite->pOamData = sHoggusAttackVariant1Oam;
+            GP_SET(sprite->pOamData, sHoggusAttackVariant1Oam);
         else
-            sprite->pOamData = sHoggusAttackVariant0Oam;
+            GP_SET(sprite->pOamData, sHoggusAttackVariant0Oam);
     }
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
@@ -260,9 +260,9 @@ void StartHoggusSpawn(void)
         work1 = initialSprite->work1;
         sprite = initialSprite;
         if (work1 != 0)
-            sprite->pOamData = sHoggusSpawnVariant1Oam;
+            GP_SET(sprite->pOamData, sHoggusSpawnVariant1Oam);
         else
-            sprite->pOamData = sHoggusSpawnVariant0Oam;
+            GP_SET(sprite->pOamData, sHoggusSpawnVariant0Oam);
     }
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
@@ -327,7 +327,7 @@ void StartHoggusEscape(void)
     struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sHoggusIdleOam;
+    GP_SET(sprite->pOamData, sHoggusIdleOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 111;
@@ -355,7 +355,7 @@ void InitHoggusEgg(void)
     sprite->hitboxExtentDown = 4;
     sprite->hitboxExtentLeft = 4;
     sprite->hitboxExtentRight = 4;
-    sprite->pOamData = sHoggusEggOam;
+    GP_SET(sprite->pOamData, sHoggusEggOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 15;

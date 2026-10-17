@@ -37,9 +37,9 @@ static inline u32 GbaPtrAddress_(__UINTPTR_TYPE__ address)
 #define GBA_PTR(T) union __attribute__((packed, aligned(4))) { u32 a; T t_[0]; }
 #define GBA_FUNC_PTR(F) union __attribute__((packed, aligned(4))) { u32 a; F f_[0]; }
 
-// The sizeof checks the assignment the GBA code makes, without evaluating it.
-#define GP(x) ((__typeof__(*(x).t_))(__UINTPTR_TYPE__)(x).a)
-#define GP_SET(x, p) ((void)sizeof(*(x).t_ = (p)), (x).a = GbaPtrAddress_((__UINTPTR_TYPE__)(p)))
+// The __typeof__ checks the assignment the GBA code makes, without evaluating it.
+#define GP(x) ((__typeof__((x).t_[0]))(__UINTPTR_TYPE__)(x).a)
+#define GP_SET(x, p) ((void)(__typeof__((x).t_[0] = (p)) *)0, (x).a = GbaPtrAddress_((__UINTPTR_TYPE__)(p)))
 #define GP_ADD(x, n) GP_SET(x, GP(x) + (n))
 #define GP_SUB(x, n) GP_SET(x, GP(x) - (n))
 #define GP_PREINC(x) GP_ADD(x, 1)
@@ -47,8 +47,8 @@ static inline u32 GbaPtrAddress_(__UINTPTR_TYPE__ address)
 #define GP_POSTINC(x) ({ __typeof__(GP(x)) gpOld_ = GP(x); GP_SET(x, gpOld_ + 1); gpOld_; })
 #define GP_POSTDEC(x) ({ __typeof__(GP(x)) gpOld_ = GP(x); GP_SET(x, gpOld_ - 1); gpOld_; })
 
-#define GF(x) ((__typeof__(*(x).f_))PortGbaFunctionToNative((x).a))
-#define GF_SET(x, f) ((void)sizeof(*(x).f_ = (f)), (x).a = PortNativeFunctionToGba((void (*)(void))(f)))
+#define GF(x) ((__typeof__((x).f_[0]))PortGbaFunctionToNative((x).a))
+#define GF_SET(x, f) ((void)(__typeof__((x).f_[0] = (f)) *)0, (x).a = PortNativeFunctionToGba((void (*)(void))(f)))
 
 #else
 

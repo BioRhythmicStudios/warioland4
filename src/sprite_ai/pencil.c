@@ -53,7 +53,7 @@ purplePencil:
     oamData = sPencilPurpleOam;
 
 setOam:
-    gCurrentSprite.pOamData = oamData;
+    GP_SET(gCurrentSprite.pOamData, oamData);
     gCurrentSprite.work1 = 0;
 }
 

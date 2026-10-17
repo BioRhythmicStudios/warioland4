@@ -46,7 +46,7 @@ void InitToyBlockRound(void)
     *ptr = 36;
     oam = sToyBlockRoundOam;
     ptr = (u8*)sprite;
-    ((struct PrimarySpriteData*)ptr)->pOamData = oam;
+    GP_SET(((struct PrimarySpriteData*)ptr)->pOamData, oam);
     ptr[22] = zero;
     *(u16*)(ptr + 20) = zero16;
     ((struct PrimarySpriteData*)ptr)->warioCollision = 26;

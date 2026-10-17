@@ -29,7 +29,7 @@ void InitFallingSnow(void)
     s->hitboxExtentDown = 148;
     s->hitboxExtentLeft = 40;
     s->hitboxExtentRight = 36;
-    s->pOamData = sFallingSnowIdleOam;
+    GP_SET(s->pOamData, sFallingSnowIdleOam);
     s->currentAnimationFrame = 0;
     s->animationTimer = 0;
     s->work0 = 30;
@@ -45,7 +45,7 @@ void FallingSnowWaitBeforeDropping(void)
     s = &gCurrentSprite;
     s->disableWarioCollisionTimer = 1;
     if (--s->work0 == 0) {
-        s->pOamData = sFallingSnowDropOam;
+        GP_SET(s->pOamData, sFallingSnowDropOam);
         s->currentAnimationFrame = 0;
         s->animationTimer = 0;
         s->work0 = 68;
@@ -61,7 +61,7 @@ void FallingSnowStartFalling(void)
     s = &gCurrentSprite;
     s->disableWarioCollisionTimer = 1;
     if (--s->work0 == 0) {
-        s->pOamData = sFallingSnowFallingOam;
+        GP_SET(s->pOamData, sFallingSnowFallingOam);
         s->currentAnimationFrame = 0;
         s->animationTimer = 0;
         s->pose = 28;
@@ -109,7 +109,7 @@ void FallingSnowStartMelting(void)
     struct PrimarySpriteData* s;
 
     s = &gCurrentSprite;
-    s->pOamData = sFallingSnowMeltingOam;
+    GP_SET(s->pOamData, sFallingSnowMeltingOam);
     s->currentAnimationFrame = 0;
     s->animationTimer = 0;
     s->work0 = 17;
@@ -139,7 +139,7 @@ void FallingSnowRespawn(void)
     y = map[roomSlot][0];
     sprite->yPosition = (y << 6) + 64;
     sprite->pose = 111;
-    sprite->pOamData = sFallingSnowIdleOam;
+    GP_SET(sprite->pOamData, sFallingSnowIdleOam);
     sprite->work0 = 100;
     sprite->status |= 4;
 }
@@ -175,7 +175,7 @@ void FallingSnowResetAfterImpact(void)
     struct PrimarySpriteData* s;
 
     s = &gCurrentSprite;
-    s->pOamData = sFallingSnowResetOam;
+    GP_SET(s->pOamData, sFallingSnowResetOam);
     s->currentAnimationFrame = 0;
     s->animationTimer = 0;
     s->work0 = 12;
@@ -196,7 +196,7 @@ void InitFallingSnowChild(void)
     sprite->hitboxExtentDown = 1;
     sprite->hitboxExtentLeft = 1;
     sprite->hitboxExtentRight = 1;
-    sprite->pOamData = sFallingSnowChildOam;
+    GP_SET(sprite->pOamData, sFallingSnowChildOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->work0 = 68;
@@ -277,7 +277,7 @@ void InitFallingSnowFragment(void)
 
         if (status & 0x40)
         {
-            store->pOamData = sFallingSnowFragmentLeftOam;
+            GP_SET(store->pOamData, sFallingSnowFragmentLeftOam);
             store->status = status & 0xFFBF;
         }
         else
@@ -286,7 +286,7 @@ void InitFallingSnowFragment(void)
             register struct PrimarySpriteData* dst PIN("r1");
             oam = sFallingSnowFragmentRightOam;
             dst = sprite;
-            dst->pOamData = oam;
+            GP_SET(dst->pOamData, oam);
         }
     }
 }

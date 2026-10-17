@@ -83,10 +83,10 @@ void SpriteMagma(void)
     }
 
     if ((u16)((gCurrentSprite.yPosition >> 2) - (gBg1YPosition >> 2)) <= 160) {
-        gCurrentSprite.pOamData = sMagmaOam_83D2570;
+        GP_SET(gCurrentSprite.pOamData, sMagmaOam_83D2570);
         gCurrentSprite.hitboxExtentDown = 127;
     } else {
-        gCurrentSprite.pOamData = sMagmaOam_83D2598;
+        GP_SET(gCurrentSprite.pOamData, sMagmaOam_83D2598);
         gCurrentSprite.hitboxExtentDown = 0;
     }
 }

@@ -25,7 +25,7 @@ void MarumenIdleInit(void)
 {
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sMarumenIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenIdleOam);
     gCurrentSprite.pose = SPOSE_IDLE;
     gCurrentSprite.warioCollision = 1;
 }
@@ -83,7 +83,7 @@ void MarumenIdle(void)
 
 void MarumenTurnInit(void)
 {
-    gCurrentSprite.pOamData = sMarumenTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -105,7 +105,7 @@ void MarumenTurn(void)
     }
 
     if (gCurrentSprite.pose == SPOSE_12) {
-        gCurrentSprite.pOamData = sMarumenTurningAroundOam;
+        GP_SET(gCurrentSprite.pOamData, sMarumenTurningAroundOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_14;
@@ -118,7 +118,7 @@ void MarumenTurn(void)
 
 void MarumenRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sMarumenRecoveringOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenRecoveringOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -128,7 +128,7 @@ void MarumenRecoverInit(void)
 
 void MarumenGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sMarumenGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -215,7 +215,7 @@ void MarumenFallingInit(void)
 {
     u8 zero8;
 
-    gCurrentSprite.pOamData = sMarumenFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     zero8 = 0;
     gCurrentSprite.animationTimer = 0;
@@ -228,7 +228,7 @@ void MarumenStunnedFallingInit(void)
 {
     u8 zero8;
 
-    gCurrentSprite.pOamData = sMarumenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     zero8 = 0;
     gCurrentSprite.animationTimer = 0;
@@ -242,7 +242,7 @@ void MarumenTackledInit(void)
     u32 globalId;
     u32 effect;
 
-    gCurrentSprite.pOamData = sMarumenDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -279,7 +279,7 @@ void MarumenDefeatedInit(void)
     u32 globalId;
     u32 effect;
 
-    gCurrentSprite.pOamData = sMarumenDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -311,7 +311,7 @@ void MarumenDefeatedLeftInit(void)
 
 void MarumenPushedInit(void)
 {
-    gCurrentSprite.pOamData = sMarumenPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -334,7 +334,7 @@ void MarumenPushedLeftInit(void)
 
 void MarumenPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sMarumenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -365,9 +365,9 @@ void MarumenCrushed(void)
         collision = current->warioCollision;
         sprite = current;
         if (collision == 5) {
-            sprite->pOamData = sMarumenCrushedOam;
+            GP_SET(sprite->pOamData, sMarumenCrushedOam);
         } else {
-            sprite->pOamData = sMarumenAlternateCrushedOam;
+            GP_SET(sprite->pOamData, sMarumenAlternateCrushedOam);
         }
     }
     {
@@ -440,7 +440,7 @@ void MarumenInstantlyKill(void)
 
 void MarumenStunnedInit(void)
 {
-    gCurrentSprite.pOamData = sMarumenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -465,7 +465,7 @@ void MarumenPose35Init(void)
 
 void MarumenStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sMarumenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -487,7 +487,7 @@ void MarumenPose49Init(void)
 
 void MarumenAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sMarumenAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;
@@ -579,7 +579,7 @@ void MarumenAirborne(void)
 
 void MarumenHeldInit(void)
 {
-    gCurrentSprite.pOamData = sMarumenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -599,7 +599,7 @@ void MarumenLiftedLeftInit(void)
 void MarumenCarriedInit(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sMarumenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMarumenStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }

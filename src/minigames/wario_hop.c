@@ -1005,7 +1005,7 @@ void WarioHopDrawSprites(void)
             }
         }
     }
-    src = sWarioHopMedalHighlightOam[gMinigameUiAnimation[1]].oam;
+    src = GP(sWarioHopMedalHighlightOam[gMinigameUiAnimation[1]].oam);
     total += *(src++);
     for (; i < total; i++) {
         attr = *(src++);
@@ -1030,7 +1030,7 @@ void WarioHopDrawSprites(void)
             gWarioHopPlayerShadow.animFrame = 0;
         }
     }
-    src = animation[gWarioHopPlayerShadow.animFrame].oam;
+    src = GP(animation[gWarioHopPlayerShadow.animFrame].oam);
     total += *(src++);
     for (; i < total; i++) {
         attr = *(src++);
@@ -1044,7 +1044,7 @@ void WarioHopDrawSprites(void)
         raw++;
     }
 
-    src = sWarioHopPlayerOam->oam;
+    src = GP(sWarioHopPlayerOam->oam);
     total += *(src++);
     for (; i < total; i++) {
         attr = *(src++);
@@ -1069,7 +1069,7 @@ void WarioHopDrawSprites(void)
                 gWarioHopRollingObject[4] = 0;
             }
         }
-        src = sWarioHopRollingObjectOam[gWarioHopRollingObject[4]].oam;
+        src = GP(sWarioHopRollingObjectOam[gWarioHopRollingObject[4]].oam);
         total += *(src++);
         for (; i < total; i++) {
             attr = *(src++);
@@ -1099,7 +1099,7 @@ void WarioHopDrawSprites(void)
             /* The statement expression adds one luid between the gWarioHopObstacles load and
                its use, so loop.c hoists that load out of the j loop on the first pass. The
                inner loop then keeps its own copy of the address (adds r0, r2, #0). */
-            src = animation[gWarioHopObstacles[({ j; })].animFrame].oam;
+            src = GP(animation[gWarioHopObstacles[({ j; })].animFrame].oam);
             total += *(src++);
             for (; i < total; i++) {
                 attr = *(src++);
@@ -1129,7 +1129,7 @@ void WarioHopDrawSprites(void)
             }
         }
         if (gWarioHopBonusEffect.type != 0) {
-            src = sWarioHopBonusEffectOam[gWarioHopBonusEffect.animFrame].oam;
+            src = GP(sWarioHopBonusEffectOam[gWarioHopBonusEffect.animFrame].oam);
             total += *(src++);
             for (; i < total; i++) {
                 attr = *(src++);
@@ -1157,7 +1157,7 @@ void WarioHopDrawSprites(void)
             }
         }
         if (gWarioHopMedalEffect.type != 0) {
-            src = sWarioHopMedalEffectOam[gWarioHopMedalEffect.animFrame].oam;
+            src = GP(sWarioHopMedalEffectOam[gWarioHopMedalEffect.animFrame].oam);
             total += *(src++);
             for (; i < total; i++) {
                 attr = *(src++);

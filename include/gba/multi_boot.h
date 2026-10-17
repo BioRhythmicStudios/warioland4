@@ -25,11 +25,11 @@ struct AGB_ALIGN MultiBootParam
     /* 0x1E */ u8 client_bit;                        // For slave distinguished as client,
                                                      // 4P-2P: d3-d1 is 1.
     /* 0x1F */ u8 reserved1;                         // Reserved
-    /* 0x20 */ const u8 *boot_srcp;                  // Boot program start (after header)
-    /* 0x24 */ const u8 *boot_endp;                  // Boot program end pointer
-    /* 0x28 */ const u8 *masterp;                    // Pointer to header referenced and output
+    /* 0x20 */ GBA_PTR(const u8 *) boot_srcp;                  // Boot program start (after header)
+    /* 0x24 */ GBA_PTR(const u8 *) boot_endp;                  // Boot program end pointer
+    /* 0x28 */ GBA_PTR(const u8 *) masterp;                    // Pointer to header referenced and output
                                                      // by master
-    /* 0x2C */ u8 *reserved2[MULTIBOOT_NCHILD];      // Reserved
+    /* 0x2C */ GBA_PTR(u8 *) reserved2[MULTIBOOT_NCHILD];      // Reserved
     /* 0x38 */ u32 system_work2[4];                  // Can be rewritten within system call.
     /* 0x48 */ u8 sendflag;                          // If SC7=1 and during send, not 0
     /* 0x49 */ u8 probe_target_bit;                  // If target recognized with client,

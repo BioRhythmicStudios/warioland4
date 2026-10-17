@@ -33,7 +33,7 @@ void InitMinicula(void)
     sprite->hitboxExtentDown = 136;
     sprite->hitboxExtentLeft = 16;
     sprite->hitboxExtentRight = 12;
-    sprite->pOamData = sMiniculaOam_83C4CD8;
+    GP_SET(sprite->pOamData, sMiniculaOam_83C4CD8);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zeroHalfword;
     sprite->pose = 16;

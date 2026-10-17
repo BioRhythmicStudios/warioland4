@@ -173,7 +173,7 @@ void InitToyBlockTriangle(void)
         const struct AnimationFrame* oam;
         oam = sToyBlockTriangleOam;
         temp = sprite;
-        temp->pOamData = oam;
+        GP_SET(temp->pOamData, oam);
     }
     temp->currentAnimationFrame = zero;
     temp->animationTimer = zero16;
@@ -354,7 +354,7 @@ void InitToyBlockTriangleLock(void)
         const struct AnimationFrame* oam;
         oam = sToyBlockTriangleOam;
         ptr = (u8*)sprite;
-        ((struct PrimarySpriteData*)ptr)->pOamData = oam;
+        GP_SET(((struct PrimarySpriteData*)ptr)->pOamData, oam);
     }
     ptr[22] = zero;
     *(u16*)(ptr + 20) = zero16;
@@ -549,7 +549,7 @@ void InitClosedToyBlockTriangleDoor(void)
 {
     gCurrentSprite.pose = 16;
     gCurrentSprite.work0 = 30;
-    gCurrentSprite.pOamData = sToyBlockTriangleDoorClosedOam;
+    GP_SET(gCurrentSprite.pOamData, sToyBlockTriangleDoorClosedOam);
     InitToyBlockTriangleDoor();
 }
 
@@ -557,7 +557,7 @@ void InitOpenToyBlockTriangleDoor(void)
 {
     gCurrentSprite.pose = 24;
     gCurrentSprite.work0 = 180;
-    gCurrentSprite.pOamData = sToyBlockTriangleDoorOpenOam;
+    GP_SET(gCurrentSprite.pOamData, sToyBlockTriangleDoorOpenOam);
     InitToyBlockTriangleDoor();
 }
 
@@ -569,7 +569,7 @@ void ToyBlockTriangleDoorWaitToOpen(void)
     if (value == 0)
     {
         gCurrentSprite.pose = 18;
-        gCurrentSprite.pOamData = sToyBlockTriangleDoorOpeningOam;
+        GP_SET(gCurrentSprite.pOamData, sToyBlockTriangleDoorOpeningOam);
         gCurrentSprite.currentAnimationFrame = value;
         gCurrentSprite.animationTimer = value;
         gCurrentSprite.work0 = 29;
@@ -591,7 +591,7 @@ void ToyBlockTriangleDoorOpen(void)
     truncated = (u8)value;
     if (truncated == 0)
     {
-        sprite->pOamData = sToyBlockTriangleDoorOpenOam;
+        GP_SET(sprite->pOamData, sToyBlockTriangleDoorOpenOam);
         sprite->currentAnimationFrame = truncated;
         sprite->animationTimer = truncated;
         *timerPtr = 180;
@@ -612,7 +612,7 @@ void ToyBlockTriangleDoorStartOpenIdleAnimation(void)
     if (value == 0)
     {
         gCurrentSprite.pose = 20;
-        gCurrentSprite.pOamData = sToyBlockTriangleDoorOpenIdleAnimationOam;
+        GP_SET(gCurrentSprite.pOamData, sToyBlockTriangleDoorOpenIdleAnimationOam);
         gCurrentSprite.currentAnimationFrame = value;
         gCurrentSprite.animationTimer = value;
         gCurrentSprite.work0 = 14;
@@ -626,7 +626,7 @@ void ToyBlockTriangleDoorFinishOpenIdleAnimation(void)
     value = --gCurrentSprite.work0;
     if (value == 0)
     {
-        gCurrentSprite.pOamData = sToyBlockTriangleDoorOpenOam;
+        GP_SET(gCurrentSprite.pOamData, sToyBlockTriangleDoorOpenOam);
         gCurrentSprite.currentAnimationFrame = value;
         gCurrentSprite.animationTimer = value;
         gCurrentSprite.work0 = 180;

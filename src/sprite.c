@@ -218,10 +218,10 @@ void AdvanceCurrentSpriteAnimation(void)
 
     sprite = &gCurrentSprite;
     sprite->currentAnimationFrame++;
-    if (sprite->pOamData[sprite->animationTimer].time < sprite->currentAnimationFrame) {
+    if (GP(sprite->pOamData)[sprite->animationTimer].time < sprite->currentAnimationFrame) {
         sprite->currentAnimationFrame = 1;
         sprite->animationTimer++;
-        if (sprite->pOamData[sprite->animationTimer].time == 0) {
+        if (GP(sprite->pOamData)[sprite->animationTimer].time == 0) {
             sprite->animationTimer = 0;
         }
     }
@@ -256,7 +256,7 @@ firstLoop:
     if (temp0 == 3) {
         *currentSprite = *sprite;
         temp0 = currentSprite->animationTimer;
-        temp1 = (u32)currentSprite->pOamData;
+        temp1 = (u32)GP(currentSprite->pOamData);
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
@@ -290,7 +290,7 @@ secondLoop:
     if (temp0 == 11) {
         *currentSprite = *sprite;
         temp0 = currentSprite->animationTimer;
-        temp1 = (u32)currentSprite->pOamData;
+        temp1 = (u32)GP(currentSprite->pOamData);
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
@@ -327,7 +327,7 @@ thirdLoop:
     if (temp0 == 3) {
         *currentSprite = *sprite;
         temp0 = currentSprite->animationTimer;
-        temp1 = (u32)currentSprite->pOamData;
+        temp1 = (u32)GP(currentSprite->pOamData);
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
@@ -361,7 +361,7 @@ fourthLoop:
     if ((temp0 == 11) && (sprite->globalID != 14)) {
         *currentSprite = *sprite;
         temp0 = currentSprite->animationTimer;
-        temp1 = (u32)currentSprite->pOamData;
+        temp1 = (u32)GP(currentSprite->pOamData);
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
@@ -395,7 +395,7 @@ fifthLoop:
     if ((temp0 == 11) && (sprite->globalID == 14)) {
         *currentSprite = *sprite;
         temp0 = currentSprite->animationTimer;
-        temp1 = (u32)currentSprite->pOamData;
+        temp1 = (u32)GP(currentSprite->pOamData);
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
@@ -1060,7 +1060,7 @@ void LoadRoomSpriteData(void)
         count--;
     } while (count >= 0);
 
-    value = *(u8*)roomHeader->pHardSpriteData;
+    value = *(u8*)GP(roomHeader->pHardSpriteData);
     if (value != 0xFF) {
         struct RoomHeader* header;
         s32 sourceOffset;
@@ -1076,16 +1076,16 @@ void LoadRoomSpriteData(void)
             destination[0] = value;
             pointer = (u8*)sourceOffset;
             pointer += (u32)middleBase;
-            value = *((u8*)((u32)sourceOffset + (u32)header->pHardSpriteData) + 1);
+            value = *((u8*)((u32)sourceOffset + (u32)GP(header->pHardSpriteData)) + 1);
             *pointer = value;
-            value = *((u8*)((u32)sourceOffset + (u32)header->pHardSpriteData) + 2);
+            value = *((u8*)((u32)sourceOffset + (u32)GP(header->pHardSpriteData)) + 2);
             destination[2] = value;
             sourceOffset += 3;
             destination += 3;
             if ((s32)destination > (s32)end) {
                 break;
             }
-            value = *((u8*)((u32)sourceOffset + (u32)header->pHardSpriteData));
+            value = *((u8*)((u32)sourceOffset + (u32)GP(header->pHardSpriteData)));
         } while (value != 0xFF);
     }
 }

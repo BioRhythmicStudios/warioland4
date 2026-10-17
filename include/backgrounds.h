@@ -4,9 +4,9 @@
 #include "types.h"
 
 struct AGB_ALIGN BgTileLookupPointers {
-    u8* bg0;
-    u8* bg1;
-    u8* bg2;
+    GBA_PTR(u8*) bg0;
+    GBA_PTR(u8*) bg1;
+    GBA_PTR(u8*) bg2;
 };
 
 void BackgroundProcessMain();

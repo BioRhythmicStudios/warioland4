@@ -712,14 +712,14 @@ void LoadFlamingWarioGraphics(int variant)
     UpdateWarioPositionHistory();
     frame = sFlamingWarioGraphicsTable[gWarioData.pose][graphicsVariant];
     frame += gWarioData.unk_1F;
-    gfx = frame->gfx;
+    gfx = GP(frame->gfx);
     gWarioData.objData1Size = gfx[0] << 5;
     gfx++;
     gWarioData.objData2Size = gfx[0] << 5;
     gfx++;
-    gWarioData.pObjData1 = (u8 *)gfx;
-    gWarioData.pObjData2 = (u8 *)gfx + gWarioData.objData1Size;
-    gWarioData.pOamData = frame->oam;
+    GP_SET(gWarioData.pObjData1, (u8 *)gfx);
+    GP_SET(gWarioData.pObjData2, (u8 *)gfx + gWarioData.objData1Size);
+    GP_SET(gWarioData.pOamData, GP(frame->oam));
     gWarioPaletteSize = 0x40;
 
     switch (gWarioData.pose) {

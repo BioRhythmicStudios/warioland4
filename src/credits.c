@@ -644,7 +644,7 @@ void RenderCreditsOam(void)
         frameOffset <<= 3;
         animation = (const struct AnimationFrame*)(frameOffset + (u32)animation);
     }
-    src = animation->oam;
+    src = GP(animation->oam);
     nextSlot += *(src++);
     currentSlot = 0;
     secondState = &gCreditsDifficultyLabelSpriteState.sprite;
@@ -737,7 +737,7 @@ void RenderCreditsOam(void)
         frameOffset = state->frame;
         frameOffset <<= 3;
         animation = (const struct AnimationFrame*)((u32)animation + frameOffset);
-        src = animation->oam;
+        src = GP(animation->oam);
         nextSlot += *(src++);
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);
@@ -806,7 +806,7 @@ void RenderCreditsOam(void)
                 outputFrame <<= 3;
                 animation = (const struct AnimationFrame*)(outputFrame + (u32)tableCopy);
             }
-            src = animation->oam;
+            src = GP(animation->oam);
             {
                 register u32 objectCount PIN("r0");
                 register s32 updatedNextSlot PIN("r1");
@@ -928,7 +928,7 @@ void RenderCreditsOam(void)
                 outputFrame <<= 3;
                 animation = (const struct AnimationFrame*)(outputFrame + (u32)tableCopy);
             }
-            src = animation->oam;
+            src = GP(animation->oam);
             nextSlot += *(src++);
             for (; currentSlot < nextSlot; currentSlot++) {
                 attr = *(src++);
@@ -1028,7 +1028,7 @@ void RenderCreditsOam(void)
         animation = (const struct AnimationFrame*)((u32)animation + outputFrame);
     }
     anchor = &gCreditsAnchorSpriteState.sprite;
-    src = animation->oam;
+    src = GP(animation->oam);
     nextSlot += *(src++);
     for (; currentSlot < nextSlot; currentSlot++) {
         attr = *(src++);
@@ -1062,7 +1062,7 @@ void RenderCreditsOam(void)
                 xState = &gCreditsAnchorSpriteState.sprite;
                 xOffset = xState->x - 36;
             }
-            src = animation->oam;
+            src = GP(animation->oam);
             {
                 s32 easyNextSlot;
                 u32 objectCount;
@@ -1104,7 +1104,7 @@ void RenderCreditsOam(void)
                 xState = &gCreditsAnchorSpriteState.sprite;
                 xOffset = xState->x - 47;
             }
-            src = animation->oam;
+            src = GP(animation->oam);
             nextSlot += *(src++);
             for (; currentSlot < nextSlot; currentSlot++) {
                 attr = *(src++);
@@ -1129,7 +1129,7 @@ void RenderCreditsOam(void)
             ASM_BARRIER(: "+r"(affineFrameOffset), "+r"(animation));
             animation = (const struct AnimationFrame*)(affineFrameOffset + (u32)sCreditsNormalAnchorAffineAnimation);
         }
-        src = animation->oam;
+        src = GP(animation->oam);
         nextSlot += *(src++);
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);
@@ -1254,7 +1254,7 @@ void RenderCreditsOam(void)
                 xState = &gCreditsAnchorSpriteState.sprite;
                 xOffset = xState->x - treasureState->xOffset;
             }
-            src = animation->oam;
+            src = GP(animation->oam);
             nextSlot += *(src++);
             pbPtr = &affine[1];
             pcPtr = &affine[2];
@@ -1330,7 +1330,7 @@ void RenderCreditsOam(void)
         }
         yOffset = gCreditsTreasureDrop.y;
         animation = sCreditsTreasureDropAnimation;
-        src = animation->oam;
+        src = GP(animation->oam);
         nextSlot += *(src++);
         pbPtr = &affine[1];
         pcPtr = &affine[2];
@@ -1409,7 +1409,7 @@ void RenderCreditsOam(void)
         xOffset = scrollXState->x;
         scrollFrameState = &gCreditsAnchorSpriteState.sprite;
         animation = &animation[scrollFrameState->frame];
-        src = animation->oam;
+        src = GP(animation->oam);
     }
     nextSlot += *(src++);
     secondState = &gCreditsForegroundLayerSpriteState.sprite;
@@ -1458,7 +1458,7 @@ void RenderCreditsOam(void)
     {
         register const struct AnimationFrame* stripAnimation PIN("r1");
         stripAnimation = sCreditsForegroundStripAnimation;
-        src = stripAnimation->oam;
+        src = GP(stripAnimation->oam);
     }
     {
         u32 stripObjectCount;
@@ -1485,7 +1485,7 @@ void RenderCreditsOam(void)
 
     xOffset = gCreditsMiddleLayerSpriteState.sprite.x;
     yOffset = gCreditsMiddleLayerSpriteState.sprite.y;
-    src = sCreditsMiddleStripAnimation[0].oam;
+    src = GP(sCreditsMiddleStripAnimation[0].oam);
     nextSlot += *(src++);
     for (; currentSlot < nextSlot; currentSlot++) {
         attr = *(src++);
@@ -1501,7 +1501,7 @@ void RenderCreditsOam(void)
 
     xOffset = gCreditsBackgroundLayerSpriteState.sprite.x;
     yOffset = gCreditsBackgroundLayerSpriteState.sprite.y;
-    src = sCreditsBackgroundStripAnimation[0].oam;
+    src = GP(sCreditsBackgroundStripAnimation[0].oam);
     nextSlot += *(src++);
     for (; currentSlot < nextSlot; currentSlot++) {
         attr = *(src++);
@@ -1537,7 +1537,7 @@ void RenderCreditsOam(void)
         finalFrameOffset <<= 3;
         animation = (const struct AnimationFrame*)(((u32)sCreditsClosingAnimation) + finalFrameOffset);
     }
-    src = animation->oam;
+    src = GP(animation->oam);
     nextSlot += *(src++);
     for (; currentSlot < nextSlot; currentSlot++) {
         attr = *(src++);

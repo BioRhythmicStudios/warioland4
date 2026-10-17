@@ -17,7 +17,7 @@ void InitRingosuki(void)
     gCurrentSprite.hitboxExtentDown = 0;
     gCurrentSprite.hitboxExtentLeft = 44;
     gCurrentSprite.hitboxExtentRight = 40;
-    gCurrentSprite.pOamData = sRingosukiIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -27,7 +27,7 @@ void InitRingosuki(void)
 
 void StartRingosukiIdle(void)
 {
-    gCurrentSprite.pOamData = sRingosukiIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -154,7 +154,7 @@ move:
 
 void StartRingosukiTurn(void)
 {
-    gCurrentSprite.pOamData = sRingosukiTurnStartOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiTurnStartOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 18;
@@ -174,7 +174,7 @@ void RingosukiTurn(void)
         if (gCurrentSprite.pose == 18)
         {
             gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
-            gCurrentSprite.pOamData = sRingosukiTurnEndOam;
+            GP_SET(gCurrentSprite.pOamData, sRingosukiTurnEndOam);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
             gCurrentSprite.pose = 20;
@@ -189,7 +189,7 @@ void RingosukiTurn(void)
 
 void SetupRingosukiFallingKnockback(void)
 {
-    gCurrentSprite.pOamData = sRingosukiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -213,7 +213,7 @@ void StartRingosukiFallingLeft(void)
 
 void StartRingosukiThrowApple(void)
 {
-    gCurrentSprite.pOamData = sRingosukiThrowAppleOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiThrowAppleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 111;
@@ -269,7 +269,7 @@ void RingosukiThrowApple(void)
 
 void StartRingosukiTurnHop(void)
 {
-    gCurrentSprite.pOamData = sRingosukiTurnHopOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiTurnHopOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 113;
@@ -306,7 +306,7 @@ void RingosukiTurnHop(void)
 
 void StartRingosukiEatApple(void)
 {
-    gCurrentSprite.pOamData = sRingosukiEatAppleOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiEatAppleOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 115;
@@ -325,7 +325,7 @@ void RingosukiEatApple(void)
 
 void StartRingosukiStunned(void)
 {
-    gCurrentSprite.pOamData = sRingosukiStunnedStartOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiStunnedStartOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 24;
@@ -334,7 +334,7 @@ void StartRingosukiStunned(void)
 
 void StartRingosukiRecover(void)
 {
-    gCurrentSprite.pOamData = sRingosukiRecoverOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiRecoverOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 26;
@@ -394,7 +394,7 @@ void RingosukiRecover(void)
 
 void StartRingosukiFall(void)
 {
-    gCurrentSprite.pOamData = sRingosukiFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 28;
@@ -403,7 +403,7 @@ void StartRingosukiFall(void)
 
 void StartRingosukiLand(void)
 {
-    gCurrentSprite.pOamData = sRingosukiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 30;
@@ -413,7 +413,7 @@ void StartRingosukiLand(void)
 
 void SetupRingosukiFallOffscreen(void)
 {
-    gCurrentSprite.pOamData = sRingosukiFallOffscreenOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiFallOffscreenOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -439,7 +439,7 @@ void StartRingosukiFallOffscreenLeft(void)
 
 void SetupRingosukiKnockbackFall(void)
 {
-    gCurrentSprite.pOamData = sRingosukiFallOffscreenOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiFallOffscreenOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -463,7 +463,7 @@ void StartRingosukiKnockbackFallLeft(void)
 
 void SetupRingosukiPushed(void)
 {
-    gCurrentSprite.pOamData = sRingosukiPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -485,7 +485,7 @@ void StartRingosukiPushedLeft(void)
 
 void SetupRingosukiTumble(void)
 {
-    gCurrentSprite.pOamData = sRingosukiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -515,11 +515,11 @@ void StartRingosukiDefeat(void)
     sprite = (struct PrimarySpriteData *)workPointer;
     if (collision == 5)
     {
-        sprite->pOamData = sRingosukiDefeatedHardOam;
+        GP_SET(sprite->pOamData, sRingosukiDefeatedHardOam);
     }
     else
     {
-        sprite->pOamData = sRingosukiDefeatedOam;
+        GP_SET(sprite->pOamData, sRingosukiDefeatedOam);
         workPointer = (u8 *)sprite;
     }
     workPointer += 39;
@@ -538,7 +538,7 @@ void DefeatRingosuki(void)
 
 void SetupRingosukiBounce(void)
 {
-    gCurrentSprite.pOamData = sRingosukiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 6;
@@ -560,7 +560,7 @@ void StartRingosukiBounceLeft(void)
 
 void StartRingosukiThrown(void)
 {
-    gCurrentSprite.pOamData = sRingosukiPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiPushedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 76;
@@ -630,7 +630,7 @@ end:
 
 void SetupRingosukiLifted(void)
 {
-    gCurrentSprite.pOamData = sRingosukiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -650,7 +650,7 @@ void StartRingosukiLiftedLeft(void)
 void SetupRingosukiCarried(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sRingosukiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -680,7 +680,7 @@ void InitRingosukiApple(void)
     gCurrentSprite.hitboxExtentDown = 0;
     gCurrentSprite.hitboxExtentLeft = 24;
     gCurrentSprite.hitboxExtentRight = 20;
-    gCurrentSprite.pOamData = sRingosukiAppleOam;
+    GP_SET(gCurrentSprite.pOamData, sRingosukiAppleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     collisionType = 15;

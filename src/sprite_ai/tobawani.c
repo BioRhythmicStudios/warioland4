@@ -36,7 +36,7 @@ void InitTobawani(void)
 
 void TobawaniSetPatrol(void)
 {
-    gCurrentSprite.pOamData = sTobawaniPatrolOam;
+    GP_SET(gCurrentSprite.pOamData, sTobawaniPatrolOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work3 = 0;
@@ -112,7 +112,7 @@ updatePosition:
 
 void TobawaniSetTurnAround(void)
 {
-    gCurrentSprite.pOamData = sTobawaniTurnOam;
+    GP_SET(gCurrentSprite.pOamData, sTobawaniTurnOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 5;
@@ -140,7 +140,7 @@ void TobawaniTurnAround(void)
             temp ^= SPRITE_STATUS_FACING_RIGHT;
             zero = 0;
             sprite->status = temp;
-            sprite->pOamData = sTobawaniTurnOam;
+            GP_SET(sprite->pOamData, sTobawaniTurnOam);
             sprite->currentAnimationFrame = zero;
             sprite->animationTimer = remaining;
             temp = 20;
@@ -158,7 +158,7 @@ void TobawaniTurnAround(void)
 
 void TobawaniSetCharge(void)
 {
-    gCurrentSprite.pOamData = sTobawaniChargeOam;
+    GP_SET(gCurrentSprite.pOamData, sTobawaniChargeOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 54;
@@ -201,7 +201,7 @@ updatePosition:
 
 void TobawaniSetKnockback(void)
 {
-    gCurrentSprite.pOamData = sTobawaniKnockbackOam;
+    GP_SET(gCurrentSprite.pOamData, sTobawaniKnockbackOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work3 = 0;
@@ -248,7 +248,7 @@ void TobawaniKnockback(void)
 
 void TobawaniSetFall(void)
 {
-    gCurrentSprite.pOamData = sTobawaniFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sTobawaniFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work3 = 0;
@@ -301,7 +301,7 @@ void TobawaniFall(void)
 
 void TobawaniSetRecovery(void)
 {
-    gCurrentSprite.pOamData = sTobawaniRecoveryOam;
+    GP_SET(gCurrentSprite.pOamData, sTobawaniRecoveryOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 80;
@@ -310,7 +310,7 @@ void TobawaniSetRecovery(void)
 
 void TobawaniPrepareFallOffscreen(void)
 {
-    gCurrentSprite.pOamData = sTobawaniDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sTobawaniDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -338,7 +338,7 @@ void TobawaniStartFallOffscreenLeft(void)
 
 void TobawaniSetWallFall(void)
 {
-    gCurrentSprite.pOamData = sTobawaniFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sTobawaniFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work3 = 0;

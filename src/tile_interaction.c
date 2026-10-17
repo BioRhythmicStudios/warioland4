@@ -89,12 +89,12 @@ u32 ProcessHorizontalTileInteraction(u32 y, u32 x)
         }
         COMPILER_BARRIER(xTile);
         address += xTile;
-        xTile = (u32)background->pBg1Data;
+        xTile = (u32)GP(background->pBg1Data);
         address <<= 1;
         address += xTile;
         address = *(u16*)address;
         state = &ctx;
-        attributes = gBackgroundTileTables.attributes;
+        attributes = GP(gBackgroundTileTables.attributes);
         address <<= 1;
         address += (u32)attributes;
         state->attribute = *(u16*)address;
@@ -192,7 +192,7 @@ u32 ProcessPointTileInteraction(u32 y, u32 x)
             xTile = state->xTile;
         }
         address += xTile;
-        xTile = (u32)background->pBg1Data;
+        xTile = (u32)GP(background->pBg1Data);
         address <<= 1;
         address += xTile;
         {
@@ -204,7 +204,7 @@ u32 ProcessPointTileInteraction(u32 y, u32 x)
             tile = *(u16*)address;
             state = &ctx;
             tables = &gBackgroundTileTables;
-            attributes = tables->attributes;
+            attributes = GP(tables->attributes);
             address = tile << 1;
             address += (u32)attributes;
             state->attribute = *(u16*)address;
@@ -262,7 +262,7 @@ u32 ProcessSideTileInteraction(u32 y, u32 x)
             xTile = state->xTile;
         }
         address += xTile;
-        xTile = (u32)background->pBg1Data;
+        xTile = (u32)GP(background->pBg1Data);
         address <<= 1;
         address += xTile;
         {
@@ -274,7 +274,7 @@ u32 ProcessSideTileInteraction(u32 y, u32 x)
             tile = *(u16*)address;
             state = &ctx;
             tables = &gBackgroundTileTables;
-            attributes = tables->attributes;
+            attributes = GP(tables->attributes);
             address = tile << 1;
             address += (u32)attributes;
             state->attribute = *(u16*)address;
@@ -679,7 +679,7 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext* ctx)
         base = 0x02039F80;
         value += base;
         *(u16*)value = replacement;
-        base = (u32)background->pBg1Data;
+        base = (u32)GP(background->pBg1Data);
         value = replacement << 1;
         value += base;
         replacement = *(u16*)value;
@@ -867,11 +867,11 @@ sample: {
     address *= width;
     width = state->xTile;
     address += width;
-    width = (u32)background->pBg1Data;
+    width = (u32)GP(background->pBg1Data);
     address <<= 1;
     address += width;
     address = *(u16*)address;
-    width = (u32)tables->attributes;
+    width = (u32)GP(tables->attributes);
     address <<= 1;
     address += width;
     address = *(u16*)address;
@@ -943,11 +943,11 @@ sample: {
     address *= width;
     width = state->xTile;
     address += width;
-    width = (u32)background->pBg1Data;
+    width = (u32)GP(background->pBg1Data);
     address <<= 1;
     address += width;
     address = *(u16*)address;
-    width = (u32)tables->attributes;
+    width = (u32)GP(tables->attributes);
     address <<= 1;
     address += width;
     address = *(u16*)address;
@@ -1083,7 +1083,7 @@ s32 ProcessSpecialBossTile(struct TileInteractionContext* ctx)
         result = state->xTile;
         value += result;
         value <<= 16;
-        result = (u32)background->pBg1Data;
+        result = (u32)GP(background->pBg1Data);
         value >>= 15;
         value += result;
         value = *(u16*)value;
@@ -1138,7 +1138,7 @@ s32 ProcessTileInteractionAtPosition(u32 y, u32 x, u32 tile)
         struct TileInteractionContext* state;
         const u16* attributes;
         state = &ctx;
-        attributes = gBackgroundTileTables.attributes;
+        attributes = GP(gBackgroundTileTables.attributes);
         tileInput <<= 1;
         tileInput += (u32)attributes;
         state->attribute = *(const u16*)tileInput;
@@ -1387,7 +1387,7 @@ void ReplaceTileEffectPair(u8 index)
         product = background->bg2Width;
         product *= y;
         work = product + x;
-        map = (const u16*)background->pBg2Data;
+        map = (const u16*)GP(background->pBg2Data);
         product = work << 1;
         product += (u32)map;
         work = *(const u16*)product;
@@ -1400,7 +1400,7 @@ void ReplaceTileEffectPair(u8 index)
         product *= y;
         product += x;
         work = product - 1;
-        map = (const u16*)background->pBg2Data;
+        map = (const u16*)GP(background->pBg2Data);
         product = work << 1;
         product += (u32)map;
         work = *(const u16*)product;
@@ -1736,9 +1736,9 @@ void ProcessTileAtPosition(u32 y, u32 x)
     work = initialBackground->bg1Width;
     work *= yReg;
     work += xReg;
-    tile = initialBackground->pBg1Data[work];
+    tile = GP(initialBackground->pBg1Data)[work];
     tables = &gBackgroundTileTables;
-    attribute = tables->attributes[tile];
+    attribute = GP(tables->attributes)[tile];
     slots.attribute = attribute;
     background = initialBackground;
 
@@ -1837,9 +1837,9 @@ void ProcessTileAtPosition(u32 y, u32 x)
             register u32 mapTile PIN("r4");
             register const u16* attributes PIN("r1");
             register u32 address PIN("r0");
-            map = background->pBg0Data;
+            map = GP(background->pBg0Data);
             mapTile = map[work];
-            attributes = tables->attributes;
+            attributes = GP(tables->attributes);
             address = mapTile << 1;
             address += (u32)attributes;
             work = *(u16*)address;
@@ -1857,9 +1857,9 @@ void ProcessTileAtPosition(u32 y, u32 x)
         register u32 mapTile PIN("r4");
         register const u16* attributes PIN("r1");
         register u32 address PIN("r0");
-        map = background->pBg2Data;
+        map = GP(background->pBg2Data);
         mapTile = map[work];
-        attributes = tables->attributes;
+        attributes = GP(tables->attributes);
         address = mapTile << 1;
         address += (u32)attributes;
         work = *(u16*)address;
@@ -2006,8 +2006,8 @@ void ProcessAlternateTileAtPosition(u32 y, u32 x)
 
     yTile = (u16)y;
     xTile = (u16)x;
-    attribute = ((u16*)gBackgroundInfo.pBg1Data)[yTile * gBackgroundInfo.bg1Width + xTile];
-    attributes = gBackgroundTileTables.attributes;
+    attribute = ((u16*)GP(gBackgroundInfo.pBg1Data))[yTile * gBackgroundInfo.bg1Width + xTile];
+    attributes = GP(gBackgroundTileTables.attributes);
     attribute = attributes[attribute];
     if (gWarioData.reaction == 2 && (u8)(gWarioData.pose - 7) <= 1) {
         struct TileInteractionContext* state;
@@ -2071,7 +2071,7 @@ void UpdateWarioEnvironmentalTiles(void)
         u32 bg1Map;
         u32 bg2Row;
         u32 bg2Map;
-        u32* bg2AttributesPtr;
+        GBA_PTR(u32*) bg2AttributesPtr;
         u32 stackPadding;
     } frame;
     s32 yTile;
@@ -2101,7 +2101,7 @@ void UpdateWarioEnvironmentalTiles(void)
         bg2Ptr = (u32*)&frame;
         ASM_BARRIER_VOLATILE(: "+r"(bg2Ptr) : : "memory");
         bg2Ptr += 4;
-        frame.bg2AttributesPtr = bg2Ptr;
+        GP_SET(frame.bg2AttributesPtr, bg2Ptr);
     }
     {
         register u32 row PIN("r2");
@@ -2109,7 +2109,7 @@ void UpdateWarioEnvironmentalTiles(void)
         row *= background->bg1Width;
         frame.bg1Row = row;
     }
-    attributes = gBackgroundTileTables.attributes;
+    attributes = GP(gBackgroundTileTables.attributes);
     {
         register u32 row PIN("r1");
         row = yTile;
@@ -2118,11 +2118,11 @@ void UpdateWarioEnvironmentalTiles(void)
     }
     {
         register u32 map PIN("r2");
-        map = (u32)background->pBg2Data;
+        map = (u32)GP(background->pBg2Data);
         frame.bg2Map = map;
     }
     outputCursor = frame.bg0Attributes;
-    frame.bg1Map = (u32)background->pBg1Data;
+    frame.bg1Map = (u32)GP(background->pBg1Data);
     roomParam = gCurrentRoomHeader.bg0Param;
 
     do {
@@ -2162,7 +2162,7 @@ void UpdateWarioEnvironmentalTiles(void)
         value = *(volatile u16*)value;
         {
             register u32* out PIN("r2");
-            register u32* base PIN("r1") = frame.bg2AttributesPtr;
+            register u32* base PIN("r1") = GP(frame.bg2AttributesPtr);
             out = base + i;
             value <<= 1;
             value += (u32)attributes;
@@ -2173,7 +2173,7 @@ void UpdateWarioEnvironmentalTiles(void)
             value = yTile * background->bg0Width;
             value += *xEntry;
             COMPILER_BARRIER_MEMORY(value);
-            value = background->pBg0Data[value];
+            value = GP(background->pBg0Data)[value];
             value = attributes[value];
         } else {
             value = 0;
@@ -2303,7 +2303,7 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
         COMPILER_BARRIER(index);
         index = xReg + index;
         index <<= 16;
-        mapEntry = background->pBg1Data;
+        mapEntry = GP(background->pBg1Data);
         index >>= 15;
         mapEntry = (u16*)(index + (u32)mapEntry);
         *mapEntry = tileReg;
@@ -2379,7 +2379,7 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x)
                     work = 1;
                     tileIndex |= work;
                     nextIndex = tileIndex;
-                    tiles = tables->top;
+                    tiles = GP(tables->top);
 
                     mask <<= 1;
                     mask += (u32)tiles;
@@ -2448,7 +2448,7 @@ void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x)
         mapWork = xReg + mapWork;
         mapWork <<= 16;
         backgroundReg = (struct BackgroundInfo*)backgroundReg;
-        backgroundReg = (struct BackgroundInfo*)backgroundReg->pBg1Data;
+        backgroundReg = (struct BackgroundInfo*)GP(backgroundReg->pBg1Data);
         mapWork >>= 15;
         mapWork += (u32)backgroundReg;
         *(u16*)mapWork = tileReg;

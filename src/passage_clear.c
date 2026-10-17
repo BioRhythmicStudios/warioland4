@@ -473,7 +473,7 @@ void RenderPassageClearOam(void)
             }
         }
         if (gPassageClearMainAnimationState.state == 2) {
-            src = sPassageClearMainAnimation[gPassageClearMainAnimationState.frame].oam;
+            src = GP(sPassageClearMainAnimation[gPassageClearMainAnimationState.frame].oam);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;
@@ -505,7 +505,7 @@ void RenderPassageClearOam(void)
         }
         if (gPassageClearBonusAnimationActive != 0) {
             for (i = 0; i < 6; i++) {
-                src = sPassageClearBonusItemAnimation[gPassageClearBonusAnimationFrame].oam;
+                src = GP(sPassageClearBonusItemAnimation[gPassageClearBonusAnimationFrame].oam);
                 nextSlot += *(src++);
                 if (nextSlot > 128) {
                     return;
@@ -559,7 +559,7 @@ void RenderPassageClearOam(void)
             }
         }
         if (secondaryState->state != 0) {
-            src = sPassageClearSecondaryAltAnimation[secondaryState->frame].oam;
+            src = GP(sPassageClearSecondaryAltAnimation[secondaryState->frame].oam);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;
@@ -591,7 +591,7 @@ void RenderPassageClearOam(void)
             }
         }
         if (gPassageClearMainAnimationState.state == 1) {
-            src = sPassageClearSecondaryAnimation[gPassageClearMainAnimationState.frame].oam;
+            src = GP(sPassageClearSecondaryAnimation[gPassageClearMainAnimationState.frame].oam);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;

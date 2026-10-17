@@ -1147,7 +1147,7 @@ void DrawBossTreasureCutsceneSprites(void)
                         }
                     }
                 }
-                src = sBossTreasureParticleAnimation[gBossTreasureParticles[i][particleIndex].animationFrame].oam;
+                src = GP(sBossTreasureParticleAnimation[gBossTreasureParticles[i][particleIndex].animationFrame].oam);
                 nextSlot += *(src++);
                 if (nextSlot > 128) {
                     return;

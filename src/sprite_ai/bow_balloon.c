@@ -16,7 +16,7 @@ void BowBalloonInit(void)
     gCurrentSprite.hitboxExtentDown = 0;
     gCurrentSprite.hitboxExtentLeft = 40;
     gCurrentSprite.hitboxExtentRight = 36;
-    gCurrentSprite.pOamData = sBowBalloonIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -25,7 +25,7 @@ void BowBalloonInit(void)
 
 void BowBalloonIdleInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -106,7 +106,7 @@ void BowBalloonIdle(void)
 
 void BowBalloonTurnInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -129,13 +129,13 @@ void BowBalloonTurn(void)
 
     if (gCurrentSprite.pose == SPOSE_12) {
         gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
-        gCurrentSprite.pOamData = sBowBalloonTurningAroundOam;
+        GP_SET(gCurrentSprite.pOamData, sBowBalloonTurningAroundOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_14;
         gCurrentSprite.work0 = 24;
     } else {
-        gCurrentSprite.pOamData = sBowBalloonIdleOam;
+        GP_SET(gCurrentSprite.pOamData, sBowBalloonIdleOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_IDLE;
@@ -144,7 +144,7 @@ void BowBalloonTurn(void)
 
 void BowBalloonStunnedInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -169,7 +169,7 @@ void BowBalloonPose35Init(void)
 
 void BowBalloonAttackInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonAttackingOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonAttackingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_6F;
@@ -214,7 +214,7 @@ void BowBalloonAttack(void)
 
 void BowBalloonRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonRecoveringOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonRecoveringOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -223,7 +223,7 @@ void BowBalloonRecoverInit(void)
 
 void BowBalloonGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -308,7 +308,7 @@ void BowBalloonGetUp(void)
 
 void BowBalloonFallingInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -319,7 +319,7 @@ void BowBalloonStunnedFallingInit(void)
 {
     u8 zero8;
 
-    gCurrentSprite.pOamData = sBowBalloonStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     zero8 = 0;
     gCurrentSprite.animationTimer = 0;
@@ -330,7 +330,7 @@ void BowBalloonStunnedFallingInit(void)
 
 void BowBalloonTackledInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -356,7 +356,7 @@ void BowBalloonTackledLeftInit(void)
 
 void BowBalloonDefeatedInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -380,7 +380,7 @@ void BowBalloonDefeatedLeftInit(void)
 
 void BowBalloonPushedInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -402,7 +402,7 @@ void BowBalloonPushedLeftInit(void)
 
 void BowBalloonPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -424,10 +424,10 @@ void BowBalloonPose2DInit(void)
 void BowBalloonCrushed(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sBowBalloonCrushedWhileStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sBowBalloonCrushedWhileStunnedOam);
         gCurrentSprite.work0 = 8;
     } else {
-        gCurrentSprite.pOamData = sBowBalloonCrushedOam;
+        GP_SET(gCurrentSprite.pOamData, sBowBalloonCrushedOam);
         gCurrentSprite.work0 = 10;
     }
     gCurrentSprite.currentAnimationFrame = 0;
@@ -444,7 +444,7 @@ void BowBalloonInstantlyKill(void)
 
 void BowBalloonStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -466,7 +466,7 @@ void BowBalloonPose49Init(void)
 
 void BowBalloonAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;
@@ -516,7 +516,7 @@ void BowBalloonAirborne(void)
 
 void BowBalloonHeldInit(void)
 {
-    gCurrentSprite.pOamData = sBowBalloonStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -536,7 +536,7 @@ void BowBalloonLiftedLeftInit(void)
 void BowBalloonCarriedInit(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sBowBalloonStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -562,7 +562,7 @@ void BowBalloonProjectileInit(void)
     gCurrentSprite.drawDistanceLeftRight = 16;
     gCurrentSprite.hitboxExtentUp = 16;
     gCurrentSprite.hitboxExtentDown = 12;
-    gCurrentSprite.pOamData = sBowBalloonProjectileOam;
+    GP_SET(gCurrentSprite.pOamData, sBowBalloonProjectileOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.warioCollision = 39;

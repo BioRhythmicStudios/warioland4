@@ -21,7 +21,7 @@ void InitElectricLiftStationary(void)
     sprite->hitboxExtentDown = 32;
     sprite->hitboxExtentLeft = 40;
     sprite->hitboxExtentRight = 36;
-    sprite->pOamData = sElectricLiftStationaryIdleOam;
+    GP_SET(sprite->pOamData, sElectricLiftStationaryIdleOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 16;
@@ -34,7 +34,7 @@ void ElectricLiftStationaryIdle(void)
 
     sprite = &gCurrentSprite;
     if (sprite->status & SPRITE_STATUS_WARIO_STANDING_ON) {
-        sprite->pOamData = sElectricLiftStationaryActiveOam;
+        GP_SET(sprite->pOamData, sElectricLiftStationaryActiveOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->work0 = 81;
@@ -55,7 +55,7 @@ void ElectricLiftStationaryActivated(void)
     if (timer <= 9) {
         sprite->disableWarioCollisionTimer = 1;
         if (timer == 0) {
-            sprite->pOamData = sElectricLiftStationaryTransitionOam;
+            GP_SET(sprite->pOamData, sElectricLiftStationaryTransitionOam);
             sprite->currentAnimationFrame = 0;
             sprite->animationTimer = 0;
             sprite->work0 = 60;
@@ -73,7 +73,7 @@ void ElectricLiftStationaryTransition(void)
     sprite->disableWarioCollisionTimer = 1;
     timer = --sprite->work0;
     if (timer == 0) {
-        sprite->pOamData = sElectricLiftStationaryResetOam;
+        GP_SET(sprite->pOamData, sElectricLiftStationaryResetOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->work0 = 70;
@@ -96,7 +96,7 @@ void ElectricLiftStationaryReset(void)
     if (timer > 5) {
         sprite->disableWarioCollisionTimer = 1;
     } else if (timer == 0) {
-        sprite->pOamData = sElectricLiftStationaryIdleOam;
+        GP_SET(sprite->pOamData, sElectricLiftStationaryIdleOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 16;
@@ -143,7 +143,7 @@ void InitElectricLiftMoving(void)
     sprite->hitboxExtentDown = 32;
     sprite->hitboxExtentLeft = 36;
     sprite->hitboxExtentRight = 32;
-    sprite->pOamData = sElectricLiftMovingOam;
+    GP_SET(sprite->pOamData, sElectricLiftMovingOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 16;
@@ -167,7 +167,7 @@ void ElectricLiftMoveDown(void)
         if (sprite->status & SPRITE_STATUS_WARIO_STANDING_ON)
             gWarioData.yPosition += 2;
     } else if (timer == 0) {
-        sprite->pOamData = sElectricLiftMovingTurnOam;
+        GP_SET(sprite->pOamData, sElectricLiftMovingTurnOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         *work0 = 144;
@@ -192,7 +192,7 @@ void ElectricLiftMoveUp(void)
         if (sprite->status & SPRITE_STATUS_WARIO_STANDING_ON)
             gWarioData.yPosition -= 2;
     } else if (timer == 0) {
-        sprite->pOamData = sElectricLiftMovingOam;
+        GP_SET(sprite->pOamData, sElectricLiftMovingOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         *work0 = 144;

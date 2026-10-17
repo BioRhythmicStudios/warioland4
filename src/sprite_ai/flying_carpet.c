@@ -48,7 +48,7 @@ void InitMagicCarpet(void)
     (*new_var2)->hitboxExtentLeft = 68;
     (*new_var2)->hitboxExtentRight = 64;
     new_var = sMagicCarpetIdleOam;
-    (*new_var2)->pOamData = new_var;
+    GP_SET((*new_var2)->pOamData, new_var);
     (*new_var2)->currentAnimationFrame = 0;
     (*new_var2)->animationTimer = 0;
     sprite->pose = 24;
@@ -69,7 +69,7 @@ void SetMagicCarpetMovementState(void)
     sprite->animationTimer = 0;
     status = sprite->status;
     if (status & SPRITE_STATUS_WARIO_STANDING_ON) {
-        sprite->pOamData = sMagicCarpetRiddenOam;
+        GP_SET(sprite->pOamData, sMagicCarpetRiddenOam);
         sprite->pose = 22;
         sprite->work0 = 4;
         if (gWarioData.horizontalDirection & 0x20) {
@@ -84,7 +84,7 @@ void SetMagicCarpetMovementState(void)
             sprite->status = newStatus;
         }
     } else {
-        sprite->pOamData = sMagicCarpetFlyingOam;
+        GP_SET(sprite->pOamData, sMagicCarpetFlyingOam);
         sprite->work0 = 30;
         sprite->pose = 20;
         work2 = &sprite->work2;
@@ -108,7 +108,7 @@ void MagicCarpetWaitForWario(void)
     sprite = &gCurrentSprite;
     status = sprite->status;
     if (status & SPRITE_STATUS_WARIO_STANDING_ON) {
-        sprite->pOamData = sMagicCarpetFlyingOam;
+        GP_SET(sprite->pOamData, sMagicCarpetFlyingOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->pose = 16;
@@ -170,7 +170,7 @@ void MagicCarpetHandleStandingWario(void)
             zero = 0;
             sprite->disableWarioCollisionTimer = 6;
             new_var = &sprite;
-            (*new_var)->pOamData = sMagicCarpetFlyingOam;
+            GP_SET((*new_var)->pOamData, sMagicCarpetFlyingOam);
             (*new_var)->currentAnimationFrame = standing;
             sprite->animationTimer = standing;
             sprite->work0 = 36;
@@ -195,7 +195,7 @@ void MagicCarpetRiseAndMove(void)
     if (status & SPRITE_STATUS_WARIO_STANDING_ON) {
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
-        sprite->pOamData = sMagicCarpetRiddenOam;
+        GP_SET(sprite->pOamData, sMagicCarpetRiddenOam);
         sprite->pose = 22;
         sprite->work0 = 4;
         if (gWarioData.horizontalDirection & 0x20) {
@@ -293,7 +293,7 @@ void MagicCarpetMoveUnridden(void)
         s32 yPosition;
         zeroByte = (u8)(groundY << 8);
         zeroHalf = (u16)(groundY * 0x10000);
-        sprite->pOamData = sMagicCarpetIdleOam;
+        GP_SET(sprite->pOamData, sMagicCarpetIdleOam);
         sprite->currentAnimationFrame = zeroByte;
         sprite->animationTimer = zeroHalf;
         sprite->pose = 24;
@@ -309,7 +309,7 @@ void MagicCarpetMoveUnridden(void)
         u16 newStatus;
         sprite->currentAnimationFrame = 0;
         (*(new_var = &sprite))->animationTimer = 0;
-        sprite->pOamData = sMagicCarpetRiddenOam;
+        GP_SET(sprite->pOamData, sMagicCarpetRiddenOam);
         sprite->pose = 22;
         sprite->work0 = 4;
         if (gWarioData.horizontalDirection & 0x20) {
@@ -376,7 +376,7 @@ void MagicCarpetMoveWithWario(void)
     }
     if (gSpriteCollisionResult != 0) {
         sprite->yPosition = groundY;
-        sprite->pOamData = sMagicCarpetFlyingOam;
+        GP_SET(sprite->pOamData, sMagicCarpetFlyingOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->pose = 16;
@@ -473,7 +473,7 @@ void MagicCarpetMoveWithWario(void)
         work0 = &sprite->work0;
         timer = *work0;
         if (timer == 0) {
-            sprite->pOamData = sMagicCarpetFlyingOam;
+            GP_SET(sprite->pOamData, sMagicCarpetFlyingOam);
             sprite->currentAnimationFrame = timer;
             zero = 0;
             sprite->animationTimer = timer;

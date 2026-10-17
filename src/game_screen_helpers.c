@@ -34,8 +34,8 @@ void m4aMPlayFadeOutTemporarily();
 #define SE_HURRY_UP_SWITCH 0xD9
 
 struct AGB_ALIGN DmaRegisters {
-    const void* source;
-    void* destination;
+    GBA_PTR(const void*) source;
+    GBA_PTR(void*) destination;
     vu32 control;
 };
 
@@ -64,7 +64,7 @@ void ConfigureRoomDisplay(void)
         *drawFlag = 0;
     }
     if (gCurrentRoomHeader.bg0Param & 0x20) {
-        backgroundControl[0] = GetBackgroundScreenSize(*gCurrentRoomHeader.pBg0Data) | 8;
+        backgroundControl[0] = GetBackgroundScreenSize(*GP(gCurrentRoomHeader.pBg0Data)) | 8;
     } else {
         backgroundControl[0] = 0x4004;
     }
@@ -77,7 +77,7 @@ void ConfigureRoomDisplay(void)
     } else {
         backgroundControl[3] |= 4;
     }
-    backgroundControl[3] |= GetBackgroundScreenSize(*gCurrentRoomHeader.pBg3Data);
+    backgroundControl[3] |= GetBackgroundScreenSize(*GP(gCurrentRoomHeader.pBg3Data));
     switch (gCurrentRoomHeader.bgPriorityAlpha) {
         case 0:
 
@@ -391,9 +391,9 @@ void LoadRoom(void)
     tileset = sTilesetLoadData[roomHeader->tileset];
     UpdateBossRoomState();
     if (gDifficulty == DIFFICULTY_NORMAL) {
-        roomHeader->pHardSpriteData = roomHeader->pNormalSpriteData;
+        GP_SET(roomHeader->pHardSpriteData, GP(roomHeader->pNormalSpriteData));
     } else if (gDifficulty == DIFFICULTY_SUPER_HARD) {
-        roomHeader->pHardSpriteData = roomHeader->pSHardSpriteData;
+        GP_SET(roomHeader->pHardSpriteData, GP(roomHeader->pSHardSpriteData));
     }
     if (gUnk_300001C != 0) {
         struct RoomHeader* musicRoomHeader;
@@ -401,44 +401,44 @@ void LoadRoom(void)
         musicRoomHeader = &gCurrentRoomHeader;
         musicRoomHeader->musicVolume = 0;
     }
-    gBackgroundTileTables.top = tileset.metatileTop;
-    gBackgroundTileTables.bottom = tileset.metatileBottom;
-    gBackgroundTileTables.attributes = tileset.metatileAttributes;
+    GP_SET(gBackgroundTileTables.top, GP(tileset.metatileTop));
+    GP_SET(gBackgroundTileTables.bottom, GP(tileset.metatileBottom));
+    GP_SET(gBackgroundTileTables.attributes, GP(tileset.metatileAttributes));
     InitializeRoomEffects();
     if (gStageEntryPauseMenuDisabled == 0 || gHasTemporarySave != 0) {
         PreloadStageRoomBackgrounds();
     }
 
     dma = (struct DmaRegisters*)0x040000D4;
-    dma->source = tileset.backgroundGraphics;
-    dma->destination = (void*)0x06004820;
+    GP_SET(dma->source, GP(tileset.backgroundGraphics));
+    GP_SET(dma->destination, (void*)0x06004820);
     dma->control = (tileset.backgroundGraphicsSize >> 1) | (dmaEnable = 0x80000000);
     WaitForDma3Transfer(dma->control);
     blankTiles = sBlankBackgroundTiles;
-    dma->source = blankTiles;
-    dma->destination = (void*)0x06004800;
+    GP_SET(dma->source, blankTiles);
+    GP_SET(dma->destination, (void*)0x06004800);
     dmaFillControl = 0x80000010;
     dma->control = dmaFillControl;
     dma->control;
-    dma->source = tileset.palette;
-    dma->destination = (void*)0x05000000;
+    GP_SET(dma->source, GP(tileset.palette));
+    GP_SET(dma->destination, (void*)0x05000000);
     dma->control = 0x80000100;
     WaitForDma3Transfer(dma->control);
     if (gCurrentStageNumber != STAGE_BOSS) {
-        dma->source = tileset.extraPalette;
-        dma->destination = (void*)0x05000260;
+        GP_SET(dma->source, GP(tileset.extraPalette));
+        GP_SET(dma->destination, (void*)0x05000260);
         dma->control = dmaFillControl;
         dma->control;
     }
-    gHBlankPaletteFadeColors[0] = *(const u16*)tileset.palette;
+    gHBlankPaletteFadeColors[0] = *(const u16*)GP(tileset.palette);
     *(vu16*)0x05000000 = 0;
     gHBlankPaletteFadeColors[1] = 0;
-    dma->source = tileset.animatedGraphics;
-    dma->destination = (void*)(0x0600FFE0 - tileset.animatedGraphicsSize);
+    GP_SET(dma->source, GP(tileset.animatedGraphics));
+    GP_SET(dma->destination, (void*)(0x0600FFE0 - tileset.animatedGraphicsSize));
     dma->control = dmaEnable | (tileset.animatedGraphicsSize >> 1);
     WaitForDma3Transfer(dma->control);
-    dma->source = blankTiles;
-    dma->destination = (void*)0x0600FFE0;
+    GP_SET(dma->source, blankTiles);
+    GP_SET(dma->destination, (void*)0x0600FFE0);
     dma->control = dmaFillControl;
     dma->control;
 
@@ -477,8 +477,8 @@ void LoadRoom(void)
             transferSize = DecompressRoomBackground(0, selectedData, overlayBuffer);
             ASM_BARRIER(: "+r"(transferSize));
             overlayDma = (struct DmaRegisters*)0x040000D4;
-            overlayDma->source = (void*)0x0201F840;
-            overlayDma->destination = (void*)0x06003800;
+            GP_SET(overlayDma->source, (void*)0x0201F840);
+            GP_SET(overlayDma->destination, (void*)0x06003800);
             halfSize = transferSize / 2;
             overlayDmaEnable = 0x80000000;
             overlayDma->control = halfSize | overlayDmaEnable;
@@ -500,8 +500,8 @@ void LoadRoom(void)
         }
         gPreviousYPosition = gWarioData.yPosition;
     }
-    tileAttribute = *(const u16*)gBackgroundInfo.pBg1Data;
-    tileAttributes = gBackgroundTileTables.attributes;
+    tileAttribute = *(const u16*)GP(gBackgroundInfo.pBg1Data);
+    tileAttributes = GP(gBackgroundTileTables.attributes);
     tilePointer = (const u16*)((tileAttribute * 2) + (u32)tileAttributes);
     tileAttribute = *tilePointer;
     if (tileAttribute == 0xA0) {
@@ -523,12 +523,12 @@ void LoadRoomBackgrounds(void)
     const u8* data;
     const u8* source;
 
-    source = (const u8*)gCurrentRoomHeader.pBg3Data;
+    source = (const u8*)GP(gCurrentRoomHeader.pBg3Data);
     buffer = (u8*)0x0201F040;
     size = DecompressRoomBackground(0, source, buffer);
     dma = (struct DmaRegisters*)0x040000D4;
-    dma->source = buffer;
-    dma->destination = (void*)0x06003000;
+    GP_SET(dma->source, buffer);
+    GP_SET(dma->destination, (void*)0x06003000);
     halfSize = (s32)size / 2;
     dmaEnable = 0x80000000;
     dma->control = dmaEnable | halfSize;
@@ -541,14 +541,14 @@ void LoadRoomBackgrounds(void)
     data += 2;
     backgroundInfo->bg1Height = *(const u16*)data;
     data += 2;
-    backgroundInfo->pBg1Data = (void*)data;
+    GP_SET(backgroundInfo->pBg1Data, (void*)data);
 
     if (gCurrentRoomHeader.bg2Param & 0x10) {
         u8* destination;
 
-        source = (const u8*)gCurrentRoomHeader.pBg2Data;
+        source = (const u8*)GP(gCurrentRoomHeader.pBg2Data);
         destination = (u8*)0x0201A040;
-        backgroundInfo->pBg2Data = (void*)destination;
+        GP_SET(backgroundInfo->pBg2Data, (void*)destination);
         size = DecompressRoomBackground(1, source, destination);
         backgroundInfo->bg2Width = (s32)size >> 16;
         backgroundInfo->bg2Height = size & 0xFF;
@@ -557,18 +557,18 @@ void LoadRoomBackgrounds(void)
     if (gCurrentRoomHeader.bg0Param & 0x10) {
         u8* destination;
 
-        source = (const u8*)gCurrentRoomHeader.pBg0Data;
+        source = (const u8*)GP(gCurrentRoomHeader.pBg0Data);
         destination = (u8*)0x0201C840;
-        backgroundInfo->pBg0Data = (void*)destination;
+        GP_SET(backgroundInfo->pBg0Data, (void*)destination);
         size = DecompressRoomBackground(1, source, destination);
         backgroundInfo->bg0Width = (s32)size >> 16;
         backgroundInfo->bg0Height = size & 0xFF;
     } else if (gCurrentRoomHeader.bg0Param & 0x20) {
-        source = (const u8*)gCurrentRoomHeader.pBg0Data;
+        source = (const u8*)GP(gCurrentRoomHeader.pBg0Data);
         buffer = (u8*)0x0201C840;
         size = DecompressRoomBackground(0, source, buffer);
-        dma->source = buffer;
-        dma->destination = (void*)0x06000000;
+        GP_SET(dma->source, buffer);
+        GP_SET(dma->destination, (void*)0x06000000);
         dma->control = dmaEnable | ((s32)size / 2);
         dma->control;
     }
@@ -963,7 +963,7 @@ void DrawRoomBackgroundLayer(u8 layer)
                 pointer = startX;
                 calculation = pointer + calculation;
                 calculation <<= 1;
-                pointer = (u32)background->pBg0Data;
+                pointer = (u32)GP(background->pBg0Data);
                 pointer += calculation;
                 source = (u16*)pointer;
             }
@@ -1052,10 +1052,10 @@ void DrawRoomBackgroundLayer(u8 layer)
                     sourceOffset = sourceOffset + (u32)sourcePointer;
                     metatile = *(u16*)sourceOffset;
                     tileIndex = metatile * 4;
-                    destination[0] = gBackgroundTileTables.top[tileIndex++];
-                    destination[1] = gBackgroundTileTables.top[tileIndex++];
-                    destination[32] = gBackgroundTileTables.top[tileIndex++];
-                    destination[33] = gBackgroundTileTables.top[tileIndex++];
+                    destination[0] = GP(gBackgroundTileTables.top)[tileIndex++];
+                    destination[1] = GP(gBackgroundTileTables.top)[tileIndex++];
+                    destination[32] = GP(gBackgroundTileTables.top)[tileIndex++];
+                    destination[33] = GP(gBackgroundTileTables.top)[tileIndex++];
                     sourceIndex++;
                     remainingColumns--;
                     column = (u16)(column + 1);
@@ -1098,20 +1098,20 @@ RenderComplete: {
         bufferRegister = (u8*)0x0201F040;
         DecompressRoomBackground(0, compressedData, bufferRegister);
         dmaRegister = (struct DmaRegisters*)0x040000D4;
-        dmaRegister->source = bufferRegister;
+        GP_SET(dmaRegister->source, bufferRegister);
         layerTemporary = layerValue;
         layerOffset = layerTemporary << 12;
         vramBase = 0x06000000;
         ASM_BARRIER(: "+r"(vramBase));
-        dmaRegister->destination = (void*)(layerOffset + vramBase);
+        GP_SET(dmaRegister->destination, (void*)(layerOffset + vramBase));
         controlValue = 0x80000400;
         controlRegister = controlValue;
         dmaRegister->control = controlValue;
         WaitForDma3Transfer(dmaRegister->control);
-        dmaRegister->source = bufferRegister;
+        GP_SET(dmaRegister->source, bufferRegister);
         secondVramBase = 0x06000800;
         layerOffset += secondVramBase;
-        dmaRegister->destination = (void*)layerOffset;
+        GP_SET(dmaRegister->destination, (void*)layerOffset);
         finalControl = controlRegister;
         dmaRegister->control = finalControl;
         dmaRegister->control;
@@ -1141,7 +1141,7 @@ void PreloadStageRoomBackgrounds(void)
         stageCountTable = stageCountBase;
         destinationTable = (u8**)0x02000000;
         do {
-            graphics = (const u8*)entry->pBg1Data;
+            graphics = (const u8*)GP(entry->pBg1Data);
             size = (graphics[0] * graphics[1] + 2) * 2;
             DecompressRoomBackground(2, graphics, destination);
             *destinationTable++ = destination;
@@ -1262,12 +1262,12 @@ u32 LoadBossPauseBackgroundTiles(u8 useAlternateTiles)
 
     if (useAlternateTiles != 0) {
         dma = (struct DmaRegisters*)0x040000D4;
-        dma->source = sBossPauseAlternateBackgroundTiles;
+        GP_SET(dma->source, sBossPauseAlternateBackgroundTiles);
     } else {
         dma = (struct DmaRegisters*)0x040000D4;
-        dma->source = sBossPauseBackgroundTiles;
+        GP_SET(dma->source, sBossPauseBackgroundTiles);
     }
-    dma->destination = (void*)0x0600FE40;
+    GP_SET(dma->destination, (void*)0x0600FE40);
     dma->control = 0x800000D0;
     return dma->control;
 }

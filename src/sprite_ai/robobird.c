@@ -43,7 +43,7 @@ void InitRobobird(void)
         register const struct AnimationFrame* oam PIN("r0");
         oam = sRobobirdIdleOam;
         finalSprite = sprite;
-        finalSprite->pOamData = oam;
+        GP_SET(finalSprite->pOamData, oam);
     }
     finalSprite->currentAnimationFrame = zero;
     finalSprite->animationTimer = zero;
@@ -79,7 +79,7 @@ void StartRobobirdAttack(void)
     struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sRobobirdAttackStartupOam;
+    GP_SET(sprite->pOamData, sRobobirdAttackStartupOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = SPOSE_6F;
@@ -118,7 +118,7 @@ void RobobirdAttackDelay(void)
             }
         }
     } else {
-        sprite->pOamData = sRobobirdAttackOam;
+        GP_SET(sprite->pOamData, sRobobirdAttackOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = SPOSE_71;
@@ -142,7 +142,7 @@ void StartRobobirdStunned(void)
     struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sRobobirdFastAttackOam;
+    GP_SET(sprite->pOamData, sRobobirdFastAttackOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = SPOSE_28;
@@ -167,7 +167,7 @@ void SetRobobirdDefeated(void)
     u8 zero2;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sRobobirdFallingOam;
+    GP_SET(sprite->pOamData, sRobobirdFallingOam);
     zero1 = 0;
     sprite->currentAnimationFrame = zero1;
     zero2 = 0;

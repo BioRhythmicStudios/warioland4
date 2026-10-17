@@ -1430,7 +1430,7 @@ void DrawMinigameMenuSprites(void)
                 {
                     const u8* reloadedAnimation;
                     reloadedAnimation = *animationPointer;
-                    source = ((const struct AnimationFrame*)reloadedAnimation)[frame].oam;
+                    source = GP(((const struct AnimationFrame*)reloadedAnimation)[frame].oam);
                 }
                 slots += *source++;
                 if (slots > 128) {

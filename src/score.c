@@ -1585,5 +1585,5 @@ void AdvanceSecondarySpriteAnimation(const struct AnimationFrame* animation)
             gCurrentSecondarySprite.animationTimer = 0;
         }
     }
-    gCurrentSecondarySpriteOamData = animation[gCurrentSecondarySprite.animationTimer].oam;
+    gCurrentSecondarySpriteOamData = GP(animation[gCurrentSecondarySprite.animationTimer].oam);
 }

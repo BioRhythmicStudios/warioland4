@@ -211,7 +211,7 @@ void InitToyBlockSquare(void)
         struct PrimarySpriteData* work;
         oam = sToyBlockSquareOam;
         work = sprite;
-        work->pOamData = oam;
+        GP_SET(work->pOamData, oam);
         *(u8 *)((u8 *)work + 22) = zero;
         work->animationTimer = zero16;
         work->warioCollision = 22;

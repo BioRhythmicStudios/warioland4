@@ -5483,13 +5483,13 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
 }
 u32 CheckWarioHorizontalCollision(u32 side, u16 *newXPosition, u32 verticalOffset)
 {
-    volatile struct AGB_ALIGN { u16 *output; u32 offset; } locals;
+    volatile struct AGB_ALIGN { GBA_PTR(u16 *) output; u32 offset; } locals;
     register u32 index PIN("r8");
     u32 result;
     u32 xPosition, yPosition, collision;
     register u32 indexDouble PIN("r10");
     register u32 shiftedOffset PIN("r9");
-    locals.output = newXPosition;
+    GP_SET(locals.output, newXPosition);
     index = (u8)side;
     locals.offset = (u16)verticalOffset;
     result = 0;
@@ -5621,7 +5621,7 @@ u32 CheckWarioHorizontalCollision(u32 side, u16 *newXPosition, u32 verticalOffse
         value -= row;
         adjustment = data->unk_06;
         value += adjustment;
-        output = locals.output;
+        output = GP(locals.output);
         *output = value;
     }
     return result;
@@ -5883,7 +5883,7 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
 u32 CheckWarioPointCollision(u32 index, u32 yPosition, u16 *secondaryResult)
 {
     volatile struct AGB_ALIGN {
-        u16 *secondaryResult;
+        GBA_PTR(u16 *) secondaryResult;
     } locals;
     u32 normalizedIndex;
     u32 normalizedY;
@@ -5893,7 +5893,7 @@ u32 CheckWarioPointCollision(u32 index, u32 yPosition, u16 *secondaryResult)
     u32 indexTimesTwo;
     u32 collision;
 
-    locals.secondaryResult = secondaryResult;
+    GP_SET(locals.secondaryResult, secondaryResult);
     normalizedIndex = (u8)index;
     normalizedY = (u16)yPosition;
     gWarioCollisionData.unk_10 = 0;
@@ -6001,7 +6001,7 @@ secondDone:
         u16 *output;
 
         outputValue = secondary;
-        output = locals.secondaryResult;
+        output = GP(locals.secondaryResult);
         *output = outputValue;
     }
     return result;
@@ -7367,14 +7367,14 @@ loadAnimationR1:
 
 animationSelected:
     animation += wario->unk_1F;
-    graphics = (const u8 *)animation->objData;
+    graphics = (const u8 *)GP(animation->objData);
     wario->objData1Size = *graphics << 5;
     graphics++;
     wario->objData2Size = *graphics << 5;
     graphics++;
-    wario->pObjData1 = (u8 *)graphics;
-    wario->pObjData2 = (u8 *)graphics + wario->objData1Size;
-    wario->pOamData = (const u16 *)animation->oamData;
+    GP_SET(wario->pObjData1, (u8 *)graphics);
+    GP_SET(wario->pObjData2, (u8 *)graphics + wario->objData1Size);
+    GP_SET(wario->pOamData, (const u16 *)GP(animation->oamData));
 
     if (wario->damageTimer != 0 && gWarioDamagePaletteActive == 0 && (gMainTimer & 7) <= 3) {
         gWarioPaletteSize = 32;

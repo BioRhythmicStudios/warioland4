@@ -42,7 +42,7 @@ void UpdateMoguramenHitboxForFacing(void)
 
 void InitMoguramenAttackWindup(void)
 {
-    gCurrentSprite.pOamData = sMoguramenAttackWindupOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenAttackWindupOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 111;
@@ -53,7 +53,7 @@ void InitMoguramenAttackWindup(void)
 
 void InitMoguramenIdle(void)
 {
-    gCurrentSprite.pOamData = sMoguramenIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -209,7 +209,7 @@ void UpdateMoguramenIdle(void)
 
 void InitMoguramenTurnAround(void)
 {
-    gCurrentSprite.pOamData = sMoguramenTurnStartOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenTurnStartOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 18;
@@ -234,7 +234,7 @@ void UpdateMoguramenTurnAround(void)
             nextPose = currentSprite->pose;
             switch (nextPose) {
                 case 18:
-                    currentSprite->pOamData = sMoguramenTurnMiddleOam;
+                    GP_SET(currentSprite->pOamData, sMoguramenTurnMiddleOam);
                     currentSprite->currentAnimationFrame = 0;
                     currentSprite->animationTimer = 0;
                     currentSprite->pose = 20;
@@ -244,7 +244,7 @@ void UpdateMoguramenTurnAround(void)
                     currentSprite->hitboxExtentRight = 28;
                     break;
                 case 20:
-                    currentSprite->pOamData = sMoguramenTurnFinishOam;
+                    GP_SET(currentSprite->pOamData, sMoguramenTurnFinishOam);
                     currentSprite->currentAnimationFrame = 0;
                     currentSprite->animationTimer = 0;
                     currentSprite->pose = 22;
@@ -267,7 +267,7 @@ void UpdateMoguramenTurnAround(void)
 
 void InitMoguramenStunnedCommon(void)
 {
-    gCurrentSprite.pOamData = sMoguramenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -294,7 +294,7 @@ void InitMoguramenKnockbackLeft(void)
 
 void InitMoguramenBurrowedWait(void)
 {
-    gCurrentSprite.pOamData = sMoguramenBurrowedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenBurrowedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 24;
@@ -323,7 +323,7 @@ void UpdateMoguramenBurrowedWait(void)
 
 void InitMoguramenBurrowEmerge(void)
 {
-    gCurrentSprite.pOamData = sMoguramenBurrowEmergeOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenBurrowEmergeOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 26;
@@ -355,7 +355,7 @@ void UpdateMoguramenBurrowEmerge(void)
 
 void InitMoguramenFalling(void)
 {
-    gCurrentSprite.pOamData = sMoguramenFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 28;
@@ -366,7 +366,7 @@ void InitMoguramenFalling(void)
 
 void InitMoguramenStunned(void)
 {
-    gCurrentSprite.pOamData = sMoguramenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 30;
@@ -378,7 +378,7 @@ void InitMoguramenStunned(void)
 
 void InitMoguramenTumbleCommon(void)
 {
-    gCurrentSprite.pOamData = sMoguramenTumbleOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenTumbleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -406,7 +406,7 @@ void InitMoguramenTumbleLeft(void)
 
 void InitMoguramenShortTumbleCommon(void)
 {
-    gCurrentSprite.pOamData = sMoguramenTumbleOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenTumbleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -432,7 +432,7 @@ void InitMoguramenShortTumbleLeft(void)
 
 void InitMoguramenPushedWindupCommon(void)
 {
-    gCurrentSprite.pOamData = sMoguramenPushedWindupOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenPushedWindupOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -455,7 +455,7 @@ void InitMoguramenPushedLeftWindup(void)
 
 void InitMoguramenPushedSlideCommon(void)
 {
-    gCurrentSprite.pOamData = sMoguramenPushedSlideOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenPushedSlideOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -477,7 +477,7 @@ void InitMoguramenPushedLeftSlide(void)
 
 void InitMoguramenStunHoldCommon(void)
 {
-    gCurrentSprite.pOamData = sMoguramenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -500,7 +500,7 @@ void InitMoguramenBumpedLeft(void)
 
 void InitMoguramenDefeated(void)
 {
-    gCurrentSprite.pOamData = sMoguramenDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 7;
@@ -520,7 +520,7 @@ void KillMoguramen(void)
 
 void InitMoguramenAirBounceCommon(void)
 {
-    gCurrentSprite.pOamData = sMoguramenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 6;
@@ -544,7 +544,7 @@ void InitMoguramenAirBounceLeft(void)
 
 void InitMoguramenThrownCrash(void)
 {
-    gCurrentSprite.pOamData = sMoguramenCrashRecoverOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenCrashRecoverOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work3 = 0;
@@ -625,7 +625,7 @@ void UpdateMoguramenRecoverAfterCrash(void)
 
 void InitMoguramenLiftedCommon(void)
 {
-    gCurrentSprite.pOamData = sMoguramenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -645,7 +645,7 @@ void InitMoguramenLiftedLeft(void)
 void InitMoguramenCarriedCommon(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sMoguramenStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoguramenStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -693,7 +693,7 @@ void InitMoguramenProjectile(void)
     currentSprite->hitboxExtentDown = 16;
     currentSprite->hitboxExtentLeft = 20;
     currentSprite->hitboxExtentRight = 16;
-    currentSprite->pOamData = sMoguramenProjectileOam;
+    GP_SET(currentSprite->pOamData, sMoguramenProjectileOam);
     currentSprite->currentAnimationFrame = zeroByte;
     currentSprite->animationTimer = zeroHalf;
     currentSprite->warioCollision = 9;

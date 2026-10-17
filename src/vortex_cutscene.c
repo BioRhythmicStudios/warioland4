@@ -768,7 +768,7 @@ void RenderVortexCutsceneOam(void)
                 }
             }
 
-            src = sUnk_863DB7C[gStageResultsTreasureIcons[0].y].oam;
+            src = GP(sUnk_863DB7C[gStageResultsTreasureIcons[0].y].oam);
             nextSlot += *(src++);
             for (; currentSlot < nextSlot; currentSlot++) {
                 attr = *(src++);
@@ -815,7 +815,7 @@ void RenderVortexCutsceneOam(void)
                 }
             }
 
-            src = sUnk_863DBE4[gStageResultsTreasureIcons[4].y].oam;
+            src = GP(sUnk_863DBE4[gStageResultsTreasureIcons[4].y].oam);
             nextSlot += *(src++);
             for (; currentSlot < nextSlot; currentSlot++) {
                 attr = *(src++);
@@ -834,11 +834,11 @@ void RenderVortexCutsceneOam(void)
 
         if ((gStageEntrySequenceStep > 4) && (gStageResultsScoreRank != 0)) {
             if (gStageResultsScoreRank == 1) {
-                src = sUnk_863DCCC->oam;
+                src = GP(sUnk_863DCCC->oam);
             } else if (gStageResultsScoreRank == 2) {
-                src = sUnk_863DCDC->oam;
+                src = GP(sUnk_863DCDC->oam);
             } else {
-                src = sUnk_863DCEC->oam;
+                src = GP(sUnk_863DCEC->oam);
             }
             nextSlot += *(src++);
             if (nextSlot > 128) {
@@ -870,7 +870,7 @@ void RenderVortexCutsceneOam(void)
                 }
             }
 
-            src = sUnk_863DCB4[gStageResultsNewHighScoreIcon.y].oam;
+            src = GP(sUnk_863DCB4[gStageResultsNewHighScoreIcon.y].oam);
             nextSlot += *(src++);
             for (; currentSlot < nextSlot; currentSlot++) {
                 attr = *(src++);

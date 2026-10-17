@@ -4,14 +4,14 @@
 #include "types.h"
 
 struct AGB_ALIGN BatAnimationFrame {
-    const u16* oam;
+    GBA_PTR(const u16*) oam;
     u32 unk4;
     u8 time;
 };
 
 struct AGB_ALIGN BatGraphicsFrame {
-    const u8* data;
-    const u16* oam;
+    GBA_PTR(const u8*) data;
+    GBA_PTR(const u16*) oam;
     u32 unk8;
 };
 

@@ -29,19 +29,19 @@ void BossTreasureInit(void)
 
     switch (gBossTreasureType) {
         case 1:
-            gCurrentSprite.pOamData = sBossTreasureOam_83DF9E8;
+            GP_SET(gCurrentSprite.pOamData, sBossTreasureOam_83DF9E8);
             break;
         case 2:
-            gCurrentSprite.pOamData = sBossTreasureOam_83BA7BC;
+            GP_SET(gCurrentSprite.pOamData, sBossTreasureOam_83BA7BC);
             break;
         case 3:
-            gCurrentSprite.pOamData = sBossTreasureOam_83DAB40;
+            GP_SET(gCurrentSprite.pOamData, sBossTreasureOam_83DAB40);
             break;
         case 4:
-            gCurrentSprite.pOamData = sBossTreasureOam_83CF72C;
+            GP_SET(gCurrentSprite.pOamData, sBossTreasureOam_83CF72C);
             break;
         default:
-            gCurrentSprite.pOamData = sAerodentOam_83DABA0;
+            GP_SET(gCurrentSprite.pOamData, sAerodentOam_83DABA0);
             break;
     }
 }

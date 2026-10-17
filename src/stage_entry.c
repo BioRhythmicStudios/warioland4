@@ -414,7 +414,7 @@ void InitializeStageEntryState(void)
 
         gStageEntryCompanionSpriteState.x = sStageEntryKeyzerXPositions[0];
         gStageEntryCompanionSpriteState.y = sStageEntryKeyzerYPositions[0];
-        gStageEntryCompanionSpriteState.data = sStageEntryKeyzerSpriteData;
+        GP_SET(gStageEntryCompanionSpriteState.data, sStageEntryKeyzerSpriteData);
         gStageEntryCompanionSpriteState.attribute = 0;
 
         gStageEntryFlyingKeyzerState.x = gStageEntryKeyzerTargetState[2];
@@ -1115,8 +1115,8 @@ s32 UpdateStageEntryWithKeyzerSequence(void)
             if (gStageEntrySequenceTimer <= 277) {
                 gStageEntryCompanionSpriteState.x = sStageEntryKeyzerXPositions[gStageEntrySequenceTimer];
                 gStageEntryCompanionSpriteState.y = sStageEntryKeyzerYPositions[gStageEntrySequenceTimer];
-                gStageEntryCompanionSpriteState.data = sStageEntryCompanionSpriteDataByFrame
-                    [sStageEntryCompanionSpriteFrameIndices[gStageEntrySequenceTimer]];
+                GP_SET(gStageEntryCompanionSpriteState.data, sStageEntryCompanionSpriteDataByFrame
+                    [sStageEntryCompanionSpriteFrameIndices[gStageEntrySequenceTimer]]);
             } else {
                 gStageEntryCompanionSpriteState.y = 200;
             }
@@ -1429,7 +1429,7 @@ void RenderStageEntrySprites(void)
                     }
                 }
             }
-            src = animation[entryState->frame].oam;
+            src = GP(animation[entryState->frame].oam);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;
@@ -1454,8 +1454,8 @@ void RenderStageEntrySprites(void)
         }
     }
     if (gStageEntryBlinkVisible == 0) {
-        src = gStageEntryMainAnimation[((struct StageEntryPositionedAnimationState*)gStageEntryMainSpriteState)->frame]
-                  .oam;
+        src = GP(gStageEntryMainAnimation[((struct StageEntryPositionedAnimationState*)gStageEntryMainSpriteState)->frame]
+                  .oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;
@@ -1533,7 +1533,7 @@ void RenderStageEntrySprites(void)
             }
         }
         if (gStageEntryKeyzerFlightFinished != 0) {
-            src = sUnk_863E1C4[gStageEntrySparkleGroupState.timer].oam;
+            src = GP(sUnk_863E1C4[gStageEntrySparkleGroupState.timer].oam);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;
@@ -1587,7 +1587,7 @@ void RenderStageEntrySprites(void)
                     register const struct AnimationFrame* secondTable PIN("r1");
                     stateFrameOffset = animationState->timer << 3;
                     secondTable = sUnk_863E12C;
-                    src = ((const struct AnimationFrame*)(stateFrameOffset + ((u32)secondTable)))->oam;
+                    src = GP(((const struct AnimationFrame*)(stateFrameOffset + ((u32)secondTable)))->oam);
                 }
                 nextSlot += *(src++);
                 {
@@ -1670,7 +1670,7 @@ void RenderStageEntrySprites(void)
         register s32 modeMask PIN("r0");
         register s32 priorityBase PIN("r12");
         u32 modeByte;
-        src = gStageEntryFlyingKeyzerAnimation[gStageEntryFlyingKeyzerState.frame].oam;
+        src = GP(gStageEntryFlyingKeyzerAnimation[gStageEntryFlyingKeyzerState.frame].oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;
@@ -1729,7 +1729,7 @@ void RenderStageEntrySprites(void)
         gOamBuffer[23].all.affineParam = *matrix3Ptr;
     }
     if (gStageEntrySequenceMode == 5) {
-        src = (const u16*)gStageEntryCompanionSpriteState.data;
+        src = (const u16*)GP(gStageEntryCompanionSpriteState.data);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;
@@ -1812,7 +1812,7 @@ void RenderStageEntrySprites(void)
         {
             struct StageEntryPositionedAnimationState* secondaryState;
             secondaryState = (struct StageEntryPositionedAnimationState*)&gStageEntrySecondarySpriteState;
-            src = gStageEntrySecondaryAnimation[secondaryState->frame].oam;
+            src = GP(gStageEntrySecondaryAnimation[secondaryState->frame].oam);
         }
         nextSlot += *(src++);
         if (nextSlot > 128) {
@@ -1996,7 +1996,7 @@ void RenderStageEntrySprites(void)
         }
     }
     if (gStageEntrySequenceMode == 5) {
-        src = gStageEntryCompanionKeyzerAnimation[gStageEntryCompanionKeyzerState.frame].oam;
+        src = GP(gStageEntryCompanionKeyzerAnimation[gStageEntryCompanionKeyzerState.frame].oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;

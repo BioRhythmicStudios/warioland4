@@ -24,7 +24,7 @@ void OnomiInit(void)
     gCurrentSprite.drawDistanceLeftRight = 24;
     gCurrentSprite.hitboxExtentUp = 64;
     gCurrentSprite.hitboxExtentDown = 0;
-    gCurrentSprite.pOamData = sOnomiWalkingOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiWalkingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -33,7 +33,7 @@ void OnomiInit(void)
 
 void OnomiInitWalk(void)
 {
-    gCurrentSprite.pOamData = sOnomiWalkingOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiWalkingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 20;
@@ -125,7 +125,7 @@ void OnomiWalk(void)
 
 void OnomiPrepareAttack(void)
 {
-    gCurrentSprite.pOamData = sOnomiPreparingAttackOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiPreparingAttackOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_6F;
@@ -140,7 +140,7 @@ void OnomiWaitToAttack(void)
         OnomiWalk();
     } else {
         gCurrentSprite.pose = SPOSE_18;
-        gCurrentSprite.pOamData = sOnomiAttackingOam;
+        GP_SET(gCurrentSprite.pOamData, sOnomiAttackingOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.work0 = 13;
@@ -150,7 +150,7 @@ void OnomiWaitToAttack(void)
 
 void OnomiTurnInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -175,14 +175,14 @@ void OnomiTurn(void)
 
     if (gCurrentSprite.pose == SPOSE_12) {
         gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
-        gCurrentSprite.pOamData = sOnomiTurningAroundOam;
+        GP_SET(gCurrentSprite.pOamData, sOnomiTurningAroundOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_14;
         gCurrentSprite.work0 = 14;
         OnomiSetWalkingHitbox();
     } else {
-        gCurrentSprite.pOamData = sOnomiWalkingOam;
+        GP_SET(gCurrentSprite.pOamData, sOnomiWalkingOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_IDLE;
@@ -192,7 +192,7 @@ void OnomiTurn(void)
 
 void OnomiStunnedInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -219,7 +219,7 @@ void OnomiPose35(void)
 
 void OnomiRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -228,7 +228,7 @@ void OnomiRecoverInit(void)
 
 void OnomiGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -240,7 +240,7 @@ void OnomiGetUpInit(void)
 
 void OnomiFallingInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -250,7 +250,7 @@ void OnomiFallingInit(void)
 
 void OnomiStunnedFallingInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
@@ -262,7 +262,7 @@ void OnomiStunnedFallingInit(void)
 
 void OnomiTackledInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -290,7 +290,7 @@ void OnomiTackledLeftInit(void)
 
 void OnomiDefeatedInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -316,7 +316,7 @@ void OnomiDefeatedLeftInit(void)
 
 void OnomiPushedInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -338,7 +338,7 @@ void OnomiPushedLeftInit(void)
 
 void OnomiPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -362,9 +362,9 @@ void OnomiPose2DInit(void)
 void OnomiCrushed(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sOnomiCrushedWhileStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sOnomiCrushedWhileStunnedOam);
     } else {
-        gCurrentSprite.pOamData = sOnomiCrushedOam;
+        GP_SET(gCurrentSprite.pOamData, sOnomiCrushedOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -385,7 +385,7 @@ void OnomiInstantlyKill(void)
 
 void OnomiStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -409,7 +409,7 @@ void OnomiPose49Init(void)
 
 void OnomiAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sOnomiPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sOnomiPushedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;

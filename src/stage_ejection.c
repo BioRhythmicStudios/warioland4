@@ -31,8 +31,8 @@ extern const u8 sStageEjectionBgTiles[];
 extern const u8 sStageEjectionBgTilemap[];
 
 struct AGB_ALIGN Dma3RegsStageEjection {
-    const void* src;
-    void* dst;
+    GBA_PTR(const void*) src;
+    GBA_PTR(void*) dst;
     u32 control;
 };
 #define DMA3_STAGE_EJECTION ((volatile struct Dma3RegsStageEjection *)0x040000D4)
@@ -66,13 +66,13 @@ void InitializeStageEjection(void)
     *passageFlag = curveTimer;
     InitializeVideoMemory();
 
-    DMA3_STAGE_EJECTION->src = sStageEjectionObjPalette;
-    DMA3_STAGE_EJECTION->dst = (void*)0x05000200;
+    GP_SET(DMA3_STAGE_EJECTION->src, sStageEjectionObjPalette);
+    GP_SET(DMA3_STAGE_EJECTION->dst, (void*)0x05000200);
     DMA3_STAGE_EJECTION->control = 0x80000100;
     DMA3_STAGE_EJECTION->control;
 
-    DMA3_STAGE_EJECTION->src = sStageEjectionBgPalette;
-    DMA3_STAGE_EJECTION->dst = (void*)0x05000000;
+    GP_SET(DMA3_STAGE_EJECTION->src, sStageEjectionBgPalette);
+    GP_SET(DMA3_STAGE_EJECTION->dst, (void*)0x05000000);
     DMA3_STAGE_EJECTION->control = 0x80000100;
     DMA3_STAGE_EJECTION->control;
     {
@@ -89,8 +89,8 @@ void InitializeStageEjection(void)
         }
     }
 
-    DMA3_STAGE_EJECTION->src = sStageEjectionBgTiles;
-    DMA3_STAGE_EJECTION->dst = (void*)0x06000000;
+    GP_SET(DMA3_STAGE_EJECTION->src, sStageEjectionBgTiles);
+    GP_SET(DMA3_STAGE_EJECTION->dst, (void*)0x06000000);
     DMA3_STAGE_EJECTION->control = 0x80000500;
     DMA3_STAGE_EJECTION->control;
     {
@@ -108,8 +108,8 @@ void InitializeStageEjection(void)
         }
     }
 
-    DMA3_STAGE_EJECTION->src = sStageEjectionObjTiles;
-    DMA3_STAGE_EJECTION->dst = (void*)0x06010000;
+    GP_SET(DMA3_STAGE_EJECTION->src, sStageEjectionObjTiles);
+    GP_SET(DMA3_STAGE_EJECTION->dst, (void*)0x06010000);
     DMA3_STAGE_EJECTION->control = 0x80002000;
     DMA3_STAGE_EJECTION->control;
     {
@@ -128,8 +128,8 @@ void InitializeStageEjection(void)
     }
 
     if (gUnk_3003C4A == 0) {
-        DMA3_STAGE_EJECTION->src = &sStageEjectionPassageExtraPalettes[(gCurrentPassage - 1) << 5];
-        DMA3_STAGE_EJECTION->dst = (void*)0x050003C0;
+        GP_SET(DMA3_STAGE_EJECTION->src, &sStageEjectionPassageExtraPalettes[(gCurrentPassage - 1) << 5]);
+        GP_SET(DMA3_STAGE_EJECTION->dst, (void*)0x050003C0);
         DMA3_STAGE_EJECTION->control = 0x80000010;
         DMA3_STAGE_EJECTION->control;
         {
@@ -148,8 +148,8 @@ void InitializeStageEjection(void)
         }
     }
 
-    DMA3_STAGE_EJECTION->src = &sStageEjectionPassagePalettes[gCurrentPassage << 5];
-    DMA3_STAGE_EJECTION->dst = (void*)0x050003A0;
+    GP_SET(DMA3_STAGE_EJECTION->src, &sStageEjectionPassagePalettes[gCurrentPassage << 5]);
+    GP_SET(DMA3_STAGE_EJECTION->dst, (void*)0x050003A0);
     DMA3_STAGE_EJECTION->control = 0x80000010;
     DMA3_STAGE_EJECTION->control;
     {
@@ -167,8 +167,8 @@ void InitializeStageEjection(void)
         }
     }
 
-    DMA3_STAGE_EJECTION->src = sStageEjectionBgTilemap;
-    DMA3_STAGE_EJECTION->dst = (void*)0x0600C000;
+    GP_SET(DMA3_STAGE_EJECTION->src, sStageEjectionBgTilemap);
+    GP_SET(DMA3_STAGE_EJECTION->dst, (void*)0x0600C000);
     DMA3_STAGE_EJECTION->control = 0x80000400;
     DMA3_STAGE_EJECTION->control;
 
@@ -648,7 +648,7 @@ void DrawStageEjection(void)
                 timer <<= 3;
                 zero = new_var9;
                 timer += zero;
-                frame = ((const struct AnimationFrame*)timer)->oam;
+                frame = GP(((const struct AnimationFrame*)timer)->oam);
                 next += *frame;
                 frame++;
                 if (next > 0x80) {

@@ -35,7 +35,7 @@ void PinballInit(void)
     gCurrentSprite.hitboxExtentRight = 24;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sPinballOam;
+    GP_SET(gCurrentSprite.pOamData, sPinballOam);
     gCurrentSprite.warioCollision = 5;
     gCurrentSprite.pose = 15;
 }
@@ -255,7 +255,7 @@ void PinballLockUpReset(void)
         gCurrentSprite.pose = 16;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockUpResetOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockUpResetOam);
         if (gCurrentSprite.status & SPRITE_STATUS_ONSCREEN) {
             m4aSongNumStart(SE_PINBALL_LOCK_RESET);
         }
@@ -274,7 +274,7 @@ void PinballLockUpWaitForSprite(void)
         gCurrentSprite.pose = 20;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockUpWaitingOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockUpWaitingOam);
         {
             struct PrimarySpriteData *sprites;
             u32 offset;
@@ -291,14 +291,14 @@ void PinballLockUpWaitForSprite(void)
             if (gCurrentSprite.work0 == 120) {
                 gCurrentSprite.currentAnimationFrame = 0;
                 gCurrentSprite.animationTimer = 0;
-                gCurrentSprite.pOamData = sPinballLockUpWaitingOam;
+                GP_SET(gCurrentSprite.pOamData, sPinballLockUpWaitingOam);
             }
         } else {
             gCurrentSprite.work0 = 44;
             gCurrentSprite.pose = 18;
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockUpMovingOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockUpMovingOam);
             if (gCurrentSprite.status & SPRITE_STATUS_ONSCREEN) m4aSongNumStart(SE_PINBALL_LOCK_MOVE);
         }
 
@@ -313,7 +313,7 @@ void PinballLockUpOpen(void)
         if (gCurrentSprite.work0 == 40) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockUpOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockUpOpenOam);
         }
     } else {
         gCurrentSprite.work0 = 1;
@@ -344,7 +344,7 @@ void PinballLockUpPullSprite(void)
         gCurrentSprite.pose = 22;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockUpMovingOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockUpMovingOam);
         m4aSongNumStart(SE_PINBALL_LOCK_MOVE);
     }
 }
@@ -369,7 +369,7 @@ void PinballLockUpFinishCapture(void)
     if (--gCurrentSprite.work0 == 0) {
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockUpOpenOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockUpOpenOam);
         if (sprite->globalID == 87) {
             gCurrentSprite.work0 = 40;
             gCurrentSprite.pose = 50;
@@ -393,7 +393,7 @@ void PinballLockUpDisappear(void)
         if (gCurrentSprite.work0 == 20) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockUpDisappearOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockUpDisappearOam);
         }
     } else {
         gCurrentSprite.status = 0;
@@ -440,7 +440,7 @@ void PinballLockDownReset(void)
         gCurrentSprite.pose = 16;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockDownResetOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockDownResetOam);
         if (gCurrentSprite.status & SPRITE_STATUS_ONSCREEN) {
             m4aSongNumStart(SE_PINBALL_LOCK_RESET);
         }
@@ -460,7 +460,7 @@ void PinballLockDownWaitForSprite(void)
         gCurrentSprite.pose = 20;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockDownWaitingOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockDownWaitingOam);
         {
             struct PrimarySpriteData *sprites;
             u32 offset;
@@ -484,14 +484,14 @@ void PinballLockDownWaitForSprite(void)
         if (gCurrentSprite.work0 == 120) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockDownWaitingOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockDownWaitingOam);
         }
     } else {
         gCurrentSprite.work0 = 44;
         gCurrentSprite.pose = 18;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockDownMovingOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockDownMovingOam);
         if (gCurrentSprite.status & SPRITE_STATUS_ONSCREEN) {
             m4aSongNumStart(SE_PINBALL_LOCK_MOVE);
         }
@@ -505,7 +505,7 @@ void PinballLockDownOpen(void)
         if (gCurrentSprite.work0 == 40) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockDownOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockDownOpenOam);
         }
     } else {
         gCurrentSprite.work0 = 1;
@@ -547,7 +547,7 @@ void PinballLockDownPullSprite(void)
             gCurrentSprite.pose = 22;
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockDownMovingOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockDownMovingOam);
             m4aSongNumStart(SE_PINBALL_LOCK_MOVE);
         }
     }
@@ -573,7 +573,7 @@ void PinballLockDownFinishCapture(void)
     if (--gCurrentSprite.work0 == 0) {
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockDownOpenOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockDownOpenOam);
         if (sprite->globalID == 87) {
             gCurrentSprite.work0 = 40;
             gCurrentSprite.pose = 50;
@@ -596,7 +596,7 @@ void PinballLockDownDisappear(void)
         if (gCurrentSprite.work0 == 20) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockDownDisappearOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockDownDisappearOam);
         }
     } else {
         gCurrentSprite.status = 0;
@@ -643,7 +643,7 @@ void PinballLockLeftReset(void)
         gCurrentSprite.pose = 16;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockLeftResetOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockLeftResetOam);
         if (gCurrentSprite.status & SPRITE_STATUS_ONSCREEN) {
             m4aSongNumStart(SE_PINBALL_LOCK_RESET);
         }
@@ -662,7 +662,7 @@ void PinballLockLeftWaitForSprite(void)
         gCurrentSprite.pose = 20;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockLeftWaitingOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockLeftWaitingOam);
         {
             struct PrimarySpriteData *sprites;
             u32 offset;
@@ -677,14 +677,14 @@ void PinballLockLeftWaitForSprite(void)
         if (gCurrentSprite.work0 == 120) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockLeftWaitingOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockLeftWaitingOam);
         }
     } else {
         gCurrentSprite.work0 = 44;
         gCurrentSprite.pose = 18;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockLeftMovingOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockLeftMovingOam);
         if (gCurrentSprite.status & SPRITE_STATUS_ONSCREEN) {
             m4aSongNumStart(SE_PINBALL_LOCK_MOVE);
         }
@@ -698,7 +698,7 @@ void PinballLockLeftOpen(void)
         if (gCurrentSprite.work0 == 40) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockLeftOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockLeftOpenOam);
         }
     } else {
         gCurrentSprite.work0 = 1;
@@ -740,7 +740,7 @@ void PinballLockLeftPullSprite(void)
             gCurrentSprite.pose = 22;
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockLeftMovingOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockLeftMovingOam);
             m4aSongNumStart(SE_PINBALL_LOCK_MOVE);
         }
     }
@@ -766,7 +766,7 @@ void PinballLockLeftFinishCapture(void)
     if (--gCurrentSprite.work0 == 0) {
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockLeftOpenOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockLeftOpenOam);
         if (sprite->globalID == 87) {
             gCurrentSprite.work0 = 40;
             gCurrentSprite.pose = 50;
@@ -789,7 +789,7 @@ void PinballLockLeftDisappear(void)
         if (gCurrentSprite.work0 == 20) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockLeftDisappearOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockLeftDisappearOam);
         }
     } else {
         gCurrentSprite.status = 0;
@@ -836,7 +836,7 @@ void PinballLockRightReset(void)
         gCurrentSprite.pose = 16;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockRightResetOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockRightResetOam);
         if (gCurrentSprite.status & SPRITE_STATUS_ONSCREEN) {
             m4aSongNumStart(SE_PINBALL_LOCK_RESET);
         }
@@ -855,7 +855,7 @@ void PinballLockRightWaitForSprite(void)
         gCurrentSprite.pose = 20;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockRightWaitingOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockRightWaitingOam);
         {
             struct PrimarySpriteData *sprites;
             u32 offset;
@@ -870,14 +870,14 @@ void PinballLockRightWaitForSprite(void)
         if (gCurrentSprite.work0 == 120) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockRightWaitingOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockRightWaitingOam);
         }
     } else {
         gCurrentSprite.work0 = 44;
         gCurrentSprite.pose = 18;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockRightMovingOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockRightMovingOam);
         if (gCurrentSprite.status & SPRITE_STATUS_ONSCREEN) {
             m4aSongNumStart(SE_PINBALL_LOCK_MOVE);
         }
@@ -891,7 +891,7 @@ void PinballLockRightOpen(void)
         if (gCurrentSprite.work0 == 40) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockRightOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockRightOpenOam);
         }
     } else {
         gCurrentSprite.work0 = 1;
@@ -933,7 +933,7 @@ void PinballLockRightPullSprite(void)
             gCurrentSprite.pose = 22;
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockRightMovingOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockRightMovingOam);
             m4aSongNumStart(SE_PINBALL_LOCK_MOVE);
         }
     }
@@ -959,7 +959,7 @@ void PinballLockRightFinishCapture(void)
     if (--gCurrentSprite.work0 == 0) {
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
-        gCurrentSprite.pOamData = sPinballLockRightOpenOam;
+        GP_SET(gCurrentSprite.pOamData, sPinballLockRightOpenOam);
         if (sprite->globalID == 87) {
             gCurrentSprite.work0 = 40;
             gCurrentSprite.pose = 50;
@@ -982,7 +982,7 @@ void PinballLockRightDisappear(void)
         if (gCurrentSprite.work0 == 20) {
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sPinballLockRightDisappearOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockRightDisappearOam);
         }
     } else {
         gCurrentSprite.status = 0;
@@ -1057,11 +1057,11 @@ void PinballCounterUpdateDisplay(void)
         }
     }
     switch (count) {
-        case 0: gCurrentSprite.pOamData = sPinballCounterZeroOam; break;
-        case 1: gCurrentSprite.pOamData = sPinballCounterOneOam; break;
-        case 2: gCurrentSprite.pOamData = sPinballCounterTwoOam; break;
-        case 3: gCurrentSprite.pOamData = sPinballCounterThreeOam; break;
-        case 4: gCurrentSprite.pOamData = sPinballCounterFourOam; gCurrentSprite.pose = 49; break;
+        case 0: GP_SET(gCurrentSprite.pOamData, sPinballCounterZeroOam); break;
+        case 1: GP_SET(gCurrentSprite.pOamData, sPinballCounterOneOam); break;
+        case 2: GP_SET(gCurrentSprite.pOamData, sPinballCounterTwoOam); break;
+        case 3: GP_SET(gCurrentSprite.pOamData, sPinballCounterThreeOam); break;
+        case 4: GP_SET(gCurrentSprite.pOamData, sPinballCounterFourOam); gCurrentSprite.pose = 49; break;
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -1080,7 +1080,7 @@ void PinballCounterComplete(void)
 {
     if (--gCurrentSprite.work0 != 0) {
         if (gCurrentSprite.work0 == 60) {
-            gCurrentSprite.pOamData = sPinballCounterDisappearOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballCounterDisappearOam);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
         }
@@ -1111,7 +1111,7 @@ void PinballCompletionSparkleInit(void)
     gCurrentSprite.hitboxExtentDown = 4;
     gCurrentSprite.hitboxExtentLeft = 4;
     gCurrentSprite.hitboxExtentRight = 4;
-    gCurrentSprite.pOamData = sPinballCompletionSparkleOam;
+    GP_SET(gCurrentSprite.pOamData, sPinballCompletionSparkleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.warioCollision = 0;
@@ -1401,7 +1401,7 @@ void SpritePinballLockUp(void)
             gCurrentSprite.hitboxExtentDown = 0;
             gCurrentSprite.hitboxExtentLeft = 4;
             gCurrentSprite.hitboxExtentRight = 0;
-            gCurrentSprite.pOamData = sPinballLockUpOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockUpOpenOam);
             break;
         case 15:
             PinballLockUpReset();
@@ -1436,7 +1436,7 @@ void SpritePinballLockDown(void)
             gCurrentSprite.hitboxExtentDown = 72;
             gCurrentSprite.hitboxExtentLeft = 4;
             gCurrentSprite.hitboxExtentRight = 0;
-            gCurrentSprite.pOamData = sPinballLockDownOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockDownOpenOam);
             break;
         case 15:
             PinballLockDownReset();
@@ -1471,7 +1471,7 @@ void SpritePinballLockLeft(void)
             gCurrentSprite.hitboxExtentDown = 8;
             gCurrentSprite.hitboxExtentLeft = 72;
             gCurrentSprite.hitboxExtentRight = 0;
-            gCurrentSprite.pOamData = sPinballLockLeftOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockLeftOpenOam);
             break;
         case 15:
             PinballLockLeftReset();
@@ -1506,7 +1506,7 @@ void SpritePinballLockRight(void)
             gCurrentSprite.hitboxExtentDown = 8;
             gCurrentSprite.hitboxExtentLeft = 0;
             gCurrentSprite.hitboxExtentRight = 68;
-            gCurrentSprite.pOamData = sPinballLockRightOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sPinballLockRightOpenOam);
             break;
         case 15:
             PinballLockRightReset();

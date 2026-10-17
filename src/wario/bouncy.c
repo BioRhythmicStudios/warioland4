@@ -372,14 +372,14 @@ void UpdateBouncyWarioGraphics(u8 variant)
     UpdateWarioPositionHistory();
     frames = sUnk_82DDB10[gWarioData.pose][variant];
     frame = &frames[gWarioData.unk_1F];
-    data = frame->objData;
+    data = GP(frame->objData);
     gWarioData.objData1Size = *data << 5;
     data++;
     gWarioData.objData2Size = *data << 5;
     data++;
-    gWarioData.pObjData1 = (u8*)data;
-    gWarioData.pObjData2 = (u8*)(data + gWarioData.objData1Size);
-    gWarioData.pOamData = frame->oamData;
+    GP_SET(gWarioData.pObjData1, (u8*)data);
+    GP_SET(gWarioData.pObjData2, (u8*)(data + gWarioData.objData1Size));
+    GP_SET(gWarioData.pOamData, GP(frame->oamData));
     gWarioPaletteSize = 0x40;
 
     if (gWarioData.unk_0C > 240) {

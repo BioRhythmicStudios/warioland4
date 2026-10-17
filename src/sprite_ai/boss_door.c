@@ -9,22 +9,22 @@ void SetBossDoorOpeningAnimation(void)
 {
     switch (gCurrentSprite.globalID) {
         case PSPRITE_BOSS_DOOR_EMERALD_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorEmeraldOpeningOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorEmeraldOpeningOam);
             break;
         case PSPRITE_BOSS_DOOR_RUBY_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorRubyOpeningOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorRubyOpeningOam);
             break;
         case PSPRITE_BOSS_DOOR_TOPAZ_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorTopazOpeningOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorTopazOpeningOam);
             break;
         case PSPRITE_BOSS_DOOR_SAPPHIRE_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorSapphireOpeningOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorSapphireOpeningOam);
             break;
         case PSPRITE_BOSS_DOOR_GOLDEN_PYRAMID:
-            gCurrentSprite.pOamData = sBossDoorGoldenPyramidOpeningOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorGoldenPyramidOpeningOam);
             break;
         default:
-            gCurrentSprite.pOamData = sBossDoorEntryOpeningOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorEntryOpeningOam);
     }
 }
 
@@ -32,22 +32,22 @@ void SetBossDoorClosedAnimation(void)
 {
     switch (gCurrentSprite.globalID) {
         case PSPRITE_BOSS_DOOR_EMERALD_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorEmeraldClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorEmeraldClosedOam);
             break;
         case PSPRITE_BOSS_DOOR_RUBY_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorRubyClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorRubyClosedOam);
             break;
         case PSPRITE_BOSS_DOOR_TOPAZ_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorTopazClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorTopazClosedOam);
             break;
         case PSPRITE_BOSS_DOOR_SAPPHIRE_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorSapphireClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorSapphireClosedOam);
             break;
         case PSPRITE_BOSS_DOOR_GOLDEN_PYRAMID:
-            gCurrentSprite.pOamData = sBossDoorGoldenPyramidClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorGoldenPyramidClosedOam);
             break;
         default:
-            gCurrentSprite.pOamData = sBossDoorEntryClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorEntryClosedOam);
     }
 }
 
@@ -55,22 +55,22 @@ void SetBossDoorOpenAnimation(void)
 {
     switch (gCurrentSprite.globalID) {
         case PSPRITE_BOSS_DOOR_EMERALD_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorEmeraldOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorEmeraldOpenOam);
             break;
         case PSPRITE_BOSS_DOOR_RUBY_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorRubyOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorRubyOpenOam);
             break;
         case PSPRITE_BOSS_DOOR_TOPAZ_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorTopazOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorTopazOpenOam);
             break;
         case PSPRITE_BOSS_DOOR_SAPPHIRE_PASSAGE:
-            gCurrentSprite.pOamData = sBossDoorSapphireOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorSapphireOpenOam);
             break;
         case PSPRITE_BOSS_DOOR_GOLDEN_PYRAMID:
-            gCurrentSprite.pOamData = sBossDoorGoldenPyramidOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorGoldenPyramidOpenOam);
             break;
         default:
-            gCurrentSprite.pOamData = sBossDoorEntryOpenOam;
+            GP_SET(gCurrentSprite.pOamData, sBossDoorEntryOpenOam);
     }
 }
 

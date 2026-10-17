@@ -13,7 +13,7 @@ void InitTogemasuku(void)
     gCurrentSprite.hitboxExtentDown = 32;
     gCurrentSprite.hitboxExtentLeft = 32;
     gCurrentSprite.hitboxExtentRight = 32;
-    gCurrentSprite.pOamData = sTogemasukuIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sTogemasukuIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -26,7 +26,7 @@ void StartTogemasukuRespawn(void)
     if (gCurrentSprite.status & SPRITE_STATUS_MAYBE_DEAD) {
         gCurrentSprite.status &= ~SPRITE_STATUS_MAYBE_DEAD;
     }
-    gCurrentSprite.pOamData = sTogemasukuDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sTogemasukuDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_6D;
@@ -37,7 +37,7 @@ void TogemasukuRespawnDelay(void)
 {
     gCurrentSprite.work0--;
     if (gCurrentSprite.work0 == 0) {
-        gCurrentSprite.pOamData = sTogemasukuRespawningOam;
+        GP_SET(gCurrentSprite.pOamData, sTogemasukuRespawningOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_6F;
@@ -49,7 +49,7 @@ void RestoreTogemasukuIdle(void)
 {
     gCurrentSprite.work0--;
     if (gCurrentSprite.work0 == 0) {
-        gCurrentSprite.pOamData = sTogemasukuIdleOam;
+        GP_SET(gCurrentSprite.pOamData, sTogemasukuIdleOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_IDLE;
@@ -58,7 +58,7 @@ void RestoreTogemasukuIdle(void)
 
 void DefeatTogemasuku(void)
 {
-    gCurrentSprite.pOamData = sTogemasukuDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sTogemasukuDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;

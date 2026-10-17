@@ -43,7 +43,7 @@ void InitBowler(void)
 
 void BowlerStartWalking(void)
 {
-    gCurrentSprite.pOamData = sBowlerWalkingOam;
+    GP_SET(gCurrentSprite.pOamData, sBowlerWalkingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -144,7 +144,7 @@ storePosition:
 
 void BowlerStartTurning(void)
 {
-    gCurrentSprite.pOamData = sBowlerTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sBowlerTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 18;
@@ -168,13 +168,13 @@ void BowlerTurning(void)
     if (zero == 0) {
         if (sprite->pose == 18) {
             sprite->status ^= SPRITE_STATUS_FACING_RIGHT;
-            sprite->pOamData = sBowlerTurnAroundOam;
+            GP_SET(sprite->pOamData, sBowlerTurnAroundOam);
             sprite->currentAnimationFrame = 0;
             sprite->animationTimer = zero;
             sprite->pose = 20;
             value = 5;
         } else {
-            sprite->pOamData = sBowlerWalkingOam;
+            GP_SET(sprite->pOamData, sBowlerWalkingOam);
             sprite->currentAnimationFrame = zero;
             sprite->animationTimer = zero;
             sprite->pose = 16;
@@ -189,7 +189,7 @@ void BowlerStartDying(void)
     struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sBowlerDyingOam;
+    GP_SET(sprite->pOamData, sBowlerDyingOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 50;
@@ -201,7 +201,7 @@ void BowlerStartDying(void)
 
 void BowlerStartIdle(void)
 {
-    gCurrentSprite.pOamData = sBowlerIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sBowlerIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 24;
@@ -243,24 +243,24 @@ void BowlerStartKnockbackForward(void)
 {
     BowlerStartKnockback();
     if (gCurrentSprite.status & SPRITE_STATUS_FACING_RIGHT)
-        gCurrentSprite.pOamData = sBowlerKnockbackRightOam;
+        GP_SET(gCurrentSprite.pOamData, sBowlerKnockbackRightOam);
     else
-        gCurrentSprite.pOamData = sBowlerKnockbackLeftOam;
+        GP_SET(gCurrentSprite.pOamData, sBowlerKnockbackLeftOam);
 }
 
 void BowlerStartKnockbackBackward(void)
 {
     BowlerStartKnockback();
     if (gCurrentSprite.status & SPRITE_STATUS_FACING_RIGHT)
-        gCurrentSprite.pOamData = sBowlerKnockbackLeftOam;
+        GP_SET(gCurrentSprite.pOamData, sBowlerKnockbackLeftOam);
     else
-        gCurrentSprite.pOamData = sBowlerKnockbackRightOam;
+        GP_SET(gCurrentSprite.pOamData, sBowlerKnockbackRightOam);
 }
 
 void BowlerStartKnockbackUp(void)
 {
     BowlerStartKnockback();
-    gCurrentSprite.pOamData = sBowlerKnockbackUpOam;
+    GP_SET(gCurrentSprite.pOamData, sBowlerKnockbackUpOam);
 }
 
 void BowlerKnockback(void)
@@ -279,7 +279,7 @@ void BowlerStartThrowingBall(void)
     u32 oldStatus;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sBowlerThrowOam;
+    GP_SET(sprite->pOamData, sBowlerThrowOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 111;
@@ -326,7 +326,7 @@ void BowlerThrowingBall(void)
 
 void BowlerStartTransformingIntoYeti(void)
 {
-    gCurrentSprite.pOamData = sBowlerTransformOam;
+    GP_SET(gCurrentSprite.pOamData, sBowlerTransformOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 113;
@@ -394,7 +394,7 @@ void InitBowlerBall(void)
 
     oam = sBowlerBallOam;
     data = sprite;
-    data->pOamData = oam;
+    GP_SET(data->pOamData, oam);
     *((u8*)data + 22) = value;
     data->animationTimer = zero16;
     data->warioCollision = 58;

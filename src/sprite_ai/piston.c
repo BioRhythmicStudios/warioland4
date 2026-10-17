@@ -34,7 +34,7 @@ void PistonSetIdle(void)
 {
     struct PrimarySpriteData* sprite;
     sprite = &gCurrentSprite;
-    sprite->pOamData = sPistonIdleOam;
+    GP_SET(sprite->pOamData, sPistonIdleOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 16;
@@ -56,7 +56,7 @@ void PistonWaitBeforeExtending(void)
     {
         sprite->pose = 27;
         sprite->work0 = 30;
-        sprite->pOamData = sPistonPrepareOam;
+        GP_SET(sprite->pOamData, sPistonPrepareOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
     }
@@ -70,7 +70,7 @@ void PistonStartExtending(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sPistonExtendOam;
+        GP_SET(sprite->pOamData, sPistonExtendOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         sprite->pose = 28;
@@ -113,7 +113,7 @@ void PistonExtend(void)
 
 void PistonImpact(void)
 {
-    gCurrentSprite.pOamData = sPistonImpactOam;
+    GP_SET(gCurrentSprite.pOamData, sPistonImpactOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 24;
@@ -129,7 +129,7 @@ void PistonWaitAfterImpact(void)
     if (timer == 0)
     {
         gCurrentSprite.pose = 18;
-        gCurrentSprite.pOamData = sPistonPostImpactOam;
+        GP_SET(gCurrentSprite.pOamData, sPistonPostImpactOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
     }
@@ -188,7 +188,7 @@ void InitPistonChild(void)
     ptr[30] = zero;
     ptr = (u8*)sPistonChildOam;
     ptr32 = (u8*)sprite;
-    ((struct PrimarySpriteData*)ptr32)->pOamData = (const struct AnimationFrame*)ptr;
+    GP_SET(((struct PrimarySpriteData*)ptr32)->pOamData, (const struct AnimationFrame*)ptr);
     ((struct PrimarySpriteData*)ptr32)->currentAnimationFrame = zero;
     ((struct PrimarySpriteData*)ptr32)->animationTimer = zero16;
     ((struct PrimarySpriteData*)ptr32)->pose = pose;

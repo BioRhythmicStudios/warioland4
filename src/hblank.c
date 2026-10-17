@@ -13,8 +13,8 @@ extern s16 gHBlankLineOffsets[];
 extern u8 gHBlankWavePhase;
 
 struct AGB_ALIGN Dma3Regs_HBlankCallbackCopy {
-    void* src;
-    void* dst;
+    GBA_PTR(void*) src;
+    GBA_PTR(void*) dst;
     u32 control;
 };
 
@@ -334,8 +334,8 @@ void SetHBlankMode(u32 arg0)
             break;
     }
 
-    ((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->src = callback;
-    ((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->dst = &gHBlankCallbackTrampoline;
+    GP_SET(((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->src, callback);
+    GP_SET(((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->dst, &gHBlankCallbackTrampoline);
     ((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->control = 0x80000100;
     ((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->control;
     InterruptCallbackSetHBlank((void (*)())(1 | ((s32)(&gHBlankCallbackTrampoline))));

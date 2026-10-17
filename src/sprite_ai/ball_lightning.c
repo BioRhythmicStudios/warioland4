@@ -45,7 +45,7 @@ void InitBallLightningSpawner(void)
     *(volatile u8 *)ptr = one;
     oam = sBallLightningSpawnerOam;
     postSprite = sprite;
-    postSprite->pOamData = oam;
+    GP_SET(postSprite->pOamData, oam);
     postSprite->currentAnimationFrame = zero;
     postSprite->animationTimer = zero16;
     postSprite->pose = 16;
@@ -113,7 +113,7 @@ void InitBallLightningBolt(void)
     *ptr = value20;
     oam = sBallLightningBoltIdleOam;
     postSprite = sprite;
-    postSprite->pOamData = oam;
+    GP_SET(postSprite->pOamData, oam);
     postSprite->currentAnimationFrame = zero;
     postSprite->animationTimer = zero16;
     postSprite->warioCollision = 9;
@@ -143,9 +143,9 @@ void BallLightningBoltWaitToFall(void)
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         if (sprite->status & SPRITE_STATUS_FACING_RIGHT)
-            sprite->pOamData = sBallLightningBoltFallingRightOam;
+            GP_SET(sprite->pOamData, sBallLightningBoltFallingRightOam);
         else
-            sprite->pOamData = sBallLightningBoltFallingLeftOam;
+            GP_SET(sprite->pOamData, sBallLightningBoltFallingLeftOam);
     }
 }
 
@@ -246,7 +246,7 @@ void BallLightningBoltFall(void)
 
 void StartBallLightningBoltDisappearing(void)
 {
-    gCurrentSprite.pOamData = sBallLightningBoltDisappearingOam;
+    GP_SET(gCurrentSprite.pOamData, sBallLightningBoltDisappearingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 50;
@@ -322,7 +322,7 @@ void InitBallLightningTrail(void)
     *(volatile u8 *)hitboxPtr = value4;
     oam = sBallLightningTrailOam;
     postSprite = sprite;
-    postSprite->pOamData = oam;
+    GP_SET(postSprite->pOamData, oam);
     postSprite->currentAnimationFrame = zero;
     postSprite->animationTimer = zero16;
     postSprite->warioCollision = 9;

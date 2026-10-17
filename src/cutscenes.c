@@ -7460,7 +7460,7 @@ u16* CutsceneWarioDrawPoseOam(s32 xOffset, s32 yOffset, u16 priority, u16 heldKe
 
     gOamSlotsUsed = 0;
     oamDst = (u16*)gOamBuffer;
-    oamSrc = (u16*)gWarioData.pOamData;
+    oamSrc = (u16*)GP(gWarioData.pOamData);
     oamCount = oldHeld = *(oamSrc++);
 
     isFacingRight = 0;
@@ -7506,7 +7506,7 @@ void CutsceneWarioLoadObjTiles(void)
 
     if (gWarioData.objData1Size != 0) {
         dma = (vu32*)0x040000D4;
-        dma[0] = (u32)gWarioData.pObjData1;
+        dma[0] = (u32)GP(gWarioData.pObjData1);
         dma[1] = 0x06010000;
         control = (gWarioData.objData1Size >> 1) | 0x80000000;
         dma[2] = control;
@@ -7515,7 +7515,7 @@ void CutsceneWarioLoadObjTiles(void)
 
     if (gWarioData.objData2Size != 0) {
         dma = (vu32*)0x040000D4;
-        dma[0] = (u32)gWarioData.pObjData2;
+        dma[0] = (u32)GP(gWarioData.pObjData2);
         dma[1] = 0x06010400;
         control = (gWarioData.objData2Size >> 1) | 0x80000000;
         dma[2] = control;

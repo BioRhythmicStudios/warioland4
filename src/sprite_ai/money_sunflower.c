@@ -20,7 +20,7 @@ void InitMoneySunflower(void)
 
 void SetMoneySunflowerFull(void)
 {
-    gCurrentSprite.pOamData = sMoneySunflowerFullOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneySunflowerFullOam);
     gCurrentSprite.hitboxExtentUp = 112;
     gCurrentSprite.hitboxExtentDown = 108;
     gCurrentSprite.hitboxExtentLeft = 112;
@@ -29,7 +29,7 @@ void SetMoneySunflowerFull(void)
 
 void SetMoneySunflowerLarge(void)
 {
-    gCurrentSprite.pOamData = sMoneySunflowerLargeOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneySunflowerLargeOam);
     gCurrentSprite.hitboxExtentUp = 84;
     gCurrentSprite.hitboxExtentDown = 80;
     gCurrentSprite.hitboxExtentLeft = 84;
@@ -38,7 +38,7 @@ void SetMoneySunflowerLarge(void)
 
 void SetMoneySunflowerMedium(void)
 {
-    gCurrentSprite.pOamData = sMoneySunflowerMediumOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneySunflowerMediumOam);
     gCurrentSprite.hitboxExtentUp = 56;
     gCurrentSprite.hitboxExtentDown = 52;
     gCurrentSprite.hitboxExtentLeft = 56;
@@ -47,7 +47,7 @@ void SetMoneySunflowerMedium(void)
 
 void SetMoneySunflowerSmall(void)
 {
-    gCurrentSprite.pOamData = sMoneySunflowerSmallOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneySunflowerSmallOam);
     gCurrentSprite.hitboxExtentUp = 32;
     gCurrentSprite.hitboxExtentDown = 28;
     gCurrentSprite.hitboxExtentLeft = 32;
@@ -56,7 +56,7 @@ void SetMoneySunflowerSmall(void)
 
 void SetMoneySunflowerDepleted(void)
 {
-    gCurrentSprite.pOamData = sMoneySunflowerDepletedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneySunflowerDepletedOam);
     gCurrentSprite.status |= SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
     gCurrentSprite.hitboxExtentUp = 4;
     gCurrentSprite.hitboxExtentDown = 0;

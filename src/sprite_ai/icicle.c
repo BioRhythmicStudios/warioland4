@@ -40,7 +40,7 @@ void InitIcicle(void)
     rightExtent = (u8 *)current + 38;
     extentValue = 16;
     *rightExtent = extentValue;
-    sprite->pOamData = sIcicleIdleOam;
+    GP_SET(sprite->pOamData, sIcicleIdleOam);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     current->work0 = 62;
@@ -78,7 +78,7 @@ void IcicleWaitToFall(void)
     } else {
         int zero;
         u8 *work3Pointer;
-        sprite->pOamData = sIcicleFallingOam;
+        GP_SET(sprite->pOamData, sIcicleFallingOam);
         sprite->currentAnimationFrame = timer;
         zero = 0;
         sprite->animationTimer = timer;
@@ -145,7 +145,7 @@ void IcicleFall(void)
 
 void IcicleLandInit(void)
 {
-    gCurrentSprite.pOamData = sIcicleImpactOam;
+    GP_SET(gCurrentSprite.pOamData, sIcicleImpactOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 10;
@@ -170,7 +170,7 @@ void IcicleResetAboveRoom(void)
     sprite = &gCurrentSprite;
     sprite->yPosition = roomData[sprite->roomSlot][0] * 64 + 64;
     sprite->pose = 111;
-    sprite->pOamData = sIcicleIdleOam;
+    GP_SET(sprite->pOamData, sIcicleIdleOam);
     sprite->work0 = 100;
     sprite->status |= SPRITE_STATUS_HIDDEN;
 }
@@ -226,7 +226,7 @@ void InitIcicleWarning(void)
     *hitbox = one;
     hitbox++;
     *hitbox = one;
-    sprite->pOamData = sIcicleWarningOam;
+    GP_SET(sprite->pOamData, sIcicleWarningOam);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     current->work0 = 32;

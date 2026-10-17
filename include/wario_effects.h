@@ -4,9 +4,9 @@
 #include "types.h"
 
 struct AGB_ALIGN WarioEffectGfx {
-    void* pGfx1;
+    GBA_PTR(void*) pGfx1;
     u32 gfx1Size;
-    void* pGfx2;
+    GBA_PTR(void*) pGfx2;
     u32 gfx2Size;
 };
 

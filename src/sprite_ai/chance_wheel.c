@@ -313,9 +313,9 @@ void InitChanceWheel(void)
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     if (gCurrentSprite.globalID == PSPRITE_CHANCE_WHEEL) {
-        gCurrentSprite.pOamData = sChanceWheelIdleOam;
+        GP_SET(gCurrentSprite.pOamData, sChanceWheelIdleOam);
     } else {
-        gCurrentSprite.pOamData = sGoalBlockIdleOam;
+        GP_SET(gCurrentSprite.pOamData, sGoalBlockIdleOam);
     }
     gCurrentSprite.pose = SPOSE_IDLE;
     gCurrentSprite.warioCollision = 54;
@@ -342,49 +342,49 @@ void StartChanceWheelResult(void)
     switch (value) {
         case 0:
             if (gCurrentSprite.globalID == PSPRITE_CHANCE_WHEEL) {
-                gCurrentSprite.pOamData = sChanceWheelResult2Oam;
+                GP_SET(gCurrentSprite.pOamData, sChanceWheelResult2Oam);
             } else {
-                gCurrentSprite.pOamData = sGoalBlockResult2Oam;
+                GP_SET(gCurrentSprite.pOamData, sGoalBlockResult2Oam);
             }
             result = 2;
             break;
         case 1:
             if (gCurrentSprite.globalID == PSPRITE_CHANCE_WHEEL) {
-                gCurrentSprite.pOamData = sChanceWheelResult3Oam;
+                GP_SET(gCurrentSprite.pOamData, sChanceWheelResult3Oam);
             } else {
-                gCurrentSprite.pOamData = sGoalBlockResult3Oam;
+                GP_SET(gCurrentSprite.pOamData, sGoalBlockResult3Oam);
             }
             result = 3;
             break;
         case 2:
             if (gCurrentSprite.globalID == PSPRITE_CHANCE_WHEEL) {
-                gCurrentSprite.pOamData = sChanceWheelResult4Oam;
+                GP_SET(gCurrentSprite.pOamData, sChanceWheelResult4Oam);
             } else {
-                gCurrentSprite.pOamData = sGoalBlockResult4Oam;
+                GP_SET(gCurrentSprite.pOamData, sGoalBlockResult4Oam);
             }
             result = 4;
             break;
         case 3:
             if (gCurrentSprite.globalID == PSPRITE_CHANCE_WHEEL) {
-                gCurrentSprite.pOamData = sChanceWheelResult5Oam;
+                GP_SET(gCurrentSprite.pOamData, sChanceWheelResult5Oam);
             } else {
-                gCurrentSprite.pOamData = sGoalBlockResult5Oam;
+                GP_SET(gCurrentSprite.pOamData, sGoalBlockResult5Oam);
             }
             result = 5;
             break;
         case 4:
             if (gCurrentSprite.globalID == PSPRITE_CHANCE_WHEEL) {
-                gCurrentSprite.pOamData = sChanceWheelResult6Oam;
+                GP_SET(gCurrentSprite.pOamData, sChanceWheelResult6Oam);
             } else {
-                gCurrentSprite.pOamData = sGoalBlockResult6Oam;
+                GP_SET(gCurrentSprite.pOamData, sGoalBlockResult6Oam);
             }
             result = 6;
             break;
         default:
             if (gCurrentSprite.globalID == PSPRITE_CHANCE_WHEEL) {
-                gCurrentSprite.pOamData = sChanceWheelResult1Oam;
+                GP_SET(gCurrentSprite.pOamData, sChanceWheelResult1Oam);
             } else {
-                gCurrentSprite.pOamData = sGoalBlockResult1Oam;
+                GP_SET(gCurrentSprite.pOamData, sGoalBlockResult1Oam);
             }
             result = 1;
             break;
@@ -534,7 +534,7 @@ void ResetGoalBlock(void)
             default: gCurrentSprite.animationTimer = 35; break;
         }
         gCurrentSprite.currentAnimationFrame = 0;
-        gCurrentSprite.pOamData = sGoalBlockIdleOam;
+        GP_SET(gCurrentSprite.pOamData, sGoalBlockIdleOam);
         gCurrentSprite.pose = SPOSE_IDLE;
         gCurrentSprite.warioCollision = 54;
     } else if (timer == 19) {
@@ -596,7 +596,7 @@ void InitChanceWheelRewardEffect(void)
     gCurrentSprite.hitboxExtentDown = 4;
     gCurrentSprite.hitboxExtentLeft = 4;
     gCurrentSprite.hitboxExtentRight = 4;
-    gCurrentSprite.pOamData = sChanceWheelRewardEffectOam;
+    GP_SET(gCurrentSprite.pOamData, sChanceWheelRewardEffectOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.warioCollision = 6;

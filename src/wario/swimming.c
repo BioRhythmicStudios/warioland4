@@ -1907,14 +1907,14 @@ loadAnimationR1:
 
 animationSelected:
     animation += wario->unk_1F;
-    graphics = (const u8 *)animation->objData;
+    graphics = (const u8 *)GP(animation->objData);
     wario->objData1Size = *graphics << 5;
     graphics++;
     wario->objData2Size = *graphics << 5;
     graphics++;
-    wario->pObjData1 = (u8 *)graphics;
-    wario->pObjData2 = (u8 *)graphics + wario->objData1Size;
-    wario->pOamData = animation->oamData;
+    GP_SET(wario->pObjData1, (u8 *)graphics);
+    GP_SET(wario->pObjData2, (u8 *)graphics + wario->objData1Size);
+    GP_SET(wario->pOamData, GP(animation->oamData));
 
     palettePose = *(volatile u8 *)&wario->pose;
     if (palettePose == 6 && (gMainTimer & 7) <= 3) {

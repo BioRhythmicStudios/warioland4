@@ -108,7 +108,7 @@ void UpdateAnimatedGraphics(void)
                 complementedFrameIndex = ~graphicsState->frameIndex;
                 sourceFrameIndex = complementedFrameIndex + 1;
             }
-            sourceAddress = (u32)graphicsState->tiles + (((s8)sourceFrameIndex) << 7);
+            sourceAddress = (u32)GP(graphicsState->tiles) + (((s8)sourceFrameIndex) << 7);
             destinationAddress = 0x06004000 + (slotIndex << 7);
             dmaRegisters = (vu32*)0x040000D4;
             dmaRegisters[0] = sourceAddress;
@@ -173,7 +173,7 @@ void InitAnimatedGraphics(void)
         graphicsState->frameCount = frameCount;
         graphicsState->frameTimer = zeroValue;
         graphicsState->frameIndex = zeroValue;
-        graphicsState->tiles = definition->tiles;
+        GP_SET(graphicsState->tiles, GP(definition->tiles));
         if ((graphicsState->mode == 3) || (graphicsState->mode == 6)) {
             u8 lastFrameIndex;
             lastFrameIndex = frameCount - 1;
@@ -186,7 +186,7 @@ void InitAnimatedGraphics(void)
             u32 destinationBase;
 
             tileFrameOffset = graphicsState->frameIndex << 7;
-            sourceAddress = (u32)graphicsState->tiles;
+            sourceAddress = (u32)GP(graphicsState->tiles);
             sourceAddress += tileFrameOffset;
             destinationAddress = slotIndex << 7;
             destinationBase = 0x06004000;
@@ -282,7 +282,7 @@ void ReloadAnimatedGraphicsForSwitch(u8 switchId)
             graphicsState->frameCount = frameCount;
             graphicsState->frameTimer = zeroValue;
             graphicsState->frameIndex = zeroValue;
-            graphicsState->tiles = definition->tiles;
+            GP_SET(graphicsState->tiles, GP(definition->tiles));
             animationMode = definition->mode;
             reversePlaybackModeStart = 5;
             if ((animationMode <= 6) && (animationMode >= reversePlaybackModeStart)) {
@@ -296,7 +296,7 @@ void ReloadAnimatedGraphicsForSwitch(u8 switchId)
                 u32 destinationAddress;
                 u32 destinationBase;
                 tileFrameOffset = graphicsState->frameIndex << 7;
-                sourceAddress = (u32)graphicsState->tiles;
+                sourceAddress = (u32)GP(graphicsState->tiles);
                 sourceAddress += tileFrameOffset;
                 destinationAddress = slotIndex << 7;
                 destinationBase = 0x06004000;

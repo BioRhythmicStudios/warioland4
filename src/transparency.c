@@ -38,7 +38,7 @@ void TransparencyProcessTiles(s32 isMoving)
     alpha = (temp * gBackgroundInfo.bg1Width) + xTile;
     {
         u8** bgTileLookupPointer = (u8**)&gBackgroundTileTables;
-        u32 tile = gBackgroundInfo.pBg0Data[alpha];
+        u32 tile = GP(gBackgroundInfo.pBg0Data)[alpha];
         alpha = bgTileLookupPointer[1][tile];
         alpha -= 0x80;
     }

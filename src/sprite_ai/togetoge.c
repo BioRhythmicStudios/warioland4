@@ -17,7 +17,7 @@ void InitTogetoge(void)
     sprite->hitboxExtentDown = 148;
     sprite->hitboxExtentLeft = 32;
     sprite->hitboxExtentRight = 28;
-    sprite->pOamData = sTogetogeIdleOam;
+    GP_SET(sprite->pOamData, sTogetogeIdleOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->warioCollision = 12;
@@ -74,7 +74,7 @@ void TogetogeFall(void)
     if (gSpriteCollisionResult != 0)
     {
         sprite->yPosition = y;
-        sprite->pOamData = sTogetogeFallingOam;
+        GP_SET(sprite->pOamData, sTogetogeFallingOam);
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
         SpriteUtilTurnTowardWario();

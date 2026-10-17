@@ -31,7 +31,7 @@ void DiceIdleInit(void)
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
-    gCurrentSprite.pOamData = sDiceIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceIdleOam);
     gCurrentSprite.warioCollision = 3;
     UpdateDiceHorizontalHitbox();
 }
@@ -87,7 +87,7 @@ void DiceIdle(void)
 
 void DiceTurnInit(void)
 {
-    gCurrentSprite.pOamData = sDiceTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -143,7 +143,7 @@ void DiceTurn(void)
                 zero = 0;
                 sprite->status = status;
                 UpdateDiceHorizontalHitbox();
-                sprite->pOamData = sDiceTurningAroundOam;
+                GP_SET(sprite->pOamData, sDiceTurningAroundOam);
                 sprite->currentAnimationFrame = zero;
                 sprite->animationTimer = remaining;
                 sprite->pose = SPOSE_14;
@@ -160,7 +160,7 @@ void DiceTurn(void)
 
 void DiceRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sDiceRecoveringOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceRecoveringOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -172,7 +172,7 @@ void DiceRecoverInit(void)
 
 void DiceGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sDiceGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -181,7 +181,7 @@ void DiceGetUpInit(void)
 
 void DiceFallingInit(void)
 {
-    gCurrentSprite.pOamData = sDiceFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -193,7 +193,7 @@ void DiceFallingInit(void)
 
 void DiceStunnedFallingInit(void)
 {
-    gCurrentSprite.pOamData = sDiceStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
@@ -206,9 +206,9 @@ void DiceStunnedFallingInit(void)
 void DiceTackledInit(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sDiceTackledOam;
+        GP_SET(gCurrentSprite.pOamData, sDiceTackledOam);
     } else {
-        gCurrentSprite.pOamData = sDiceAlternateTackledOam;
+        GP_SET(gCurrentSprite.pOamData, sDiceAlternateTackledOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -236,9 +236,9 @@ void DiceTackledLeftInit(void)
 void DiceDefeatedInit(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sDiceTackledOam;
+        GP_SET(gCurrentSprite.pOamData, sDiceTackledOam);
     } else {
-        gCurrentSprite.pOamData = sDiceAlternateTackledOam;
+        GP_SET(gCurrentSprite.pOamData, sDiceAlternateTackledOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -263,7 +263,7 @@ void DiceDefeatedLeftInit(void)
 
 void DicePushedInit(void)
 {
-    gCurrentSprite.pOamData = sDicePushedOam;
+    GP_SET(gCurrentSprite.pOamData, sDicePushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -288,7 +288,7 @@ void DicePushedLeftInit(void)
 
 void DiceAlternatePushedInit(void)
 {
-    gCurrentSprite.pOamData = sDiceAlternatePushedOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceAlternatePushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -310,7 +310,7 @@ void DiceAlternatePushedLeftInit(void)
 
 void DicePose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sDiceStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -334,9 +334,9 @@ void DicePose2DInit(void)
 void DiceCrushed(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sDiceCrushedOam;
+        GP_SET(gCurrentSprite.pOamData, sDiceCrushedOam);
     } else {
-        gCurrentSprite.pOamData = sDiceAlternateCrushedOam;
+        GP_SET(gCurrentSprite.pOamData, sDiceAlternateCrushedOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -354,9 +354,9 @@ void DiceInstantlyKill(void)
 void DiceStunnedInit(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sDiceStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sDiceStunnedOam);
     } else {
-        gCurrentSprite.pOamData = sDiceAlternateStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sDiceAlternateStunnedOam);
     }
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
@@ -384,7 +384,7 @@ void DicePose35Init(void)
 
 void DiceStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sDiceStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -408,7 +408,7 @@ void DicePose49Init(void)
 
 void DiceAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sDiceFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceFallingOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;
@@ -463,7 +463,7 @@ void DiceAirborne(void)
 
 void DiceHeldInit(void)
 {
-    gCurrentSprite.pOamData = sDiceStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -483,7 +483,7 @@ void DiceLiftedLeftInit(void)
 void DiceCarriedInit(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sDiceStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }

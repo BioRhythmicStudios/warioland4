@@ -45,8 +45,8 @@ void UpdateRoomStartDebugInfo(void)
     warioXTile = gWarioData.xPosition >> 6;
     warioYTile = gWarioData.yPosition >> 6;
     tileTypeIndex = warioYTile * gBackgroundInfo.bg1Width + warioXTile;
-    attribute = gBackgroundInfo.pBg1Data[tileTypeIndex];
-    attribute = gBackgroundTileTables.attributes[attribute];
+    attribute = GP(gBackgroundInfo.pBg1Data)[tileTypeIndex];
+    attribute = GP(gBackgroundTileTables.attributes)[attribute];
     gGameScreenDebugInfo.tileAttribute = attribute;
     roomStart = sRoomStartDataTables[gStageRoomTableIndex];
     entryIndex = 0;
@@ -95,10 +95,10 @@ s32 GetWarioBlockCollisionAtPosition(u32 yPosition, u32 xPosition)
     context.localX = x >> 6;
     tileTypeIndex = context.localY * gBackgroundInfo.bg1Width + context.localX;
     tables = &gBackgroundTileTables;
-    tileType = gBackgroundInfo.pBg1Data[tileTypeIndex];
-    layerCollision[1] = tables->bottom[tileType];
-    tileType = gBackgroundInfo.pBg2Data[tileTypeIndex];
-    layerCollision[2] = tables->bottom[tileType];
+    tileType = GP(gBackgroundInfo.pBg1Data)[tileTypeIndex];
+    layerCollision[1] = GP(tables->bottom)[tileType];
+    tileType = GP(gBackgroundInfo.pBg2Data)[tileTypeIndex];
+    layerCollision[2] = GP(tables->bottom)[tileType];
     context.tileType = layerCollision[1];
     context.localY = y & BLOCK_TILE_MASK;
     context.localX = x & BLOCK_TILE_MASK;
@@ -157,7 +157,7 @@ s32 GetSpriteBlockCollisionAtPosition(u16 y, u16 x)
             }
             gSpriteTileInteractionMode = 0;
         }
-        layerCollision[layer] = gBackgroundTileTables.bottom[layerCollision[layer]];
+        layerCollision[layer] = GP(gBackgroundTileTables.bottom)[layerCollision[layer]];
     }
 
     context.tileType = layerCollision[1];

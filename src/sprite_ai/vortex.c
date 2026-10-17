@@ -74,7 +74,7 @@ void VortexInitSmallPart(void)
     gCurrentSprite.drawDistanceDown = BLOCK_SIZE_PIXELS;
     gCurrentSprite.drawDistanceUp = BLOCK_SIZE_PIXELS;
     gCurrentSprite.drawDistanceLeftRight = BLOCK_SIZE_PIXELS;
-    gCurrentSprite.pOamData = sVortexSmallPartOam;
+    GP_SET(gCurrentSprite.pOamData, sVortexSmallPartOam);
     VortexSetCommonProperties();
 }
 
@@ -84,7 +84,7 @@ void VortexInitMediumPart(void)
     gCurrentSprite.drawDistanceDown = 2 * BLOCK_SIZE_PIXELS;
     gCurrentSprite.drawDistanceUp = 2 * BLOCK_SIZE_PIXELS;
     gCurrentSprite.drawDistanceLeftRight = 2 * BLOCK_SIZE_PIXELS;
-    gCurrentSprite.pOamData = sVortexMediumPartOam;
+    GP_SET(gCurrentSprite.pOamData, sVortexMediumPartOam);
     VortexSetCommonProperties();
 }
 
@@ -94,7 +94,7 @@ void VortexInitLargePart(void)
     gCurrentSprite.drawDistanceDown = 2 * BLOCK_SIZE_PIXELS;
     gCurrentSprite.drawDistanceUp = 2 * BLOCK_SIZE_PIXELS;
     gCurrentSprite.drawDistanceLeftRight = 2 * BLOCK_SIZE_PIXELS;
-    gCurrentSprite.pOamData = sVortexLargePartOam;
+    GP_SET(gCurrentSprite.pOamData, sVortexLargePartOam);
     VortexSetCommonProperties();
 }
 
@@ -409,7 +409,7 @@ void SpriteWarioExitingVortex(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             VortexInitWarioOrKeyzer();
-            gCurrentSprite.pOamData = sVortexWarioOam;
+            GP_SET(gCurrentSprite.pOamData, sVortexWarioOam);
             gCurrentSprite.work0 = CONVERT_SECONDS(1.0);
             gCurrentSprite.work1 = -ANGLE_PI / 8;
             gCurrentSprite.work2 = 0x100 / 16;
@@ -453,7 +453,7 @@ void SpriteWarioEnteringVortex(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             VortexInitWarioOrKeyzer();
-            gCurrentSprite.pOamData = sVortexWarioOam;
+            GP_SET(gCurrentSprite.pOamData, sVortexWarioOam);
             gCurrentSprite.work0 = CONVERT_SECONDS(1.0);
             gCurrentSprite.work1 = -ANGLE_PI / 8;
             gCurrentSprite.work2 = 0;
@@ -499,7 +499,7 @@ void SpriteKeyzerEnteringVortex(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             VortexInitWarioOrKeyzer();
-            gCurrentSprite.pOamData = sVortexKeyzerOam;
+            GP_SET(gCurrentSprite.pOamData, sVortexKeyzerOam);
             gCurrentSprite.work0 = CONVERT_SECONDS(1.0);
             gCurrentSprite.work1 = -ANGLE_PI / 8;
             gCurrentSprite.work2 = 0;

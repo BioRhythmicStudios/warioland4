@@ -64,7 +64,7 @@ void SwitchInit(void)
     sprite = &gCurrentSprite;
     sprite->warioCollision = 48;
     sprite->hitboxExtentUp = 168;
-    sprite->pOamData = sSwitchIdleOam;
+    GP_SET(sprite->pOamData, sSwitchIdleOam);
     sprite->pose = 16;
     SwitchSetCommonProperties();
 }
@@ -76,7 +76,7 @@ void SwitchInitPressed(void)
     sprite = &gCurrentSprite;
     sprite->warioCollision = 29;
     sprite->hitboxExtentUp = 176;
-    sprite->pOamData = sSwitchPressedOam;
+    GP_SET(sprite->pOamData, sSwitchPressedOam);
     sprite->pose = 48;
     SwitchSetCommonProperties();
     SpawnHighPriorityPrimarySprite(170, sprite->roomSlot, sprite->gfxSlot, sprite->yPosition, sprite->xPosition);
@@ -93,7 +93,7 @@ void EscapeSwitchInit(void)
     persistent[gCurrentRoom * MAX_SPRITE_SLOTS_PER_ROOM + sprite->roomSlot] = 17;
     sprite->warioCollision = 48;
     sprite->hitboxExtentUp = 168;
-    sprite->pOamData = sEscapeSwitchIdleOam;
+    GP_SET(sprite->pOamData, sEscapeSwitchIdleOam);
     sprite->pose = 111;
     sprite->work0 = 1;
     SwitchSetCommonProperties();
@@ -108,7 +108,7 @@ void EscapeSwitchWaitForWario(void)
         sprite = &gCurrentSprite;
         timer = --sprite->work0;
         if (timer == 0) {
-            sprite->pOamData = sEscapeSwitchWaitingOam;
+            GP_SET(sprite->pOamData, sEscapeSwitchWaitingOam);
             sprite->currentAnimationFrame = timer;
             sprite->animationTimer = timer;
             sprite->work0 = 130;
@@ -125,7 +125,7 @@ void EscapeSwitchReset(void)
     sprite = &gCurrentSprite;
     timer = --sprite->work0;
     if (timer == 0) {
-        sprite->pOamData = sSwitchIdleOam;
+        GP_SET(sprite->pOamData, sSwitchIdleOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 16;
@@ -145,7 +145,7 @@ void EscapeSwitchActivate(void)
     zero = 0;
     *persistentEntry = 33;
     sprite->warioCollision = 29;
-    sprite->pOamData = sEscapeSwitchPressedOam;
+    GP_SET(sprite->pOamData, sEscapeSwitchPressedOam);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     sprite->pose = 18;
@@ -212,7 +212,7 @@ void EscapeSwitchCountdown(void)
         u8 resetTimer;
         u8* storePtr;
 
-        sprite->pOamData = sEscapeSwitchActiveOam;
+        GP_SET(sprite->pOamData, sEscapeSwitchActiveOam);
         sprite->currentAnimationFrame = checkedTimer;
         sprite->animationTimer = checkedTimer;
         sprite->pose = 24;
@@ -231,7 +231,7 @@ void SwitchReleaseDelay(void)
     sprite = &gCurrentSprite;
     timer = --sprite->work0;
     if (timer == 0) {
-        sprite->pOamData = sSwitchReleasedOam;
+        GP_SET(sprite->pOamData, sSwitchReleasedOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 20;
@@ -264,7 +264,7 @@ void SwitchRespawnDelay(void)
         *hitboxPtr = 176;
         oam = sSwitchPressedOam;
         work = sprite;
-        work->pOamData = oam;
+        GP_SET(work->pOamData, oam);
         work->currentAnimationFrame = timer;
         work->animationTimer = timer;
         work->pose = 48;
@@ -290,7 +290,7 @@ void SwitchUpdateActivationEffects(void)
     switch (gCurrentSprite.work0) {
         case 33:
             SpawnSecondarySprite(gCurrentSprite.yPosition - 30, gCurrentSprite.xPosition, SSPRITE_06);
-            gCurrentSprite.pOamData = sSwitchEffectActiveOam;
+            GP_SET(gCurrentSprite.pOamData, sSwitchEffectActiveOam);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
             break;

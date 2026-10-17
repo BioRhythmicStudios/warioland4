@@ -426,7 +426,7 @@ void BoxInit1(void)
     gCurrentSprite.hitboxExtentUp = BLOCK_SIZE;
     gCurrentSprite.warioCollision = 0x19;
     gCurrentSprite.pose = SPOSE_CRUSHED_OR_COLLECTED;
-    gCurrentSprite.pOamData = sBoxJewelPieceOpenedOam;
+    GP_SET(gCurrentSprite.pOamData, sBoxJewelPieceOpenedOam);
     gCurrentSprite.work0 = CONVERT_SECONDS(5.0 / 6.0);
     BoxSetCommonProperties();
 }
@@ -441,7 +441,7 @@ void BoxStartOpening(void)
     gCurrentSprite.pose = SPOSE_12;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sBoxJewelPieceOpeningOam;
+    GP_SET(gCurrentSprite.pOamData, sBoxJewelPieceOpeningOam);
     gCurrentSprite.work0 = CONVERT_SECONDS(0.2) + DELTA_TIME;
     gCurrentSprite.hitboxExtentUp = BLOCK_SIZE;
     gCurrentSprite.warioCollision = 0x19;
@@ -456,7 +456,7 @@ void BoxFinishOpening(void)
     gCurrentSprite.pose = SPOSE_CRUSHED_OR_COLLECTED;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sBoxJewelPieceOpenedOam;
+    GP_SET(gCurrentSprite.pOamData, sBoxJewelPieceOpenedOam);
     gCurrentSprite.work0 = CONVERT_SECONDS(5.0 / 6.0);
     SpriteSpawnAsChild(PSPRITE_COIN_500POINTS, 0, 0, gCurrentSprite.yPosition - BLOCK_SIZE, gCurrentSprite.xPosition);
 }
@@ -510,7 +510,7 @@ void TreasureGlow_Init(void)
     gCurrentSprite.hitboxExtentLeft = PIXEL_SIZE;
     gCurrentSprite.hitboxExtentRight = PIXEL_SIZE;
     gCurrentSprite.warioCollision = 6;
-    gCurrentSprite.pOamData = sTreasureGlowOam;
+    GP_SET(gCurrentSprite.pOamData, sTreasureGlowOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work3 = 0;
@@ -519,7 +519,7 @@ void TreasureGlow_Init(void)
 
 void TreasureGlow_Collected(void)
 {
-    gCurrentSprite.pOamData = sTreasureGlowDisappearingOam;
+    GP_SET(gCurrentSprite.pOamData, sTreasureGlowDisappearingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -531,7 +531,7 @@ void SpriteBoxJewelPieceNE(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             BoxInit();
-            gCurrentSprite.pOamData = sBoxJewelPieceNEClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxJewelPieceNEClosedOam);
             break;
 
         case SPOSE_INIT_1:
@@ -602,7 +602,7 @@ void SpriteBoxJewelPieceSE(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             BoxInit();
-            gCurrentSprite.pOamData = sBoxJewelPieceSEClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxJewelPieceSEClosedOam);
             break;
 
         case SPOSE_INIT_1:
@@ -673,7 +673,7 @@ void SpriteBoxJewelPieceSW(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             BoxInit();
-            gCurrentSprite.pOamData = sBoxJewelPieceSWClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxJewelPieceSWClosedOam);
             break;
 
         case SPOSE_INIT_1:
@@ -744,7 +744,7 @@ void SpriteBoxJewelPieceNW(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             BoxInit();
-            gCurrentSprite.pOamData = sBoxJewelPieceNWClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxJewelPieceNWClosedOam);
             break;
 
         case SPOSE_INIT_1:
@@ -815,12 +815,12 @@ void SpriteBoxCD(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             BoxInit();
-            gCurrentSprite.pOamData = sBoxCDClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxCDClosedOam);
             break;
 
         case SPOSE_INIT_1:
             BoxInit1();
-            gCurrentSprite.pOamData = sBoxCDOpenedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxCDOpenedOam);
             SpriteSpawnAsChild(
                 PSPRITE_CD,
                 gCurrentSprite.roomSlot,
@@ -846,14 +846,14 @@ void SpriteBoxCD(void)
         case SPOSE_33:
         case SPOSE_35:
             BoxStartOpening();
-            gCurrentSprite.pOamData = sBoxCDOpeningOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxCDOpeningOam);
         case SPOSE_12:
             TIMER_COUNT_DOWN(gCurrentSprite.work0);
             if (gCurrentSprite.work0 > 0) {
                 break;
             }
             BoxFinishOpening();
-            gCurrentSprite.pOamData = sBoxCDOpenedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxCDOpenedOam);
             if (gCollectedCD) {
                 gPersistentSpriteData[gCurrentRoom][gCurrentSprite.roomSlot] =
                     MAKE_PERSISTENT_DATA(SPOSE_INIT_2, PERSISTENT_STATUS_LOADED);
@@ -889,12 +889,12 @@ void SpriteBoxHeartRefill(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             BoxInit();
-            gCurrentSprite.pOamData = sBoxHeartRefillClosedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxHeartRefillClosedOam);
             break;
 
         case SPOSE_INIT_1:
             BoxInit1();
-            gCurrentSprite.pOamData = sBoxHeartRefillOpenedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxHeartRefillOpenedOam);
             SpriteSpawnAsChild(
                 PSPRITE_HEART_REFILL,
                 gCurrentSprite.roomSlot,
@@ -920,14 +920,14 @@ void SpriteBoxHeartRefill(void)
         case SPOSE_33:
         case SPOSE_35:
             BoxStartOpening();
-            gCurrentSprite.pOamData = sBoxHeartRefillOpeningOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxHeartRefillOpeningOam);
         case SPOSE_12:
             TIMER_COUNT_DOWN(gCurrentSprite.work0);
             if (gCurrentSprite.work0 > 0) {
                 break;
             }
             BoxFinishOpening();
-            gCurrentSprite.pOamData = sBoxHeartRefillOpenedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxHeartRefillOpenedOam);
             SpriteSpawnAsChild(
                 PSPRITE_HEART_REFILL,
                 gCurrentSprite.roomSlot,
@@ -961,7 +961,7 @@ void SpriteJewelPieceNE(void)
 
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
-            gCurrentSprite.pOamData = sJewelPieceNEOam;
+            GP_SET(gCurrentSprite.pOamData, sJewelPieceNEOam);
             Treasure_Init();
             break;
 
@@ -1000,7 +1000,7 @@ void SpriteJewelPieceSE(void)
 
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
-            gCurrentSprite.pOamData = sJewelPieceSEOam;
+            GP_SET(gCurrentSprite.pOamData, sJewelPieceSEOam);
             Treasure_Init();
             break;
 
@@ -1039,7 +1039,7 @@ void SpriteJewelPieceSW(void)
 
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
-            gCurrentSprite.pOamData = sJewelPieceSWOam;
+            GP_SET(gCurrentSprite.pOamData, sJewelPieceSWOam);
             Treasure_Init();
             break;
 
@@ -1078,7 +1078,7 @@ void SpriteJewelPieceNW(void)
 
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
-            gCurrentSprite.pOamData = sJewelPieceNWOam;
+            GP_SET(gCurrentSprite.pOamData, sJewelPieceNWOam);
             Treasure_Init();
             break;
 
@@ -1117,7 +1117,7 @@ void SpriteCD(void)
 
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
-            gCurrentSprite.pOamData = sCDOam;
+            GP_SET(gCurrentSprite.pOamData, sCDOam);
             Treasure_Init();
             break;
 
@@ -1156,7 +1156,7 @@ void SpriteHeartRefill(void)
 
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
-            gCurrentSprite.pOamData = sHeartRefillOam;
+            GP_SET(gCurrentSprite.pOamData, sHeartRefillOam);
             Treasure_Init();
             break;
 
@@ -1380,7 +1380,7 @@ void SpriteTreasureUnused(void)
             gCurrentSprite.hitboxExtentRight = BLOCK_SIZE - EIGHTH_BLOCK_SIZE;
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
-            gCurrentSprite.pOamData = sBoxJewelPieceOpenedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxJewelPieceOpenedOam);
             gCurrentSprite.pose = SPOSE_IDLE;
             gCurrentSprite.warioCollision = 0x19;
             gCurrentSprite.work1 = 0;
@@ -1397,7 +1397,7 @@ void SpriteUnknown10(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_INIT:
             BoxInit();
-            gCurrentSprite.pOamData = sBoxJewelPieceOpenedOam;
+            GP_SET(gCurrentSprite.pOamData, sBoxJewelPieceOpenedOam);
             break;
     }
 }

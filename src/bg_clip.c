@@ -60,7 +60,7 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
     tileX = shiftedX >> 22;
     roomHeaderInit = &gCurrentRoomHeader;
     ASM_BARRIER(: "=r"(roomHeader) : "0"(roomHeaderInit));
-    attributeTable = gBackgroundTileTables.attributes;
+    attributeTable = GP(gBackgroundTileTables.attributes);
     destination = stack.attributes;
     layer = (struct BackgroundInfo*)&background->pBg1Data;
     layerIndex = 1;
@@ -76,7 +76,7 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
         temporary = product;
         product = tileX;
         tileIndex = temporary + product;
-        tileMap = layer->pBg0Data;
+        tileMap = GP(layer->pBg0Data);
         temporary = tileIndex << 1;
         temporary += (u32)tileMap;
         tileIndex = *(u16*)temporary;
@@ -245,12 +245,12 @@ process_bg0_collision:
         tileIndex *= width;
         tileIndex += tileX;
         backgroundReload = background;
-        tileMap = backgroundReload->pBg0Data;
+        tileMap = GP(backgroundReload->pBg0Data);
         tileIndex <<= 1;
         tileIndex += (u32)tileMap;
         tileIndex = *(u16*)tileIndex;
         tables = &gBackgroundTileTables;
-        attributesReload = tables->attributes;
+        attributesReload = GP(tables->attributes);
         tileIndex <<= 1;
         tileIndex += (u32)attributesReload;
         bgAttribute = *(u16*)tileIndex;
@@ -346,11 +346,11 @@ s32 GetBg2CollisionTypeAtTile(s32 y, s32 x)
     indexTemporary = background->bg2Width;
     indexTemporary *= yCoord;
     xCoord = indexTemporary + xSaved;
-    tileMap = background->pBg2Data;
+    tileMap = GP(background->pBg2Data);
     indexTemporary = xCoord << 1;
     indexTemporary += (u32)tileMap;
     tile = *(u16*)indexTemporary;
-    tile = gBackgroundTileTables.attributes[tile];
+    tile = GP(gBackgroundTileTables.attributes)[tile];
 
     if ((u32)(tile - 96) <= 7) {
         result = 1;
@@ -496,7 +496,7 @@ void ApplyRoomTransitionTileOffset(u8 value)
     count = gRoomTransitionTileDataCount;
     if (count != 0) {
         background = &gBackgroundInfo;
-        loadedMap = background->pBg1Data;
+        loadedMap = GP(background->pBg1Data);
         map = loadedMap;
         data = (u16*)0x02039F80 + count;
         do {
@@ -560,7 +560,7 @@ void SetRoomTransitionTileValues(s32 value)
             index *= width;
             width = packed >> 24;
             index += width;
-            map = background->pBg1Data;
+            map = GP(background->pBg1Data);
             map[index] = tileValue;
         }
         data++;

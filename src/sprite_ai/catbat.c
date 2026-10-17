@@ -240,7 +240,7 @@ void InitCatbatMineSpawner(void)
 
     oam = sCatbatOam_83CF478;
     base = sprite;
-    base->pOamData = oam;
+    GP_SET(base->pOamData, oam);
     base->currentAnimationFrame = zeroByte;
     base->animationTimer = zeroHalf;
     base->pose = sixteen;
@@ -367,7 +367,7 @@ void InitCatbat(void)
     sprite->warioCollision = 64;
     sprite->health = 12;
     sprite->pose = 1;
-    sprite->pOamData = sCatbatOam_83CE468;
+    GP_SET(sprite->pOamData, sCatbatOam_83CE468);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     sprite->work3 = zeroByte;
@@ -464,7 +464,7 @@ void UpdateCatbatIntroDelay(void)
     if (normalizedTimer == 0) {
         sprite->pose = 3;
         *timer = 96;
-        sprite->pOamData = sCatbatOam_83CF164;
+        GP_SET(sprite->pOamData, sCatbatOam_83CF164);
         frameZero = 0;
         sprite->currentAnimationFrame = frameZero;
         sprite->animationTimer = normalizedTimer;
@@ -515,7 +515,7 @@ void UpdateCatbatIntroRoar(void)
     normalizedTimer = ((u32)timerValue << 24) >> 24;
     if (normalizedTimer == 0) {
         sprite->pose = 4;
-        sprite->pOamData = sCatbatOam_83CD334;
+        GP_SET(sprite->pOamData, sCatbatOam_83CD334);
         frameZero = 0;
         sprite->currentAnimationFrame = frameZero;
         sprite->animationTimer = normalizedTimer;
@@ -641,7 +641,7 @@ void InitCatbatPatrol(void)
         else
             animation = sCatbatOam_83CD334;
     }
-    current->pOamData = animation;
+    GP_SET(current->pOamData, animation);
     {
         int zeroFrame;
         int zeroWork;
@@ -1001,7 +1001,7 @@ void InitCatbatDefeat(void)
     zero = 0;
     pose = 50;
     sprite->pose = pose;
-    sprite->pOamData = sCatbatOam_83CE490;
+    GP_SET(sprite->pOamData, sCatbatOam_83CE490);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     sprite = (struct PrimarySpriteData *)((u8 *)sprite + 41);
@@ -1082,7 +1082,7 @@ void InitCatbatDamaged(void)
     gCuckooCondorMoveRight = 1;
     zero = 0;
     sprite->pose = 109;
-    sprite->pOamData = sCatbatOam_83CD35C;
+    GP_SET(sprite->pOamData, sCatbatOam_83CD35C);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     if (sprite->health < ((gInitialHealth >> 1) + 1)) {
@@ -1144,7 +1144,7 @@ void UpdateCatbatDamaged(void)
         } else if (timer == 64) {
             DmaCopy16(3, sUnk_83CBE54, (void *)0x06015420, 0xE0);
             sprite->warioCollision = 63;
-            sprite->pOamData = sCatbatOam_83CE490;
+            GP_SET(sprite->pOamData, sCatbatOam_83CE490);
         }
         goto end;
     }
@@ -1202,7 +1202,7 @@ void InitCatbatProjectileAttack(void)
         animation = sCatbatOam_83CE4D0;
     else
         animation = sCatbatOam_83CD3EC;
-    current->pOamData = animation;
+    GP_SET(current->pOamData, animation);
     {
         int zeroFrame;
         int zeroWork;
@@ -1252,7 +1252,7 @@ void InitCatbatProjectileAttackRelease(void)
         animation = sCatbatOam_83CE4A8;
     else
         animation = sCatbatOam_83CD374;
-    sprite->pOamData = animation;
+    GP_SET(sprite->pOamData, animation);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->work2 = 64;
@@ -1399,9 +1399,9 @@ void InitCatbatIdleAttack(void)
     sprite = &gCurrentSprite;
     sprite->pose = 22;
     if (gSpriteAiDynamicGraphicsTimer != 0)
-        sprite->pOamData = sCatbatOam_83CE4A8;
+        GP_SET(sprite->pOamData, sCatbatOam_83CE4A8);
     else
-        sprite->pOamData = sCatbatOam_83CD374;
+        GP_SET(sprite->pOamData, sCatbatOam_83CD374);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->work2 = 60;
@@ -1453,7 +1453,7 @@ void InitCatbatDeathExplosion(void)
     sprite = &gCurrentSprite;
     zero = 0;
     sprite->pose = 121;
-    sprite->pOamData = sCatbatOam_83CE4F8;
+    GP_SET(sprite->pOamData, sCatbatOam_83CE4F8);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     sprite->work2 = 120;
@@ -1575,7 +1575,7 @@ void InitCatbatShopItemHit(void)
     work = &sprite->work2;
     zero = 0;
     *work = delay;
-    sprite->pOamData = sCatbatOam_83CE490;
+    GP_SET(sprite->pOamData, sCatbatOam_83CE490);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     gBossSequenceState = 32;
@@ -1659,7 +1659,7 @@ void UpdateCatbatShopItemHit(void)
                 *timerPtr = delay;
                 gInitialHealth = sprite->health;
                 sprite->pose = 2;
-                sprite->pOamData = sCatbatOam_83CE468;
+                GP_SET(sprite->pOamData, sCatbatOam_83CE468);
                 sprite->currentAnimationFrame = zeroByte;
                 {
                     int zeroWork;
@@ -1733,7 +1733,7 @@ void InitCatbatGroundWave(void)
 
     oam = sCatbatOam_83CF594;
     base = sprite;
-    base->pOamData = oam;
+    GP_SET(base->pOamData, oam);
     base->currentAnimationFrame = zeroByte;
     base->animationTimer = zeroHalf;
     base->pose = 1;
@@ -1766,7 +1766,7 @@ void UpdateCatbatGroundWaveTurn(void)
     u8 *timer;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sCatbatOam_83CF5EC;
+    GP_SET(sprite->pOamData, sCatbatOam_83CF5EC);
     zero = 0;
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
@@ -1782,7 +1782,7 @@ void InitCatbatGroundWaveReturn(void)
     u8 *timer;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sCatbatOam_83CF594;
+    GP_SET(sprite->pOamData, sCatbatOam_83CF594);
     zero = 0;
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
@@ -1832,7 +1832,7 @@ void InitCatbatGroundWaveDisappear(void)
     u8 *timer;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sCatbatOam_83CF5BC;
+    GP_SET(sprite->pOamData, sCatbatOam_83CF5BC);
     zero = 0;
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
@@ -1865,7 +1865,7 @@ void UpdateCatbatGroundWaveDisappear(void)
         value = sprite->status ^ SPRITE_STATUS_FACING_RIGHT;
         clear = 0;
         sprite->status = value;
-        sprite->pOamData = sCatbatOam_83CF5D4;
+        GP_SET(sprite->pOamData, sCatbatOam_83CF5D4);
         sprite->currentAnimationFrame = clear;
         sprite->animationTimer = zero;
         sprite->pose = 20;
@@ -1884,7 +1884,7 @@ void InitCatbatGroundWaveDelay(void)
     int zero;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sCatbatOam_83CF594;
+    GP_SET(sprite->pOamData, sCatbatOam_83CF594);
     zero = 0;
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
@@ -1987,7 +1987,7 @@ void InitCatbatLandingDebris(void)
     }
     oamData = sCatbatOam_83CF370;
     animationFrameByte = (u8 *) animationFramePtr;
-    sprite->pOamData = oamData;
+    GP_SET(sprite->pOamData, oamData);
     *animationFrameByte = zeroByte;
     sprite->animationTimer = zeroHalf;
     sprite->pose = sixteen;
@@ -2086,7 +2086,7 @@ void UpdateCatbatLandingDebris(void)
                     break;
             }
         } else {
-            initialSprite->pOamData = sCatbatOam_83CF3F0;
+            GP_SET(initialSprite->pOamData, sCatbatOam_83CF3F0);
             initialSprite->currentAnimationFrame = timerByte;
             initialSprite->animationTimer = timerByte;
             m4aSongNumStart(SOUND_B1);
@@ -2256,7 +2256,7 @@ void InitCatbatDebrisParticle(void)
 
     oam = sCatbatOam_83CF400;
     base = sprite;
-    base->pOamData = oam;
+    GP_SET(base->pOamData, oam);
     base->currentAnimationFrame = zeroByte;
     base->animationTimer = zeroHalf;
     base->pose = 16;
@@ -2347,7 +2347,7 @@ void InitCatbatProjectile(void)
         *extent = extentValue;
     }
 
-    sprite->pOamData = sCatbatOam_83CD39C;
+    GP_SET(sprite->pOamData, sCatbatOam_83CD39C);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     sprite->pose = 16;
@@ -2429,7 +2429,7 @@ void InitCatbatAttackEffect(void)
     extent++;
     *extent = sixteen;
 
-    base->pOamData = sCatbatOam_83CF478;
+    GP_SET(base->pOamData, sCatbatOam_83CF478);
     base->currentAnimationFrame = zeroByte;
     base->animationTimer = zeroHalf;
     base->pose = sixteen;
@@ -2556,7 +2556,7 @@ void UpdateCatbatAttackEffectDefault(void)
     zeroHalf = 0;
     affine |= status;
     sprite->status = affine;
-    sprite->pOamData = sCatbatOam_83CF4B8;
+    GP_SET(sprite->pOamData, sCatbatOam_83CF4B8);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     sprite->pose = 109;
@@ -2617,7 +2617,7 @@ void InitCatbatAttackEffectDespawn(void)
         SpawnSecondarySprite(sprite->yPosition, sprite->xPosition, 64);
     } else {
         sprite = &gCurrentSprite;
-        sprite->pOamData = sCatbatOam_83CF8BC;
+        GP_SET(sprite->pOamData, sCatbatOam_83CF8BC);
         sprite->currentAnimationFrame = value;
         zeroPalette = 0;
         sprite->animationTimer = value;

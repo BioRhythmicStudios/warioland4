@@ -27,7 +27,7 @@ struct AGB_ALIGN StageEntryAnimatedSpriteState {
 struct AGB_ALIGN StageEntrySpriteState {
     u16 x;
     u16 y;
-    const u8* data;
+    GBA_PTR(const u8*) data;
     u8 attribute;
 };
 

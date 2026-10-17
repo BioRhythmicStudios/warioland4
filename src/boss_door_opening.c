@@ -693,7 +693,7 @@ void UpdateBossDoorOpeningSprites(void)
                     }
                 }
                 if (largeIcon->state != 0) {
-                    source = (largeAnimation[largeIcon->frame].oam);
+                    source = (GP(largeAnimation[largeIcon->frame].oam));
                     slot += *source++;
                     if (slot > MAX_OAM_SLOTS) {
                         return;
@@ -823,7 +823,7 @@ void UpdateBossDoorOpeningSprites(void)
                                 tableBase = (const u8*)sUnk_863C5F4;
                                 tableIndex += (u32)tableBase;
                                 activeAnimation = *(const struct AnimationFrame* const*)tableIndex;
-                                source = activeAnimation[0].oam;
+                                source = GP(activeAnimation[0].oam);
                                 slot += *source++;
                                 {
                                     register s32 activeSlotCheck PIN("r1");
@@ -1077,7 +1077,7 @@ void UpdateBossDoorOpeningSprites(void)
                                 u32 frameIconAddress;
                                 frameIconAddress = iconOffset;
                                 frameIconAddress += (u32)savedIconsBase;
-                                source = (firstAnimation[((struct BossDoorOpeningIcon*)frameIconAddress)->frame].oam);
+                                source = (GP(firstAnimation[((struct BossDoorOpeningIcon*)frameIconAddress)->frame].oam));
                                 slot += *source++;
                                 if (slot > MAX_OAM_SLOTS) {
                                     return;
@@ -1184,7 +1184,7 @@ void UpdateBossDoorOpeningSprites(void)
                                 tableBase = (const u8*)sUnk_863C5F4;
                                 tableIndex += (u32)tableBase;
                                 secondAnimation = *(const struct AnimationFrame* const*)tableIndex;
-                                source = (secondAnimation[0].oam);
+                                source = (GP(secondAnimation[0].oam));
                                 slot += *source++;
                                 {
                                     s32 slotCheck;
@@ -1329,7 +1329,7 @@ void UpdateBossDoorOpeningSprites(void)
                     }
                 }
             }
-            source = finalAnimation[finalIcon->frame].oam;
+            source = GP(finalAnimation[finalIcon->frame].oam);
             slot += *source++;
             {
                 s32 slotCheck;
@@ -1435,7 +1435,7 @@ void UpdateBossDoorOpeningSprites(void)
             }
         }
     }
-    source = (inactiveAnimation[background->y].oam);
+    source = (GP(inactiveAnimation[background->y].oam));
     slot += *source++;
     if (slot > MAX_OAM_SLOTS) {
         return;
@@ -1633,7 +1633,7 @@ void UpdateBossDoorOpeningSprites(void)
                             currentIcon->frame = 0;
                         }
                     }
-                    source = firstAnimation[currentIcon->frame].oam;
+                    source = GP(firstAnimation[currentIcon->frame].oam);
                     slot += *source++;
                     {
                         u32 xMaskInit;
@@ -1739,7 +1739,7 @@ void UpdateBossDoorOpeningSprites(void)
                         tableBase = (const u8*)sUnk_863C5F4;
                         tableIndex += (u32)tableBase;
                         secondAnimation = *(const struct AnimationFrame* const*)tableIndex;
-                        source = secondAnimation[0].oam;
+                        source = GP(secondAnimation[0].oam);
                         slot += *source++;
                         {
                             u32 xMaskInit;
@@ -1856,7 +1856,7 @@ void UpdateBossDoorOpeningSprites(void)
         tableIndex += (u32)tableBase;
         finalAnimation = *(const struct AnimationFrame* const*)tableIndex;
         finalIcon = &gUnk_3004760;
-        source = (finalAnimation[finalIcon->frame].oam);
+        source = (GP(finalAnimation[finalIcon->frame].oam));
         slot += *source++;
         if (slot > MAX_OAM_SLOTS) {
             return;

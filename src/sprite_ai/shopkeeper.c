@@ -15,8 +15,8 @@
 #include "wario.h"
 
 struct AGB_ALIGN ShopkeeperDmaRegisters {
-    const void* volatile src;
-    void* volatile dst;
+    GBA_PTR(const void*) volatile src;
+    GBA_PTR(void*) volatile dst;
     volatile u32 control;
 };
 
@@ -90,12 +90,12 @@ void ShopkeeperUpdateGraphicsScript(const u8* script)
     }
     dma = (struct ShopkeeperDmaRegisters*)0x40000D4;
     src = (const u8*)sShopkeeperGraphicsFramePointers[frame];
-    dma->src = src;
-    dma->dst = (void*)0x6012400;
+    GP_SET(dma->src, src);
+    GP_SET(dma->dst, (void*)0x6012400);
     dma->control = 0x80000080;
     (void)dma->control;
-    dma->src = src + 0x400;
-    dma->dst = (void*)0x6012800;
+    GP_SET(dma->src, src + 0x400);
+    GP_SET(dma->dst, (void*)0x6012800);
     dma->control = 0x80000080;
     (void)dma->control;
 }
@@ -592,7 +592,7 @@ void SetupShopkeeperSelectedItem(void)
     s->hitboxExtentDown = 4;
     s->hitboxExtentLeft = 4;
     s->hitboxExtentRight = 4;
-    s->pOamData = sSelectedShopItemOam;
+    GP_SET(s->pOamData, sSelectedShopItemOam);
     s->currentAnimationFrame = temp;
     s->animationTimer = zero;
     s->work0 = temp;
@@ -669,12 +669,12 @@ void SetupShopkeeperSelectedItem(void)
         default:
             if (gCurrentPassage == 5) {
                 struct ShopkeeperDmaRegisters* dma = (struct ShopkeeperDmaRegisters*)0x040000D4;
-                dma->src = sShopkeeperItemTiles;
-                dma->dst = (void*)0x06013000;
+                GP_SET(dma->src, sShopkeeperItemTiles);
+                GP_SET(dma->dst, (void*)0x06013000);
                 dma->control = 0x80000800;
                 (void)dma->control;
                 s->status = status | 8;
-                s->pOamData = sShopkeeperIdleOam;
+                GP_SET(s->pOamData, sShopkeeperIdleOam);
                 s->pose = 55;
                 m4aSongNumStart(191);
             } else {
@@ -702,9 +702,9 @@ void StartShopkeeperSmileJump(void)
 
     dma = (struct ShopkeeperDmaRegisters*)0x040000D4;
     value = (u32)sShopkeeperItemTiles;
-    dma->src = (const void*)value;
+    GP_SET(dma->src, (const void*)value);
     value = 0x06013000;
-    dma->dst = (void*)value;
+    GP_SET(dma->dst, (void*)value);
     value = 0x80000800;
     dma->control = value;
     value = dma->control;
@@ -715,7 +715,7 @@ void StartShopkeeperSmileJump(void)
     zero16 = 0;
     value |= status;
     s->status = value;
-    s->pOamData = sShopkeeperSmileJumpOam;
+    GP_SET(s->pOamData, sShopkeeperSmileJumpOam);
     *(volatile u8*)((u32)s + 22) = zero8;
     s->animationTimer = zero16;
     value = (u32)s;
@@ -744,7 +744,7 @@ void UpdateShopkeeperSmileJump(void)
     result = func_8023A60(value, result);
     if (gSpriteCollisionResult != 0) {
         s->yPosition = result;
-        s->pOamData = sShopkeeperSmileDropOam;
+        GP_SET(s->pOamData, sShopkeeperSmileDropOam);
         s->currentAnimationFrame = 0;
         s->animationTimer = 0;
         s->work0 = 160;
@@ -765,9 +765,9 @@ void StartShopkeeperSmileDrop(void)
 
     dma = (struct ShopkeeperDmaRegisters*)0x040000D4;
     value = (u32)sShopkeeperItemTiles;
-    dma->src = (const void*)value;
+    GP_SET(dma->src, (const void*)value);
     value = 0x06013000;
-    dma->dst = (void*)value;
+    GP_SET(dma->dst, (void*)value);
     value = 0x80000800;
     dma->control = value;
     value = dma->control;
@@ -778,7 +778,7 @@ void StartShopkeeperSmileDrop(void)
     zero16 = 0;
     value |= status;
     s->status = value;
-    s->pOamData = sShopkeeperSmileDropOam;
+    GP_SET(s->pOamData, sShopkeeperSmileDropOam);
     *(volatile u8*)((u32)s + 22) = zero8;
     s->animationTimer = zero16;
     timer = &s->work0;
@@ -807,7 +807,7 @@ void UpdateShopkeeperSmileDrop(void)
     *p = v;
     z = (u8)v;
     if (z == 0) {
-        s->pOamData = sShopkeeperIdleOam;
+        GP_SET(s->pOamData, sShopkeeperIdleOam);
         s->currentAnimationFrame = z;
         s->animationTimer = z;
         s->pose = 55;
@@ -846,7 +846,7 @@ void MoveShopkeeperToSmilePosition(void)
             s->xPosition = value;
         } else {
             value = (u32)sShopkeeperSmilePositionedOam;
-            s->pOamData = (const struct AnimationFrame*)value;
+            GP_SET(s->pOamData, (const struct AnimationFrame*)value);
             value = 0;
             *(volatile u8*)((u32)s + 22) = value;
             *(volatile u16*)((u32)s + 20) = value;
@@ -874,7 +874,7 @@ void StartShopkeeperSmilePose(void)
     *timer = value;
     temp = (u8)value;
     if (temp == 0) {
-        s->pOamData = sShopkeeperSmilePoseOam;
+        GP_SET(s->pOamData, sShopkeeperSmilePoseOam);
         s->currentAnimationFrame = temp;
         zero = 0;
         s->animationTimer = temp;
@@ -943,7 +943,7 @@ void UpdateShopkeeperSmilePose(void)
             temp = s->xPosition;
             temp += 42;
             SpawnSecondarySprite(value, temp, 70);
-            s->pOamData = sShopkeeperSmileJumpOam;
+            GP_SET(s->pOamData, sShopkeeperSmileJumpOam);
             value = 0;
             *(volatile u8*)((u32)s + 22) = value;
             s->animationTimer = offset;
@@ -981,7 +981,7 @@ void MoveShopkeeperSmileOffscreen(void)
         value += 8;
         s->yPosition = value;
     } else {
-        s->pOamData = (const struct AnimationFrame*)sShopkeeperSmileExitOam;
+        GP_SET(s->pOamData, (const struct AnimationFrame*)sShopkeeperSmileExitOam);
         value = 0;
         s->currentAnimationFrame = value;
         value = 0;
@@ -1022,7 +1022,7 @@ void WaitForShopkeeperSmileEffect(void)
             value = 198;
             m4aSongNumStart(value);
         } else if (byte == 0) {
-            s->pOamData = (const struct AnimationFrame*)sShopkeeperSmileWaitOam;
+            GP_SET(s->pOamData, (const struct AnimationFrame*)sShopkeeperSmileWaitOam);
             s->currentAnimationFrame = byte;
             s->animationTimer = byte;
         }
@@ -1031,7 +1031,7 @@ void WaitForShopkeeperSmileEffect(void)
         if (value == 4) {
             value = 60;
             s->pose = value;
-            s->pOamData = (const struct AnimationFrame*)sShopkeeperSmileFinishOam;
+            GP_SET(s->pOamData, (const struct AnimationFrame*)sShopkeeperSmileFinishOam);
             s->currentAnimationFrame = zero;
             byte = 0;
             s->animationTimer = zero;
@@ -2191,9 +2191,9 @@ void InitShopkeeperTransition(void)
     register u32 zero PIN("r5");
     dma = (struct ShopkeeperDmaRegisters*)0x040000D4;
     r0 = (u32)sShopkeeperItemTiles;
-    dma->src = (const void*)r0;
+    GP_SET(dma->src, (const void*)r0);
     r0 = 0x06013000;
-    dma->dst = (void*)r0;
+    GP_SET(dma->dst, (void*)r0);
     r0 = 0x80000800;
     dma->control = r0;
     r0 = dma->control;
@@ -2222,7 +2222,7 @@ void InitShopkeeperTransition(void)
     s->hitboxExtentDown = 4;
     s->hitboxExtentLeft = 4;
     s->hitboxExtentRight = 4;
-    s->pOamData = sShopkeeperTransitionInitialOam;
+    GP_SET(s->pOamData, sShopkeeperTransitionInitialOam);
     s->currentAnimationFrame = zero;
     s->animationTimer = r2;
     s->work3 = zero;
@@ -2305,7 +2305,7 @@ void UpdateShopkeeperTransitionFall(void)
         sp->yPosition = index;
         sp->pose = 111;
         sp->work0 = 8;
-        sp->pOamData = sShopkeeperTransitionImpactOam;
+        GP_SET(sp->pOamData, sShopkeeperTransitionImpactOam);
         sp->currentAnimationFrame = zero;
         sp->animationTimer = zeroHalf;
         value = 27;
@@ -2326,7 +2326,7 @@ void FinishShopkeeperTransitionWait(void)
     *timer = value;
     zero = (u8)value;
     if (zero == 0) {
-        sprite->pOamData = sShopkeeperSmileDropOam;
+        GP_SET(sprite->pOamData, sShopkeeperSmileDropOam);
         sprite->currentAnimationFrame = zero;
         sprite->animationTimer = zero;
         *timer = 60;
@@ -2347,7 +2347,7 @@ void StartShopkeeperTransitionLanding(void)
     *timer = value;
     zero = (u8)value;
     if (zero == 0) {
-        sprite->pOamData = sShopkeeperTransitionLandingOam;
+        GP_SET(sprite->pOamData, sShopkeeperTransitionLandingOam);
         sprite->currentAnimationFrame = zero;
         sprite->animationTimer = zero;
         *timer = 60;
@@ -2404,7 +2404,7 @@ void UpdateShopkeeperTransitionRun(void)
         value -= tmp;
         tmp = (u16)value;
         if (tmp == 80 || tmp == 152) {
-            p->pOamData = sShopkeeperTransitionRunOam;
+            GP_SET(p->pOamData, sShopkeeperTransitionRunOam);
             value = 0;
             *(volatile u8*)((u32)p + 22) = value;
             {
@@ -2455,7 +2455,7 @@ void WaitForWarioTransitionPose(void)
         *timer = value;
         value = (u8)value;
         if (value > 89) {
-            s->pOamData = sShopkeeperTransitionWaitOam;
+            GP_SET(s->pOamData, sShopkeeperTransitionWaitOam);
             *(volatile u8*)((u32)s + 22) = t;
             *(volatile u16*)((u32)s + 20) = t;
             s->pose = 117;
@@ -2532,7 +2532,7 @@ void UpdateShopkeeperTransitionDeparture(void)
             *timer = value;
             temp = (u8)value;
             if (temp == 0) {
-                s->pOamData = sShopkeeperIdleOam;
+                GP_SET(s->pOamData, sShopkeeperIdleOam);
                 s->currentAnimationFrame = temp;
                 s->animationTimer = temp;
                 s->status &= 0xFFBF;
@@ -2556,7 +2556,7 @@ void UpdateShopkeeperTransitionDeparture(void)
         x -= bg;
         x = (u16)x;
         if (x > 212) {
-            s->pOamData = sShopkeeperTransitionDepartureOam;
+            GP_SET(s->pOamData, sShopkeeperTransitionDepartureOam);
             x = 0;
             s->currentAnimationFrame = x;
             s->animationTimer = saved;
@@ -2627,7 +2627,7 @@ void StartAppleBombFuse(void)
 {
     struct PrimarySpriteData* s;
     s = &gCurrentSprite;
-    s->pOamData = sAppleBombFuseOam;
+    GP_SET(s->pOamData, sAppleBombFuseOam);
     s->currentAnimationFrame = 0;
     s->animationTimer = 0;
     s->work0 = 58;
@@ -2654,7 +2654,7 @@ void UpdateAppleBombFuse(void)
         }
     } else {
         s->pose = 24;
-        s->pOamData = sAppleBombExplosionOam;
+        GP_SET(s->pOamData, sAppleBombExplosionOam);
         s->currentAnimationFrame = z;
         s->animationTimer = z;
     }
@@ -3157,7 +3157,7 @@ void StartBlastCannonCountdown(void)
 {
     struct PrimarySpriteData* s;
     s = &gCurrentSprite;
-    s->pOamData = sBlastCannonCountdownOam;
+    GP_SET(s->pOamData, sBlastCannonCountdownOam);
     s->currentAnimationFrame = 0;
     s->animationTimer = 0;
     s->work0 = 64;
@@ -3192,7 +3192,7 @@ void UpdateBlastCannonCountdown(void)
 zero:
     old = 24;
     s->pose = old;
-    s->pOamData = sBlastCannonIdleOam;
+    GP_SET(s->pOamData, sBlastCannonIdleOam);
     s->currentAnimationFrame = value;
     s->animationTimer = value;
 done:;
@@ -3643,9 +3643,9 @@ void UpdateVizormanBeamPalette(void)
         value <<= 5;
         temp = (u32)sVizormanBeamPaletteFrames;
         value += temp;
-        dma->src = (const void*)value;
+        GP_SET(dma->src, (const void*)value);
         value = 0x50003A0;
-        dma->dst = (void*)value;
+        GP_SET(dma->dst, (void*)value);
         value = 0x80000010;
         dma->control = value;
         value = dma->control;
@@ -3695,7 +3695,7 @@ void InitVizorman(void)
     value++;
     *(volatile u8*)value = input;
     value = (u32)sVizormanIdleOam;
-    s->pOamData = (const struct AnimationFrame*)value;
+    GP_SET(s->pOamData, (const struct AnimationFrame*)value);
     s->currentAnimationFrame = zero;
     s->animationTimer = temp;
     if (gCurrentRoom == 0) {
@@ -3781,7 +3781,7 @@ void StartVizormanBeamCoreActive(void)
     v = *p - 1;
     *p = v;
     if ((u8)v == 0) {
-        s->pOamData = sVizormanBeamCoreActiveOam;
+        GP_SET(s->pOamData, sVizormanBeamCoreActiveOam);
         s->currentAnimationFrame = 0;
         s->animationTimer = 0;
         s->pose = 20;
@@ -3798,7 +3798,7 @@ void StartVizormanBeamCoreEnd(void)
     v = *p - 1;
     *p = v;
     if ((u8)v == 0) {
-        s->pOamData = sVizormanBeamCoreEndOam;
+        GP_SET(s->pOamData, sVizormanBeamCoreEndOam);
         s->currentAnimationFrame = 0;
         s->animationTimer = 0;
         s->pose = 22;
@@ -3878,9 +3878,9 @@ void StartVizormanBeamGlow(void)
     *timer = value;
     if ((s32)(value << 24) == 0) {
         if (gCurrentPassage != 0) {
-            s->pOamData = sVizormanBeamGlowStartOam;
+            GP_SET(s->pOamData, sVizormanBeamGlowStartOam);
         } else {
-            s->pOamData = sVizormanBeamGlowActiveOam;
+            GP_SET(s->pOamData, sVizormanBeamGlowActiveOam);
         }
         s->currentAnimationFrame = 0;
         s->animationTimer = 0;
@@ -4021,7 +4021,7 @@ void StartBugleAttack(void)
 {
     struct PrimarySpriteData* s;
     s = &gCurrentSprite;
-    s->pOamData = sBugleAttackOam;
+    GP_SET(s->pOamData, sBugleAttackOam);
     s->currentAnimationFrame = 0;
     s->animationTimer = 0;
     s->work0 = 0;
@@ -5050,7 +5050,7 @@ void MoveLargeLipsIntoPosition(void)
     if (index == 0) {
         tmp = 18;
         s->pose = tmp;
-        s->pOamData = sLargeLipsMoveOam;
+        GP_SET(s->pOamData, sLargeLipsMoveOam);
         s->currentAnimationFrame = index;
         s->animationTimer = index;
         *(volatile u8*)zero = tmp;
@@ -5072,7 +5072,7 @@ void StartLargeLipsKiss(void)
     z = (u8)value;
     if (z == 0) {
         s->pose = 19;
-        s->pOamData = sLargeLipsKissOam;
+        GP_SET(s->pOamData, sLargeLipsKissOam);
         s->currentAnimationFrame = z;
         zero = 0;
         s->animationTimer = z;
@@ -5129,7 +5129,7 @@ void UpdateLargeLipsKiss(void)
     if (--gCurrentSprite.work0 == 0) {
         gCurrentSprite.status ^= 0x40;
         gCurrentSprite.pose = 20;
-        gCurrentSprite.pOamData = sLargeLipsIdleOam;
+        GP_SET(gCurrentSprite.pOamData, sLargeLipsIdleOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.work0 = 112;
@@ -5725,7 +5725,7 @@ void InitBigFist(void)
     *(u8*)r0 = r1;
     r0++;
     *(u8*)r0 = r1;
-    s->pOamData = sBigFistIdleOam;
+    GP_SET(s->pOamData, sBigFistIdleOam);
     ASM_BARRIER(: "+r"(r4));
     s->currentAnimationFrame = r4;
     s->animationTimer = r2;
@@ -6422,7 +6422,7 @@ void MoveBlackDragonIntoAttackPosition(void)
         }
     } else if (temp == 60) {
         temp = (u32)sBlackDragonMoveOam;
-        sprite->pOamData = (const struct AnimationFrame*)temp;
+        GP_SET(sprite->pOamData, (const struct AnimationFrame*)temp);
         temp = 0;
         sprite->currentAnimationFrame = temp;
         /* agbcc reuses r0 here; this single move preserves the required second zero before strh. */
@@ -6442,7 +6442,7 @@ void MoveBlackDragonIntoAttackPosition(void)
         temp = 18;
         sprite->pose = temp;
         temp = (u32)sBlackDragonAttackOam;
-        sprite->pOamData = (const struct AnimationFrame*)temp;
+        GP_SET(sprite->pOamData, (const struct AnimationFrame*)temp);
         sprite->currentAnimationFrame = index;
         y = 0;
         sprite->animationTimer = index;
@@ -6527,7 +6527,7 @@ void UpdateBlackDragonAttackReturn(void)
         if (timer > 1) {
             timer = 19;
             sprite->pose = timer;
-            sprite->pOamData = sBlackDragonIdleOam;
+            GP_SET(sprite->pOamData, sBlackDragonIdleOam);
             *(volatile u8*)((u32)sprite + 22) = temp;
             timer = 0;
             sprite->animationTimer = timer;
@@ -7003,7 +7003,7 @@ void StartBossTreasureChestOpening(void)
             u8* workPtr;
 
             animation = sBossTreasureChestOpeningOam;
-            sprite->pOamData = animation;
+            GP_SET(sprite->pOamData, animation);
             sprite->currentAnimationFrame = timerValue;
             zero = 0;
             sprite->animationTimer = timerValue;
@@ -7108,7 +7108,7 @@ void UpdateBossTreasureChestOpening(void)
         return;
     }
 
-    sprite->pOamData = sBossTreasureChestDespawnOam;
+    GP_SET(sprite->pOamData, sBossTreasureChestDespawnOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = timerValue;
     sprite->pose = 22;
@@ -7426,7 +7426,7 @@ offset_done:
     r0 = 112;
     sprite->pose = r0;
     r0 = (u32)sBossTreasureRewardOam;
-    sprite->pOamData = (const struct AnimationFrame*)r0;
+    GP_SET(sprite->pOamData, (const struct AnimationFrame*)r0);
     sprite->currentAnimationFrame = r1;
     sprite->animationTimer = r2;
     r0 = 22;
@@ -7645,7 +7645,7 @@ void SpriteShopEffectShortB(void)
     sprite->disableWarioCollisionTimer = 1;
     if (sprite->pose == 0) {
         UpdateShopkeeperCommonAnimation();
-        sprite->pOamData = sShopEffectShortBOam;
+        GP_SET(sprite->pOamData, sShopEffectShortBOam);
         sprite->work0 = 25;
     }
     timerPtr = &sprite->work0;
@@ -7665,7 +7665,7 @@ void SpriteShopEffectShortA(void)
     sprite->disableWarioCollisionTimer = 1;
     if (sprite->pose == 0) {
         UpdateShopkeeperCommonAnimation();
-        sprite->pOamData = sShopEffectShortAOam;
+        GP_SET(sprite->pOamData, sShopEffectShortAOam);
         sprite->work0 = 25;
     }
     timerPtr = &sprite->work0;
@@ -7685,7 +7685,7 @@ void SpriteShopEffectLong(void)
     sprite->disableWarioCollisionTimer = 1;
     if (sprite->pose == 0) {
         UpdateShopkeeperCommonAnimation();
-        sprite->pOamData = sShopEffectLongOam;
+        GP_SET(sprite->pOamData, sShopEffectLongOam);
         sprite->work0 = 43;
     }
     timerPtr = &sprite->work0;

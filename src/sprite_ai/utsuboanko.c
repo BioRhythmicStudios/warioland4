@@ -24,7 +24,7 @@ void InitUtsuboanko(void)
 
 void UtsuboankoIdleInit(void)
 {
-    gCurrentSprite.pOamData = sUtsuboankoIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sUtsuboankoIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -37,7 +37,7 @@ void UtsuboankoIdle(void)
     if (gCurrentSprite.work0 != 0) {
         gCurrentSprite.work0--;
     } else if (SpriteUtilCheckWarioNearbyLeftRight(140, 256)) {
-        gCurrentSprite.pOamData = sUtsuboankoEmergingOam;
+        GP_SET(gCurrentSprite.pOamData, sUtsuboankoEmergingOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_12;
@@ -84,7 +84,7 @@ void UtsuboankoEmerge(void)
             sprite->warioCollision = UTSUBOANKO_COLLISION_EMERGING;
         }
     } else {
-        sprite->pOamData = sUtsuboankoRetreatingOam;
+        GP_SET(sprite->pOamData, sUtsuboankoRetreatingOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = SPOSE_14;
@@ -124,7 +124,7 @@ void UtsuboankoRetreat(void)
 
 void UtsuboankoHideInit(void)
 {
-    gCurrentSprite.pOamData = sUtsuboankoHidingOam;
+    GP_SET(gCurrentSprite.pOamData, sUtsuboankoHidingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_6D;

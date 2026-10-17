@@ -24,7 +24,7 @@ void MenonoInit(void)
     gCurrentSprite.drawDistanceLeftRight = 24;
     gCurrentSprite.hitboxExtentUp = 64;
     gCurrentSprite.hitboxExtentDown = 0;
-    gCurrentSprite.pOamData = sMenonoWalkingOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoWalkingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -33,7 +33,7 @@ void MenonoInit(void)
 
 void MenonoInitWalk(void)
 {
-    gCurrentSprite.pOamData = sMenonoWalkingOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoWalkingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 20;
@@ -125,7 +125,7 @@ void MenonoWalk(void)
 
 void MenonoPrepareAttack(void)
 {
-    gCurrentSprite.pOamData = sMenonoPreparingAttackOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoPreparingAttackOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_6F;
@@ -140,7 +140,7 @@ void MenonoWaitToAttack(void)
         MenonoWalk();
     } else {
         gCurrentSprite.pose = SPOSE_18;
-        gCurrentSprite.pOamData = sMenonoAttackingOam;
+        GP_SET(gCurrentSprite.pOamData, sMenonoAttackingOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.work0 = 13;
@@ -150,7 +150,7 @@ void MenonoWaitToAttack(void)
 
 void MenonoTurnInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -175,14 +175,14 @@ void MenonoTurn(void)
 
     if (gCurrentSprite.pose == SPOSE_12) {
         gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
-        gCurrentSprite.pOamData = sMenonoTurningAroundOam;
+        GP_SET(gCurrentSprite.pOamData, sMenonoTurningAroundOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_14;
         gCurrentSprite.work0 = 14;
         MenonoSetWalkingHitbox();
     } else {
-        gCurrentSprite.pOamData = sMenonoWalkingOam;
+        GP_SET(gCurrentSprite.pOamData, sMenonoWalkingOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_IDLE;
@@ -192,7 +192,7 @@ void MenonoTurn(void)
 
 void MenonoStunnedInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -219,7 +219,7 @@ void MenonoPose35(void)
 
 void MenonoRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -228,7 +228,7 @@ void MenonoRecoverInit(void)
 
 void MenonoGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -240,7 +240,7 @@ void MenonoGetUpInit(void)
 
 void MenonoFallingInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -250,7 +250,7 @@ void MenonoFallingInit(void)
 
 void MenonoStunnedFallingInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
@@ -262,7 +262,7 @@ void MenonoStunnedFallingInit(void)
 
 void MenonoTackledInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -290,7 +290,7 @@ void MenonoTackledLeftInit(void)
 
 void MenonoDefeatedInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -316,7 +316,7 @@ void MenonoDefeatedLeftInit(void)
 
 void MenonoPushedInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -338,7 +338,7 @@ void MenonoPushedLeftInit(void)
 
 void MenonoPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -362,9 +362,9 @@ void MenonoPose2DInit(void)
 void MenonoCrushed(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sMenonoCrushedWhileStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sMenonoCrushedWhileStunnedOam);
     } else {
-        gCurrentSprite.pOamData = sMenonoCrushedOam;
+        GP_SET(gCurrentSprite.pOamData, sMenonoCrushedOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -385,7 +385,7 @@ void MenonoInstantlyKill(void)
 
 void MenonoStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -409,7 +409,7 @@ void MenonoPose49Init(void)
 
 void MenonoAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sMenonoPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenonoPushedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;

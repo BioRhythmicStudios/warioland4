@@ -29,7 +29,7 @@ void MenhammerInit(void)
 
 void MenhammerInitWalk(void)
 {
-    gCurrentSprite.pOamData = sMenhammerWalkingOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerWalkingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -112,7 +112,7 @@ void MenhammerWalk(void)
 
 void MenhammerTurnInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -136,14 +136,14 @@ void MenhammerTurn(void)
 
     if (gCurrentSprite.pose == SPOSE_12) {
         gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
-        gCurrentSprite.pOamData = sMenhammerTurningAroundOam;
+        GP_SET(gCurrentSprite.pOamData, sMenhammerTurningAroundOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_14;
         gCurrentSprite.work0 = 8;
         MenhammerSetWalkingHitbox();
     } else {
-        gCurrentSprite.pOamData = sMenhammerWalkingOam;
+        GP_SET(gCurrentSprite.pOamData, sMenhammerWalkingOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_IDLE;
@@ -152,7 +152,7 @@ void MenhammerTurn(void)
 
 void MenhammerPrepareAttack(void)
 {
-    gCurrentSprite.pOamData = sMenhammerJumpingAttackOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerJumpingAttackOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_6F;
@@ -198,7 +198,7 @@ void MenhammerAttack(void)
             if (gSpriteCollisionResult) {
                 sprite->yPosition = yPosition;
                 sprite->pose = SPOSE_18;
-                sprite->pOamData = sMenhammerLandingAttackOam;
+                GP_SET(sprite->pOamData, sMenhammerLandingAttackOam);
                 sprite->currentAnimationFrame = 0;
                 sprite->animationTimer = initialWork0;
                 *work0Pointer = 25;
@@ -287,7 +287,7 @@ void MenhammerAttack(void)
 
 void MenhammerStunnedInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -314,7 +314,7 @@ void MenhammerPose35(void)
 
 void MenhammerRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -323,7 +323,7 @@ void MenhammerRecoverInit(void)
 
 void MenhammerGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -335,7 +335,7 @@ void MenhammerGetUpInit(void)
 
 void MenhammerFallingInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -344,7 +344,7 @@ void MenhammerFallingInit(void)
 
 void MenhammerStunnedFallingInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
@@ -356,7 +356,7 @@ void MenhammerStunnedFallingInit(void)
 
 void MenhammerTackledInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -382,7 +382,7 @@ void MenhammerTackledLeftInit(void)
 
 void MenhammerDefeatedInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -406,7 +406,7 @@ void MenhammerDefeatedLeftInit(void)
 
 void MenhammerPushedInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -428,7 +428,7 @@ void MenhammerPushedLeftInit(void)
 
 void MenhammerPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -452,9 +452,9 @@ void MenhammerPose2DInit(void)
 void MenhammerCrushed(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sMenhammerCrushedWhileStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sMenhammerCrushedWhileStunnedOam);
     } else {
-        gCurrentSprite.pOamData = sMenhammerCrushedOam;
+        GP_SET(gCurrentSprite.pOamData, sMenhammerCrushedOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -471,7 +471,7 @@ void MenhammerInstantlyKill(void)
 
 void MenhammerStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -495,7 +495,7 @@ void MenhammerPose49Init(void)
 
 void MenhammerAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sMenhammerPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sMenhammerPushedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;

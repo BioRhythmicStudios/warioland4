@@ -1085,7 +1085,7 @@ void DrawSoundRoomSprites(void)
                 gStageEntryMainSpriteState[1] = 0;
             }
         }
-        src = sUnk_8642898[gStageEntryMainSpriteState[1]].oam;
+        src = GP(sUnk_8642898[gStageEntryMainSpriteState[1]].oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;
@@ -1104,7 +1104,7 @@ void DrawSoundRoomSprites(void)
     }
 
     if (*(u8*)&gSoundRoomBonusTrackUnlocked != 0) {
-        src = sUnk_8642860[gSoundRoomPreviewAnimState[1]].oam;
+        src = GP(sUnk_8642860[gSoundRoomPreviewAnimState[1]].oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;
@@ -1259,7 +1259,7 @@ void DrawSoundRoomSprites(void)
                     gSoundRoomTrackAnimState[1] = 0;
                 }
             }
-            src = animation[gSoundRoomTrackAnimState[1]].oam;
+            src = GP(animation[gSoundRoomTrackAnimState[1]].oam);
             nextSlot += *(src++);
             for (; currentSlot < nextSlot; currentSlot++) {
                 attr = *(src++);
@@ -1283,7 +1283,7 @@ void DrawSoundRoomSprites(void)
                 gSoundRoomTrackAnimState[1] = 0;
             }
         }
-        src = animation[gSoundRoomTrackAnimState[1]].oam;
+        src = GP(animation[gSoundRoomTrackAnimState[1]].oam);
         nextSlot += *(src++);
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);

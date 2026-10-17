@@ -52,7 +52,7 @@ void InitButatabi(void)
     SetButatabiHitbox();
     sprite->hitboxExtentUp = sixteen;
     sprite->hitboxExtentDown = thirtyTwo;
-    sprite->pOamData = sButatabiMovingOam;
+    GP_SET(sprite->pOamData, sButatabiMovingOam);
     ASM_BARRIER(: "+r"(zero));
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero16;
@@ -70,7 +70,7 @@ void StartButatabiTackled(void)
     u8* work3Pointer;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sButatabiFallingOam;
+    GP_SET(sprite->pOamData, sButatabiFallingOam);
     frameZero = 0;
     sprite->currentAnimationFrame = frameZero;
     zero = 0;
@@ -105,7 +105,7 @@ void StartButatabiBumped(void)
     u8* work3Pointer;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sButatabiFallingOam;
+    GP_SET(sprite->pOamData, sButatabiFallingOam);
     frameZero = 0;
     sprite->currentAnimationFrame = frameZero;
     zero = 0;
@@ -188,14 +188,14 @@ void ButatabiHop(void)
         if (gravityTimer == 80) {
             register u32 animationZero PIN("r0");
 
-            current->pOamData = sButatabiTurningOam;
+            GP_SET(current->pOamData, sButatabiTurningOam);
             animationZero = 0;
             *(u8 *)((u8 *)current + 22) = animationZero;
             current->animationTimer = animationZero;
         } else if (gravityTimer == 88) {
             register u32 animationZero PIN("r0");
 
-            current->pOamData = sButatabiTurnAroundOam;
+            GP_SET(current->pOamData, sButatabiTurnAroundOam);
             animationZero = 0;
             *(u8 *)((u8 *)current + 22) = animationZero;
             current->animationTimer = animationZero;
@@ -229,7 +229,7 @@ void ButatabiHop(void)
             *(volatile u8 *)timerPointer = oneOrNext;
             gravityTimer = 0;
             rawVelocity = *(const u16*)xTable;
-            current->pOamData = sButatabiMovingOam;
+            GP_SET(current->pOamData, sButatabiMovingOam);
             current->currentAnimationFrame = gravityTimer;
             current->animationTimer = gravityTimer;
         } else {

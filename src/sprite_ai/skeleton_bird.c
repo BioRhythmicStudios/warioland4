@@ -31,7 +31,7 @@ void UpdateSkeletonBirdFacingAndProjectile(void)
         if (currentSprite->health == 1
             && ((*(u32 *)&currentSprite->animationTimer) & 0xFFFFFF) == 0x70007) {
             *actionTimer = 77;
-            currentSprite->pOamData = sSkeletonBirdFireOam;
+            GP_SET(currentSprite->pOamData, sSkeletonBirdFireOam);
             currentSprite->currentAnimationFrame = initialTimer;
             currentSprite->animationTimer = initialTimer;
             currentSprite->health = 107;
@@ -54,7 +54,7 @@ void UpdateSkeletonBirdFacingAndProjectile(void)
                 u8 turnDelay = 28;
                 *turnTimer = turnDelay;
             }
-            turnSprite->pOamData = sSkeletonBirdTurnOam;
+            GP_SET(turnSprite->pOamData, sSkeletonBirdTurnOam);
             turnSprite->currentAnimationFrame = zero;
             turnSprite->animationTimer = zero;
         }
@@ -81,7 +81,7 @@ void UpdateSkeletonBirdFacingAndProjectile(void)
             return;
         }
 
-        currentSprite->pOamData = sSkeletonBirdGlideOam;
+        GP_SET(currentSprite->pOamData, sSkeletonBirdGlideOam);
         currentSprite->currentAnimationFrame = remaining;
         currentSprite->animationTimer = remaining;
     }
@@ -104,7 +104,7 @@ void InitSkeletonBird(void)
     currentSprite->hitboxExtentDown = 52;
     currentSprite->hitboxExtentLeft = 32;
     currentSprite->hitboxExtentRight = 28;
-    currentSprite->pOamData = sSkeletonBirdGlideOam;
+    GP_SET(currentSprite->pOamData, sSkeletonBirdGlideOam);
     currentSprite->currentAnimationFrame = 0;
     currentSprite->animationTimer = 0;
     currentSprite->work0 = 0;
@@ -270,7 +270,7 @@ storeDelay:
 
 void InitSkeletonBirdAttackWindup(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdAttackOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdAttackOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 10;
@@ -298,7 +298,7 @@ void UpdateSkeletonBirdAttackWindup(void)
         u16 zero;
 
         currentSprite->disableWarioCollisionTimer = recoveryTimer;
-        currentSprite->pOamData = sSkeletonBirdStunnedOam;
+        GP_SET(currentSprite->pOamData, sSkeletonBirdStunnedOam);
         currentSprite->currentAnimationFrame = remaining;
         zero = 0;
         ASM_BARRIER(: "+r"(zero) : "r"(savedSprite));
@@ -370,7 +370,7 @@ void UpdateSkeletonBirdAttackWindup(void)
 
 void InitSkeletonBirdTurnTowardLeft(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdFallOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdFallOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 30;
@@ -380,7 +380,7 @@ void InitSkeletonBirdTurnTowardLeft(void)
 
 void InitSkeletonBirdTurnCommon(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdFallOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdFallOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -401,7 +401,7 @@ void InitSkeletonBirdPushedLeft(void)
 
 void InitSkeletonBirdTumbleCommon(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -426,7 +426,7 @@ void InitSkeletonBirdTumbleLeft(void)
 
 void InitSkeletonBirdShortTumbleCommon(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -450,7 +450,7 @@ void InitSkeletonBirdShortTumbleLeft(void)
 
 void InitSkeletonBirdStunCommon(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdFallOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdFallOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -475,7 +475,7 @@ void InitSkeletonBirdAirStunLeft(void)
 
 void InitSkeletonBirdAirBounceCommon(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdFallOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdFallOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -506,7 +506,7 @@ void InitSkeletonBirdAirStunFromTimer(void)
 
 void InitSkeletonBirdLiftedCommon(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdFallOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdFallOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.health = 1;
@@ -527,7 +527,7 @@ void InitSkeletonBirdLiftedLeft(void)
 void InitSkeletonBirdCarriedCommon(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sSkeletonBirdFallOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdFallOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.health = 1;
@@ -547,7 +547,7 @@ void InitSkeletonBirdCarriedLeft(void)
 
 void InitSkeletonBirdThrownCommon(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdFallOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdFallOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -575,7 +575,7 @@ void UpdateSkeletonBirdCrashRecover(void)
 
 void InitSkeletonBirdPerch(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdRecoverOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdRecoverOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 26;
@@ -595,7 +595,7 @@ void UpdateSkeletonBirdPerch(void)
         gCurrentSprite.work0--;
         if (gCurrentSprite.work0 == 0) {
             gCurrentSprite.yPosition -= 68;
-            gCurrentSprite.pOamData = sSkeletonBirdGlideOam;
+            GP_SET(gCurrentSprite.pOamData, sSkeletonBirdGlideOam);
             gCurrentSprite.animationTimer = 0;
             gCurrentSprite.currentAnimationFrame = 0;
         }
@@ -625,7 +625,7 @@ void InitSkeletonBirdProjectile(void)
     currentSprite->hitboxExtentDown = 12;
     currentSprite->hitboxExtentLeft = 16;
     currentSprite->hitboxExtentRight = 12;
-    currentSprite->pOamData = sSkeletonBirdProjectileOam;
+    GP_SET(currentSprite->pOamData, sSkeletonBirdProjectileOam);
     currentSprite->currentAnimationFrame = zeroByte;
     currentSprite->animationTimer = zeroHalf;
     currentSprite->warioCollision = 16;
@@ -651,7 +651,7 @@ void UpdateSkeletonBirdProjectile(void)
 
 void InitSkeletonBirdProjectileBreak(void)
 {
-    gCurrentSprite.pOamData = sSkeletonBirdProjectileBreakOam;
+    GP_SET(gCurrentSprite.pOamData, sSkeletonBirdProjectileBreakOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 7;
@@ -684,7 +684,7 @@ void InitSkeletonBirdDebris(void)
     currentSprite->hitboxExtentDown = 28;
     currentSprite->hitboxExtentLeft = 32;
     currentSprite->hitboxExtentRight = 28;
-    currentSprite->pOamData = sSkeletonBirdDebrisOam;
+    GP_SET(currentSprite->pOamData, sSkeletonBirdDebrisOam);
     currentSprite->currentAnimationFrame = zeroByte;
     currentSprite->animationTimer = zeroHalf;
     currentSprite->warioCollision = 6;

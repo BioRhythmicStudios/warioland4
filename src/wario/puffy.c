@@ -265,14 +265,14 @@ void LoadPuffyWarioGraphics(int index)
     value += (u32)table;
     frame = *(const struct PuffyGraphicsFrame**)value;
     frame += wario->unk_1F;
-    data = frame->data;
+    data = GP(frame->data);
     wario->objData1Size = data[0] << 5;
     data++;
     wario->objData2Size = data[0] << 5;
     data++;
-    wario->pObjData1 = (u8*)data;
-    wario->pObjData2 = (u8*)data + wario->objData1Size;
-    wario->pOamData = frame->oam;
+    GP_SET(wario->pObjData1, (u8*)data);
+    GP_SET(wario->pObjData2, (u8*)data + wario->objData1Size);
+    GP_SET(wario->pOamData, GP(frame->oam));
     gWarioPaletteSize = 0x20;
     CopyWarioPalette(sPuffyPalette, 0, 16);
 }

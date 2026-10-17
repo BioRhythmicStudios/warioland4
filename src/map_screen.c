@@ -1345,7 +1345,7 @@ void DrawMapScreenSprites(void)
     {
         u16* frameState;
         frameState = gUnk_3003C74;
-        frame = sUnk_863FFAC[frameState[1]].oam;
+        frame = GP(sUnk_863FFAC[frameState[1]].oam);
     }
     do {
         count = *frame;
@@ -1401,7 +1401,7 @@ void DrawMapScreenSprites(void)
     } while (0);
     if (*((s16*)&gUnk_3003C6C) != 0) {
         u16* mainState;
-        frame = gUnk_3003C40[gStageEntryMainSpriteState[1]].oam;
+        frame = GP(gUnk_3003C40[gStageEntryMainSpriteState[1]].oam);
         do {
             count = *frame;
             used += count;
@@ -1459,7 +1459,7 @@ void DrawMapScreenSprites(void)
                 gUnk_3003C84[1] = 0;
             }
         }
-        frame = sUnk_8640C68[gUnk_3003C84[1]].oam;
+        frame = GP(sUnk_8640C68[gUnk_3003C84[1]].oam);
         do {
             count = *frame;
             used += count;
@@ -1530,7 +1530,7 @@ void DrawMapScreenSprites(void)
                 i = indexInit;
             }
             do {
-                frame = sUnk_8641070[gUnk_3003C80[1]].oam;
+                frame = GP(sUnk_8641070[gUnk_3003C80[1]].oam);
                 do {
                     count = *frame;
                     used += count;
@@ -1608,7 +1608,7 @@ void DrawMapScreenSprites(void)
     if (gUnk_3003C95 != 0) {
         u16* spriteState;
         spriteState = gUnk_3003C88;
-        frame = gUnk_3003C68[spriteState[3]].oam;
+        frame = GP(gUnk_3003C68[spriteState[3]].oam);
         do {
             count = *frame;
             used += count;
@@ -1659,7 +1659,7 @@ void DrawMapScreenSprites(void)
     }
     if (*((s16*)&gUnk_3003C6C) == 0) {
         u16* mainStateZero;
-        frame = gUnk_3003C40[gStageEntryMainSpriteState[1]].oam;
+        frame = GP(gUnk_3003C40[gStageEntryMainSpriteState[1]].oam);
         do {
             count = *frame;
             used += count;
@@ -1722,7 +1722,7 @@ void DrawMapScreenSprites(void)
                     }
                 }
             }
-            frame = animation[state[1]].oam;
+            frame = GP(animation[state[1]].oam);
             do {
                 count = *frame;
                 used += count;
@@ -1794,7 +1794,7 @@ void DrawMapScreenSprites(void)
                     state[1] = 0;
                 }
             }
-            frame = animation[state[1]].oam;
+            frame = GP(animation[state[1]].oam);
             do {
                 count = *frame;
                 used += count;
@@ -1863,7 +1863,7 @@ void DrawMapScreenSprites(void)
         u8* modePtrCheck;
         modePtrCheck = &gUnk_3003C94;
         if (*modePtrCheck <= 3) {
-            frame = gUnk_3003C64[gUnk_3003C78[1]].oam;
+            frame = GP(gUnk_3003C64[gUnk_3003C78[1]].oam);
             do {
                 count = *frame;
                 used += count;
@@ -1975,7 +1975,7 @@ void DrawMapScreenSprites(void)
     {
         register const struct AnimationFrame* finalAnimation PIN("r0");
         finalAnimation = sUnk_863FF84;
-        frame = finalAnimation[gUnk_3003C74[1]].oam;
+        frame = GP(finalAnimation[gUnk_3003C74[1]].oam);
     }
     do {
         count = *frame;

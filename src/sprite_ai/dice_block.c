@@ -113,7 +113,7 @@ void InitDiceBlock(void)
     gCurrentSprite.hitboxExtentDown = 0;
     gCurrentSprite.hitboxExtentLeft = 60;
     gCurrentSprite.hitboxExtentRight = 56;
-    gCurrentSprite.pOamData = sDiceBlockIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceBlockIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -124,7 +124,7 @@ void InitDiceBlock(void)
 
 void DiceBlockCrushedInit(void)
 {
-    gCurrentSprite.pOamData = sDiceBlockCrushedOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceBlockCrushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_CRUSHED_OR_COLLECTED;
@@ -144,7 +144,7 @@ void DiceBlockCrushed(void)
 
 void DiceBlockBreakInit(void)
 {
-    gCurrentSprite.pOamData = sDiceBlockBreakingOam;
+    GP_SET(gCurrentSprite.pOamData, sDiceBlockBreakingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_6D;

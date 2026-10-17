@@ -274,10 +274,10 @@ struct AGB_ALIGN WarioData {
     /* 0x1C */ s16 unk_1C;
     /* 0x1E */ u8 unk_1E;
     /* 0x1F */ u8 unk_1F;
-    /* 0x20 */ const u16* pOamData;
-    /* 0x24 */ u8* pObjData1;
+    /* 0x20 */ GBA_PTR(const u16*) pOamData;
+    /* 0x24 */ GBA_PTR(u8*) pObjData1;
     /* 0x28 */ u16 objData1Size;
-    /* 0x2C */ u8* pObjData2;
+    /* 0x2C */ GBA_PTR(u8*) pObjData2;
     /* 0x30 */ u16 objData2Size;
     /* 0x32 */ s16 hitboxOffsetLeft;
     /* 0x34 */ s16 hitboxOffsetTop;
@@ -298,7 +298,7 @@ struct AGB_ALIGN WarioAfterimage {
     u8 unk0;
     u8 unk1;
     u8 unk2;
-    const u16* unk4;
+    GBA_PTR(const u16*) unk4;
 };
 
 struct AGB_ALIGN WarioEffect {
@@ -306,7 +306,7 @@ struct AGB_ALIGN WarioEffect {
     u8 status;
     u8 animationTimer;
     u8 unk_3;
-    void* pObjData;
+    GBA_PTR(void*) pObjData;
 };
 
 struct AGB_ALIGN CarriedSprite {
@@ -322,7 +322,7 @@ struct AGB_ALIGN WarioDustEffect {
     u8 unk2;
     u16 unk4;
     u16 unk6;
-    struct AnimationFrameU16* unk8;
+    GBA_PTR(struct AnimationFrameU16*) unk8;
 };
 
 struct AGB_ALIGN WarioAfterimageData {
@@ -331,8 +331,8 @@ struct AGB_ALIGN WarioAfterimageData {
 };
 
 struct AGB_ALIGN WarioAnimation {
-    struct AnimationFrame* left;
-    struct AnimationFrame* right;
+    GBA_PTR(struct AnimationFrame*) left;
+    GBA_PTR(struct AnimationFrame*) right;
 };
 
 extern struct WarioData gWarioData;

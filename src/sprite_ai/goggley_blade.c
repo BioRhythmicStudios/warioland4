@@ -17,7 +17,7 @@ void InitGoggleyBlade(void)
 
 void GoggleyBladeSetHorizontalMovement(void)
 {
-    gCurrentSprite.pOamData = sGoggleyBladeHorizontalOam;
+    GP_SET(gCurrentSprite.pOamData, sGoggleyBladeHorizontalOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 0;
@@ -92,7 +92,7 @@ void GoggleyBladeHorizontalMovement(void)
 
 void GoggleyBladeSetTurnDown(void)
 {
-    gCurrentSprite.pOamData = sGoggleyBladeTurnDownOam;
+    GP_SET(gCurrentSprite.pOamData, sGoggleyBladeTurnDownOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work3 = 0;
@@ -160,7 +160,7 @@ void GoggleyBladeTurnDown(void)
 
 void GoggleyBladeSetTurnUp(void)
 {
-    gCurrentSprite.pOamData = sGoggleyBladeTurnUpOam;
+    GP_SET(gCurrentSprite.pOamData, sGoggleyBladeTurnUpOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work3 = 0;
@@ -220,12 +220,12 @@ void GoggleyBladeSetVerticalMovement(void)
     gCurrentSprite.hitboxExtentLeft = 24;
     gCurrentSprite.hitboxExtentRight = 40;
     if (gCurrentSprite.status & SPRITE_STATUS_FACING_RIGHT) {
-        gCurrentSprite.pOamData = sGoggleyBladeVerticalDownOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeVerticalDownOam);
         gCurrentSprite.warioCollision = 76;
         gCurrentSprite.hitboxExtentUp = 24;
         gCurrentSprite.hitboxExtentDown = 40;
     } else {
-        gCurrentSprite.pOamData = sGoggleyBladeVerticalUpOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeVerticalUpOam);
         gCurrentSprite.warioCollision = 77;
         gCurrentSprite.hitboxExtentUp = 40;
         gCurrentSprite.hitboxExtentDown = 24;
@@ -333,11 +333,11 @@ void GoggleyBladeTurnHorizontal(void)
 void GoggleyBladeSetKnockback(void)
 {
     if (gCurrentSprite.warioCollision == 76) {
-        gCurrentSprite.pOamData = sGoggleyBladeKnockbackVerticalDownOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeKnockbackVerticalDownOam);
     } else if (gCurrentSprite.warioCollision == 77) {
-        gCurrentSprite.pOamData = sGoggleyBladeKnockbackVerticalUpOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeKnockbackVerticalUpOam);
     } else {
-        gCurrentSprite.pOamData = sGoggleyBladeKnockbackHorizontalOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeKnockbackHorizontalOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -390,11 +390,11 @@ void GoggleyBladeKnockback(void)
 void GoggleyBladeSetStunned(void)
 {
     if (gCurrentSprite.warioCollision == 76) {
-        gCurrentSprite.pOamData = sGoggleyBladeKnockbackVerticalDownOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeKnockbackVerticalDownOam);
     } else if (gCurrentSprite.warioCollision == 77) {
-        gCurrentSprite.pOamData = sGoggleyBladeKnockbackVerticalUpOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeKnockbackVerticalUpOam);
     } else {
-        gCurrentSprite.pOamData = sGoggleyBladeKnockbackHorizontalOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeKnockbackHorizontalOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -407,11 +407,11 @@ void GoggleyBladeStunned(void)
     gCurrentSprite.work0--;
     if (gCurrentSprite.work0 == 0) {
         if (gCurrentSprite.warioCollision == 76) {
-            gCurrentSprite.pOamData = sGoggleyBladeHurtVerticalDownOam;
+            GP_SET(gCurrentSprite.pOamData, sGoggleyBladeHurtVerticalDownOam);
         } else if (gCurrentSprite.warioCollision == 77) {
-            gCurrentSprite.pOamData = sGoggleyBladeHurtVerticalUpOam;
+            GP_SET(gCurrentSprite.pOamData, sGoggleyBladeHurtVerticalUpOam);
         } else {
-            gCurrentSprite.pOamData = sGoggleyBladeHurtHorizontalOam;
+            GP_SET(gCurrentSprite.pOamData, sGoggleyBladeHurtHorizontalOam);
         }
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
@@ -424,11 +424,11 @@ void GoggleyBladeStunned(void)
 void DefeatGoggleyBlade(void)
 {
     if (gCurrentSprite.warioCollision == 76) {
-        gCurrentSprite.pOamData = sGoggleyBladeDefeatedVerticalDownOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeDefeatedVerticalDownOam);
     } else if (gCurrentSprite.warioCollision == 77) {
-        gCurrentSprite.pOamData = sGoggleyBladeDefeatedVerticalUpOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeDefeatedVerticalUpOam);
     } else {
-        gCurrentSprite.pOamData = sGoggleyBladeDefeatedHorizontalOam;
+        GP_SET(gCurrentSprite.pOamData, sGoggleyBladeDefeatedHorizontalOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;

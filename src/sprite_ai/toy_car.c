@@ -30,7 +30,7 @@ void ToyCarIdleInit(void)
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
-    gCurrentSprite.pOamData = sToyCarIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarIdleOam);
     gCurrentSprite.warioCollision = 3;
     UpdateToyCarHorizontalHitbox();
 }
@@ -86,7 +86,7 @@ void ToyCarIdle(void)
 
 void ToyCarTurnInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -142,7 +142,7 @@ void ToyCarTurn(void)
                 zero = 0;
                 sprite->status = status;
                 UpdateToyCarHorizontalHitbox();
-                sprite->pOamData = sToyCarTurningAroundOam;
+                GP_SET(sprite->pOamData, sToyCarTurningAroundOam);
                 sprite->currentAnimationFrame = zero;
                 sprite->animationTimer = remaining;
                 sprite->pose = SPOSE_14;
@@ -159,7 +159,7 @@ void ToyCarTurn(void)
 
 void ToyCarRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarRecoveringOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarRecoveringOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -171,7 +171,7 @@ void ToyCarRecoverInit(void)
 
 void ToyCarGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -180,7 +180,7 @@ void ToyCarGetUpInit(void)
 
 void ToyCarFallingInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -189,7 +189,7 @@ void ToyCarFallingInit(void)
 
 void ToyCarStunnedFallingInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
@@ -202,9 +202,9 @@ void ToyCarStunnedFallingInit(void)
 void ToyCarTackledInit(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sToyCarTackledOam;
+        GP_SET(gCurrentSprite.pOamData, sToyCarTackledOam);
     } else {
-        gCurrentSprite.pOamData = sToyCarAlternateTackledOam;
+        GP_SET(gCurrentSprite.pOamData, sToyCarAlternateTackledOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -234,9 +234,9 @@ void ToyCarTackledLeftInit(void)
 void ToyCarDefeatedInit(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sToyCarTackledOam;
+        GP_SET(gCurrentSprite.pOamData, sToyCarTackledOam);
     } else {
-        gCurrentSprite.pOamData = sToyCarAlternateTackledOam;
+        GP_SET(gCurrentSprite.pOamData, sToyCarAlternateTackledOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -263,7 +263,7 @@ void ToyCarDefeatedLeftInit(void)
 
 void ToyCarPushedInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -288,7 +288,7 @@ void ToyCarPushedLeftInit(void)
 
 void ToyCarAlternatePushedInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarAlternatePushedOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarAlternatePushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -310,7 +310,7 @@ void ToyCarAlternatePushedLeftInit(void)
 
 void ToyCarPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -334,9 +334,9 @@ void ToyCarPose2DInit(void)
 void ToyCarCrushed(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sToyCarCrushedOam;
+        GP_SET(gCurrentSprite.pOamData, sToyCarCrushedOam);
     } else {
-        gCurrentSprite.pOamData = sToyCarAlternateCrushedOam;
+        GP_SET(gCurrentSprite.pOamData, sToyCarAlternateCrushedOam);
     }
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
@@ -358,9 +358,9 @@ void ToyCarInstantlyKill(void)
 void ToyCarStunnedInit(void)
 {
     if (gCurrentSprite.warioCollision == 5) {
-        gCurrentSprite.pOamData = sToyCarStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sToyCarStunnedOam);
     } else {
-        gCurrentSprite.pOamData = sToyCarAlternateStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sToyCarAlternateStunnedOam);
     }
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
@@ -388,7 +388,7 @@ void ToyCarPose35Init(void)
 
 void ToyCarStunnedWithoutTimerInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -412,7 +412,7 @@ void ToyCarPose49Init(void)
 
 void ToyCarAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarFallingOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;
@@ -466,7 +466,7 @@ void ToyCarAirborne(void)
 
 void ToyCarHeldInit(void)
 {
-    gCurrentSprite.pOamData = sToyCarHeldOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarHeldOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -486,7 +486,7 @@ void ToyCarLiftedLeftInit(void)
 void ToyCarCarriedInit(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sToyCarHeldOam;
+    GP_SET(gCurrentSprite.pOamData, sToyCarHeldOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }

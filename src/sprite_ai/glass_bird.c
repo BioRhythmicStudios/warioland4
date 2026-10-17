@@ -22,7 +22,7 @@ void InitGlassBird(void)
     sprite->hitboxExtentDown = 1;
     sprite->hitboxExtentLeft = 1;
     sprite->hitboxExtentRight = 1;
-    sprite->pOamData = sGlassBirdOam;
+    GP_SET(sprite->pOamData, sGlassBirdOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->warioCollision = 0;
@@ -55,7 +55,7 @@ void InitGlassBirdFragment(void)
     sprite->hitboxExtentDown = 0;
     sprite->hitboxExtentLeft = 28;
     sprite->hitboxExtentRight = 24;
-    sprite->pOamData = sGlassBirdFragmentOam;
+    GP_SET(sprite->pOamData, sGlassBirdFragmentOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->warioCollision = 5;
@@ -81,7 +81,7 @@ void GlassBirdFragmentBreakInit(void)
     status |= oldStatus;
     status &= 0xFEF7;
     sprite->status = status;
-    sprite->pOamData = sGlassBirdFragmentBrokenOam;
+    GP_SET(sprite->pOamData, sGlassBirdFragmentBrokenOam);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero16;
     sprite->work0 = 28;
@@ -113,7 +113,7 @@ void GlassBirdFragmentDyingInit(void)
     struct PrimarySpriteData* sprite;
     sprite = &gCurrentSprite;
     sprite->pose = 123;
-    sprite->pOamData = sGlassBirdFragmentDyingOam;
+    GP_SET(sprite->pOamData, sGlassBirdFragmentDyingOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->work0 = 28;
@@ -156,7 +156,7 @@ void GlassBirdFragmentCarriedInit(void)
     struct PrimarySpriteData* sprite;
     sprite = &gCurrentSprite;
     sprite->status &= 0xFFF7;
-    sprite->pOamData = sGlassBirdFragmentCarriedOam;
+    GP_SET(sprite->pOamData, sGlassBirdFragmentCarriedOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
 }

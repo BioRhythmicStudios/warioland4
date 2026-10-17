@@ -5,8 +5,8 @@
 #include "wario.h"
 
 struct AGB_ALIGN ZombieWarioGraphicsFrame {
-    const u8* gfx;
-    const u16* oam;
+    GBA_PTR(const u8*) gfx;
+    GBA_PTR(const u16*) oam;
     u8 time;
     u8 pad_09[3];
 };

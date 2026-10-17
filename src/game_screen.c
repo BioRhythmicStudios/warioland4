@@ -191,10 +191,10 @@ void func_801BC0C(void)
     DmaCopy32(3, gOamBuffer, OAM, sizeof(gOamBuffer));
     if (!gDisableWario) {
         if (gWarioData.objData1Size > 0) {
-            DmaCopy16(3, gWarioData.pObjData1, 0x6010000, gWarioData.objData1Size);
+            DmaCopy16(3, GP(gWarioData.pObjData1), 0x6010000, gWarioData.objData1Size);
         }
         if (gWarioData.objData2Size > 0) {
-            DmaCopy16(3, gWarioData.pObjData2, 0x6010400, gWarioData.objData2Size);
+            DmaCopy16(3, GP(gWarioData.pObjData2), 0x6010400, gWarioData.objData2Size);
         }
     }
     DmaCopy16(3, gCurrentHeartMeterGfx, 0x6011200, 0x100);
@@ -224,10 +224,10 @@ void func_801BD4C(void)
     DmaCopy32(3, gOamBuffer, OAM, sizeof(gOamBuffer));
     if (!gDisableWario) {
         if (gWarioData.objData1Size > 0) {
-            DmaCopy16(3, gWarioData.pObjData1, 0x6010000, gWarioData.objData1Size);
+            DmaCopy16(3, GP(gWarioData.pObjData1), 0x6010000, gWarioData.objData1Size);
         }
         if (gWarioData.objData2Size > 0) {
-            DmaCopy16(3, gWarioData.pObjData2, 0x6010400, gWarioData.objData2Size);
+            DmaCopy16(3, GP(gWarioData.pObjData2), 0x6010400, gWarioData.objData2Size);
         }
         DmaCopy16(3, gWarioPalette, OBJ_PLTT, gWarioPaletteSize);
     }
@@ -262,15 +262,15 @@ void func_801BEA8(void)
     DmaCopy32(3, gOamBuffer, OAM, sizeof(gOamBuffer));
     if (!gDisableWario) {
         if (gWarioData.objData1Size > 0) {
-            DmaCopy16(3, gWarioData.pObjData1, 0x6010000, gWarioData.objData1Size);
+            DmaCopy16(3, GP(gWarioData.pObjData1), 0x6010000, gWarioData.objData1Size);
         }
         if (gWarioData.objData2Size > 0) {
-            DmaCopy16(3, gWarioData.pObjData2, 0x6010400, gWarioData.objData2Size);
+            DmaCopy16(3, GP(gWarioData.pObjData2), 0x6010400, gWarioData.objData2Size);
         }
         if (gCurrentWarioEffect.type != 0) {
             effect = gCurrentWarioEffect.type - 1;
-            DmaCopy16(3, sWarioEffectsGfx[effect].pGfx1, 0x6010800, (s32)sWarioEffectsGfx[effect].gfx1Size);
-            DmaCopy16(3, sWarioEffectsGfx[effect].pGfx2, 0x6010C00, (s32)sWarioEffectsGfx[effect].gfx2Size);
+            DmaCopy16(3, GP(sWarioEffectsGfx[effect].pGfx1), 0x6010800, (s32)sWarioEffectsGfx[effect].gfx1Size);
+            DmaCopy16(3, GP(sWarioEffectsGfx[effect].pGfx2), 0x6010C00, (s32)sWarioEffectsGfx[effect].gfx2Size);
         }
         DmaCopy16(3, gWarioPalette, OBJ_PLTT, gWarioPaletteSize);
     }
@@ -305,10 +305,10 @@ void func_801C050(void)
     DmaCopy32(3, gOamBuffer, OAM, sizeof(gOamBuffer));
     if (!gDisableWario) {
         if (gWarioData.objData1Size > 0) {
-            DmaCopy16(3, gWarioData.pObjData1, 0x6010000, gWarioData.objData1Size);
+            DmaCopy16(3, GP(gWarioData.pObjData1), 0x6010000, gWarioData.objData1Size);
         }
         if (gWarioData.objData2Size > 0) {
-            DmaCopy16(3, gWarioData.pObjData2, 0x6010400, gWarioData.objData2Size);
+            DmaCopy16(3, GP(gWarioData.pObjData2), 0x6010400, gWarioData.objData2Size);
         }
     }
 

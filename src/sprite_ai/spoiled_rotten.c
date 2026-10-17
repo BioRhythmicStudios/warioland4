@@ -68,7 +68,7 @@ void func_803AB4C(void)
     sprite->health = value;
     value = 1;
     sprite->pose = value;
-    sprite->pOamData = sSpoiledRottenOam_83C302C;
+    GP_SET(sprite->pOamData, sSpoiledRottenOam_83C302C);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
 
@@ -161,22 +161,22 @@ void func_803AD2C(void)
             case 1:
             case 2:
             case 3:
-                current->pOamData = sSpoiledRottenOam_83C2FAC;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2FAC);
                 break;
             case 4:
             case 5:
-                current->pOamData = sSpoiledRottenOam_83C2ED4;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2ED4);
                 break;
             case 6:
             case 7:
-                current->pOamData = sSpoiledRottenOam_83C2DFC;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2DFC);
                 break;
             case 8:
             case 9:
-                current->pOamData = sSpoiledRottenOam_83C2D24;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2D24);
                 break;
             default:
-                sprite->pOamData = sSpoiledRottenOam_83C2C4C;
+                GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2C4C);
                 break;
         }
     } else {
@@ -185,22 +185,22 @@ void func_803AD2C(void)
             case 1:
             case 2:
             case 3:
-                current->pOamData = sSpoiledRottenOam_83C2F74;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2F74);
                 break;
             case 4:
             case 5:
-                current->pOamData = sSpoiledRottenOam_83C2E9C;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2E9C);
                 break;
             case 6:
             case 7:
-                current->pOamData = sSpoiledRottenOam_83C2DC4;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2DC4);
                 break;
             case 8:
             case 9:
-                current->pOamData = sSpoiledRottenOam_83C2CEC;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2CEC);
                 break;
             default:
-                sprite->pOamData = sSpoiledRottenOam_83C2C14;
+                GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2C14);
                 break;
         }
     }
@@ -287,22 +287,22 @@ void func_803AF50(void)
         case 1:
         case 2:
         case 3:
-            current->pOamData = sSpoiledRottenOam_83C2FE4;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C2FE4);
             break;
         case 4:
         case 5:
-            current->pOamData = sSpoiledRottenOam_83C2F0C;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C2F0C);
             break;
         case 6:
         case 7:
-            current->pOamData = sSpoiledRottenOam_83C2E34;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C2E34);
             break;
         case 8:
         case 9:
-            current->pOamData = sSpoiledRottenOam_83C2D5C;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C2D5C);
             break;
         default:
-            sprite->pOamData = sSpoiledRottenOam_83C2C84;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2C84);
             break;
     }
 }
@@ -337,22 +337,22 @@ void func_803AFE4(void)
             case 1:
             case 2:
             case 3:
-                current->pOamData = sSpoiledRottenOam_83C3004;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C3004);
                 break;
             case 4:
             case 5:
-                current->pOamData = sSpoiledRottenOam_83C2F2C;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2F2C);
                 break;
             case 6:
             case 7:
-                current->pOamData = sSpoiledRottenOam_83C2E54;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2E54);
                 break;
             case 8:
             case 9:
-                current->pOamData = sSpoiledRottenOam_83C2D7C;
+                GP_SET(current->pOamData, sSpoiledRottenOam_83C2D7C);
                 break;
             default:
-                sprite->pOamData = sSpoiledRottenOam_83C2CA4;
+                GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2CA4);
                 break;
         }
     } else {
@@ -381,22 +381,22 @@ void func_803B0A0(void)
         case 2:
         case 3:
             current->warioCollision = 43;
-            current->pOamData = sSpoiledRottenOam_83C306C;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C306C);
             break;
         case 4:
         case 5:
-            current->pOamData = sSpoiledRottenOam_83C305C;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C305C);
             break;
         case 6:
         case 7:
-            current->pOamData = sSpoiledRottenOam_83C304C;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C304C);
             break;
         case 8:
         case 9:
-            current->pOamData = sSpoiledRottenOam_83C303C;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C303C);
             break;
         default:
-            sprite->pOamData = sSpoiledRottenOam_83C302C;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C302C);
             break;
     }
 }
@@ -454,7 +454,7 @@ void func_803B164(void)
     *((u8 *)current + 29) = zero;
     current->currentAnimationFrame = zero;
     current->animationTimer = zero;
-    current->pOamData = oam;
+    GP_SET(current->pOamData, oam);
     current->pose = 50;
     current->work0 = 31;
     current->status = (current->status & 0xFEFF) | 0x200;
@@ -562,7 +562,7 @@ void func_803B2EC(void)
 
     sprite = &gCurrentSprite;
     sprite->work2 = work2;
-    sprite->pOamData = sSpoiledRottenOam_83C301C;
+    GP_SET(sprite->pOamData, sSpoiledRottenOam_83C301C);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->work1 = 0;
@@ -651,18 +651,18 @@ void func_803B3E0(void)
         case 1:
         case 2:
         case 3:
-            sprite->pOamData = sSpoiledRottenOam_83C2F44;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2F44);
             break;
         case 4:
         case 5:
-            sprite->pOamData = sSpoiledRottenOam_83C2E6C;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2E6C);
             break;
         case 6:
         case 7:
-            sprite->pOamData = sSpoiledRottenOam_83C2D94;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2D94);
             break;
         default:
-            sprite->pOamData = sSpoiledRottenOam_83C2CBC;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2CBC);
             break;
     }
 
@@ -700,7 +700,7 @@ void func_803B49C(void)
     struct PrimarySpriteData *sprite;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sSpoiledRottenOam_83C301C;
+    GP_SET(sprite->pOamData, sSpoiledRottenOam_83C301C);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->work1 = 0;
@@ -794,18 +794,18 @@ void func_803B608(void)
         case 2:
         case 3:
             sprite->warioCollision = 43;
-            sprite->pOamData = sSpoiledRottenOam_83C2F44;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2F44);
             break;
         case 4:
         case 5:
-            sprite->pOamData = sSpoiledRottenOam_83C2E6C;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2E6C);
             break;
         case 6:
         case 7:
-            sprite->pOamData = sSpoiledRottenOam_83C2D94;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2D94);
             break;
         default:
-            sprite->pOamData = sSpoiledRottenOam_83C2CBC;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C2CBC);
             break;
     }
 
@@ -858,22 +858,22 @@ void func_803B6C8(void)
 
     switch (health) {
         case 6:
-            current->pOamData = sSpoiledRottenOam_83C307C;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C307C);
             break;
         case 4:
         case 5:
-            current->pOamData = sSpoiledRottenOam_83C3094;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C3094);
             break;
         case 2:
         case 3:
-            current->pOamData = sSpoiledRottenOam_83C30AC;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C30AC);
             break;
         case 0:
         case 1:
-            current->pOamData = sSpoiledRottenOam_83C30C4;
+            GP_SET(current->pOamData, sSpoiledRottenOam_83C30C4);
             break;
         default:
-            sprite->pOamData = sSpoiledRottenOam_83C30DC;
+            GP_SET(sprite->pOamData, sSpoiledRottenOam_83C30DC);
             break;
     }
 

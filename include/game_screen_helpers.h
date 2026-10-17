@@ -6,17 +6,17 @@
 #include "types.h"
 
 struct AGB_ALIGN TilesetLoadData {
-    const void* backgroundGraphics;
+    GBA_PTR(const void*) backgroundGraphics;
     u16 backgroundGraphicsSize;
     u16 padding06;
-    const void* palette;
-    const void* animatedGraphics;
+    GBA_PTR(const void*) palette;
+    GBA_PTR(const void*) animatedGraphics;
     u16 animatedGraphicsSize;
     u16 padding12;
-    const u16* metatileTop;
-    const u16* metatileBottom;
-    const u16* metatileAttributes;
-    const void* extraPalette;
+    GBA_PTR(const u16*) metatileTop;
+    GBA_PTR(const u16*) metatileBottom;
+    GBA_PTR(const u16*) metatileAttributes;
+    GBA_PTR(const void*) extraPalette;
 };
 
 struct AGB_ALIGN RoomStartData {

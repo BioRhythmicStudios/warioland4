@@ -15,7 +15,7 @@ void InitChandelier(void)
     gCurrentSprite.hitboxExtentDown = 192;
     gCurrentSprite.hitboxExtentLeft = 48;
     gCurrentSprite.hitboxExtentRight = 44;
-    gCurrentSprite.pOamData = sChandelierIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sChandelierIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -27,7 +27,7 @@ void ChandelierStartShaking(void)
 {
     gCurrentSprite.work0--;
     if (gCurrentSprite.work0 == 0) {
-        gCurrentSprite.pOamData = sChandelierShakingOam;
+        GP_SET(gCurrentSprite.pOamData, sChandelierShakingOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.work0 = 96;
@@ -55,7 +55,7 @@ void ChandelierShake(void)
 
     gCurrentSprite.work0--;
     if (gCurrentSprite.work0 == 0) {
-        gCurrentSprite.pOamData = sChandelierFallingOam;
+        GP_SET(gCurrentSprite.pOamData, sChandelierFallingOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.work3 = 0;
@@ -124,7 +124,7 @@ void InitFallenChandelier(void)
     gCurrentSprite.hitboxExtentDown = 0;
     gCurrentSprite.hitboxExtentLeft = 48;
     gCurrentSprite.hitboxExtentRight = 44;
-    gCurrentSprite.pOamData = sChandelierFallenOam;
+    GP_SET(gCurrentSprite.pOamData, sChandelierFallenOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 255;

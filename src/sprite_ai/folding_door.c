@@ -175,7 +175,7 @@ void InitFoldingDoor(void)
     gCurrentSprite.hitboxExtentDown = 4;
     gCurrentSprite.hitboxExtentLeft = 4;
     gCurrentSprite.hitboxExtentRight = 4;
-    gCurrentSprite.pOamData = sFoldingDoorClosedOam;
+    GP_SET(gCurrentSprite.pOamData, sFoldingDoorClosedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -246,7 +246,7 @@ activate:
         sprite->pose = 18;
         work0 = &sprite->work0;
         *work0 = 24;
-        sprite->pOamData = sFoldingDoorOpeningOam;
+        GP_SET(sprite->pOamData, sFoldingDoorOpeningOam);
         sprite->currentAnimationFrame = zero;
         sprite->animationTimer = zero;
     }
@@ -258,7 +258,7 @@ void FoldingDoorOpening(void)
     gCurrentSprite.work0--;
     if (gCurrentSprite.work0 == 0) {
         gCurrentSprite.pose = 24;
-        gCurrentSprite.pOamData = sFoldingDoorOpenOam;
+        GP_SET(gCurrentSprite.pOamData, sFoldingDoorOpenOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
     }

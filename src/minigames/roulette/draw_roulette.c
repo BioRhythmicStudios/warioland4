@@ -45,9 +45,9 @@ void DrawRoulette(void)
         mainState = statePtr;
         if (active != 0) {
             if (active == 1)
-                src = sRouletteMainState1Oam[0].oam;
+                src = GP(sRouletteMainState1Oam[0].oam);
             if (active == 2)
-                src = sRouletteMainState2Oam[0].oam;
+                src = GP(sRouletteMainState2Oam[0].oam);
             total += *src++;
             {
                 s16 *affineBAddress;
@@ -55,11 +55,11 @@ void DrawRoulette(void)
                 s16 *affineDAddress;
                 
                 affineBAddress = &stack.affineB;
-                stack.affineBPtr = affineBAddress;
+                GP_SET(stack.affineBPtr, affineBAddress);
                 affineCAddress = &stack.affineC;
-                stack.affineCPtr = affineCAddress;
+                GP_SET(stack.affineCPtr, affineCAddress);
                 affineDAddress = &stack.affineD;
-                stack.affineDPtr = affineDAddress;
+                GP_SET(stack.affineDPtr, affineDAddress);
             }
             if (slot < total) {
                 struct RouletteMainState *position;
@@ -175,7 +175,7 @@ void DrawRoulette(void)
                         scaleValue = (s16)scalePointer->scale;
                     }
                     result = FixedMul(sin0, (s16)FixedInverse(scaleValue));
-                    outPtr = stack.affineBPtr;
+                    outPtr = GP(stack.affineBPtr);
                     *outPtr = result;
                 }
 
@@ -196,7 +196,7 @@ void DrawRoulette(void)
                         scaleValue = (s16)scalePointer->scale;
                     }
                     result = FixedMul(negSin0, (s16)FixedInverse(scaleValue));
-                    outPtr = stack.affineCPtr;
+                    outPtr = GP(stack.affineCPtr);
                     *outPtr = result;
                 }
 
@@ -210,7 +210,7 @@ void DrawRoulette(void)
                     scaleValue = *(s16 *)&scalePtr->scale;
                     result = FixedMul(sin64, (s16)FixedInverse(scaleValue));
                     affineDResult = (u16)result;
-                    outPtr = stack.affineDPtr;
+                    outPtr = GP(stack.affineDPtr);
                     *outPtr = affineDResult;
                 }
 
@@ -218,14 +218,14 @@ void DrawRoulette(void)
                 {
                     s16 *affineBAddress;
                     int value;
-                    affineBAddress = stack.affineBPtr;
+                    affineBAddress = GP(stack.affineBPtr);
                     value = *(u16 *)affineBAddress;
                     gOamBuffer[1].all.affineParam = value;
                 }
                 {
                     s16 *affineCAddress;
                     int value;
-                    affineCAddress = stack.affineCPtr;
+                    affineCAddress = GP(stack.affineCPtr);
                     value = *(u16 *)affineCAddress;
                     gOamBuffer[2].all.affineParam = value;
                 }
@@ -247,7 +247,7 @@ void DrawRoulette(void)
             if (sRoulettePromptOam[gRoulettePromptAnim.frame].time == 0)
                 gRoulettePromptAnim.frame = 0;
         }
-        src = sRoulettePromptOam[gRoulettePromptAnim.frame].oam;
+        src = GP(sRoulettePromptOam[gRoulettePromptAnim.frame].oam);
         total += *src++;
         if (slot < total) {
             OamData *oam;
@@ -382,11 +382,11 @@ rouletteItemDraw:
                         s16 *affineBAddress;
                         s16 *affineCAddress;
                         affineBAddress = &stack.affineB;
-                        stack.affineBPtr = affineBAddress;
+                        GP_SET(stack.affineBPtr, affineBAddress);
                         affineCAddress = &stack.affineC;
-                        stack.affineCPtr = affineCAddress;
+                        GP_SET(stack.affineCPtr, affineCAddress);
                         affineBAddress += 2;
-                        stack.affineDPtr = affineBAddress;
+                        GP_SET(stack.affineDPtr, affineBAddress);
                     }
                     itemIndex++;
                     stack.nextItem = itemIndex;
@@ -396,7 +396,7 @@ rouletteItemDraw:
                         int nibbleLoad;
                         int attr1Mask;
                         int attr1Load;
-                        stack.itemRef = currentItemRef;
+                        GP_SET(stack.itemRef, currentItemRef);
                         matrixIndex = itemIndex;
                         nibbleLoad = 15;
 
@@ -418,7 +418,7 @@ rouletteItemDraw:
                             byteOffset = slot << 3;
                             base = gOamBuffer;
                             oam = (OamData *)(byteOffset + (u32)base);
-                            savedRef = stack.itemRef;
+                            savedRef = GP(stack.itemRef);
                             savedItem = *savedRef;
                             ((u8 *)oam)[0] = savedItem->y + value - 16;
                             ((u8 *)oam)[1] |= 3;
@@ -429,7 +429,7 @@ rouletteItemDraw:
                                 struct RouletteItem **ref;
                                 struct RouletteItem *cur;
                                 int zero;
-                                ref = stack.itemRef;
+                                ref = GP(stack.itemRef);
                                 cur = *ref;
                                 zero = 0;
                                 coord = cur->x;
@@ -576,7 +576,7 @@ rouletteItemDraw:
                             result = FixedMul(sin0, (s16)FixedInverse(inverse));
                             {
                                 s16 *out;
-                                out = stack.affineBPtr;
+                                out = GP(stack.affineBPtr);
                                 *out = result;
                             }
                         }
@@ -600,7 +600,7 @@ rouletteItemDraw:
                             result = FixedMul(negSin0, (s16)FixedInverse(inverse));
                             {
                                 s16 *out;
-                                out = stack.affineCPtr;
+                                out = GP(stack.affineCPtr);
                                 *out = result;
                             }
                         }
@@ -612,7 +612,7 @@ rouletteItemDraw:
                             scaleOffset = 4;
                             inverse = scaleItem->scale;
                         }
-                        *stack.affineDPtr = FixedMul(sin64, (s16)FixedInverse(inverse));
+                        *GP(stack.affineDPtr) = FixedMul(sin64, (s16)FixedInverse(inverse));
 
                         {
                             struct RouletteItem *scaleItem;
@@ -627,19 +627,19 @@ rouletteItemDraw:
                                 {
                                     s16 *out;
                                     result = FixedMul(sin0, (s16)FixedInverse(512));
-                                    out = stack.affineBPtr;
+                                    out = GP(stack.affineBPtr);
                                     *out = result;
                                 }
                                 {
                                     s16 *out;
                                     result = FixedMul(negSin0, (s16)FixedInverse(512));
-                                    out = stack.affineCPtr;
+                                    out = GP(stack.affineCPtr);
                                     *out = result;
                                 }
                                 {
                                     s16 *out;
                                     result = FixedMul(sin64, (s16)FixedInverse(512));
-                                    out = stack.affineDPtr;
+                                    out = GP(stack.affineDPtr);
                                     *out = result;
                                 }
                             } else if (scaleCheck <= 15) {
@@ -648,19 +648,19 @@ rouletteItemDraw:
                                 {
                                     s16 *out;
                                     result = FixedMul(sin0, (s16)FixedInverse(16));
-                                    out = stack.affineBPtr;
+                                    out = GP(stack.affineBPtr);
                                     *out = result;
                                 }
                                 {
                                     s16 *out;
                                     result = FixedMul(negSin0, (s16)FixedInverse(16));
-                                    out = stack.affineCPtr;
+                                    out = GP(stack.affineCPtr);
                                     *out = result;
                                 }
                                 {
                                     s16 *out;
                                     result = FixedMul(sin64, (s16)FixedInverse(16));
-                                    out = stack.affineDPtr;
+                                    out = GP(stack.affineDPtr);
                                     *out = result;
                                 }
                             }
@@ -690,21 +690,21 @@ rouletteItemDraw:
                         dstOffset = matrixBase + 1;
                         dstOffset <<= 3;
                         dstOffset += (int)base;
-                        valuePtrB = stack.affineBPtr;
+                        valuePtrB = GP(stack.affineBPtr);
                         value = *(u16 *)valuePtrB;
                         ((OamData *)dstOffset)->all.affineParam = value;
 
                         dstOffset = matrixBase + 2;
                         dstOffset <<= 3;
                         dstOffset += (int)base;
-                        valuePtrC = stack.affineCPtr;
+                        valuePtrC = GP(stack.affineCPtr);
                         value = *(u16 *)valuePtrC;
                         ((OamData *)dstOffset)->all.affineParam = value;
 
                         matrixBase += 3;
                         matrixBase <<= 3;
                         matrixBase += (int)base;
-                        valuePtrD = stack.affineDPtr;
+                        valuePtrD = GP(stack.affineDPtr);
                         firstValue = *(u16 *)valuePtrD;
                         ((OamData *)matrixBase)->all.affineParam = firstValue;
                     }
@@ -1111,7 +1111,7 @@ rouletteItemDraw:
         frames = sRouletteCenterResultOam;
         anim = &gMinigameUiAnimation;
         frameIndex = anim->frame;
-        src = frames[frameIndex].oam;
+        src = GP(frames[frameIndex].oam);
         total += *src++;
         nextAnim = &gRouletteSideAnim;
         if (slot < total) {
@@ -1232,7 +1232,7 @@ rouletteItemDraw:
             sideFrames = sRouletteSideResultOam; 
             frameIndex = (int)(frameIndex + (u8 *)sideFrames);
             framePtr = (const struct AnimationFrame *)frameIndex;
-            src = framePtr->oam;
+            src = GP(framePtr->oam);
         }
         total += *src++;
         if (slot < total) {
@@ -1323,7 +1323,7 @@ rouletteItemDraw:
             sideFrames = sRouletteSideResultOam;
             frameIndex = (int)(frameIndex + (u8 *)sideFrames);
             framePtr = (const struct AnimationFrame *)frameIndex;
-            src = framePtr->oam;
+            src = GP(framePtr->oam);
         }
         total += *src++;
         if (slot < total) {

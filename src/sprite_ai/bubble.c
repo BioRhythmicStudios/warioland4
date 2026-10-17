@@ -46,7 +46,7 @@ void InitBubbleSpawner(void)
     *(volatile u8 *)bounds = one;
     oam = sBubbleSpawnerOam;
     postSprite = sprite;
-    postSprite->pOamData = oam;
+    GP_SET(postSprite->pOamData, oam);
     postSprite->currentAnimationFrame = zeroByte;
     postSprite->animationTimer = zeroHalf;
     postSprite->pose = 16;
@@ -82,7 +82,7 @@ void StartBubblePop(void)
     sprite = &gCurrentSprite;
     temp = 0;
     sprite->pose = 50;
-    sprite->pOamData = sBubblePopOam;
+    GP_SET(sprite->pOamData, sBubblePopOam);
     sprite->currentAnimationFrame = temp;
     sprite->animationTimer = temp;
     temp = (int)sprite;
@@ -319,7 +319,7 @@ void InitBubble(void)
         sprite->status &= ~SPRITE_STATUS_FACING_RIGHT;
         StartBubblePop();
     } else {
-        sprite->pOamData = sBubbleIdleOam;
+        GP_SET(sprite->pOamData, sBubbleIdleOam);
         /* This byte-lvalue form lets agbcc store the pinned zero directly from r4. */
         *(u8 *)&sprite->currentAnimationFrame = zero;
         sprite->animationTimer = status;
@@ -355,7 +355,7 @@ void BubbleWaitBeforeMoving(void)
     if (timer != 0) {
         sprite->disableWarioCollisionTimer = 1;
     } else {
-        sprite->pOamData = sBubbleMovingOam;
+        GP_SET(sprite->pOamData, sBubbleMovingOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 16;

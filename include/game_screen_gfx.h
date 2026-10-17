@@ -4,18 +4,18 @@
 #include "oam.h"
 
 struct AGB_ALIGN Unk_82DDCF0 {
-    struct AnimationFrameU16* unk0;
-    struct AnimationFrameU16* unk4;
-    struct AnimationFrameU16* unk8;
-    struct AnimationFrameU16* unkC;
-    struct AnimationFrameU16* unk10;
-    struct AnimationFrameU16* unk14;
-    struct AnimationFrameU16* unk18;
-    struct AnimationFrameU16* unk1C;
-    struct AnimationFrameU16* unk20;
-    struct AnimationFrameU16* unk24;
-    struct AnimationFrameU16* unk28;
-    struct AnimationFrameU16* unk2C;
+    GBA_PTR(struct AnimationFrameU16*) unk0;
+    GBA_PTR(struct AnimationFrameU16*) unk4;
+    GBA_PTR(struct AnimationFrameU16*) unk8;
+    GBA_PTR(struct AnimationFrameU16*) unkC;
+    GBA_PTR(struct AnimationFrameU16*) unk10;
+    GBA_PTR(struct AnimationFrameU16*) unk14;
+    GBA_PTR(struct AnimationFrameU16*) unk18;
+    GBA_PTR(struct AnimationFrameU16*) unk1C;
+    GBA_PTR(struct AnimationFrameU16*) unk20;
+    GBA_PTR(struct AnimationFrameU16*) unk24;
+    GBA_PTR(struct AnimationFrameU16*) unk28;
+    GBA_PTR(struct AnimationFrameU16*) unk2C;
 };
 
 extern struct Unk_82DDCF0 sUnk_82DDCF0;

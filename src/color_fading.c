@@ -22,8 +22,8 @@ struct AGB_ALIGN PaletteFadeLoopState {
 };
 
 struct AGB_ALIGN PaletteBufferPair {
-    u16* dst;
-    u16* srcB;
+    GBA_PTR(u16*) dst;
+    GBA_PTR(u16*) srcB;
 };
 
 typedef u16 (*ColorBlendFunction)(u32, u32, u32, u32);
@@ -740,7 +740,7 @@ speed_ready: {
 
         fadeLow = fade;
         factor = fadeLow->progress;
-        pointers.dst = (u16*)0x02020000;
+        GP_SET(pointers.dst, (u16*)0x02020000);
 
         if (paletteSet == 0) {
             register u16* srcAInit PIN("r1");
@@ -750,13 +750,13 @@ speed_ready: {
             COMPILER_BARRIER(srcAInit);
             srcA = srcAInit;
             srcBInit = (u16*)0x02020800;
-            pointers.srcB = srcBInit;
+            GP_SET(pointers.srcB, srcBInit);
         } else {
             u16* srcBInit;
             u16* srcAInit;
 
             srcBInit = (u16*)0x02020400;
-            pointers.srcB = srcBInit;
+            GP_SET(pointers.srcB, srcBInit);
             srcAInit = (u16*)0x02020800;
             srcA = srcAInit;
         }
@@ -796,7 +796,7 @@ speed_ready: {
                 bits &= color;
                 blueA = bits >> 10;
 
-                srcB = pointers.srcB;
+                srcB = GP(pointers.srcB);
                 color = *srcB;
                 redB = 31;
                 redB &= color;
@@ -877,17 +877,17 @@ speed_ready: {
                 redOut |= temp;
                 temp = blueOut << 10;
                 redOut |= temp;
-                temp = (s32)pointers.dst;
+                temp = (s32)GP(pointers.dst);
                 *(u16*)temp = redOut;
 
                 redOut = 1;
                 redOut = -redOut;
                 count += redOut;
                 temp += 2;
-                pointers.dst = (u16*)temp;
+                GP_SET(pointers.dst, (u16*)temp);
                 blueOut = 2;
                 srcA = (u16*)((u8*)srcA + blueOut);
-                pointers.srcB++;
+                GP_POSTINC(pointers.srcB);
                 redOut = count;
                 COMPILER_BARRIER(redOut);
                 if ((s32)redOut < 0) {

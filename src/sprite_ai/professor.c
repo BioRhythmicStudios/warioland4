@@ -34,7 +34,7 @@ void ProfessorInit(void)
 
     if (gUnk_300001B != 0) {
         gCurrentSprite.disableWarioCollisionTimer = 0xFF;
-        gCurrentSprite.pOamData = sProfessorAirborneOam;
+        GP_SET(gCurrentSprite.pOamData, sProfessorAirborneOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = 30;
@@ -54,16 +54,16 @@ void ProfessorInit(void)
     switch (scoreDigit) {
         case 2:
         case 7:
-            gCurrentSprite.pOamData = sProfessorScoreDigitTwoOrSevenOam;
+            GP_SET(gCurrentSprite.pOamData, sProfessorScoreDigitTwoOrSevenOam);
             break;
 
         case 4:
         case 9:
-            gCurrentSprite.pOamData = sProfessorScoreDigitFourOrNineOam;
+            GP_SET(gCurrentSprite.pOamData, sProfessorScoreDigitFourOrNineOam);
             break;
 
         default:
-            gCurrentSprite.pOamData = sProfessorWalkOam;
+            GP_SET(gCurrentSprite.pOamData, sProfessorWalkOam);
             SpriteUtilTurnTowardWario();
             break;
     }
@@ -155,7 +155,7 @@ void ProfessorPatrolAndSpawnProjectiles(void)
 
 void ProfessorWalkInit(void)
 {
-    gCurrentSprite.pOamData = sProfessorWalkOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorWalkOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -242,7 +242,7 @@ setPose17:
     goto end;
 
 moveForward:
-    if (gCurrentSprite.pOamData == sProfessorWalkOam)
+    if (GP(gCurrentSprite.pOamData) == sProfessorWalkOam)
         SpriteUtilMoveForward1Subpixel();
 
 end:
@@ -251,7 +251,7 @@ end:
 
 void ProfessorTurnAroundInit(void)
 {
-    gCurrentSprite.pOamData = sProfessorTurnOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorTurnOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 18;
@@ -272,13 +272,13 @@ void ProfessorTurnAround(void)
 
     if (gCurrentSprite.pose == 18) {
         gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
-        gCurrentSprite.pOamData = sProfessorTurnOam;
+        GP_SET(gCurrentSprite.pOamData, sProfessorTurnOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = 20;
         gCurrentSprite.work0 = 21;
     } else {
-        gCurrentSprite.pOamData = sProfessorWalkOam;
+        GP_SET(gCurrentSprite.pOamData, sProfessorWalkOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = 16;
@@ -287,7 +287,7 @@ void ProfessorTurnAround(void)
 
 void ProfessorKnockbackCommon(void)
 {
-    gCurrentSprite.pOamData = sProfessorAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 6;
@@ -342,7 +342,7 @@ void ProfessorTackledLeftInit(void)
 
 void ProfessorWaitInit(void)
 {
-    gCurrentSprite.pOamData = sProfessorWaitOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorWaitOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 24;
@@ -362,7 +362,7 @@ void ProfessorWait(void)
 
 void ProfessorHopInit(void)
 {
-    gCurrentSprite.pOamData = sProfessorAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 26;
@@ -373,7 +373,7 @@ void ProfessorHopInit(void)
 
 void ProfessorFallInit(void)
 {
-    gCurrentSprite.pOamData = sProfessorFallOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorFallOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 28;
@@ -382,7 +382,7 @@ void ProfessorFallInit(void)
 
 void ProfessorLandingInit(void)
 {
-    gCurrentSprite.pOamData = sProfessorAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorAirborneOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 30;
@@ -392,7 +392,7 @@ void ProfessorLandingInit(void)
 
 void ProfessorPushedCommon(void)
 {
-    gCurrentSprite.pOamData = sProfessorTurnOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorTurnOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -414,7 +414,7 @@ void ProfessorPushedLeftInit(void)
 
 void ProfessorImpactCommon(void)
 {
-    gCurrentSprite.pOamData = sProfessorAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorAirborneOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -444,7 +444,7 @@ void ProfessorKnockAwayFromWario(void)
 
 void ProfessorThrownUpCommon(void)
 {
-    gCurrentSprite.pOamData = sProfessorAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -466,7 +466,7 @@ void ProfessorThrownUpLeftInit(void)
 
 void ProfessorLiftedInit(void)
 {
-    gCurrentSprite.pOamData = sProfessorWaitOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorWaitOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 76;
@@ -529,7 +529,7 @@ void ProfessorLifted(void)
 
 void ProfessorLiftedByWarioCommon(void)
 {
-    gCurrentSprite.pOamData = sProfessorAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -549,7 +549,7 @@ void ProfessorLiftedLeftInit(void)
 void ProfessorCarriedCommon(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sProfessorAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sProfessorAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     if (gCurrentSprite.status | SPRITE_STATUS_MAYBE_DEAD)
@@ -663,7 +663,7 @@ void SpriteProfessor(void)
         case 47:
             func_80244C0();
             if ((gCurrentSprite.health & 0xF) == 2) {
-                gCurrentSprite.pOamData = sProfessorUnderwaterPatrolOam;
+                GP_SET(gCurrentSprite.pOamData, sProfessorUnderwaterPatrolOam);
                 gCurrentSprite.currentAnimationFrame = 0;
                 gCurrentSprite.animationTimer = 0;
                 gCurrentSprite.work3 = 0;
@@ -825,7 +825,7 @@ clearUnderwaterAndCall4C00:
         case 93:
             sprite->pose = 94;
             sprite->health = (sprite->health & 0xF) | 0x10;
-            sprite->pOamData = sProfessorThrownLeftOam;
+            GP_SET(sprite->pOamData, sProfessorThrownLeftOam);
             sprite->animationTimer = 0;
             sprite->currentAnimationFrame = 0;
             /* fallthrough */
@@ -845,7 +845,7 @@ clearUnderwaterAndCall4C00:
         case 101:
             sprite->pose = 102;
             sprite->health = (sprite->health & 0xF) | 0x20;
-            sprite->pOamData = sProfessorThrownLeftOam;
+            GP_SET(sprite->pOamData, sProfessorThrownLeftOam);
             sprite->animationTimer = 0;
             sprite->currentAnimationFrame = 0;
             /* fallthrough */
@@ -865,7 +865,7 @@ clearUnderwaterAndCall4C00:
         case 95:
             sprite->pose = 96;
             sprite->health = (sprite->health & 0xF) | 0x40;
-            sprite->pOamData = sProfessorThrownRightOam;
+            GP_SET(sprite->pOamData, sProfessorThrownRightOam);
             sprite->animationTimer = 0;
             sprite->currentAnimationFrame = 0;
             /* fallthrough */
@@ -885,7 +885,7 @@ clearUnderwaterAndCall4C00:
         case 103:
             sprite->pose = 104;
             sprite->health = (sprite->health & 0xF) | 0x80;
-            sprite->pOamData = sProfessorThrownRightOam;
+            GP_SET(sprite->pOamData, sProfessorThrownRightOam);
             sprite->animationTimer = 0;
             sprite->currentAnimationFrame = 0;
             /* fallthrough */
@@ -968,7 +968,7 @@ afterPose:
             spriteAfterState->health = healthState;
             SpawnSecondarySprite(spriteAfterState->yPosition, spriteAfterState->xPosition, SSPRITE_07);
             m4aSongNumStart(SE_ENTER_WATER);
-            spriteAfterState->pOamData = sProfessorSplashOam;
+            GP_SET(spriteAfterState->pOamData, sProfessorSplashOam);
             *(u8*)((u8*)spriteAfterState + 22) = zeroValue;
             *(u16*)((u8*)spriteAfterState + 20) = zeroValue;
             healthState = spriteAfterState->status;
@@ -998,7 +998,7 @@ afterPose:
                 u16 updatedStatus;
 
                 spriteAfterState->health--;
-                spriteAfterState->pOamData = sProfessorAirborneOam;
+                GP_SET(spriteAfterState->pOamData, sProfessorAirborneOam);
                 spriteAfterState->currentAnimationFrame = underwater;
                 spriteAfterState->animationTimer = underwater;
                 updatedStatus = status & ~SPRITE_STATUS_BACKGROUND;
@@ -1066,7 +1066,7 @@ void SpriteProfessorProjectile(void)
 
         projectileOam = sProfessorProjectileOam;
         projectileState = projectile;
-        projectileState->pOamData = projectileOam;
+        GP_SET(projectileState->pOamData, projectileOam);
         projectileState->currentAnimationFrame = zeroValue;
         projectileState->animationTimer = initialPose;
         *(u8*)((u8*)projectileState + 39) = 30;

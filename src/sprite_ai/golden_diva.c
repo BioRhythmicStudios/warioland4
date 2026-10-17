@@ -739,7 +739,7 @@ void InitGoldenDivaBody(void)
         status = (u32)&sprite->hitboxExtentRight;
         stride = sizeof(struct PrimarySpriteData);
         *(u8 *)status = stride;
-        sprite->pOamData = sGoldenDivaBodyIdleOam;
+        GP_SET(sprite->pOamData, sGoldenDivaBodyIdleOam);
         sprite->currentAnimationFrame = zeroByte;
         sprite->animationTimer = zeroHalf;
         sprite->health = gCuckooCondorHasCapturedWario;
@@ -2336,7 +2336,7 @@ void ApplyGoldenDivaDamage(void)
     }
 
     slot = gCurrentSprite.work1;
-    gSpriteData[slot].pOamData = sGoldenDivaBodyDamagedOam;
+    GP_SET(gSpriteData[slot].pOamData, sGoldenDivaBodyDamagedOam);
     gSpriteData[slot].currentAnimationFrame = 0;
     gSpriteData[slot].animationTimer = 0;
 
@@ -2443,7 +2443,7 @@ void UpdateGoldenDivaBodyMovement(void)
             value = 3;
             ((struct PrimarySpriteData *)timer)->palette = value;
             value = (u32)sGoldenDivaBodyMoveOam;
-            sprite->pOamData = (const struct AnimationFrame *)value;
+            GP_SET(sprite->pOamData, (const struct AnimationFrame *)value);
             temp += 4;
             temp2 += temp;
             value = (u32)sGoldenDivaBodyDamagedAltOam;
@@ -2457,7 +2457,7 @@ void UpdateGoldenDivaBodyMovement(void)
             value = temp2 + temp;
             ((struct PrimarySpriteData *)value)->palette = timer;
             value = (u32)sGoldenDivaBodyIdleOam;
-            sprite->pOamData = (const struct AnimationFrame *)value;
+            GP_SET(sprite->pOamData, (const struct AnimationFrame *)value);
             temp += 4;
             temp2 += temp;
             value = (u32)sGoldenDivaBodyDamagedOam;
@@ -2475,7 +2475,7 @@ void UpdateGoldenDivaBodyMovement(void)
     temp2 = temp + sprites;
     ((struct PrimarySpriteData *)temp2)->palette = timer;
     value = (u32)sGoldenDivaBodyIdleOam;
-    sprite->pOamData = (const struct AnimationFrame *)value;
+    GP_SET(sprite->pOamData, (const struct AnimationFrame *)value);
     value = sprites + 4;
     temp += value;
     value = (u32)sGoldenDivaBodyDamagedOam;
@@ -3625,7 +3625,7 @@ void BeginGoldenDivaMaskAttack(void)
     gCurrentSprite.warioCollision = 21;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sGoldenDivaMaskAttackOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaMaskAttackOam);
     gCurrentSprite.hitboxExtentUp = 96;
     gCurrentSprite.hitboxExtentDown = 4;
     gCurrentSprite.hitboxExtentLeft = 36;
@@ -3755,7 +3755,7 @@ void BeginGoldenDivaMaskFall(void)
 {
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sGoldenDivaMaskSpinOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaMaskSpinOam);
     gCurrentSprite.pose = 16;
     gCurrentSprite.warioCollision = 5;
     gCurrentSprite.status &= 0xFCFF;
@@ -3821,7 +3821,7 @@ void UpdateGoldenDivaMaskBounce(void)
             s->warioCollision = 21;
             s->currentAnimationFrame = 0;
             s->animationTimer = value;
-            s->pOamData = sGoldenDivaMaskAttackOam;
+            GP_SET(s->pOamData, sGoldenDivaMaskAttackOam);
         }
     } else {
         if ((u16)((s->yPosition >> 2) - (gBg1YPosition >> 2)) > 80) {
@@ -3921,7 +3921,7 @@ void ResetGoldenDivaMaskAnimation(void)
     gCurrentSprite.work3 = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sGoldenDivaMaskSpinOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaMaskSpinOam);
 }
 
 void MoveGoldenDivaMaskRight(void)
@@ -4187,7 +4187,7 @@ void BeginGoldenDivaExplosiveBallBounce(void)
 {
     gCurrentSprite.pose = 18;
     gCurrentSprite.work0 = 44;
-    gCurrentSprite.pOamData = sGoldenDivaExplosiveBallBounceOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaExplosiveBallBounceOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
 }
@@ -4214,12 +4214,12 @@ void BeginGoldenDivaExplosiveBallFall(void)
     u32 field;
 
     sprite = &gCurrentSprite;
-    if (sprite->pOamData == sGoldenDivaExplosiveBallIdleOam) {
+    if (GP(sprite->pOamData) == sGoldenDivaExplosiveBallIdleOam) {
         sprite->pose = 17;
     } else {
         sprite->currentAnimationFrame = 0;
         sprite->animationTimer = 0;
-        sprite->pOamData = sGoldenDivaExplosiveBallFallOam;
+        GP_SET(sprite->pOamData, sGoldenDivaExplosiveBallFallOam);
         sprite->pose = 16;
         sprite->warioCollision = 5;
         sprite->status &= 0xFCFF;
@@ -4441,7 +4441,7 @@ void InitGoldenDivaBlackEgg(void)
     gCurrentSprite.hitboxExtentDown = 0;
     gCurrentSprite.hitboxExtentLeft = 28;
     gCurrentSprite.hitboxExtentRight = 24;
-    gCurrentSprite.pOamData = sGoldenDivaBlackEggIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackEggIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 17;
@@ -4622,7 +4622,7 @@ void BeginGoldenDivaBlackEggFall(void)
 {
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sGoldenDivaBlackEggFallOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackEggFallOam);
     gCurrentSprite.pose = 16;
     gCurrentSprite.warioCollision = 5;
     gCurrentSprite.status &= 0xFCFF;
@@ -4700,7 +4700,7 @@ void ResetGoldenDivaBlackEggAnimation(void)
     gCurrentSprite.work3 = 0;
     gCurrentSprite.status &= 0xFFFB;
     if (gCurrentSprite.warioCollision == 47) {
-        gCurrentSprite.pOamData = sGoldenDivaBlackEggSlopeOam;
+        GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackEggSlopeOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.warioCollision = 5;
@@ -4722,7 +4722,7 @@ void MoveGoldenDivaBlackEggLeft(void)
 
 void UpdateGoldenDivaBlackEggLanding(void)
 {
-    gCurrentSprite.pOamData = sGoldenDivaBlackEggLandingOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackEggLandingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -4759,7 +4759,7 @@ void BeginGoldenDivaBlackEggLiftRight(void)
     gCurrentSprite.pose = 82;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sGoldenDivaBlackEggCarryOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackEggCarryOam);
     gCurrentSprite.status &= 0xFFFB;
     gCurrentSprite.health = 0;
 }
@@ -4769,7 +4769,7 @@ void BeginGoldenDivaBlackEggLiftLeft(void)
     gCurrentSprite.pose = 84;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sGoldenDivaBlackEggCarryOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackEggCarryOam);
     gCurrentSprite.status &= 0xFFFB;
     gCurrentSprite.health = 0;
 }
@@ -4780,7 +4780,7 @@ void BeginGoldenDivaBlackEggCarryRight(void)
     gCurrentSprite.disableWarioCollisionTimer = 1;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sGoldenDivaBlackEggCarryOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackEggCarryOam);
     gCurrentSprite.status &= 0xFFFB;
     gCurrentSprite.health = 0;
 }
@@ -4791,7 +4791,7 @@ void BeginGoldenDivaBlackEggCarryLeft(void)
     gCurrentSprite.disableWarioCollisionTimer = 1;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sGoldenDivaBlackEggCarryOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackEggCarryOam);
     gCurrentSprite.status &= 0xFFFB;
     gCurrentSprite.health = 0;
 }
@@ -5168,7 +5168,7 @@ void UpdateGoldenDivaGreenEnemyTransformation(void)
 
 void BeginGoldenDivaGreenEnemyTransformation(void)
 {
-    gCurrentSprite.pOamData = sGoldenDivaGreenEnemyTransformOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaGreenEnemyTransformOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.disableWarioCollisionTimer = 1;
@@ -5532,7 +5532,7 @@ void BeginGoldenDivaBlackChickAttackLeft(void)
 
 void BeginGoldenDivaBlackChickCharge(void)
 {
-    gCurrentSprite.pOamData = sGoldenDivaBlackChickAttackOam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackChickAttackOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 32;
@@ -5672,7 +5672,7 @@ void UpdateGoldenDivaBlackChickGroundLeft(void)
 
 void BeginGoldenDivaBlackChickPose110(void)
 {
-    gCurrentSprite.pOamData = sGoldenDivaBlackChickPose110Oam;
+    GP_SET(gCurrentSprite.pOamData, sGoldenDivaBlackChickPose110Oam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 1;
     gCurrentSprite.pose = 111;

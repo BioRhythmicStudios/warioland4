@@ -30,7 +30,7 @@ void InitSpikeCannon(void)
     current->hitboxExtentDown = 1;
     current->hitboxExtentLeft = 1;
     current->hitboxExtentRight = 1;
-    sprite->pOamData = sSpikeCannonOam;
+    GP_SET(sprite->pOamData, sSpikeCannonOam);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     sprite->pose = 15;
@@ -165,7 +165,7 @@ void InitSpikeCannonProjectile(void)
         register struct PrimarySpriteData *storePointer PIN("r1");
         oam = sSpikeCannonProjectileFlyingOam;
         storePointer = sprite;
-        storePointer->pOamData = oam;
+        GP_SET(storePointer->pOamData, oam);
     }
 }
 
@@ -236,7 +236,7 @@ void StartSpikeCannonProjectileDespawn(void)
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
-    sprite->pOamData = sSpikeCannonProjectileDespawnOam;
+    GP_SET(sprite->pOamData, sSpikeCannonProjectileDespawnOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 50;

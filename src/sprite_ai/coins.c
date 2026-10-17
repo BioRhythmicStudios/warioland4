@@ -776,7 +776,7 @@ void CoinInit(void)
 {
     switch (gCurrentSprite.globalID) {
         case PSPRITE_COIN_50POINTS:
-            gCurrentSprite.pOamData = sCoin50PointsOamData;
+            GP_SET(gCurrentSprite.pOamData, sCoin50PointsOamData);
             gCurrentSprite.work2 = 7;
             gCurrentSprite.drawDistanceDown = BLOCK_SIZE_PIXELS;
             gCurrentSprite.drawDistanceUp = 0;
@@ -788,7 +788,7 @@ void CoinInit(void)
             break;
 
         case PSPRITE_COIN_100POINTS:
-            gCurrentSprite.pOamData = sCoin100PointsOamData;
+            GP_SET(gCurrentSprite.pOamData, sCoin100PointsOamData);
             gCurrentSprite.work2 = 6;
             gCurrentSprite.drawDistanceDown = BLOCK_SIZE_PIXELS;
             gCurrentSprite.drawDistanceUp = 0;
@@ -800,7 +800,7 @@ void CoinInit(void)
             break;
 
         case PSPRITE_COIN_500POINTS:
-            gCurrentSprite.pOamData = sCoin500PointsOamData;
+            GP_SET(gCurrentSprite.pOamData, sCoin500PointsOamData);
             gCurrentSprite.work2 = 5;
             gCurrentSprite.drawDistanceDown = BLOCK_SIZE_PIXELS;
             gCurrentSprite.drawDistanceUp = 0;
@@ -812,7 +812,7 @@ void CoinInit(void)
             break;
 
         case PSPRITE_COIN_1000POINTS:
-            gCurrentSprite.pOamData = sDiamondOamData;
+            GP_SET(gCurrentSprite.pOamData, sDiamondOamData);
             gCurrentSprite.work2 = 4;
             gCurrentSprite.drawDistanceDown = 24;
             gCurrentSprite.drawDistanceUp = BLOCK_SIZE_PIXELS / 2;
@@ -834,14 +834,14 @@ void CoinInit(void)
             gCurrentSprite.work2 = 4;
             if (gHeartGauge.current + gHeartGauge.filling >= HEART_GAUGE_MAX) {
                 gCurrentSprite.globalID = PSPRITE_COIN_100POINTS;
-                gCurrentSprite.pOamData = sCoin100PointsOamData;
+                GP_SET(gCurrentSprite.pOamData, sCoin100PointsOamData);
             } else {
-                gCurrentSprite.pOamData = sLittleHeartOamData;
+                GP_SET(gCurrentSprite.pOamData, sLittleHeartOamData);
             }
             break;
 
         default:
-            gCurrentSprite.pOamData = sCoin10PointsOamData;
+            GP_SET(gCurrentSprite.pOamData, sCoin10PointsOamData);
             gCurrentSprite.work2 = 8;
             gCurrentSprite.drawDistanceDown = BLOCK_SIZE_PIXELS / 2;
             gCurrentSprite.drawDistanceUp = 0;
@@ -1020,7 +1020,7 @@ void DiamondInit(void)
     gCurrentSprite.hitboxExtentDown = 2 * BLOCK_SIZE + EIGHTH_BLOCK_SIZE;
     gCurrentSprite.hitboxExtentLeft = HALF_BLOCK_SIZE + EIGHTH_BLOCK_SIZE;
     gCurrentSprite.hitboxExtentRight = HALF_BLOCK_SIZE + EIGHTH_BLOCK_SIZE - PIXEL_SIZE;
-    gCurrentSprite.pOamData = sDiamondOamData;
+    GP_SET(gCurrentSprite.pOamData, sDiamondOamData);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work3 = 0;
@@ -1054,7 +1054,7 @@ void DiamondCollect(void)
 void ChanceWheelDiamondInit(void)
 {
     gCurrentSprite.globalID = PSPRITE_COIN_1000POINTS;
-    gCurrentSprite.pOamData = sDiamondOamData;
+    GP_SET(gCurrentSprite.pOamData, sDiamondOamData);
     gCurrentSprite.drawDistanceDown = 24;
     gCurrentSprite.drawDistanceUp = 8;
     gCurrentSprite.drawDistanceLeftRight = BLOCK_SIZE_PIXELS;

@@ -25,7 +25,7 @@ void SetupMoneyFlower(void)
 
 void InitMoneyFlowerSeed(void)
 {
-    gCurrentSprite.pOamData = sMoneyFlowerSeedIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneyFlowerSeedIdleOam);
     gCurrentSprite.work0 = 20;
     gCurrentSprite.work1 = 0;
     gCurrentSprite.pose = 23;
@@ -34,7 +34,7 @@ void InitMoneyFlowerSeed(void)
 
 void InitMoneyFlowerStage1(void)
 {
-    gCurrentSprite.pOamData = sMoneyFlowerStage1IdleOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneyFlowerStage1IdleOam);
     gCurrentSprite.work1 = 1;
     gCurrentSprite.pose = 16;
     SetupMoneyFlower();
@@ -42,7 +42,7 @@ void InitMoneyFlowerStage1(void)
 
 void InitMoneyFlowerStage2(void)
 {
-    gCurrentSprite.pOamData = sMoneyFlowerStage2IdleOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneyFlowerStage2IdleOam);
     gCurrentSprite.work1 = 2;
     gCurrentSprite.pose = 19;
     gCurrentSprite.work0 = 100;
@@ -51,7 +51,7 @@ void InitMoneyFlowerStage2(void)
 
 void InitMoneyFlowerStage3(void)
 {
-    gCurrentSprite.pOamData = sMoneyFlowerStage3IdleOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneyFlowerStage3IdleOam);
     gCurrentSprite.work1 = 3;
     gCurrentSprite.pose = 21;
     gCurrentSprite.work0 = 100;
@@ -60,7 +60,7 @@ void InitMoneyFlowerStage3(void)
 
 void InitMoneyFlowerStage4(void)
 {
-    gCurrentSprite.pOamData = sMoneyFlowerStage4IdleOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneyFlowerStage4IdleOam);
     gCurrentSprite.work1 = 4;
     gCurrentSprite.pose = 47;
     gCurrentSprite.work0 = 100;
@@ -69,7 +69,7 @@ void InitMoneyFlowerStage4(void)
 
 void InitMoneyFlowerStage5(void)
 {
-    gCurrentSprite.pOamData = sMoneyFlowerStage5IdleOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneyFlowerStage5IdleOam);
     gCurrentSprite.work1 = 5;
     gCurrentSprite.pose = 111;
     SetupMoneyFlower();
@@ -77,7 +77,7 @@ void InitMoneyFlowerStage5(void)
 
 void InitMoneyFlowerCollected(void)
 {
-    gCurrentSprite.pOamData = sMoneyFlowerCollectedOam;
+    GP_SET(gCurrentSprite.pOamData, sMoneyFlowerCollectedOam);
     gCurrentSprite.work1 = 6;
     gCurrentSprite.pose = 16;
     SetupMoneyFlower();
@@ -92,7 +92,7 @@ void MoneyFlowerSeedOpening(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerSeedOpeningOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerSeedOpeningOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 24;
@@ -110,7 +110,7 @@ void MoneyFlowerFinishStage1(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerStage1IdleOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerStage1IdleOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 16;
@@ -124,7 +124,7 @@ void StartMoneyFlowerStage2Growth(void)
     struct PrimarySpriteData* sprite;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sMoneyFlowerStage2GrowingOam;
+    GP_SET(sprite->pOamData, sMoneyFlowerStage2GrowingOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 18;
@@ -143,7 +143,7 @@ void MoneyFlowerStage2Idle(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerStage2IdleOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerStage2IdleOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 19;
@@ -160,7 +160,7 @@ void StartMoneyFlowerStage3Growth(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerStage3GrowingOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerStage3GrowingOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 20;
@@ -180,7 +180,7 @@ void MoneyFlowerStage3Idle(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerStage3IdleOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerStage3IdleOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 21;
@@ -197,7 +197,7 @@ void StartMoneyFlowerStage4Growth(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerStage4GrowingOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerStage4GrowingOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 22;
@@ -217,7 +217,7 @@ void MoneyFlowerStage4Idle(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerStage4IdleOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerStage4IdleOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 47;
@@ -234,7 +234,7 @@ void StartMoneyFlowerStage5Growth(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerStage5GrowingOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerStage5GrowingOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 48;
@@ -254,7 +254,7 @@ void MoneyFlowerStage5Idle(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerStage5IdleOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerStage5IdleOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 111;
@@ -278,22 +278,22 @@ void CollectMoneyFlower(void)
     switch (work1)
     {
         case 2:
-            sprite->pOamData = sMoneyFlowerStage2CollectionOam;
+            GP_SET(sprite->pOamData, sMoneyFlowerStage2CollectionOam);
             sprite->work0 = 41;
             amount = 2;
             break;
         case 3:
-            sprite->pOamData = sMoneyFlowerStage3CollectionOam;
+            GP_SET(sprite->pOamData, sMoneyFlowerStage3CollectionOam);
             sprite->work0 = 41;
             amount = 5;
             break;
         case 4:
-            sprite->pOamData = sMoneyFlowerStage4CollectionOam;
+            GP_SET(sprite->pOamData, sMoneyFlowerStage4CollectionOam);
             sprite->work0 = 42;
             amount = 20;
             break;
         case 5:
-            sprite->pOamData = sMoneyFlowerStage5CollectionOam;
+            GP_SET(sprite->pOamData, sMoneyFlowerStage5CollectionOam);
             sprite->work0 = 30;
             amount = 1;
             break;
@@ -318,7 +318,7 @@ void FinishMoneyFlowerCollection(void)
     timer = --sprite->work0;
     if (timer == 0)
     {
-        sprite->pOamData = sMoneyFlowerCollectedOam;
+        GP_SET(sprite->pOamData, sMoneyFlowerCollectedOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         sprite->pose = 16;

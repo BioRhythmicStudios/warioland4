@@ -79,16 +79,16 @@ struct AGB_ALIGN GameScreenDebugInfo {
 };
 
 struct AGB_ALIGN BackgroundInfo {
-    u16* pBg0Data;
+    GBA_PTR(u16*) pBg0Data;
     u16 bg0Width;
     u16 bg0Height;
-    u16* pBg1Data;
+    GBA_PTR(u16*) pBg1Data;
     u16 bg1Width;
     u16 bg1Height;
-    u16* pBg2Data;
+    GBA_PTR(u16*) pBg2Data;
     u16 bg2Width;
     u16 bg2Height;
-    u16* pBg3Data;
+    GBA_PTR(u16*) pBg3Data;
     u16 bg3Width;
     u16 bg3Height;
 };
@@ -99,16 +99,16 @@ struct AGB_ALIGN RoomHeader {
     u8 bg1Param;
     u8 bg2Param;
     u8 bg3Param;
-    u8* pBg0Data;
-    u8* pBg1Data;
-    u8* pBg2Data;
-    u8* pBg3Data;
+    GBA_PTR(u8*) pBg0Data;
+    GBA_PTR(u8*) pBg1Data;
+    GBA_PTR(u8*) pBg2Data;
+    GBA_PTR(u8*) pBg3Data;
     u8 cameraControl;
     u8 layer3Scrolling;
     u8 bgPriorityAlpha;
-    void* pHardSpriteData;
-    void* pNormalSpriteData;
-    void* pSHardSpriteData;
+    GBA_PTR(void*) pHardSpriteData;
+    GBA_PTR(void*) pNormalSpriteData;
+    GBA_PTR(void*) pSHardSpriteData;
     u8 raster;
     u8 water;
     u16 musicVolume;
@@ -172,8 +172,8 @@ struct AGB_ALIGN WarioPoseProperty {
 };
 
 struct AGB_ALIGN WarioAnimationFrame {
-    const u8* objData;
-    const u16* oamData;
+    GBA_PTR(const u8*) objData;
+    GBA_PTR(const u16*) oamData;
     u8 time;
     u8 padding[3];
 };
@@ -193,9 +193,9 @@ struct AGB_ALIGN TransparencyState {
 };
 
 struct AGB_ALIGN BackgroundTileTables {
-    const u16* top;
-    const u8* bottom;
-    const u16* attributes;
+    GBA_PTR(const u16*) top;
+    GBA_PTR(const u8*) bottom;
+    GBA_PTR(const u16*) attributes;
 };
 
 struct AGB_ALIGN GameMusicState {
@@ -231,7 +231,7 @@ struct AGB_ALIGN ScreenShakeParameters {
 };
 
 struct AGB_ALIGN WarioEffectFrame {
-    const void* data;
+    GBA_PTR(const void*) data;
     u16 time;
     u16 pad;
 };

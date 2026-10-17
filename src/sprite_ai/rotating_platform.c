@@ -144,7 +144,7 @@ void func_8028400(void)
     gCurrentSprite.hitboxExtentDown = 0;
     gCurrentSprite.hitboxExtentLeft = 36;
     gCurrentSprite.hitboxExtentRight = 32;
-    gCurrentSprite.pOamData = sRotatingPlatformOam_83B4534;
+    GP_SET(gCurrentSprite.pOamData, sRotatingPlatformOam_83B4534);
     gCurrentSprite.animationTimer = gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 16;
     gCurrentSprite.work0 = 0;
@@ -451,7 +451,7 @@ void func_8028758(void)
     gCurrentSprite.hitboxExtentRight = 52;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sRotatingPlatformOam_83B4544;
+    GP_SET(gCurrentSprite.pOamData, sRotatingPlatformOam_83B4544);
     gCurrentSprite.pose = 16;
     gCurrentSprite.work3 = 0;
     gCurrentSprite.work1 = 0;
@@ -949,7 +949,7 @@ void func_8028D2C(void)
     gCurrentSprite.hitboxExtentDown = 1;
     gCurrentSprite.hitboxExtentLeft = 1;
     gCurrentSprite.hitboxExtentRight = 1;
-    gCurrentSprite.pOamData = sRotatingPlatformOam_83B4534;
+    GP_SET(gCurrentSprite.pOamData, sRotatingPlatformOam_83B4534);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.warioCollision = 0;

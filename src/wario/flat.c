@@ -408,12 +408,12 @@ void LoadFlatWarioGraphics(u8 value)
     UpdateWarioPositionHistory();
     frame = sFlatWarioAnimationTable[gWarioData.pose][value];
     frame += gWarioData.unk_1F;
-    graphics = (const u8*)frame->objData;
+    graphics = (const u8*)GP(frame->objData);
     gWarioData.objData1Size = *graphics++ << 5;
     gWarioData.objData2Size = *graphics++ << 5;
-    gWarioData.pObjData1 = (u8*)graphics;
-    gWarioData.pObjData2 = (u8*)(graphics + gWarioData.objData1Size);
-    gWarioData.pOamData = frame->oamData;
+    GP_SET(gWarioData.pObjData1, (u8*)graphics);
+    GP_SET(gWarioData.pObjData2, (u8*)(graphics + gWarioData.objData1Size));
+    GP_SET(gWarioData.pOamData, GP(frame->oamData));
     gWarioPaletteSize = 0x20;
     CopyWarioPalette(sUnk_82DE918, 0, 0x10);
 }

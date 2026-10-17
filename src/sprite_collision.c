@@ -3220,7 +3220,7 @@ void func_8022724(s32 slot, u16 direction)
         gWarioData.yPosition = gSpriteData[slot].yPosition - gWarioData.hitboxOffsetTop;
         gWarioData.xPosition = gSpriteData[slot].xPosition;
         gCuckooCondorHasCapturedWario = 1;
-        gSpriteData[slot].pOamData = sCuckooCondorClawOpenOam;
+        GP_SET(gSpriteData[slot].pOamData, sCuckooCondorClawOpenOam);
         gSpriteData[slot].currentAnimationFrame = 0;
         gSpriteData[slot].animationTimer = 0;
         gSpriteData[slot].warioCollision = 0;

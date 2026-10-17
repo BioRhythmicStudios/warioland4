@@ -49,14 +49,14 @@ void GameScreenDrawWario(void)
 
     if (gWarioMotionAfterimage.unk0) {
         if (gWarioData.horizontalDirection & DPAD_RIGHT) {
-            pAnimation = sUnk_82DDCD0[gWarioMotionAfterimage.unk0 - 1].left;
+            pAnimation = GP(sUnk_82DDCD0[gWarioMotionAfterimage.unk0 - 1].left);
         } else {
-            pAnimation = sUnk_82DDCD0[gWarioMotionAfterimage.unk0 - 1].right;
+            pAnimation = GP(sUnk_82DDCD0[gWarioMotionAfterimage.unk0 - 1].right);
         }
         pAnimation += gWarioMotionAfterimage.unk2;
-        gWarioMotionAfterimage.unk4 = pAnimation->oam;
+        GP_SET(gWarioMotionAfterimage.unk4, GP(pAnimation->oam));
 
-        src = gWarioMotionAfterimage.unk4;
+        src = GP(gWarioMotionAfterimage.unk4);
         nextSlot += *(src++);
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);
@@ -74,7 +74,7 @@ void GameScreenDrawWario(void)
         }
     }
 
-    src = gWarioData.pOamData;
+    src = GP(gWarioData.pOamData);
     nextSlot += *(src++);
     for (; currentSlot < nextSlot; currentSlot++) {
         attr = *(src++);
@@ -99,7 +99,7 @@ void GameScreenDrawWario(void)
     afterimage = gWarioAfterimageHistoryIndex - 4;
     i = 0;
     while ((gWarioAfterimageHistoryWrapped != 0) || (afterimage >= 0)) {
-        src = gWarioData.pOamData;
+        src = GP(gWarioData.pOamData);
         nextSlot += *(src++);
 
         afterimage &= 0x1F;
@@ -203,7 +203,7 @@ void GameScreenDrawWarioEffects(void)
             gWarioDustEffect1.unk2 = 0;
             effectY = 8;
             if (0x10 & gWarioData.horizontalDirection) {
-                gWarioDustEffect1.unk8 = sUnk_82E1304;
+                GP_SET(gWarioDustEffect1.unk8, sUnk_82E1304);
                 if (gWarioData.pose == 0x2C) {
                     effectX = -12;
                     effectY = -0x28;
@@ -215,7 +215,7 @@ void GameScreenDrawWarioEffects(void)
                     }
                 }
             } else {
-                gWarioDustEffect1.unk8 = sUnk_82E1334;
+                GP_SET(gWarioDustEffect1.unk8, sUnk_82E1334);
                 if (gWarioData.pose == 0x2C) {
                     effectX = 12;
                     effectY = -0x28;
@@ -238,7 +238,7 @@ void GameScreenDrawWarioEffects(void)
                     gWarioDustEffect1.unk0 = sUnk_82E1304[gWarioDustEffect1.unk2].time;
                 }
             }
-            pAnimation = gWarioDustEffect1.unk8;
+            pAnimation = GP(gWarioDustEffect1.unk8);
             break;
 
         case 10:
@@ -247,7 +247,7 @@ void GameScreenDrawWarioEffects(void)
             gWarioDustEffect1.unk2 = 0;
             gWarioDustEffect1.unk4 = gWarioData.xPosition;
             gWarioDustEffect1.unk6 = gWarioData.yPosition - 0x28;
-            gWarioDustEffect1.unk8 = sUnk_82E14FC;
+            GP_SET(gWarioDustEffect1.unk8, sUnk_82E14FC);
         case 11:
             if (gWarioDustEffect1.unk1 >= sUnk_82E14FC[gWarioDustEffect1.unk2].time) {
                 gWarioDustEffect1.unk1 = 0;
@@ -256,7 +256,7 @@ void GameScreenDrawWarioEffects(void)
                     gWarioDustEffect1.unk0 = sUnk_82E14FC[gWarioDustEffect1.unk2].time;
                 }
             }
-            pAnimation = gWarioDustEffect1.unk8;
+            pAnimation = GP(gWarioDustEffect1.unk8);
             break;
 
         case 12:
@@ -265,7 +265,7 @@ void GameScreenDrawWarioEffects(void)
             gWarioDustEffect1.unk2 = 0;
             gWarioDustEffect1.unk4 = gWarioData.xPosition;
             gWarioDustEffect1.unk6 = gWarioData.yPosition + 0x20;
-            gWarioDustEffect1.unk8 = sUnk_82E1304;
+            GP_SET(gWarioDustEffect1.unk8, sUnk_82E1304);
         case 13:
             if (gWarioDustEffect1.unk1 >= sUnk_82E1304[gWarioDustEffect1.unk2].time) {
                 gWarioDustEffect1.unk1 = 0;
@@ -274,7 +274,7 @@ void GameScreenDrawWarioEffects(void)
                     gWarioDustEffect1.unk0 = sUnk_82E1304[gWarioDustEffect1.unk2].time;
                 }
             }
-            pAnimation = gWarioDustEffect1.unk8;
+            pAnimation = GP(gWarioDustEffect1.unk8);
             break;
     }
 
@@ -283,7 +283,7 @@ void GameScreenDrawWarioEffects(void)
         xOffset = PIXELS_FROM_SUBPIXELS(gWarioDustEffect1.unk4) - PIXELS_FROM_SUBPIXELS(gBg1XPosition);
         yOffset = PIXELS_FROM_SUBPIXELS(gWarioDustEffect1.unk6) - PIXELS_FROM_SUBPIXELS(gBg1YPosition);
         pAnimation += gWarioDustEffect1.unk2;
-        src = pAnimation->oam;
+        src = GP(pAnimation->oam);
         nextSlot = nextSlot + *(src++);
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);
@@ -307,14 +307,14 @@ void GameScreenDrawWarioEffects(void)
             gWarioDustEffect2.unk1 = 0;
             gWarioDustEffect2.unk2 = 0;
             if (0x10 & gWarioData.horizontalDirection) {
-                gWarioDustEffect2.unk8 = sUnk_82E1294;
+                GP_SET(gWarioDustEffect2.unk8, sUnk_82E1294);
                 if (gWarioData.pose == 0xF) {
                     effectX = 0x20;
                 } else {
                     effectX = 0;
                 }
             } else {
-                gWarioDustEffect2.unk8 = sUnk_82E126C;
+                GP_SET(gWarioDustEffect2.unk8, sUnk_82E126C);
                 if (gWarioData.pose == 0xF) {
                     effectX = -0x20;
                 } else {
@@ -331,7 +331,7 @@ void GameScreenDrawWarioEffects(void)
                     gWarioDustEffect2.unk0 = sUnk_82E126C[gWarioDustEffect2.unk2].time;
                 }
             }
-            pAnimation = gWarioDustEffect2.unk8;
+            pAnimation = GP(gWarioDustEffect2.unk8);
             break;
 
         case 2:
@@ -339,10 +339,10 @@ void GameScreenDrawWarioEffects(void)
             gWarioDustEffect2.unk1 = 0;
             gWarioDustEffect2.unk2 = 0;
             if (0x10 & gWarioData.horizontalDirection) {
-                gWarioDustEffect2.unk8 = sUnk_82E13DC;
+                GP_SET(gWarioDustEffect2.unk8, sUnk_82E13DC);
                 effectX = 0x20;
             } else {
-                gWarioDustEffect2.unk8 = sUnk_82E140C;
+                GP_SET(gWarioDustEffect2.unk8, sUnk_82E140C);
                 effectX = -0x20;
             }
             gWarioDustEffect2.unk4 = gWarioData.xPosition + effectX;
@@ -367,7 +367,7 @@ void GameScreenDrawWarioEffects(void)
                     }
                 }
             }
-            pAnimation = gWarioDustEffect2.unk8;
+            pAnimation = GP(gWarioDustEffect2.unk8);
             break;
 
         case 4:
@@ -378,11 +378,11 @@ void GameScreenDrawWarioEffects(void)
             gWarioDustEffect2.unk2 = 0;
             if (0x10 & gWarioData.horizontalDirection) {
                 if (gWarioData.pose == 9) {
-                    gWarioDustEffect2.unk8 = sUnk_82E143C;
+                    GP_SET(gWarioDustEffect2.unk8, sUnk_82E143C);
                     effectX += 0x2C;
                     effectY += -0x20;
                 } else {
-                    gWarioDustEffect2.unk8 = sUnk_82E149C;
+                    GP_SET(gWarioDustEffect2.unk8, sUnk_82E149C);
                 }
                 if ((gWarioData.pose == 0xD) || (gWarioData.pose == 8)) {
                     effectX -= 0x10;
@@ -390,11 +390,11 @@ void GameScreenDrawWarioEffects(void)
                 }
             } else {
                 if (gWarioData.pose == 9) {
-                    gWarioDustEffect2.unk8 = sUnk_82E149C;
+                    GP_SET(gWarioDustEffect2.unk8, sUnk_82E149C);
                     effectX -= 0x2C;
                     effectY -= 0x20;
                 } else {
-                    gWarioDustEffect2.unk8 = sUnk_82E143C;
+                    GP_SET(gWarioDustEffect2.unk8, sUnk_82E143C);
                 }
                 if ((gWarioData.pose == 0xD) || (gWarioData.pose == 8)) {
                     effectX += 0x10;
@@ -411,7 +411,7 @@ void GameScreenDrawWarioEffects(void)
                     gWarioDustEffect2.unk0 = sUnk_82E149C[gWarioDustEffect2.unk2].time;
                 }
             }
-            pAnimation = gWarioDustEffect2.unk8;
+            pAnimation = GP(gWarioDustEffect2.unk8);
             break;
     }
     if (gWarioDustEffect2.unk0 != 0) {
@@ -419,7 +419,7 @@ void GameScreenDrawWarioEffects(void)
         xOffset = PIXELS_FROM_SUBPIXELS(gWarioDustEffect2.unk4) - PIXELS_FROM_SUBPIXELS(gBg1XPosition);
         yOffset = PIXELS_FROM_SUBPIXELS(gWarioDustEffect2.unk6) - PIXELS_FROM_SUBPIXELS(gBg1YPosition);
         pAnimation += gWarioDustEffect2.unk2;
-        src = pAnimation->oam;
+        src = GP(pAnimation->oam);
         nextSlot = nextSlot + *(src++);
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);
@@ -442,9 +442,9 @@ void GameScreenDrawWarioEffects(void)
     switch (gCurrentWarioEffect.type - 1) {
         case 0:
             if (gWarioData.horizontalDirection & DPAD_RIGHT) {
-                pAnimation = sUnk_82DDCF0.unk0;
+                pAnimation = GP(sUnk_82DDCF0.unk0);
             } else {
-                pAnimation = sUnk_82DDCF0.unk4;
+                pAnimation = GP(sUnk_82DDCF0.unk4);
             }
             if (gWarioData.pose == 4) {
                 effectY -= 0x10;
@@ -454,7 +454,7 @@ void GameScreenDrawWarioEffects(void)
             break;
 
         case 1:
-            pAnimation = sUnk_82DDCF0.unk8;
+            pAnimation = GP(sUnk_82DDCF0.unk8);
             if (gCurrentWarioEffect.animationTimer >= sUnk_82E06BC[gCurrentWarioEffect.unk_3].time) {
                 gCurrentWarioEffect.animationTimer = 0;
                 gCurrentWarioEffect.unk_3 += 1;
@@ -466,9 +466,9 @@ void GameScreenDrawWarioEffects(void)
 
         case 2:
             if (0x10 & gWarioData.horizontalDirection) {
-                pAnimation = sUnk_82DDCF0.unkC;
+                pAnimation = GP(sUnk_82DDCF0.unkC);
             } else {
-                pAnimation = sUnk_82DDCF0.unk10;
+                pAnimation = GP(sUnk_82DDCF0.unk10);
             }
             if (gCurrentWarioEffect.animationTimer >= sUnk_82E09A4[gCurrentWarioEffect.unk_3].time) {
                 gCurrentWarioEffect.animationTimer = 0;
@@ -480,7 +480,7 @@ void GameScreenDrawWarioEffects(void)
             break;
 
         case 3:
-            pAnimation = sUnk_82DDCF0.unk14;
+            pAnimation = GP(sUnk_82DDCF0.unk14);
             if (gCurrentWarioEffect.animationTimer >= sUnk_82E0BA8[gCurrentWarioEffect.unk_3].time) {
                 gCurrentWarioEffect.animationTimer = 0;
                 gCurrentWarioEffect.unk_3 += 1;
@@ -492,9 +492,9 @@ void GameScreenDrawWarioEffects(void)
 
         case 4:
             if (0x10 & gWarioData.horizontalDirection) {
-                pAnimation = sUnk_82DDCF0.unk18;
+                pAnimation = GP(sUnk_82DDCF0.unk18);
             } else {
-                pAnimation = sUnk_82DDCF0.unk1C;
+                pAnimation = GP(sUnk_82DDCF0.unk1C);
             }
             if (gCurrentWarioEffect.animationTimer >= sUnk_82E0CD8[gCurrentWarioEffect.unk_3].time) {
                 gCurrentWarioEffect.animationTimer = 0;
@@ -507,9 +507,9 @@ void GameScreenDrawWarioEffects(void)
 
         case 5:
             if (0x10 & gWarioData.horizontalDirection) {
-                pAnimation = sUnk_82DDCF0.unk20;
+                pAnimation = GP(sUnk_82DDCF0.unk20);
             } else {
-                pAnimation = sUnk_82DDCF0.unk24;
+                pAnimation = GP(sUnk_82DDCF0.unk24);
             }
             if (gCurrentWarioEffect.animationTimer >= sUnk_82E1598[gCurrentWarioEffect.unk_3].time) {
                 gCurrentWarioEffect.animationTimer = 0;
@@ -529,7 +529,7 @@ void GameScreenDrawWarioEffects(void)
             break;
 
         case 6:
-            pAnimation = sUnk_82DDCF0.unk28;
+            pAnimation = GP(sUnk_82DDCF0.unk28);
             if (gCurrentWarioEffect.animationTimer >= sUnk_82E1658[gCurrentWarioEffect.unk_3].time) {
                 gCurrentWarioEffect.animationTimer = 0;
                 gCurrentWarioEffect.unk_3 += 1;
@@ -540,7 +540,7 @@ void GameScreenDrawWarioEffects(void)
             break;
 
         case 7:
-            pAnimation = sUnk_82DDCF0.unk2C;
+            pAnimation = GP(sUnk_82DDCF0.unk2C);
             if (gCurrentWarioEffect.animationTimer >= sUnk_82E1690[gCurrentWarioEffect.unk_3].time) {
                 gCurrentWarioEffect.animationTimer = 0;
                 gCurrentWarioEffect.unk_3 += 1;
@@ -558,7 +558,7 @@ void GameScreenDrawWarioEffects(void)
         xOffset = PIXELS_FROM_SUBPIXELS(gWarioData.xPosition) - PIXELS_FROM_SUBPIXELS(gBg1XPosition) + effectX;
         yOffset = PIXELS_FROM_SUBPIXELS(gWarioData.yPosition) - PIXELS_FROM_SUBPIXELS(gBg1YPosition) + effectY;
         pAnimation += gCurrentWarioEffect.unk_3;
-        src = pAnimation->oam;
+        src = GP(pAnimation->oam);
         nextSlot = nextSlot + *(src++);
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);

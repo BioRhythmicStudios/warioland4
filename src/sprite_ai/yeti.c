@@ -34,7 +34,7 @@ void YetiInit(void)
 
         oam = sYetiIdleOam;
         stateOrPriority = (u32)sprite;
-        ((struct PrimarySpriteData *)stateOrPriority)->pOamData = oam;
+        GP_SET(((struct PrimarySpriteData *)stateOrPriority)->pOamData, oam);
         ((struct PrimarySpriteData *)stateOrPriority)->currentAnimationFrame = zero8;
         ((struct PrimarySpriteData *)stateOrPriority)->animationTimer = zero16;
         ((struct PrimarySpriteData *)stateOrPriority)->pose = SPOSE_IDLE;
@@ -54,7 +54,7 @@ void YetiInit(void)
 
 void YetiIdleInit(void)
 {
-    gCurrentSprite.pOamData = sYetiIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
@@ -140,7 +140,7 @@ void YetiIdle(void)
 
 void YetiTurnInit(void)
 {
-    gCurrentSprite.pOamData = sYetiTurningOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiTurningOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -161,7 +161,7 @@ void YetiTurn(void)
     }
     if (gCurrentSprite.pose == SPOSE_12) {
         gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
-        gCurrentSprite.pOamData = sYetiTurningAroundOam;
+        GP_SET(gCurrentSprite.pOamData, sYetiTurningAroundOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = SPOSE_14;
@@ -173,7 +173,7 @@ void YetiTurn(void)
 
 void YetiStunnedInit(void)
 {
-    gCurrentSprite.pOamData = sYetiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -198,7 +198,7 @@ void YetiPose35Init(void)
 
 void YetiAttackInit(void)
 {
-    gCurrentSprite.pOamData = sYetiAttackOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiAttackOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_6F;
@@ -245,7 +245,7 @@ void YetiAttackRecoverInit(void)
     u8 zero8;
     u16 zero16;
 
-    gCurrentSprite.pOamData = sYetiAttackRecoverOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiAttackRecoverOam);
     zero8 = 0;
     zero16 = 0;
     ASM_BARRIER(: "+r"(zero8), "+r"(zero16));
@@ -285,7 +285,7 @@ void YetiAttackRecover(void)
 
 void YetiRecoverInit(void)
 {
-    gCurrentSprite.pOamData = sYetiRecoveringOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiRecoveringOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -294,7 +294,7 @@ void YetiRecoverInit(void)
 
 void YetiFallingInit(void)
 {
-    gCurrentSprite.pOamData = sYetiFallingOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiFallingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -305,7 +305,7 @@ void YetiStunnedFallingInit(void)
 {
     u8 zero8;
 
-    gCurrentSprite.pOamData = sYetiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     zero8 = 0;
     gCurrentSprite.animationTimer = 0;
@@ -320,7 +320,7 @@ void YetiTackledInit(void)
     register u8 zero PIN("r4");
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sYetiTackledOrDefeatedOam;
+    GP_SET(sprite->pOamData, sYetiTackledOrDefeatedOam);
     sprite->currentAnimationFrame = 0;
     zero = 0;
     sprite->animationTimer = 0;
@@ -369,7 +369,7 @@ void YetiDefeatedInit(void)
     u8 zero;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sYetiTackledOrDefeatedOam;
+    GP_SET(sprite->pOamData, sYetiTackledOrDefeatedOam);
     sprite->currentAnimationFrame = 0;
     zero = 0;
     sprite->animationTimer = 0;
@@ -403,7 +403,7 @@ void YetiDefeatedLeftInit(void)
 
 void YetiPushedInit(void)
 {
-    gCurrentSprite.pOamData = sYetiPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 30;
@@ -425,7 +425,7 @@ void YetiPushedLeftInit(void)
 
 void YetiPose2BOr2DInit(void)
 {
-    gCurrentSprite.pOamData = sYetiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -456,9 +456,9 @@ void YetiCrushed(void)
         collision = ((struct PrimarySpriteData *)current)->warioCollision;
         sprite = (struct PrimarySpriteData *)current;
         if (collision == 5) {
-            sprite->pOamData = sYetiCrushedWhileStunnedOam;
+            GP_SET(sprite->pOamData, sYetiCrushedWhileStunnedOam);
         } else {
-            sprite->pOamData = sYetiCrushedOam;
+            GP_SET(sprite->pOamData, sYetiCrushedOam);
             current = (u8 *)sprite;
         }
     }
@@ -505,7 +505,7 @@ void YetiStunnedWithoutTimerInit(void)
     u16 zero16;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sYetiStunnedOam;
+    GP_SET(sprite->pOamData, sYetiStunnedOam);
     zero8 = 0;
     zero16 = 0;
     ASM_BARRIER(: "+r"(zero8), "+r"(zero16));
@@ -530,7 +530,7 @@ void YetiPose49Init(void)
 
 void YetiAirborneInit(void)
 {
-    gCurrentSprite.pOamData = sYetiAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;
@@ -582,7 +582,7 @@ void YetiAirborne(void)
 
 void YetiHeldInit(void)
 {
-    gCurrentSprite.pOamData = sYetiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -602,7 +602,7 @@ void YetiLiftedLeftInit(void)
 void YetiCarriedInit(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sYetiStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -664,7 +664,7 @@ void YetiSnowballInit(void)
 
             oam = sYetiSnowballOam;
             fieldPointer = (u8 *)sprite;
-            ((struct PrimarySpriteData *)fieldPointer)->pOamData = oam;
+            GP_SET(((struct PrimarySpriteData *)fieldPointer)->pOamData, oam);
         }
         ((struct PrimarySpriteData *)fieldPointer)->currentAnimationFrame = zero8;
         ((struct PrimarySpriteData *)fieldPointer)->animationTimer = zero16;
@@ -694,7 +694,7 @@ void YetiSnowballMove(void)
         *timerPointer = nextTimer;
         timer = (u8)nextTimer;
         if (timer == 0) {
-            sprite->pOamData = sYetiSnowballMovingOam;
+            GP_SET(sprite->pOamData, sYetiSnowballMovingOam);
             sprite->currentAnimationFrame = timer;
             sprite->animationTimer = timer;
         }
@@ -714,7 +714,7 @@ void YetiSnowballMove(void)
 void YetiSnowballDisappearInit(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sYetiSnowballDisappearOam;
+    GP_SET(gCurrentSprite.pOamData, sYetiSnowballDisappearOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_CRUSHED_OR_COLLECTED;

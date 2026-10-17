@@ -47,14 +47,14 @@ void InitBossCorridorCat(void)
     switch (random) {
         case 0:
             caseSprite->pose = 110;
-            caseSprite->pOamData = sBossCorridorCatWaitToTurnOam;
+            GP_SET(caseSprite->pOamData, sBossCorridorCatWaitToTurnOam);
             caseSprite->work0 = 30;
             caseSprite->xPosition += 888;
             break;
 
         case 1:
             caseSprite->pose = 22;
-            caseSprite->pOamData = sBossCorridorCatWalkLeftOam;
+            GP_SET(caseSprite->pOamData, sBossCorridorCatWalkLeftOam);
             caseSprite->work0 = 32;
             caseSprite->xPosition += 960;
             caseSprite->status |= SPRITE_STATUS_FACING_RIGHT;
@@ -63,14 +63,14 @@ void InitBossCorridorCat(void)
 
         case 2:
             caseSprite->pose = 20;
-            caseSprite->pOamData = sBossCorridorCatWaitRightOam;
+            GP_SET(caseSprite->pOamData, sBossCorridorCatWaitRightOam);
             caseSprite->work0 = 24;
             caseSprite->xPosition += 448;
             break;
 
         case 3:
             caseSprite->pose = 18;
-            caseSprite->pOamData = sBossCorridorCatWaitLeftOam;
+            GP_SET(caseSprite->pOamData, sBossCorridorCatWaitLeftOam);
             caseSprite->work0 = 20;
             caseSprite->xPosition += 640;
             caseSprite->status |= SPRITE_STATUS_FACING_RIGHT;
@@ -78,7 +78,7 @@ void InitBossCorridorCat(void)
 
         case 4:
             caseSprite->pose = 16;
-            caseSprite->pOamData = sBossCorridorCatRunOam;
+            GP_SET(caseSprite->pOamData, sBossCorridorCatRunOam);
             caseSprite->work0 = 56;
             caseSprite->xPosition += 256;
             m4aSongNumStart(SE_BOSS_CORRIDOR_CAT_DASH);
@@ -118,7 +118,7 @@ void BossCorridorCatWaitToTurn(void)
         sprite->pose = 111;
         timerValue = 16;
         *timerPointer = timerValue;
-        sprite->pOamData = sBossCorridorCatTurnOam;
+        GP_SET(sprite->pOamData, sBossCorridorCatTurnOam);
         sprite->currentAnimationFrame = zero;
         sprite->animationTimer = timer;
     }
@@ -140,7 +140,7 @@ void BossCorridorCatStartFastLeftDash(void)
     if (timer == 0) {
         sprite->pose = 112;
         *timerPointer = 10;
-        sprite->pOamData = sBossCorridorCatRunOam;
+        GP_SET(sprite->pOamData, sBossCorridorCatRunOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         m4aSongNumStart(SE_BOSS_CORRIDOR_CAT_DASH);
@@ -215,7 +215,7 @@ void BossCorridorCatWaitToDashRight(void)
     if (timer == 0) {
         sprite->pose = 16;
         *timerPointer = 36;
-        sprite->pOamData = sBossCorridorCatRunOam;
+        GP_SET(sprite->pOamData, sBossCorridorCatRunOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         m4aSongNumStart(SE_BOSS_CORRIDOR_CAT_DASH);
@@ -238,7 +238,7 @@ void BossCorridorCatWaitToDashRightShort(void)
     if (timer == 0) {
         sprite->pose = 16;
         *timerPointer = 16;
-        sprite->pOamData = sBossCorridorCatRunOam;
+        GP_SET(sprite->pOamData, sBossCorridorCatRunOam);
         sprite->currentAnimationFrame = timer;
         sprite->animationTimer = timer;
         m4aSongNumStart(SE_BOSS_CORRIDOR_CAT_DASH);

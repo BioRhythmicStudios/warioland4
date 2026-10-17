@@ -823,11 +823,11 @@ void SpearMaskInitWalk(void)
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_IDLE;
     if (gCurrentSprite.globalID == PSPRITE_SPEAR_MASK_YELLOW) {
-        gCurrentSprite.pOamData = sSpearMaskWalkingOam;
+        GP_SET(gCurrentSprite.pOamData, sSpearMaskWalkingOam);
         gCurrentSprite.warioCollision = 3;
         SpearMaskSetWalkingHitbox();
     } else {
-        gCurrentSprite.pOamData = sSpearMaskSpearTwirlingOam;
+        GP_SET(gCurrentSprite.pOamData, sSpearMaskSpearTwirlingOam);
         gCurrentSprite.work0 = CONVERT_SECONDS(1.25) + DELTA_TIME;
         gCurrentSprite.warioCollision = 10;
         gCurrentSprite.work1 = 0;
@@ -891,7 +891,7 @@ void SpearMaskWalkYellow(void)
 
 void SpearMaskTurnInit(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskTurning1Oam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskTurning1Oam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_12;
@@ -917,7 +917,7 @@ void SpearMaskTurn(void)
     switch (gCurrentSprite.pose) {
         case SPOSE_12:
             gCurrentSprite.warioCollision = 1;
-            gCurrentSprite.pOamData = sSpearMaskTurning2Oam;
+            GP_SET(gCurrentSprite.pOamData, sSpearMaskTurning2Oam);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
             gCurrentSprite.pose = SPOSE_14;
@@ -930,7 +930,7 @@ void SpearMaskTurn(void)
             gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
             gCurrentSprite.warioCollision = 3;
             SpearMaskSetWalkingHitbox();
-            gCurrentSprite.pOamData = sSpearMaskTurning3Oam;
+            GP_SET(gCurrentSprite.pOamData, sSpearMaskTurning3Oam);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
             gCurrentSprite.pose = SPOSE_16;
@@ -945,7 +945,7 @@ void SpearMaskTurn(void)
 
 void SpearMaskPose17(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskRecoveringOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskRecoveringOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_18;
@@ -957,7 +957,7 @@ void SpearMaskPose17(void)
 
 void SpearMaskGetUpInit(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskGettingUpOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskGettingUpOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_1A;
@@ -1001,7 +1001,7 @@ void SpearMaskGetUp(void)
 
 void SpearMaskPose1B(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskOam_83B43A4;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskOam_83B43A4);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1C;
@@ -1011,7 +1011,7 @@ void SpearMaskPose1B(void)
 
 void SpearMaskPose1D(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_1E;
@@ -1025,7 +1025,7 @@ void SpearMaskTackledInit(void)
 {
     u32 value;
 
-    gCurrentSprite.pOamData = sSpearMaskTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -1067,7 +1067,7 @@ void func_8027474(void)
 {
     u32 value;
 
-    gCurrentSprite.pOamData = sSpearMaskTackledOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskTackledOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -1104,7 +1104,7 @@ void SpearMaskPose69(void)
 
 void SpearMaskPushedInit(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = CONVERT_SECONDS(0.2);
@@ -1129,7 +1129,7 @@ void SpearMaskPushedLeftInit(void)
 
 void SpearMaskHitWario(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskHitWarioOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskHitWarioOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = CONVERT_SECONDS(0.2);
@@ -1172,7 +1172,7 @@ void SpearMaskPose6F(void)
     }
 
     if (gCurrentSprite.work0 == CONVERT_SECONDS(1.0 / 3.0)) {
-        gCurrentSprite.pOamData = sSpearMaskTurningOam;
+        GP_SET(gCurrentSprite.pOamData, sSpearMaskTurningOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.warioCollision = 3;
@@ -1201,7 +1201,7 @@ void SpearMaskPose71(void)
     }
 
     if (gCurrentSprite.work0 == CONVERT_SECONDS(1.0 / 3.0)) {
-        gCurrentSprite.pOamData = sSpearMaskTurningOam;
+        GP_SET(gCurrentSprite.pOamData, sSpearMaskTurningOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.warioCollision = 3;
@@ -1216,7 +1216,7 @@ void SpearMaskPose71(void)
 
 void func_80276C4(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -1241,7 +1241,7 @@ void SpearMaskCrushed(void)
 {
     u32 value;
 
-    gCurrentSprite.pOamData = sSpearMaskCrushedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskCrushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = SPOSE_CRUSHED_OR_COLLECTED;
@@ -1285,7 +1285,7 @@ void SpearMaskInstantlyKill(void)
 
 void func_80277E0(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = CONVERT_SECONDS(1.0 / 15.0);
@@ -1312,7 +1312,7 @@ void SpearMaskPose35(void)
 
 void func_802784C(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -1336,7 +1336,7 @@ void SpearMaskPose49(void)
 
 void SpearMaskInitTransform(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskTransforming1Oam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskTransforming1Oam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4C;
@@ -1376,7 +1376,7 @@ void SpearMaskTransform(void)
         return;
     }
 
-    gCurrentSprite.pOamData = sSpearMaskTransforming2Oam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskTransforming2Oam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = SPOSE_4D;
@@ -1393,7 +1393,7 @@ void SpearMaskPose4D(void)
     }
     if (gSpriteCollisionResult) {
         gCurrentSprite.yPosition = yPosition;
-        gCurrentSprite.pOamData = sSpearMaskOam_83B4334;
+        GP_SET(gCurrentSprite.pOamData, sSpearMaskOam_83B4334);
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.work0 = CONVERT_SECONDS(1.0 / 6.0);
@@ -1419,7 +1419,7 @@ void SpearMaskPose4E(void)
 
 void func_8027A8C(void)
 {
-    gCurrentSprite.pOamData = sSpearMaskStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -1439,7 +1439,7 @@ void SpearMaskLiftedLeftInit(void)
 void func_8027ACC(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = DELTA_TIME;
-    gCurrentSprite.pOamData = sSpearMaskStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -1459,7 +1459,7 @@ void SpearMaskCarriedLeft(void)
 void SpearMaskStartChasing(void)
 {
     gCurrentSprite.pose = SPEAR_MASK_STARTING_CHASE;
-    gCurrentSprite.pOamData = sSpearMaskStartingChaseOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskStartingChaseOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.warioCollision = 3;
@@ -1481,7 +1481,7 @@ void SpearMaskStartChase(void)
         return;
     }
     gCurrentSprite.pose = SPEAR_MASK_CHASING;
-    gCurrentSprite.pOamData = sSpearMaskChasingOam;
+    GP_SET(gCurrentSprite.pOamData, sSpearMaskChasingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
 }
@@ -1509,7 +1509,7 @@ void SpearMaskWalkBlueOrRed(void)
                 func_8023BFC(gCurrentSprite.yPosition, gCurrentSprite.xPosition + gCurrentSprite.hitboxExtentRight);
                 if (!gSpriteCollisionTileType) {
                     gCurrentSprite.pose = SPOSE_11;
-                    gCurrentSprite.pOamData = sSpearMaskTurning1Oam;
+                    GP_SET(gCurrentSprite.pOamData, sSpearMaskTurning1Oam);
                     gCurrentSprite.currentAnimationFrame = 0;
                     gCurrentSprite.animationTimer = 0;
                     return;
@@ -1520,7 +1520,7 @@ void SpearMaskWalkBlueOrRed(void)
                 );
                 if (gSpriteCollisionTileType == 0x11) {
                     gCurrentSprite.pose = SPOSE_11;
-                    gCurrentSprite.pOamData = sSpearMaskTurning1Oam;
+                    GP_SET(gCurrentSprite.pOamData, sSpearMaskTurning1Oam);
                     gCurrentSprite.currentAnimationFrame = 0;
                     gCurrentSprite.animationTimer = 0;
                     return;
@@ -1531,7 +1531,7 @@ void SpearMaskWalkBlueOrRed(void)
                 func_8023BFC(gCurrentSprite.yPosition, gCurrentSprite.xPosition - gCurrentSprite.hitboxExtentLeft);
                 if (!gSpriteCollisionTileType) {
                     gCurrentSprite.pose = SPOSE_11;
-                    gCurrentSprite.pOamData = sSpearMaskTurning1Oam;
+                    GP_SET(gCurrentSprite.pOamData, sSpearMaskTurning1Oam);
                     gCurrentSprite.currentAnimationFrame = 0;
                     gCurrentSprite.animationTimer = 0;
                     return;
@@ -1542,7 +1542,7 @@ void SpearMaskWalkBlueOrRed(void)
                 );
                 if (gSpriteCollisionTileType == 0x11) {
                     gCurrentSprite.pose = SPOSE_11;
-                    gCurrentSprite.pOamData = sSpearMaskTurning1Oam;
+                    GP_SET(gCurrentSprite.pOamData, sSpearMaskTurning1Oam);
                     gCurrentSprite.currentAnimationFrame = 0;
                     gCurrentSprite.animationTimer = 0;
                     return;
@@ -1554,14 +1554,14 @@ void SpearMaskWalkBlueOrRed(void)
     if (gCurrentSprite.work0 != 0) {
         TIMER_COUNT_DOWN(gCurrentSprite.work0);
         if (gCurrentSprite.work0 == 0) {
-            gCurrentSprite.pOamData = sSpearMaskWalkingOam;
+            GP_SET(gCurrentSprite.pOamData, sSpearMaskWalkingOam);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
         } else {
             // What
             switch (gCurrentSprite.work0) {
                 case CONVERT_SECONDS(1.0 / 3.0):
-                    gCurrentSprite.pOamData = sSpearMaskTurningOam;
+                    GP_SET(gCurrentSprite.pOamData, sSpearMaskTurningOam);
                     gCurrentSprite.currentAnimationFrame = 0;
                     gCurrentSprite.animationTimer = 0;
                     gCurrentSprite.warioCollision = 3;

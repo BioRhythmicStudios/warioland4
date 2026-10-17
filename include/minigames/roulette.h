@@ -41,12 +41,12 @@ struct AGB_ALIGN RouletteRenderStack {
     s16 affineB;
     s16 affineC;
     s16 affineD;
-    s16* affineBPtr;
-    s16* affineCPtr;
-    s16* affineDPtr;
+    GBA_PTR(s16*) affineBPtr;
+    GBA_PTR(s16*) affineCPtr;
+    GBA_PTR(s16*) affineDPtr;
     int nextItem;
     int itemOffset;
-    struct RouletteItem** itemRef;
+    GBA_PTR(struct RouletteItem**) itemRef;
 };
 
 extern u16 gUnk_300188E;

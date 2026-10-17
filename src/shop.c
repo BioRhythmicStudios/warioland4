@@ -947,7 +947,7 @@ void DrawItemShopSprites(void)
         {
             u16 finalFrame = state[1];
             const struct AnimationFrame* finalAnimation = *animationPointer;
-            frameData = finalAnimation[finalFrame].oam;
+            frameData = GP(finalAnimation[finalFrame].oam);
         }
     }
 
@@ -1054,7 +1054,7 @@ void DrawItemShopSprites(void)
                 u16 finalFrame = cursor->animationFrame;
                 const struct AnimationFrame** finalPointer = &gItemShopCursorAnimation;
                 const struct AnimationFrame* finalAnimation = *finalPointer;
-                frameData = finalAnimation[finalFrame].oam;
+                frameData = GP(finalAnimation[finalFrame].oam);
             }
         }
 
@@ -1178,9 +1178,9 @@ void DrawItemShopSprites(void)
                             }
                         }
                     }
-                    frameData = animation[iconState->animationFrame].oam;
+                    frameData = GP(animation[iconState->animationFrame].oam);
                 } else {
-                    frameData = animation[0].oam;
+                    frameData = GP(animation[0].oam);
                 }
 
                 used += *frameData++;

@@ -10,8 +10,8 @@
 #include "wario.h"
 
 struct AGB_ALIGN DemoDmaRegisters {
-    const void* source;
-    void* destination;
+    GBA_PTR(const void*) source;
+    GBA_PTR(void*) destination;
     vu32 control;
 };
 
@@ -145,8 +145,8 @@ void SetupDemo(void)
         dma = (volatile struct DemoDmaRegisters*)0x040000D4;
         inputTable = sDemoInputStreams;
         pointerOffset = demoIndex << 2;
-        dma->source = *(const u16* const*)(pointerOffset + (u32)inputTable);
-        dma->destination = gDemoInputs;
+        GP_SET(dma->source, *(const u16* const*)(pointerOffset + (u32)inputTable));
+        GP_SET(dma->destination, gDemoInputs);
         counts = sDemoInputDmaWordCounts;
         counts = (const u16*)((u32)doubledIndex + (u32)counts);
         control = *counts >> 1;
@@ -154,8 +154,8 @@ void SetupDemo(void)
         dma->control = control;
         dma->control;
 
-        dma->source = *(const u16* const*)((const u8*)sDemoInputLengthStreams + pointerOffset);
-        dma->destination = gDemoInputLengths;
+        GP_SET(dma->source, *(const u16* const*)((const u8*)sDemoInputLengthStreams + pointerOffset));
+        GP_SET(dma->destination, gDemoInputLengths);
         dma->control = control;
         dma->control;
     } else if (gDemoState == 3) {
@@ -221,13 +221,13 @@ u32 AdvanceDemo(void)
         u32 control;
 
         dma = (volatile struct DemoDmaRegisters*)0x040000D4;
-        dma->source = gDemoInputs;
-        dma->destination = (void*)0x02038C00;
+        GP_SET(dma->source, gDemoInputs);
+        GP_SET(dma->destination, (void*)0x02038C00);
         control = 0x80000100;
         dma->control = control;
         dma->control;
-        dma->source = gDemoInputLengths;
-        dma->destination = (void*)0x02038E00;
+        GP_SET(dma->source, gDemoInputLengths);
+        GP_SET(dma->destination, (void*)0x02038E00);
         dma->control = control;
         dma->control;
         func_8001000();

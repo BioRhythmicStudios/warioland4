@@ -338,8 +338,8 @@ void func_803F414(void)
 
         sprite->status = 0;
         m4aSongNumStart(SOUND_5E);
-        if (gCurrentSprite.pOamData != sGhostOam_83C53C4) {
-            gCurrentSprite.pOamData = sGhostOam_83C53C4;
+        if (GP(gCurrentSprite.pOamData) != sGhostOam_83C53C4) {
+            GP_SET(gCurrentSprite.pOamData, sGhostOam_83C53C4);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
         }
@@ -410,8 +410,8 @@ void func_803F528(void)
         gCollectedKeyzer = 0;
         func_803F214();
         gSwitchStates[3] |= 2;
-        if (gCurrentSprite.pOamData != sGhostOam_83C53C4) {
-            gCurrentSprite.pOamData = sGhostOam_83C53C4;
+        if (GP(gCurrentSprite.pOamData) != sGhostOam_83C53C4) {
+            GP_SET(gCurrentSprite.pOamData, sGhostOam_83C53C4);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
         }
@@ -487,7 +487,7 @@ void func_803F66C(void)
                            sprite->yPosition, sprite->xPosition);
     }
 
-    sprite->pOamData = sGhostOam_83C5364;
+    GP_SET(sprite->pOamData, sGhostOam_83C5364);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = despawned;
     sprite->pose = 16;
@@ -593,7 +593,7 @@ useDefaultOam:
     selectedOam = sGhostOam_83C5364;
 
 applyOam:
-    current->pOamData = selectedOam;
+    GP_SET(current->pOamData, selectedOam);
     current->currentAnimationFrame = 0;
     current->animationTimer = 0;
     current->pose = 16;
@@ -855,7 +855,7 @@ void func_803F958(void)
                     sprite->xPosition = newX;
                 }
                 if (index == 32) {
-                    sprite->pOamData = sGhostOam_83C53FC;
+                    GP_SET(sprite->pOamData, sGhostOam_83C53FC);
                     sprite->currentAnimationFrame = 0;
                     sprite->animationTimer = 0;
                 } else if (index == 42) {
@@ -889,7 +889,7 @@ void func_803F958(void)
                 }
                 if (index == 32) {
                     u32 zero;
-                    sprite->pOamData = sGhostOam_83C53FC;
+                    GP_SET(sprite->pOamData, sGhostOam_83C53FC);
                     zero = 0;
                     sprite->currentAnimationFrame = zero;
                     sprite->animationTimer = facing;
@@ -931,7 +931,7 @@ void func_803F958(void)
                     sprite->xPosition = newX;
                 }
                 if (index == 32) {
-                    sprite->pOamData = sGhostOam_83C53B4;
+                    GP_SET(sprite->pOamData, sGhostOam_83C53B4);
                     sprite->currentAnimationFrame = 0;
                     sprite->animationTimer = 0;
                 } else if (index == 42 && spriteX > warioX) {
@@ -971,7 +971,7 @@ void func_803F958(void)
                 }
                 if (index == 32) {
                     u32 zero;
-                    sprite->pOamData = sGhostOam_83C53B4;
+                    GP_SET(sprite->pOamData, sGhostOam_83C53B4);
                     zero = 0;
                     sprite->currentAnimationFrame = zero;
                     sprite->animationTimer = *(volatile u16 *)((u8 *)saved + 8);
@@ -1071,9 +1071,9 @@ void func_803FB28(void)
             }
             if (index == 4) {
                 if (gPersistentSpriteData[gCurrentRoom][sprite->roomSlot] == 17) {
-                    sprite->pOamData = sGhostOam_83C53FC;
+                    GP_SET(sprite->pOamData, sGhostOam_83C53FC);
                 } else {
-                    sprite->pOamData = sGhostOam_83C53B4;
+                    GP_SET(sprite->pOamData, sGhostOam_83C53B4);
                 }
                 {
                     u32 zero;
@@ -1114,9 +1114,9 @@ void func_803FB28(void)
             }
             if (index == 4) {
                 if (gPersistentSpriteData[gCurrentRoom][sprite->roomSlot] == 17) {
-                    sprite->pOamData = sGhostOam_83C53FC;
+                    GP_SET(sprite->pOamData, sGhostOam_83C53FC);
                 } else {
-                    sprite->pOamData = sGhostOam_83C53B4;
+                    GP_SET(sprite->pOamData, sGhostOam_83C53B4);
                 }
                 {
                     u32 zero;
@@ -1219,7 +1219,7 @@ found:
         work3 = (u8 *)current + 42;
         *work3 = zeroTail;
         oam = sGhostOam_83C538C;
-        current->pOamData = oam;
+        GP_SET(current->pOamData, oam);
         current->currentAnimationFrame = zeroTail;
         current->animationTimer = zeroTail;
     }

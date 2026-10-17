@@ -1316,7 +1316,7 @@ void DrawHomerunDerby(void)
           *((u16 *) (((u8 *) objectState) + 2)) = (u16) frameTimeB;
         }
       }
-      secondaryFrameData = sHomerunBallHitAnimation[*((u16 *) (((u8 *) objectState) + 2))].oam;
+      secondaryFrameData = GP(sHomerunBallHitAnimation[*((u16 *) (((u8 *) objectState) + 2))].oam);
       nextOamIndex += *secondaryFrameData;
       frameData = secondaryFrameData + 1;
       affinePb = (u16 *) (((u8 *)affineMatrix) + 2);
@@ -1406,7 +1406,7 @@ void DrawHomerunDerby(void)
             *((u16 *) (((u8 *) objectState) + 2)) = animationMatrixPc;
           }
         }
-        ballFrameData = sHomerunBallPitchAnimation[*((u16 *) (((u8 *) objectState) + 2))].oam;
+        ballFrameData = GP(sHomerunBallPitchAnimation[*((u16 *) (((u8 *) objectState) + 2))].oam);
         nextOamIndex += *ballFrameData;
         frameData = ballFrameData + 1;
         stackPointer = ((u8 *)affineMatrix);
@@ -1524,7 +1524,7 @@ void DrawHomerunDerby(void)
       }
     }
     oamXMaskValue = 0x1FF;
-    batFrameData = sHomerunBatAnimation[gMinigameUiAnimation.animationFrame].oam;
+    batFrameData = GP(sHomerunBatAnimation[gMinigameUiAnimation.animationFrame].oam);
     nextOamIndex += *batFrameData;
     frameData = batFrameData + 1;
     cameraTransform = (struct HomerunCameraState *) &gHomerunBatAnimation;
@@ -1577,7 +1577,7 @@ void DrawHomerunDerby(void)
       }
     }
     cameraForMatrix = cameraTransform;
-    activeFrameData = activeAnimation[((struct HomerunSimpleAnimation *) cameraForMatrix)->animationFrame].oam;
+    activeFrameData = GP(activeAnimation[((struct HomerunSimpleAnimation *) cameraForMatrix)->animationFrame].oam);
     nextOamIndex += *activeFrameData;
     frameData = activeFrameData + 1;
     if (((s32) firstOamIndex) < nextOamIndex)
@@ -1692,7 +1692,7 @@ void DrawHomerunDerby(void)
         }
       }
       bonusOamBytes = (OamByte *) sHomerunBonusAnimations[(*bonusRenderState).animationIndex];
-      bonusFrameData = ((struct AnimationFrame *) bonusOamBytes)[gHomerunBonusRender.animationFrame].oam;
+      bonusFrameData = GP(((struct AnimationFrame *) bonusOamBytes)[gHomerunBonusRender.animationFrame].oam);
       nextOamIndex += *bonusFrameData;
       frameData = bonusFrameData + 1;
       if (((s32) firstOamIndex) < ((s32) nextOamIndex))
@@ -1810,7 +1810,7 @@ void DrawHomerunDerby(void)
         }
       }
     }
-    pitcherFrameData = ((struct AnimationFrame *) pitcherAnimation)[((struct HomerunPitcherState *) &gHomerunPitcherAnimation)->animationFrame].oam;
+    pitcherFrameData = GP(((struct AnimationFrame *) pitcherAnimation)[((struct HomerunPitcherState *) &gHomerunPitcherAnimation)->animationFrame].oam);
     nextOamIndex += *pitcherFrameData;
     frameData = pitcherFrameData + 1;
     if (((s32) firstOamIndex) < ((s32) nextOamIndex))
@@ -1867,7 +1867,7 @@ void DrawHomerunDerby(void)
           gHomerunResultRender.animationFrame = (u16) resultFrameTime;
         }
       }
-      resultFrameData = ((struct AnimationFrame *) resultAnimation)[gHomerunResultRender.animationFrame].oam;
+      resultFrameData = GP(((struct AnimationFrame *) resultAnimation)[gHomerunResultRender.animationFrame].oam);
       nextOamIndex += *resultFrameData;
       frameData = resultFrameData + 1;
       if (((s32) firstOamIndex) < ((s32) nextOamIndex))

@@ -725,7 +725,7 @@ void RenderPauseScreenOam(void)
             }
         }
     }
-    src = gPauseScreenAnimation[gPauseScreenState.animationFrame].oam;
+    src = GP(gPauseScreenAnimation[gPauseScreenState.animationFrame].oam);
     nextSlot += *(src++);
     if (nextSlot > 128) {
         return;
@@ -748,7 +748,7 @@ void RenderPauseScreenOam(void)
         } else {
             animation = sUnk_86D370C[1][gPauseScreenState.selection - 3];
         }
-        src = animation->oam;
+        src = GP(animation->oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;
@@ -837,7 +837,7 @@ void RenderPauseScreenOam(void)
                     gPauseJewelAnimationStates[i].animationFrame = 0;
                 }
             }
-            src = animation[gPauseJewelAnimationStates[i].animationFrame].oam;
+            src = GP(animation[gPauseJewelAnimationStates[i].animationFrame].oam);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;
@@ -856,7 +856,7 @@ void RenderPauseScreenOam(void)
         }
         if (gPauseAllJewelPiecesCollected == 0 && gPauseJewelPieceStates[i] != 0) {
             animation = sUnk_86D36DC[gPauseJewelPieceStates[i] - 1][i];
-            src = animation->oam;
+            src = GP(animation->oam);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;
@@ -876,7 +876,7 @@ void RenderPauseScreenOam(void)
     }
 
     if (gPauseAllJewelPiecesCollected != 0) {
-        src = sUnk_86D3DB0->oam;
+        src = GP(sUnk_86D3DB0->oam);
         nextSlot += *(src++);
         for (; currentSlot < nextSlot; currentSlot++) {
             attr = *(src++);
@@ -905,7 +905,7 @@ void RenderPauseScreenOam(void)
                 gPauseKeyzerAnimationState.animationFrame = 0;
             }
         }
-        src = animation[gPauseKeyzerAnimationState.animationFrame].oam;
+        src = GP(animation[gPauseKeyzerAnimationState.animationFrame].oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;
@@ -937,7 +937,7 @@ void RenderPauseScreenOam(void)
                 gPauseCdAnimationState.animationFrame = 0;
             }
         }
-        src = animation[gPauseCdAnimationState.animationFrame].oam;
+        src = GP(animation[gPauseCdAnimationState.animationFrame].oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;
@@ -958,11 +958,11 @@ void RenderPauseScreenOam(void)
     score = gHighScoreTable[gCurrentPassage][gCurrentStageNumber];
     if (score > 599) {
         if (score > 999) {
-            src = sUnk_86D4008->oam;
+            src = GP(sUnk_86D4008->oam);
         } else if (score > 799) {
-            src = sUnk_86D4018->oam;
+            src = GP(sUnk_86D4018->oam);
         } else {
-            src = sUnk_86D4028->oam;
+            src = GP(sUnk_86D4028->oam);
         }
         nextSlot += *(src++);
         if (nextSlot > 128) {

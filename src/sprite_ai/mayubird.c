@@ -38,7 +38,7 @@ void InitMayubird(void)
 
         oam = sMayubirdIdleOam;
         store = sprite;
-        store->pOamData = oam;
+        GP_SET(store->pOamData, oam);
         store->currentAnimationFrame = zeroFrame;
     }
     zero = 0;
@@ -159,7 +159,7 @@ void MayubirdStartWait(void)
     int zero;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sMayubirdWaitOam;
+    GP_SET(sprite->pOamData, sMayubirdWaitOam);
     zero = 0;
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
@@ -190,7 +190,7 @@ void MayubirdWait(void)
             const struct AnimationFrame *oam;
 
             oam = sMayubirdIdleOam;
-            sprite->pOamData = oam;
+            GP_SET(sprite->pOamData, oam);
             sprite->currentAnimationFrame = narrowedTimer;
             sprite->animationTimer = narrowedTimer;
             sprite->pose = 16;
@@ -204,7 +204,7 @@ void MayubirdPrepareLongFall(void)
     u8 zero;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sMayubirdFallOam;
+    GP_SET(sprite->pOamData, sMayubirdFallOam);
     sprite->currentAnimationFrame = 0;
     zero = 0;
     sprite->animationTimer = 0;
@@ -239,7 +239,7 @@ void MayubirdPrepareShortFall(void)
     u32 zero;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sMayubirdFallOam;
+    GP_SET(sprite->pOamData, sMayubirdFallOam);
     sprite->currentAnimationFrame = 0;
     zero = 0;
     sprite->animationTimer = 0;
@@ -275,7 +275,7 @@ void MayubirdPrepareFlight(void)
     int zeroCounter;
 
     sprite = &gCurrentSprite;
-    sprite->pOamData = sMayubirdFlightOam;
+    GP_SET(sprite->pOamData, sMayubirdFlightOam);
     zeroFrame = 0;
     sprite->currentAnimationFrame = zeroFrame;
     zeroCounter = 0;
@@ -366,7 +366,7 @@ void MayubirdFlyRight(void)
                     const struct AnimationFrame *oam;
 
                     oam = sMayubirdFlightEndOam;
-                    sprite->pOamData = oam;
+                    GP_SET(sprite->pOamData, oam);
                     sprite->currentAnimationFrame = timer;
                     sprite->animationTimer = timer;
                 }
@@ -447,7 +447,7 @@ void MayubirdFlyLeft(void)
                     const struct AnimationFrame *oam;
 
                     oam = sMayubirdFlightEndOam;
-                    sprite->pOamData = oam;
+                    GP_SET(sprite->pOamData, oam);
                     sprite->currentAnimationFrame = timer;
                     sprite->animationTimer = timer;
                 }
@@ -466,7 +466,7 @@ void MayubirdStartDeathDelay(void)
     sprite = &gCurrentSprite;
     zero = 0;
     sprite->pose = 50;
-    sprite->pOamData = sMayubirdFallOam;
+    GP_SET(sprite->pOamData, sMayubirdFallOam);
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero;
     sprite->work0 = 10;

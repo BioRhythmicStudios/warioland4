@@ -35,7 +35,7 @@ void InitDeburinaAlert(void)
     sprite->hitboxExtentDown = 0;
     sprite->hitboxExtentLeft = 32;
     sprite->hitboxExtentRight = 28;
-    sprite->pOamData = sDeburinaSpawnOam;
+    GP_SET(sprite->pOamData, sDeburinaSpawnOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 111;
@@ -46,7 +46,7 @@ void InitDeburinaAlert(void)
 void UpdateDeburinaAlertWait(void)
 {
     if (SpriteUtilCheckWarioNearbyLeftRight(200, 200) != 0) {
-        gCurrentSprite.pOamData = sDeburinaAlertOam;
+        GP_SET(gCurrentSprite.pOamData, sDeburinaAlertOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.pose = 113;
@@ -87,7 +87,7 @@ void StartDeburinaLeapWindup(void)
         status &= ~SPRITE_STATUS_BACKGROUND;
         sprite = savedSprite;
         sprite->status = status;
-        sprite->pOamData = sDeburinaLeapWindupOam;
+        GP_SET(sprite->pOamData, sDeburinaLeapWindupOam);
         sprite->currentAnimationFrame = zero;
         sprite->animationTimer = timerValue;
         sprite->pose = 115;
@@ -144,7 +144,7 @@ void UpdateDeburinaLeap(void)
             gCurrentSprite.pose = 27;
         }
     } else {
-        sprite->pOamData = sDeburinaIdleOam;
+        GP_SET(sprite->pOamData, sDeburinaIdleOam);
         sprite->currentAnimationFrame = timerValue;
         sprite->animationTimer = timerValue;
         sprite->pose = 16;
@@ -156,7 +156,7 @@ void InitDeburinaIdle(void)
 {
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
-    gCurrentSprite.pOamData = sDeburinaIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaIdleOam);
     gCurrentSprite.pose = 16;
     gCurrentSprite.warioCollision = 1;
     gCurrentSprite.hitboxExtentUp = 128;
@@ -235,7 +235,7 @@ void UpdateDeburinaIdle(void)
 
 void InitDeburinaTurn(void)
 {
-    gCurrentSprite.pOamData = sDeburinaTurnOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaTurnOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 18;
@@ -261,7 +261,7 @@ void UpdateDeburinaTurn(void)
 
 void InitDeburinaHopBack(void)
 {
-    gCurrentSprite.pOamData = sDeburinaTurnOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaTurnOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 24;
@@ -272,7 +272,7 @@ void InitDeburinaHopBack(void)
 
 void InitDeburinaHopStart(void)
 {
-    gCurrentSprite.pOamData = sDeburinaHopOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaHopOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 26;
@@ -307,7 +307,7 @@ void UpdateDeburinaHopStart(void)
 
 void InitDeburinaFalling(void)
 {
-    gCurrentSprite.pOamData = sDeburinaAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaAirborneOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 28;
@@ -317,7 +317,7 @@ void InitDeburinaFalling(void)
 
 void InitDeburinaStunned(void)
 {
-    gCurrentSprite.pOamData = sDeburinaStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 30;
@@ -328,7 +328,7 @@ void InitDeburinaStunned(void)
 
 void InitDeburinaTumbleCommon(void)
 {
-    gCurrentSprite.pOamData = sDeburinaTumbleOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaTumbleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -356,7 +356,7 @@ void InitDeburinaTumbleLeft(void)
 
 void InitDeburinaShortTumbleCommon(void)
 {
-    gCurrentSprite.pOamData = sDeburinaTumbleOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaTumbleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -382,7 +382,7 @@ void InitDeburinaShortTumbleLeft(void)
 
 void InitDeburinaPushedWindupCommon(void)
 {
-    gCurrentSprite.pOamData = sDeburinaPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -405,7 +405,7 @@ void InitDeburinaPushedLeftWindup(void)
 
 void InitDeburinaPushedSlideCommon(void)
 {
-    gCurrentSprite.pOamData = sDeburinaStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -427,7 +427,7 @@ void InitDeburinaBumpedLeft(void)
 
 void InitDeburinaDefeated(void)
 {
-    gCurrentSprite.pOamData = sDeburinaDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 11;
@@ -447,7 +447,7 @@ void KillDeburina(void)
 
 void InitDeburinaAirBounceCommon(void)
 {
-    gCurrentSprite.pOamData = sDeburinaStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -473,7 +473,7 @@ void InitDeburinaAirBounceLeft(void)
 
 void InitDeburinaGroundBounceCommon(void)
 {
-    gCurrentSprite.pOamData = sDeburinaStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -496,7 +496,7 @@ void InitDeburinaGroundBounceLeft(void)
 
 void InitDeburinaThrownCrash(void)
 {
-    gCurrentSprite.pOamData = sDeburinaAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 76;
@@ -572,7 +572,7 @@ void UpdateDeburinaThrownCrash(void)
 
 void InitDeburinaLiftedCommon(void)
 {
-    gCurrentSprite.pOamData = sDeburinaCarriedOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaCarriedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -592,7 +592,7 @@ void InitDeburinaLiftedLeft(void)
 void InitDeburinaCarriedCommon(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sDeburinaCarriedOam;
+    GP_SET(gCurrentSprite.pOamData, sDeburinaCarriedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -644,7 +644,7 @@ void InitDeburinaChild(void)
     sprite->hitboxExtentDown = 168;
     sprite->hitboxExtentLeft = 48;
     sprite->hitboxExtentRight = 44;
-    sprite->pOamData = sDeburinaChildIdleOam;
+    GP_SET(sprite->pOamData, sDeburinaChildIdleOam);
     sprite->currentAnimationFrame = zeroByte;
     sprite->animationTimer = zeroHalf;
     sprite->pose = 16;

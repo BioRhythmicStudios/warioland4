@@ -30,7 +30,7 @@ void DendenInit(void)
     gCurrentSprite.hitboxExtentUp = 64;
     gCurrentSprite.hitboxExtentDown = 0;
     DendenUpdateHitboxExtents();
-    gCurrentSprite.pOamData = sDendenIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 110;
@@ -38,7 +38,7 @@ void DendenInit(void)
 
 void DendenIdleInit(void)
 {
-    gCurrentSprite.pOamData = sDendenIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -164,7 +164,7 @@ move:
 
 void DendenTurnAroundInit(void)
 {
-    gCurrentSprite.pOamData = sDendenTurnStartOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenTurnStartOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 18;
@@ -184,7 +184,7 @@ void DendenTurnAround(void)
         switch (gCurrentSprite.pose)
         {
             case 18:
-                gCurrentSprite.pOamData = sDendenTurnMiddleOam;
+                GP_SET(gCurrentSprite.pOamData, sDendenTurnMiddleOam);
                 gCurrentSprite.currentAnimationFrame = 0;
                 gCurrentSprite.animationTimer = 0;
                 gCurrentSprite.pose = 20;
@@ -193,7 +193,7 @@ void DendenTurnAround(void)
                 break;
 
             case 20:
-                gCurrentSprite.pOamData = sDendenTurnEndOam;
+                GP_SET(gCurrentSprite.pOamData, sDendenTurnEndOam);
                 gCurrentSprite.currentAnimationFrame = 0;
                 gCurrentSprite.animationTimer = 0;
                 gCurrentSprite.pose = 22;
@@ -211,7 +211,7 @@ void DendenTurnAround(void)
 
 void DendenRetreatInit(void)
 {
-    gCurrentSprite.pOamData = sDendenRetreatOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenRetreatOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 24;
@@ -222,7 +222,7 @@ void DendenRetreatInit(void)
 
 void DendenRetreat(void)
 {
-    gCurrentSprite.pOamData = sDendenHideOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenHideOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 26;
@@ -231,7 +231,7 @@ void DendenRetreat(void)
 
 void DendenFallInit(void)
 {
-    gCurrentSprite.pOamData = sDendenAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenAirborneOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 28;
@@ -240,7 +240,7 @@ void DendenFallInit(void)
 
 void DendenUnderwaterFallInit(void)
 {
-    gCurrentSprite.pOamData = sDendenAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenAirborneOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 111;
@@ -279,7 +279,7 @@ void DendenFall(void)
 
 void DendenLandingInit(void)
 {
-    gCurrentSprite.pOamData = sDendenLandingOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenLandingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 30;
@@ -289,7 +289,7 @@ void DendenLandingInit(void)
 
 void ConfigureDendenFallOffscreen(void)
 {
-    gCurrentSprite.pOamData = sDendenKnockedAwayOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenKnockedAwayOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -315,7 +315,7 @@ void BeginDendenFallOffscreenLeft(void)
 
 void ConfigureDendenFallOffscreenWithoutStatusChange(void)
 {
-    gCurrentSprite.pOamData = sDendenKnockedAwayOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenKnockedAwayOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -339,7 +339,7 @@ void BeginDendenFallOffscreenLeftWithoutStatusChange(void)
 
 void DendenPushedCommon(void)
 {
-    gCurrentSprite.pOamData = sDendenPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -361,7 +361,7 @@ void DendenPushedLeftInit(void)
 
 void DendenBumpedCommon(void)
 {
-    gCurrentSprite.pOamData = sDendenPushedOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenPushedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 12;
@@ -383,7 +383,7 @@ void DendenBumpedLeftInit(void)
 
 void DendenImpactCommon(void)
 {
-    gCurrentSprite.pOamData = sDendenLandingOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenLandingOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -406,7 +406,7 @@ void DendenImpactLeftInit(void)
 
 void DendenDeathDelayInit(void)
 {
-    gCurrentSprite.pOamData = sDendenDeathOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenDeathOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 50;
@@ -424,7 +424,7 @@ void DendenThrownCommon(void)
     if (gCurrentSprite.warioCollision != 36)
     {
         gCurrentSprite.warioCollision = 36;
-        gCurrentSprite.pOamData = sDendenThrownOam;
+        GP_SET(gCurrentSprite.pOamData, sDendenThrownOam);
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.work2 = 0;
@@ -450,7 +450,7 @@ void DendenThrownLeftInit(void)
 
 void DendenThrownUpCommon(void)
 {
-    gCurrentSprite.pOamData = sDendenLandingOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenLandingOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -474,7 +474,7 @@ void DendenThrownUpLeftInit(void)
 
 void DendenLiftedInit(void)
 {
-    gCurrentSprite.pOamData = sDendenAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenAirborneOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 76;
@@ -502,7 +502,7 @@ void DendenLifted(void)
 
 void DendenSpawnShellInit(void)
 {
-    gCurrentSprite.pOamData = sDendenSpawnShellOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenSpawnShellOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 113;
@@ -550,7 +550,7 @@ void DendenShellInit(void)
     gCurrentSprite.hitboxExtentDown = 140;
     gCurrentSprite.hitboxExtentLeft = 32;
     gCurrentSprite.hitboxExtentRight = 28;
-    gCurrentSprite.pOamData = sDendenShellOam;
+    GP_SET(gCurrentSprite.pOamData, sDendenShellOam);
     gCurrentSprite.currentAnimationFrame = zeroByte;
     gCurrentSprite.animationTimer = zeroHalfword;
     gCurrentSprite.warioCollision = 9;
@@ -776,7 +776,7 @@ void SpriteDenden(void)
             break;
 
         case 47:
-            gCurrentSprite.pOamData = sDendenLandingOam;
+            GP_SET(gCurrentSprite.pOamData, sDendenLandingOam);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
             func_80244C0();

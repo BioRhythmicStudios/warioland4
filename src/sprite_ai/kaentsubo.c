@@ -35,7 +35,7 @@ void InitKaentsubo(void)
     gCurrentSprite.hitboxExtentDown = 0;
     gCurrentSprite.hitboxExtentLeft = 32;
     gCurrentSprite.hitboxExtentRight = 28;
-    gCurrentSprite.pOamData = sKaentsuboIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -46,7 +46,7 @@ void InitKaentsubo(void)
 
 void InitKaentsuboIdle(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -141,7 +141,7 @@ done:
 
 void InitKaentsuboSpitWindup(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboSpitWindupOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboSpitWindupOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 20;
@@ -171,7 +171,7 @@ void UpdateKaentsuboSpitWindup(void)
     } else if (--gCurrentSprite.work0 == 0) {
         gCurrentSprite.pose = 48;
         gCurrentSprite.work0 = 80;
-        gCurrentSprite.pOamData = sKaentsuboStunnedOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboStunnedOam);
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
     }
@@ -179,7 +179,7 @@ void UpdateKaentsuboSpitWindup(void)
 
 void InitKaentsuboTurnAround(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboTurnAroundOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboTurnAroundOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 18;
@@ -197,7 +197,7 @@ void UpdateKaentsuboTurnAround(void)
         gCurrentSprite.currentAnimationFrame = 0;
         gCurrentSprite.animationTimer = 0;
         gCurrentSprite.warioCollision = 1;
-        gCurrentSprite.pOamData = sKaentsuboIdleOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboIdleOam);
         gCurrentSprite.pose = 16;
         gCurrentSprite.status ^= SPRITE_STATUS_FACING_RIGHT;
     }
@@ -205,7 +205,7 @@ void UpdateKaentsuboTurnAround(void)
 
 void InitKaentsuboHitReact(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboHitReactOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboHitReactOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 24;
@@ -214,7 +214,7 @@ void InitKaentsuboHitReact(void)
 
 void InitKaentsuboRecover(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboRecoverOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboRecoverOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 26;
@@ -240,7 +240,7 @@ void UpdateKaentsuboRecover(void)
 
 void InitKaentsuboAirborne(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboAirborneOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboAirborneOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 28;
@@ -249,7 +249,7 @@ void InitKaentsuboAirborne(void)
 
 void InitKaentsuboStunned(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 30;
@@ -259,7 +259,7 @@ void InitKaentsuboStunned(void)
 
 void InitKaentsuboDefeatedCommon(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -285,7 +285,7 @@ void InitKaentsuboDefeatedLeft(void)
 
 void InitKaentsuboThrownDefeatedCommon(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboDefeatedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.health = 0;
@@ -320,9 +320,9 @@ void InitKaentsuboPushedCommon(void)
 void InitKaentsuboPushedRight(void)
 {
     if (gCurrentSprite.status & SPRITE_STATUS_FACING_RIGHT) {
-        gCurrentSprite.pOamData = sKaentsuboPushedFacingRightOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboPushedFacingRightOam);
     } else {
-        gCurrentSprite.pOamData = sKaentsuboPushedFacingLeftOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboPushedFacingLeftOam);
     }
     gCurrentSprite.pose = 36;
     InitKaentsuboPushedCommon();
@@ -331,9 +331,9 @@ void InitKaentsuboPushedRight(void)
 void InitKaentsuboPushedLeft(void)
 {
     if (gCurrentSprite.status & SPRITE_STATUS_FACING_RIGHT) {
-        gCurrentSprite.pOamData = sKaentsuboPushedFacingLeftOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboPushedFacingLeftOam);
     } else {
-        gCurrentSprite.pOamData = sKaentsuboPushedFacingRightOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboPushedFacingRightOam);
     }
     gCurrentSprite.pose = 38;
     InitKaentsuboPushedCommon();
@@ -341,7 +341,7 @@ void InitKaentsuboPushedLeft(void)
 
 void InitKaentsuboBumpedCommon(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboStunnedOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work1 = 0;
@@ -369,7 +369,7 @@ void InitKaentsuboDefeatSmoke(void)
         SpawnPrimarySpriteWithStatus(PSPRITE_93, gCurrentSprite.roomSlot, gCurrentSprite.gfxSlot,
                      gCurrentSprite.yPosition - 32, gCurrentSprite.xPosition, 0);
     }
-    gCurrentSprite.pOamData = sKaentsuboDefeatSmokeOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboDefeatSmokeOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.work0 = 21;
@@ -390,7 +390,7 @@ void KillKaentsubo(void)
 
 void InitKaentsuboGroundBounceCommon(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work0 = 4;
@@ -415,7 +415,7 @@ void InitKaentsuboGroundBounceLeft(void)
 
 void InitKaentsuboAirBounceCommon(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.work2 = 8;
@@ -437,7 +437,7 @@ void InitKaentsuboAirBounceLeft(void)
 
 void InitKaentsuboDropped(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboIdleOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.pose = 76;
@@ -460,7 +460,7 @@ void UpdateKaentsuboDropped(void)
             SpriteUtilLookupGravity(sUnk_8352B18);
         }
     } else {
-        gCurrentSprite.pOamData = sKaentsuboAirborneOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboAirborneOam);
         gCurrentSprite.currentAnimationFrame = dropTimer;
         gCurrentSprite.animationTimer = dropTimer;
         gCurrentSprite.pose = 77;
@@ -487,7 +487,7 @@ void UpdateKaentsuboLandAfterDrop(void)
 
 void InitKaentsuboLiftedCommon(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -507,7 +507,7 @@ void InitKaentsuboLiftedLeft(void)
 void InitKaentsuboCarriedCommon(void)
 {
     gCurrentSprite.disableWarioCollisionTimer = 1;
-    gCurrentSprite.pOamData = sKaentsuboStunnedOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboStunnedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -526,7 +526,7 @@ void InitKaentsuboCarriedLeft(void)
 
 void InitKaentsuboThrownCommon(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboDefeatedOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboDefeatedOam);
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.currentAnimationFrame = 0;
 }
@@ -546,7 +546,7 @@ void InitKaentsuboFlame(void)
     sprite->hitboxExtentLeft = 24;
     sprite->hitboxExtentRight = 20;
     sprite->warioCollision = 14;
-    sprite->pOamData = sKaentsuboFlameIdleOam;
+    GP_SET(sprite->pOamData, sKaentsuboFlameIdleOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 16;
@@ -554,7 +554,7 @@ void InitKaentsuboFlame(void)
 
 void InitKaentsuboFlameIdle(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboFlameIdleOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboFlameIdleOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -584,7 +584,7 @@ pose37:
     return;
 pose20:
     gCurrentSprite.pose = 20;
-    gCurrentSprite.pOamData = sKaentsuboFlameAlertOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboFlameAlertOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
 }
@@ -609,9 +609,9 @@ void InitKaentsuboFlamePushedRight(u32 slot)
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 36;
     if (gSpriteData[slot].status & SPRITE_STATUS_FACING_RIGHT) {
-        gCurrentSprite.pOamData = sKaentsuboFlamePushedRightOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboFlamePushedRightOam);
     } else {
-        gCurrentSprite.pOamData = sKaentsuboFlamePushedLeftOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboFlamePushedLeftOam);
     }
 }
 
@@ -635,9 +635,9 @@ void InitKaentsuboFlamePushedLeft(u32 slot)
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 38;
     if (gSpriteData[slot].status & SPRITE_STATUS_FACING_RIGHT) {
-        gCurrentSprite.pOamData = sKaentsuboFlamePushedLeftOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboFlamePushedLeftOam);
     } else {
-        gCurrentSprite.pOamData = sKaentsuboFlamePushedRightOam;
+        GP_SET(gCurrentSprite.pOamData, sKaentsuboFlamePushedRightOam);
     }
 }
 
@@ -670,7 +670,7 @@ void InitKaentsuboFireball(void)
     sprite->hitboxExtentLeft = 24;
     sprite->hitboxExtentRight = 20;
     sprite->warioCollision = 14;
-    sprite->pOamData = sKaentsuboFireballSpawnOam;
+    GP_SET(sprite->pOamData, sKaentsuboFireballSpawnOam);
     sprite->currentAnimationFrame = 0;
     sprite->animationTimer = 0;
     sprite->pose = 28;
@@ -681,7 +681,7 @@ void InitKaentsuboFireball(void)
 
 void InitKaentsuboFireballLaunch(void)
 {
-    gCurrentSprite.pOamData = sKaentsuboFireballLaunchOam;
+    GP_SET(gCurrentSprite.pOamData, sKaentsuboFireballLaunchOam);
     gCurrentSprite.currentAnimationFrame = 0;
     gCurrentSprite.animationTimer = 0;
     gCurrentSprite.pose = 16;
@@ -716,7 +716,7 @@ void UpdateKaentsuboFireballLaunch(void)
         }
 
         if (--gCurrentSprite.work0 == 0) {
-            gCurrentSprite.pOamData = sKaentsuboFireballTravelOam;
+            GP_SET(gCurrentSprite.pOamData, sKaentsuboFireballTravelOam);
             gCurrentSprite.currentAnimationFrame = 0;
             gCurrentSprite.animationTimer = 0;
             gCurrentSprite.hitboxExtentLeft = 60;
