@@ -56,7 +56,11 @@ extern const u8 sUnk_8738A18[];
 extern const u8 sFileSelectBackgroundTiles[];
 extern const u8 sUnk_873D438[];
 
+#ifdef PORTABLE
+void VoiceSetPlay(s32 voice);
+#else
 void VoiceSetPlay(u16 voice);
+#endif
 
 u32 ItemShopSubroutine(void)
 {

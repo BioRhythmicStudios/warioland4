@@ -7,15 +7,29 @@
 
 void UpdateAffineCutsceneBackground(u16 frame);
 void UpdateCutsceneSequence150(u16 frame);
+#ifdef PORTABLE
+// Callers cast the frame to u16 themselves.
+void UpdateCutsceneBackgroundVariantTransition(s32 frame);
+void UpdateLayeredBackgroundTransition(s32 frame);
+void UpdateLayeredSpriteCutsceneSequence(s32 frame);
+#else
 void UpdateCutsceneBackgroundVariantTransition(u16 frame);
 void UpdateLayeredBackgroundTransition(u16 frame);
 void UpdateLayeredSpriteCutsceneSequence(u16 frame);
+#endif
 void func_8005500(u16 frame);
 void func_80058AC(u16 frame);
+#ifdef PORTABLE
+void UpdateLayeredSubGameCutscene(s32 frame);
+void UpdateLayeredEndingCutsceneSequence(s32 frame);
+void UpdateLayeredWarioCutsceneSequence(s32 frame);
+void UpdateEndingScrollCutscene(s32 frame);
+#else
 void UpdateLayeredSubGameCutscene(u16 frame);
 void UpdateLayeredEndingCutsceneSequence(u16 frame);
 void UpdateLayeredWarioCutsceneSequence(u16 frame);
 void UpdateEndingScrollCutscene(u16 frame);
+#endif
 void BuildCutsceneBackgroundAffineMatrix(
     u16* affineRegisters,
     u16 rotation,

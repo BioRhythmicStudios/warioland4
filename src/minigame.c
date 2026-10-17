@@ -401,7 +401,13 @@ u32 PrepareMinigameSave(void)
     u8 value;
     u32 result;
 
+#ifdef PORTABLE
+    // The GBA reads whatever BuildMainSaveWorkingBuffer leaves in r0. The only caller ignores it.
+    BuildMainSaveWorkingBuffer();
+    result = 0;
+#else
     result = ((u32 (*)(void))BuildMainSaveWorkingBuffer)();
+#endif
     flag = &gSaveFlag;
     value = 1;
     *flag = value;

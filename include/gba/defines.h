@@ -40,6 +40,16 @@
 #define ASM_BARRIER_VOLATILE(...) asm volatile("" __VA_ARGS__)
 #endif
 
+// GBA_CALL_AS(func, type) is matched code calling func through a cast function type, e.g. to
+// read a u8 result as u32. agbcc passes and returns every integer in a full register, so on the
+// GBA the cast only steers code generation. On 64-bit ABIs the upper bits of narrow values are
+// undefined, so portable builds call func through its real prototype.
+#ifdef PORTABLE
+#define GBA_CALL_AS(func, ...) (func)
+#else
+#define GBA_CALL_AS(func, ...) ((__VA_ARGS__)(func))
+#endif
+
 #define SOUND_INFO_PTR (*(GBA_PTR(struct SoundInfo *) *)0x3007FF0)
 #define INTR_CHECK     (*(u16 *)0x3007FF8)
 #define INTR_VECTOR    (*(GBA_PTR(void *) *)0x3007FFC)

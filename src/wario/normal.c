@@ -26,7 +26,11 @@ extern const u16 sWarioCollisionPointTable[];
 #define sWarioCollisionPoints ((const u16 (*)[3])sWarioCollisionPointTable)
 #define WARIO_POINT(side, index) ((sWarioCollisionPointTable + (index))[(side) * 3])
 extern s32 GetBackgroundCollisionAtPosition(u16 y, u16 x);
+#ifdef PORTABLE
+extern void CopyWarioPalette(const void *source, int destinationIndex, int size);
+#else
 extern void CopyWarioPalette(const u16 *source, u16 destinationIndex, u16 count);
+#endif
 extern void UpdateWarioPositionHistory(void);
 extern void PrepareWarioUpdate(void);
 extern void UpdateWarioHorizontalCollisionOffset(void);
@@ -6057,7 +6061,7 @@ u8 ResolveWarioStandardCollision(void)
             x = gWarioData.xPosition + *(const u16 *)((u32)points + offset);
         }
         y = gWarioData.yPosition;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
         if (result != 0 && sec != 0) {
             gWarioData.unk_1C = result;
             gWarioData.yPosition = adjY;
@@ -6078,7 +6082,7 @@ u8 ResolveWarioStandardCollision(void)
         }
 
         x = gWarioData.xPosition + WARIO_POINT(side, right);
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
         if (result != 0) {
             gWarioData.unk_1C = result;
             gWarioData.yPosition = adjY;
@@ -6127,14 +6131,14 @@ u8 ResolveWarioStandardCollision(void)
         y = wario->yPosition;
         newY = &adjY;
         water = &sec;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, newY, water);
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, newY, water);
         wario->unk_1C = result;
         if (result == 0) {
             if (*water == 0) {
                 return 0xFF;
             }
             y = y - 64;
-            result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, newY, water);
+            result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, newY, water);
             wario->unk_1C = result;
         }
         if (result != 0) {
@@ -6157,7 +6161,7 @@ u8 ResolveWarioStandardCollision(void)
         x = gWarioData.xPosition + *(const u16 *)((u32)points + offset);
     }
     y = gWarioData.yPosition;
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
     if (result != 0) {
         gWarioData.yPosition = adjY;
         return 0xFF;
@@ -6166,7 +6170,7 @@ u8 ResolveWarioStandardCollision(void)
         return 0xFF;
     }
     y = y + 64;
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
     gWarioData.unk_1C = result;
     if (result != 0) {
         gWarioData.yPosition = adjY;
@@ -6288,7 +6292,7 @@ storeAdjustedX:
     savedY = yPosition;
     r6Value = (u32)&locals.newY;
     r5Value = (u32)&locals.inWater;
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(
         r4Value, yPosition, (u16 *)&locals.newX, (u16 *)r6Value, (u16 *)r5Value);
     if (*(u16 *)r5Value == 0)
         goto secondPoint;
@@ -6305,7 +6309,7 @@ storeAdjustedX:
 
 retryFirstPoint:
     r7Value = *(u16 *)r6Value;
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(
         (u16)(r4Value + 1), (u16)(yPosition + 1), (u16 *)&locals.newX,
         (u16 *)r6Value, (u16 *)r5Value);
     {
@@ -6341,7 +6345,7 @@ secondPoint:
         address = r7Value + currentX;
         r4Value = (u16)address;
     }
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(
         r4Value, yPosition, (u16 *)&locals.newX, (u16 *)r6Value, (u16 *)r5Value);
     if (*(u16 *)r5Value == 0)
         goto centerPoint;
@@ -6358,7 +6362,7 @@ secondPoint:
 
 retrySecondPoint:
     r7Value = *(u16 *)r6Value;
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(
         (u16)(r4Value - 1), (u16)(yPosition + 1), (u16 *)&locals.newX,
         (u16 *)r6Value, (u16 *)r5Value);
     {
@@ -6385,7 +6389,7 @@ centerPoint:
 
         centerWario = &gWarioData;
         r4Value = centerWario->xPosition;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(
             r4Value, savedY, (u16 *)&locals.newX, (u16 *)r6Value, (u16 *)r5Value);
         if (*(u16 *)r5Value != 0) {
             register struct WarioData *storeWario PIN("r3");
@@ -6459,7 +6463,7 @@ main:
     x = (u16)(pointValue + gWarioData.xPosition);
     y = gWarioData.yPosition;
     savedX = x;
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
     if (sec != 0) {
         if (result != 0) {
             gWarioData.unk_1C = result;
@@ -6468,7 +6472,7 @@ main:
         }
         if (gPreviousYPosition < adjY) {
             y = gPreviousYPosition;
-            result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+            result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
             gWarioData.unk_1C = result;
             if (result != 0) {
                 gWarioData.yPosition = adjY;
@@ -6480,7 +6484,7 @@ main:
         if (sec != 0x10) {
             gWarioData.xPosition = offset + (adjX - pointValue);
             x = gWarioData.xPosition;
-            result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+            result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
             gWarioData.unk_1C = result;
             if (result != 0) {
                 gWarioData.yPosition = adjY;
@@ -6514,7 +6518,7 @@ returnFC:
 
     x = (u16)(*(const u16 *)((u32)sWarioCollisionPointTable + (right << 1) + ((side * 3) << 1)) + gWarioData.xPosition);
     y = gWarioData.yPosition;
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
     if (sec != 0) {
         if (result != 0) {
             gWarioData.unk_1C = result;
@@ -6525,7 +6529,7 @@ returnFC:
             return 0xFF;
         }
         y = gPreviousYPosition;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
         gWarioData.unk_1C = result;
         if (result != 0) {
             gWarioData.yPosition = adjY;
@@ -6536,7 +6540,7 @@ returnFC:
     }
     if (*(const s16 *)((u32)(sWarioCollisionPointTable + 1) + ((side * 3) << 1)) > 31) {
         x = gWarioData.xPosition;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &adjX, &adjY, &sec);
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &adjX, &adjY, &sec);
         if (sec != 0 && gPreviousYPosition < adjY) {
             gWarioData.unk_1C = result;
             gWarioData.yPosition = adjY - 1;
@@ -6743,7 +6747,7 @@ u8 ResolveWarioFloorCollision(void)
             adjustedXOutput = &outputs.adjustedX;
             adjustedYPtr = &outputs.adjustedY;
             secondaryPtr = &outputs.secondary;
-            result = ((s32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
+            result = GBA_CALL_AS(CheckWarioTileCollision, s32 (*)(u32, u32, u16 *, u16 *, u16 *))(
                 xPosition, yPosition, adjustedXOutput, adjustedYPtr, secondaryPtr);
 
             if (*secondaryPtr != 0) {
@@ -6760,7 +6764,7 @@ u8 ResolveWarioFloorCollision(void)
                     ASM_BARRIER(: "+r"(currentX));
                     pointValue = (u16)(adjustedValue - currentX + collisionData->unk_06);
                     currentX = activeWario->xPosition;
-                    result = ((s32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
+                    result = GBA_CALL_AS(CheckWarioTileCollision, s32 (*)(u32, u32, u16 *, u16 *, u16 *))(
                         currentX, yPosition, &outputs.adjustedX, adjustedYPtr, secondaryPtr);
                 }
                 if (result == 0)
@@ -6843,7 +6847,7 @@ u8 ResolveWarioTileEdgeCollision(void)
         yRaw++;
         yRaw <<= 16;
         yPosition = yRaw >> 16;
-        if (((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(xPosition, yPosition, &newY, &newX, &inWater) != 0) {
+        if (GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(xPosition, yPosition, &newY, &newX, &inWater) != 0) {
             return 0xFF;
         }
     }
@@ -6921,7 +6925,7 @@ u8 ResolveWarioLadderCollision(void)
           yPosition = (u16)sum;
       }
       ;
-      ((u32 (*)(u32, u32, u16 *, u16 *, u16 *)) CheckWarioTileCollision)(xPosition, yPosition, (u16 *) (&locals.newX), (u16 *) (&locals.newY), (u16 *) (&locals.water));
+      GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(xPosition, yPosition, (u16 *) (&locals.newX), (u16 *) (&locals.newY), (u16 *) (&locals.water));
       probeY = yPosition;
       if (locals.water == 1)
       {
@@ -6951,7 +6955,7 @@ u8 ResolveWarioLadderCollision(void)
     }
     yPosition = wario->yPosition;
     ;
-    ((u32 (*)(u32, u32, u16 *, u16 *, u16 *)) CheckWarioTileCollision)(xPosition, yPosition, (u16 *) (&locals.newX), (u16 *) (&locals.newY), (u16 *) (&locals.water));
+    GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(xPosition, yPosition, (u16 *) (&locals.newX), (u16 *) (&locals.newY), (u16 *) (&locals.water));
     if (locals.water == 1)
     {
       wario->yPosition = (wario->yPosition & 0xFFC0) - 1;

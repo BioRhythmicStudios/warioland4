@@ -1302,7 +1302,7 @@ u8 ResolveWarioWaterCollision(void)
     ASM_BARRIER_VOLATILE(: : "r"(index));
     firstProbeX = index;
     newYPointer = &newY;
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(firstProbeX, point, &newX, newYPointer, &collision);
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(firstProbeX, point, &newX, newYPointer, &collision);
     if (collision != 0)
     {
         if (result != 0)
@@ -1315,7 +1315,7 @@ u8 ResolveWarioWaterCollision(void)
         if (gPreviousYPosition < newY)
         {
             point = gPreviousYPosition;
-            result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(firstProbeX, point, &newX, &newY, &collision);
+            result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(firstProbeX, point, &newX, &newY, &collision);
             if (result != 0)
             {
                 storedY = newY;
@@ -1332,7 +1332,7 @@ u8 ResolveWarioWaterCollision(void)
         }
         wario->xPosition = (newX - probeOffset) + offset;
         index = wario->xPosition;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(index, point, &newX, &newY, &collision);
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(index, point, &newX, &newY, &collision);
         wario->unk_1C = result;
         if (result != 0)
         {
@@ -1388,7 +1388,7 @@ secondProbe:
         point = positionWario->yPosition;
     }
 
-    result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(index, point, &newX, &newY, &collision);
+    result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(index, point, &newX, &newY, &collision);
     if (collision != 0)
     {
         secondProbeX = index;
@@ -1409,7 +1409,7 @@ secondProbe:
             if (previousY < newY)
             {
                 point = previousY;
-                result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(secondProbeX, point, &newX, &newY, &collision);
+                result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(secondProbeX, point, &newX, &newY, &collision);
                 wario->unk_1C = result;
                 if (result != 0)
                 {
@@ -1430,7 +1430,7 @@ storeYWithR2:
         if ((*((const s16 *) ((((const u8 *) sWarioCollisionPointTable) + indexOffset) + 2))) > 0x1F)
         {
             index = wario->xPosition;
-            result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(index, point, &newX, &newY, &collision);
+            result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(index, point, &newX, &newY, &collision);
             if (collision != 0)
             {
                 wario->unk_1C = result;
@@ -1586,7 +1586,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                 y = wario->yPosition;
                 ASM_BARRIER_VOLATILE(: "+r"(collisionData), "+r"(wario) : "r"(y));
                 ASM_BARRIER_VOLATILE(: : : "r0", "r1", "r2", "r5");
-                result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &newX, &newY, &collision);
+                result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &newX, &newY, &collision);
                 if (collision != 0)
                 {
                     do
@@ -1615,7 +1615,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                             {
                                 register u32 secondX PIN("r3");
                                 secondX = wario->xPosition;
-                                result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(secondX, y, &newX, &newY, &collision);
+                                result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(secondX, y, &newX, &newY, &collision);
                             }
                             if (result != 0)
                             {
@@ -1736,7 +1736,7 @@ u8 ResolveWarioWaterCollisionContinuation(void)
         pointOffset += (u32)offsetData;
         x = wario->xPosition + *(const s16 *)pointOffset;
         y = wario->yPosition;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &newX, &newY, &collision);
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &newX, &newY, &collision);
         if (collision != 0) {
             if (result != 0) {
                 wario->unk_1C = result;
@@ -1752,7 +1752,7 @@ u8 ResolveWarioWaterCollisionContinuation(void)
         flagValue += (u32)offsetData;
         x = wario->xPosition + *(const s16 *)flagValue;
         y++;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &newX, &newY, &collision);
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &newX, &newY, &collision);
         if (collision != 0 && result == 0) {
             if (collision == 0x10)
                 wario->unk_1C = 0x8000;
@@ -1782,7 +1782,7 @@ u8 ResolveWarioWaterCollisionContinuation(void)
             x = wario->xPosition + *(const s16 *)tableIndex;
         }
         y = wario->yPosition;
-        result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &newX, &newY, &collision);
+        result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &newX, &newY, &collision);
         if (result != 0) {
             wario->unk_1C = result;
             wario->yPosition = newY;
@@ -1790,7 +1790,7 @@ u8 ResolveWarioWaterCollisionContinuation(void)
         }
         if (collision != 0) {
             y -= 0x40;
-            result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &newX, &newY, &collision);
+            result = GBA_CALL_AS(CheckWarioTileCollision, u32 (*)(u32, u32, u16 *, u16 *, u16 *))(x, y, &newX, &newY, &collision);
             wario->unk_1C = result;
             if (result != 0)
                 wario->yPosition = newY;

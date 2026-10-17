@@ -5085,7 +5085,11 @@ void StartLargeLipsKiss(void)
         value -= 64;
         stackSlot = value;
         ASM_BARRIER(::: "r1");
+#ifdef PORTABLE
+        SpawnHighPriorityPrimarySprite(201, 0, 0, z, stackSlot);
+#else
         ((void (*)(u32, u32, u32, u32))SpawnHighPriorityPrimarySprite)(201, 0, 0, z);
+#endif
         func_8026E78();
         m4aSongNumStart(513);
     }

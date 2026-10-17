@@ -19,7 +19,13 @@ struct AGB_ALIGN BlockCollisionContext {
 typedef s32 (*BlockCollisionHandler)(struct BlockCollisionContext* context);
 
 extern GBA_FUNC_PTR(BlockCollisionHandler) const sBlockCollisionHandlers[];
+#ifdef PORTABLE
+s32 ProcessTileInteractionAtPosition(u32 y, u32 x, u32 tile);
+#define ProcessTileInteractionAtPosition(y, x, tileType) \
+    ProcessTileInteractionAtPosition((u16)(y), (u16)(x), (u16)(tileType))
+#else
 extern s32 ProcessTileInteractionAtPosition(u16 y, u16 x, u16 tileType);
+#endif
 
 s32 GetSwitchBlockCollision(struct BlockCollisionContext* context);
 
