@@ -133,8 +133,8 @@ void StopDominoActivator(void)
         if (sprite->globalID == PSPRITE_DOMINOES_2D && (sprite->status & 1) != 0) {
             sprite->status = 0;
             gPersistentSpriteData[gCurrentRoom][sprite->roomSlot] = 2;
-            m4aMPlayTempoControl(gMPlayTable[0].info, 0x100);
-            m4aMPlayTempoControl(gMPlayTable[1].info, 0x100);
+            m4aMPlayTempoControl(GP(gMPlayTable[0].info), 0x100);
+            m4aMPlayTempoControl(GP(gMPlayTable[1].info), 0x100);
             break;
         }
         i++;
@@ -342,8 +342,8 @@ void UpdateDominoChain(void)
     register u32 coordinate PIN("r0");
     struct PrimarySpriteData *current;
 
-    m4aMPlayTempoControl(gMPlayTable[0].info, 400);
-    m4aMPlayTempoControl(gMPlayTable[1].info, 400);
+    m4aMPlayTempoControl(GP(gMPlayTable[0].info), 400);
+    m4aMPlayTempoControl(GP(gMPlayTable[1].info), 400);
     current = &gCurrentSprite;
     coordinate = current->yPosition;
     yTile = coordinate >> 6;
@@ -923,8 +923,8 @@ void FinishDominoChain(void)
     if (current->work1 > 59) {
         current->status = 0;
         gPersistentSpriteData[gCurrentRoom][current->roomSlot] = 2;
-        m4aMPlayTempoControl(gMPlayTable[0].info, 0x100);
-        m4aMPlayTempoControl(gMPlayTable[1].info, 0x100);
+        m4aMPlayTempoControl(GP(gMPlayTable[0].info), 0x100);
+        m4aMPlayTempoControl(GP(gMPlayTable[1].info), 0x100);
 
         coordinate = current->yPosition;
         y = coordinate >> 6;

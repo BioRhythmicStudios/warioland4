@@ -323,7 +323,7 @@ void FadeOutAllSound(void)
     u8 i;
 
     for (i = 0; i < NUM_MUSIC_PLAYERS; i++) {
-        m4aMPlayFadeOut(gMPlayTable[i].info, 10);
+        m4aMPlayFadeOut(GP(gMPlayTable[i].info), 10);
     }
 }
 

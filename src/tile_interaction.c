@@ -2221,10 +2221,10 @@ void UpdateWarioEnvironmentalTiles(void)
                 {
                     const struct MusicPlayer* table;
                     table = gMPlayTable;
-                    MPlayStop(table[3].info);
-                    m4aMPlayFadeOut(table[0].info, 2);
-                    m4aMPlayFadeOut(table[1].info, 2);
-                    m4aMPlayFadeOut(table[2].info, 2);
+                    MPlayStop(GP(table[3].info));
+                    m4aMPlayFadeOut(GP(table[0].info), 2);
+                    m4aMPlayFadeOut(GP(table[1].info), 2);
+                    m4aMPlayFadeOut(GP(table[2].info), 2);
                 }
                 return;
             }

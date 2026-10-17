@@ -7521,7 +7521,7 @@ void UpdateWarioMusicEffects(void)
         struct MusicPlayerInfo *loadedPlayer;
 
         value = (u32)gMPlayTable;
-        loadedPlayer = ((const struct MusicPlayer *)value)[0].info;
+        loadedPlayer = GP(((const struct MusicPlayer *)value)[0].info);
         player0 = loadedPlayer;
         tempo = 0x100;
         {
@@ -7531,7 +7531,7 @@ void UpdateWarioMusicEffects(void)
             arg1 = tempo;
             ((void (*)(struct MusicPlayerInfo *, u32))m4aMPlayTempoControl)(arg0, arg1);
         }
-        resetPlayer1 = ((const struct MusicPlayer *)value)[1].info;
+        resetPlayer1 = GP(((const struct MusicPlayer *)value)[1].info);
         {
             struct MusicPlayerInfo *arg0;
             u32 arg1;
@@ -7605,8 +7605,8 @@ void UpdateWarioMusicEffects(void)
         case WPOSE_NORMAL_UNKNOWN_52:
             if (gWarioMusicState == 1)
                 return;
-            m4aMPlayTempoControl(gMPlayTable[0].info, 230);
-            m4aMPlayTempoControl(gMPlayTable[1].info, 230);
+            m4aMPlayTempoControl(GP(gMPlayTable[0].info), 230);
+            m4aMPlayTempoControl(GP(gMPlayTable[1].info), 230);
             gWarioMusicState = 1;
             return;
 
@@ -7614,8 +7614,8 @@ void UpdateWarioMusicEffects(void)
         case WPOSE_NORMAL_ROLLING_JUMP:
             if (gWarioMusicState == 2)
                 return;
-            m4aMPlayTempoControl(gMPlayTable[0].info, 400);
-            m4aMPlayTempoControl(gMPlayTable[1].info, 400);
+            m4aMPlayTempoControl(GP(gMPlayTable[0].info), 400);
+            m4aMPlayTempoControl(GP(gMPlayTable[1].info), 400);
             gWarioMusicState = 2;
             return;
 
@@ -7626,9 +7626,9 @@ void UpdateWarioMusicEffects(void)
 
             if (gWarioMusicState == 3)
                 return;
-            modePlayer0 = gMPlayTable[0].info;
+            modePlayer0 = GP(gMPlayTable[0].info);
             m4aMPlayModDepthSet(modePlayer0, 0xFFFF, 50);
-            modePlayer1 = gMPlayTable[1].info;
+            modePlayer1 = GP(gMPlayTable[1].info);
             m4aMPlayModDepthSet(modePlayer1, 0xFFFF, 50);
             m4aMPlayLFOSpeedSet(modePlayer0, 50, 100);
             m4aMPlayLFOSpeedSet(modePlayer1, 50, 100);
@@ -7646,7 +7646,11 @@ void UpdateWarioMusicEffects(void)
             if (gWarioMusicState == 0)
                 return;
             players = gMPlayTable;
+#ifdef PORTABLE
+            loadedPlayer = GP(players[0].info);
+#else
             loadedPlayer = *(struct MusicPlayerInfo * volatile *)&players[0].info;
+#endif
             player0 = loadedPlayer;
             defaultTempo = 0x100;
             {
@@ -7656,7 +7660,7 @@ void UpdateWarioMusicEffects(void)
                 arg1 = defaultTempo;
                 m4aMPlayTempoControl(arg0, arg1);
             }
-            defaultPlayer1 = players[1].info;
+            defaultPlayer1 = GP(players[1].info);
             {
                 struct MusicPlayerInfo *arg0;
                 u32 arg1;

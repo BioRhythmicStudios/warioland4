@@ -286,9 +286,9 @@ void ApplyPuffyWarioMusicEffect(void)
 
     state = &gWarioMusicState;
     if (*state != 12) {
-        player0 = gMPlayTable[0].info;
+        player0 = GP(gMPlayTable[0].info);
         m4aMPlayTempoControl(player0, 200);
-        player1 = gMPlayTable[1].info;
+        player1 = GP(gMPlayTable[1].info);
         m4aMPlayTempoControl(player1, 200);
         tracks = 0xFFFF;
         m4aMPlayPitchControl(player0, tracks, 200);

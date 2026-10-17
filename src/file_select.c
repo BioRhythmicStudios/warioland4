@@ -417,7 +417,7 @@ u32 InitializeFileSelect(void)
         songTable = (const u8*)gSongTable;
         songOffset = 0x13E4;
         songIndex = *(const u16*)(songTable + songOffset);
-        musicPlayer = musicTable[songIndex].info;
+        musicPlayer = GP(musicTable[songIndex].info);
         m4aMPlayVolumeControl(musicPlayer, 0xFFFF, 180);
     }
 

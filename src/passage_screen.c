@@ -855,7 +855,7 @@ s32 HandlePassageScreenInput(void)
             m4aSongNumStart(458);
         }
         gUnk_3004700 = 4;
-        m4aMPlayFadeOut(gMPlayTable[2].info, 6);
+        m4aMPlayFadeOut(GP(gMPlayTable[2].info), 6);
         gStageEntryExitRequested = 0;
         goto done;
     }

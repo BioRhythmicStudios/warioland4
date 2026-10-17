@@ -1313,7 +1313,7 @@ void InitializeRoomMusic(void)
         musicPlayers = gMPlayTable;
         songs = gSongTable;
         playerId = songs[gGameMusicState.songId].ms;
-        musicPlayer = musicPlayers[playerId].info;
+        musicPlayer = GP(musicPlayers[playerId].info);
         m4aMPlayVolumeControl(musicPlayer, 0xFFFF, gCurrentRoomHeader.musicVolume);
         gGameMusicState.previousSongId = gGameMusicState.songId;
         if (gHasTemporarySave != 0) {
@@ -1333,7 +1333,7 @@ void InitializeRoomMusic(void)
                 musicPlayers = gMPlayTable;
                 songs = gSongTable;
                 playerId = songs[gGameMusicState.songId].ms;
-                m4aMPlayFadeIn(musicPlayers[playerId].info, 1);
+                m4aMPlayFadeIn(GP(musicPlayers[playerId].info), 1);
             } else {
                 m4aSongNumStart(gGameMusicState.songId);
             }
@@ -1383,7 +1383,7 @@ void ProcessRoomMusic(void)
                 musicPlayers = gMPlayTable;
                 songs = gSongTable;
                 playerId = songs[gGameMusicState.songId].ms;
-                musicPlayer = musicPlayers[playerId].info;
+                musicPlayer = GP(musicPlayers[playerId].info);
                 m4aMPlayVolumeControl(musicPlayer, 0xFFFF, gCurrentRoomHeader.musicVolume);
                 gGameMusicState.state = 0;
             } else {
@@ -1400,11 +1400,11 @@ void ProcessRoomMusic(void)
             if (gGameMusicState.memoryAccessState != gMPlayMemAccArea[0]) {
                 musicPlayers = gMPlayTable;
                 playerId = gGameMusicState.playerId;
-                m4aMPlayFadeOut(musicPlayers[playerId].info, 12);
+                m4aMPlayFadeOut(GP(musicPlayers[playerId].info), 12);
                 m4aSongNumStart(gGameMusicState.songId);
                 songs = gSongTable;
                 playerId = songs[gGameMusicState.songId].ms;
-                musicPlayer = musicPlayers[playerId].info;
+                musicPlayer = GP(musicPlayers[playerId].info);
                 m4aMPlayVolumeControl(musicPlayer, 0xFFFF, gCurrentRoomHeader.musicVolume);
                 gGameMusicState.previousSongId = gGameMusicState.songId;
                 gGameMusicState.playerId = gSongTable[gGameMusicState.previousSongId].ms;
@@ -1431,7 +1431,7 @@ void ProcessWarioTransformationMusic(void)
                 m4aSongNumStart(gGameMusicState.specialSongId);
                 musicPlayers = gMPlayTable;
                 playerId = gGameMusicState.playerId;
-                musicPlayer = musicPlayers[playerId].info;
+                musicPlayer = GP(musicPlayers[playerId].info);
                 m4aMPlayFadeOutTemporarily(musicPlayer, 38);
                 gGameMusicState.specialState++;
             }
@@ -1444,7 +1444,7 @@ void ProcessWarioTransformationMusic(void)
         case 2:
             musicPlayers = gMPlayTable;
             playerId = gGameMusicState.playerId;
-            m4aMPlayFadeIn(musicPlayers[playerId].info, 1);
+            m4aMPlayFadeIn(GP(musicPlayers[playerId].info), 1);
             m4aSongNumStop(gGameMusicState.specialSongId);
             gGameMusicState.specialState = 0;
             gGameMusicState.specialSongId = 0;
@@ -1477,8 +1477,8 @@ void SelectWarioTransformationMusic(void)
 
 void FadeOutMusicForPause(void)
 {
-    m4aMPlayFadeOutTemporarily(gMPlayTable[0].info, 2);
-    m4aMPlayFadeOutTemporarily(gMPlayTable[1].info, 2);
+    m4aMPlayFadeOutTemporarily(GP(gMPlayTable[0].info), 2);
+    m4aMPlayFadeOutTemporarily(GP(gMPlayTable[1].info), 2);
     m4aSongNumStop(gGameMusicState.specialSongId);
 }
 

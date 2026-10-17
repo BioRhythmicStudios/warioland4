@@ -457,9 +457,9 @@ void ApplyBatWarioMusicEffects(void)
 {
     struct MusicPlayerInfo *mplay0, *mplay1;
     if (gWarioMusicState != 13) {
-        mplay0 = gMPlayTable[0].info;
+        mplay0 = GP(gMPlayTable[0].info);
         m4aMPlayTempoControl(mplay0, 300);
-        mplay1 = gMPlayTable[1].info;
+        mplay1 = GP(gMPlayTable[1].info);
         m4aMPlayTempoControl(mplay1, 300);
         m4aMPlayPitchControl(mplay0, 0xFFFF, 256);
         m4aMPlayPitchControl(mplay1, 0xFFFF, 256);

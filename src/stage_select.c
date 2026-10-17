@@ -109,7 +109,7 @@ u32 StageSelectSubroutine(void)
             if (UpdateStageSelectFadeIn() != 0) {
                 musicPlayers = gMPlayTable;
                 songs = gSongTable;
-                m4aMPlayVolumeControl(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info, 0xFFFF, 150);
+                m4aMPlayVolumeControl(GP(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info), 0xFFFF, 150);
                 gSubGameMode = 9;
             }
             break;
@@ -346,7 +346,7 @@ u32 StageSelectSubroutine(void)
             if (UpdateStageSelectFadeIn() != 0) {
                 musicPlayers = gMPlayTable;
                 songs = gSongTable;
-                m4aMPlayVolumeControl(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info, 0xFFFF, 150);
+                m4aMPlayVolumeControl(GP(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info), 0xFFFF, 150);
                 gSubGameMode = 35;
             }
             break;
@@ -423,7 +423,7 @@ u32 StageSelectSubroutine(void)
             if (UpdateStageSelectFadeIn() != 0) {
                 musicPlayers = gMPlayTable;
                 songs = gSongTable;
-                m4aMPlayVolumeControl(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info, 0xFFFF, 150);
+                m4aMPlayVolumeControl(GP(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info), 0xFFFF, 150);
                 gSubGameMode = 43;
             }
             break;

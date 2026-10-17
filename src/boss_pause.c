@@ -7,13 +7,13 @@ s32 BossPause(void)
     ret = 0;
     switch ((u8)gUnk_300001A) {
         case 1:
-            m4aMPlayVolumeControl(gMPlayTable[0].info, 0xFFFF, gCurrentRoomHeader.musicVolume >> 2);
-            m4aMPlayVolumeControl(gMPlayTable[1].info, 0xFFFF, gCurrentRoomHeader.musicVolume >> 2);
-            m4aMPlayVolumeControl(gMPlayTable[2].info, 0xFFFF, 0);
-            m4aMPlayVolumeControl(gMPlayTable[3].info, 0xFFFF, 0);
-            m4aMPlayVolumeControl(gMPlayTable[4].info, 0xFFFF, 0);
-            m4aMPlayVolumeControl(gMPlayTable[5].info, 0xFFFF, 0);
-            m4aMPlayVolumeControl(gMPlayTable[6].info, 0xFFFF, 0);
+            m4aMPlayVolumeControl(GP(gMPlayTable[0].info), 0xFFFF, gCurrentRoomHeader.musicVolume >> 2);
+            m4aMPlayVolumeControl(GP(gMPlayTable[1].info), 0xFFFF, gCurrentRoomHeader.musicVolume >> 2);
+            m4aMPlayVolumeControl(GP(gMPlayTable[2].info), 0xFFFF, 0);
+            m4aMPlayVolumeControl(GP(gMPlayTable[3].info), 0xFFFF, 0);
+            m4aMPlayVolumeControl(GP(gMPlayTable[4].info), 0xFFFF, 0);
+            m4aMPlayVolumeControl(GP(gMPlayTable[5].info), 0xFFFF, 0);
+            m4aMPlayVolumeControl(GP(gMPlayTable[6].info), 0xFFFF, 0);
             REG_WIN1H = 0x7878;
             REG_WIN1V = 0x5050;
             gUnk_300001A++;
@@ -56,13 +56,13 @@ s32 BossPause(void)
         case 6:
             m4aSongNumStart(0x123);
             *(vu8*)REG_ADDR_WINOUT &= 0x37;
-            m4aMPlayVolumeControl(gMPlayTable[0].info, 0xFFFF, gCurrentRoomHeader.musicVolume);
-            m4aMPlayVolumeControl(gMPlayTable[1].info, 0xFFFF, gCurrentRoomHeader.musicVolume);
-            m4aMPlayVolumeControl(gMPlayTable[2].info, 0xFFFF, 0x100);
-            m4aMPlayVolumeControl(gMPlayTable[3].info, 0xFFFF, 0x100);
-            m4aMPlayVolumeControl(gMPlayTable[4].info, 0xFFFF, 0x100);
-            m4aMPlayVolumeControl(gMPlayTable[5].info, 0xFFFF, 0x100);
-            m4aMPlayVolumeControl(gMPlayTable[6].info, 0xFFFF, 0x100);
+            m4aMPlayVolumeControl(GP(gMPlayTable[0].info), 0xFFFF, gCurrentRoomHeader.musicVolume);
+            m4aMPlayVolumeControl(GP(gMPlayTable[1].info), 0xFFFF, gCurrentRoomHeader.musicVolume);
+            m4aMPlayVolumeControl(GP(gMPlayTable[2].info), 0xFFFF, 0x100);
+            m4aMPlayVolumeControl(GP(gMPlayTable[3].info), 0xFFFF, 0x100);
+            m4aMPlayVolumeControl(GP(gMPlayTable[4].info), 0xFFFF, 0x100);
+            m4aMPlayVolumeControl(GP(gMPlayTable[5].info), 0xFFFF, 0x100);
+            m4aMPlayVolumeControl(GP(gMPlayTable[6].info), 0xFFFF, 0x100);
             gUnk_300001A++;
             break;
         case 7:

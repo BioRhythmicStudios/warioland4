@@ -450,7 +450,7 @@ void ResetWarioState(void)
         case WPOSE_NORMAL_SUPER_GROUND_POUND:
         case WPOSE_NORMAL_CHARGING_THROW_2:
         case WPOSE_NORMAL_TURNING_WHILE_CHARING_THROW:
-            MPlayStop(gMPlayTable[3].info);
+            MPlayStop(GP(gMPlayTable[3].info));
             break;
     }
 }

@@ -754,29 +754,29 @@ void WarioHopUpdateGameOverMusic(void)
     song = gSongTable[sUnk_870CDB8[gWarioHopSpeedLevel]].ms;
     switch ((s16)gWarioHopGameOverTimer) {
         case 0:
-            info = gMPlayTable[song].info;
+            info = GP(gMPlayTable[song].info);
             m4aMPlayTempoControl(info, 280);
             m4aMPlayPitchControl(info, 0xFFFF, -100);
             m4aSongNumStart(0x23C);
             break;
         case 30:
-            info = gMPlayTable[song].info;
+            info = GP(gMPlayTable[song].info);
             m4aMPlayTempoControl(info, 220);
             m4aMPlayPitchControl(info, 0xFFFF, -200);
             break;
         case 60:
-            info = gMPlayTable[song].info;
+            info = GP(gMPlayTable[song].info);
             m4aMPlayTempoControl(info, 200);
             m4aMPlayPitchControl(info, 0xFFFF, -300);
             break;
         case 90:
-            info = gMPlayTable[song].info;
+            info = GP(gMPlayTable[song].info);
             m4aMPlayTempoControl(info, 160);
             m4aMPlayPitchControl(info, 0xFFFF, -400);
             m4aMPlayModDepthSet(info, 0xFFFF, 15);
             break;
         case 120:
-            info = gMPlayTable[song].info;
+            info = GP(gMPlayTable[song].info);
             m4aMPlayTempoControl(info, 130);
             m4aMPlayPitchControl(info, 0xFFFF, -500);
             m4aMPlayFadeOut(info, 3);

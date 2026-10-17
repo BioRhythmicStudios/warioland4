@@ -956,17 +956,17 @@ void UpdateSoundRoomAudioEffects(void)
     songIndexTable = (const u32*)sUnk_863D97C;
     pairedSongId = ((const struct Song*)gSongTable)[songIndexTable[gLanguage]].ms;
     if (*(u8*)&gSoundRoomMusicEnabled != 0) {
-        m4aMPlayVolumeControl(gMPlayTable[songId].info, 0xFFFF, 0x100);
+        m4aMPlayVolumeControl(GP(gMPlayTable[songId].info), 0xFFFF, 0x100);
     } else {
-        m4aMPlayVolumeControl(gMPlayTable[songId].info, 0xFFFF, 0);
+        m4aMPlayVolumeControl(GP(gMPlayTable[songId].info), 0xFFFF, 0);
     }
-    firstPlayer = gMPlayTable[songId].info;
+    firstPlayer = GP(gMPlayTable[songId].info);
     new_var3 = sUnk_863D9A0;
     new_var2 = &(*((u16*)(((u8*)new_var3) + ((((s8)gSoundRoomTempoOffset) + 3) << 2))));
     tempo = *new_var2;
     m4aMPlayTempoControl(firstPlayer, tempo);
     songId = 2;
-    secondPlayer = gMPlayTable[pairedSongId].info;
+    secondPlayer = GP(gMPlayTable[pairedSongId].info);
     tempo = *((u16*)(((u8*)sUnk_863D9A0) + ((((s8)gSoundRoomTempoOffset) + 3) << songId)));
     m4aMPlayTempoControl(secondPlayer, tempo);
     pitchMask = 0xFFFF;

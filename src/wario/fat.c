@@ -638,9 +638,9 @@ void UpdateFatWarioMusic(void)
 
     if (gWarioMusicState != 7) {
         table = gMPlayTable;
-        player0 = table[0].info;
+        player0 = GP(table[0].info);
         m4aMPlayTempoControl(player0, 150);
-        player1 = table[1].info;
+        player1 = GP(table[1].info);
         { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=150; m4aMPlayTempoControl(a0,a1); }
         tracks = 0xFFFF;
         pitch = -500;

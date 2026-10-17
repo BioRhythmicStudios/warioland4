@@ -136,7 +136,7 @@ u32 UpdateStageResults(void)
             REG_DISPCNT = 0x401;
             gColorFading.type = 4;
             REG_BLDCNT = 0x3FFF;
-            m4aMPlayFadeOut(gMPlayTable[2].info, 8);
+            m4aMPlayFadeOut(GP(gMPlayTable[2].info), 8);
             return 1;
     }
     return 0;

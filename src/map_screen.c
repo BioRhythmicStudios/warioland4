@@ -292,7 +292,7 @@ void InitMapScreen(void)
         *bgControl = 0x1E00;
     }
 
-    m4aMPlayVolumeControl(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info, 0xFFFF, 0x100);
+    m4aMPlayVolumeControl(GP(musicPlayers[*(const u16*)((const u8*)songs + 0x13FC)].info), 0xFFFF, 0x100);
     InitMinigameScoreDisplay();
 
     gSoundRoomMessageTimer = 0;

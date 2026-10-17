@@ -825,7 +825,7 @@ void SetWarioWaterPose(u8 pose)
             m4aSongNumStart(SE_WARIO_WATER_GROUND_POUND_LAND);
             VoiceSetPlay(0);
         } else {
-            MPlayStop(gMPlayTable[3].info);
+            MPlayStop(GP(gMPlayTable[3].info));
         }
     }
 
@@ -1968,9 +1968,9 @@ void UpdateBubbleWarioMusic(void)
             return;
 
         tableOrMask = (u32)gMPlayTable;
-        player0 = ((const struct MusicPlayer *)tableOrMask)[0].info;
+        player0 = GP(((const struct MusicPlayer *)tableOrMask)[0].info);
         m4aMPlayTempoControl(player0, 200);
-        player1 = ((const struct MusicPlayer *)tableOrMask)[1].info;
+        player1 = GP(((const struct MusicPlayer *)tableOrMask)[1].info);
         m4aMPlayTempoControl(player1, 200);
         tableOrMask = 0xFFFF;
         callPlayer = player0;
@@ -1998,10 +1998,10 @@ void UpdateBubbleWarioMusic(void)
             return;
 
         tableOrMask = (u32)gMPlayTable;
-        normalPlayer0 = ((const struct MusicPlayer *)tableOrMask)[0].info;
+        normalPlayer0 = GP(((const struct MusicPlayer *)tableOrMask)[0].info);
         tempo = 0x100;
         m4aMPlayTempoControl(normalPlayer0, tempo);
-        player1 = ((const struct MusicPlayer *)tableOrMask)[1].info;
+        player1 = GP(((const struct MusicPlayer *)tableOrMask)[1].info);
         m4aMPlayTempoControl(player1, tempo);
         tableOrMask = 0xFFFF;
         callPlayer = normalPlayer0;

@@ -572,9 +572,9 @@ void ApplySnowmanWarioMusicEffect(void)
     if (gWarioMusicState == 10)
         return;
 
-    player0 = gMPlayTable[0].info;
+    player0 = GP(gMPlayTable[0].info);
     m4aMPlayTempoControl(player0, 180);
-    player1 = gMPlayTable[1].info;
+    player1 = GP(gMPlayTable[1].info);
     m4aMPlayTempoControl(player1, 180);
     m4aMPlayPitchControl(player0, 0xFFFF, -500);
     m4aMPlayPitchControl(player1, 0xFFFF, -500);

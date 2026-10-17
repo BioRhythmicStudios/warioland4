@@ -433,7 +433,7 @@ s32 UpdateMinigameMenu(void)
                     songOffset = 0x15EC;
                     songAddress += songOffset;
                     playerIndex = *(const u16*)songAddress;
-                    m4aMPlayFadeOut(players[playerIndex].info, 8);
+                    m4aMPlayFadeOut(GP(players[playerIndex].info), 8);
                     gMinigameState = selected;
                 } else {
                     const struct MusicPlayer* players;
@@ -447,7 +447,7 @@ s32 UpdateMinigameMenu(void)
                     songOffset = 0x15EC;
                     songAddress += songOffset;
                     playerIndex = *(const u16*)songAddress;
-                    m4aMPlayFadeOut(players[playerIndex].info, 12);
+                    m4aMPlayFadeOut(GP(players[playerIndex].info), 12);
                     gMinigameState++;
                 }
             }

@@ -349,7 +349,7 @@ rouletteMismatch:
             songOffset = 0x1624;
             songBase += songOffset;
             songIndex = *(u16 *)songBase;
-            m4aMPlayFadeOut(mplay[songIndex].info, 8);
+            m4aMPlayFadeOut(GP(mplay[songIndex].info), 8);
         }
         return 0;
 

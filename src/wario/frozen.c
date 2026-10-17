@@ -291,9 +291,9 @@ void ApplyFrozenWarioMusicEffects(void)
     struct MusicPlayerInfo* mplay0;
     struct MusicPlayerInfo* mplay1;
     if (gWarioMusicState != 8) {
-        mplay0 = gMPlayTable[0].info;
+        mplay0 = GP(gMPlayTable[0].info);
         m4aMPlayTempoControl(mplay0, 350);
-        mplay1 = gMPlayTable[1].info;
+        mplay1 = GP(gMPlayTable[1].info);
         m4aMPlayTempoControl(mplay1, 350);
         m4aMPlayPitchControl(mplay0, 0xFFFF, 1000);
         m4aMPlayPitchControl(mplay1, 0xFFFF, 1000);

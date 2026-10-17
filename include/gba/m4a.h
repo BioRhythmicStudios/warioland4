@@ -59,7 +59,7 @@ struct AGB_ALIGN ToneData {
     u8 key;
     u8 length; // sound length (compatible sound)
     u8 pan_sweep; // pan or sweep (compatible sound ch. 1)
-    struct WaveData *wav;
+    GBA_PTR(struct WaveData *) wav;
     u8 attack;
     u8 decay;
     u8 sustain;
@@ -98,7 +98,7 @@ struct AGB_ALIGN CgbChannel {
     u8 le;
     u8 sw;
     u32 fr;
-    u32 *wp;
+    GBA_PTR(u32 *) wp;
     u32 cp;
     u32 tp;
     u32 pp;
@@ -134,9 +134,9 @@ struct AGB_ALIGN SoundChannel {
     u32 ct;
     u32 fw;
     u32 freq;
-    struct WaveData *wav;
+    GBA_PTR(struct WaveData *) wav;
     u32 cp;
-    struct MusicPlayerTrack *track;
+    GBA_PTR(struct MusicPlayerTrack *) track;
     u32 pp;
     u32 np;
     u32 d4;
@@ -147,6 +147,10 @@ struct AGB_ALIGN SoundChannel {
 #define MAX_DIRECTSOUND_CHANNELS 12
 
 #define PCM_DMA_BUF_SIZE 1584 // size of Direct Sound buffer
+
+typedef void (*CgbSoundFunc)(void);
+typedef void (*CgbOscOffFunc)(u8);
+typedef u32 (*MidiKeyToCgbFreqFunc)(u8, u8, u8);
 
 struct AGB_ALIGN SoundInfo {
     // This field is normally equal to ID_NUMBER but it is set to other
@@ -171,15 +175,15 @@ struct AGB_ALIGN SoundInfo {
     s32 pcmSamplesPerVBlank;
     s32 pcmFreq;
     s32 divFreq;
-    struct CgbChannel *cgbChans;
+    GBA_PTR(struct CgbChannel *) cgbChans;
     u32 func;
     u32 intp;
-    void (*CgbSound)(void);
-    void (*CgbOscOff)(u8);
-    u32 (*MidiKeyToCgbFreq)(u8, u8, u8);
+    GBA_FUNC_PTR(CgbSoundFunc) CgbSound;
+    GBA_FUNC_PTR(CgbOscOffFunc) CgbOscOff;
+    GBA_FUNC_PTR(MidiKeyToCgbFreqFunc) MidiKeyToCgbFreq;
     u32 MPlayJumpTable;
-    void *plynote;
-    void (*ExtVolPit)(void);
+    GBA_PTR(void *) plynote;
+    GBA_FUNC_PTR(CgbSoundFunc) ExtVolPit;
     u8 gap2[16];
     struct SoundChannel chans[MAX_DIRECTSOUND_CHANNELS];
     s8 pcmBuffer[PCM_DMA_BUF_SIZE * 2];
@@ -190,8 +194,8 @@ struct AGB_ALIGN SongHeader {
     u8 blockCount;
     u8 priority;
     u8 reverb;
-    struct ToneData *tone;
-    u8 *part[1];
+    GBA_PTR(struct ToneData *) tone;
+    GBA_PTR(u8 *) part[1];
 };
 
 #define MPT_FLG_VOLSET 0x01
@@ -234,13 +238,13 @@ struct AGB_ALIGN MusicPlayerTrack {
     u8 priority;
     u8 echoVolume;
     u8 echoLength;
-    struct SoundChannel *chan;
+    GBA_PTR(struct SoundChannel *) chan;
     struct ToneData tone;
     u8 gap[10];
     u16 unk_3A;
     u32 unk_3C;
-    u8 *cmdPtr;
-    u8 *patternStack[3];
+    GBA_PTR(u8 *) cmdPtr;
+    GBA_PTR(u8 *) patternStack[3];
 };
 
 #define MUSICPLAYER_STATUS_TRACK 0x0000ffff
@@ -254,7 +258,7 @@ struct AGB_ALIGN MusicPlayerTrack {
 #define FADE_VOL_SHIFT  2
 
 struct AGB_ALIGN MusicPlayerInfo {
-    struct SongHeader *songHeader;
+    GBA_PTR(struct SongHeader *) songHeader;
     u32 status;
     u8 trackCount;
     u8 priority;
@@ -262,7 +266,7 @@ struct AGB_ALIGN MusicPlayerInfo {
     u8 unk_B;
     u32 clock;
     u8 gap[8];
-    u8 *memAccArea;
+    GBA_PTR(u8 *) memAccArea;
     u16 tempoD;
     u16 tempoU;
     u16 tempoI;
@@ -270,22 +274,22 @@ struct AGB_ALIGN MusicPlayerInfo {
     u16 fadeOI;
     u16 fadeOC;
     u16 fadeOV;
-    struct MusicPlayerTrack *tracks;
-    struct ToneData *tone;
+    GBA_PTR(struct MusicPlayerTrack *) tracks;
+    GBA_PTR(struct ToneData *) tone;
     u32 ident;
     u32 func;
     u32 intp;
 };
 
 struct AGB_ALIGN MusicPlayer {
-    struct MusicPlayerInfo *info;
-    struct MusicPlayerTrack *track;
+    GBA_PTR(struct MusicPlayerInfo *) info;
+    GBA_PTR(struct MusicPlayerTrack *) track;
     u8 unk_8;
     u16 unk_A;
 };
 
 struct AGB_ALIGN Song {
-    struct SongHeader *header;
+    GBA_PTR(struct SongHeader *) header;
     u16 ms;
     u16 me;
 };

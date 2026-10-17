@@ -4693,7 +4693,7 @@ void InitializeEndingTreasureCutscene(void)
     REG_WINOUT = 0x083F;
     REG_DISPCNT = 0x9F00;
 
-    m4aMPlayFadeOut(gMPlayTable[gSongTable[800].ms].info, 30);
+    m4aMPlayFadeOut(GP(gMPlayTable[gSongTable[800].ms].info), 30);
     m4aSongNumStartOrChange(420);
 }
 

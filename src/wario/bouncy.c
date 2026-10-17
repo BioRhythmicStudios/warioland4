@@ -416,9 +416,9 @@ void ApplyBouncyWarioMusicEffect(void)
     if (gWarioMusicState == 11)
         return;
 
-    player0 = gMPlayTable[0].info;
+    player0 = GP(gMPlayTable[0].info);
     m4aMPlayTempoControl(player0, 300);
-    player3 = gMPlayTable[1].info;
+    player3 = GP(gMPlayTable[1].info);
     m4aMPlayTempoControl(player3, 300);
     m4aMPlayPitchControl(player0, 0xFFFF, 150);
     m4aMPlayPitchControl(player3, 0xFFFF, 150);

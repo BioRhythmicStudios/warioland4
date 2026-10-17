@@ -582,9 +582,9 @@ void UpdateZombieWarioMusic(void)
 
     if (gWarioMusicState != 9) {
         table = gMPlayTable;
-        player0 = table[0].info;
+        player0 = GP(table[0].info);
         m4aMPlayTempoControl(player0, 200);
-        player1 = table[1].info;
+        player1 = GP(table[1].info);
         { struct MusicPlayerInfo *a0; int a1; a0=player1; a1=200; m4aMPlayTempoControl(a0,a1); }
         tracks = 0xFFFF;
         pitch = -256;

@@ -106,10 +106,10 @@ u32 PauseScreenSubroutine(void)
                 *(vu16*)0x0400004A = 63;
                 gUnk_3000000 = 0;
                 if (gPauseScreenState.confirmedSelection == 0) {
-                    m4aMPlayContinue(gMPlayTable[3].info);
-                    m4aMPlayContinue(gMPlayTable[4].info);
-                    m4aMPlayContinue(gMPlayTable[5].info);
-                    m4aMPlayContinue(gMPlayTable[6].info);
+                    m4aMPlayContinue(GP(gMPlayTable[3].info));
+                    m4aMPlayContinue(GP(gMPlayTable[4].info));
+                    m4aMPlayContinue(GP(gMPlayTable[5].info));
+                    m4aMPlayContinue(GP(gMPlayTable[6].info));
                 }
                 done = 1;
             }
@@ -541,10 +541,10 @@ void InitializePauseScreen(void)
     *(vu16*)0x0400004A = 0;
     *(vu16*)0x04000050 = 0;
 
-    MPlayStop(gMPlayTable[3].info);
-    MPlayStop(gMPlayTable[4].info);
-    MPlayStop(gMPlayTable[5].info);
-    MPlayStop(gMPlayTable[6].info);
+    MPlayStop(GP(gMPlayTable[3].info));
+    MPlayStop(GP(gMPlayTable[4].info));
+    MPlayStop(GP(gMPlayTable[5].info));
+    MPlayStop(GP(gMPlayTable[6].info));
 
     *(vu16*)0x04000200 |= 1;
 }

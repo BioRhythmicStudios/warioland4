@@ -32,24 +32,24 @@ void func_801E4B0(void)
         return;
     }
 
-    MPlayStop(gMPlayTable[3].info);
+    MPlayStop(GP(gMPlayTable[3].info));
     m4aSongNumStart(SOUND_28);
 }
 
 void func_801E4D4(void)
 {
     m4aSongNumStart(SOUND_1CD);
-    MPlayStop(gMPlayTable[3].info);
-    m4aMPlayFadeOut(gMPlayTable[0].info, 2);
-    m4aMPlayFadeOut(gMPlayTable[1].info, 2);
-    m4aMPlayFadeOut(gMPlayTable[2].info, 2);
+    MPlayStop(GP(gMPlayTable[3].info));
+    m4aMPlayFadeOut(GP(gMPlayTable[0].info), 2);
+    m4aMPlayFadeOut(GP(gMPlayTable[1].info), 2);
+    m4aMPlayFadeOut(GP(gMPlayTable[2].info), 2);
     m4aSongNumStop(SE_ESCAPE_SWITCH_COUNTDOWN);
     m4aSongNumStop(SOUND_1C2);
 }
 
 void func_801E518(void)
 {
-    m4aMPlayFadeOut(gMPlayTable[1].info, 4);
+    m4aMPlayFadeOut(GP(gMPlayTable[1].info), 4);
 }
 
 void SpriteCollisionMakeWarioDropCoins(s32 slot)
