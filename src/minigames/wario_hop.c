@@ -145,16 +145,16 @@ void WarioHopInit(void)
 {
     const void *dmaSrc1;
     const void *dmaSrc2;
-    register const void *dmaSrc4 asm("r12");
-    register const void *dmaSrc5 asm("r9");
+    register const void *dmaSrc4 PIN("r12");
+    register const void *dmaSrc5 PIN("r9");
 
-    register u16 *scrollA asm("r10");
-    register u8 *speedBase asm("r8");
-    register struct WarioHopObjState *playerBase asm("r6");
+    register u16 *scrollA PIN("r10");
+    register u8 *speedBase PIN("r8");
+    register struct WarioHopObjState *playerBase PIN("r6");
     u16 *scrollPtr;
     u32 randomBit;
-    register s32 zero asm("r4");
-    register u8 persistentByteZero asm("r5");
+    register s32 zero PIN("r4");
+    register u8 persistentByteZero PIN("r5");
 
     randomBit = MinigameRandom() & 1;
     if (randomBit == 0) {
@@ -201,7 +201,7 @@ void WarioHopInit(void)
     DmaWait(3);
     {
         vu32 *dmaRegs;
-        register const void *tmpDmaSrc3 asm("r3");
+        register const void *tmpDmaSrc3 PIN("r3");
 
         dmaRegs = (vu32 *)REG_ADDR_DMA3;
         tmpDmaSrc3 = sUnk_87124F8;
@@ -225,7 +225,7 @@ void WarioHopInit(void)
     DmaWait(3);
     {
         vu32 *dmaRegs;
-        register const void *src asm("r2");
+        register const void *src PIN("r2");
 
         dmaRegs = (vu32 *)REG_ADDR_DMA3;
         src = dmaSrc5;
@@ -237,7 +237,7 @@ void WarioHopInit(void)
     DmaWait(3);
     {
         vu32 *dmaRegs;
-        register const void *tmpDmaSrc asm("r3");
+        register const void *tmpDmaSrc PIN("r3");
 
         dmaRegs = (vu32 *)REG_ADDR_DMA3;
         tmpDmaSrc = sUnk_871BCF8;
@@ -249,12 +249,12 @@ void WarioHopInit(void)
     DmaWait(3);
     {
         register vu32 *dmaRegs;
-        register const void *tmpDmaSrc asm("r4");
-        register s32 bg0Control asm("r5");
+        register const void *tmpDmaSrc PIN("r4");
+        register s32 bg0Control PIN("r5");
         s32 bg1Control;
-        register s32 bg2Control asm("r2");
-        register s32 bg3Control asm("r3");
-        register s32 storeValue asm("r0");
+        register s32 bg2Control PIN("r2");
+        register s32 bg3Control PIN("r3");
+        register s32 storeValue PIN("r0");
 
         dmaRegs = (vu32 *)REG_ADDR_DMA3;
         tmpDmaSrc = (const void *)0x0871CCF8;
@@ -293,8 +293,8 @@ void WarioHopInit(void)
 
     scrollPtr[1] = zero;
     {
-        register vu16 *bg1Scroll asm("r0") = (vu16 *)gWarioHopBg1Scroll;
-        register vu16 *bg2Scroll asm("r1");
+        register vu16 *bg1Scroll PIN("r0") = (vu16 *)gWarioHopBg1Scroll;
+        register vu16 *bg2Scroll PIN("r1");
 
         bg1Scroll[0] = zero;
         bg1Scroll[1] = zero;
@@ -318,7 +318,7 @@ void WarioHopInit(void)
         u8 *speedPtr;
 
         {
-            register const u32 *speedTable asm("r3") = sUnk_870CE04;
+            register const u32 *speedTable PIN("r3") = sUnk_870CE04;
             selectedSpeed = speedTable[gWarioHopSpeedLevel];
         }
         speedPtr = speedBase;
@@ -327,7 +327,7 @@ void WarioHopInit(void)
 
         {
             s32 accelValue;
-            register u8 *accelOut asm("r1");
+            register u8 *accelOut PIN("r1");
 
             accelValue = 0x2800 / (speed * speed);
             accelOut = &gWarioHopJumpAcceleration;
@@ -336,13 +336,13 @@ void WarioHopInit(void)
         {
             s32 speed2;
             s32 accel;
-            register u8 *accelIn asm("r2");
+            register u8 *accelIn PIN("r2");
 
             speed2 = *speedPtr;
             accelIn = &gWarioHopJumpAcceleration;
             accel = *accelIn;
             {
-                register u8 *velocityOut asm("r3") = &gWarioHopJumpStartVelocity;
+                register u8 *velocityOut PIN("r3") = &gWarioHopJumpStartVelocity;
                 *velocityOut = (accel * speed2) >> 1;
             }
         }
@@ -359,12 +359,12 @@ void WarioHopInit(void)
     *(volatile u16 *)&playerBase->animFrame = zero;
 
     {
-        register struct WarioHopObjState *shadow asm("r1") = &gWarioHopPlayerShadow;
+        register struct WarioHopObjState *shadow PIN("r1") = &gWarioHopPlayerShadow;
         *shadow = *playerBase;
     }
 
     {
-        register u16 *rolling asm("r0") = (u16 *)gWarioHopRollingObject;
+        register u16 *rolling PIN("r0") = (u16 *)gWarioHopRollingObject;
         rolling[0] = 0xA00;
         rolling[1] = 0x8C0;
         rolling[3] = zero;
@@ -374,7 +374,7 @@ void WarioHopInit(void)
     {
         u8 *subStatePtr;
         u16 *scorePtr;
-        register u8 *highScorePtr asm("r6");
+        register u8 *highScorePtr PIN("r6");
 
         subStatePtr = &gMinigameState;
 
@@ -397,7 +397,7 @@ void WarioHopInit(void)
 
     {
         u32 loopZero;
-        register s32 j asm("r1");
+        register s32 j PIN("r1");
         u32 one;
         register struct WarioHopSmallState *item;
         loopZero = 0;
@@ -442,7 +442,7 @@ void WarioHopInit(void)
 
     {
         struct WarioHopSmallState *bonusEffect;
-        register struct WarioHopSmallState *medalEffect asm("r1");
+        register struct WarioHopSmallState *medalEffect PIN("r1");
 
         bonusEffect = &gWarioHopBonusEffect;
         bonusEffect->animTimer = 0;
@@ -574,7 +574,7 @@ s32 WarioHopUpdateJumpArc(void)
     u8 *baseSpeed;
     u8 *accel;
     s32 baseValue;
-    register s32 accelValue asm("r2");
+    register s32 accelValue PIN("r2");
     s32 frame;
     struct WarioHopObjState *second;
     s32 movement;
@@ -687,8 +687,8 @@ void WarioHopSpawnObstacleIfDue(void)
 void WarioHopAdvancePlayerAnimation(void)
 {
     struct WarioHopObjState *player;
-    register s32 temp asm("r0");
-    register u16 value asm("r1");
+    register s32 temp PIN("r0");
+    register u16 value PIN("r1");
 
     player = &gWarioHopPlayer;
     temp = 0x100;
@@ -704,10 +704,10 @@ void WarioHopAdvancePlayerAnimation(void)
 void WarioHopUpdateObstacles(void)
 {
     s32 offset;
-    register struct WarioHopSmallState *base asm("r3");
-    register s32 passLimit asm("r7");
-    register s32 farLimit asm("r6");
-    register s32 i asm("r5");
+    register struct WarioHopSmallState *base PIN("r3");
+    register s32 passLimit PIN("r7");
+    register s32 farLimit PIN("r6");
+    register s32 i PIN("r5");
 
     base = gWarioHopObstacles;
     passLimit = 0xA80;
@@ -748,7 +748,7 @@ void WarioHopUpdateObstacles(void)
 
 void WarioHopUpdateGameOverMusic(void)
 {
-    register struct MusicPlayerInfo *info asm("r4");
+    register struct MusicPlayerInfo *info PIN("r4");
     u16 song;
 
     song = gSongTable[sUnk_870CDB8[gWarioHopSpeedLevel]].ms;

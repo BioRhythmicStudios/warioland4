@@ -13,7 +13,7 @@ void SetDiceBlockCollision(void)
     u16 upperY;
     u16 leftX;
     s8 *blockAction;
-    register s8 action asm("r9");
+    register s8 action PIN("r9");
 
     yPosition = gCurrentSprite.yPosition;
     xPosition = gCurrentSprite.xPosition;
@@ -61,7 +61,7 @@ void ClearDiceBlockCollision(void)
     u16 upperY;
     u16 leftX;
     s8 *blockAction;
-    register s8 action asm("r9");
+    register s8 action PIN("r9");
 
     yPosition = gCurrentSprite.yPosition;
     xPosition = gCurrentSprite.xPosition;

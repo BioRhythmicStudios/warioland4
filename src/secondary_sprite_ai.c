@@ -150,7 +150,7 @@ extern const u16 sBugleNote10OamFrame[];
 void ApplySecondarySpriteVerticalMotionTable(void)
 {
     u32 valueOrEntry;
-    register u32 table asm("r1");
+    register u32 table PIN("r1");
     struct SecondarySprite* sprite;
     u32 timer;
     u16 movement;
@@ -177,8 +177,8 @@ void ApplySecondarySpriteVerticalMotionTable(void)
 void ApplySecondarySpriteScaleMotionTableA(void)
 {
     s32 tableOrValue;
-    register s16* destination asm("r5");
-    register s32 cosine asm("r6");
+    register s16* destination PIN("r5");
+    register s32 cosine PIN("r6");
     struct SecondarySprite* sprite;
     u32 timer;
     s32 scale;
@@ -215,8 +215,8 @@ void ApplySecondarySpriteScaleMotionTableA(void)
 void ApplySecondarySpriteScaleMotionTableB(void)
 {
     s32 tableOrValue;
-    register s16* destination asm("r5");
-    register s32 cosine asm("r6");
+    register s16* destination PIN("r5");
+    register s32 cosine PIN("r6");
     struct SecondarySprite* sprite;
     u32 timer;
     s32 scale;
@@ -252,16 +252,16 @@ void ApplySecondarySpriteScaleMotionTableB(void)
 }
 void UpdateSecondarySpriteRisingScaleTrail(void)
 {
-    register u32 scale asm("r5");
+    register u32 scale PIN("r5");
     s32 xOrDestination;
-    register s32 cosine asm("r8");
+    register s32 cosine PIN("r8");
     u32 timer;
 
     {
-        register struct SecondarySprite* sprite asm("r4");
+        register struct SecondarySprite* sprite PIN("r4");
         const s16* xTable;
         u32 offsetOrScaleAddress;
-        register s32 scaleTableOrSignedX asm("r1");
+        register s32 scaleTableOrSignedX PIN("r1");
 
         sprite = &gCurrentSecondarySprite;
         sprite->status |= 2;
@@ -320,8 +320,8 @@ void UpdateSecondarySpriteRisingScaleTrail(void)
 void UpdateWarioCenteredScaleEffectSecondarySprite(void)
 {
     s32 tableOrSine;
-    register s16* destination asm("r5");
-    register s32 cosine asm("r6");
+    register s16* destination PIN("r5");
+    register s32 cosine PIN("r6");
     struct SecondarySprite* sprite;
     u32 timer;
     s32 scale;
@@ -359,8 +359,8 @@ void UpdateWarioCenteredScaleEffectSecondarySprite(void)
 void UpdateLittleHeartPopSecondarySprite(void)
 {
     s32 tableOrSine;
-    register s16* destination asm("r5");
-    register s32 cosine asm("r6");
+    register s16* destination PIN("r5");
+    register s32 cosine PIN("r6");
     struct SecondarySprite* sprite;
     u32 timer;
     s32 scale;
@@ -614,7 +614,7 @@ u32 UpdateBugleNoteDriftMotion(void)
     struct SecondarySprite* sprite;
     u32 value;
     u32 timer;
-    register u16 xVelocity asm("r4");
+    register u16 xVelocity PIN("r4");
 
     valueOrDirection = (u32)sUnk_8416AA4;
     sprite = &gCurrentSecondarySprite;
@@ -657,13 +657,13 @@ u32 UpdateBugleNoteDriftMotion(void)
 }
 u32 ApplyBugleNoteRotatingAffine(u8 angle)
 {
-    register struct SecondarySprite* sprite asm("r8");
+    register struct SecondarySprite* sprite PIN("r8");
     u32 scale;
-    register s16* destination asm("r6");
+    register s16* destination PIN("r6");
     const s16* table;
-    register s32 trigValue asm("r4");
+    register s32 trigValue PIN("r4");
     struct SecondarySprite* current;
-    register u32 status asm("r2");
+    register u32 status PIN("r2");
     u32 value;
 
     if (angle <= 59) {
@@ -718,8 +718,8 @@ u32 ApplyBugleNoteRotatingAffine(u8 angle)
 u32 ApplyBugleNotePulseAffine(u8 angle)
 {
     u32 scale;
-    register s16* destination asm("r5");
-    register s32 tableOrSine asm("r4");
+    register s16* destination PIN("r5");
+    register s32 tableOrSine PIN("r4");
     s32 cosine;
 
     if (angle <= 59) {
@@ -1734,7 +1734,7 @@ void UpdateTimeUpSecondarySprite(void)
     switch (pose) {
         case 0: {
             u32 entry;
-            register u32 table asm("r1");
+            register u32 table PIN("r1");
             struct SecondarySprite* sprite;
             u32 timer;
             u32 signedZero;
@@ -1801,9 +1801,9 @@ void UpdateTimeUpSecondarySprite(void)
             struct SecondarySprite* sprite;
             const u16** animationDestination;
             u32 oldStatus;
-            register u32 flag asm("r1");
+            register u32 flag PIN("r1");
             u32 status;
-            register u32 timerOrPosition asm("r0");
+            register u32 timerOrPosition PIN("r0");
 
             sprite = &gCurrentSecondarySprite;
             oldStatus = sprite->status;
@@ -1843,9 +1843,9 @@ void UpdateTimeUpSecondarySprite(void)
             struct SecondarySprite* sprite;
             const u16** animationDestination;
             u32 oldStatus;
-            register u32 flagOrPosition asm("r0");
-            register u32 status asm("r2");
-            register u32 zero asm("r5");
+            register u32 flagOrPosition PIN("r0");
+            register u32 status PIN("r2");
+            register u32 zero PIN("r5");
 
             sprite = &gCurrentSecondarySprite;
             oldStatus = sprite->status;
@@ -1865,8 +1865,8 @@ void UpdateTimeUpSecondarySprite(void)
             flagOrPosition <<= 16;
 
             if (flagOrPosition <= 0x025F0000) {
-                register u32 bit asm("r1");
-                register u32 newStatus asm("r0");
+                register u32 bit PIN("r1");
+                register u32 newStatus PIN("r0");
 
                 sprite->xPosition = 608;
                 sprite->pose = 5;
@@ -1905,7 +1905,7 @@ void UpdateTimeUpSecondarySprite(void)
 
         case 6: {
             struct SecondarySprite* sprite;
-            register u32 timerOrPosition asm("r0");
+            register u32 timerOrPosition PIN("r0");
 
             sprite = &gCurrentSecondarySprite;
             sprite->status |= 6;
@@ -2172,7 +2172,7 @@ void UpdateTimeUpSecondarySprite(void)
 
         case 44: {
             struct SecondarySprite* sprite;
-            register u32 timerOrPosition asm("r0");
+            register u32 timerOrPosition PIN("r0");
 
             sprite = &gCurrentSecondarySprite;
             sprite->status |= 6;
@@ -2203,8 +2203,8 @@ void UpdateTimeUpSecondarySprite(void)
     }
 
     if (gCurrentSecondarySprite.status & 2) {
-        register s16* destination asm("r6");
-        register s32 tableOrSine asm("r4");
+        register s16* destination PIN("r6");
+        register s32 tableOrSine PIN("r4");
         s32 fixedScale;
 
         destination = &gSecondarySpriteAffinePA;
@@ -2229,8 +2229,8 @@ void UpdateCDIconSecondarySprite(void)
 {
     s32 stepOrSine;
     u32 scale;
-    register u32 countOrDestination asm("r6");
-    register s32 cosine asm("r8");
+    register u32 countOrDestination PIN("r6");
+    register s32 cosine PIN("r8");
     struct SecondarySprite* sprite;
     u32 angle;
     u32 pose;
@@ -2279,7 +2279,7 @@ void UpdateCDIconSecondarySprite(void)
         }
 
         case 1: {
-            register u32 value asm("r0");
+            register u32 value PIN("r0");
             u32 temporary;
 
             stepOrSine = 2;
@@ -2347,7 +2347,7 @@ void UpdateCDIconSecondarySprite(void)
         }
 
         case 3: {
-            register u32 temporary asm("r1");
+            register u32 temporary PIN("r1");
             u32 value;
 
             angle = 0;
@@ -2363,7 +2363,7 @@ void UpdateCDIconSecondarySprite(void)
                 sprite->yPosition--;
                 sprite->xPosition--;
                 {
-                    register u32 mask asm("r0");
+                    register u32 mask PIN("r0");
 
                     scale = sprite->timer;
                     temporary = 0x80;
@@ -2393,7 +2393,7 @@ void UpdateCDIconSecondarySprite(void)
             break;
 
         case 6: {
-            register struct SecondarySprite* current asm("r4");
+            register struct SecondarySprite* current PIN("r4");
             u8 timer;
             u32 position;
 
@@ -2472,8 +2472,8 @@ void PlayAllJewelPiecesCollectedJingle(void)
 void ApplyJewelPieceIconAffine(void)
 {
     s16* destination;
-    register s32 tableOrSine asm("r4");
-    register s32 cosine asm("r8");
+    register s32 tableOrSine PIN("r4");
+    register s32 cosine PIN("r8");
     s32 scale;
 
     destination = &gSecondarySpriteAffinePA;
@@ -2500,7 +2500,7 @@ void UpdateJewelPieceIconSecondarySprite(void)
 {
     struct SecondarySprite* current;
     struct SecondarySprite* sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 status;
     u32 neState;
     u32 seState;
@@ -2732,11 +2732,11 @@ void UpdateCollectedCDSecondarySprite(void)
 {
     struct SecondarySprite* sprite;
     s32 pose;
-    register s32 status asm("r2");
+    register s32 status PIN("r2");
     u8* collectedCD;
     volatile u32* dma;
     u32 timer;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
 
     sprite = &gCurrentSecondarySprite;
     pose = sprite->status;
@@ -2849,7 +2849,7 @@ void UpdateTreasureExitSecondarySprite(void)
     switch (pose) {
         case 0: {
             u32 stateFlags;
-            register u32 condition asm("r0");
+            register u32 condition PIN("r0");
 
             sprite->work0 += 16;
             angle = sprite->work0;
@@ -2863,7 +2863,7 @@ void UpdateTreasureExitSecondarySprite(void)
             if (condition == 0) {
                 u32 mask;
                 u32 background;
-                register u32 backgroundPosition asm("r4");
+                register u32 backgroundPosition PIN("r4");
                 volatile u16* backgroundAddress;
                 u32 difference;
                 u32 scaleCopy;
@@ -2899,7 +2899,7 @@ void UpdateTreasureExitSecondarySprite(void)
             }
 
             {
-                register struct SecondarySprite* xSprite asm("r4");
+                register struct SecondarySprite* xSprite PIN("r4");
                 u32 xFlags;
 
                 xSprite = sprite;
@@ -2910,7 +2910,7 @@ void UpdateTreasureExitSecondarySprite(void)
                 if (condition == 0) {
                     u32 mask;
                     u32 background;
-                    register u32 backgroundPosition asm("r6");
+                    register u32 backgroundPosition PIN("r6");
                     u32 difference;
                     volatile u16* backgroundAddress;
 
@@ -2963,7 +2963,7 @@ void UpdateTreasureExitSecondarySprite(void)
             if (gTimerState == 7) {
                 volatile u32* dmaReg;
                 u32 dmaValue;
-                register u32 dmaControl asm("r2");
+                register u32 dmaControl PIN("r2");
 
                 dmaReg = (volatile u32*)0x040000D4;
                 dmaValue = (u32)sTimeUpEffect0Gfx;
@@ -3020,7 +3020,7 @@ void UpdateTreasureExitSecondarySprite(void)
         case 7: {
             volatile u32* dmaReg;
             u32 dmaValue;
-            register u32 dmaControl asm("r2");
+            register u32 dmaControl PIN("r2");
 
             scale = 0x1E0;
             gCurrentSecondarySpriteOamData = sUnk_841204C;
@@ -3101,7 +3101,7 @@ void UpdateTreasureExitSecondarySprite(void)
     if (gCurrentSecondarySprite.status & 2) {
         s16* destination;
         s32 tableOrSine;
-        register s32 fixedScale asm("r5");
+        register s32 fixedScale PIN("r5");
 
         destination = &gSecondarySpriteAffinePA;
         tableOrSine = (s32)sSinCosTable;
@@ -3123,9 +3123,9 @@ void UpdateTreasureExitSecondarySprite(void)
 }
 void UpdateStageExitVortexSecondarySprite(void)
 {
-    register s32 scale asm("sl");
-    register u32 angle asm("r9");
-    register s32 cosine asm("r8");
+    register s32 scale PIN("sl");
+    register u32 angle PIN("r9");
+    register s32 cosine PIN("r8");
     struct SecondarySprite* current;
     struct SecondarySprite* sprite;
     s32 pose;
@@ -3153,7 +3153,7 @@ void UpdateStageExitVortexSecondarySprite(void)
 
     switch (pose) {
         case 0: {
-            register u32 stateFlags asm("r6");
+            register u32 stateFlags PIN("r6");
             u32 condition;
 
             current->work0 += 16;
@@ -3200,7 +3200,7 @@ void UpdateStageExitVortexSecondarySprite(void)
             }
 
             {
-                register struct SecondarySprite* xSprite asm("r3");
+                register struct SecondarySprite* xSprite PIN("r3");
 
                 xSprite = sprite;
                 stateFlags = xSprite->timer;
@@ -3274,7 +3274,7 @@ void UpdateStageExitVortexSecondarySprite(void)
             value <<= 24;
 
             if (value == 0) {
-                register u32 zero asm("r0");
+                register u32 zero PIN("r0");
 
                 zero = angle;
                 current->timer = zero;
@@ -3343,7 +3343,7 @@ void UpdateStageExitVortexSecondarySprite(void)
 
     if (gCurrentSecondarySprite.status & 2) {
         s16* destination;
-        register s32 tableOrSine asm("r4");
+        register s32 tableOrSine PIN("r4");
         s32 fixedScale;
 
         destination = &gSecondarySpriteAffinePA;

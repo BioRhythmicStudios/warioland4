@@ -28,7 +28,7 @@ u8 UpdateWarioSwimmingHorizontal(void)
 {
     struct WarioData *wario;
     const struct WarioAnimationFrame *animation;
-    register u8 frame asm("r2");
+    register u8 frame PIN("r2");
 
     if (!(gButtonsHeld & 2))
         return 5;
@@ -68,7 +68,7 @@ u8 UpdateWarioSwimmingVertical(void)
 {
     struct WarioData *wario;
     const struct WarioAnimationFrame *animation;
-    register u8 frame asm("r2");
+    register u8 frame PIN("r2");
 
     if (!(gButtonsHeld & 3))
         return 5;
@@ -107,11 +107,11 @@ u8 UpdateWarioSwimmingVertical(void)
 u8 UpdateWarioSwimmingFreely(void)
 {
     u32 temp;
-    register u32 value asm("r1");
+    register u32 value PIN("r1");
     struct WarioData *wario;
     u16 *heldPointer;
-    register u32 opposite asm("r4");
-    register u32 zero asm("r5");
+    register u32 opposite PIN("r4");
+    register u32 zero PIN("r5");
     const struct WarioAnimationFrame *animation;
 
     temp = (u32)&gButtonsPressed;
@@ -218,8 +218,8 @@ u8 UpdateWarioFloating(void)
     u32 temp;
     u32 value;
     u32 buttons;
-    register u32 direction asm("r3");
-    register u32 moving asm("r4");
+    register u32 direction PIN("r3");
+    register u32 moving PIN("r4");
     struct WarioData *wario;
     const struct WarioAnimationFrame *animation;
     u32 frame;
@@ -373,7 +373,7 @@ u8 UpdateWarioFloating(void)
 u8 UpdateWarioJumpingOutOfWater(void)
 {
     u32 temp;
-    register u32 buttons asm("r1");
+    register u32 buttons PIN("r1");
     u32 value;
     struct WarioData *callWario;
     struct WarioData *wario;
@@ -482,11 +482,11 @@ u8 UpdateWarioWaterDamage(void)
 u8 UpdateWarioWaterSuperGroundPound(void)
 {
     u32 temp;
-    register u32 value asm("r1");
+    register u32 value PIN("r1");
     struct WarioData *wario;
     u32 held;
-    register u32 direction asm("r2");
-    register u32 moving asm("r5");
+    register u32 direction PIN("r2");
+    register u32 moving PIN("r5");
     const struct WarioAnimationFrame *animation;
     struct WarioAfterimage *afterimage;
     const struct WarioEffectFrame *afterimageAnimation;
@@ -616,9 +616,9 @@ u8 UpdateFatWarioFallingInWater(void)
 {
     u32 temp;
     struct WarioData *wario;
-    register u32 held asm("r2");
-    register u32 direction asm("r1");
-    register u32 moving asm("r3");
+    register u32 held PIN("r2");
+    register u32 direction PIN("r1");
+    register u32 moving PIN("r3");
 
     if (gWarioDustEffect2.unk0 == 0)
         gWarioDustEffect2.unk0 = 1;
@@ -673,10 +673,10 @@ u8 UpdateFatWarioLandingInWater(void)
 
 u8 UpdateBubbleWarioInWater(void)
 {
-    register u32 temp asm("r0");
-    register u32 value asm("r1");
+    register u32 temp PIN("r0");
+    register u32 value PIN("r1");
     struct WarioData *wario;
-    register u32 aux asm("r3");
+    register u32 aux PIN("r3");
     struct WarioData *initialWario;
     const struct WarioAnimationFrame *animation;
 
@@ -813,7 +813,7 @@ void SetWarioWaterPose(u8 pose)
 {
     struct WarioData *wario;
     struct WarioData *copy;
-    register struct WarioData *current asm("r0");
+    register struct WarioData *current PIN("r0");
     s16 velocity;
 
     PrepareWarioUpdate();
@@ -1012,9 +1012,9 @@ void UpdateWarioWaterPhysics(void)
         }
     }
     {
-        register struct WarioData *updatedWario asm("r1");
+        register struct WarioData *updatedWario PIN("r1");
         s32 currentYVelocity;
-        register s32 minimumVelocity asm("r0");
+        register s32 minimumVelocity PIN("r0");
 
         updatedWario = &gWarioData;
         updatedWario->yPosition -= movement;
@@ -1074,7 +1074,7 @@ void ProcessWarioWaterCollision(void)
 {
     struct WarioCollisionData *collisionData;
     const u8 *poseData;
-    register const u8 *fieldData asm("r1");
+    register const u8 *fieldData PIN("r1");
     u32 poseOffset;
     struct WarioData *wario;
     u16 collisionResult;
@@ -1083,15 +1083,15 @@ void ProcessWarioWaterCollision(void)
     struct WarioData *updatedWario;
     struct WarioData *filterWario;
     s32 poseValue;
-    register struct WarioData *collisionWario asm("r4");
+    register struct WarioData *collisionWario PIN("r4");
     u32 groundResult;
     u32 activePose;
     struct WarioData *alignWario;
-    register u32 alignedY asm("r1");
-    register u32 alignMask asm("r2");
-    register s32 negativeMask asm("r3");
-    register s32 holdR1 asm("r1");
-    register s32 holdR2 asm("r2");
+    register u32 alignedY PIN("r1");
+    register u32 alignMask PIN("r2");
+    register s32 negativeMask PIN("r3");
+    register s32 holdR1 PIN("r1");
+    register s32 holdR2 PIN("r2");
 
     collisionData = &gWarioCollisionData;
     poseData = sWarioWaterPoseProperties;
@@ -1252,18 +1252,18 @@ u8 ResolveWarioWaterCollision(void)
     u16 collision;
     u32 result;
     s16 offset;
-    register u32 index asm("r5");
+    register u32 index PIN("r5");
     struct WarioData **warioPointer;
     u32 point;
     u32 indexOffset;
     int firstProbeX;
     s32 probeOffset;
     u32 tableOffset;
-    register u32 rawIndexOffset asm("r1");
+    register u32 rawIndexOffset PIN("r1");
     u8 alternatePoint;
-    register unsigned short storedY asm("r0");
-    register struct WarioData *storedWarioR2 asm("r2");
-    register struct WarioData *storedWarioR1 asm("r1");
+    register unsigned short storedY PIN("r0");
+    register struct WarioData *storedWarioR2 PIN("r2");
+    register struct WarioData *storedWarioR1 PIN("r1");
     collisionData = &gWarioCollisionData;
     index = collisionData->unk_08;
     point = collisionData->unk_04;
@@ -1342,7 +1342,7 @@ u8 ResolveWarioWaterCollision(void)
         }
         if (collision == 0)
         {
-            register struct WarioData *poseWario asm("r2");
+            register struct WarioData *poseWario PIN("r2");
             poseWario = wario;
             poseWario->xVelocity = 0;
             gWarioCollisionData.unk_12++;
@@ -1362,7 +1362,7 @@ collisionType16:
     goto storeYWithR1;
 secondProbe:
     {
-        register u32 secondValue asm("r2");
+        register u32 secondValue PIN("r2");
         const u8 *tableBase;
         struct WarioData *positionWario;
         secondValue = alternatePoint;
@@ -1375,7 +1375,7 @@ secondProbe:
         tableOffset += (u32) tableBase;
         tableOffset = *((const u16 *) tableOffset);
         {
-            register struct WarioData *xWario asm("r2");
+            register struct WarioData *xWario PIN("r2");
             xWario = wario;
             asm volatile("" : "+r"(xWario));
             secondValue = xWario->xPosition;
@@ -1394,7 +1394,7 @@ secondProbe:
         secondProbeX = index;
         if (result != 0)
         {
-            register struct WarioData *resultWario asm("r2");
+            register struct WarioData *resultWario PIN("r2");
             resultWario = wario;
             resultWario->unk_1C = result;
             storedY = newY;
@@ -1402,8 +1402,8 @@ secondProbe:
             goto storeYWithR2;
         }
         {
-            register u16 *previousYPointer asm("r1");
-            register u32 previousY asm("r0");
+            register u16 *previousYPointer PIN("r1");
+            register u32 previousY PIN("r0");
             previousYPointer = &gPreviousYPosition;
             previousY = *previousYPointer;
             if (previousY < newY)
@@ -1460,7 +1460,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
     u16 newY;
     u16 collision;
     u32 result;
-    register u32 index asm("r9");
+    register u32 index PIN("r9");
     u32 point;
     {
         struct WarioCollisionData *collisionData;
@@ -1523,9 +1523,9 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                     if ((result & 6) != 0)
                     {
                         struct WarioData *wario;
-                        register u32 sum asm("r0");
-                        register u32 aligned asm("r4");
-                        register u32 output asm("r0");
+                        register u32 sum PIN("r0");
+                        register u32 aligned PIN("r4");
+                        register u32 output PIN("r0");
                         wario = &gWarioData;
                         sum = wario->yPosition + offset;
                         aligned = (u16) sum;
@@ -1539,9 +1539,9 @@ u8 ResolveWarioWaterSurfaceCollision(void)
         else
         {
             struct WarioData *wario;
-            register u32 sum asm("r0");
-            register u32 aligned asm("r4");
-            register u32 output asm("r0");
+            register u32 sum PIN("r0");
+            register u32 aligned PIN("r4");
+            register u32 output PIN("r0");
             wario = &gWarioData;
             sum = wario->yPosition + offset;
             aligned = (u16) sum;
@@ -1556,7 +1556,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
         struct WarioCollisionData *collisionData;
         struct WarioData *wario;
         u32 x;
-        register u32 y asm("r4");
+        register u32 y PIN("r4");
         {
             struct WarioCollisionData *address;
             address = &gWarioCollisionData;
@@ -1570,8 +1570,8 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                 wario = &gWarioData;
                 {
                     const s16 *table;
-                    register u32 indexTemp asm("r2");
-                    register u32 tableIndex asm("r0");
+                    register u32 indexTemp PIN("r2");
+                    register u32 tableIndex PIN("r0");
                     table = (const s16 *)sWarioCollisionPointTable;
                     indexTemp = index;
                     asm("" : : "r"(indexTemp));
@@ -1582,7 +1582,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                     tableIndex += (u32)table;
                     point = *(u16 *)tableIndex;
                 }
-                { register u32 xTemp asm("r0"); xTemp = wario->xPosition + point; xTemp <<= 16; xTemp >>= 16; x = xTemp; }
+                { register u32 xTemp PIN("r0"); xTemp = wario->xPosition + point; xTemp <<= 16; xTemp >>= 16; x = xTemp; }
                 y = wario->yPosition;
                 asm volatile("" : "+r"(collisionData), "+r"(wario) : "r"(y));
                 asm volatile("" : : : "r0", "r1", "r2", "r5");
@@ -1613,7 +1613,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                                 point = (u16)value;
                             }
                             {
-                                register u32 secondX asm("r3");
+                                register u32 secondX PIN("r3");
                                 secondX = wario->xPosition;
                                 result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(secondX, y, &newX, &newY, &collision);
                             }
@@ -1668,7 +1668,7 @@ noCollision:
             wario = &gWarioData;
             if (((u8) (wario->pose - 1)) <= 1)
             {
-                register u32 reserve asm("r2");
+                register u32 reserve PIN("r2");
                 s32 velocity;
                 asm("" : "=r"(reserve));
                 velocity = wario->yVelocity;
@@ -1704,7 +1704,7 @@ u8 ResolveWarioWaterCollisionContinuation(void)
     u32 flagValue;
     s32 movement;
     u16 directionMask;
-    register u32 collisionFlags asm("r6");
+    register u32 collisionFlags PIN("r6");
     u32 index;
     u32 point;
     u8 alternatePoint;
@@ -1807,8 +1807,8 @@ void UpdateWarioWaterAnimation(u8 direction)
 {
     u32 directionValue;
     u8 *damageFlag;
-    register struct WarioData *earlyWario asm("r1");
-    register struct WarioData *loadedWario asm("r0");
+    register struct WarioData *earlyWario PIN("r1");
+    register struct WarioData *loadedWario PIN("r0");
     struct WarioData *wario;
     const struct WarioAnimationFrame *animation;
     const u8 *graphics;
@@ -1820,7 +1820,7 @@ void UpdateWarioWaterAnimation(u8 direction)
     u32 historyDestination;
     u32 tempR0;
     u32 tempR1;
-    register u32 tempR2 asm("r2");
+    register u32 tempR2 PIN("r2");
     u32 poseValue;
     s32 palettePose;
     u8 damageTimer;
@@ -1953,10 +1953,10 @@ animationSelected:
 
 void UpdateBubbleWarioMusic(void)
 {
-    register u32 tableOrMask asm("r4");
+    register u32 tableOrMask PIN("r4");
     struct MusicPlayerInfo *player0;
     struct MusicPlayerInfo *player1;
-    register struct MusicPlayerInfo *normalPlayer0 asm("r8");
+    register struct MusicPlayerInfo *normalPlayer0 PIN("r8");
     struct MusicPlayerInfo *callPlayer;
     u32 callMask;
     s8 *state;

@@ -15,7 +15,7 @@ void func_804A3FC(void)
     {
         struct PrimarySpriteData *sprite;
         u8 *drawDistance;
-        register u8 *hitbox asm("r0");
+        register u8 *hitbox PIN("r0");
 
         sprite = &gCurrentSprite;
         sprite->status |= 0x488;
@@ -61,11 +61,11 @@ void func_804A3FC(void)
 
 void func_804A508(void)
 {
-  register u32 yDelta asm("r8");
+  register u32 yDelta PIN("r8");
   u32 xDelta;
   u32 frame;
-  register struct PrimarySpriteData *current asm("r9");
-  register struct PrimarySpriteData *spriteBase asm("r2");
+  register struct PrimarySpriteData *current PIN("r9");
+  register struct PrimarySpriteData *spriteBase PIN("r2");
   s32 i;
   s32 xLoad;
   u32 mode;
@@ -80,15 +80,15 @@ void func_804A508(void)
   spriteBase = &gCurrentSprite;
   {
     u32 frameValue;
-    register u32 nextFrame asm("r1");
+    register u32 nextFrame PIN("r1");
     {
-      register u8 *frameLoad asm("r1");
+      register u8 *frameLoad PIN("r1");
       frameLoad = &gUnk_3000A4B;
       frameValue = *frameLoad;
     }
     nextFrame = frameValue + 1;
     {
-      register u8 *frameStore asm("r3");
+      register u8 *frameStore PIN("r3");
       frameStore = &gUnk_3000A4B;
       *frameStore = nextFrame;
     }
@@ -96,7 +96,7 @@ void func_804A508(void)
     frame = frameValue >> 24;
   }
   {
-    register u8 *modePtr asm("r4");
+    register u8 *modePtr PIN("r4");
     modePtr = &spriteBase->work2;
     mode = *modePtr;
   }
@@ -181,8 +181,8 @@ void func_804A508(void)
       int byteOffset;
       int zero;
       s32 delta;
-      register u32 position asm("r4");
-      register struct PrimarySpriteData *storeSprite asm("r3");
+      register u32 position PIN("r4");
+      register struct PrimarySpriteData *storeSprite PIN("r3");
       table = sUnk_83CFDE8;
       motionIndex = frame - 60;
       byteOffset = motionIndex << 1;
@@ -219,11 +219,11 @@ void func_804A508(void)
     else
     {
       const s16 *table;
-      register int byteOffset asm("r1");
-      register int zero asm("r2");
-      register s32 delta asm("r0");
-      register u32 position asm("r3");
-      register struct PrimarySpriteData *storeSprite asm("r4");
+      register int byteOffset PIN("r1");
+      register int zero PIN("r2");
+      register s32 delta PIN("r0");
+      register u32 position PIN("r3");
+      register struct PrimarySpriteData *storeSprite PIN("r4");
       table = sUnk_83CFDE8;
       byteOffset = frame << 1;
       table = (const s16 *) (byteOffset + ((s32) table));
@@ -236,7 +236,7 @@ void func_804A508(void)
       storeSprite->yPosition = delta;
       {
         const s16 *xPointer;
-        register u16 xPosition asm("r3");
+        register u16 xPosition PIN("r3");
         table = sUnk_83CFCF8;
         xPointer = (const s16 *) (byteOffset + ((s32) table));
         
@@ -258,10 +258,10 @@ void func_804A508(void)
     const s16 *table;
     int motionIndex;
     int byteOffset;
-    register int zero asm("r4");
-    register s32 delta asm("r0");
-    register u32 position asm("r3");
-    register struct PrimarySpriteData *storeSprite asm("r4");
+    register int zero PIN("r4");
+    register s32 delta PIN("r0");
+    register u32 position PIN("r3");
+    register struct PrimarySpriteData *storeSprite PIN("r4");
     table = sUnk_83CFC38;
     motionIndex = frame - 48;
     byteOffset = motionIndex << 1;
@@ -269,7 +269,7 @@ void func_804A508(void)
     zero = 0;
     /* Keep r3 live so the typed C load uses the original r4 index. */
     {
-      register u32 r3Live asm("r3");
+      register u32 r3Live PIN("r3");
 
       
       delta = *table;
@@ -309,10 +309,10 @@ void func_804A508(void)
   {
     const s16 *table;
     register int byteOffset;
-    register int zero asm("r2");
+    register int zero PIN("r2");
     register s32 delta ;
-    register u32 position asm("r3");
-    register struct PrimarySpriteData *storeSprite asm("r4");
+    register u32 position PIN("r3");
+    register struct PrimarySpriteData *storeSprite PIN("r4");
     table = sUnk_83CFC38;
     byteOffset = frame << 1;
     table = (const s16 *) (byteOffset + ((s32) table));
@@ -380,11 +380,11 @@ void func_804A508(void)
 
 void func_804A84C(void)
 {
-  register u32 yDelta asm("r8");
+  register u32 yDelta PIN("r8");
   u32 xDelta;
   u32 frame;
-  register struct PrimarySpriteData *current asm("r9");
-  register struct PrimarySpriteData *spriteBase asm("r2");
+  register struct PrimarySpriteData *current PIN("r9");
+  register struct PrimarySpriteData *spriteBase PIN("r2");
   s32 i;
   s32 xLoad;
   u32 mode;
@@ -399,15 +399,15 @@ void func_804A84C(void)
   spriteBase = &gCurrentSprite;
   {
     u32 frameValue;
-    register u32 nextFrame asm("r1");
+    register u32 nextFrame PIN("r1");
     {
-      register u8 *frameLoad asm("r1");
+      register u8 *frameLoad PIN("r1");
       frameLoad = &gUnk_3000A4B;
       frameValue = *frameLoad;
     }
     nextFrame = frameValue + 1;
     {
-      register u8 *frameStore asm("r3");
+      register u8 *frameStore PIN("r3");
       frameStore = &gUnk_3000A4B;
       *frameStore = nextFrame;
     }
@@ -415,7 +415,7 @@ void func_804A84C(void)
     frame = frameValue >> 24;
   }
   {
-    register u8 *modePtr asm("r4");
+    register u8 *modePtr PIN("r4");
     modePtr = &spriteBase->work2;
     mode = *modePtr;
   }
@@ -500,8 +500,8 @@ void func_804A84C(void)
       int byteOffset;
       int zero;
       s32 delta;
-      register u32 position asm("r4");
-      register struct PrimarySpriteData *storeSprite asm("r3");
+      register u32 position PIN("r4");
+      register struct PrimarySpriteData *storeSprite PIN("r3");
       table = sUnk_83CFDE8;
       motionIndex = frame - 60;
       byteOffset = motionIndex << 1;
@@ -538,11 +538,11 @@ void func_804A84C(void)
     else
     {
       const s16 *table;
-      register int byteOffset asm("r1");
-      register int zero asm("r2");
-      register s32 delta asm("r0");
-      register u32 position asm("r3");
-      register struct PrimarySpriteData *storeSprite asm("r4");
+      register int byteOffset PIN("r1");
+      register int zero PIN("r2");
+      register s32 delta PIN("r0");
+      register u32 position PIN("r3");
+      register struct PrimarySpriteData *storeSprite PIN("r4");
       table = sUnk_83CFDE8;
       byteOffset = frame << 1;
       table = (const s16 *) (byteOffset + ((s32) table));
@@ -555,7 +555,7 @@ void func_804A84C(void)
       storeSprite->yPosition = delta;
       {
         const s16 *xPointer;
-        register u16 xPosition asm("r3");
+        register u16 xPosition PIN("r3");
         table = sUnk_83CFCF8;
         xPointer = (const s16 *) (byteOffset + ((s32) table));
         
@@ -577,10 +577,10 @@ void func_804A84C(void)
     const s16 *table;
     int motionIndex;
     int byteOffset;
-    register int zero asm("r4");
-    register s32 delta asm("r0");
-    register u32 position asm("r3");
-    register struct PrimarySpriteData *storeSprite asm("r4");
+    register int zero PIN("r4");
+    register s32 delta PIN("r0");
+    register u32 position PIN("r3");
+    register struct PrimarySpriteData *storeSprite PIN("r4");
     table = sUnk_83CFC38;
     motionIndex = frame - 48;
     byteOffset = motionIndex << 1;
@@ -588,7 +588,7 @@ void func_804A84C(void)
     zero = 0;
     /* Keep r3 live so the typed C load uses the original r4 index. */
     {
-      register u32 r3Live asm("r3");
+      register u32 r3Live PIN("r3");
 
       
       delta = *table;
@@ -628,10 +628,10 @@ void func_804A84C(void)
   {
     const s16 *table;
     register int byteOffset;
-    register int zero asm("r2");
+    register int zero PIN("r2");
     register s32 delta ;
-    register u32 position asm("r3");
-    register struct PrimarySpriteData *storeSprite asm("r4");
+    register u32 position PIN("r3");
+    register struct PrimarySpriteData *storeSprite PIN("r4");
     table = sUnk_83CFC38;
     byteOffset = frame << 1;
     table = (const s16 *) (byteOffset + ((s32) table));
@@ -700,9 +700,9 @@ void func_804A84C(void)
 void func_804AB90(void)
 {
     struct PrimarySpriteData *sprite;
-    register u16 status asm("r0");
-    register int statusBits asm("r2");
-    register int zero asm("r3");
+    register u16 status PIN("r0");
+    register int statusBits PIN("r2");
+    register int zero PIN("r3");
     int zero16;
     u16 oldStatus;
 

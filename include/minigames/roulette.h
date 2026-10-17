@@ -132,9 +132,9 @@ void ResetRouletteRound(void);
 void AnimateRouletteResultTiles(void);
 
 #define CALC_SOURCE(stateObject, graphicsBase, destination) do { \
-    register s32 frame asm("r1"); \
-    register s32 quotient asm("r2"); \
-    register s32 frameOffset asm("r0"); \
+    register s32 frame PIN("r1"); \
+    register s32 quotient PIN("r2"); \
+    register s32 frameOffset PIN("r0"); \
     frameOffset = GetRouletteFrameIndex((stateObject).frame); \
     frame = frameOffset; \
     if (frame < 0) \
@@ -147,7 +147,7 @@ void AnimateRouletteResultTiles(void);
     quotient <<= 12; \
     frameOffset <<= 8; \
     { \
-        register u8 *base asm("r1"); \
+        register u8 *base PIN("r1"); \
         base = (graphicsBase); \
         frameOffset += (s32)base; \
     } \
@@ -156,8 +156,8 @@ void AnimateRouletteResultTiles(void);
 } while (0)
 
 #define CALC_PARTS_FROM_VALUE(callExpression, graphicsBase) do { \
-    register s32 frame asm("r3"); \
-    register s32 frameOffset asm("r0"); \
+    register s32 frame PIN("r3"); \
+    register s32 frameOffset PIN("r0"); \
     frameOffset = (callExpression); \
     frame = frameOffset; \
     if (frame < 0) \
@@ -170,21 +170,21 @@ void AnimateRouletteResultTiles(void);
     quotient <<= 12; \
     src = (u8 *)(frameOffset << 8); \
     { \
-        register u8 *base asm("r0"); \
+        register u8 *base PIN("r0"); \
         base = (graphicsBase); \
         src += (s32)base; \
     } \
 } while (0)
 
 #define RUN_FOUR_DMAS(destination) do { \
-    register volatile u32 *dma asm("r4"); \
-    register u32 control asm("r12"); \
-    register u32 controlLoad asm("r0"); \
-    register u8 *dst asm("r6"); \
+    register volatile u32 *dma PIN("r4"); \
+    register u32 control PIN("r12"); \
+    register u32 controlLoad PIN("r0"); \
+    register u8 *dst PIN("r6"); \
     register u32 busy; \
-    register u32 step asm("r2"); \
-    register int count asm("r5"); \
-    register u32 value asm("r0"); \
+    register u32 step PIN("r2"); \
+    register int count PIN("r5"); \
+    register u32 value PIN("r0"); \
     dma = (volatile u32 *)0x040000D4; \
     controlLoad = 0x80000080; \
     control = controlLoad; \
@@ -201,7 +201,7 @@ void AnimateRouletteResultTiles(void);
         value = dma[2]; \
         value &= busy; \
         if (value != 0) { \
-            register u32 pollMask asm("r3"); \
+            register u32 pollMask PIN("r3"); \
             pollMask = 0x80000000; \
             do { \
                 value = dma[2]; \

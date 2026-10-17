@@ -302,9 +302,9 @@ void func_8035B00(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *work0;
-    register u32 old asm("r0");
-    register u32 next asm("r1");
-    register u32 check asm("r0");
+    register u32 old PIN("r0");
+    register u32 next PIN("r1");
+    register u32 check PIN("r0");
 
     func_80238A4();
     func_8023B88();
@@ -344,9 +344,9 @@ void func_8035B88(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *work0;
-    register u32 old asm("r0");
-    register u32 next asm("r1");
-    register u32 check asm("r0");
+    register u32 old PIN("r0");
+    register u32 next PIN("r1");
+    register u32 check PIN("r0");
 
     func_80238A4();
     func_8023B88();
@@ -779,7 +779,7 @@ void func_8036274(void)
             velocity = *(const s16 *)(velocityAddress + zero);
             if (velocity == 0x7FFF) {
                 u32 previous;
-                register u32 yPosition asm("r0");
+                register u32 yPosition PIN("r0");
                 previous = index - 1;
                 previous <<= 1;
                 previous += (u32)velocities;
@@ -844,8 +844,8 @@ void func_8036370(void)
 void func_8036384(void)
 {
     struct PrimarySpriteData *sprite;
-    register u16 status asm("r2");
-    register u32 zeroByte asm("r3");
+    register u16 status PIN("r2");
+    register u32 zeroByte PIN("r3");
     u32 zeroHalf;
     u16 oldStatus;
 
@@ -872,7 +872,7 @@ void func_8036384(void)
     }
     {
         const struct AnimationFrame *oam;
-        register u8 *fields asm("r1");
+        register u8 *fields PIN("r1");
         oam = sTogeroboOam_83BD00C;
         fields = (u8 *)sprite;
         *(const struct AnimationFrame **)(fields + 4) = oam;
@@ -929,9 +929,9 @@ void func_80364A4(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *work0;
-    register u32 old asm("r0");
-    register u32 next asm("r1");
-    register u32 check asm("r0");
+    register u32 old PIN("r0");
+    register u32 next PIN("r1");
+    register u32 check PIN("r0");
 
     sprite = &gCurrentSprite;
     work0 = &sprite->work0;

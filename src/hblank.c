@@ -411,7 +411,7 @@ void HBlankCopyBg3HOffsetFromLineValues(void)
 {
     u32 var_r0;
     u16* var_r1;
-    register u32 var_r2 asm("r2");
+    register u32 var_r2 PIN("r2");
     volatile u16* var_r3;
 
     var_r0 = *(volatile u16*)0x04000006;
@@ -428,7 +428,7 @@ void HBlankCopyBg0HOffsetFromLineValues(void)
 {
     u32 var_r0;
     u16* var_r1;
-    register u32 var_r2 asm("r2");
+    register u32 var_r2 PIN("r2");
     volatile u16* var_r3;
 
     var_r0 = *(volatile u16*)0x04000006;
@@ -445,8 +445,8 @@ void HBlankApplyLineOffsetToAllBgX(void)
 {
     u32 var_r0;
     s32 var_r1;
-    register s32 var_r2 asm("r2");
-    register volatile s16* var_r3 asm("r3");
+    register s32 var_r2 PIN("r2");
+    register volatile s16* var_r3 PIN("r3");
 
     var_r0 = *(volatile u16*)0x04000006;
     var_r1 = (s32)gHBlankLineOffsets;
@@ -484,8 +484,8 @@ void HBlankApplyLineOffsetToAllBgXAlt(void)
 {
     u32 var_r0;
     s32 var_r1;
-    register volatile s16* var_r2 asm("r2");
-    register s32 var_r3 asm("r3");
+    register volatile s16* var_r2 PIN("r2");
+    register s32 var_r3 PIN("r3");
 
     var_r0 = *(volatile u16*)0x04000006;
     var_r1 = (s32)gHBlankLineOffsets;
@@ -525,10 +525,10 @@ void HBlankApplyLineOffsetToAllBgXAlt(void)
 void HBlankApplyDualBgHorizontalOffsets(void)
 {
     u32 var_r0;
-    register u32 var_r1 asm("r1");
-    register volatile u16* var_r2 asm("r2");
-    register u32 var_r3 asm("r3");
-    register u32 var_r4 asm("r4");
+    register u32 var_r1 PIN("r1");
+    register volatile u16* var_r2 PIN("r2");
+    register u32 var_r3 PIN("r3");
+    register u32 var_r4 PIN("r4");
 
     var_r0 = 0x04000006;
     var_r1 = *(volatile u16*)var_r0;
@@ -561,10 +561,10 @@ void HBlankApplyDualBgHorizontalOffsets(void)
 void HBlankApplyBg3XYLineValues(void)
 {
     u32 var_r0;
-    register u32 var_r1 asm("r1");
-    register u32 var_r2 asm("r2");
-    register struct BackgroundScroll* var_r3 asm("r3");
-    register u32 var_r4 asm("r4");
+    register u32 var_r1 PIN("r1");
+    register u32 var_r2 PIN("r2");
+    register struct BackgroundScroll* var_r3 PIN("r3");
+    register u32 var_r4 PIN("r4");
 
     var_r0 = 0x04000006;
     var_r1 = *(u16*)var_r0;
@@ -588,7 +588,7 @@ void HBlankApplyBg3XYLineValues(void)
     var_r0 = *(u16*)var_r1;
 
     {
-        register u32 bg3Vertical asm("r3");
+        register u32 bg3Vertical PIN("r3");
 
         bg3Vertical = var_r3->bg3Vertical;
         var_r0 += bg3Vertical;
@@ -601,8 +601,8 @@ void HBlankApplyLineOffsetToBg0AndBg3XY(void)
 {
     u32 var_r0;
     struct BackgroundScroll* var_r1;
-    register u32 var_r2 asm("r2");
-    register s32 var_r3 asm("r3");
+    register u32 var_r2 PIN("r2");
+    register s32 var_r3 PIN("r3");
 
     var_r0 = 0x04000006;
     var_r0 = *(volatile u16*)var_r0;
@@ -847,11 +847,11 @@ void UpdateWaterSplitHBlank(u8 arg0)
 
 void UpdateEscapeRippleHBlank(u8 arg0)
 {
-    register u32 arg_r5 asm("r5");
+    register u32 arg_r5 PIN("r5");
     u8* state_r2;
-    register s32 index_r1 asm("r1");
-    register u8* table_r4 asm("r4");
-    register u32 temp_r0 asm("r0");
+    register s32 index_r1 PIN("r1");
+    register u8* table_r4 PIN("r4");
+    register u32 temp_r0 PIN("r0");
 
     arg_r5 = arg0;
     state_r2 = gHBlankPrimaryState;
@@ -884,16 +884,16 @@ void UpdateEscapeRippleHBlank(u8 arg0)
     }
 
     {
-        register u8* phase_r3 asm("r3");
+        register u8* phase_r3 PIN("r3");
 
         phase_r3 = &gHBlankWavePhase;
         phase_r3[0] += state_r2[3];
 
         if (arg_r5 == 0) {
             s32 i_r1;
-            register u8* phase_r6 asm("r6");
-            register struct BackgroundScroll* scroll_r5 asm("r5");
-            register s32 mask_r3 asm("r3");
+            register u8* phase_r6 PIN("r6");
+            register struct BackgroundScroll* scroll_r5 PIN("r5");
+            register s32 mask_r3 PIN("r3");
             s16* dst_r2;
 
             i_r1 = 0;
@@ -908,12 +908,12 @@ void UpdateEscapeRippleHBlank(u8 arg0)
                 i_r1++;
             } while (i_r1 <= 0x9F);
         } else {
-            register s32 i_r1 asm("r1");
-            register u8* phase_ip asm("r12");
-            register struct BackgroundScroll* scroll_r8 asm("r8");
-            register s16* dst_r3 asm("r3");
-            register s32 mask_r5 asm("r5");
-            register u16* src_r2 asm("r2");
+            register s32 i_r1 PIN("r1");
+            register u8* phase_ip PIN("r12");
+            register struct BackgroundScroll* scroll_r8 PIN("r8");
+            register s16* dst_r3 PIN("r3");
+            register s32 mask_r5 PIN("r5");
+            register u16* src_r2 PIN("r2");
 
             i_r1 = 0;
             phase_ip = phase_r3;
@@ -923,9 +923,9 @@ void UpdateEscapeRippleHBlank(u8 arg0)
             src_r2 = gHBlankLineValues;
 
             do {
-                register struct BackgroundScroll* scroll_r6 asm("r6");
-                register u32 phase_r7 asm("r7");
-                register u32 idx_r0 asm("r0");
+                register struct BackgroundScroll* scroll_r6 PIN("r6");
+                register u32 phase_r7 PIN("r7");
+                register u32 idx_r0 PIN("r0");
 
                 scroll_r6 = scroll_r8;
                 idx_r0 = scroll_r6->bg3Vertical;
@@ -946,8 +946,8 @@ void UpdateEscapeRippleHBlank(u8 arg0)
 void UpdateGrowingEscapeWaveHBlank(void)
 {
     u8* state_r1;
-    register s32 zero_r2 asm("r2");
-    register u32 temp_r0 asm("r0");
+    register s32 zero_r2 PIN("r2");
+    register u32 temp_r0 PIN("r0");
     u8* state_r3;
     u8* table_r6;
 
@@ -1040,7 +1040,7 @@ void UpdateBg0RippleHBlank(void)
     u8* state_r2;
     s32 zero_r1;
     u8* table_r6;
-    register u32 temp_r0 asm("r0");
+    register u32 temp_r0 PIN("r0");
 
     state_r2 = gHBlankSecondaryState;
     zero_r1 = 0;
@@ -1103,9 +1103,9 @@ void UpdateDualRippleHBlank(void)
 {
     s32 line_r3;
     u8* state_r1;
-    register u8* table32_r8 asm("r8");
+    register u8* table32_r8 PIN("r8");
     u8* table16_ip;
-    register u32 temp_r0 asm("r0");
+    register u32 temp_r0 PIN("r0");
     u8* phase_r2;
 
     line_r3 = 0;
@@ -1141,13 +1141,13 @@ void UpdateDualRippleHBlank(void)
 
     if (gCurrentRoomHeader.raster == 5 || gCurrentRoomHeader.raster == 9) {
         s16* dst342E_r9;
-        register u8* phase_sl asm("r10");
+        register u8* phase_sl PIN("r10");
         u16* dst35F6_r4;
-        register struct BackgroundScroll* scroll_r6 asm("r6");
-        register s32 mask_r5 asm("r5");
+        register struct BackgroundScroll* scroll_r6 PIN("r6");
+        register s32 mask_r5 PIN("r5");
 
         {
-            register s16* tmp_r7 asm("r7");
+            register s16* tmp_r7 PIN("r7");
 
             tmp_r7 = gHBlankLineOffsets;
             dst342E_r9 = tmp_r7;
@@ -1160,8 +1160,8 @@ void UpdateDualRippleHBlank(void)
 
         do {
             u32 temp2_r2;
-            register u32 off_r1 asm("r1");
-            register u32 work_r0 asm("r0");
+            register u32 off_r1 PIN("r1");
+            register u32 work_r0 PIN("r0");
 
             work_r0 = scroll_r6->bg3Vertical;
             work_r0 += line_r3;
@@ -1199,11 +1199,11 @@ void UpdateDualRippleHBlank(void)
             line_r3++;
         } while (line_r3 <= 0x9F);
     } else {
-        register u16* dst35F6_r9 asm("r9");
-        register u8* phase_sl asm("r10");
+        register u16* dst35F6_r9 PIN("r9");
+        register u8* phase_sl PIN("r10");
         s16* dst342E_r4;
-        register struct BackgroundScroll* scroll_r6 asm("r6");
-        register s32 mask_r5 asm("r5");
+        register struct BackgroundScroll* scroll_r6 PIN("r6");
+        register s32 mask_r5 PIN("r5");
 
         {
             u16* tmp_r0;
@@ -1219,8 +1219,8 @@ void UpdateDualRippleHBlank(void)
 
         do {
             u32 temp2_r2;
-            register u32 off_r1 asm("r1");
-            register u32 work_r0 asm("r0");
+            register u32 off_r1 PIN("r1");
+            register u32 work_r0 PIN("r0");
 
             work_r0 = scroll_r6->bg3Vertical;
             work_r0 += line_r3;
@@ -1301,15 +1301,15 @@ void UpdateSineWaveHBlank(void)
 void UpdatePaletteFadeHBlankTable(void)
 {
     u32 work_r0;
-    register u32 work_r1 asm("r1");
-    register u32 work_r2 asm("r2");
+    register u32 work_r1 PIN("r1");
+    register u32 work_r2 PIN("r2");
     s32 fade_r3;
     u32 color_r4;
-    register u32 red_r5 asm("r5");
+    register u32 red_r5 PIN("r5");
     s32 line_r6;
     u16* dst_r9;
-    register u32 greenMask_r8 asm("r8");
-    register u32 blueMask_ip asm("r12");
+    register u32 greenMask_r8 PIN("r8");
+    register u32 blueMask_ip PIN("r12");
 
     gHBlankPaletteFadeColors[2] = (u16)gHBlankPaletteFadeColors[0];
 
@@ -1388,11 +1388,11 @@ void UpdatePaletteFadeHBlankTable(void)
 
 void UpdateGoldenBossTransitionHBlank(void)
 {
-    register s32 line_r3 asm("r3");
+    register s32 line_r3 PIN("r3");
     u8* state_r1;
-    register u32 work_r0 asm("r0");
+    register u32 work_r0 PIN("r0");
     u8* table_ip;
-    register s32 mask_r6 asm("r6");
+    register s32 mask_r6 PIN("r6");
 
     line_r3 = 0;
     state_r1 = gHBlankPrimaryState;
@@ -1418,7 +1418,7 @@ void UpdateGoldenBossTransitionHBlank(void)
     }
 
     {
-        register u8* phase_r0 asm("r0");
+        register u8* phase_r0 PIN("r0");
         u32 stateInc_r1;
         u32 phaseVal_r2;
 

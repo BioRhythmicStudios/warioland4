@@ -8,7 +8,7 @@ void SpriteSpawnAsChildWide(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosition, u3
 
 void UpdateHoggusPosition(void)
 {
-    register struct PrimarySpriteData* sprite asm("r2");
+    register struct PrimarySpriteData* sprite PIN("r2");
     u16 spriteCoordinate;
     u16 targetCoordinate;
     u16 distance;
@@ -280,9 +280,9 @@ void HoggusSpawn(void)
     struct PrimarySpriteData* sprite;
     u8* variant;
     u8* timerPointer;
-    register int timer asm("r1");
+    register int timer PIN("r1");
     int pose;
-    register int collisionState asm("r1");
+    register int collisionState PIN("r1");
     int maskedState;
     int shiftedTimer;
 
@@ -366,8 +366,8 @@ void HoggusEggUpdate(void)
 {
     struct PrimarySpriteData* sprite;
     u8* timerPointer;
-    register int timer asm("r1");
-    register int value asm("r0");
+    register int timer PIN("r1");
+    register int value PIN("r0");
 
     sprite = &gCurrentSprite;
     timerPointer = &sprite->work0;

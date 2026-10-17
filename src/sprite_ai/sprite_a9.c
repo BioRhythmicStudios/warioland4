@@ -183,8 +183,8 @@ void func_805FE34(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *work0;
-    register u32 old asm("r0");
-    register u32 next asm("r2");
+    register u32 old PIN("r0");
+    register u32 next PIN("r2");
     u32 timer;
 
     sprite = &gCurrentSprite;
@@ -195,7 +195,7 @@ void func_805FE34(void)
     old = next << 24;
     timer = old >> 24;
     if (timer != 0) {
-        register u32 check asm("r0");
+        register u32 check PIN("r0");
         check = timer;
         /* Keep the countdown comparison in r0 instead of coalescing it with r1. */
         asm("" : "+r"(check));
@@ -317,7 +317,7 @@ void func_806002C(void)
     velocity = *(const s16 *)(velocityAddress + zero);
     if (velocity == 0x7FFF) {
         u32 previous;
-        register u32 yPosition asm("r0");
+        register u32 yPosition PIN("r0");
         previous = index - 1;
         previous <<= 1;
         previous += (u32)velocities;
@@ -394,7 +394,7 @@ void func_8060190(void)
 void func_80601B4(void)
 {
     u32 timer;
-    register u32 original asm("r3");
+    register u32 original PIN("r3");
 
     timer = gCurrentSprite.work0;
     original = timer;
@@ -643,7 +643,7 @@ void func_806052C(void)
             velocity = *(const s16 *)(velocityAddress + zero);
             if (velocity == 0x7FFF) {
                 u32 previous;
-                register u32 yPosition asm("r0");
+                register u32 yPosition PIN("r0");
                 previous = index - 1;
                 previous <<= 1;
                 previous += (u32)velocities;

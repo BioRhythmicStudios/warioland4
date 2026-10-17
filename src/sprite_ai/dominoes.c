@@ -154,8 +154,8 @@ void WakeDominoGoals(void)
     pose = 49;
     do {
         if (sprite->globalID == 59) {
-            register u16 status asm("r1");
-            register int exists asm("r0");
+            register u16 status PIN("r1");
+            register int exists PIN("r0");
 
             status = sprite->status;
             exists = one;
@@ -173,8 +173,8 @@ void AdvanceDominoAtTile(int yArg, int xArg)
     int x;
     int found;
     int i;
-    register u8 *data asm("r1");
-    register u8 *address asm("r0");
+    register u8 *data PIN("r1");
+    register u8 *address PIN("r0");
     u8 *persistentBase;
     int value;
     int offset;
@@ -339,7 +339,7 @@ void UpdateDominoChain(void)
 {
     u32 yTile;
     u32 xTile;
-    register u32 coordinate asm("r0");
+    register u32 coordinate PIN("r0");
     struct PrimarySpriteData *current;
 
     m4aMPlayTempoControl(gMPlayTable[0].info, 400);
@@ -354,7 +354,7 @@ void UpdateDominoChain(void)
     case 9: {
         struct PrimarySpriteData *sprite;
         u8 *timerPtr;
-        register u32 timer asm("r4");
+        register u32 timer PIN("r4");
         u32 remainder;
         u32 value;
         u8 *storePtr;
@@ -378,7 +378,7 @@ void UpdateDominoChain(void)
             break;
         }
         {
-            register u32 previous asm("r0");
+            register u32 previous PIN("r0");
             u8 *work1Ptr;
             u32 storedRemainder;
             u8 *timerStore;
@@ -412,7 +412,7 @@ void UpdateDominoChain(void)
     case 10: {
         struct PrimarySpriteData *sprite;
         u8 *timerPtr;
-        register u32 timer asm("r4");
+        register u32 timer PIN("r4");
         u32 remainder;
         u32 value;
         u8 *storePtr;
@@ -436,7 +436,7 @@ void UpdateDominoChain(void)
             break;
         }
         {
-            register u32 previous asm("r1");
+            register u32 previous PIN("r1");
             u8 *work1Ptr;
             u32 storedRemainder;
             u8 *timerStore;
@@ -470,7 +470,7 @@ void UpdateDominoChain(void)
     case 11: {
         struct PrimarySpriteData *sprite;
         u8 *timerPtr;
-        register u32 timer asm("r4");
+        register u32 timer PIN("r4");
         u32 remainder;
         u32 value;
         u8 *storePtr;
@@ -493,7 +493,7 @@ void UpdateDominoChain(void)
             break;
         }
         {
-            register u32 previous asm("r1");
+            register u32 previous PIN("r1");
             u8 *work1Ptr;
             u32 storedRemainder;
             u8 *timerStore;
@@ -523,7 +523,7 @@ void UpdateDominoChain(void)
     case 12: {
         struct PrimarySpriteData *sprite;
         u8 *timerPtr;
-        register u32 timer asm("r4");
+        register u32 timer PIN("r4");
         u32 remainder;
         u32 value;
         u8 *storePtr;
@@ -546,7 +546,7 @@ void UpdateDominoChain(void)
             break;
         }
         {
-            register u32 previous asm("r1");
+            register u32 previous PIN("r1");
             u8 *work1Ptr;
             u32 storedRemainder;
             u8 *timerStore;
@@ -576,7 +576,7 @@ void UpdateDominoChain(void)
     case 13: {
         struct PrimarySpriteData *sprite;
         u8 *timerPtr;
-        register u32 timer asm("r4");
+        register u32 timer PIN("r4");
         u32 remainder;
         u32 value;
         u8 *storePtr;
@@ -599,7 +599,7 @@ void UpdateDominoChain(void)
             break;
         }
         {
-            register u32 previous asm("r1");
+            register u32 previous PIN("r1");
             u8 *work1Ptr;
             u32 storedRemainder;
             u8 *timerStore;
@@ -629,7 +629,7 @@ void UpdateDominoChain(void)
     case 14: {
         struct PrimarySpriteData *sprite;
         u8 *timerPtr;
-        register u32 timer asm("r4");
+        register u32 timer PIN("r4");
         u32 remainder;
         u32 value;
         u8 *storePtr;
@@ -652,7 +652,7 @@ void UpdateDominoChain(void)
             break;
         }
         {
-            register u32 previous asm("r1");
+            register u32 previous PIN("r1");
             u8 *work1Ptr;
             u32 storedRemainder;
             u8 *timerStore;
@@ -682,8 +682,8 @@ void UpdateDominoChain(void)
     case 15: {
         u32 timer;
         u32 value;
-        register struct PrimarySpriteData *base asm("r0");
-        register u8 *timerPtr asm("r1");
+        register struct PrimarySpriteData *base PIN("r0");
+        register u8 *timerPtr PIN("r1");
 
         base = &gCurrentSprite;
         asm volatile("" : "+r"(base));
@@ -706,7 +706,7 @@ void UpdateDominoChain(void)
             break;
         }
         {
-            register struct PrimarySpriteData *sprite asm("r3");
+            register struct PrimarySpriteData *sprite PIN("r3");
             u32 previous;
             u8 *workPtr;
             u32 zero;
@@ -737,8 +737,8 @@ void UpdateDominoChain(void)
     case 16: {
         u32 timer;
         u32 value;
-        register struct PrimarySpriteData *base asm("r0");
-        register u8 *timerPtr asm("r1");
+        register struct PrimarySpriteData *base PIN("r0");
+        register u8 *timerPtr PIN("r1");
 
         base = &gCurrentSprite;
         asm volatile("" : "+r"(base));
@@ -761,7 +761,7 @@ void UpdateDominoChain(void)
             break;
         }
         {
-            register struct PrimarySpriteData *sprite asm("r3");
+            register struct PrimarySpriteData *sprite PIN("r3");
             u32 previous;
             u8 *workPtr;
             u32 zero;
@@ -792,8 +792,8 @@ void UpdateDominoChain(void)
     case 17: {
         u32 timer;
         u32 value;
-        register struct PrimarySpriteData *base asm("r0");
-        register u8 *timerPtr asm("r1");
+        register struct PrimarySpriteData *base PIN("r0");
+        register u8 *timerPtr PIN("r1");
 
         base = &gCurrentSprite;
         asm volatile("" : "+r"(base));
@@ -816,7 +816,7 @@ void UpdateDominoChain(void)
             break;
         }
         {
-            register struct PrimarySpriteData *sprite asm("r3");
+            register struct PrimarySpriteData *sprite PIN("r3");
             u32 previous;
             u8 *workPtr;
             u32 zero;
@@ -847,8 +847,8 @@ void UpdateDominoChain(void)
     case 18: {
         u32 timer;
         u32 value;
-        register struct PrimarySpriteData *base asm("r0");
-        register u8 *timerPtr asm("r1");
+        register struct PrimarySpriteData *base PIN("r0");
+        register u8 *timerPtr PIN("r1");
 
         base = &gCurrentSprite;
         asm volatile("" : "+r"(base));
@@ -869,7 +869,7 @@ void UpdateDominoChain(void)
         if ((u8)(timer / 5) != 13)
             goto callOriginalPosition;
         {
-            register struct PrimarySpriteData *sprite asm("r3");
+            register struct PrimarySpriteData *sprite PIN("r3");
             u32 previous;
             u8 *workPtr;
             u32 zero;
@@ -913,11 +913,11 @@ callOriginalPosition:
 void FinishDominoChain(void)
 {
     struct PrimarySpriteData *current;
-    register int y asm("r6");
-    register int x asm("r4");
+    register int y PIN("r6");
+    register int x PIN("r4");
     int found;
     int index;
-    register int coordinate asm("r0");
+    register int coordinate PIN("r0");
 
     current = &gCurrentSprite;
     if (current->work1 > 59) {
@@ -933,8 +933,8 @@ void FinishDominoChain(void)
         found = 0;
         index = 0;
         {
-            register u8 *data asm("r0");
-            register u8 *base asm("r3");
+            register u8 *data PIN("r0");
+            register u8 *base PIN("r3");
             int shift;
             int offset;
 
@@ -1156,7 +1156,7 @@ void UpdateDominoGoalClosed(void)
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
     u8 *persistent;
-    register int room asm("r0");
+    register int room PIN("r0");
     u32 temp;
     int value;
     int zero;
@@ -1212,7 +1212,7 @@ void StartDominoGoalOpening(void)
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
     u8 *persistent;
-    register int room asm("r0");
+    register int room PIN("r0");
     u32 temp;
     int value;
 
@@ -1472,7 +1472,7 @@ void SelectDominoTile0Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
     const struct AnimationFrame *oam;
 
@@ -1549,7 +1549,7 @@ void SelectDominoTile1Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
     const struct AnimationFrame *oam;
 
@@ -1626,7 +1626,7 @@ void SelectDominoTile2Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
     const struct AnimationFrame *oam;
 
@@ -1713,7 +1713,7 @@ void SelectDominoTile3Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
     const struct AnimationFrame *oam;
 
@@ -1800,7 +1800,7 @@ void SelectDominoTile4Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
     const struct AnimationFrame *oam;
 
@@ -1882,7 +1882,7 @@ void SelectDominoTile5Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
     const struct AnimationFrame *oam;
 
@@ -1964,7 +1964,7 @@ void SelectDominoTile6Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
 
     persistentBase = &gPersistentSpriteData[0][0];
@@ -2085,7 +2085,7 @@ void SelectDominoTile7Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
 
     persistentBase = &gPersistentSpriteData[0][0];
@@ -2206,7 +2206,7 @@ void SelectDominoTile8Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
 
     persistentBase = &gPersistentSpriteData[0][0];
@@ -2327,7 +2327,7 @@ void SelectDominoTile9Animation(void)
 {
     u8 *persistentBase;
     struct PrimarySpriteData *sprite;
-    register int value asm("r0");
+    register int value PIN("r0");
     int pose;
 
     persistentBase = &gPersistentSpriteData[0][0];

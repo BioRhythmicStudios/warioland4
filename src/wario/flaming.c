@@ -240,9 +240,9 @@ u8 FlamingWarioEngulfed(void)
 {
     struct WarioData *wario;
     const struct FlamingWarioGraphicsFrame *frames;
-    register u16 held asm("r3");
+    register u16 held PIN("r3");
     u32 active;
-    register u16 direction asm("r1");
+    register u16 direction PIN("r1");
     u16 timer;
     u8 zero;
 
@@ -576,7 +576,7 @@ void UpdateFlamingWarioMotion(void)
         xVelocity <<= 16;
         xVelocity >>= 16;
         {
-            register u32 delta asm("r2");
+            register u32 delta PIN("r2");
             struct WarioData *positionWario;
             u16 xPosition;
 
@@ -703,7 +703,7 @@ void ProcessFlamingWarioCollision(void)
 void LoadFlamingWarioGraphics(int variant)
 {
     u32 graphicsVariant;
-    register const u8 *palette asm("r5");
+    register const u8 *palette PIN("r5");
     const struct FlamingWarioGraphicsFrame *frame;
     const u8 *gfx;
 
@@ -769,10 +769,10 @@ void LoadFlamingWarioGraphics(int variant)
 
 void UpdateFlamingWarioMusic(void)
 {
-    register struct MusicPlayerInfo *player0 asm("r8");
-    register struct MusicPlayerInfo *player1 asm("r6");
+    register struct MusicPlayerInfo *player0 PIN("r8");
+    register struct MusicPlayerInfo *player1 PIN("r6");
     const struct MusicPlayer *table;
-    register int tracks asm("r4");
+    register int tracks PIN("r4");
     int value;
 
     if (gWarioMusicState != 6) {

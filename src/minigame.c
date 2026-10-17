@@ -287,13 +287,13 @@ void DrawMinigameHighScore(u32 value, const u16* tiles, u32 destination)
     u32 currentValue;
     const u16* tileBase;
     u32 destinationBase;
-    register s32 hundreds asm("r4");
+    register s32 hundreds PIN("r4");
     s32 tens;
     s32 ones;
     vu32* dma;
     u32 control;
     u32 busy;
-    register u32 source asm("r0");
+    register u32 source PIN("r0");
 
     currentValue = value;
     tileBase = tiles;
@@ -520,17 +520,17 @@ void InitMinigameMenu(void)
 {
     const u8* graphicsBase;
     const u8* tilesA;
-    register const u8* tilesB asm("r5");
-    register const u8* tilesC asm("r6");
-    register const u8* totalScoreTiles asm("r8");
-    register const u8* scoreLabelTiles asm("r9");
+    register const u8* tilesB PIN("r5");
+    register const u8* tilesC PIN("r6");
+    register const u8* totalScoreTiles PIN("r8");
+    register const u8* scoreLabelTiles PIN("r9");
     const u8* medalTiles;
-    register const u8* medalCopy asm("r3");
+    register const u8* medalCopy PIN("r3");
     u8* messageDuration;
-    register vu32* dma asm("r1");
+    register vu32* dma PIN("r1");
     u32 control;
-    register u32 busy asm("r2");
-    register vu16* bgControl asm("r2");
+    register u32 busy PIN("r2");
+    register vu16* bgControl PIN("r2");
     u16* scores;
     s32 i;
     u32 destination;
@@ -719,7 +719,7 @@ durationDone:;
 
     {
         vu16* scroll;
-        register u16 zero asm("r2");
+        register u16 zero PIN("r2");
 
         scroll = (vu16*)0x04000012;
         zero = 0;
@@ -750,7 +750,7 @@ durationDone:;
         u16* smallData;
         u16 entryZero;
         u16* selectionData;
-        register const u32* table asm("r2");
+        register const u32* table PIN("r2");
         u8* selected;
         u32 index;
 
@@ -885,7 +885,7 @@ void InitMinigameResultsMenu(void)
             *(u16*)entry = value;
             *(u16*)(entry + 2) = selectedY;
         } else {
-            register u32 value asm("r0");
+            register u32 value PIN("r0");
             value = 0;
             entry[4] = value;
             value = *positions;
@@ -946,9 +946,9 @@ void ApplyMinigameMenuVBlank(void)
 
 s32 HandleMinigameMenuInput(void)
 {
-    register u32 direction asm("r4");
+    register u32 direction PIN("r4");
     u16* buttonsPointer;
-    register u16 buttons asm("r2");
+    register u16 buttons PIN("r2");
     u16* savedButtonsPointer;
 
     direction = 4;
@@ -1038,7 +1038,7 @@ s32 HandleMinigameMenuInput(void)
     if (direction != 4) {
         const u32* navigation;
         u32 navigationIndex;
-        register u8* selected asm("r4");
+        register u8* selected PIN("r4");
         u8 selectedValue;
         u32 nextSelection;
 
@@ -1050,7 +1050,7 @@ s32 HandleMinigameMenuInput(void)
         nextSelection = navigation[navigationIndex / 4];
         if (nextSelection != 4) {
             u8* coords;
-            register const u32* positions asm("r1");
+            register const u32* positions PIN("r1");
             u32 index;
             u32 position;
             s32 i;
@@ -1179,7 +1179,7 @@ s32 UpdateMinigameStartSequence(void)
                 u8* base;
                 u32 index;
                 u32 zero;
-                register u8* item asm("r0");
+                register u8* item PIN("r0");
 
                 songTable = (const u8*)sMinigameStartSongIds;
                 selected = &gSelectedMinigame;
@@ -1204,7 +1204,7 @@ s32 UpdateMinigameStartSequence(void)
             u8* base;
             u8* selected;
             u8 selectedIndex;
-            register u32 index asm("r1");
+            register u32 index PIN("r1");
             u8* item;
             s32 offset;
 
@@ -1308,7 +1308,7 @@ void DrawMinigameMenuSprites(void)
 
     processed = 0;
     {
-        register u8* slotsPointer asm("r3");
+        register u8* slotsPointer PIN("r3");
         u32 offset;
         u8* oamBase;
         u8* entries;
@@ -1338,7 +1338,7 @@ void DrawMinigameMenuSprites(void)
                 if (processed < slots) {
                     u8* firstAdjust;
                     u32 xMask;
-                    register u32 attr1Mask asm("r10");
+                    register u32 attr1Mask PIN("r10");
                     s32 clearMask;
                     firstAdjust = (u8*)gOamBuffer;
                     xMask = 0x1FF;
@@ -1357,8 +1357,8 @@ void DrawMinigameMenuSprites(void)
                         value += 168;
                         value &= xMask;
                         {
-                            register u32 oldAttr asm("r2");
-                            register u32 maskedAttr asm("r0");
+                            register u32 oldAttr PIN("r2");
+                            register u32 maskedAttr PIN("r0");
                             oldAttr = ((u16*)adjust)[1];
                             maskedAttr = attr1Mask;
                             maskedAttr &= oldAttr;
@@ -1368,7 +1368,7 @@ void DrawMinigameMenuSprites(void)
 
                         *append = *source++;
                         {
-                            register u8 oldFlags asm("r1");
+                            register u8 oldFlags PIN("r1");
                             u32 newFlags;
                             oldFlags = adjust[5];
                             newFlags = clearMask;
@@ -1395,9 +1395,9 @@ void DrawMinigameMenuSprites(void)
             {
                 u8* coords;
                 const u8** animationPointer;
-                register const u8* currentAnimation asm("r4");
-                register u32 timer asm("r1");
-                register u16 frame asm("r0");
+                register const u8* currentAnimation PIN("r4");
+                register u32 timer PIN("r1");
+                register u16 frame PIN("r0");
 
                 coords = gMinigameCursorAnimationState;
                 timer = *(u16*)(coords + 0);
@@ -1440,11 +1440,11 @@ void DrawMinigameMenuSprites(void)
                 if (processed < slots) {
                     u8* copyCoords;
                     u8* copyAdjust;
-                    register u8* oamBase asm("r1");
-                    register u32 maskTemp asm("r4");
-                    register u32 attrMaskTemp asm("r0");
+                    register u8* oamBase PIN("r1");
+                    register u32 maskTemp PIN("r4");
+                    register u32 attrMaskTemp PIN("r0");
                     s32 clearTemp;
-                    register u32 xMask asm("r10");
+                    register u32 xMask PIN("r10");
                     u32 attr1Mask;
                     s32 clearMask;
                     oamBase = (u8*)gOamBuffer;
@@ -1476,13 +1476,13 @@ void DrawMinigameMenuSprites(void)
                         attr = *source++;
                         *append++ = attr;
                         {
-                            register s32 xOffset asm("r1");
+                            register s32 xOffset PIN("r1");
                             xOffset = *(s16*)(copyCoords + 4);
                             xOffset = attr + xOffset;
                             value = xOffset & xMask;
                         }
                         {
-                            register u32 oldAttr asm("r2");
+                            register u32 oldAttr PIN("r2");
                             u32 maskedAttr;
                             oldAttr = ((u16*)adjust)[1];
                             maskedAttr = attr1Mask;
@@ -1522,14 +1522,14 @@ void DrawMinigameMenuSprites(void)
 
     {
         u32 index;
-        register u32 r0v asm("r0");
-        register u32 r1v asm("r1");
-        register u32 r2v asm("r2");
+        register u32 r0v PIN("r0");
+        register u32 r1v PIN("r1");
+        register u32 r2v PIN("r2");
         u32 r3v;
-        register u32 r4v asm("r4");
-        register u32 r6v asm("r6");
-        register u32 nextIndex asm("r9");
-        register u32 clearMask asm("r10");
+        register u32 r4v PIN("r4");
+        register u32 r6v PIN("r6");
+        register u32 nextIndex PIN("r9");
+        register u32 clearMask PIN("r10");
 
         r2v = 0;
         index = r2v;
@@ -1675,12 +1675,12 @@ void DrawMinigameMenuSprites(void)
     }
 
     {
-        register u32 index asm("r12");
+        register u32 index PIN("r12");
         u32 r0v;
-        register u32 r1v asm("r1");
-        register u32 r2v asm("r2");
+        register u32 r1v PIN("r1");
+        register u32 r2v PIN("r2");
         u32 r3v;
-        register u32 r4v asm("r4");
+        register u32 r4v PIN("r4");
         u32 r6v;
         u32 nextIndex;
         u32 statePointer;
@@ -1797,7 +1797,7 @@ void DrawMinigameMenuSprites(void)
     }
 
     {
-        register u8* slotsPointer asm("r2");
+        register u8* slotsPointer PIN("r2");
         slotsPointer = &gOamSlotsUsed;
         *slotsPointer = slots;
     }

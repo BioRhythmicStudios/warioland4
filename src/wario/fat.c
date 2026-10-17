@@ -63,9 +63,9 @@ u8 FatWarioWalking(void)
 
     {
         struct WarioData *address;
-        register u16 timer asm("r2");
+        register u16 timer PIN("r2");
         u32 limit;
-        register u16 nextTimer asm("r0");
+        register u16 nextTimer PIN("r0");
 
         address = &gWarioData;
         timer = address->unk_0C;
@@ -113,7 +113,7 @@ u8 FatWarioWalking(void)
     }
 
     {
-        register struct WarioData *animWario asm("r2");
+        register struct WarioData *animWario PIN("r2");
         unsigned int frame;
 
         animWario = wario;
@@ -152,7 +152,7 @@ u8 FatWarioFalling(void)
 {
     const u16 *buttons;
     struct WarioData *wario;
-    register u16 active asm("r3");
+    register u16 active PIN("r3");
     u16 held;
     u16 direction;
 
@@ -487,7 +487,7 @@ void UpdateFatWarioMotion(void)
         xVelocity <<= 16;
         xVelocity >>= 16;
         {
-            register u32 delta asm("r2");
+            register u32 delta PIN("r2");
             struct WarioData *positionWario;
             u16 xPosition;
 

@@ -11,7 +11,7 @@ void SwitchSetCommonProperties(void)
 {
     struct PrimarySpriteData* sprite;
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     u32 statusValue;
     u8 zero;
     u16 zero16;
@@ -183,9 +183,9 @@ void EscapeSwitchCountdown(void)
 {
     struct PrimarySpriteData* sprite;
     u8* timerPtr;
-    register u8 oldTimer asm("r0");
-    register u8 timer asm("r2");
-    register u32 shiftedTimer asm("r0");
+    register u8 oldTimer PIN("r0");
+    register u8 timer PIN("r2");
+    register u32 shiftedTimer PIN("r0");
     u32 checkedTimer;
 
     sprite = &gCurrentSprite;
@@ -201,7 +201,7 @@ void EscapeSwitchCountdown(void)
     shiftedTimer = timer << 24;
     checkedTimer = shiftedTimer >> 24;
     if (checkedTimer != 0) {
-        register u8 soundTimer asm("r0");
+        register u8 soundTimer PIN("r0");
 
         soundTimer = checkedTimer;
         if (soundTimer == 12) {
@@ -327,10 +327,10 @@ void SwitchUpdateActivationEffects(void)
 
 void SwitchEffectInit(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
+    register struct PrimarySpriteData* sprite PIN("ip");
     u16 oldStatus;
-    register u16 status asm("r0");
-    register u32 statusBits asm("r2");
+    register u16 status PIN("r0");
+    register u32 statusBits PIN("r2");
     u8 zero;
     u16 zero16;
     u8 value16;

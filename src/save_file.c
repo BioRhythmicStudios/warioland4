@@ -334,9 +334,9 @@ u32 ValidateSaveHeaderBlock(u8 saveType)
 {
     u32 result;
     u32* save;
-    register u32* ptr asm("r1");
+    register u32* ptr PIN("r1");
     u32 sum;
-    register u32 storedChecksum asm("r5");
+    register u32 storedChecksum PIN("r5");
     u8* data;
     s32 i;
 
@@ -369,7 +369,7 @@ u32 ValidateSaveHeaderBlock(u8 saveType)
     {
         u8* scan;
 
-        register const u8* table asm("r7");
+        register const u8* table PIN("r7");
 
         scan = data;
         i = 0;
@@ -400,8 +400,8 @@ u32 ValidateSaveHeaderBlock(u8 saveType)
 void InitializeTemporarySaveBuffer(void)
 {
     u32* data;
-    register u32* checksum asm("r5");
-    register u32 sum asm("r1");
+    register u32* checksum PIN("r5");
+    register u32 sum PIN("r1");
     int i;
 
     gStageEntryPauseMenuDisabled = 0;
@@ -441,10 +441,10 @@ void InitializeTemporarySaveBuffer(void)
 
 void SerializeGameStateToTemporarySave(void)
 {
-    register u8* destination asm("r4");
-    register u8* padding asm("r2");
+    register u8* destination PIN("r4");
+    register u8* padding PIN("r2");
     u32 zero;
-    register u32 mask asm("r3");
+    register u32 mask PIN("r3");
     s32 i;
     u16* clearedTileCount;
     u16* musicState;
@@ -452,7 +452,7 @@ void SerializeGameStateToTemporarySave(void)
     u8* sharedIp;
     int new_var;
     u16* new_var2;
-    register u8* warioData asm("r8");
+    register u8* warioData PIN("r8");
     u8* source7;
     destination = (u8*)0x02039018;
     *(destination++) = gStageRoomTableIndex;
@@ -506,8 +506,8 @@ void SerializeGameStateToTemporarySave(void)
     memcpy(destination, warioData, 60);
     destination += 60;
     {
-        register u32* source8 asm("r0");
-        register RegPair8 value8 asm("r0");
+        register u32* source8 PIN("r0");
+        register RegPair8 value8 PIN("r0");
         source8 = (u32*)&gWarioDashAfterimage;
         value8.w.hi = source8[1];
         value8.w.lo = source8[0];
@@ -536,15 +536,15 @@ void SerializeGameStateToTemporarySave(void)
     } while (i <= 23);
     {
         u8* switchPressed;
-        register u8* northEastJewel asm("r8");
-        register u8* southWestJewel asm("r10");
-        register SaveBlock12* secondarySprite asm("r3");
-        register s32 secondaryIndex asm("r2");
-        register u8* source1 asm("r1");
-        register u8* source2 asm("r2");
-        register u8* source3 asm("r3");
-        register u8* source5 asm("r5");
-        register u8* source6 asm("r6");
+        register u8* northEastJewel PIN("r8");
+        register u8* southWestJewel PIN("r10");
+        register SaveBlock12* secondarySprite PIN("r3");
+        register s32 secondaryIndex PIN("r2");
+        register u8* source1 PIN("r1");
+        register u8* source2 PIN("r2");
+        register u8* source3 PIN("r3");
+        register u8* source5 PIN("r5");
+        register u8* source6 PIN("r6");
         u8 value;
         switchPressed = &gSwitchPressed;
         northEastJewel = &gCollectedNEJewelPiece;
@@ -573,8 +573,8 @@ void SerializeGameStateToTemporarySave(void)
         *(destination++) = value;
         padding = destination;
         if ((((u32)destination) & new_var) != 0) {
-            register u32 padValue asm("r3");
-            register u32 padMask asm("r1");
+            register u32 padValue PIN("r3");
+            register u32 padMask PIN("r1");
             padValue = 0;
             padMask = new_var;
             do {
@@ -598,7 +598,7 @@ void SerializeGameStateToTemporarySave(void)
         padding = destination;
         if ((((u32)destination) & new_var) != 0) {
             u32 padValue;
-            register u32 padMask asm("r1");
+            register u32 padMask PIN("r1");
             padValue = 0;
             padMask = new_var;
             do {
@@ -622,7 +622,7 @@ void SerializeGameStateToTemporarySave(void)
         padding = destination;
         if ((((u32)destination) & new_var) != 0) {
             u32 padValue;
-            register u32 padMask asm("r1");
+            register u32 padMask PIN("r1");
             padValue = 0;
             padMask = new_var;
             do {
@@ -650,7 +650,7 @@ void SerializeGameStateToTemporarySave(void)
     }
     destination += 4;
     {
-        register s32 index asm("r2");
+        register s32 index PIN("r2");
         u8* source;
         index = 0;
         source = gRoomSpriteIds;
@@ -660,7 +660,7 @@ void SerializeGameStateToTemporarySave(void)
         } while (index <= 31);
         if ((index & new_var) != 0) {
             u32 padValue;
-            register u32 padMask asm("r1");
+            register u32 padMask PIN("r1");
             padValue = 0;
             padMask = new_var;
             do {
@@ -670,7 +670,7 @@ void SerializeGameStateToTemporarySave(void)
         }
     }
     {
-        register s32 index asm("r2");
+        register s32 index PIN("r2");
         u8* source;
         index = 0;
         source = gRoomSpriteGraphicsSlots;
@@ -680,7 +680,7 @@ void SerializeGameStateToTemporarySave(void)
         } while (index <= 31);
         if ((index & new_var) != 0) {
             u32 padValue;
-            register u32 padMask asm("r1");
+            register u32 padMask PIN("r1");
             padValue = 0;
             padMask = new_var;
             do {
@@ -724,11 +724,11 @@ void SerializeGameStateToTemporarySave(void)
             index++;
         } while (index <= 4);
         {
-            register u32 test0 asm("r0");
+            register u32 test0 PIN("r0");
             test0 = index & new_var;
             if (test0 != 0) {
                 u32 padValue;
-                register u32 padMask asm("r1");
+                register u32 padMask PIN("r1");
                 padValue = 0;
                 padMask = new_var;
                 do {
@@ -750,11 +750,11 @@ void SerializeGameStateToTemporarySave(void)
             index++;
         } while (index <= 2);
         {
-            register u32 test0 asm("r0");
+            register u32 test0 PIN("r0");
             test0 = index & new_var;
             if (test0 != 0) {
                 u32 padValue;
-                register u32 padMask asm("r1");
+                register u32 padMask PIN("r1");
                 padValue = 0;
                 padMask = new_var;
                 do {
@@ -776,11 +776,11 @@ void SerializeGameStateToTemporarySave(void)
             index++;
         } while (index <= 4);
         {
-            register u32 test0 asm("r0");
+            register u32 test0 PIN("r0");
             test0 = index & new_var;
             if (test0 != 0) {
                 u32 padValue;
-                register u32 padMask asm("r1");
+                register u32 padMask PIN("r1");
                 padValue = 0;
                 padMask = new_var;
                 do {
@@ -791,7 +791,7 @@ void SerializeGameStateToTemporarySave(void)
         }
     }
     {
-        register u32 cursor asm("r1");
+        register u32 cursor PIN("r1");
         u8* base;
         s32 next;
         s32 remaining;
@@ -816,7 +816,7 @@ void SerializeGameStateToTemporarySave(void)
     }
     {
         u32* source;
-        register u32 value0 asm("r0");
+        register u32 value0 PIN("r0");
         source = (u32*)(&gUnk_30000D8);
         value0 = *source;
         *((u32*)destination) = value0;
@@ -824,7 +824,7 @@ void SerializeGameStateToTemporarySave(void)
     destination += 4;
     {
         u32* source;
-        register RegPair8 v asm("r0");
+        register RegPair8 v PIN("r0");
         source = (u32*)&gCameraPositionState;
         v.w.lo = source[0];
         v.w.hi = source[1];
@@ -835,31 +835,31 @@ void SerializeGameStateToTemporarySave(void)
     *((u16*)destination) = *((volatile u16*)source7);
     destination += 2;
     {
-        register u16* source asm("r1");
+        register u16* source PIN("r1");
         source = &gBg0YPosition;
         *((u16*)destination) = *source;
     }
     destination += 2;
     {
-        register u16* source asm("r2");
+        register u16* source PIN("r2");
         source = &gBg1XPosition;
         *((u16*)destination) = *source;
     }
     destination += 2;
     {
-        register u16* source asm("r3");
+        register u16* source PIN("r3");
         source = &gBg1YPosition;
         *((u16*)destination) = *source;
     }
     destination += 2;
     {
-        register u16* source asm("r5");
+        register u16* source PIN("r5");
         source = &gBg2XPosition;
         *((u16*)destination) = *source;
     }
     destination += 2;
     {
-        register u16* source asm("r6");
+        register u16* source PIN("r6");
         source = &gBg2YPosition;
         *((u16*)destination) = *source;
     }
@@ -869,7 +869,7 @@ void SerializeGameStateToTemporarySave(void)
     *((u16*)destination) = *((u16*)source7);
     destination += 2;
     {
-        register u16* source asm("r1");
+        register u16* source PIN("r1");
         source = &gBg3YPosition;
         new_var2 = source;
         *((u16*)destination) = (u16)*source;
@@ -889,7 +889,7 @@ void RefreshTemporarySaveStageId(void)
 void RestoreGameStateFromTemporarySave(void)
 {
     u8* source;
-    register u8* padding asm("r2");
+    register u8* padding PIN("r2");
     s32 i;
 
     source = (u8*)0x02039018;
@@ -903,10 +903,10 @@ void RestoreGameStateFromTemporarySave(void)
     {
         u16* cleared;
         u16* music;
-        register u16* unkA asm("r6");
-        register u16* bossY asm("r7");
-        register u8* wario asm("r12");
-        register u32 mask asm("r1");
+        register u16* unkA PIN("r6");
+        register u16* bossY PIN("r7");
+        register u8* wario PIN("r12");
+        register u32 mask PIN("r1");
 
         padding = source;
         cleared = &gClearedRoomTileCount;
@@ -978,8 +978,8 @@ void RestoreGameStateFromTemporarySave(void)
 
     {
         u8* switchPressed;
-        register u8* northEastJewel asm("r12");
-        register u8* southEastJewel asm("r8");
+        register u8* northEastJewel PIN("r12");
+        register u8* southEastJewel PIN("r8");
         u8* southWestJewel;
         SaveBlock12* secondarySprite;
         s32 secondaryIndex;
@@ -999,10 +999,10 @@ void RestoreGameStateFromTemporarySave(void)
 
         {
             u8 value;
-            register u8* destination1 asm("r1");
-            register u8* destination2 asm("r2");
-            register u8* destination3 asm("r3");
-            register u8* destination5 asm("r5");
+            register u8* destination1 PIN("r1");
+            register u8* destination2 PIN("r2");
+            register u8* destination3 PIN("r3");
+            register u8* destination5 PIN("r5");
             u8* destination6;
             u8* destination7;
 
@@ -1024,7 +1024,7 @@ void RestoreGameStateFromTemporarySave(void)
             source++;
             padding = source;
             if (((u32)source & 3) != 0) {
-                register u32 mask asm("r1");
+                register u32 mask PIN("r1");
                 mask = 3;
                 do {
                     source++;
@@ -1053,7 +1053,7 @@ void RestoreGameStateFromTemporarySave(void)
             source++;
             padding = source;
             if (((u32)source & 3) != 0) {
-                register u32 mask asm("r1");
+                register u32 mask PIN("r1");
                 mask = 3;
                 do {
                     source++;
@@ -1083,7 +1083,7 @@ void RestoreGameStateFromTemporarySave(void)
         }
         padding = source;
         if (((u32)source & 3) != 0) {
-            register u32 mask asm("r1");
+            register u32 mask PIN("r1");
             mask = 3;
             do {
                 source++;
@@ -1211,14 +1211,14 @@ void RestoreGameStateFromTemporarySave(void)
         }
     }
     {
-        register s32 index asm("r1");
+        register s32 index PIN("r1");
         u8* base;
         s32 next;
         s32 remaining;
         index = 0;
         base = gCurrentCollection;
         do {
-            register u8* destination asm("r1");
+            register u8* destination PIN("r1");
             next = index + 1;
             destination = (u8*)(((((index << 1) + index) << 3)) + (u32)base);
             remaining = 3;
@@ -1301,7 +1301,7 @@ void SerializeGlobalSaveDataToWorkingBuffer(void)
     u32* totalScore;
     u8* unknown;
     const u8* footer;
-    register u32 zero asm("r4");
+    register u32 zero PIN("r4");
     u32 work;
 
     destination = (u8*)0x02038118;
@@ -1338,8 +1338,8 @@ void SerializeGlobalSaveDataToWorkingBuffer(void)
     destination += 4;
 
     {
-        register int outer asm("r3");
-        register u8* base asm("r6");
+        register int outer PIN("r3");
+        register u8* base PIN("r6");
         u32 offset;
         u32* source;
         int inner;
@@ -1363,7 +1363,7 @@ void SerializeGlobalSaveDataToWorkingBuffer(void)
 
     {
         int cursor;
-        register u8* base asm("r5");
+        register u8* base PIN("r5");
         int next;
         int inner;
         u32 shifted;
@@ -1386,7 +1386,7 @@ void SerializeGlobalSaveDataToWorkingBuffer(void)
     }
 
     {
-        register u16* source asm("r3");
+        register u16* source PIN("r3");
         int inner;
 
         source = gMinigameHighScores;
@@ -1424,11 +1424,11 @@ void SerializeGlobalSaveDataToWorkingBuffer(void)
 void RestoreGlobalSaveDataFromWorkingBuffer(void)
 {
     u8* source;
-    register u8* padding asm("r1");
+    register u8* padding PIN("r1");
     u16* medal;
     u32* totalScore;
     u8* unknown;
-    register u32 mask asm("r2");
+    register u32 mask PIN("r2");
 
     source = (u8*)0x02038118;
     gDifficulty = *source++;
@@ -1460,8 +1460,8 @@ void RestoreGlobalSaveDataFromWorkingBuffer(void)
     source += 4;
 
     {
-        register int outer asm("r2");
-        register u8* base asm("r6");
+        register int outer PIN("r2");
+        register u8* base PIN("r6");
         u32 offset;
         u32* destination;
         int inner;
@@ -1485,8 +1485,8 @@ void RestoreGlobalSaveDataFromWorkingBuffer(void)
 
     {
         int cursor;
-        register u8* base asm("r5");
-        register int next asm("r4");
+        register u8* base PIN("r5");
+        register int next PIN("r4");
         int inner;
         u32 shifted;
 
@@ -1508,7 +1508,7 @@ void RestoreGlobalSaveDataFromWorkingBuffer(void)
     }
 
     {
-        register u16* destination asm("r2");
+        register u16* destination PIN("r2");
         int inner;
 
         destination = gMinigameHighScores;
@@ -1609,9 +1609,9 @@ void InitializeSaveFileStatuses(void)
     u8* record;
     u8* records;
     u32 encodedIndex;
-    register u32 status asm("r5");
+    register u32 status PIN("r5");
     u32 zero0;
-    register u32 zero1 asm("r1");
+    register u32 zero1 PIN("r1");
 
     zero0 = 0;
     zero1 = 0;
@@ -1680,7 +1680,7 @@ void InitializeSaveFileStatuses(void)
             *saveFlagPtr = saveStatus;
             saveStatus <<= 24;
             if (saveStatus != 0) {
-                register u8* tempSavePtr asm("r0");
+                register u8* tempSavePtr PIN("r0");
                 tempSavePtr = &gHasTemporarySave;
                 selectedValue = *selectedPtr;
                 selectedValue <<= 3;
@@ -1722,8 +1722,8 @@ u32 ClassifyAndRepairSaveSlotCopy(u8 selectedFile)
     gSelectedSaveFile = selected;
 
     {
-        register u32 arg0 asm("r0");
-        register u32 arg1 asm("r1");
+        register u32 arg0 PIN("r0");
+        register u32 arg1 PIN("r1");
 
         arg0 = 0;
         arg1 = selected;
@@ -1734,7 +1734,7 @@ u32 ClassifyAndRepairSaveSlotCopy(u8 selectedFile)
     }
 
     if (firstResult == 0) {
-        register vu32* dma asm("r2");
+        register vu32* dma PIN("r2");
         u32* table;
 
         dma = (vu32*)0x040000D4;
@@ -1782,7 +1782,7 @@ u32 ClassifyAndRepairSaveSlotCopy(u8 selectedFile)
     }
 
     {
-        register u8* base asm("r0");
+        register u8* base PIN("r0");
 
         base = gUnk_3003BF8;
         selected = offset + (u32)base;
@@ -1812,7 +1812,7 @@ u32 ValidateAndClearSaveSlotCopy(u8 copy, u8 selectedFile)
     u32* save;
     u32* checksumStorage;
     u32* scan;
-    register u32 sum asm("r2");
+    register u32 sum PIN("r2");
     s32 i;
     u32 headerMismatch;
     u32 footerMismatch;
@@ -1845,7 +1845,7 @@ u32 ValidateAndClearSaveSlotCopy(u8 copy, u8 selectedFile)
     } while (i >= 0);
 
     {
-        register u32 checksum asm("r1");
+        register u32 checksum PIN("r1");
         checksum = *checksumStorage;
         if (checksum != sum || checksum != ~save[5]) {
             result |= 1;
@@ -1854,7 +1854,7 @@ u32 ValidateAndClearSaveSlotCopy(u8 copy, u8 selectedFile)
 
     {
         u8* data;
-        register const u8* expected asm("r8");
+        register const u8* expected PIN("r8");
         u32 one;
         data = (u8*)save;
         i = 0;
@@ -1871,7 +1871,7 @@ u32 ValidateAndClearSaveSlotCopy(u8 copy, u8 selectedFile)
 
     {
         u8* data;
-        register const u8* expected asm("r8");
+        register const u8* expected PIN("r8");
         u32 one;
         data = (u8*)save + 0x160;
         i = 0;
@@ -1946,7 +1946,7 @@ u32 ValidateMainSaveSlot(u8 selectedFile, u32 statusValue)
     } while (i != 0);
 
     {
-        register u32 checksum asm("r1");
+        register u32 checksum PIN("r1");
         checksum = *checksumStorage;
         if (checksum != sum || checksum != ~save[5]) {
             result |= 1;
@@ -1955,7 +1955,7 @@ u32 ValidateMainSaveSlot(u8 selectedFile, u32 statusValue)
 
     {
         u8* data;
-        register const u8* expected asm("r3");
+        register const u8* expected PIN("r3");
         u32 one;
         data = (u8*)save;
         i = 0;
@@ -1974,7 +1974,7 @@ u32 ValidateMainSaveSlot(u8 selectedFile, u32 statusValue)
 
     {
         u8* data;
-        register const u8* expected asm("r3");
+        register const u8* expected PIN("r3");
         u32 one;
 
         data = (u8*)save + 0xA80;
@@ -2128,7 +2128,7 @@ void BuildSelectedSaveValidationHeader(void)
 
         i = 0;
         {
-            register u8* source asm("r1");
+            register u8* source PIN("r1");
 
             source = sStageSelectionSaveSignature;
             do {
@@ -2186,12 +2186,12 @@ u32 ValidateSelectedSaveHeader(void)
         } while (i >= 0);
 
         {
-            register u16* storedPtr asm("r1");
+            register u16* storedPtr PIN("r1");
 
             storedPtr = (u16*)0x02038082;
             if (*storedPtr == value) {
                 u8 selected;
-                register u8* expected asm("r1");
+                register u8* expected PIN("r1");
                 u32 offset;
 
                 data = (u8*)0x02038086;
@@ -2214,7 +2214,7 @@ u32 ValidateSelectedSaveHeader(void)
 
                 i = 0;
                 {
-                    register u8* expectedBase asm("r6");
+                    register u8* expectedBase PIN("r6");
 
                     expectedBase = sStageSelectionSaveSignature;
                     do {
@@ -2306,9 +2306,9 @@ void BuildTemporaryStageSelectionSave(void)
 u32 ValidateStageSelectionSaveSlot(u8 selectedFile)
 {
     u8* save;
-    register u8* data asm("r2");
+    register u8* data PIN("r2");
     u32 passage;
-    register u32 stage asm("r5");
+    register u32 stage PIN("r5");
 
     data = sStageSelectionSaveBuffers[selectedFile];
     save = data;
@@ -2327,8 +2327,8 @@ u32 ValidateStageSelectionSaveSlot(u8 selectedFile)
 
             {
                 u32 sum;
-                register u32* ptr asm("r1");
-                register u32 checksum asm("r2");
+                register u32* ptr PIN("r1");
+                register u32 checksum PIN("r2");
                 int count;
 
                 sum = 0;
@@ -2351,8 +2351,8 @@ u32 ValidateStageSelectionSaveSlot(u8 selectedFile)
             {
                 u32 mismatch;
                 u8* scan;
-                register u8* expected asm("r1");
-                register int count asm("r4");
+                register u8* expected PIN("r1");
+                register int count PIN("r4");
                 u32 expectedValue;
 
                 mismatch = 0;
@@ -2372,7 +2372,7 @@ u32 ValidateStageSelectionSaveSlot(u8 selectedFile)
                 } while (count >= 0);
 
                 {
-                    register u8* secondBase asm("r0");
+                    register u8* secondBase PIN("r0");
 
                     secondBase = sStageNameValidationStrings;
                     expected = (u8*)(stage + (u32)secondBase);

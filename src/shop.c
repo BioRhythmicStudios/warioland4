@@ -158,7 +158,7 @@ void InitializeItemShop(void)
     int i;
     int new_var2;
     int new_var;
-    register const u16(*prices)[9] asm("r6");
+    register const u16(*prices)[9] PIN("r6");
     const void* gfx0;
     u32 priceOffset;
     const void* gfx1;
@@ -274,7 +274,7 @@ void InitializeItemShop(void)
         }
     }
     {
-        register vu32* dma asm("r1");
+        register vu32* dma PIN("r1");
         vu16* backgroundControl;
         dma = (vu32*)0x040000D4;
         dma[0] = new_var3;
@@ -326,7 +326,7 @@ void InitializeItemShop(void)
     fadePtr = &gColorFading;
     availabilityAlias = gItemShopItemAvailability;
     {
-        register u16* medalHint asm("r7") = &gMedalCount;
+        register u16* medalHint PIN("r7") = &gMedalCount;
         (void)medalHint;
     }
     prices = (const u16(*)[9])sUnk_872FF64;
@@ -530,7 +530,7 @@ done:
 void MoveItemShopCursor(u32 inputDirection)
 {
     u32 direction = inputDirection;
-    register u32 zero asm("r5");
+    register u32 zero PIN("r5");
     u8* passage;
 
     {
@@ -555,7 +555,7 @@ void MoveItemShopCursor(u32 inputDirection)
         value = (u32)&gCurrentPassage;
         {
             u32 passageValue = *(u8*)value;
-            register const u32* movementTable asm("r2");
+            register const u32* movementTable PIN("r2");
             passage = (u8*)value;
             if (passageValue == 0) {
                 movementTable = (const u32*)sUnk_87300B4;
@@ -575,11 +575,11 @@ void MoveItemShopCursor(u32 inputDirection)
     }
 
     {
-        register u8* cursor asm("r1") = (u8*)&gItemShopCursor;
+        register u8* cursor PIN("r1") = (u8*)&gItemShopCursor;
         u32 value = 0;
         u8* message;
         u8* availability;
-        register u8* cursorLong asm("r4");
+        register u8* cursorLong PIN("r4");
 
         *(u16*)(cursor + 0) = value;
         *(u16*)(cursor + 2) = value;
@@ -599,7 +599,7 @@ void MoveItemShopCursor(u32 inputDirection)
                 u16* medalCount = &gMedalCount;
                 const u8* priceTable = sUnk_872FF64;
                 u8* difficulty = &gDifficulty;
-                register u32 difficultyValue asm("r1") = *difficulty;
+                register u32 difficultyValue PIN("r1") = *difficulty;
                 u32 priceAddress = difficultyValue << 3;
                 priceAddress += difficultyValue;
                 priceAddress <<= 1;
@@ -676,8 +676,8 @@ void Shop_DrawText(const u8* text, u32 destination, u32 length)
     timerPtr = timerBase;
 
     if (timer == 0) {
-        register s32 index asm("r3") = 0;
-        register s32 limit asm("r4") = count << 1;
+        register s32 index PIN("r3") = 0;
+        register s32 limit PIN("r4") = count << 1;
 
         if (index < limit) {
             vu32* dma = (vu32*)0x040000D4;
@@ -685,8 +685,8 @@ void Shop_DrawText(const u8* text, u32 destination, u32 length)
 
             do {
                 u32 value;
-                register u32 busy asm("r1");
-                register s32 next asm("r5");
+                register u32 busy PIN("r1");
+                register s32 next PIN("r5");
 
                 dma[0] = (u32)blank;
                 value = index << 5;
@@ -719,18 +719,18 @@ void Shop_DrawText(const u8* text, u32 destination, u32 length)
 
             if (index < (s32)count) {
                 vu32* dma = (vu32*)0x040000D4;
-                register u32 tempR4 asm("r4") = 0x06000000;
-                register u32 vramBase asm("sl") = tempR4;
-                register u32 tempR5 asm("r5") = 0x80000010;
-                register u32 control asm("r9") = tempR5;
+                register u32 tempR4 PIN("r4") = 0x06000000;
+                register u32 vramBase PIN("sl") = tempR4;
+                register u32 tempR5 PIN("r5") = 0x80000010;
+                register u32 control PIN("r9") = tempR5;
                 u32 tempR0 = 0x80000000;
                 u32 busy = tempR0;
 
                 asm("" : : "r"(tempR4), "r"(tempR5));
                 do {
-                    register u32 character asm("r4");
+                    register u32 character PIN("r4");
                     u32 r1Value;
-                    register u32 r0Value asm("r0");
+                    register u32 r0Value PIN("r0");
                     s32 next;
                     u32 status;
 
@@ -787,7 +787,7 @@ void Shop_DrawText(const u8* text, u32 destination, u32 length)
                         r1Value = busy;
                         status &= r1Value;
                         if (status != 0) {
-                            register u32 busyLoop asm("r1") = 0x80000000;
+                            register u32 busyLoop PIN("r1") = 0x80000000;
                             do {
                                 status = dmaCopy[2];
                                 status &= busyLoop;
@@ -827,10 +827,10 @@ void Shop_DrawText(const u8* text, u32 destination, u32 length)
         address = *timerPtr;
         if ((s32)address < limit) {
             u32 character;
-            register vu32* dma asm("r2");
+            register vu32* dma PIN("r2");
             u32 sourceOffset;
             u32 sourceHigh;
-            register u32 sourceBase asm("r3");
+            register u32 sourceBase PIN("r3");
             u32 status;
             u32 busy;
 
@@ -898,14 +898,14 @@ void Shop_DrawText(const u8* text, u32 destination, u32 length)
 
 void DrawItemShopSprites(void)
 {
-    register long slot asm("r8");
+    register long slot PIN("r8");
     long used;
     u16* rawDestination;
-    register const u16* frameData asm("r4");
+    register const u16* frameData PIN("r4");
 
     slot = 0;
     {
-        register u8* slots asm("r1") = &gOamSlotsUsed;
+        register u8* slots PIN("r1") = &gOamSlotsUsed;
         used = *slots;
     }
     {
@@ -917,11 +917,11 @@ void DrawItemShopSprites(void)
     {
         u16* state = gItemShopShopkeeperAnimationState;
         const struct AnimationFrame** animationPointer;
-        register const struct AnimationFrame* loadedAnimation asm("r5");
-        register const struct AnimationFrame* animation asm("r12");
+        register const struct AnimationFrame* loadedAnimation PIN("r5");
+        register const struct AnimationFrame* animation PIN("r12");
 
         {
-            register u16 timer asm("r1") = state[0];
+            register u16 timer PIN("r1") = state[0];
             u16 animationFrame;
             timer++;
             state[0] = timer;
@@ -931,11 +931,11 @@ void DrawItemShopSprites(void)
             asm("" : "+r"(loadedAnimation));
             animation = loadedAnimation;
             if (animation[animationFrame].time < timer) {
-                register u16 zeroTimer asm("r0") = slot;
+                register u16 zeroTimer PIN("r0") = slot;
                 state[0] = zeroTimer;
                 state[1]++;
                 if (animation[state[1]].time == 0) {
-                    register u16 zeroFrame asm("r1") = slot;
+                    register u16 zeroFrame PIN("r1") = slot;
                     state[1] = zeroFrame;
                     if (animation == sItemShopShopkeeperVoiceAnimation) {
                         *animationPointer = sItemShopShopkeeperIdleAnimation;
@@ -962,7 +962,7 @@ void DrawItemShopSprites(void)
         if (slot < used) {
             OamData* oamBase = gOamBuffer;
             u32 lowMask;
-            register u32 highMask asm("r12");
+            register u32 highMask PIN("r12");
             s32 byteMask;
             {
                 u32 lowLoad = 0x1FF;
@@ -977,8 +977,8 @@ void DrawItemShopSprites(void)
                 destination = (OamData*)((slot << 3) + (u32)oamBase);
                 slot = used - slot;
                 do {
-                    register u32 attr asm("r2");
-                    register u32 temp0 asm("r0");
+                    register u32 attr PIN("r2");
+                    register u32 temp0 PIN("r0");
                     u32 temp1;
 
                     attr = *frameData++;
@@ -1028,7 +1028,7 @@ void DrawItemShopSprites(void)
             u16 animationFrame;
 
             {
-                register u16 timer asm("r0") = cursor->animationTimer;
+                register u16 timer PIN("r0") = cursor->animationTimer;
                 u16 frame;
                 const struct AnimationFrame** ap;
                 timer++;
@@ -1065,9 +1065,9 @@ void DrawItemShopSprites(void)
 
         if (slot < used) {
             OamData* oamBase = gOamBuffer;
-            register u32 lowMask asm("r10");
-            register u32 highMask asm("r12");
-            register s32 byteMask asm("r9");
+            register u32 lowMask PIN("r10");
+            register u32 highMask PIN("r12");
+            register s32 byteMask PIN("r9");
             {
                 u32 lowLoad = 0x1FF;
                 u32 highLoad = 0xFFFFFE00;
@@ -1087,7 +1087,7 @@ void DrawItemShopSprites(void)
                 }
                 do {
                     u32 attr;
-                    register u32 temp0 asm("r0");
+                    register u32 temp0 PIN("r0");
                     u32 temp1;
 
                     attr = *frameData++;
@@ -1135,7 +1135,7 @@ void DrawItemShopSprites(void)
 
     {
         const struct AnimationFrame* const* animationTable;
-        register s32 nextIndex asm("r12");
+        register s32 nextIndex PIN("r12");
 
         animationTable = (const struct AnimationFrame* const*)sUnk_872FF9C;
         {
@@ -1147,8 +1147,8 @@ void DrawItemShopSprites(void)
             u32 offset;
             u32 savedNextIndex;
             {
-                register u32 i asm("r12") = nextIndex;
-                register const struct AnimationFrame* animation asm("r3");
+                register u32 i PIN("r12") = nextIndex;
+                register const struct AnimationFrame* animation PIN("r3");
 
                 {
                     u32 itemState;
@@ -1165,7 +1165,7 @@ void DrawItemShopSprites(void)
                 if (state == 1) {
                     struct ItemShopAnimationState* iconState = &gItemShopItemIconAnimationState;
                     {
-                        register u16 timer asm("r1") = iconState->animationTimer;
+                        register u16 timer PIN("r1") = iconState->animationTimer;
                         u16 frame;
                         timer++;
                         iconState->animationTimer = timer;
@@ -1191,28 +1191,28 @@ void DrawItemShopSprites(void)
             }
 
             if (slot < used) {
-                register const u16* yPosition0 asm("r10") = (const u16*)(sUnk_872FF58 + offset);
-                register const u16* xPosition0 asm("r9") = (const u16*)(sUnk_872FF4C + offset);
-                register const u16* yPosition1 asm("r12") = (const u16*)(sUnk_872FF38 + offset);
+                register const u16* yPosition0 PIN("r10") = (const u16*)(sUnk_872FF58 + offset);
+                register const u16* xPosition0 PIN("r9") = (const u16*)(sUnk_872FF4C + offset);
+                register const u16* yPosition1 PIN("r12") = (const u16*)(sUnk_872FF38 + offset);
                 const u16* xPosition1 = (const u16*)(sUnk_872FF24 + offset);
 
                 do {
-                    register u32 yOffset asm("r0");
+                    register u32 yOffset PIN("r0");
                     u32 xOffset;
-                    register u32 attr asm("r2");
+                    register u32 attr PIN("r2");
                     OamData* destination;
 
                     if (gCurrentPassage == 0) {
                         {
-                            register const u16* yp asm("r2") = yPosition0;
+                            register const u16* yp PIN("r2") = yPosition0;
                             yOffset = *yp;
                         }
                         {
-                            register const u16* xp asm("r3") = xPosition0;
+                            register const u16* xp PIN("r3") = xPosition0;
                             xOffset = *xp;
                         }
                     } else {
-                        register const u16* yp asm("r5") = yPosition1;
+                        register const u16* yp PIN("r5") = yPosition1;
                         const u16* xp = xPosition1;
                         yOffset = *yp;
                         xOffset = *xp;
@@ -1238,7 +1238,7 @@ void DrawItemShopSprites(void)
                     }
                     {
                         u32 value = *frameData;
-                        register u32 byteValue asm("r1");
+                        register u32 byteValue PIN("r1");
                         *rawDestination = value;
                         frameData++;
                         byteValue = ((u8*)destination)[5];
@@ -1262,7 +1262,7 @@ void DrawItemShopSprites(void)
     }
 
     {
-        register u8* slots asm("r2") = &gOamSlotsUsed;
+        register u8* slots PIN("r2") = &gOamSlotsUsed;
         *slots = used;
     }
 finish:

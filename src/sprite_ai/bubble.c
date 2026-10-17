@@ -12,15 +12,15 @@
 
 void InitBubbleSpawner(void)
 {
-    register struct PrimarySpriteData *sprite asm("ip");
+    register struct PrimarySpriteData *sprite PIN("ip");
     u16 oldStatus;
-    register u16 status asm("r0");
-    register int zeroByte asm("r2");
+    register u16 status PIN("r0");
+    register int zeroByte PIN("r2");
     int zeroHalf;
     u8 *bounds;
     int one;
     const struct AnimationFrame *oam;
-    register struct PrimarySpriteData *postSprite asm("r1");
+    register struct PrimarySpriteData *postSprite PIN("r1");
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
@@ -96,7 +96,7 @@ void MoveBubble(void)
     const u16 *velocityTable;
     struct PrimarySpriteData *current;
     struct PrimarySpriteData *sprite;
-    register struct PrimarySpriteData *movementSprite asm("r4");
+    register struct PrimarySpriteData *movementSprite PIN("r4");
     u8 *phasePointer;
     u8 *directionPointer;
     int direction;
@@ -104,8 +104,8 @@ void MoveBubble(void)
     u8 *phaseIncrementPointer;
     int phaseValue;
     int zero;
-    register u32 r0Work asm("r0");
-    register u32 collisionWork asm("r6");
+    register u32 r0Work PIN("r0");
+    register u32 collisionWork PIN("r6");
 
     velocityTable = sHorizontalOscillationVelocity;
     current = &gCurrentSprite;
@@ -140,10 +140,10 @@ void MoveBubble(void)
     {
         u16 oldY;
         int yValue;
-        register int zeroSource asm("r2");
+        register int zeroSource PIN("r2");
         register u8 *wallCooldownPointer;
-        register u8 *wallCollisionResult asm("r9");
-        register int wallCollisionValue asm("r1");
+        register u8 *wallCollisionResult PIN("r9");
+        register int wallCollisionValue PIN("r1");
         int maskedCollision;
 
         oldY = movementSprite->yPosition;
@@ -202,7 +202,7 @@ wallCollision:
     {
         u8 *extentPointer;
         int extent;
-        register int topY asm("r5");
+        register int topY PIN("r5");
         int xValue;
         int groundCollisionValue;
         register int groundCollisionMask;
@@ -275,13 +275,13 @@ void UpdateBubblePop(void)
 void InitBubble(void)
 {
     struct PrimarySpriteData *sprite;
-    register int zero asm("r4");
-    register u16 oldStatus asm("r0");
-    register u16 status asm("r1");
+    register int zero PIN("r4");
+    register u16 oldStatus PIN("r0");
+    register u16 status PIN("r1");
     int one;
-    register u8 *bounds asm("r2");
+    register u8 *bounds PIN("r2");
     u8 *bytePointer;
-    register int condition asm("r1");
+    register int condition PIN("r1");
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;

@@ -49,7 +49,7 @@ void UtsuboankoEmerge(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *timerPointer;
-    register s32 nextTimer asm("r2");
+    register s32 nextTimer PIN("r2");
     u8 timer;
 
     sprite = &gCurrentSprite;
@@ -60,14 +60,14 @@ void UtsuboankoEmerge(void)
         address += (u32) sprite;
         timerPointer = (u8 *) address;
         {
-            register int oldTimer asm("r0");
+            register int oldTimer PIN("r0");
             oldTimer = *(u8 *) address;
             nextTimer = oldTimer - 1;
             *timerPointer = nextTimer;
         }
     }
     {
-        register u32 shiftedTimer asm("r0");
+        register u32 shiftedTimer PIN("r0");
 
         shiftedTimer = nextTimer << 24;
         /* Keep the byte truncation in r0 before agbcc moves the timer to r1. */
@@ -100,9 +100,9 @@ void UtsuboankoRetreat(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *timerPointer;
-    register int oldTimer asm("r0");
-    register int nextTimer asm("r1");
-    register u32 shiftedTimer asm("r0");
+    register int oldTimer PIN("r0");
+    register int nextTimer PIN("r1");
+    register u32 shiftedTimer PIN("r0");
 
     sprite = &gCurrentSprite;
     timerPointer = &sprite->work0;

@@ -4,16 +4,16 @@ int MoveRouletteResultIntoSlot(void)
 {
     register u8 *progressPtr;
     s16 *tileStepPtr;
-    register u16 *tileBasePtr asm("r5");
-    register s16 *xStepPtr asm("r6");
-    register u16 *xBasePtr asm("r8");
+    register u16 *tileBasePtr PIN("r5");
+    register s16 *xStepPtr PIN("r6");
+    register u16 *xBasePtr PIN("r8");
     s16 *yStepPtr;
     u16 *yBasePtr;
     u8 progress;
 
     {
         u8 *progressAddress;
-        register u8 initialProgress asm("r1");
+        register u8 initialProgress PIN("r1");
         progressAddress = &gRouletteMoveProgress;
         initialProgress = *progressAddress;
         progressPtr = progressAddress;
@@ -62,7 +62,7 @@ int MoveRouletteResultIntoSlot(void)
         struct RouletteItem **refs;
         struct RouletteItem *item;
         s32 step;
-        register s32 value asm("r0");
+        register s32 value PIN("r0");
 
         refs = gRouletteItemDrawOrder;
         item = refs[0];
@@ -76,7 +76,7 @@ int MoveRouletteResultIntoSlot(void)
 
         item = refs[0];
         {
-            register s32 zero asm("r4");
+            register s32 zero PIN("r4");
 
             asm volatile("" : "=r"(zero));
             zero = 0;
@@ -93,7 +93,7 @@ int MoveRouletteResultIntoSlot(void)
 
         item = refs[0];
         {
-            register s16 *stepBase asm("r4");
+            register s16 *stepBase PIN("r4");
             u16 zero;
 
             stepBase = yStepPtr;
@@ -122,19 +122,19 @@ int MoveRouletteResultIntoSlot(void)
 
             {
                 u8 *resetProgress;
-                register struct RouletteItem **resetRefs asm("r12");
-                register u8 *selectedPtr asm("r8");
-                register u8 *sequencePtr asm("r9");
-                register u16 *yPtr asm("r0");
+                register struct RouletteItem **resetRefs PIN("r12");
+                register u8 *selectedPtr PIN("r8");
+                register u8 *sequencePtr PIN("r9");
+                register u16 *yPtr PIN("r0");
                 u8 *statePtr;
                 int zero;
                 int yForState8;
                 int yForState10;
-                register int count asm("r3");
+                register int count PIN("r3");
                 struct RouletteItem **refsLoad;
                 u8 *selectedLoad;
                 u8 *sequenceLoad;
-                register struct RouletteItem *itemBase asm("r0");
+                register struct RouletteItem *itemBase PIN("r0");
 
                 resetProgress = &gRouletteMoveProgress;
                 refsLoad = gRouletteItemDrawOrder;
@@ -166,11 +166,11 @@ int MoveRouletteResultIntoSlot(void)
                 } while (count >= 0);
 
                 {
-                    register struct RouletteItem **refsLow asm("r1");
+                    register struct RouletteItem **refsLow PIN("r1");
                     struct RouletteItem *first;
                     int clear;
-                    register u8 *selectedLow asm("r2");
-                    register u8 *sequenceLow asm("r4");
+                    register u8 *selectedLow PIN("r2");
+                    register u8 *sequenceLow PIN("r4");
 
                     refsLow = resetRefs;
                     first = refsLow[0];

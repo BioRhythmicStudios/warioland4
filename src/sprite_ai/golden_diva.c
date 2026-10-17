@@ -146,7 +146,7 @@ s32 UpdateGoldenDivaDynamicGraphics(const u8 *animation)
 {
     const u8 *table;
     s32 result;
-    register u8 *timer asm("r6");
+    register u8 *timer PIN("r6");
     u32 temp;
     u8 remaining;
     u8 frame;
@@ -402,12 +402,12 @@ void OrbitGoldenDivaChild(void)
     u32 yPosition;
     u32 yPositionCopy;
     u32 xPosition;
-    register s32 angle asm("r5");
+    register s32 angle PIN("r5");
     u32 amplitude;
-    register u32 angleShift asm("r1");
+    register u32 angleShift PIN("r1");
     u32 r2Value;
     u32 r1Value;
-    register s32 temp asm("r0");
+    register s32 temp PIN("r0");
     const u8 *table;
     u32 slot;
 
@@ -633,7 +633,7 @@ void AttachGoldenDivaBodyToChild(u32 xDelta, u32 collisionOffset)
 
     if (gSpriteCollisionTileType & 0xF) {
         u32 value;
-        register u32 pointer asm("r1");
+        register u32 pointer PIN("r1");
         u32 data;
 
         data = (u32)gSpriteData;
@@ -656,7 +656,7 @@ void InitGoldenDivaSpawner(void)
     u32 zero;
     u32 byteZero;
     u16 *counter;
-    register s32 yOffset asm("r1");
+    register s32 yOffset PIN("r1");
     s32 yValue;
 
     LoadGoldenDivaFanDamageGraphics(0);
@@ -708,12 +708,12 @@ void InitGoldenDivaBody(void)
     sprite = &gCurrentSprite;
     {
         u32 status;
-        register u32 temp asm("r1");
+        register u32 temp PIN("r1");
         u32 zeroByte;
 
         temp = sprite->status;
         {
-            register u32 statusBits asm("r2");
+            register u32 statusBits PIN("r2");
 
             statusBits = SPRITE_STATUS_DISABLE_DRAW_DISTANCE | SPRITE_STATUS_IGNORE_SPRITE_COLLISION |
                 SPRITE_STATUS_BACKGROUND;
@@ -755,7 +755,7 @@ void InitGoldenDivaBody(void)
     {
         u32 index;
         u32 child;
-        register u32 data asm("r2");
+        register u32 data PIN("r2");
         u32 slotPointer;
 
         index = SpriteUtilFindSpriteSlot(PSPRITE_EF);
@@ -829,7 +829,7 @@ void UpdateGoldenDivaShopItemHit(void)
 {
     u32 timerOrPhase;
     u32 initialTimer;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     struct PrimarySpriteData *sprite;
     struct PrimarySpriteData *spriteCopy;
     u32 field;
@@ -922,7 +922,7 @@ setWork1To120:
 
 void TriggerGoldenDivaShopItem(void)
 {
-    register u32 slot asm("r2");
+    register u32 slot PIN("r2");
     u32 address;
     u32 base;
     u32 spriteData;
@@ -1116,8 +1116,8 @@ void UpdateGoldenDivaBodyPose119(void)
 void BeginGoldenDivaIntro(void)
 {
     u8 *timer;
-    register struct PrimarySpriteData *spriteBase asm("r0");
-    register u32 value asm("r0");
+    register struct PrimarySpriteData *spriteBase PIN("r0");
+    register u32 value PIN("r0");
     u32 count;
     struct PrimarySpriteData *sprite;
     u32 y;
@@ -1165,7 +1165,7 @@ void BeginGoldenDivaIntro(void)
     value = y + 1;
     sprite->yPosition = value;
     {
-        register u32 data asm("r2");
+        register u32 data PIN("r2");
         u32 pointer;
 
         data = (u32)gSpriteData;
@@ -1194,13 +1194,13 @@ reachedTarget:
 void UpdateGoldenDivaIntro(void)
 {
     struct PrimarySpriteData *sprite3;
-    register u8 *timer asm("r12");
+    register u8 *timer PIN("r12");
     u32 value;
     u32 temp;
     u32 zero;
-    register u32 scratch6 asm("r6");
-    register struct PrimarySpriteData *sprite4 asm("r4");
-    register const s16 *table asm("r5");
+    register u32 scratch6 PIN("r6");
+    register struct PrimarySpriteData *sprite4 PIN("r4");
+    register const s16 *table PIN("r5");
     u32 velocity;
 
     sprite3 = &gCurrentSprite;
@@ -1281,15 +1281,15 @@ void FinishGoldenDivaIntro(void)
 {
     u8 *state;
     u32 value;
-    register struct PrimarySpriteData *spriteIp asm("r12");
+    register struct PrimarySpriteData *spriteIp PIN("r12");
     u8 *work1;
     u32 oldTimer;
     u32 offset;
     u32 y;
-    register struct PrimarySpriteData *sprite4 asm("r4");
-    register u32 reg6 asm("r6");
-    register u8 *work3 asm("r12");
-    register const s16 *table asm("r5");
+    register struct PrimarySpriteData *sprite4 PIN("r4");
+    register u32 reg6 PIN("r6");
+    register u8 *work3 PIN("r12");
+    register const s16 *table PIN("r5");
     u32 velocity;
 
     state = (u8 *)&gBossState;
@@ -1301,7 +1301,7 @@ void FinishGoldenDivaIntro(void)
         if (*work1 > 11)
             break;
         {
-            register u8 *work0 asm("r2");
+            register u8 *work0 PIN("r2");
 
             work0 = &spriteIp->work0;
             value = *work0;
@@ -1318,7 +1318,7 @@ void FinishGoldenDivaIntro(void)
         offset = oldTimer << 1;
         offset += oldTimer;
         {
-            register struct PrimarySpriteData *sprite2 asm("r2");
+            register struct PrimarySpriteData *sprite2 PIN("r2");
             u32 x;
 
             sprite2 = spriteIp;
@@ -1394,7 +1394,7 @@ void BeginGoldenDivaFirstPhase(void)
     u32 zero;
     u32 data;
     u32 stride;
-    register u32 offset asm("r2");
+    register u32 offset PIN("r2");
 
     sprite = &gCurrentSprite;
     timer = &sprite->work0;
@@ -1438,9 +1438,9 @@ void UpdateGoldenDivaFirstPhase(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *timer;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 statusMask;
-    register u32 index asm("r1");
+    register u32 index PIN("r1");
     u32 data;
     u32 stride;
     struct PrimarySpriteData *sprite4;
@@ -1514,7 +1514,7 @@ void UpdateGoldenDivaFirstPhase(void)
             index = value;
             {
                 u32 spriteData;
-                register u32 spriteStride asm("r0");
+                register u32 spriteStride PIN("r0");
 
                 spriteData = (u32)gSpriteData;
                 spriteStride = sizeof(struct PrimarySpriteData);
@@ -1559,8 +1559,8 @@ void BeginGoldenDivaMaskRecall(void)
     u32 velocity;
     u32 index;
     u32 zero;
-    register s32 signedVelocity asm("r1");
-    register u8 *work3 asm("r12");
+    register s32 signedVelocity PIN("r1");
+    register u8 *work3 PIN("r12");
 
     sprite2 = &gCurrentSprite;
     timer = &sprite2->work0;
@@ -1602,12 +1602,12 @@ void UpdateGoldenDivaMaskRecall(void)
 {
     struct PrimarySpriteData *sprite;
     u32 value;
-    register u8 *work3 asm("r12");
+    register u8 *work3 PIN("r12");
     u32 index;
-    register const s16 *table asm("r5");
+    register const s16 *table PIN("r5");
     u32 velocity;
     u32 zero;
-    register s32 signedVelocity asm("r1");
+    register s32 signedVelocity PIN("r1");
 
     sprite = &gCurrentSprite;
     value = 42;
@@ -1628,7 +1628,7 @@ void UpdateGoldenDivaMaskRecall(void)
     }
     value = index + 1;
     {
-        register u8 *destination asm("r1");
+        register u8 *destination PIN("r1");
 
         destination = work3;
         *destination = value;
@@ -1650,7 +1650,7 @@ void UpdateGoldenDivaMaskRecall(void)
 void BeginGoldenDivaAttackSelection(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 y;
     u32 bgY;
     u8 *work1;
@@ -1679,12 +1679,12 @@ void UpdateGoldenDivaMaskDamage(void)
     struct PrimarySpriteData *sprite;
     u32 value;
     u32 health;
-    register u8 *work3 asm("r12");
+    register u8 *work3 PIN("r12");
     u32 index;
     const s16 *table;
     u32 velocity;
     u32 zero;
-    register s32 signedVelocity asm("r1");
+    register s32 signedVelocity PIN("r1");
 
     sprite = &gCurrentSprite;
     health = gCuckooCondorHasCapturedWario;
@@ -1718,7 +1718,7 @@ void UpdateGoldenDivaMaskDamage(void)
     }
     value = index + 1;
     {
-        register u8 *destination asm("r1");
+        register u8 *destination PIN("r1");
 
         destination = work3;
         *destination = value;
@@ -1732,8 +1732,8 @@ void BeginGoldenDivaFaceAnimation(void)
 {
     u32 value;
     u32 stride;
-    register u32 offset asm("r2");
-    register u32 data asm("r3");
+    register u32 offset PIN("r2");
+    register u32 data PIN("r3");
 
     value = SpriteUtilFindSpriteSlot(PSPRITE_EE);
     data = (u32)gSpriteData;
@@ -1761,12 +1761,12 @@ void UpdateGoldenDivaFaceAnimation(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *work0;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     u32 y;
     u32 zero;
     u32 data;
-    register u32 stride asm("r8");
+    register u32 stride PIN("r8");
     u32 index;
     u32 zero6;
     u32 statusMask;
@@ -1895,8 +1895,8 @@ void UpdateGoldenDivaPhaseTransition(void)
     u32 index;
     const s16 *table;
     u32 velocityA;
-    register u32 velocityB asm("r4");
-    register s32 signedVelocity asm("r1");
+    register u32 velocityB PIN("r4");
+    register s32 signedVelocity PIN("r1");
     u32 zero;
 
     finished = 0;
@@ -1970,7 +1970,7 @@ void BeginGoldenDivaAttack(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *timer;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     u32 y;
     u32 timerValue;
@@ -2030,12 +2030,12 @@ void UpdateGoldenDivaAttack(void)
 {
     struct PrimarySpriteData *sprite;
     u32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 index;
     const s16 *table;
-    register u32 velocity asm("r4");
+    register u32 velocity PIN("r4");
     u32 zero;
-    register s32 signedVelocity asm("r1");
+    register s32 signedVelocity PIN("r1");
 
     if (gCurrentSprite.health == 2)
         UpdateGoldenDivaDynamicGraphics(sGoldenDivaAttackGraphicsSequence);
@@ -2047,7 +2047,7 @@ void UpdateGoldenDivaAttack(void)
     asm("" : "+r"(value));
     value += (u32)sprite;
     {
-        register u8 *work3 asm("r12");
+        register u8 *work3 PIN("r12");
 
         work3 = (u8 *)value;
         index = *(u8 *)value;
@@ -2175,12 +2175,12 @@ void UpdateGoldenDivaAttack(void)
 void BeginGoldenDivaHitReaction(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 value asm("r0");
-    register u32 temp asm("r1");
+    register u32 value PIN("r0");
+    register u32 temp PIN("r1");
     u32 temp2;
     u32 temp3;
-    register u32 result asm("r5");
-    register u32 zero asm("r6");
+    register u32 result PIN("r5");
+    register u32 zero PIN("r6");
 
     if (gCurrentSprite.health == 2)
         UpdateGoldenDivaDynamicGraphics(sGoldenDivaAttackGraphicsSequence);
@@ -2237,7 +2237,7 @@ void BeginGoldenDivaHitReaction(void)
         value = 62;
         m4aSongNumStart(value);
     } else {
-        register u8 *work3 asm("r12");
+        register u8 *work3 PIN("r12");
 
         temp2 = 42;
         asm("" : "+r"(temp2));
@@ -2366,14 +2366,14 @@ void MoveGoldenDivaBodyLeft(void)
 void UpdateGoldenDivaBodyMovement(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     u32 temp2;
     u32 timer;
     u32 sprites;
     u32 work0;
     u32 slot;
-    register u32 stride asm("r8");
+    register u32 stride PIN("r8");
 
     sprite = &gCurrentSprite;
     value = (u32)sprite;
@@ -2566,9 +2566,9 @@ void UpdateGoldenDivaTurn(void)
 void UpdateGoldenDivaBodyAttackPose(void)
 {
     u8 *work0;
-    register u32 stride asm("r5");
-    register u32 sprites asm("r6");
-    register u32 zero asm("r8");
+    register u32 stride PIN("r5");
+    register u32 sprites PIN("r6");
+    register u32 zero PIN("r8");
     u32 address;
     u32 value;
 
@@ -2687,12 +2687,12 @@ checkHealth:
 
 void UpdateGoldenDivaDefeatSequence(void)
 {
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     struct PrimarySpriteData *sprite;
     u32 state;
     u8 *statePointer;
-    register u8 *work0Pointer asm("r5");
+    register u8 *work0Pointer PIN("r5");
 
     {
         struct PrimarySpriteData *initialSprite;
@@ -3001,7 +3001,7 @@ storeCase14:
         case 16: {
             volatile struct GoldenDivaDmaRegs *dma;
             u8 *work;
-            register u32 mask asm("r5");
+            register u32 mask PIN("r5");
 
             work = &sprite->work0;
             value = *work;
@@ -3088,7 +3088,7 @@ finishPhase17:
             StartGoldenDivaPaletteFade(8, 0, 16);
             break;
         case 18: {
-            register u8 *work asm("r4");
+            register u8 *work PIN("r4");
             work = &sprite->work0;
             temp = *work;
             value = 31;
@@ -3115,11 +3115,11 @@ finishPhase17:
 void InitGoldenDivaRobe(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 constant asm("r2");
-    register u32 zero8 asm("r3");
-    register u32 zero16 asm("r4");
-    register u32 sprite asm("r12");
+    register u32 temp PIN("r1");
+    register u32 constant PIN("r2");
+    register u32 zero8 PIN("r3");
+    register u32 zero16 PIN("r4");
+    register u32 sprite PIN("r12");
 
     value = (u32)&gCurrentSprite;
     sprite = value;
@@ -3170,10 +3170,10 @@ void InitGoldenDivaRobe(void)
 void InitGoldenDivaLowerBody(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 constant asm("r2");
-    register u32 zero16 asm("r3");
-    register u32 sprite asm("r12");
+    register u32 temp PIN("r1");
+    register u32 constant PIN("r2");
+    register u32 zero16 PIN("r3");
+    register u32 sprite PIN("r12");
 
     value = (u32)&gCurrentSprite;
     sprite = value;
@@ -3227,11 +3227,11 @@ void UpdateGoldenDivaLowerBody(void)
 void InitGoldenDivaFaceHitbox(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 constant asm("r2");
-    register u32 zero8 asm("r3");
-    register u32 zero16 asm("r4");
-    register u32 sprite asm("r12");
+    register u32 temp PIN("r1");
+    register u32 constant PIN("r2");
+    register u32 zero8 PIN("r3");
+    register u32 zero16 PIN("r4");
+    register u32 sprite PIN("r12");
 
     value = (u32)&gCurrentSprite;
     sprite = value;
@@ -3308,7 +3308,7 @@ void HideGoldenDivaFaceHitbox(void)
 void FollowGoldenDivaFaceHitbox(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 timer asm("r5");
+    register u32 timer PIN("r5");
     u32 value;
     u32 temp;
     u8 *work0;
@@ -3353,11 +3353,11 @@ void FollowGoldenDivaFaceHitbox(void)
 void InitGoldenDivaFan(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 constant asm("r2");
-    register u32 zero8 asm("r3");
-    register u32 zero16 asm("r4");
-    register u32 sprite asm("r12");
+    register u32 temp PIN("r1");
+    register u32 constant PIN("r2");
+    register u32 zero8 PIN("r3");
+    register u32 zero16 PIN("r4");
+    register u32 sprite PIN("r12");
 
     value = (u32)&gCurrentSprite;
     sprite = value;
@@ -3414,7 +3414,7 @@ void BreakGoldenDivaFan(void)
 {
     struct PrimarySpriteData *sprite;
     u32 timer;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     u8 *work0;
     volatile struct GoldenDivaDmaRegs *dma;
@@ -3479,11 +3479,11 @@ void BreakGoldenDivaFan(void)
 void InitGoldenDivaMask(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 constant asm("r2");
-    register u32 zero8 asm("r3");
-    register u32 zero16 asm("r4");
-    register u32 sprite asm("r12");
+    register u32 temp PIN("r1");
+    register u32 constant PIN("r2");
+    register u32 zero8 PIN("r3");
+    register u32 zero16 PIN("r4");
+    register u32 sprite PIN("r12");
 
     value = (u32)&gCurrentSprite;
     sprite = value;
@@ -3637,11 +3637,11 @@ void BeginGoldenDivaMaskAttack(void)
 void UpdateGoldenDivaMaskAttack(void)
 {
     u32 value;
-    register u32 state asm("r1");
+    register u32 state PIN("r1");
     u32 frame;
     u32 velocity;
     u32 spriteOrCounter;
-    register struct PrimarySpriteData *sprite asm("r5");
+    register struct PrimarySpriteData *sprite PIN("r5");
     u8 *movementType;
 
     value = (u32)&gCuckooCondorPendulumLength;
@@ -3794,12 +3794,12 @@ void BeginGoldenDivaMaskBounce(void)
 void UpdateGoldenDivaMaskBounce(void)
 {
     struct PrimarySpriteData *s;
-    register u32 timer asm("r6");
+    register u32 timer PIN("r6");
     u32 frame;
     u32 velocity;
     const s16 *table;
-    register u32 next asm("r0");
-    register u32 value asm("r1");
+    register u32 next PIN("r0");
+    register u32 value PIN("r1");
 
     s = &gCurrentSprite;
     timer = s->work0;
@@ -3857,7 +3857,7 @@ void UpdateGoldenDivaMaskGrounded(void)
 void BeginGoldenDivaMaskThrow(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     u32 yPosition;
 
@@ -3985,7 +3985,7 @@ void UpdateGoldenDivaMaskHardThrow(void)
     sprite = &gCurrentSprite;
     sprite->status |= 0x80;
     {
-        register u8 *anglePointer asm("r1");
+        register u8 *anglePointer PIN("r1");
 
         anglePointer = &sprite->work1;
         value = *anglePointer;
@@ -4037,10 +4037,10 @@ void InitGoldenDivaExplosiveBall(void)
 {
     u32 value;
     u32 status;
-    register u32 zero asm("r2");
-    register u32 temp asm("r3");
-    register u32 zero16 asm("r4");
-    register u32 pointer asm("r5");
+    register u32 zero PIN("r2");
+    register u32 temp PIN("r3");
+    register u32 zero16 PIN("r4");
+    register u32 pointer PIN("r5");
     u32 sprite;
 
     value = (u32)&gCurrentSprite;
@@ -4104,11 +4104,11 @@ void InitGoldenDivaExplosiveBall(void)
 void BeginGoldenDivaExplosiveBallOrbit(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *work3 asm("ip");
+    register u8 *work3 PIN("ip");
     u32 value;
     u32 temp;
     u32 frame;
-    register u32 velocity asm("r4");
+    register u32 velocity PIN("r4");
     const s16 *table;
     u32 zero;
 
@@ -4145,11 +4145,11 @@ void BeginGoldenDivaExplosiveBallOrbit(void)
 void UpdateGoldenDivaExplosiveBallOrbit(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *work3 asm("ip");
+    register u8 *work3 PIN("ip");
     u32 value;
     u32 temp;
     u32 frame;
-    register u32 velocity asm("r4");
+    register u32 velocity PIN("r4");
     const s16 *table;
     u32 zero;
 
@@ -4355,7 +4355,7 @@ void PrepareGoldenDivaExplosiveBallHardThrow(void)
 void UpdateGoldenDivaExplosiveBallHardThrow(void)
 {
     u32 value;
-    register u32 inverse asm("r1");
+    register u32 inverse PIN("r1");
     u32 zero;
     s32 angle;
     s32 scale;
@@ -4462,7 +4462,7 @@ void UpdateGoldenDivaBlackEggBounce(void)
     u32 pointer;
     u32 index;
     s32 movement;
-    register u32 sprite asm("r6");
+    register u32 sprite PIN("r6");
     u32 table;
 
     sprite = (u32)&gCurrentSprite;
@@ -4804,7 +4804,7 @@ void PrepareGoldenDivaBlackEggHardThrow(void)
 void UpdateGoldenDivaBlackEggHardThrow(void)
 {
     u32 value;
-    register u32 inverse asm("r1");
+    register u32 inverse PIN("r1");
     u32 zero;
     s32 angle;
     s32 scale;
@@ -4876,11 +4876,11 @@ void UpdateGoldenDivaBlackEggHardThrow(void)
 void InitGoldenDivaGreenEnemy(void)
 {
     u32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 status;
-    register u32 zero asm("r3");
-    register u32 zero16 asm("r4");
-    register u32 sprite asm("ip");
+    register u32 zero PIN("r3");
+    register u32 zero16 PIN("r4");
+    register u32 sprite PIN("ip");
 
     value = (u32)&gCurrentSprite;
     sprite = value;
@@ -4944,10 +4944,10 @@ void InitGoldenDivaGreenEnemy(void)
 void UpdateGoldenDivaGreenEnemy(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 sprite asm("r2");
-    register u32 zero asm("r3");
-    register u32 zero16 asm("r4");
+    register u32 temp PIN("r1");
+    register u32 sprite PIN("r2");
+    register u32 zero PIN("r3");
+    register u32 zero16 PIN("r4");
 
     sprite = (u32)&gCurrentSprite;
     zero16 = 0;
@@ -5033,7 +5033,7 @@ void UpdateGoldenDivaGreenEnemyLanding(void)
     struct PrimarySpriteData *sprite;
     u8 *work2;
     u32 zero;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
 
     sprite = &gCurrentSprite;
     work2 = &sprite->work2;
@@ -5091,11 +5091,11 @@ void BeginGoldenDivaGreenEnemyLiftLeft(void)
 void UpdateGoldenDivaGreenEnemyTransformation(void)
 {
     u32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 remaining;
-    register u32 sprite asm("r3");
-    register u32 zero asm("r4");
-    register u32 work0 asm("r12");
+    register u32 sprite PIN("r3");
+    register u32 zero PIN("r4");
+    register u32 work0 PIN("r12");
 
     sprite = (u32)&gCurrentSprite;
     value = *(u32 *)(sprite + 4);
@@ -5242,10 +5242,10 @@ void UpdateGoldenDivaGreenEnemyDefeat(void)
 void InitGoldenDivaBlackChick(void)
 {
     u32 value;
-    register u32 ptr asm("r1");
-    register u32 zero16 asm("r2");
+    register u32 ptr PIN("r1");
+    register u32 zero16 PIN("r2");
     u32 sprite;
-    register u32 zero asm("r4");
+    register u32 zero PIN("r4");
     u32 status;
 
     sprite = (u32)&gCurrentSprite;
@@ -5342,7 +5342,7 @@ void UpdateGoldenDivaBlackChickFall(void)
     s32 movement;
     u32 sprite;
     u32 table;
-    register u32 indexPointer asm("r6");
+    register u32 indexPointer PIN("r6");
     u32 scratch;
     u32 work0;
 
@@ -5461,9 +5461,9 @@ void UpdateGoldenDivaBlackChickFall(void)
 void ResetGoldenDivaBlackChickAnimation(void)
 {
     u32 value;
-    register u32 zero asm("r1");
-    register u32 sprite asm("r2");
-    register u32 constant asm("r3");
+    register u32 zero PIN("r1");
+    register u32 sprite PIN("r2");
+    register u32 constant PIN("r3");
 
     sprite = (u32)&gCurrentSprite;
     value = (u32)sGoldenDivaBlackChickIdleOam;
@@ -5549,7 +5549,7 @@ void BeginGoldenDivaBlackChickGroundRight(void)
 void UpdateGoldenDivaBlackChickGroundRight(void)
 {
     u32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 work0;
     u32 sprite;
 
@@ -5614,9 +5614,9 @@ void BeginGoldenDivaBlackChickGroundLeft(void)
 void UpdateGoldenDivaBlackChickGroundLeft(void)
 {
     u32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 work0;
-    register u32 zero asm("r3");
+    register u32 zero PIN("r3");
     u32 sprite;
 
     temp = (u32)&gCurrentSprite;
@@ -5685,7 +5685,7 @@ void UpdateGoldenDivaBlackChickPose111(void)
     u32 value;
     u32 temp;
     u32 sprite;
-    register u32 work0 asm("r3");
+    register u32 work0 PIN("r3");
     u32 zero;
 
     zero = (u32)&gCurrentSprite;
@@ -5769,10 +5769,10 @@ end:
 void BeginGoldenDivaBlackChickPose112(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 zero asm("r2");
-    register u32 zero16 asm("r3");
-    register u32 sprite asm("r12");
+    register u32 temp PIN("r1");
+    register u32 zero PIN("r2");
+    register u32 zero16 PIN("r3");
+    register u32 sprite PIN("r12");
 
     value = (u32)&gCurrentSprite;
     sprite = value;
@@ -5839,10 +5839,10 @@ void InitGoldenDivaHammer(void)
 {
     u32 value;
     u32 temp;
-    register u32 zero asm("r2");
-    register u32 constant asm("r3");
-    register u32 zero16 asm("r4");
-    register u32 sprite asm("r12");
+    register u32 zero PIN("r2");
+    register u32 constant PIN("r3");
+    register u32 zero16 PIN("r4");
+    register u32 sprite PIN("r12");
 
     value = (u32)&gCurrentSprite;
     sprite = value;
@@ -6033,7 +6033,7 @@ void BeginGoldenDivaHammerSwing(void)
 {
     u32 value;
     u32 temp;
-    register u32 sprite asm("r2");
+    register u32 sprite PIN("r2");
     u32 y;
 
     sprite = (u32)&gCurrentSprite;
@@ -6073,7 +6073,7 @@ void UpdateGoldenDivaHammerSwing(void)
 {
     u32 value;
     u32 temp;
-    register u32 sprite asm("r2");
+    register u32 sprite PIN("r2");
 
     temp = (u32)&gCurrentSprite;
     sprite = temp;
@@ -6183,8 +6183,8 @@ void UpdateGoldenDivaHammerLanding(void)
 void BeginGoldenDivaHammerSpin(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 constant asm("r2");
+    register u32 temp PIN("r1");
+    register u32 constant PIN("r2");
     u32 sprite;
     u32 zero16;
 
@@ -6251,12 +6251,12 @@ void UpdateGoldenDivaHammerAffine(void)
 {
     u32 value;
     u32 temp;
-    register u32 offset asm("r2");
+    register u32 offset PIN("r2");
     s32 trig;
-    register s32 scale asm("r5");
-    register u32 table asm("r6");
+    register s32 scale PIN("r5");
+    register u32 table PIN("r6");
     u32 sprite;
-    register u32 work0 asm("r8");
+    register u32 work0 PIN("r8");
 
     sprite = (u32)&gCurrentSprite;
     temp = *(u16 *)sprite;
@@ -6427,10 +6427,10 @@ void UpdateGoldenDivaHammerAffine(void)
 void InitGoldenDivaFace(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 zero16 asm("r2");
+    register u32 temp PIN("r1");
+    register u32 zero16 PIN("r2");
     u32 sprite;
-    register u32 zero8 asm("r4");
+    register u32 zero8 PIN("r4");
     u32 status;
 
     sprite = (u32)&gCurrentSprite;
@@ -6507,7 +6507,7 @@ void BeginGoldenDivaFaceFall(void)
 void UpdateGoldenDivaFaceFall(void)
 {
     struct PrimarySpriteData *sprite;
-    register struct PrimarySpriteData *sprite2 asm("r5");
+    register struct PrimarySpriteData *sprite2 PIN("r5");
     u8 *work0;
     u32 value;
     u32 temp;
@@ -6627,11 +6627,11 @@ void UpdateGoldenDivaFaceGroundLeft(void)
 void InitGoldenDivaDebris(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 constant asm("r2");
-    register u32 zero8 asm("r3");
-    register u32 zero16 asm("r4");
-    register u32 sprite asm("r12");
+    register u32 temp PIN("r1");
+    register u32 constant PIN("r2");
+    register u32 zero8 PIN("r3");
+    register u32 zero16 PIN("r4");
+    register u32 sprite PIN("r12");
 
     value = (u32)&gCurrentSprite;
     sprite = value;
@@ -6715,9 +6715,9 @@ void UpdateGoldenDivaDebrisShrink(void)
     u32 sprite;
     u32 pointer;
     u32 work2;
-    register u32 mask asm("r4");
+    register u32 mask PIN("r4");
     u32 work3;
-    register u32 current asm("ip");
+    register u32 current PIN("ip");
 
     value = (u8)gBossState;
     if (value == 4) {
@@ -6806,12 +6806,12 @@ void SpriteGoldenDivaSpawner(void)
 
 void SpriteGoldenDivaBody(void)
 {
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 sprite;
     u32 multiplier;
-    register u32 spriteData asm("r4");
-    register u32 destination asm("r1");
-    register u32 work2Pointer asm("ip");
+    register u32 spriteData PIN("r4");
+    register u32 destination PIN("r1");
+    register u32 work2Pointer PIN("ip");
 
     value = gCurrentSprite.pose;
     switch (value) {
@@ -6945,8 +6945,8 @@ updateProjectile:
 void SpriteGoldenDivaRobe(void)
 {
     u32 value;
-    register u32 multiplier asm("r1");
-    register u32 spriteData asm("r2");
+    register u32 multiplier PIN("r1");
+    register u32 spriteData PIN("r2");
     u32 work3;
     u32 sprite;
 
@@ -6975,11 +6975,11 @@ void SpriteGoldenDivaRobe(void)
 void SpriteGoldenDivaLowerBody(void)
 {
     u32 value;
-    register u32 sprite asm("r1");
-    register u32 multiplier asm("r2");
-    register u32 spriteData asm("r3");
-    register u32 work3Copy asm("r4");
-    register u32 work3 asm("r12");
+    register u32 sprite PIN("r1");
+    register u32 multiplier PIN("r2");
+    register u32 spriteData PIN("r3");
+    register u32 work3Copy PIN("r4");
+    register u32 work3 PIN("r12");
 
     value = (u32)&gCurrentSprite;
     value = ((struct PrimarySpriteData *)value)->pose;
@@ -7022,10 +7022,10 @@ void SpriteGoldenDivaFan(void)
 {
     s32 value;
     u32 sprite;
-    register u32 multiplier asm("r2");
-    register u32 spriteData asm("r3");
-    register u32 work3Copy asm("r4");
-    register u32 work3 asm("r12");
+    register u32 multiplier PIN("r2");
+    register u32 spriteData PIN("r3");
+    register u32 work3Copy PIN("r4");
+    register u32 work3 PIN("r12");
 
     sprite = (u32)&gCurrentSprite;
     value = 1;
@@ -7620,7 +7620,7 @@ updateDownLeft:
 
 void SpriteGoldenDivaBlackEgg(void)
 {
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     u32 sprite;
 
@@ -7863,9 +7863,9 @@ updateDownLeft:
 
 void SpriteGoldenDivaGreenEnemy(void)
 {
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 sprite asm("r2");
+    register u32 sprite PIN("r2");
 
     value = (u32)&gCurrentSprite;
     sprite = *(u16 *)value;
@@ -8053,7 +8053,7 @@ void SpriteGoldenDivaBlackChick(void)
             MoveGoldenDivaBlackChickRight();
         case 32: {
             s32 inverse;
-            register s32 tableValue asm("r4");
+            register s32 tableValue PIN("r4");
             struct PrimarySpriteData *sprite;
             s32 scale;
             u8 *work0Pointer;
@@ -8126,7 +8126,7 @@ void SpriteGoldenDivaBlackChick(void)
             MoveGoldenDivaBlackChickLeft();
         case 34: {
             s32 inverse;
-            register s32 tableValue asm("r4");
+            register s32 tableValue PIN("r4");
             struct PrimarySpriteData *sprite;
             s32 scale;
             u8 *work0Pointer;
@@ -8258,7 +8258,7 @@ void SpriteGoldenDivaHammer(void)
                     value = (u32)sGoldenDivaHammerActiveOam;
                     *(u32 *)(sprite + 4) = value;
                     {
-                        register u8 zero8 asm("r0");
+                        register u8 zero8 PIN("r0");
                         zero8 = 0;
                         *(u8 *)(sprite + 22) = zero8;
                     }
@@ -8529,8 +8529,8 @@ void SpriteGoldenDivaDebris(void)
 void SpriteGoldenDivaAttackEffect(void)
 {
     u32 value;
-    register u32 temp asm("r1");
-    register u32 zero asm("r2");
+    register u32 temp PIN("r1");
+    register u32 zero PIN("r2");
     u32 sprite;
     u32 pose;
 

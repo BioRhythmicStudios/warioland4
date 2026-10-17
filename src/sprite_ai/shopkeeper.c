@@ -23,9 +23,9 @@ struct ShopkeeperDmaRegisters {
 void ShopkeeperUpdateGraphicsScript(const u8* script)
 {
     const u8* scr;
-    register struct PrimarySpriteData* s asm("r6");
+    register struct PrimarySpriteData* s PIN("r6");
     u32 idx;
-    register u32 temp asm("r0");
+    register u32 temp PIN("r0");
     u32 frame;
     struct ShopkeeperDmaRegisters* dma;
     const u8* src;
@@ -33,7 +33,7 @@ void ShopkeeperUpdateGraphicsScript(const u8* script)
     temp = (u32)&gCurrentSprite;
     {
         u8* ptr1;
-        register u32 c1 asm("r2");
+        register u32 c1 PIN("r2");
         ptr1 = (u8*)temp;
         ptr1 += 40;
         c1 = *ptr1;
@@ -137,11 +137,11 @@ void PlayShopkeeperReadySoundCue(void)
 
 void ShopkeeperFollowWario(void)
 {
-    register u32 r0 asm("r0");
+    register u32 r0 PIN("r0");
     u32 r1;
     u32 r2;
     struct PrimarySpriteData* r3;
-    register u32 r4 asm("r4");
+    register u32 r4 PIN("r4");
     u32 r5;
 
     r3 = &gCurrentSprite;
@@ -300,13 +300,13 @@ y_done:;
 
 void ShopItemFollowShopkeeper(void)
 {
-    register u32 r0 asm("r0");
-    register u32 r1 asm("r1");
+    register u32 r0 PIN("r0");
+    register u32 r1 PIN("r1");
     u32 r2;
-    register u32 r3 asm("r3");
-    register u32 r4 asm("r4");
+    register u32 r3 PIN("r3");
+    register u32 r4 PIN("r4");
     u32 r5;
-    register struct PrimarySpriteData* r6 asm("r6");
+    register struct PrimarySpriteData* r6 PIN("r6");
 
     r2 = 0;
     r5 = 0;
@@ -565,9 +565,9 @@ void SetupShopkeeperSelectedItem(void)
     u32 sixteen;
     u32 old;
     u32 status;
-    register u32 temp asm("r3");
-    register u32 flag asm("r1");
-    register u16 flagCopy asm("r0");
+    register u32 temp PIN("r3");
+    register u32 flag PIN("r1");
+    register u16 flagCopy PIN("r0");
 
     s = &gCurrentSprite;
     old = s->status;
@@ -694,9 +694,9 @@ void SetupShopkeeperSelectedItem(void)
 void StartShopkeeperSmileJump(void)
 {
     struct ShopkeeperDmaRegisters* dma;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     struct PrimarySpriteData* s;
-    register u32 zero8 asm("r2");
+    register u32 zero8 PIN("r2");
     u32 zero16;
     u32 status;
 
@@ -756,9 +756,9 @@ void UpdateShopkeeperSmileJump(void)
 void StartShopkeeperSmileDrop(void)
 {
     struct ShopkeeperDmaRegisters* dma;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     struct PrimarySpriteData* s;
-    register u32 zero8 asm("r2");
+    register u32 zero8 PIN("r2");
     u32 zero16;
     u32 status;
     u8* timer;
@@ -817,7 +817,7 @@ void UpdateShopkeeperSmileDrop(void)
 void MoveShopkeeperToSmilePosition(void)
 {
     struct PrimarySpriteData* s;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     u32 x;
 
@@ -864,7 +864,7 @@ void StartShopkeeperSmilePose(void)
 {
     struct PrimarySpriteData* s;
     u8* timer;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 zero;
     u32 temp;
     s = &gCurrentSprite;
@@ -888,13 +888,13 @@ void StartShopkeeperSmilePose(void)
 
 void UpdateShopkeeperSmilePose(void)
 {
-    register struct PrimarySpriteData* base asm("r2");
+    register struct PrimarySpriteData* base PIN("r2");
     u32 value;
     u32 index;
     const s16* table;
-    register u32 offset asm("r5");
-    register u8* indexPtr asm("r12");
-    register s32 temp asm("r1");
+    register u32 offset PIN("r5");
+    register u8* indexPtr PIN("r12");
+    register s32 temp PIN("r1");
 
     base = &gCurrentSprite;
     value = 42;
@@ -1001,7 +1001,7 @@ void WaitForShopkeeperSmileEffect(void)
 {
     struct PrimarySpriteData* s;
     u8* timer;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 byte;
     u8* ptr;
     u32 zero;
@@ -1055,9 +1055,9 @@ void RotateShopkeeperSmile(void)
     u32 r0;
     u32 r1;
     s32 trig;
-    register s32 scale asm("r5");
-    register u8* angle asm("r6");
-    register const s16* table asm("r8");
+    register s32 scale PIN("r5");
+    register u8* angle PIN("r6");
+    register const s16* table PIN("r8");
     s = &gCurrentSprite;
     r1 = s->status;
     r0 = 0x80;
@@ -1141,9 +1141,9 @@ void ShrinkShopkeeperSmile(void)
     u32 r0;
     u32 r1;
     s32 trig;
-    register u8* angle asm("r5");
-    register const s16* table asm("r6");
-    register u8* scalePtr asm("r8");
+    register u8* angle PIN("r5");
+    register const s16* table PIN("r6");
+    register u8* scalePtr PIN("r8");
     s = &gCurrentSprite;
     r1 = s->status;
     r0 = 0x80;
@@ -1229,7 +1229,7 @@ void ShrinkShopkeeperSmile(void)
 void MoveShopkeeperTransformationIntoPosition(void)
 {
     struct PrimarySpriteData* s;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
 
     value = gCurrentPassage;
@@ -1329,7 +1329,7 @@ item8:
 void MoveShopkeeperBugleIntoPosition(void)
 {
     struct PrimarySpriteData* s;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     u32 slot;
     struct PrimarySpriteData* child;
@@ -1390,9 +1390,9 @@ void WaitForShopkeeperBugleReady(void)
     u8* timer;
     u32 value;
     u32 next;
-    register u32 byte asm("r2");
+    register u32 byte PIN("r2");
     u32 slot;
-    register u32 ff asm("r4");
+    register u32 ff PIN("r4");
     s = &gCurrentSprite;
     slot = s->work3;
     timer = &s->work2;
@@ -1406,7 +1406,7 @@ void WaitForShopkeeperBugleReady(void)
         value = byte;
         asm("" : "+r"(value));
         if (value == 50) {
-            register struct PrimarySpriteData* base asm("r1");
+            register struct PrimarySpriteData* base PIN("r1");
             base = gSpriteData;
             value = 44;
             value *= slot;
@@ -1525,12 +1525,12 @@ void MoveBugleWithShopkeeper(void)
 
 void MoveShopkeeperVizormanIntoPosition(void)
 {
-    register s32 r0 asm("r0");
+    register s32 r0 PIN("r0");
     u32 r1;
     u32 r2;
     u32 r4;
     struct PrimarySpriteData* r5;
-    register u32 r6 asm("r6");
+    register u32 r6 PIN("r6");
     volatile u8* passagePtr;
 
     passagePtr = &gCurrentPassage;
@@ -1677,7 +1677,7 @@ void WaitForShopkeeperVizormanReady(void)
     u8* timer;
     u32 value;
     u32 next;
-    register u32 byte asm("r2");
+    register u32 byte PIN("r2");
     u32 slot;
     s = &gCurrentSprite;
     slot = s->work3;
@@ -1691,7 +1691,7 @@ void WaitForShopkeeperVizormanReady(void)
         value = byte;
         asm("" : "+r"(value));
         if (value == 50) {
-            register struct PrimarySpriteData* base asm("r1");
+            register struct PrimarySpriteData* base PIN("r1");
             base = gSpriteData;
             value = 44;
             value *= slot;
@@ -1796,7 +1796,7 @@ void MoveVizormanWithShopkeeper(void)
 void MoveShopkeeperBlastCannonIntoPosition(void)
 {
     struct PrimarySpriteData* s;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 slot;
     u32 temp;
 
@@ -1822,7 +1822,7 @@ void MoveShopkeeperBlastCannonIntoPosition(void)
         value += 2;
         s->xPosition = value;
         {
-            register struct PrimarySpriteData* base asm("r2");
+            register struct PrimarySpriteData* base PIN("r2");
             base = gSpriteData;
             value = 44;
             temp = slot;
@@ -1853,7 +1853,7 @@ void MoveShopkeeperBlastCannonIntoPosition(void)
 void WaitForShopkeeperBlastCannonReady(void)
 {
     struct PrimarySpriteData* s;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 next;
     u8* timer;
     u32 slot;
@@ -1890,10 +1890,10 @@ void WaitForShopkeeperBlastCannonReady(void)
 void StartShopkeeperBlastCannonAttack(void)
 {
     struct PrimarySpriteData* s;
-    register u32 zero asm("r1");
+    register u32 zero PIN("r1");
     u32 value;
-    register u8* p asm("r0");
-    register u8* p2 asm("r1");
+    register u8* p PIN("r0");
+    register u8* p2 PIN("r1");
     s = &gCurrentSprite;
     zero = 0;
     value = 22;
@@ -1926,7 +1926,7 @@ void MoveBlastCannonWithShopkeeper(void)
         s->xPosition -= 2;
         {
             struct PrimarySpriteData* child;
-            register struct PrimarySpriteData* base asm("r2");
+            register struct PrimarySpriteData* base PIN("r2");
             base = gSpriteData;
             value = 44;
             child = (struct PrimarySpriteData*)slot;
@@ -1938,7 +1938,7 @@ void MoveBlastCannonWithShopkeeper(void)
     } else {
         s->status = byte;
         {
-            register struct PrimarySpriteData* base asm("r1");
+            register struct PrimarySpriteData* base PIN("r1");
             base = gSpriteData;
             value = 44;
             value *= slot;
@@ -1951,7 +1951,7 @@ void MoveBlastCannonWithShopkeeper(void)
 void MoveShopkeeperAppleBombIntoPosition(void)
 {
     struct PrimarySpriteData* s;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 slot;
     u32 temp;
 
@@ -1977,7 +1977,7 @@ void MoveShopkeeperAppleBombIntoPosition(void)
         value += 2;
         s->xPosition = value;
         {
-            register struct PrimarySpriteData* base asm("r2");
+            register struct PrimarySpriteData* base PIN("r2");
             base = gSpriteData;
             value = 44;
             temp = slot;
@@ -2017,9 +2017,9 @@ void MoveShopkeeperAppleBombIntoPosition(void)
 void UpdateShopkeeperAppleBombPresentation(void)
 {
     struct PrimarySpriteData* s;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 slot;
-    register u32 temp asm("r2");
+    register u32 temp PIN("r2");
 
     s = &gCurrentSprite;
     value = (u32)s + 42;
@@ -2041,7 +2041,7 @@ void UpdateShopkeeperAppleBombPresentation(void)
         }
     }
     {
-        register struct PrimarySpriteData* sp asm("r12");
+        register struct PrimarySpriteData* sp PIN("r12");
         sp = &gCurrentSprite;
         value = sp->work1;
         if (value == 0) {
@@ -2062,7 +2062,7 @@ void UpdateShopkeeperAppleBombPresentation(void)
                     temp -= 84;
                     child->xPosition = temp;
                     {
-                        register struct PrimarySpriteData* q2 asm("r2");
+                        register struct PrimarySpriteData* q2 PIN("r2");
                         q2 = sp;
                         temp = q2->yPosition;
                     }
@@ -2084,7 +2084,7 @@ void UpdateShopkeeperAppleBombPresentation(void)
                     temp += 100;
                     child->xPosition = temp;
                     {
-                        register struct PrimarySpriteData* q2 asm("r2");
+                        register struct PrimarySpriteData* q2 PIN("r2");
                         q2 = sp;
                         temp = q2->yPosition;
                     }
@@ -2101,7 +2101,7 @@ void UpdateShopkeeperAppleBombPresentation(void)
                 value += 12;
                 q->xPosition = value;
             } else if (value == 4) {
-                register struct PrimarySpriteData* q2 asm("r2");
+                register struct PrimarySpriteData* q2 PIN("r2");
                 q2 = sp;
                 value = q2->xPosition;
                 value += 4;
@@ -2135,7 +2135,7 @@ void BeginShopkeeperItemWait(void)
 void UpdateShopkeeperItemWait(void)
 {
     struct PrimarySpriteData* sprite;
-    register u8* timer asm("r1");
+    register u8* timer PIN("r1");
     u32 value;
 
     sprite = &gCurrentSprite;
@@ -2183,12 +2183,12 @@ void UpdateShopkeeperPostItemIdle(void)
 void InitShopkeeperTransition(void)
 {
     struct ShopkeeperDmaRegisters* dma;
-    register u32 r0 asm("r0");
+    register u32 r0 PIN("r0");
     u32 r1;
-    register u32 r2 asm("r2");
+    register u32 r2 PIN("r2");
     struct PrimarySpriteData* s;
-    register u32 status asm("r4");
-    register u32 zero asm("r5");
+    register u32 status PIN("r4");
+    register u32 zero PIN("r5");
     dma = (struct ShopkeeperDmaRegisters*)0x040000D4;
     r0 = (u32)sShopkeeperItemTiles;
     dma->src = (const void*)r0;
@@ -2254,11 +2254,11 @@ void InitShopkeeperTransition(void)
 
 void UpdateShopkeeperTransitionFall(void)
 {
-    register struct PrimarySpriteData* s asm("r2");
-    register u8* indexPtr asm("r12");
+    register struct PrimarySpriteData* s PIN("r2");
+    register u8* indexPtr PIN("r12");
     u32 index;
     const s16* table;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     s32 signedValue;
     u32 velocity;
     struct PrimarySpriteData* sp;
@@ -2298,8 +2298,8 @@ void UpdateShopkeeperTransitionFall(void)
     value = func_8023A60(sp->yPosition, sp->xPosition);
     index = value;
     if (gSpriteCollisionResult != 0) {
-        register u32 zero asm("r1");
-        register u32 zeroHalf asm("r2");
+        register u32 zero PIN("r1");
+        register u32 zeroHalf PIN("r2");
         zero = 0;
         zeroHalf = 0;
         sp->yPosition = index;
@@ -2353,7 +2353,7 @@ void StartShopkeeperTransitionLanding(void)
         *timer = 60;
         sprite->pose = 115;
         {
-            register u32 distance asm("r1");
+            register u32 distance PIN("r1");
             u32 bg;
             distance = sprite->xPosition >> 2;
             bg = gBg1XPosition >> 2;
@@ -2370,8 +2370,8 @@ void StartShopkeeperTransitionLanding(void)
 
 void UpdateShopkeeperTransitionRun(void)
 {
-    register struct PrimarySpriteData* s asm("r2");
-    register u32 value asm("r0");
+    register struct PrimarySpriteData* s PIN("r2");
+    register u32 value PIN("r0");
     u32 tmp;
     struct PrimarySpriteData* sp;
     s = &gCurrentSprite;
@@ -2387,7 +2387,7 @@ void UpdateShopkeeperTransitionRun(void)
     }
     sp->xPosition = value;
     {
-        register struct PrimarySpriteData* p asm("r4");
+        register struct PrimarySpriteData* p PIN("r4");
         p = sp;
         value = *(volatile u32*)((u32)p + 20);
         tmp = 0xFFFFFF;
@@ -2408,7 +2408,7 @@ void UpdateShopkeeperTransitionRun(void)
             value = 0;
             *(volatile u8*)((u32)p + 22) = value;
             {
-                register u32 zero2 asm("r2");
+                register u32 zero2 PIN("r2");
                 zero2 = 0;
 
                 p->animationTimer = value;
@@ -2436,8 +2436,8 @@ void WaitForWarioTransitionPose(void)
 {
     struct PrimarySpriteData* s;
     u8* timer;
-    register u32 t asm("r1");
-    register u32 value asm("r0");
+    register u32 t PIN("r1");
+    register u32 value PIN("r0");
     s = &gCurrentSprite;
     timer = &s->work0;
     t = *timer;
@@ -2479,7 +2479,7 @@ void WaitForWarioTransitionPose(void)
 void BeginShopkeeperTransformationReturn(void)
 {
     u32 value;
-    register u32 sprite asm("r1");
+    register u32 sprite PIN("r1");
 
     value = gBossSequenceState;
     if (value > 15) {
@@ -2519,7 +2519,7 @@ void UpdateShopkeeperTransitionDeparture(void)
 {
     struct PrimarySpriteData* s;
     u32 saved;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     s = &gCurrentSprite;
     {
@@ -2544,7 +2544,7 @@ void UpdateShopkeeperTransitionDeparture(void)
         m4aSongNumStart(27);
     }
     {
-        register u32 x asm("r0");
+        register u32 x PIN("r0");
         u32 bg;
         x = s->xPosition;
         x += 6;
@@ -2572,10 +2572,10 @@ done:;
 
 void InitAppleBomb(void)
 {
-    register volatile u8* s asm("r12");
-    register u32 value asm("r0");
+    register volatile u8* s PIN("r12");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 flag asm("r2");
+    register u32 flag PIN("r2");
     u32 zeroHalf;
     u32 down;
     u32 side;
@@ -2638,7 +2638,7 @@ void UpdateAppleBombFuse(void)
 {
     struct PrimarySpriteData* s;
     u8* p;
-    register u32 v asm("r0");
+    register u32 v PIN("r0");
     u32 z;
     s = &gCurrentSprite;
     p = &s->work0;
@@ -2664,8 +2664,8 @@ void StartAppleBombExplosion(void)
 {
     volatile u8* s;
     u32 p;
-    register u32 z asm("r1");
-    register u32 v asm("r0");
+    register u32 z PIN("r1");
+    register u32 v PIN("r0");
     s = (volatile u8*)&gCurrentSprite;
     p = (u32)s;
     p += 39;
@@ -2687,9 +2687,9 @@ void UpdateAppleBombFlight(void)
     u32 r2;
     struct PrimarySpriteData* r3;
     u32 r4;
-    register const s16* r5 asm("r5");
-    register u32 r6 asm("r6");
-    register u8* ip asm("r12");
+    register const s16* r5 PIN("r5");
+    register u32 r6 PIN("r6");
+    register u8* ip PIN("r12");
     struct PrimarySpriteData* s;
 
     s = &gCurrentSprite;
@@ -2869,10 +2869,10 @@ end:;
 void UpdateAppleBombBurst(void)
 {
     u32 r0;
-    register u32 r1 asm("r1");
+    register u32 r1 PIN("r1");
     struct PrimarySpriteData* r2;
     struct PrimarySpriteData* r3;
-    register u8* ip asm("r12");
+    register u8* ip PIN("r12");
 
     r3 = &gCurrentSprite;
     r0 = 39;
@@ -2981,12 +2981,12 @@ end:;
 
 void InitPurchasedItemDisplay(void)
 {
-    register volatile u8* s asm("r12");
-    register u32 value asm("r0");
+    register volatile u8* s PIN("r12");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 flag asm("r2");
+    register u32 flag PIN("r2");
     u32 zero;
-    register u32 zeroHalf asm("r4");
+    register u32 zeroHalf PIN("r4");
 
     s = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)s;
@@ -3102,10 +3102,10 @@ void SpritePurchasedItemDisplay(void)
 
 void InitBlastCannon(void)
 {
-    register volatile u8* s asm("r12");
-    register u32 value asm("r0");
+    register volatile u8* s PIN("r12");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 flag asm("r2");
+    register u32 flag PIN("r2");
     u32 zeroHalf;
     u32 down;
     u32 side;
@@ -3167,9 +3167,9 @@ void StartBlastCannonCountdown(void)
 void UpdateBlastCannonCountdown(void)
 {
     struct PrimarySpriteData* s;
-    register u32 old asm("r0");
-    register u32 dec asm("r1");
-    register u32 value asm("r2");
+    register u32 old PIN("r0");
+    register u32 dec PIN("r1");
+    register u32 value PIN("r2");
     u8* p;
     s = &gCurrentSprite;
     p = &s->work0;
@@ -3200,12 +3200,12 @@ done:;
 
 void InitBlastCannonball(void)
 {
-    register volatile u8* s asm("r12");
-    register u32 value asm("r0");
+    register volatile u8* s PIN("r12");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 flag asm("r2");
+    register u32 flag PIN("r2");
     u32 zero;
-    register u32 zeroHalf asm("r4");
+    register u32 zeroHalf PIN("r4");
     s = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)s;
 
@@ -3260,9 +3260,9 @@ void UpdateBlastCannonballFlight(void)
     u32 r2;
     struct PrimarySpriteData* r3;
     u32 r4;
-    register const s16* r5 asm("r5");
-    register u32 r6 asm("r6");
-    register u8* ip asm("r12");
+    register const s16* r5 PIN("r5");
+    register u32 r6 PIN("r6");
+    register u8* ip PIN("r12");
     struct PrimarySpriteData* s;
 
     s = &gCurrentSprite;
@@ -3442,10 +3442,10 @@ end:;
 void UpdateBlastCannonballBurst(void)
 {
     u32 r0;
-    register u32 r1 asm("r1");
+    register u32 r1 PIN("r1");
     struct PrimarySpriteData* r2;
     struct PrimarySpriteData* r3;
-    register u8* ip asm("r12");
+    register u8* ip PIN("r12");
 
     r3 = &gCurrentSprite;
     r0 = 39;
@@ -3623,7 +3623,7 @@ void UpdateVizormanBeamPalette(void)
     u32 value;
     u32 temp;
     u32 test;
-    register struct ShopkeeperDmaRegisters* dma asm("r2");
+    register struct ShopkeeperDmaRegisters* dma PIN("r2");
     value = gMainTimer;
     test = 1;
     test &= value;
@@ -3655,10 +3655,10 @@ void InitVizorman(void)
 {
     struct PrimarySpriteData* s;
     u32 input;
-    register u32 value asm("r0");
-    register u32 status asm("r4");
-    register u32 zero asm("r5");
-    register u32 temp asm("r2");
+    register u32 value PIN("r0");
+    register u32 status PIN("r4");
+    register u32 zero PIN("r5");
+    register u32 temp PIN("r2");
     u32 down;
     u32 side;
 
@@ -3722,9 +3722,9 @@ void SpawnVizormanBeamActors(void)
 void InitVizormanBeamCore(void)
 {
     volatile u8* sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 zero asm("r2");
+    register u32 zero PIN("r2");
     u32 zeroHalf;
 
     sprite = (volatile u8*)&gCurrentSprite;
@@ -3819,10 +3819,10 @@ void UpdateVizormanBeamCoreEnd(void)
 
 void InitVizormanBeamGlow(void)
 {
-    register volatile u8* sprite asm("r12");
-    register u32 value asm("r0");
+    register volatile u8* sprite PIN("r12");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 zero asm("r2");
+    register u32 zero PIN("r2");
     u32 zeroHalf;
 
     sprite = (volatile u8*)&gCurrentSprite;
@@ -3893,8 +3893,8 @@ void UpdateVizormanBeamGlowLifetime(void)
 {
     struct PrimarySpriteData* s;
     u8* p;
-    register u32 old asm("r0");
-    register u32 n asm("r1");
+    register u32 old PIN("r0");
+    register u32 n PIN("r1");
     s = &gCurrentSprite;
     p = &s->work0;
     old = *p;
@@ -3966,10 +3966,10 @@ void SpriteVizormanBeamGlow(void)
 
 void InitBugle(void)
 {
-    register volatile u8* s asm("r12");
-    register u32 value asm("r0");
+    register volatile u8* s PIN("r12");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 r2 asm("r2");
+    register u32 r2 PIN("r2");
     u32 zeroHalf;
     u32 down;
     u32 side;
@@ -4034,7 +4034,7 @@ void UpdateBugleAttack(void)
 {
     struct PrimarySpriteData* s;
     u32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 zero;
 
     s = &gCurrentSprite;
@@ -4093,7 +4093,7 @@ void UpdateBugleAttack(void)
         temp = (u32)s;
     }
     {
-        register u8* ptr asm("r2");
+        register u8* ptr PIN("r2");
         ptr = (u8*)temp;
         ptr += 39;
         value = *ptr;
@@ -4114,12 +4114,12 @@ void UpdateBugleAttack(void)
 
 void SelectBugleNoteAnimation(void)
 {
-    register volatile u8* sprite asm("r12");
-    register u32 r0 asm("r0");
+    register volatile u8* sprite PIN("r12");
+    register u32 r0 PIN("r0");
     u32 r1;
-    register u32 r2 asm("r2");
+    register u32 r2 PIN("r2");
     u32 r3;
-    register u32 r4 asm("r4");
+    register u32 r4 PIN("r4");
     r0 = (u32)&gCurrentSprite;
     sprite = (volatile u8*)r0;
     r1 = *(volatile u16*)r0;
@@ -4219,15 +4219,15 @@ done:;
 
 void UpdateBugleNoteAffine(void)
 {
-    register u32 r0 asm("r0");
+    register u32 r0 PIN("r0");
     u32 r1;
-    register struct PrimarySpriteData* r2 asm("r2");
+    register struct PrimarySpriteData* r2 PIN("r2");
     struct PrimarySpriteData* r3;
     s32 r4;
     s32 r5;
-    register struct PrimarySpriteData* r6 asm("r6");
+    register struct PrimarySpriteData* r6 PIN("r6");
     s32 r7;
-    register u8* r8 asm("r8");
+    register u8* r8 PIN("r8");
 
     r7 = 0;
     r3 = &gCurrentSprite;
@@ -4323,8 +4323,8 @@ scale_ready:
          * constraints preserve the target's zero-index register allocation. */
         r2 = 0;
         {
-            register u32 r0Live asm("r0");
-            register u32 r1Live asm("r1");
+            register u32 r0Live PIN("r0");
+            register u32 r1Live PIN("r1");
 
             /* Both registers must be unavailable for the C signed load to use r2. */
             asm("" : "=r"(r0Live), "=r"(r1Live));
@@ -4373,7 +4373,7 @@ scale_ready:
         r0 += r5;
         r1 = 0;
         {
-            register u32 r2Live asm("r2");
+            register u32 r2Live PIN("r2");
 
             /* Preserve r1 as the index register for this existing C read. */
             asm("" : "=r"(r2Live));
@@ -4392,7 +4392,7 @@ scale_ready:
         r0 += r5;
         r1 = 0;
         {
-            register u32 r2Live asm("r2");
+            register u32 r2Live PIN("r2");
 
             /* Preserve r1 as the index register for this existing C read. */
             asm("" : "=r"(r2Live));
@@ -4413,7 +4413,7 @@ scale_ready:
         r0 += r5;
         r1 = 0;
         {
-            register u32 r2Live asm("r2");
+            register u32 r2Live PIN("r2");
 
             /* Preserve r1 as the index register for this existing C read. */
             asm("" : "=r"(r2Live));
@@ -4513,9 +4513,9 @@ done:;
 void InitBlackDog(void)
 {
     volatile u8* s;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 r2 asm("r2");
+    register u32 r2 PIN("r2");
     u32 zero;
     u32 side;
     s = (volatile u8*)&gCurrentSprite;
@@ -4575,11 +4575,11 @@ void StartBlackDogAttack(void)
     u32 r0;
     s32 r1;
     struct PrimarySpriteData* r2;
-    register u32 r3 asm("r3");
+    register u32 r3 PIN("r3");
     s32 r4;
     const s16* r5;
     u32 r6;
-    register u8* ip asm("r12");
+    register u8* ip PIN("r12");
 
     r2 = &gCurrentSprite;
     r0 = 42;
@@ -4676,10 +4676,10 @@ void UpdateBlackDogAttack(void)
 {
     u32 r0;
     u32 r1;
-    register u32 r2 asm("r2");
+    register u32 r2 PIN("r2");
     struct PrimarySpriteData* r3;
-    register u32 r4 asm("r4");
-    register u32 r5 asm("r5");
+    register u32 r4 PIN("r4");
+    register u32 r5 PIN("r5");
 
     r3 = &gCurrentSprite;
     r0 = r3->yPosition;
@@ -4816,7 +4816,7 @@ void UpdateBlackDogCollision(void)
     u32 index;
     const s16* table;
     u32 value;
-    register s32 signedValue asm("r1");
+    register s32 signedValue PIN("r1");
     u32 velocity;
     u32 zero;
     s = &gCurrentSprite;
@@ -4847,7 +4847,7 @@ void UpdateBlackDogCollision(void)
             s->pose = 111;
             s->status ^= 0x40;
         } else {
-            register u8* timer asm("r1");
+            register u8* timer PIN("r1");
             s->pose = 22;
             timer = &s->work0;
             value = 60;
@@ -4860,7 +4860,7 @@ void FinishBlackDogAttack(void)
 {
     struct PrimarySpriteData* s;
     u32 v;
-    register u8* p asm("r1");
+    register u8* p PIN("r1");
     s = &gCurrentSprite;
     p = &s->work0;
     v = *p;
@@ -4907,11 +4907,11 @@ void SpriteBlackDog(void)
 void InitLargeLips(void)
 {
     volatile u8* s;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 flag asm("r2");
+    register u32 flag PIN("r2");
     u32 zero;
-    register u32 side asm("r5");
+    register u32 side PIN("r5");
     s = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)s;
 
@@ -4965,12 +4965,12 @@ void InitLargeLips(void)
 void MoveLargeLipsIntoPosition(void)
 {
     struct PrimarySpriteData* s;
-    register u32 value asm("r0");
-    register u8* indexPtr asm("r12");
-    register u32 index asm("r3");
-    register const s16* table asm("r5");
-    register u32 offset asm("r4");
-    register u32 zero asm("r6");
+    register u32 value PIN("r0");
+    register u8* indexPtr PIN("r12");
+    register u32 index PIN("r3");
+    register const s16* table PIN("r5");
+    register u32 offset PIN("r4");
+    register u32 zero PIN("r6");
     s32 tmp;
 
     s = &gCurrentSprite;
@@ -5062,7 +5062,7 @@ void StartLargeLipsKiss(void)
     struct PrimarySpriteData* s;
     u8* timer;
     u32 value;
-    register u32 zero asm("r1");
+    register u32 zero PIN("r1");
     u32 z;
     volatile u32 stackSlot;
     s = &gCurrentSprite;
@@ -5189,7 +5189,7 @@ void UpdateLargeLipsCollision(void)
     const s16* table;
     u32 value;
     s32 signedValue;
-    register u32 velocity asm("r3");
+    register u32 velocity PIN("r3");
     u32 zero;
     s = &gCurrentSprite;
     indexPtr = &s->work3;
@@ -5222,12 +5222,12 @@ void UpdateLargeLipsCollision(void)
 
 void InitLargeLipsKissEffect(void)
 {
-    register volatile u8* s asm("r12");
-    register u32 value asm("r0");
+    register volatile u8* s PIN("r12");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 flag asm("r2");
+    register u32 flag PIN("r2");
     u32 zero;
-    register u32 zeroHalf asm("r4");
+    register u32 zeroHalf PIN("r4");
     s = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)s;
 
@@ -5296,7 +5296,7 @@ void ToggleLargeLipsKissEffectFlip(void)
 {
     struct PrimarySpriteData* s;
     u8* p;
-    register u32 work asm("r1");
+    register u32 work PIN("r1");
     u32 v;
     s = &gCurrentSprite;
     p = &s->work2;
@@ -5314,7 +5314,7 @@ void ToggleLargeLipsKissEffectFlip(void)
     }
     s->status = v;
     {
-        register u8* q asm("r1");
+        register u8* q PIN("r1");
         q = &s->work2;
         v = *q;
         v++;
@@ -5326,7 +5326,7 @@ void ToggleLargeLipsKissEffectFlipReverse(void)
 {
     struct PrimarySpriteData* s;
     u8* p;
-    register u32 work asm("r1");
+    register u32 work PIN("r1");
     u32 v;
     s = &gCurrentSprite;
     p = &s->work2;
@@ -5344,7 +5344,7 @@ void ToggleLargeLipsKissEffectFlipReverse(void)
     }
     s->status = v;
     {
-        register u8* q asm("r1");
+        register u8* q PIN("r1");
         q = &s->work2;
         v = *q;
         v++;
@@ -5424,11 +5424,11 @@ void MoveLargeLipsKissEffect(void)
 {
     struct PrimarySpriteData* s;
     u32 r0;
-    register u32 r1 asm("r1");
+    register u32 r1 PIN("r1");
     u32 r2;
     u32 r3;
     s32 r4;
-    register s32 r5 asm("r5");
+    register s32 r5 PIN("r5");
     u8* work3;
     s32 scale;
     s32 ended;
@@ -5520,12 +5520,12 @@ void FadeLargeLipsKissEffect(void)
 {
     struct PrimarySpriteData* s;
     register u32 r0;
-    register u32 r1 asm("r1");
+    register u32 r1 PIN("r1");
     u32 r2;
-    register u32 r3 asm("r3");
+    register u32 r3 PIN("r3");
     s32 r4;
     s32 r5;
-    register u8* work3 asm("r12");
+    register u8* work3 PIN("r12");
     s32 scale;
     s = &gCurrentSprite;
     r1 = (u32)s;
@@ -5623,7 +5623,7 @@ done:;
 void SpriteLargeLips(void)
 {
     struct PrimarySpriteData* s;
-    register s32 v asm("r0");
+    register s32 v PIN("r0");
     s = &gCurrentSprite;
     v = 1;
     s->disableWarioCollisionTimer = v;
@@ -5656,7 +5656,7 @@ void SpriteLargeLips(void)
 void SpriteLargeLipsKissEffect(void)
 {
     struct PrimarySpriteData* s;
-    register s32 pose asm("r1");
+    register s32 pose PIN("r1");
     struct PrimarySpriteData* copy;
     s = &gCurrentSprite;
     pose = 1;
@@ -5686,12 +5686,12 @@ void InitBigFist(void)
 {
     struct PrimarySpriteData* s;
     u32 r0;
-    register u32 r1 asm("r1");
-    register u32 r2 asm("r2");
-    register s32 r4 asm("r4");
+    register u32 r1 PIN("r1");
+    register u32 r2 PIN("r2");
+    register s32 r4 PIN("r4");
     struct PrimarySpriteData* sp;
     s32 scale;
-    register s32 cosine asm("r8");
+    register s32 cosine PIN("r8");
     s = &gCurrentSprite;
     r1 = s->status;
     r2 = 0x4488;
@@ -5948,7 +5948,7 @@ void UpdateBigFistAttack(void)
 {
     u32 r0;
     u32 r1;
-    register u32 r2 asm("r2");
+    register u32 r2 PIN("r2");
     u32 r3;
     struct PrimarySpriteData* r4;
     u32 r5;
@@ -6209,11 +6209,11 @@ end:;
 
 void UpdateBigFistCollision(void)
 {
-    register struct PrimarySpriteData* s asm("r2");
-    register u8* indexPtr asm("r12");
+    register struct PrimarySpriteData* s PIN("r2");
+    register u8* indexPtr PIN("r12");
     u32 index;
     const s16* table;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     s32 signedValue;
     u32 velocity;
     struct PrimarySpriteData* sp;
@@ -6295,9 +6295,9 @@ void PlayBlackDragonAttackSoundCue(void)
 void InitBlackDragon(void)
 {
     volatile u8* sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
-    register u32 zero asm("r2");
+    register u32 zero PIN("r2");
     u32 zeroByte;
     u32 pose;
 
@@ -6357,13 +6357,13 @@ void InitBlackDragon(void)
 void MoveBlackDragonIntoAttackPosition(void)
 {
     struct PrimarySpriteData* sprite;
-    register u8* indexPtr asm("r12");
-    register u32 index asm("r3");
-    register const s16* table asm("r5");
+    register u8* indexPtr PIN("r12");
+    register u32 index PIN("r3");
+    register const s16* table PIN("r5");
     const s16* velocityPtr;
-    register u32 velocity asm("r4");
-    register u32 zero asm("r6");
-    register u32 temp asm("r0");
+    register u32 velocity PIN("r4");
+    register u32 zero PIN("r6");
+    register u32 temp PIN("r0");
     u32 y;
 
     sprite = &gCurrentSprite;
@@ -6497,8 +6497,8 @@ void UpdateBlackDragonAttackReturn(void)
         const s16* table;
         const s16* velocityPtr;
         u32 velocity;
-        register u32 zero asm("r4");
-        register s32 signedVelocity asm("r1");
+        register u32 zero PIN("r4");
+        register s32 signedVelocity PIN("r1");
         u8* work1Ptr;
 
         indexPtr = &sprite->work3;
@@ -6553,7 +6553,7 @@ void UpdateBlackDragonAttackReturn(void)
 
 void UpdateBlackDragonAttack(void)
 {
-    register u16 offset asm("r4");
+    register u16 offset PIN("r4");
 
     switch (gCurrentPassage) {
         case 2:
@@ -6660,12 +6660,12 @@ void UpdateBlackDragonBob(void)
 
 void InitBlackDragonFire(void)
 {
-    register volatile u8* sprite asm("r12");
+    register volatile u8* sprite PIN("r12");
     u32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 size;
-    register u32 zero asm("r3");
-    register u32 zeroHalf asm("r4");
+    register u32 zero PIN("r3");
+    register u32 zeroHalf PIN("r4");
 
     sprite = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)sprite;
@@ -6770,8 +6770,8 @@ void UpdateBlackDragonFireCollision(void)
 {
     volatile u8* sprite;
     volatile u8* data;
-    register u32 value asm("r0");
-    register u32 counter asm("r1");
+    register u32 value PIN("r0");
+    register u32 counter PIN("r1");
 
     sprite = (volatile u8*)&gCurrentSprite;
     data = (volatile u8*)gSpriteData;
@@ -6861,7 +6861,7 @@ void UpdateBlackDragonFireCollision(void)
 void UpdateBlackDragonFireLifetime(void)
 {
     struct PrimarySpriteData* sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u8* timerPtr;
 
     sprite = &gCurrentSprite;
@@ -6930,13 +6930,13 @@ void SpriteBlackDragonFire(void)
 
 void InitBossTreasureChest(void)
 {
-    register volatile u8* sprite asm("r12");
+    register volatile u8* sprite PIN("r12");
     u32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 collision;
-    register u32 zero asm("r4");
-    register u32 zeroHalf asm("r5");
-    register u32 extent asm("r3");
+    register u32 zero PIN("r4");
+    register u32 zeroHalf PIN("r5");
+    register u32 extent PIN("r3");
 
     sprite = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)sprite;
@@ -7163,7 +7163,7 @@ void SpawnBossTreasureRewards(void)
     struct PrimarySpriteData* sprite;
     u8* timerPtr;
     u32 value;
-    register u32 status asm("r1");
+    register u32 status PIN("r1");
 
     sprite = &gCurrentSprite;
     status = sprite->status;
@@ -7219,12 +7219,12 @@ void UpdateBossTreasureRewards(void)
 {
     register struct PrimarySpriteData* sprite;
     u32 r0;
-    register s32 r1 asm("r1");
-    register u32 r2 asm("r2");
+    register s32 r1 PIN("r1");
+    register u32 r2 PIN("r2");
     u32 r3;
-    register u32 offset asm("r4");
-    register u32 velocity asm("r5");
-    register const s16* table asm("r6");
+    register u32 offset PIN("r4");
+    register u32 velocity PIN("r5");
+    register const s16* table PIN("r6");
     u8* indexPtr;
 
     r2 = (u32)&gCurrentSprite;
@@ -7590,11 +7590,11 @@ void SpriteShopkeeper(void)
 
 void UpdateShopkeeperCommonAnimation(void)
 {
-    register volatile u8* sprite asm("r12");
+    register volatile u8* sprite PIN("r12");
     u32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 zero;
-    register u32 zeroHalf asm("r3");
+    register u32 zeroHalf PIN("r3");
 
     sprite = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)sprite;

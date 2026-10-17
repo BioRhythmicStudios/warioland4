@@ -26,11 +26,11 @@ void SetButatabiHitbox(void)
 void InitButatabi(void)
 {
     struct PrimarySpriteData* sprite;
-    register u8 zero asm("r6");
+    register u8 zero PIN("r6");
     s32 sixteen;
     u8 thirtyTwo;
     u16 zero16;
-    register u16 status asm("r1");
+    register u16 status PIN("r1");
     u16 maskedStatus;
     u8* distance;
 
@@ -142,7 +142,7 @@ void ButatabiHop(void)
     u32 rawVelocity;
     u32 zero;
     s32 velocity;
-    register u32 position asm("r0");
+    register u32 position PIN("r0");
 
     sprite = &gCurrentSprite;
     gravityIndex = &sprite->work3;
@@ -186,14 +186,14 @@ void ButatabiHop(void)
         timerPointer = &current->work2;
         gravityTimer = *timerPointer;
         if (gravityTimer == 80) {
-            register u32 animationZero asm("r0");
+            register u32 animationZero PIN("r0");
 
             current->pOamData = sButatabiTurningOam;
             animationZero = 0;
             *(u8 *)((u8 *)current + 22) = animationZero;
             current->animationTimer = animationZero;
         } else if (gravityTimer == 88) {
-            register u32 animationZero asm("r0");
+            register u32 animationZero PIN("r0");
 
             current->pOamData = sButatabiTurnAroundOam;
             animationZero = 0;
@@ -209,7 +209,7 @@ void ButatabiHop(void)
         u32 xAddress;
         const u8* xEntry;
         u16 zeroOffset;
-        register struct PrimarySpriteData* current asm("r0");
+        register struct PrimarySpriteData* current PIN("r0");
         u8* timerPointer;
         u32 oneOrNext;
 

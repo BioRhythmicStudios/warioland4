@@ -123,8 +123,8 @@ void TobawaniSetTurnAround(void)
 void TobawaniTurnAround(void)
 {
     struct PrimarySpriteData* sprite;
-    register u8* timer asm("r12");
-    register u32 temp asm("r0");
+    register u8* timer PIN("r12");
+    register u32 temp PIN("r0");
     s16 remaining;
     u32 zero;
 

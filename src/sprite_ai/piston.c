@@ -147,19 +147,19 @@ void PistonRetract(void)
 
 void InitPistonChild(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
-    register u8 zero asm("r2");
+    register struct PrimarySpriteData* sprite PIN("ip");
+    register u8 zero PIN("r2");
     u16 zero16;
     u8 pose;
     u8 extent;
-    register u8* ptr asm("r0");
+    register u8* ptr PIN("r0");
     u8* ptr32;
 
     sprite = &gCurrentSprite;
     {
         u16 oldStatus;
-        register u32 statusBits asm("r2");
-        register u16 status asm("r0");
+        register u32 statusBits PIN("r2");
+        register u16 status PIN("r0");
 
         oldStatus = sprite->status;
         statusBits = 0x8400;
@@ -221,7 +221,7 @@ void SpritePistonChild(void)
     struct PrimarySpriteData* currentLoad;
     u8 roomSlot;
     u8* sprite;
-    register u8* positionSprite asm("r3");
+    register u8* positionSprite PIN("r3");
     u8* end;
 
     zero = 0;

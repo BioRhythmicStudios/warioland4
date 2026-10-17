@@ -60,8 +60,8 @@ void StartDeburinaLeapWindup(void)
     struct PrimarySpriteData *sprite;
     u8 *timer;
     s16 timerValue;
-    register struct PrimarySpriteData *savedSprite asm("r12");
-    register u32 zero asm("r4");
+    register struct PrimarySpriteData *savedSprite PIN("r12");
+    register u32 zero PIN("r4");
     u32 one;
 
     sprite = &gCurrentSprite;
@@ -76,8 +76,8 @@ void StartDeburinaLeapWindup(void)
         savedSprite = sprite;
     }
     if (timerValue == 0) {
-        register u16 status asm("r0");
-        register u16 currentStatus asm("r1");
+        register u16 status PIN("r0");
+        register u16 currentStatus PIN("r1");
 
         one = 1;
         sprite->warioCollision = one;
@@ -94,7 +94,7 @@ void StartDeburinaLeapWindup(void)
         *timer = 48;
         {
             struct WarioData *wario;
-            register struct PrimarySpriteData *compareSprite asm("r2");
+            register struct PrimarySpriteData *compareSprite PIN("r2");
             u16 currentX;
 
             wario = &gWarioData;
@@ -107,7 +107,7 @@ void StartDeburinaLeapWindup(void)
             }
         }
         {
-            register struct PrimarySpriteData *spawnSprite asm("r4");
+            register struct PrimarySpriteData *spawnSprite PIN("r4");
 
             spawnSprite = savedSprite;
             SpriteSpawnAsChild(PSPRITE_DEBURINA_CHILD, spawnSprite->roomSlot, spawnSprite->gfxSlot,
@@ -119,12 +119,12 @@ void StartDeburinaLeapWindup(void)
 void UpdateDeburinaLeap(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 timerValue asm("r1");
+    register u32 timerValue PIN("r1");
 
     sprite = &gCurrentSprite;
     {
         u8 *timer;
-        register u32 decrementedTimer asm("r0");
+        register u32 decrementedTimer PIN("r0");
 
         timer = &sprite->work0;
         decrementedTimer = *timer;
@@ -517,7 +517,7 @@ void UpdateDeburinaThrownCrash(void)
     int threshold;
     struct PrimarySpriteData *sprite;
     int zero;
-    register struct PrimarySpriteData *currentSprite asm("r4");
+    register struct PrimarySpriteData *currentSprite PIN("r4");
     u8 *timer;
 
     base = &gCurrentSprite;
@@ -532,7 +532,7 @@ void UpdateDeburinaThrownCrash(void)
     sprite = base;
 
     {
-        register u16 newYPosition asm("r0");
+        register u16 newYPosition PIN("r0");
 
         if (signedVelocity == threshold) {
             int previousIndexRegister;
@@ -613,21 +613,21 @@ void InitDeburinaChild(void)
 {
     struct PrimarySpriteData *sprite;
     u16 statusValue;
-    register u16 finalStatus asm("r0");
+    register u16 finalStatus PIN("r0");
     u8 zeroByte;
     u16 zeroHalf;
 
     sprite = &gCurrentSprite;
     {
-        register u16 status asm("r1");
+        register u16 status PIN("r1");
         u16 flags;
-        register u16 flagsCopy asm("r0");
+        register u16 flagsCopy PIN("r0");
         status = sprite->status;
         flags = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
         flagsCopy = flags;
         /* Keep the zero values scheduled before the status update, as in the original. */
         {
-            register u8 zeroTemp asm("r2");
+            register u8 zeroTemp PIN("r2");
             zeroTemp = 0;
             zeroByte = zeroTemp;
         }
@@ -656,7 +656,7 @@ void UpdateDeburinaChild(void)
     struct PrimarySpriteData *spriteData;
     struct PrimarySpriteData *sprites;
     struct PrimarySpriteData *parent;
-    register u32 parentExists asm("r0");
+    register u32 parentExists PIN("r0");
     u16 parentStatus;
     u32 parentOffset;
 
@@ -694,8 +694,8 @@ void UpdateDeburinaChild(void)
             case 76:
             case 115:
                 {
-                    register struct PrimarySpriteData *currentSprite asm("r0");
-                    register u16 currentStatus asm("r2");
+                    register struct PrimarySpriteData *currentSprite PIN("r0");
+                    register u16 currentStatus PIN("r2");
                     u16 visibleStatus;
 
                     currentSprite = &gCurrentSprite;
@@ -723,7 +723,7 @@ void UpdateDeburinaChild(void)
         }
 
         {
-            register struct PrimarySpriteData *positionParent asm("r0");
+            register struct PrimarySpriteData *positionParent PIN("r0");
 
             positionParent = (struct PrimarySpriteData *)((u32)(sizeof(*sprites) * parentSlot) + (u32)sprites);
             destination->yPosition = positionParent->yPosition;

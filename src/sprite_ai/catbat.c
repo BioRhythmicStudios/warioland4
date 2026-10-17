@@ -55,7 +55,7 @@ void DespawnActiveCatbatProjectile(void)
     u8 *end;
     int offset;
     int one;
-    register int zero asm("r3");
+    register int zero PIN("r3");
 
     cursor = (u8 *)gSpriteData;
     offset = 0xFD;
@@ -64,8 +64,8 @@ void DespawnActiveCatbatProjectile(void)
     one = 1;
     zero = 0;
     do {
-        register u16 status asm("r1");
-        register int active asm("r0");
+        register u16 status PIN("r1");
+        register int active PIN("r0");
 
         if (((struct PrimarySpriteData *)cursor)->globalID == PSPRITE_CATBAT_PROJECTILE) {
             status = ((struct PrimarySpriteData *)cursor)->status;
@@ -89,7 +89,7 @@ int UpdateCatbatGraphicsAnimation(const u8 *table)
     unsigned value;
     unsigned index;
     unsigned frame;
-    register unsigned offset asm("r0");
+    register unsigned offset PIN("r0");
     volatile u32 *dma;
     register const u8 *tableBase;
     const u8 *src;
@@ -146,13 +146,13 @@ int UpdateCatbatGraphicsAnimation(const u8 *table)
 }
 void UpdateCatbatBackgroundAnimation(const u8 *sequence)
 {
-    register const u8 *table asm("r2");
+    register const u8 *table PIN("r2");
     u8 *delay;
     u8 *indexPtr;
     unsigned value;
     unsigned index;
     unsigned frame;
-    register unsigned offset asm("r0");
+    register unsigned offset PIN("r0");
     volatile u32 *dma;
     register const u8 *tableBase;
     const u8 *src;
@@ -198,17 +198,17 @@ void UpdateCatbatBackgroundAnimation(const u8 *sequence)
 }
 void InitCatbatMineSpawner(void)
 {
-    register struct PrimarySpriteData *sprite asm("r12");
+    register struct PrimarySpriteData *sprite PIN("r12");
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     int mask;
-    register int zeroByte asm("r3");
+    register int zeroByte PIN("r3");
     int zeroHalf;
     u8 *distance;
     int sixteen;
     u8 *hitbox;
     const struct AnimationFrame *oam;
-    register struct PrimarySpriteData *base asm("r1");
+    register struct PrimarySpriteData *base PIN("r1");
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
@@ -249,10 +249,10 @@ void InitCatbatMineSpawner(void)
 void UpdateCatbatMineSpawnerPosition(void)
 {
     struct PrimarySpriteData *sprite;
-    register struct PrimarySpriteData *sprites asm("r2");
+    register struct PrimarySpriteData *sprites PIN("r2");
     int slot;
     int value;
-    register u16 status asm("r1");
+    register u16 status PIN("r1");
 
     sprite = &gCurrentSprite;
     slot = sprite->work3;
@@ -292,7 +292,7 @@ void UpdateCatbatMineSpawnerPosition(void)
 void UpdateCatbatHitboxFacing(void)
 {
     struct PrimarySpriteData *sprite;
-    register u16 status asm("r1");
+    register u16 status PIN("r1");
     u8 *extent;
     int value;
 
@@ -317,7 +317,7 @@ void UpdateCatbatHitboxFacing(void)
 void InitCatbat(void)
 {
     struct PrimarySpriteData *sprite;
-    register int zeroByte asm("r2");
+    register int zeroByte PIN("r2");
     int zeroHalf;
     u8 *ptr;
 
@@ -334,7 +334,7 @@ void InitCatbat(void)
     sprite = &gCurrentSprite;
     {
         int priority;
-        register int priorityMask asm("r1");
+        register int priorityMask PIN("r1");
 
         priority = sprite->drawPriority;
         priorityMask = 128;
@@ -343,7 +343,7 @@ void InitCatbat(void)
         sprite->drawPriority = priority;
     }
     {
-        register u16 oldStatus asm("r1");
+        register u16 oldStatus PIN("r1");
         u16 status;
         int background;
 
@@ -611,7 +611,7 @@ void InitCatbatPatrol(void)
 {
     struct PrimarySpriteData *sprite;
     struct PrimarySpriteData *current;
-    register const struct AnimationFrame *animation asm("r0");
+    register const struct AnimationFrame *animation PIN("r0");
     u8 health;
 
     sprite = &gCurrentSprite;
@@ -663,14 +663,14 @@ void UpdateCatbatPatrol(void)
     struct PrimarySpriteData *sprite;
     struct WarioData *wario;
     int index;
-    register struct WarioData *reactionWario asm("r1");
+    register struct WarioData *reactionWario PIN("r1");
     const s16 *table;
     u32 velocity;
     int signedVelocity;
     u32 right;
     u32 left;
-    register u32 oldX asm("r6");
-    register u32 oldXLeft asm("r9");
+    register u32 oldX PIN("r6");
+    register u32 oldXLeft PIN("r9");
 
     wario = &gWarioData;
     right = gWarioData.xPosition;
@@ -705,8 +705,8 @@ void UpdateCatbatPatrol(void)
         func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition + 100));
         if (gSpriteCollisionTileType == 17) {
             {
-                register u8 *length asm("r1");
-                register u32 one asm("r0");
+                register u8 *length PIN("r1");
+                register u32 one PIN("r0");
                 length = &gCuckooCondorPendulumLength;
                 one = 1;
                 *length = one;
@@ -720,11 +720,11 @@ void UpdateCatbatPatrol(void)
             }
             sprite->xPosition += 4;
             {
-                register u32 status asm("r1");
+                register u32 status PIN("r1");
                 status = sprite->status;
                 if (!(status & SPRITE_STATUS_ONSCREEN)) {
                 {
-                register u32 mask asm("r0");
+                register u32 mask PIN("r0");
                 mask = SPRITE_STATUS_FACING_RIGHT;
                 mask ^= status;
                 sprite->status = mask;
@@ -758,8 +758,8 @@ void UpdateCatbatPatrol(void)
         func_8023BFC(sprite->yPosition, (u16)(sprite->xPosition - 100));
         if (gSpriteCollisionTileType == 17) {
             {
-                register u8 *length asm("r1");
-                register u32 one asm("r0");
+                register u8 *length PIN("r1");
+                register u32 one PIN("r0");
                 length = &gCuckooCondorPendulumLength;
                 one = 1;
                 *length = one;
@@ -773,11 +773,11 @@ void UpdateCatbatPatrol(void)
             }
             sprite->xPosition -= 4;
             {
-                register u32 status asm("r1");
+                register u32 status PIN("r1");
                 status = sprite->status;
                 if (!(status & SPRITE_STATUS_ONSCREEN)) {
                 {
-                register u32 mask asm("r0");
+                register u32 mask PIN("r0");
                 mask = SPRITE_STATUS_FACING_RIGHT;
                 mask ^= status;
                 sprite->status = mask;
@@ -789,8 +789,8 @@ void UpdateCatbatPatrol(void)
         } else {
             gCuckooCondorPendulumLength = zero;
             {
-                register u16 status asm("r1");
-                register u32 mask asm("r0");
+                register u16 status PIN("r1");
+                register u32 mask PIN("r0");
                 status = sprite->status;
                 mask = 0xFFFB;
                 mask &= status;
@@ -818,7 +818,7 @@ void UpdateCatbatPatrol(void)
 
     sprite = &gCurrentSprite;
     if (sprite->work2 == 0 && *(u8 *)&gCuckooCondorPendulumLength == 0) {
-        register u16 x asm("r1");
+        register u16 x PIN("r1");
         u32 y;
         if (sprite->status & SPRITE_STATUS_FACING_RIGHT) {
             y = sprite->yPosition;
@@ -836,7 +836,7 @@ void UpdateCatbatPatrol(void)
 void InitCatbatLandingAttack(void)
 {
     struct PrimarySpriteData *sprite;
-    register int zero asm("r0");
+    register int zero PIN("r0");
 
     sprite = &gCurrentSprite;
     {
@@ -862,7 +862,7 @@ void UpdateCatbatLandingAttack(void)
         const s16 *table;
         int entryAddress;
         const s16 *entry;
-        register u16 velocity asm("r4");
+        register u16 velocity PIN("r4");
         int zero;
         int signedVelocity;
 
@@ -881,7 +881,7 @@ void UpdateCatbatLandingAttack(void)
         if (signedVelocity == 0x7FFF) {
             int previousOffset;
             const s16 *previous;
-            register u16 position asm("r0");
+            register u16 position PIN("r0");
 
             previousOffset = index - 1;
             previousOffset <<= 1;
@@ -913,7 +913,7 @@ void UpdateCatbatLandingAttack(void)
         int facingMask;
         int facing;
         int maskedFacing;
-        register u16 status asm("r1");
+        register u16 status PIN("r1");
 
         sprite = &gCurrentSprite;
         func_8023BFC((u16)(sprite->yPosition + 128), sprite->xPosition);
@@ -1107,7 +1107,7 @@ void InitCatbatDamaged(void)
 void UpdateCatbatDamaged(void)
 {
     struct PrimarySpriteData *sprite;
-    register struct PrimarySpriteData *savedSprite asm("r6");
+    register struct PrimarySpriteData *savedSprite PIN("r6");
     u8 *timerPtr;
     int timerValue;
     int timer;
@@ -1191,7 +1191,7 @@ void InitCatbatProjectileAttack(void)
 {
     struct PrimarySpriteData *sprite;
     struct PrimarySpriteData *current;
-    register const struct AnimationFrame *animation asm("r0");
+    register const struct AnimationFrame *animation PIN("r0");
     int alternate;
 
     sprite = &gCurrentSprite;
@@ -1244,7 +1244,7 @@ void UpdateCatbatProjectileAttackCharge(void)
 void InitCatbatProjectileAttackRelease(void)
 {
     struct PrimarySpriteData *sprite;
-    register const struct AnimationFrame *animation asm("r0");
+    register const struct AnimationFrame *animation PIN("r0");
 
     sprite = &gCurrentSprite;
     sprite->pose = 113;
@@ -1266,8 +1266,8 @@ void UpdateCatbatProjectileAttackRelease(void)
     int timerValue;
     int normalizedTimer;
     int status;
-    register int facingMask asm("r2");
-    register int statusBit asm("r1");
+    register int facingMask PIN("r2");
+    register int statusBit PIN("r1");
     int facing;
 
     UpdateCatbatGraphicsAnimation(sUnk_83CF968);
@@ -1308,8 +1308,8 @@ void UpdateCatbatProjectileAttackRelease(void)
 }
 void InitCatbatMoveRight(void)
 {
-    register struct PrimarySpriteData *sprite asm("r2");
-    register u8 *timer asm("r3");
+    register struct PrimarySpriteData *sprite PIN("r2");
+    register u8 *timer PIN("r3");
     int zero;
 
     sprite = &gCurrentSprite;
@@ -1318,7 +1318,7 @@ void InitCatbatMoveRight(void)
     *timer = 45;
     sprite->pose = 32;
     {
-        register u8 *work asm("r0");
+        register u8 *work PIN("r0");
         work = &sprite->work0;
         *work = zero;
         work++;
@@ -1351,8 +1351,8 @@ void UpdateCatbatMoveRight(void)
 }
 void InitCatbatMoveLeft(void)
 {
-    register struct PrimarySpriteData *sprite asm("r2");
-    register u8 *timer asm("r3");
+    register struct PrimarySpriteData *sprite PIN("r2");
+    register u8 *timer PIN("r3");
     int zero;
 
     sprite = &gCurrentSprite;
@@ -1361,7 +1361,7 @@ void InitCatbatMoveLeft(void)
     *timer = 45;
     sprite->pose = 34;
     {
-        register u8 *work asm("r0");
+        register u8 *work PIN("r0");
         work = &sprite->work0;
         *work = zero;
         work++;
@@ -1410,10 +1410,10 @@ void UpdateCatbatIdleAttack(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *timer;
-    register int oldTimer asm("r0");
-    register int timerValue asm("r1");
-    register int shiftedTimer asm("r0");
-    register u16 status asm("r1");
+    register int oldTimer PIN("r0");
+    register int timerValue PIN("r1");
+    register int shiftedTimer PIN("r0");
+    register u16 status PIN("r1");
     int facingMask;
     int facingTemp;
     int facing;
@@ -1622,7 +1622,7 @@ void UpdateCatbatShopItemHit(void)
         struct PrimarySpriteData *base;
         u8 *work2Ptr;
         int health;
-        register int healthCopy asm("r2");
+        register int healthCopy PIN("r2");
         struct PrimarySpriteData *sprite;
         int work2;
 
@@ -1633,7 +1633,7 @@ void UpdateCatbatShopItemHit(void)
         sprite = base;
         work2 = *work2Ptr;
         if (healthCopy == work2) {
-            register int delay asm("r0");
+            register int delay PIN("r0");
 
             switch (gCurrentShopItem) {
                 case 3:
@@ -1663,7 +1663,7 @@ void UpdateCatbatShopItemHit(void)
                 sprite->currentAnimationFrame = zeroByte;
                 {
                     int zeroWork;
-                    register u8 *work asm("r0");
+                    register u8 *work PIN("r0");
                     zeroWork = 0;
                     sprite->animationTimer = zeroByte;
                     work = &sprite->work0;
@@ -1688,9 +1688,9 @@ void InitCatbatGroundWave(void)
 {
     struct PrimarySpriteData *sprite;
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     int mask;
-    register int zeroByte asm("r2");
+    register int zeroByte PIN("r2");
     int zeroHalf;
     u8 *distance;
     int extentValue;
@@ -1795,7 +1795,7 @@ void UpdateCatbatGroundWaveReturn(void)
 {
     struct PrimarySpriteData *sprite;
     int position;
-    register int velocity asm("r1");
+    register int velocity PIN("r1");
     u8 *work;
 
     sprite = &gCurrentSprite;
@@ -1845,7 +1845,7 @@ void UpdateCatbatGroundWaveDisappear(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *timer;
-    register int value asm("r0");
+    register int value PIN("r0");
     int zero;
     u8 pose;
 
@@ -1910,7 +1910,7 @@ void InitCatbatLandingDebris(void)
   struct PrimarySpriteData *sprite;
   u16 oldStatus;
   short persistentZero;
-  register unsigned short status asm("r0");
+  register unsigned short status PIN("r0");
   u8 *animationFramePtr;
   int mask;
   int zeroByte;
@@ -2096,8 +2096,8 @@ void UpdateCatbatLandingDebris(void)
     {
         struct PrimarySpriteData *sprite;
         u16 firstStatus;
-        register int onscreen asm("r0");
-        register u16 status asm("r3");
+        register int onscreen PIN("r0");
+        register u16 status PIN("r3");
         struct PrimarySpriteData *collisionSprite;
 
         sprite = &gCurrentSprite;
@@ -2110,7 +2110,7 @@ void UpdateCatbatLandingDebris(void)
 
         {
             u32 collisionY;
-            register u32 collisionX asm("r1");
+            register u32 collisionX PIN("r1");
             status = sprite->status;
             if (status & SPRITE_STATUS_FACING_RIGHT) {
                 if (sprite->health & 0xF0) {
@@ -2155,17 +2155,17 @@ void UpdateCatbatLandingDebris(void)
 
     {
         struct PrimarySpriteData *sprite;
-        register u8 health asm("r1");
-        register u8 *indexPtr asm("r12");
+        register u8 health PIN("r1");
+        register u8 *indexPtr PIN("r12");
         int index;
-        register const s16 *table asm("r5");
+        register const s16 *table PIN("r5");
         int entryOffset;
         const s16 *entry;
-        register u16 velocity asm("r4");
+        register u16 velocity PIN("r4");
         int zero;
         int signedVelocity;
         int nextIndex;
-        register u8 *storePtr asm("r1");
+        register u8 *storePtr PIN("r1");
 
         sprite = &gCurrentSprite;
         if (sprite->work2 == 0) {
@@ -2183,7 +2183,7 @@ void UpdateCatbatLandingDebris(void)
                     table = sUnk_83CFA7C;
                 } else {
                     int pointerAddress;
-                    register u8 *pointer asm("r6");
+                    register u8 *pointer PIN("r6");
                     pointerAddress = 42;
                     asm("" : "+r"(pointerAddress));
                     pointerAddress += (int)sprite;
@@ -2212,17 +2212,17 @@ void UpdateCatbatLandingDebris(void)
 }
 void InitCatbatDebrisParticle(void)
 {
-    register struct PrimarySpriteData *sprite asm("r12");
+    register struct PrimarySpriteData *sprite PIN("r12");
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     int mask;
-    register int zeroByte asm("r2");
+    register int zeroByte PIN("r2");
     int zeroHalf;
     u8 *largeExtent;
     u8 *smallExtent;
     int extentValue;
     const struct AnimationFrame *oam;
-    register struct PrimarySpriteData *base asm("r1");
+    register struct PrimarySpriteData *base PIN("r1");
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
@@ -2304,9 +2304,9 @@ void InitCatbatProjectile(void)
 {
     struct PrimarySpriteData *sprite;
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     int mask;
-    register int zeroByte asm("r2");
+    register int zeroByte PIN("r2");
     int zeroHalf;
 
     sprite = &gCurrentSprite;
@@ -2334,7 +2334,7 @@ void InitCatbatProjectile(void)
     }
     {
         u8 *extent;
-        register int extentValue asm("r1");
+        register int extentValue PIN("r1");
 
         extent = &sprite->hitboxExtentUp;
         extentValue = 4;
@@ -2355,7 +2355,7 @@ void InitCatbatProjectile(void)
     sprite->drawPriority = 1;
 
     if ((s32)SpriteUtilCountSpriteType(PSPRITE_CATBAT_ATTACK_EFFECT) <= 5) {
-        register u16 spriteStatus asm("r1");
+        register u16 spriteStatus PIN("r1");
         int facingMask;
         int facingTemp;
         int facing;
@@ -2394,9 +2394,9 @@ void InitCatbatAttackEffect(void)
     struct PrimarySpriteData *sprite;
     struct PrimarySpriteData *base;
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     int mask;
-    register int zeroByte asm("r2");
+    register int zeroByte PIN("r2");
     int zeroHalf;
     u8 *extent;
     int sixteen;
@@ -2491,10 +2491,10 @@ void UpdateCatbatAttackEffect(void)
     }
 
     {
-        register struct PrimarySpriteData *motionSprite asm("r5");
+        register struct PrimarySpriteData *motionSprite PIN("r5");
         u8 *indexPtr;
         int indexValue;
-        register const s16 *velocityTable asm("r6");
+        register const s16 *velocityTable PIN("r6");
         int entryAddress;
         const s16 *entry;
         u32 velocityValue;
@@ -2527,7 +2527,7 @@ void UpdateCatbatAttackEffect(void)
             motionSprite->pose = 108;
         } else {
             u16 status;
-            register int existsMask asm("r0");
+            register int existsMask PIN("r0");
             status = sprite->status;
             existsMask = 2;
             existsMask &= status;
@@ -2544,7 +2544,7 @@ void UpdateCatbatAttackEffectDefault(void)
     int cosine;
     int sine;
     int scale;
-    register int zeroByte asm("r2");
+    register int zeroByte PIN("r2");
     int zeroHalf;
     int affine;
     u16 status;
@@ -2605,9 +2605,9 @@ void UpdateCatbatAttackEffectHit(void)
 void InitCatbatAttackEffectDespawn(void)
 {
     int value;
-    register struct PrimarySpriteData *sprite asm("r1");
+    register struct PrimarySpriteData *sprite PIN("r1");
     int zero;
-    register int zeroPalette asm("r2");
+    register int zeroPalette PIN("r2");
 
     value = gSpriteAiDynamicGraphicsTimer;
     if (value != 0) {

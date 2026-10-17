@@ -6,12 +6,12 @@
 
 void SetFoldingDoorCollision(void)
 {
-    register int yPosition asm("r5");
-    register int xPosition asm("r6");
-    register int lowerY asm("r4");
-    register int leftX asm("r8");
+    register int yPosition PIN("r5");
+    register int xPosition PIN("r6");
+    register int lowerY PIN("r4");
+    register int leftX PIN("r8");
     s8 *blockAction;
-    register s8 action asm("r9");
+    register s8 action PIN("r9");
 
     yPosition = gCurrentSprite.yPosition;
     xPosition = gCurrentSprite.xPosition;
@@ -86,12 +86,12 @@ void SetFoldingDoorCollision(void)
 
 void ClearFoldingDoorCollision(void)
 {
-    register int yPosition asm("r5");
-    register int xPosition asm("r6");
-    register int lowerY asm("r4");
-    register int leftX asm("r8");
+    register int yPosition PIN("r5");
+    register int xPosition PIN("r6");
+    register int lowerY PIN("r4");
+    register int leftX PIN("r8");
     s8 *blockAction;
-    register s8 action asm("r9");
+    register s8 action PIN("r9");
 
     yPosition = gCurrentSprite.yPosition;
     xPosition = gCurrentSprite.xPosition;

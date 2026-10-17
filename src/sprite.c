@@ -97,12 +97,12 @@ extern const u8 sOamWidthByShapeAndSize[];
 
 void UpdatePrimarySprites(void)
 {
-    register s32 spriteIndex asm("r6");
+    register s32 spriteIndex PIN("r6");
     struct PrimarySpriteData* spriteBase;
     struct PrimarySpriteData* currentSprite;
     ProcedureFunc* aiTable;
     struct PrimarySpriteData* sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
 
     if (gSubGameMode == 2) {
         SpawnRoomSpritesAtCameraBoundary(3);
@@ -411,18 +411,18 @@ fifthLoop:
 
 void DrawCurrentPrimarySprite(u32 spriteIndex)
 {
-    register u32 r0 asm("r0");
-    register u32 r1 asm("r1");
-    register u32 r2 asm("r2");
-    register u32 r3 asm("r3");
+    register u32 r0 PIN("r0");
+    register u32 r1 PIN("r1");
+    register u32 r2 PIN("r2");
+    register u32 r3 PIN("r3");
     u32 r4;
     u32 r5;
-    register u32 r6 asm("r6");
+    register u32 r6 PIN("r6");
     u32 r7;
-    register u32 r8 asm("r8");
-    register u32 r9 asm("r9");
+    register u32 r8 PIN("r8");
+    register u32 r9 PIN("r9");
     u32 r10;
-    register u32 r12 asm("r12");
+    register u32 r12 PIN("r12");
     volatile u32 yBase;
     volatile u32 hFlip;
     volatile u32 affine;
@@ -722,7 +722,7 @@ done:
 
 void UpdateCurrentSpriteVisibility(void)
 {
-    register u16 status asm("r10");
+    register u16 status PIN("r10");
     u16 bgY;
     u32 bgX;
     u16 spriteY;
@@ -736,9 +736,9 @@ void UpdateCurrentSpriteVisibility(void)
     u16 spriteXShifted;
     u16 left;
     u16 right;
-    register u8* persistent asm("r1");
+    register u8* persistent PIN("r1");
     u16 new_var;
-    register u16 statusMask asm("r0");
+    register u16 statusMask PIN("r0");
     u8 persistentValue;
     unsigned long long new_var2;
     u16 secondBgYShifted;
@@ -829,17 +829,17 @@ void InitializePrimarySprites(void)
 
 void LoadRoomSpriteGraphics(void)
 {
-    register u32 r0 asm("r0");
-    register u32 r1 asm("r1");
+    register u32 r0 PIN("r0");
+    register u32 r1 PIN("r1");
     u32 r2;
-    register u32 r3 asm("r3");
+    register u32 r3 PIN("r3");
     u32 r4;
     u32 r5;
-    register u32 r6 asm("r6");
+    register u32 r6 PIN("r6");
     s32 r7;
     u32 r8;
-    register u32 r9 asm("r9");
-    register u32 r10 asm("r10");
+    register u32 r9 PIN("r9");
+    register u32 r10 PIN("r10");
     u32 r12;
 
     r7 = 0;
@@ -988,8 +988,8 @@ void ResetPersistentSpriteData(void)
         currentRoom = &gCurrentRoom;
         mask = 0xF;
         do {
-            register u8* data asm("r3");
-            register u32 address asm("r0");
+            register u8* data PIN("r3");
+            register u32 address PIN("r0");
             u32 value;
             address = *currentRoom;
             address <<= 6;
@@ -1010,7 +1010,7 @@ void ResetPersistentSpriteData(void)
         persistent = &gPersistentSpriteData[0][0];
         zero = 0;
         do {
-            register s32 i asm("r2");
+            register s32 i PIN("r2");
             u8* data;
             data = (u8*)(room << 6);
             room++;
@@ -1030,8 +1030,8 @@ void LoadRoomSpriteData(void)
 {
     struct RoomHeader* roomHeader;
     u32 fill;
-    register u8* destination asm("r2");
-    register s32 offset asm("r4");
+    register u8* destination PIN("r2");
+    register s32 offset PIN("r4");
     u8* middle;
     s32 count;
     u32 value;
@@ -1112,15 +1112,15 @@ void SpawnRoomSprite(u32 roomSlot, u32 y, u32 x, u32 persistent)
 {
     u32 slot;
     u32 persistentValue;
-    register u32 index asm("r4");
+    register u32 index PIN("r4");
     struct PrimarySpriteData* spriteBase;
-    register u32 stride asm("r8");
+    register u32 stride PIN("r8");
     u32 one;
-    register u8* globalIdPointer asm("ip");
-    register u32 spriteY asm("sl");
-    register u32 temp0 asm("r0");
+    register u8* globalIdPointer PIN("ip");
+    register u32 spriteY PIN("sl");
+    register u32 temp0 PIN("r0");
     u32 temp1;
-    register u32 temp2 asm("r2");
+    register u32 temp2 PIN("r2");
     struct PrimarySpriteData* sprite;
     u32 xPosition;
 
@@ -1233,7 +1233,7 @@ void SpawnVisibleRoomSprites(void)
     s32 offset;
     u32 data;
     u32 y;
-    register u32 temp asm("r0");
+    register u32 temp PIN("r0");
 
     temp = gBg1YPosition;
     minY = temp >> 6;
@@ -1285,13 +1285,13 @@ void SpawnRoomSpritesAtCameraBoundary(u32 distance)
     s32 minY;
     s32 maxX;
     s32 maxY;
-    register s32 slot asm("r5");
+    register s32 slot PIN("r5");
     u8* roomData;
     u32 persistent;
     u32 x;
     u32 y;
     u32 temp0;
-    register u32 temp1 asm("r1");
+    register u32 temp1 PIN("r1");
 
     temp1 = (u32)&gBg1YPosition;
     y = *(u16*)temp1;
@@ -1373,7 +1373,7 @@ void SpriteSpawnAsChild(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosition, u32 xP
     u32 normalizedGfx;
     u32 y;
     u32 x;
-    register u32 xWork asm("r4");
+    register u32 xWork PIN("r4");
     u32 index;
     struct PrimarySpriteData* sprites;
     u32 one;
@@ -1426,9 +1426,9 @@ void SpawnPrimarySpriteWithStatus(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPositi
     u32 normalizedRoom;
     u32 normalizedGfx;
     u32 y;
-    register u32 xWork asm("r4");
+    register u32 xWork PIN("r4");
     u32 x;
-    register u32 normalizedStatus asm("r5");
+    register u32 normalizedStatus PIN("r5");
     u32 index;
     struct PrimarySpriteData* sprites;
 
@@ -1491,7 +1491,7 @@ void SpawnHighPriorityPrimarySprite(u32 id, u32 roomSlot, u32 gfxSlot, u32 yPosi
     u32 normalizedGfx;
     u32 y;
     u32 x;
-    register u32 xWork asm("r4");
+    register u32 xWork PIN("r4");
     u32 index;
     struct PrimarySpriteData* sprites;
     u32 one;

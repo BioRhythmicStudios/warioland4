@@ -8,7 +8,7 @@ void YetiInit(void)
 {
     struct PrimarySpriteData *sprite;
     u32 status;
-    register u32 heavy asm("r3");
+    register u32 heavy PIN("r3");
     u8 zero8;
     u16 zero16;
     u32 stateOrPriority;
@@ -207,8 +207,8 @@ void YetiAttackInit(void)
 
 void YetiAttack(void)
 {
-    register int shifted asm("r0");
-    register int timer asm("r1");
+    register int shifted PIN("r0");
+    register int timer PIN("r1");
     u8 *work0;
     struct PrimarySpriteData *sprite;
 
@@ -317,7 +317,7 @@ void YetiStunnedFallingInit(void)
 void YetiTackledInit(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 zero asm("r4");
+    register u8 zero PIN("r4");
 
     sprite = &gCurrentSprite;
     sprite->pOamData = sYetiTackledOrDefeatedOam;
@@ -337,7 +337,7 @@ void YetiTackledInit(void)
     SpawnEnemyScoreDrop(sprite->globalID, sprite->yPosition, sprite->xPosition, 5);
     SpawnSecondarySprite(sprite->yPosition - 32, sprite->xPosition, 6);
     {
-        register u16 oldStatus asm("r1");
+        register u16 oldStatus PIN("r1");
         u16 newStatus;
         u16 deadBit;
 
@@ -447,7 +447,7 @@ void YetiPose2DInit(void)
 void YetiCrushed(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *current asm("r1");
+    register u8 *current PIN("r1");
 
     {
         u32 collision;
@@ -473,7 +473,7 @@ void YetiCrushed(void)
     }
     sprite->pose = SPOSE_CRUSHED_OR_COLLECTED;
     {
-        register u16 oldStatus asm("r1");
+        register u16 oldStatus PIN("r1");
         u16 newStatus;
         u16 deadBit;
 
@@ -629,7 +629,7 @@ void YetiSnowballInit(void)
     sprite = &gCurrentSprite;
     {
         u16 originalStatus;
-        register u16 status asm("r0");
+        register u16 status PIN("r0");
 
         originalStatus = sprite->status;
         status = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
@@ -681,7 +681,7 @@ void YetiSnowballMove(void)
     u8 *timerPointer;
     u32 timer;
     struct PrimarySpriteData *sprite;
-    register struct PrimarySpriteData *current asm("r4");
+    register struct PrimarySpriteData *current PIN("r4");
 
     loaded = &gCurrentSprite;
     timerPointer = &loaded->work0;

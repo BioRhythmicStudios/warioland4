@@ -51,16 +51,16 @@ u8 BatWarioTransforming(void)
 u8 BatWarioFlying(void)
 {
     u16* pressedPtr;
-    register u16* heldPtr asm("r1");
+    register u16* heldPtr PIN("r1");
     struct WarioData* wario;
-    register int one asm("r2");
-    register int pressed asm("r1");
+    register int one PIN("r2");
+    register int pressed PIN("r1");
     int initialHeld;
     int held;
-    register int direction asm("r2");
-    register int intersection asm("r3");
-    register int temp asm("r0");
-    register struct WarioData* animationWario asm("r2");
+    register int direction PIN("r2");
+    register int intersection PIN("r3");
+    register int temp PIN("r0");
+    register struct WarioData* animationWario PIN("r2");
     const struct BatAnimationFrame* animation;
     int counter;
 
@@ -167,7 +167,7 @@ u8 BatWarioTurning(void)
     u16* heldPtr;
     struct WarioData* wario;
     u16 direction;
-    register int mask asm("r0");
+    register int mask PIN("r0");
     int changedDirection;
     const struct BatAnimationFrame* animation;
 
@@ -276,8 +276,8 @@ end:
 
 void UpdateBatWarioMovement(void)
 {
-    register u8* hitbox asm("r3");
-    register const u8* data asm("r2");
+    register u8* hitbox PIN("r3");
+    register const u8* data PIN("r2");
     struct WarioData* wario;
     s32 movement;
     s32 temp;
@@ -341,16 +341,16 @@ void UpdateBatWarioMovement(void)
 void ProcessBatWarioCollision(void)
 {
     u8* hitbox;
-    register const u8* data asm("r2");
-    register struct WarioData* wario asm("r3");
+    register const u8* data PIN("r2");
+    register struct WarioData* wario PIN("r3");
     struct WarioData* floorWario;
     u8* finalHitbox;
     int result;
     int callResult;
     int collisionType;
-    register int flags asm("r2");
+    register int flags PIN("r2");
     int floorResult;
-    register int mask asm("r0");
+    register int mask PIN("r0");
     const u8* ptr;
     u32 index;
 
@@ -424,7 +424,7 @@ void LoadBatWarioGraphics(int index)
     int value;
     struct WarioData* wario;
     int pose;
-    register const struct BatGraphicsFrame** table asm("r2");
+    register const struct BatGraphicsFrame** table PIN("r2");
     u32 offset;
     const struct BatGraphicsFrame* frame;
     const u8* gfx;

@@ -9,7 +9,7 @@ void ShuffleRouletteOamTable(void)
 
     {
         const u16 **dst;
-        register const u16 **frames asm("r0");
+        register const u16 **frames PIN("r0");
         dst = gRouletteItemOamTable;
         frames = sRouletteItemOamFrames;
         *dst = *frames;
@@ -29,7 +29,7 @@ void ShuffleRouletteOamTable(void)
     }
 
     {
-        register u8 *order asm("r5");
+        register u8 *order PIN("r5");
         u8 *current;
         u8 *random;
         i = 13;

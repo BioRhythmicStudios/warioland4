@@ -455,10 +455,10 @@ void PetbottomAirborne(void)
 
 void PetbottomHeldInit(void)
 {
-    register struct PrimarySpriteData *sprite asm("r2");
-    register const struct AnimationFrame *oam asm("r1");
-    register u8 zero8 asm("r3");
-    register u16 zero16 asm("r1");
+    register struct PrimarySpriteData *sprite PIN("r2");
+    register const struct AnimationFrame *oam PIN("r1");
+    register u8 zero8 PIN("r3");
+    register u16 zero16 PIN("r1");
 
     sprite = &gCurrentSprite;
     oam = sPetbottomStunnedOam;

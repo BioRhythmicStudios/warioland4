@@ -120,8 +120,8 @@ end:
 
 void UpdateFrozenWarioMovement(void)
 {
-    register u8* hitbox asm("r3");
-    register const u8* data asm("r2");
+    register u8* hitbox PIN("r3");
+    register const u8* data PIN("r2");
     struct WarioData* wario;
     s32 movement;
     u16 velocity;
@@ -175,8 +175,8 @@ void UpdateFrozenWarioMovement(void)
 void ProcessFrozenWarioCollision(void)
 {
     u8* hitbox;
-    register const u8* data asm("r2");
-    register struct WarioData* wario asm("r3");
+    register const u8* data PIN("r2");
+    register struct WarioData* wario PIN("r3");
     int result;
     int callResult;
     struct WarioData* warioAgain;

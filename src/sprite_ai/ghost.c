@@ -192,7 +192,7 @@ u32 func_803F320(void)
     }
 
     {
-        register u32 selectedIndex asm("r6");
+        register u32 selectedIndex PIN("r6");
         u32 selectedId;
         s32 index;
         struct PrimarySpriteData *sprites;
@@ -226,7 +226,7 @@ scanLoop:
         }
 
         {
-            register struct PrimarySpriteData *currentAgain asm("r3");
+            register struct PrimarySpriteData *currentAgain PIN("r3");
             u8 *work1;
             u32 one;
             u32 structSize;
@@ -422,11 +422,11 @@ void func_803F528(void)
 void func_803F66C(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 zero asm("r5");
+    register u32 zero PIN("r5");
     u32 despawned;
-    register u32 status asm("r0");
+    register u32 status PIN("r0");
     u32 oldStatus;
-    register u32 flags asm("r2");
+    register u32 flags PIN("r2");
 
     despawned = SpriteUtilDespawnIfSpriteExists(63);
     if (despawned != 0) {
@@ -446,7 +446,7 @@ void func_803F66C(void)
     sprite->warioCollision = 6;
     {
         u8 *field0;
-        register u32 value48 asm("r1");
+        register u32 value48 PIN("r1");
         u8 *field1;
 
         field0 = (u8 *)sprite + 32;
@@ -500,12 +500,12 @@ void func_803F718(void)
     struct PrimarySpriteData *current;
     u32 roomSlot;
     u8 *room;
-    register struct PrimarySpriteData *sprites asm("r5");
+    register struct PrimarySpriteData *sprites PIN("r5");
     u32 activeFlag;
     struct PrimarySpriteData *sprite;
     struct PrimarySpriteData *mirror;
-    register s32 offset asm("r3");
-    register struct PrimarySpriteData *lastSprite asm("ip");
+    register s32 offset PIN("r3");
+    register struct PrimarySpriteData *lastSprite PIN("ip");
     const struct AnimationFrame *selectedOam;
 
     targetId = 0xA7;
@@ -534,7 +534,7 @@ loop:
         goto next;
     }
     {
-        register u32 status asm("r1");
+        register u32 status PIN("r1");
         u32 maskedStatus;
 
         status = sprite->status;
@@ -557,7 +557,7 @@ finishSearch:
     {
         u32 persistentIndex;
         u8 *roomPtr;
-        register u8 *persistentData asm("r1");
+        register u8 *persistentData PIN("r1");
 
         roomPtr = room;
         persistentIndex = *roomPtr;
@@ -574,7 +574,7 @@ finishSearch:
 
 matched:
     {
-        register u32 oamAddress asm("r0");
+        register u32 oamAddress PIN("r0");
         const struct AnimationFrame *oam;
         u32 zero;
 
@@ -671,7 +671,7 @@ void func_803F7CC(void)
     }
 
     {
-        register u32 direction asm("r1");
+        register u32 direction PIN("r1");
         direction = facing;
         asm("" : : "r"(direction));
         if (direction != 0) {
@@ -679,8 +679,8 @@ void func_803F7CC(void)
             func_803F944();
         } else {
             struct PrimarySpriteData *current;
-            register u8 *indexPtr asm("r2");
-            register u8 *indexAlias asm("ip");
+            register u8 *indexPtr PIN("r2");
+            register u8 *indexAlias PIN("ip");
             u32 currentIndex;
             const s16 *table;
             u32 address;
@@ -702,7 +702,7 @@ void func_803F7CC(void)
             zero = 0;
             signedValue = *(s16 *)(address + zero);
             if (signedValue == 0x7FFF) {
-                register u32 previousAddress asm("r1");
+                register u32 previousAddress PIN("r1");
                 previousAddress = currentIndex - 1;
                 previousAddress <<= 1;
                 previousAddress += (u32)table;
@@ -711,7 +711,7 @@ void func_803F7CC(void)
                 newX += previousAddress;
             } else {
                 u32 nextIndex;
-                register u8 *storePtr asm("r1");
+                register u8 *storePtr PIN("r1");
                 nextIndex = currentIndex + 1;
                 storePtr = indexAlias;
                 *storePtr = nextIndex;
@@ -725,8 +725,8 @@ void func_803F7CC(void)
             func_803F944();
         } else {
             struct PrimarySpriteData *current;
-            register u8 *indexPtr asm("r2");
-            register u8 *indexAlias asm("ip");
+            register u8 *indexPtr PIN("r2");
+            register u8 *indexAlias PIN("ip");
             u32 currentIndex;
             const s16 *table;
             u32 address;
@@ -754,7 +754,7 @@ void func_803F7CC(void)
                 raw = *(u16 *)address;
             } else {
                 u32 nextIndex;
-                register u8 *storePtr asm("r1");
+                register u8 *storePtr PIN("r1");
                 nextIndex = currentIndex + 1;
                 storePtr = indexAlias;
                 *storePtr = nextIndex;
@@ -781,9 +781,9 @@ void func_803F958(void)
     u32 warioX;
     register u32 status;
     u32 facing;
-    register u8 *indexPtr asm("ip");
+    register u8 *indexPtr PIN("ip");
     u32 index;
-    register u32 delta asm("r4");
+    register u32 delta PIN("r4");
     u32 deltaCopy;
     volatile u32 saved[3];
 
@@ -810,7 +810,7 @@ void func_803F958(void)
     }
     saved[2] = facing;
     {
-        register u8 *address asm("r0");
+        register u8 *address PIN("r0");
         address = (u8 *)41;
         asm("" : : "r"(address));
         address = (u8 *)((u32)address + (u32)sprite);
@@ -821,7 +821,7 @@ void func_803F958(void)
     deltaCopy = delta;
 
     {
-        register u32 persistentIndex asm("r0");
+        register u32 persistentIndex PIN("r0");
         u32 roomSlot;
         const u8 *persistent;
 
@@ -836,7 +836,7 @@ void func_803F958(void)
             if (delta == 0x7FFF) {
                 {
                     u32 zero;
-                    register u8 *storePtr asm("r1");
+                    register u8 *storePtr PIN("r1");
                     zero = 0;
                     storePtr = indexPtr;
                     *storePtr = zero;
@@ -850,7 +850,7 @@ void func_803F958(void)
                 }
                 *indexPtr = index;
                 {
-                    register u32 newX asm("r0");
+                    register u32 newX PIN("r0");
                     newX = xPosition + delta;
                     sprite->xPosition = newX;
                 }
@@ -870,7 +870,7 @@ void func_803F958(void)
         } else {
             if (delta == 0x7FFF) {
                 {
-                    register u8 *storePtr asm("r1");
+                    register u8 *storePtr PIN("r1");
                     storePtr = indexPtr;
                     *storePtr = facing;
                 }
@@ -883,7 +883,7 @@ void func_803F958(void)
                 }
                 *indexPtr = index;
                 {
-                    register u32 newX asm("r0");
+                    register u32 newX PIN("r0");
                     newX = xPosition - delta;
                     sprite->xPosition = newX;
                 }
@@ -908,7 +908,7 @@ void func_803F958(void)
             if (delta == 0x7FFF) {
                 {
                     u32 zero;
-                    register u8 *storePtr asm("r1");
+                    register u8 *storePtr PIN("r1");
                     zero = 0;
                     storePtr = indexPtr;
                     *storePtr = zero;
@@ -926,7 +926,7 @@ void func_803F958(void)
                 }
                 *indexPtr = index;
                 {
-                    register u32 newX asm("r0");
+                    register u32 newX PIN("r0");
                     newX = xPosition + delta;
                     sprite->xPosition = newX;
                 }
@@ -946,7 +946,7 @@ void func_803F958(void)
         } else {
             if (delta == 0x7FFF) {
                 {
-                    register u8 *storePtr asm("r1");
+                    register u8 *storePtr PIN("r1");
                     storePtr = indexPtr;
                     *storePtr = facing;
                 }
@@ -998,12 +998,12 @@ void func_803FB14(void)
 void func_803FB28(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 xPosition asm("r5");
+    register u32 xPosition PIN("r5");
     u32 spriteX;
     u32 warioX;
-    register u32 status asm("r6");
-    register u32 facing asm("r4");
-    register u8 *indexPtr asm("ip");
+    register u32 status PIN("r6");
+    register u32 facing PIN("r4");
+    register u8 *indexPtr PIN("ip");
     u32 index;
     u32 delta;
     register u32 deltaCopy;
@@ -1028,13 +1028,13 @@ void func_803FB28(void)
     }
     status = sprite->status;
     {
-        register u32 mask asm("r0");
+        register u32 mask PIN("r0");
         mask = 0x40;
         mask &= status;
         facing = (u16)mask;
     }
     {
-        register u8 *address asm("r1");
+        register u8 *address PIN("r1");
         address = (u8 *)41;
         asm("" : : "r"(address));
         address = (u8 *)((u32)address + (u32)sprite);
@@ -1048,7 +1048,7 @@ void func_803FB28(void)
     if (facing != 0) {
         if (delta == 0x7FFF) {
             u32 zero;
-            register u8 *storePtr asm("r2");
+            register u8 *storePtr PIN("r2");
             zero = 0;
             storePtr = indexPtr;
             *storePtr = zero;
@@ -1065,7 +1065,7 @@ void func_803FB28(void)
                 *storePtr = index;
             }
             {
-                register u32 newX asm("r0");
+                register u32 newX PIN("r0");
                 newX = xPosition + delta;
                 sprite->xPosition = newX;
             }
@@ -1092,7 +1092,7 @@ void func_803FB28(void)
         }
     } else {
         if (delta == 0x7FFF) {
-            register u8 *storePtr asm("r2");
+            register u8 *storePtr PIN("r2");
             storePtr = indexPtr;
             *storePtr = facing;
             func_803F718();
@@ -1108,7 +1108,7 @@ void func_803FB28(void)
                 *storePtr = index;
             }
             {
-                register u32 newX asm("r0");
+                register u32 newX PIN("r0");
                 newX = xPosition - deltaCopy;
                 sprite->xPosition = newX;
             }
@@ -1120,14 +1120,14 @@ void func_803FB28(void)
                 }
                 {
                     u32 zero;
-                    register struct PrimarySpriteData *storeSprite asm("r1");
+                    register struct PrimarySpriteData *storeSprite PIN("r1");
                     zero = 0;
                     storeSprite = spriteAlias;
                     storeSprite->currentAnimationFrame = zero;
                     storeSprite->animationTimer = zero;
                 }
             } else if (index == 14) {
-                register u32 savedSpriteX asm("r2");
+                register u32 savedSpriteX PIN("r2");
                 u32 savedWarioX;
                 savedSpriteX = saved[0];
                 savedWarioX = saved[1];
@@ -1149,8 +1149,8 @@ void func_803FC70(void)
     u32 roomSlot;
     s32 index;
     struct PrimarySpriteData *current;
-    register struct PrimarySpriteData *sprites asm("r6");
-    register u32 oamBase asm("r9");
+    register struct PrimarySpriteData *sprites PIN("r6");
+    register u32 oamBase PIN("r9");
     u32 zero;
     const struct AnimationFrame *childOam;
 
@@ -1167,7 +1167,7 @@ void func_803FC70(void)
 loop:
     {
         u32 structSize;
-        register s32 offset asm("r3");
+        register s32 offset PIN("r3");
         struct PrimarySpriteData *child;
 
         structSize = sizeof(struct PrimarySpriteData);
@@ -1185,7 +1185,7 @@ loop:
         }
 
         {
-            register u32 address asm("r0");
+            register u32 address PIN("r0");
             u32 base;
             const struct AnimationFrame *oam;
 
@@ -1229,15 +1229,15 @@ void func_803FCF8(void)
 {
     struct PrimarySpriteData *sprite;
     u32 baseX;
-    register u32 positionOffset asm("r1");
-    register u32 spriteLimit asm("ip");
+    register u32 positionOffset PIN("r1");
+    register u32 spriteLimit PIN("ip");
     u32 spriteLimitHigh;
     u16 limitPosition;
     u32 warioLimit;
     u32 warioLimitHigh;
     u32 facing;
-    register u8 *verticalIndexPtr asm("r8");
-    register u32 verticalIndex asm("r2");
+    register u8 *verticalIndexPtr PIN("r8");
+    register u32 verticalIndex PIN("r2");
     u32 verticalAddress;
     u32 verticalRaw;
     s32 verticalSigned;
@@ -1246,7 +1246,7 @@ void func_803FCF8(void)
     sprite = &gCurrentSprite;
     baseX = sprite->xPosition;
     {
-        register u32 offsetValue asm("r0");
+        register u32 offsetValue PIN("r0");
 
         offsetValue = 128;
         offsetValue <<= 5;
@@ -1312,7 +1312,7 @@ turnAway:
 
     {
         u32 nextIndex;
-        register u8 *indexPtr asm("r2");
+        register u8 *indexPtr PIN("r2");
 
         nextIndex = verticalIndex + 1;
         indexPtr = verticalIndexPtr;
@@ -1320,11 +1320,11 @@ turnAway:
     }
     sprite->yPosition += verticalRaw;
     {
-        register u8 *horizontalIndexPtr asm("ip");
+        register u8 *horizontalIndexPtr PIN("ip");
         u32 horizontalIndex;
         const s16 *table;
-        register u32 address asm("r0");
-        register u32 horizontalRaw asm("r1");
+        register u32 address PIN("r0");
+        register u32 horizontalRaw PIN("r1");
         s32 horizontalSigned;
         u32 newX;
 
@@ -1353,7 +1353,7 @@ turnAway:
             }
             {
                 u32 nextIndex;
-                register u8 *indexPtr asm("r2");
+                register u8 *indexPtr PIN("r2");
 
                 nextIndex = horizontalIndex + 1;
                 indexPtr = horizontalIndexPtr;
@@ -1373,7 +1373,7 @@ turnAway:
             horizontalRaw = *(u16 *)previousAddress;
         } else {
             u32 nextIndex;
-            register u8 *indexPtr asm("r5");
+            register u8 *indexPtr PIN("r5");
 
             nextIndex = horizontalIndex + 1;
             indexPtr = horizontalIndexPtr;
@@ -1388,13 +1388,13 @@ applyX:
 
 void func_803FDEC(void)
 {
-    register struct PrimarySpriteData *sprite asm("ip");
-    register u32 status asm("r0");
+    register struct PrimarySpriteData *sprite PIN("ip");
+    register u32 status PIN("r0");
     u32 oldStatus;
-    register u32 flags asm("r2");
+    register u32 flags PIN("r2");
     u32 zeroByte;
-    register u32 zeroHalf asm("r4");
-    register u8 *fieldPtr asm("r1");
+    register u32 zeroHalf PIN("r4");
+    register u8 *fieldPtr PIN("r1");
     u8 *otherPtr;
     const struct AnimationFrame *oam;
 
@@ -1439,12 +1439,12 @@ void func_803FDEC(void)
 
 void func_803FE54(void)
 {
-    register struct PrimarySpriteData *sprite asm("ip");
+    register struct PrimarySpriteData *sprite PIN("ip");
     u32 status;
-    register u32 oldStatus asm("r1");
-    register u32 flags asm("r2");
+    register u32 oldStatus PIN("r1");
+    register u32 flags PIN("r2");
     u32 zeroByte;
-    register u32 zeroHalf asm("r4");
+    register u32 zeroHalf PIN("r4");
     u8 *fieldPtr;
     u8 *otherPtr;
     const struct AnimationFrame *oam;
@@ -1500,7 +1500,7 @@ void func_803FEC8(void)
     struct PrimarySpriteData *current;
     u32 activeFlag;
     struct PrimarySpriteData *sprite;
-    register struct PrimarySpriteData *workSprite asm("r3");
+    register struct PrimarySpriteData *workSprite PIN("r3");
     struct PrimarySpriteData *lastSprite;
     u32 targetId;
 
@@ -1527,7 +1527,7 @@ loop:
         goto next;
     }
     {
-        register u32 status asm("r1");
+        register u32 status PIN("r1");
         u32 maskedStatus;
 
         status = sprite->status;
@@ -1563,7 +1563,7 @@ finishSearch:
         goto spawnLeft;
     }
     {
-        register u32 xPosition asm("r0");
+        register u32 xPosition PIN("r0");
 
         xPosition = gWarioData.xPosition;
         xPosition += 64;
@@ -1572,7 +1572,7 @@ finishSearch:
 
 matched:
     {
-        register u8 *timer asm("r1");
+        register u8 *timer PIN("r1");
         u32 value;
 
         timer = (u8 *)workSprite;
@@ -1584,7 +1584,7 @@ matched:
 
 spawnLeft:
     {
-        register u32 xPosition asm("r0");
+        register u32 xPosition PIN("r0");
 
         xPosition = gWarioData.xPosition;
         xPosition -= 64;
@@ -1592,8 +1592,8 @@ spawnLeft:
 
 spawn:
     {
-        register u32 xPosition asm("r0");
-        register u32 spawnX asm("r1");
+        register u32 xPosition PIN("r0");
+        register u32 spawnX PIN("r1");
         u32 spawnY;
 
         spawnX = (u16)xPosition;
@@ -1774,7 +1774,7 @@ found:
 useNegativeOffset:
     {
         s32 negativeOffset;
-        register s32 adjustedPosition asm("r0");
+        register s32 adjustedPosition PIN("r0");
 
         negativeOffset = 0xFFD0;
         adjustedPosition = negativeOffset;

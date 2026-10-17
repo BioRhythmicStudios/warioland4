@@ -50,9 +50,9 @@ void DendenIdleInit(void)
 void DendenIdle(void)
 {
     u32 nearby;
-    register u8 collision asm("r2");
+    register u8 collision PIN("r2");
     u8 extent;
-    register u8 *collisionPointer asm("r5");
+    register u8 *collisionPointer PIN("r5");
     register u8 *extentPointer;
     u16 xPosition;
     u16 maskedX;
@@ -530,11 +530,11 @@ void DendenSpawnShell(void)
 
 void DendenShellInit(void)
 {
-    register u16 currentStatus asm("r0");
+    register u16 currentStatus PIN("r0");
     u16 status;
     u8 zeroByte;
     u16 zeroHalfword;
-    register u16 facingRight asm("r0");
+    register u16 facingRight PIN("r0");
 
     currentStatus = gCurrentSprite.status;
     status = SPRITE_STATUS_HEAVY | SPRITE_STATUS_AFFINE;

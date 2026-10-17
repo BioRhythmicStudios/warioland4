@@ -123,12 +123,12 @@ void UpdateAnimatedGraphics(void)
 
 void InitAnimatedGraphics(void)
 {
-    register struct AnimatedGraphicsState* graphicsState asm("r3");
+    register struct AnimatedGraphicsState* graphicsState PIN("r3");
     int slotIndex;
-    register const u8* switchStateTable asm("sl");
-    register const u8* slotSwitchIds asm("r9");
-    register const u16* activeAnimationIds asm("r8");
-    register const u16* inactiveAnimationIds asm("ip");
+    register const u8* switchStateTable PIN("sl");
+    register const u8* slotSwitchIds PIN("r9");
+    register const u16* activeAnimationIds PIN("r8");
+    register const u16* inactiveAnimationIds PIN("ip");
     int zeroValue;
     int animationListOffset;
     vu32* dmaRegisters;
@@ -159,8 +159,8 @@ void InitAnimatedGraphics(void)
             animationIdAddress += (u32)inactiveAnimationIds;
         }
         {
-            register u16 animationId asm("r0");
-            register u32 definitionOffset asm("r1");
+            register u16 animationId PIN("r0");
+            register u32 definitionOffset PIN("r1");
             const struct AnimatedGraphicsDefinition* definitionTable;
             animationId = *((u16*)animationIdAddress);
             definitionOffset = animationId << 3;
@@ -230,8 +230,8 @@ void ReloadAnimatedGraphicsForSwitch(u8 switchId)
     int zeroValue;
     vu32* dmaRegisters;
     int animationListOffset;
-    register const u16* activeAnimationIds asm("sl");
-    register const u16* inactiveAnimationIds asm("r9");
+    register const u16* activeAnimationIds PIN("sl");
+    register const u16* inactiveAnimationIds PIN("r9");
     int reversePlaybackModeStart;
     int slotLimitBias;
     int definitionOffsetCopy;
@@ -267,9 +267,9 @@ void ReloadAnimatedGraphicsForSwitch(u8 switchId)
                 }
             }
             {
-                register u32 animationId asm("r0");
+                register u32 animationId PIN("r0");
                 u32 definitionOffset;
-                register const struct AnimatedGraphicsDefinition* definitionTable asm("r0");
+                register const struct AnimatedGraphicsDefinition* definitionTable PIN("r0");
                 animationId = *((u16*)animationIdAddress);
                 definitionOffset = animationId << 3;
                 definitionOffsetCopy = definitionOffset;

@@ -102,9 +102,9 @@ void InitSoundRoomScreen(void)
 {
     vu32* dma;
     long long new_var;
-    register u32 busy asm("r2");
+    register u32 busy PIN("r2");
     s32 passedScoreCount;
-    register s32 passage asm("r1");
+    register s32 passage PIN("r1");
     s32 nextPassage;
     s32 minigame;
     s32* score;
@@ -197,7 +197,7 @@ void InitSoundRoomScreen(void)
     bgReg++;
     bgReg[0] = 0x1A01;
     {
-        register s16* nextBgReg asm("r1");
+        register s16* nextBgReg PIN("r1");
         nextBgReg = bgReg;
         nextBgReg++;
         *(volatile s16*)nextBgReg = 0x1C02;
@@ -272,7 +272,7 @@ asm(".set $t, InitSoundRoomScreen + 0x240\n"
 void SoundRoomVBlank(void)
 {
     vu16* window;
-    register u32 soundValue asm("r2");
+    register u32 soundValue PIN("r2");
     u16* row0;
     int new_var;
     u16* row1;
@@ -306,10 +306,10 @@ void SoundRoomVBlank(void)
             goto drawText;
 
         case 2: {
-            register s32 li asm("r5");
+            register s32 li PIN("r5");
             u32 tileMask;
             u32 paletteBase;
-            register u32 paletteLoad asm("r0");
+            register u32 paletteLoad PIN("r0");
             soundValue = gMPlayMemAccArea[0];
             li = 1;
             tileMask = 0x0FFF;
@@ -421,7 +421,7 @@ void SoundRoomVBlank(void)
         case 1: {
             const u32* languageTable;
             u32 languageIndex;
-            register u32 languageTemp asm("r0");
+            register u32 languageTemp PIN("r0");
 
             languageTable = sUnk_863D8A0;
             languageIndex = (u8)gSoundRoomSelectedStage;
@@ -462,8 +462,8 @@ s32 UpdateSoundRoomMenu(void)
     u16* row1;
     switch ((u8)gSoundRoomMenuState) {
         case 0: {
-            register u16* clearTarget asm("r3");
-            register u32 clearValue asm("r2");
+            register u16* clearTarget PIN("r3");
+            register u32 clearValue PIN("r2");
             clearTarget = &gSoundRoomMessageTimer;
             clearValue = 0;
             *clearTarget = clearValue;
@@ -487,11 +487,11 @@ s32 UpdateSoundRoomMenu(void)
                 gSoundRoomMenuState = 3;
                 {
                     u16* spriteState;
-                    register const u8* graphicsTable asm("r2");
+                    register const u8* graphicsTable PIN("r2");
                     u8* stagePtr;
                     u8* passagePtr;
-                    register u32 offset asm("r1");
-                    register u32 tableValue asm("r0");
+                    register u32 offset PIN("r1");
+                    register u32 tableValue PIN("r0");
                     spriteState = gStageEntryMainSpriteState;
                     graphicsTable = (const u8*)sUnk_863C694;
                     stagePtr = (u8*)(&gSoundRoomSelectedStage);
@@ -533,7 +533,7 @@ s32 UpdateSoundRoomMenu(void)
                 u8* stagePtr;
                 u8* passagePtr;
                 s32 selectedTrack;
-                register u32 offset asm("r1");
+                register u32 offset PIN("r1");
                 u32 temp;
                 gStageEntrySequenceTimer = 0;
                 trackTable = (const u8*)sUnk_863C714;
@@ -607,11 +607,11 @@ s32 UpdateSoundRoomMenu(void)
                     gSoundRoomMenuState = 3;
                     {
                         u16* spriteState;
-                        register const u8* graphicsTable asm("r2");
+                        register const u8* graphicsTable PIN("r2");
                         u8* stagePtr;
                         u8* passagePtr;
-                        register u32 offset asm("r1");
-                        register u32 tableValue asm("r0");
+                        register u32 offset PIN("r1");
+                        register u32 tableValue PIN("r0");
                         spriteState = gStageEntryMainSpriteState;
                         graphicsTable = (const u8*)sUnk_863C694;
                         stagePtr = (u8*)(&gSoundRoomSelectedStage);
@@ -722,8 +722,8 @@ s32 UpdateSoundRoomMenu(void)
                 gSoundRoomMusicEnabled = 0;
                 {
                     int tileIndex;
-                    register unsigned long paletteBits asm("r5");
-                    register int paletteTemp asm("r2");
+                    register unsigned long paletteBits PIN("r5");
+                    register int paletteTemp PIN("r2");
                     tileIndex = 1;
                     new_var4 = 0x0FFF;
                     paletteTemp = 0x2000;
@@ -735,7 +735,7 @@ s32 UpdateSoundRoomMenu(void)
                     do {
                         {
                             u32 maskedTile;
-                            register u16 tileValue asm("r1");
+                            register u16 tileValue PIN("r1");
                             tileValue = *row0;
                             maskedTile = new_var4;
                             maskedTile &= tileValue;
@@ -815,14 +815,14 @@ search:
 s32 MoveSoundRoomSelection(void)
 {
     s32 currentItem;
-    register u16 buttons asm("r2");
+    register u16 buttons PIN("r2");
     const u32* new_var;
     u8* new_var3;
     const u32* selectionTable;
     s32 direction;
-    register const u32* neighbors asm("r1");
+    register const u32* neighbors PIN("r1");
     const u32* list;
-    register const u32* listCursor asm("r5");
+    register const u32* listCursor PIN("r5");
     const u32* passageTable;
     s32 candidate;
     s32 passage;
@@ -847,7 +847,7 @@ s32 MoveSoundRoomSelection(void)
     }
     if (direction != 0) {
         {
-            register const u8* neighborsBase asm("r2");
+            register const u8* neighborsBase PIN("r2");
             s32 directionOffset;
             neighborsBase = sUnk_863C85C;
             currentItem <<= 6;
@@ -865,7 +865,7 @@ s32 MoveSoundRoomSelection(void)
                 candidate = *listCursor;
                 stage = passageTable[candidate];
                 {
-                    register const u32* stageTable asm("r0");
+                    register const u32* stageTable PIN("r0");
                     stageTable = sUnk_863C794;
                     passage = stageTable[candidate];
                 }
@@ -898,9 +898,9 @@ found:
         u8* passagePtr;
         u8* stagePtr;
         u16* spriteState;
-        register const u8* table asm("r4");
-        register u32 stageOffset asm("r0");
-        register u32 passageOffset asm("r1");
+        register const u8* table PIN("r4");
+        register u32 stageOffset PIN("r0");
+        register u32 passageOffset PIN("r1");
         u32 zero;
 
         passagePtr = &gSoundRoomSelectedPassage;
@@ -1310,7 +1310,7 @@ void DrawSoundRoomSprites(void)
 void LoadRandomSoundRoomPreview(void)
 {
     vu32* dma;
-    register s32 index asm("r3");
+    register s32 index PIN("r3");
     u32 busy;
 
     index = MinigameRandom() % 5;

@@ -54,7 +54,7 @@ void BowlerWalking(void)
     struct PrimarySpriteData* sprite;
     u8* work1Pointer;
     u8* work0Pointer;
-    register int oldTimer asm("r5");
+    register int oldTimer PIN("r5");
     int mask;
     int value;
 
@@ -359,9 +359,9 @@ void BowlerTransformingIntoYeti(void)
 void InitBowlerBall(void)
 {
     struct PrimarySpriteData* sprite;
-    register u32 status asm("r0");
+    register u32 status PIN("r0");
     u32 oldStatus;
-    register int value asm("r2");
+    register int value PIN("r2");
     int zero16;
     u8* field;
     const struct AnimationFrame* oam;
@@ -599,7 +599,7 @@ void SpriteBowlerBall(void)
     struct PrimarySpriteData* sprite;
     const s16* table;
     u8* anglePointer;
-    register s32 value asm("r4");
+    register s32 value PIN("r4");
     s32 fixedOne;
     int affine;
     u32 index;

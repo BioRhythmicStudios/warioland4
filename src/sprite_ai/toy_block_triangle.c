@@ -20,12 +20,12 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
     {
         struct PrimarySpriteData* current;
         u32 value;
-        register u32 currentY asm("r1");
-        register u32 currentX asm("r2");
+        register u32 currentY PIN("r1");
+        register u32 currentX PIN("r2");
 
         current = &gCurrentSprite;
         {
-            register u32 bias asm("r0");
+            register u32 bias PIN("r0");
             bias = 0x1000;
             asm("" : "=r"(currentX) : "0"(bias));
         }
@@ -67,7 +67,7 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
     do
     {
         struct PrimarySpriteData* sprites;
-        register u32 value asm("r0");
+        register u32 value PIN("r0");
 
         sprites = gSpriteData;
         value = sizeof(struct PrimarySpriteData);
@@ -76,11 +76,11 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
         if ((sprite->status & SPRITE_STATUS_EXISTS) &&
             sprite->globalID == PSPRITE_TOY_BLOCK_TRIANGLE_LOCK && sprite->pose == 16)
         {
-            register u32 spriteY asm("r3");
-            register u32 spriteX asm("r2");
-            register u32 top asm("r4");
+            register u32 spriteY PIN("r3");
+            register u32 spriteX PIN("r2");
+            register u32 top PIN("r4");
             u32 left;
-            register u8* extent asm("r0");
+            register u8* extent PIN("r0");
 
             value = 0x1000;
             /* Keep the position bias in r0 before copying it to r2. */
@@ -105,7 +105,7 @@ s32 ToyBlockTriangleUnlockTouchedLock(void)
             left = (u16)left;
 
             extent++;
-            { register u8 loaded asm("r0");
+            { register u8 loaded PIN("r0");
               loaded = *(volatile u8 *)extent;
               spriteX += loaded;
             }
@@ -136,7 +136,7 @@ void InitToyBlockTriangle(void)
     struct PrimarySpriteData* temp;
     u8* drawPtr;
     u16 zero16;
-    register u8 zero asm("r2");
+    register u8 zero PIN("r2");
     u8 value;
     u16 status;
     u16 x;
@@ -319,8 +319,8 @@ void InitToyBlockTriangleLock(void)
     u8* ptr;
     u8* temp;
     u16 oldStatus;
-    register u16 status asm("r0");
-    register u8 zero asm("r2");
+    register u16 status PIN("r0");
+    register u8 zero PIN("r2");
     u16 zero16;
     u16 x;
 
@@ -380,9 +380,9 @@ void UnlockMatchingToyBlockTriangleLock(void)
     u32 y;
     s32 found;
     s32 i;
-    register u8* data asm("r3");
+    register u8* data PIN("r3");
     s32 value;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
 
     {
         struct PrimarySpriteData* sprite;
@@ -390,7 +390,7 @@ void UnlockMatchingToyBlockTriangleLock(void)
         sprite = &gCurrentSprite;
         sprite->pose = 24;
         {
-            register u32 yValue asm("r0");
+            register u32 yValue PIN("r0");
             yValue = sprite->yPosition;
             asm("" : "=r"(temp) : "0"(yValue));
         }
@@ -409,7 +409,7 @@ void UnlockMatchingToyBlockTriangleLock(void)
     found = FALSE;
     i = 0;
     {
-        register u8* rawData asm("r0");
+        register u8* rawData PIN("r0");
 
         rawData = &gRoomSpriteData[0][0];
         asm("" : "=r"(data) : "0"(rawData));
@@ -434,7 +434,7 @@ void UnlockMatchingToyBlockTriangleLock(void)
             if (y != value)
                 continue;
             {
-                register u8* entry asm("r0");
+                register u8* entry PIN("r0");
 
                 entry = data + 1;
                 entry = (u8*)((u32)temp + (u32)entry);
@@ -485,7 +485,7 @@ void UnlockMatchingToyBlockTriangleLock(void)
                         continue;
                     /* Keep the short-lived pose materialization in r0 without instruction ASM. */
                     {
-                        register u8 poseValue asm("r0");
+                        register u8 poseValue PIN("r0");
                         poseValue = 17;
                         current->pose = poseValue;
                     }
@@ -502,8 +502,8 @@ void InitToyBlockTriangleDoor(void)
     u8* ptr;
     u8* temp;
     u16 oldStatus;
-    register u16 status asm("r0");
-    register u8 zero asm("r2");
+    register u16 status PIN("r0");
+    register u8 zero PIN("r2");
     u16 zero16;
 
     sprite = &gCurrentSprite;

@@ -66,13 +66,13 @@ void MayubirdFloat(void)
 
     base = &gCurrentSprite;
     {
-        register u8 *counterPointer asm("ip");
+        register u8 *counterPointer PIN("ip");
         u32 counter;
         const s16 *table;
         const s16 *entry;
-        register u16 movement asm("r3");
+        register u16 movement PIN("r3");
         int signedMovement;
-        register int zero asm("r5");
+        register int zero PIN("r5");
 
         counterPointer = &base->work2;
         counter = *counterPointer;
@@ -89,7 +89,7 @@ void MayubirdFloat(void)
             sprite = base;
             if (signedMovement == sentinel) {
             int next;
-            register u8 *store asm("r6");
+            register u8 *store PIN("r6");
 
             movement = *(const u16 *)table;
             next = 0;
@@ -97,7 +97,7 @@ void MayubirdFloat(void)
             *store = next;
         } else {
             int next;
-            register u8 *store asm("r1");
+            register u8 *store PIN("r1");
 
             next = counter + 1;
             store = counterPointer;
@@ -107,10 +107,10 @@ void MayubirdFloat(void)
         sprite->xPosition += movement;
     }
     {
-        register u8 *counterPointer asm("ip");
-        register u8 *pointerTemp asm("r6");
-        register u32 counter asm("r2");
-        register const s16 *table asm("r4");
+        register u8 *counterPointer PIN("ip");
+        register u8 *pointerTemp PIN("r6");
+        register u32 counter PIN("r2");
+        register const s16 *table PIN("r4");
         const s16 *entry;
         u16 movement;
         int signedMovement;
@@ -128,7 +128,7 @@ void MayubirdFloat(void)
         zero = 0;
         signedMovement = entry[zero];
         if (signedMovement == 0x7FFF) {
-            register int next asm("r0");
+            register int next PIN("r0");
             u8 *store;
 
             movement = *(const u16 *)table;
@@ -136,8 +136,8 @@ void MayubirdFloat(void)
             store = counterPointer;
             *store = next;
         } else {
-            register int next asm("r0");
-            register u8 *store asm("r6");
+            register int next PIN("r0");
+            register u8 *store PIN("r6");
 
             next = counter + 1;
             store = counterPointer;
@@ -324,7 +324,7 @@ void MayubirdFlyRight(void)
         sentinel = 0x7FFF;
         sprite = base;
         if (signedMovement == sentinel) {
-            register u32 previous asm("r1");
+            register u32 previous PIN("r1");
             int xPosition;
 
             previous = counter - 1;
@@ -405,7 +405,7 @@ void MayubirdFlyLeft(void)
         sentinel = 0x7FFF;
         sprite = base;
         if (signedMovement == sentinel) {
-            register u32 previous asm("r1");
+            register u32 previous PIN("r1");
             int xPosition;
 
             previous = counter - 1;

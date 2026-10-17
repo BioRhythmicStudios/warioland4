@@ -303,7 +303,7 @@ void InitializeVortexCutsceneFromPassage(void)
     *((vu16*)(0x4000000 + 0x8)) = 0x1808;
     *((vu16*)(0x4000000 + 0xa)) = 0x1A09;
     {
-        register u16 firstZero asm("r1");
+        register u16 firstZero PIN("r1");
         u16 spriteZero;
         firstZero = 0;
         /* Keep the first zero live in r1 until the sprite-state zero is introduced in r2. */

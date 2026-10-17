@@ -112,8 +112,8 @@ u8 FlatWarioWalking(void)
 
 u8 FlatWarioFloating(void)
 {
-    register struct WarioData* temp asm("r2");
-    register struct WarioData* wario asm("r4");
+    register struct WarioData* temp PIN("r2");
+    register struct WarioData* wario PIN("r4");
     int counter;
     struct WarioData* current;
     u8 value;
@@ -122,7 +122,7 @@ u8 FlatWarioFloating(void)
     s32 directionTest;
     u16 heldButtons;
     const struct WarioAnimationFrame* animation;
-    register int frame asm("r1");
+    register int frame PIN("r1");
 
     temp = &gWarioData;
     direction = temp->horizontalDirection;
@@ -176,7 +176,7 @@ u8 FlatWarioFloating(void)
 
 decrementFrame:
     {
-        register int dec asm("r0");
+        register int dec PIN("r0");
         dec = frame - 1;
         temp->unk_1F = dec;
     }
@@ -186,8 +186,8 @@ returnFF:
 
 u8 FlatWarioJumping(void)
 {
-    register u16 heldButtons asm("r2");
-    register u16 direction asm("r1");
+    register u16 heldButtons PIN("r2");
+    register u16 direction PIN("r1");
     u16 heldDirection;
 
     if (gWarioData.yVelocity <= 0) {
@@ -258,12 +258,12 @@ void SetFlatWarioPose(u8 value)
 
 void UpdateFlatWarioMovement(void)
 {
-    register struct WarioCollisionData* collision asm("r3");
-    register const u8* properties asm("r2");
+    register struct WarioCollisionData* collision PIN("r3");
+    register const u8* properties PIN("r2");
     struct WarioData* wario;
     u16 movement;
     const u8* entry;
-    register s16 yVelocity asm("r1");
+    register s16 yVelocity PIN("r1");
     int velocity;
     int offset;
 
@@ -317,8 +317,8 @@ void UpdateFlatWarioMovement(void)
 void ProcessFlatWarioCollision(void)
 {
     struct WarioCollisionData* collision;
-    register const u8* properties asm("r2");
-    register struct WarioData* wario asm("r3");
+    register const u8* properties PIN("r2");
+    register struct WarioData* wario PIN("r3");
     u8 result;
     const u8* entry;
     int collisionResult;

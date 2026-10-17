@@ -76,7 +76,7 @@ void InitializeStageEjection(void)
     DMA3_STAGE_EJECTION->control = 0x80000100;
     DMA3_STAGE_EJECTION->control;
     {
-        register u32 mask asm("r1");
+        register u32 mask PIN("r1");
         volatile struct Dma3RegsStageEjection* dma;
         s32 control;
         dma = DMA3_STAGE_EJECTION;
@@ -341,7 +341,7 @@ void UpdateStageEjectionTreasureParticles(void)
         do {
             u32 xraw_r3;
             u32 yraw_r2;
-            register s32 work_r0 asm("r0");
+            register s32 work_r0 PIN("r0");
 
             xraw_r3 = it_r1->x;
 
@@ -436,7 +436,7 @@ void DrawStageEjection(void)
     u16* state;
     u8* new_var2;
     const s16* sineTable;
-    register u16* stateCopy asm("r7");
+    register u16* stateCopy PIN("r7");
     long long pad;
     struct StageEjectionParticle* new_var7;
     u16 affine[4];
@@ -477,7 +477,7 @@ void DrawStageEjection(void)
             do {
                 u32 attr;
                 u32 work0;
-                register u32 work1 asm("r1");
+                register u32 work1 PIN("r1");
                 attr = *(frame++);
                 *(rawOut++) = attr;
                 work0 = ((s16)new_var3[5]) >> 4;
@@ -554,7 +554,7 @@ void DrawStageEjection(void)
                     u8* oamBytes;
                     struct StageEjectionTreasureParticle* curObj;
                     s32 mask;
-                    register s32 remaining asm("r9");
+                    register s32 remaining PIN("r9");
                     curObj = obj;
                     {
                         u32 byteOffset;
@@ -610,7 +610,7 @@ void DrawStageEjection(void)
         } while (slot <= 4);
     }
     {
-        register s32 slot asm("r12");
+        register s32 slot PIN("r12");
         struct StageEjectionParticle* obj;
         s32 offset;
         slot = 0;
@@ -619,8 +619,8 @@ void DrawStageEjection(void)
         do {
             if (obj->active != 0) {
                 u32 timer;
-                register u32 frameValue asm("r1");
-                register u32 animationTable asm("r2");
+                register u32 frameValue PIN("r1");
+                register u32 animationTable PIN("r2");
                 u32 zero;
                 timer = obj->animationTimer + 1;
                 zero = 0;
@@ -658,9 +658,9 @@ void DrawStageEjection(void)
                     u8* oamBytes;
                     struct StageEjectionParticle* curObj;
                     s32 mask;
-                    register s32 remaining asm("r9");
+                    register s32 remaining PIN("r9");
                     {
-                        register u32 objectBase asm("r0");
+                        register u32 objectBase PIN("r0");
                         u32 objectOffset;
                         objectBase = (u32)gStageEjectionParticles;
                         objectOffset = offset;

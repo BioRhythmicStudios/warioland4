@@ -377,7 +377,7 @@ void MarumenCrushed(void)
         *work0 = 10;
     }
     {
-        register struct PrimarySpriteData *state asm("r2");
+        register struct PrimarySpriteData *state PIN("r2");
 
         state = sprite;
         {
@@ -389,7 +389,7 @@ void MarumenCrushed(void)
             state->pose = SPOSE_CRUSHED_OR_COLLECTED;
         }
         {
-            register u16 oldStatus asm("r1");
+            register u16 oldStatus PIN("r1");
             u16 newStatus;
             u16 deadBit;
 

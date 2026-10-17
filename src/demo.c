@@ -36,20 +36,20 @@ void SetupDemo(void)
 {
     u32 demoIndex;
     u8* passage;
-    register u8* stage asm("r9");
-    register u8* addressLoad asm("r2");
+    register u8* stage PIN("r9");
+    register u8* addressLoad PIN("r2");
     const u8* configurations;
     u32 doubledIndex;
     const struct DemoConfiguration* configuration;
     int stageValue;
     s8* stageId;
-    register const u8* data asm("r4");
+    register const u8* data PIN("r4");
     u32 zero;
     u8* roomCount;
     u32 stageOffset;
     u32 passageOffset;
     const u8* field;
-    register u8* bossData asm("r2");
+    register u8* bossData PIN("r2");
     s32 bossOffset;
     u32* collectionBase;
     u32 collectionOffset;

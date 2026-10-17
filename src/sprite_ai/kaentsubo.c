@@ -57,7 +57,7 @@ void InitKaentsuboIdle(void)
 void UpdateKaentsuboIdle(void)
 {
     u32 warioSide;
-    register u8 terrainCollision asm("r2");
+    register u8 terrainCollision PIN("r2");
     struct PrimarySpriteData *currentSprite;
 
     warioSide = SpriteUtilWaitCheckWarioNearbyLeftRight(0x7F, 0xC0);
@@ -977,7 +977,7 @@ void SpriteKaentsuboFlame(void)
 {
     u32 parentSlot;
     u32 parentOffset;
-    register struct PrimarySpriteData *spriteData asm("r1");
+    register struct PrimarySpriteData *spriteData PIN("r1");
     struct PrimarySpriteData *parentSprite;
     u8 parentHealth;
 

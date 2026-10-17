@@ -2,7 +2,7 @@
 
 void AnimateRouletteResultTiles(void)
 {
-    register u32 phase asm("r1");
+    register u32 phase PIN("r1");
     volatile u32 *dma;
 
     {
@@ -89,7 +89,7 @@ void AnimateRouletteResultTiles(void)
                 value = dmaRegs[2];
                 value &= busy;
                 if (value != 0) {
-                    register u32 pollMask asm("r3");
+                    register u32 pollMask PIN("r3");
                     pollMask = 0x80000000;
                     do {
                         value = waitDma[2];
@@ -99,7 +99,7 @@ void AnimateRouletteResultTiles(void)
             }
 
             {
-                register u8 *base asm("r3");
+                register u8 *base PIN("r3");
                 base = source2;
                 address = (u8 *)(offset + (u32)base);
             }
@@ -113,7 +113,7 @@ void AnimateRouletteResultTiles(void)
             dmaRegs[2] = control;
             value = dmaRegs[2];
             {
-                register volatile u32 *waitDma asm("r1");
+                register volatile u32 *waitDma PIN("r1");
                 waitDma = dmaRegs;
                 value = waitDma[2];
                 value &= busy;

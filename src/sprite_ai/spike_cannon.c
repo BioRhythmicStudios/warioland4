@@ -9,9 +9,9 @@ void InitSpikeCannon(void)
     struct PrimarySpriteData *current;
     struct PrimarySpriteData *sprite;
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     u32 flags;
-    register int zeroByte asm("r2");
+    register int zeroByte PIN("r2");
     int zeroHalf;
 
     current = &gCurrentSprite;
@@ -100,10 +100,10 @@ void SpikeCannonFire(void)
 
 void InitSpikeCannonProjectile(void)
 {
-    register struct PrimarySpriteData *sprite asm("ip");
+    register struct PrimarySpriteData *sprite PIN("ip");
     u16 oldStatus;
-    register u16 status asm("r3");
-    register int zeroByte asm("r5");
+    register u16 status PIN("r3");
+    register int zeroByte PIN("r5");
     int zeroHalf;
     int distance;
     u8 *bounds;
@@ -118,7 +118,7 @@ void InitSpikeCannonProjectile(void)
     status |= oldStatus;
     status &= ~SPRITE_STATUS_HIDDEN;
     {
-        register struct PrimarySpriteData *storePointer asm("r1");
+        register struct PrimarySpriteData *storePointer PIN("r1");
         storePointer = sprite;
         storePointer->status = status;
     }
@@ -143,7 +143,7 @@ void InitSpikeCannonProjectile(void)
     sprite->animationTimer = zeroHalf;
     {
         int collision;
-        register u8 *workPointer asm("r1");
+        register u8 *workPointer PIN("r1");
         collision = 9;
         workPointer = (u8 *)sprite;
         workPointer[30] = collision;
@@ -162,7 +162,7 @@ void InitSpikeCannonProjectile(void)
     }
     {
         const struct AnimationFrame *oam;
-        register struct PrimarySpriteData *storePointer asm("r1");
+        register struct PrimarySpriteData *storePointer PIN("r1");
         oam = sSpikeCannonProjectileFlyingOam;
         storePointer = sprite;
         storePointer->pOamData = oam;
@@ -203,7 +203,7 @@ void SpikeCannonProjectileMove(void)
     if (delta == 0x7FFF) {
         int previous;
         u16 yPosition;
-        register const s16 *previousPointer asm("r1");
+        register const s16 *previousPointer PIN("r1");
         u16 previousDelta;
 
         previous = index - 1;

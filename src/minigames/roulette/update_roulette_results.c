@@ -117,7 +117,7 @@ int UpdateRouletteResults(void)
             fadeRaw = *fade;
             if ((s8)fadeRaw > 0) {
                 {
-                    register u8 *blendPtr asm("r0");
+                    register u8 *blendPtr PIN("r0");
                     u32 blendValue;
                     blendPtr = &gRouletteBlendEva;
                     blendValue = *blendPtr;
@@ -149,7 +149,7 @@ advanceState:
             u16 *timer;
             u32 one;
             u32 timerValue;
-            register u8 *fade asm("r2");
+            register u8 *fade PIN("r2");
             u32 fadeRaw;
 
             timer = &gMinigameSequenceTimer;
@@ -172,7 +172,7 @@ advanceState:
             }
 
             {
-                register u8 *blendPtr asm("r0");
+                register u8 *blendPtr PIN("r0");
                 u32 blendValue;
                 blendPtr = &gRouletteBlendEva;
                 blendValue = *blendPtr;

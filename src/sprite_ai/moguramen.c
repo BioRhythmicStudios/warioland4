@@ -94,7 +94,7 @@ void UpdateMoguramenAttackWindup(void)
     extern void func_8023BFC();
     struct PrimarySpriteData *currentSprite;
     u32 animationState;
-    register u32 frontY asm("r0");
+    register u32 frontY PIN("r0");
     u16 frontX;
     u8 nextPose;
     u8 *attackTimer;
@@ -663,15 +663,15 @@ void InitMoguramenProjectile(void)
 {
     struct PrimarySpriteData *currentSprite;
     u16 statusValue;
-    register u16 finalStatus asm("r0");
+    register u16 finalStatus PIN("r0");
     u8 zeroByte;
     u16 zeroHalf;
 
     currentSprite = &gCurrentSprite;
     {
-        register u16 status asm("r1");
+        register u16 status PIN("r1");
         u16 flags;
-        register u16 flagsCopy asm("r0");
+        register u16 flagsCopy PIN("r0");
         status = currentSprite->status;
         flags = SPRITE_STATUS_AFFINE | SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
         flagsCopy = flags;
