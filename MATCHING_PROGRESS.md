@@ -6,7 +6,39 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 - **Working tree**: present in the local `src/` files but not committed.
 - **decomp.wtf saved best**: the "best attempt" stored in the decomp.wtf database. It can differ from the local file.
 
-## Status (updated 2026-10-17, session 27, by Claude)
+## Status (updated 2026-10-17, session 28, by Claude)
+
+- **2026-10-17 Claude session 28: wrap-up for the PC port. Playtest ROM, differential tests, one behaviour bug found. No new matches.**
+  - New tools (in `tools/`, which is gitignored, so they are untracked):
+    - `tools/build_playtest_rom.py` builds `build/playtest/warioland4_us_playtest.gba` from the current C without shifting anything. A smaller function is padded; a larger one moves to a `.playtest` section after .data, with a stub at the original address that preserves r0-r3. Every byte that differs from the base ROM must fall inside an unmatched function's slot or `.playtest`, otherwise the build fails. `--asm UNIT=FILE.s --out ROM` builds a ROM from a trial compile without touching src/.
+    - `tools/diff_test_functions.py` runs each unmatched function from the base ROM and from a playtest ROM in unicorn. Both start from the same randomised RAM, IO and arguments; DMA is modelled on the control-register read-back. Afterwards it compares all memory (except stack scratch) and the return value. Needs `pip install unicorn`; Claude used a scratch venv.
+  - **Results** (300 runs each unless noted; "coverage" = original halfwords executed). All but WarioHopInit were behaviour-equivalent; after installing V8 all 8 are (re-run on the rebuilt playtest ROM):
+
+    | Function | Differences | Coverage |
+    |---|---|---|
+    | RefreshRouletteResultTiles | 0 | 125/172 |
+    | ResolveWarioCeilingCollision | 0 | 318/397 |
+    | DrawRoulette | 0 | 1000/1138 |
+    | UpdateBossDoorOpeningSprites | 0 | 939/1206 |
+    | UpdateEscapeRippleHBlank (arg 0 and 1) | 0 | |
+    | func_804A508 | 0 | 220/418 |
+    | func_804A84C | 0 | 220/418 |
+    | **WarioHopInit** | **every run with the old source; 0 with V8 (installed)** | 306/454 |
+
+  - **WarioHopInit bug (current src, also Codex P2):**
+    - Cause: four locals are pinned to r7 (`tmpScrollA`, `tmpDmaSrc3`, `bg1Control`, `speedPtr`). A `register asm` local doesn't reserve its register, so `&gWarioHopRollingObject`, which the allocator also keeps in r7, gets clobbered.
+    - Effect: the rolling-object stores (0xA00, 0x8C0, 0, 0) land on `gWarioHopJumpDuration` and the bytes after it, and gWarioHopRollingObject is never initialised.
+    - First fix: H0 = current src without those four pins. 0 differences, 298 changed lines vs 334. Without pins, agbcc pre-loads the post-wait constants at the first `dmaStatus < 0` branch, which is what the r7 pins were blocking.
+    - **Installed (user-approved): V8, decomp.wtf score 954 / 95.7%, now the saved best (was the buggy 1004). Behaviour-correct: 300 runs, 0 differences.** V8 is H0 plus non-r7 hard-register temporaries at each pre-loaded constant's point of use, each in the register the target uses: DMA3 source r3, Bg1/Bg2 scroll r0/r1, speed table r3, acceleration out/in r1/r2, start velocity r3, shadow destination r1, rolling pointer r0. A hard-register variable isn't CSE'd, so nothing is pre-loaded any more. 162 changed lines.
+    - Pitfalls found on the way:
+      - decomp.wtf's saved best keeps the lowest score, so H0 (1306) couldn't replace the 1004 entry.
+      - `release_function` writes the saved best back into src/. Releasing after the H0 submission put the buggy version back. Only a correct candidate scoring below the saved best fixes both.
+      - V7 assigned `accelOut asm("r1")` before the `__divsi3` call, so the store went through a clobbered r1 and corrupted gWarioHopJumpStartVelocity. Never keep a pinned call-clobbered register live across a call. Diff-test every pinned candidate.
+    - Steps H0 and V1-V8: `reports/hop_init_candidates/session28/README.md`.
+  - **RefreshRouletteResultTiles:** parked after 14 compiles; Codex M1 (62) is still best. See `reports/roulette_result_candidates/session27/README.md`.
+  - **ResolveWarioCeilingCollision:** parked after 9 compiles. Best C6 is 305 changed lines vs 345 (declaration order, result pinned to r2, 0xFFC0 mask assigned before each compareFC entry). See `reports/ceiling_collision_candidates/session28/README.md`.
+  - **DrawRoulette:** parked after the baseline compile (1356 changed lines vs a 1111-line target). Diagnosed the one global difference: frame 0x24 vs 0x20, from a `negSin0` spill. See `reports/draw_roulette_candidates/session28/README.md`.
+  - EscapeRipple and the swinging-platform twins stay parked (no behaviour difference). The only src change is WarioHopInit (V8). Independent objcmp afterwards: 4,024 compared, 11 non-identical (the 8 unmatched + 3 SWI), all matched functions identical. Still 4,013 / 4,024.
 
 - **2026-10-17 Claude session 27, WarioHopDrawSprites: MATCHED.**
   - Went from 709 / 98.5% to exact in 10 local compiles (9 trials plus 1 re-check of the checkpointed copy) and 1 decomp.wtf submission. It was auto-committed as `04a2c15` (single file, 0 CR bytes in the blob).
@@ -75,7 +107,7 @@ Checked in session 13. For 13 of the 15 open functions the local file and the sa
 | Function | Difference |
 |---|---|
 | DrawRoulette (6984) | The saved best uses byte-offset loads (`*(s16 *)((u8 *)p + zero)`) and `(s16 *)&stack + 2` in 13 places; the local file uses plain field access and `&stack.affineC`. |
-| WarioHopInit (1004) | The saved best has an unused `u32 i; i = 0;`; the local file removed it. |
+| WarioHopInit (954) | Same text since session 28 (V8). The older 1004 entry, with `u32 i; i = 0;` and r7 pins, miscompiled. |
 
 ## Unmatched functions (best score: lower is better, 0 = match)
 
@@ -95,11 +127,11 @@ Checked in session 13. For 13 of the 15 open functions the local file and the sa
 | func_804A508 | 25 | 99.8 | Session 15: natural index loop plus `do { } while (0)` X-load wrappers (165 → 25). Left: 9 operand diffs, all reload register choices (two prologue output reloads r4 vs r0, two post-loop ldrsh zero indices). Before: Codex improved it from 425. Missing `mov r3, r10` at the first `mode1HighY` stack store; X-address and ldrsh scratch registers. Session 14: the `locals` struct form can't produce the `mov r3, r10` (needs a spilled pseudo); next step is the natural loop. See `reports/swinging_platform_for_gpt6.md` |
 | func_804A84C | 25 | 99.8 | Session 15: ported func_804A508's natural-loop source (AC→AD, six child tables), 165 → 25. Same 9-operand reload residual as the twin. Before: session 14 ported Codex's changes (370 → 165) |
 | ~~WarioHopDrawSprites~~ | 0 | 100 | **MATCHED 2026-10-17 (Claude, session 27), commit 04a2c15**. Sibling-style rewrite plus a `({ j; })` luid nudge for the obstacle pointer; see session 27 |
-| WarioHopInit | 1004 | 95.5 | Register allocation of hoisted DMA sources and struct copies |
+| WarioHopInit | 954 | 95.7 | **Behaviour-correct V8 installed (session 28).** The old 1004 entry miscompiled (r7 pins). Left: register rotation of the pointer loads before the first wait, literal-pool offsets, BG-control and x/y constant moves. See `reports/hop_init_candidates/session28/` |
 | UpdateBossDoorOpeningSprites | 1235 | 97.9 | Limit init registers; stack slot offsets |
 | RefreshRouletteResultTiles | 1690 | 80.3 | Saved source unchanged; session-21 local M1 has 62 vs baseline 203 full changed lines, unsubmitted. Quotient copy, loop motion and third-loop allocation remain. Live baseline saves only r8; old extra-r9 note was stale. See `reports/roulette_result_candidates/README.md`. |
-| ResolveWarioCeilingCollision | 2236 | 88.7 | Codex improved it from 4044. Stack-slot order of right/offset/savedX; pointValue spill width. See `reports/ceiling_collision_for_gpt6.md` |
-| DrawRoulette | 6984 | 87.7 | Large; register allocation |
+| ResolveWarioCeilingCollision | 2236 | 88.7 | Codex improved it from 4044. Stack-slot order of right/offset/savedX; pointValue spill width. See `reports/ceiling_collision_for_gpt6.md`. Behaviour-equivalent. Session 28 best local C6: 305 vs 345 changed lines, see `reports/ceiling_collision_candidates/session28/` |
+| DrawRoulette | 6984 | 87.7 | Large; register allocation. Behaviour-equivalent. Frame 0x24 vs 0x20 from a negSin0 spill; see `reports/draw_roulette_candidates/session28/` |
 | ~~RenderPauseScreenOam~~ | 0 | 100 | **MATCHED 2026-10-17 (Claude, session 26), commits 9337476 + 239c3c4**. Clean rewrite in DrawSoundRoomSprites style; see session 26 |
 | ~~DrawSoundRoomSprites~~ | 0 | 100 | **MATCHED 2026-10-16 (Claude, session 17), commit 8c3a47a**. Rewritten from scratch in RenderStageEntrySprites/RenderVortexCutsceneOam style |
 | AgbMain | – | – | Blocked: inline `svc 2` |

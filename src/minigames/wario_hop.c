@@ -183,7 +183,7 @@ void WarioHopInit(void)
 
         dmaSrc5 = playerBase;
         {
-            register u16 *tmpScrollA asm("r7") = gWarioHopBg0Scroll;
+            u16 *tmpScrollA = gWarioHopBg0Scroll;
             scrollA = tmpScrollA;
         }
         tmpSpeedBase = &gWarioHopJumpDuration;
@@ -201,7 +201,7 @@ void WarioHopInit(void)
     DmaWait(3);
     {
         vu32 *dmaRegs;
-        register const void *tmpDmaSrc3 asm("r7");
+        register const void *tmpDmaSrc3 asm("r3");
 
         dmaRegs = (vu32 *)REG_ADDR_DMA3;
         tmpDmaSrc3 = sUnk_87124F8;
@@ -251,7 +251,7 @@ void WarioHopInit(void)
         register vu32 *dmaRegs;
         register const void *tmpDmaSrc asm("r4");
         register s32 bg0Control asm("r5");
-        register s32 bg1Control asm("r7");
+        s32 bg1Control;
         register s32 bg2Control asm("r2");
         register s32 bg3Control asm("r3");
         register s32 storeValue asm("r0");
@@ -292,10 +292,16 @@ void WarioHopInit(void)
     scrollPtr[0] = zero;
 
     scrollPtr[1] = zero;
-    *(volatile u16 *)&gWarioHopBg1Scroll[0] = zero;
-    *(volatile u16 *)&gWarioHopBg1Scroll[1] = zero;
-    *(volatile u16 *)&gWarioHopBg2Scroll[0] = zero;
-    *(volatile u16 *)&gWarioHopBg2Scroll[1] = zero;
+    {
+        register vu16 *bg1Scroll asm("r0") = (vu16 *)gWarioHopBg1Scroll;
+        register vu16 *bg2Scroll asm("r1");
+
+        bg1Scroll[0] = zero;
+        bg1Scroll[1] = zero;
+        bg2Scroll = (vu16 *)gWarioHopBg2Scroll;
+        bg2Scroll[0] = zero;
+        bg2Scroll[1] = zero;
+    }
 
     *(vu16 *)0x04000012 = zero;
     *(vu16 *)0x04000010 = zero;
@@ -309,21 +315,36 @@ void WarioHopInit(void)
     {
         s32 speed;
         s32 selectedSpeed;
-        register u8 *speedPtr asm("r7");
+        u8 *speedPtr;
 
-        selectedSpeed = sUnk_870CE04[gWarioHopSpeedLevel];
+        {
+            register const u32 *speedTable asm("r3") = sUnk_870CE04;
+            selectedSpeed = speedTable[gWarioHopSpeedLevel];
+        }
         speedPtr = speedBase;
         *speedPtr = selectedSpeed;
         speed = *speedPtr;
 
-        gWarioHopJumpAcceleration = 0x2800 / (speed * speed);
+        {
+            s32 accelValue;
+            register u8 *accelOut asm("r1");
+
+            accelValue = 0x2800 / (speed * speed);
+            accelOut = &gWarioHopJumpAcceleration;
+            *accelOut = accelValue;
+        }
         {
             s32 speed2;
             s32 accel;
+            register u8 *accelIn asm("r2");
 
             speed2 = *speedPtr;
-            accel = gWarioHopJumpAcceleration;
-            gWarioHopJumpStartVelocity = (accel * speed2) >> 1;
+            accelIn = &gWarioHopJumpAcceleration;
+            accel = *accelIn;
+            {
+                register u8 *velocityOut asm("r3") = &gWarioHopJumpStartVelocity;
+                *velocityOut = (accel * speed2) >> 1;
+            }
         }
     }
 
@@ -337,12 +358,18 @@ void WarioHopInit(void)
     *(volatile u16 *)&playerBase->animTimer = zero;
     *(volatile u16 *)&playerBase->animFrame = zero;
 
-    gWarioHopPlayerShadow = *playerBase;
+    {
+        register struct WarioHopObjState *shadow asm("r1") = &gWarioHopPlayerShadow;
+        *shadow = *playerBase;
+    }
 
-    gWarioHopRollingObject[0] = 0xA00;
-    gWarioHopRollingObject[1] = 0x8C0;
-    ((u16 *)gWarioHopRollingObject)[3] = zero;
-    ((u16 *)gWarioHopRollingObject)[4] = zero;
+    {
+        register u16 *rolling asm("r0") = (u16 *)gWarioHopRollingObject;
+        rolling[0] = 0xA00;
+        rolling[1] = 0x8C0;
+        rolling[3] = zero;
+        rolling[4] = zero;
+    }
 
     {
         u8 *subStatePtr;

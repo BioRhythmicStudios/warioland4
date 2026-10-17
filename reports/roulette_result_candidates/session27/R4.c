@@ -1,0 +1,65 @@
+void RefreshRouletteResultTiles(void)
+{
+    register struct RouletteSmallState *next asm("r8");
+    register s32 idx asm("r3");
+    register s32 quotient asm("r2");
+    s32 remainder, i;
+    register u32 src asm("r1");
+    register u32 dst asm("r6");
+    register u32 control asm("r12");
+    register vu32 *dma asm("r4");
+
+    idx = GetRouletteFrameIndex(gRouletteTopResult.frame);
+    quotient = idx / 4;
+    remainder = idx - quotient * 4;
+    quotient <<= 12;
+    src = (remainder << 8) + (u32)sRouletteTopResultTiles;
+    next = &gRouletteMiddleResult;
+    dma = (vu32 *)REG_ADDR_DMA3;
+    control = 0x80000080;
+    dst = 0x06017000;
+    src += quotient;
+    for (i = 0; i < 4; i++) {
+        dma[0] = src;
+        dma[1] = dst;
+        dma[2] = control;
+        dma[2];
+        while (dma[2] & 0x80000000)
+            ;
+        dst += 0x400;
+        src += 0x400;
+    }
+
+    idx = GetRouletteFrameIndex(next->frame);
+    quotient = idx / 4;
+    remainder = idx - quotient * 4;
+    quotient <<= 12;
+    src = (remainder << 8) + (u32)sRouletteMiddleResultTiles;
+    next = &gRouletteBottomResult;
+    dma = (vu32 *)REG_ADDR_DMA3;
+    control = 0x80000080;
+    dst = 0x06017100;
+    src += quotient;
+    for (i = 0; i < 4; i++) {
+        dma[0] = src;
+        dma[1] = dst;
+        dma[2] = control;
+        dma[2];
+        while (dma[2] & 0x80000000)
+            ;
+        dst += 0x400;
+        src += 0x400;
+    }
+
+    idx = GetRouletteFrameIndex(next->frame);
+    quotient = idx / 4;
+    remainder = idx - quotient * 4;
+    quotient <<= 12;
+    src = (remainder << 8) + (u32)sRouletteBottomResultTiles;
+    src += quotient;
+    dst = 0x06017200;
+    for (i = 0; i <= 3; i++) {
+        DmaSet(3, src + (i << 10), dst + (i << 10), 0x80000080);
+        DmaWait(3);
+    }
+}
