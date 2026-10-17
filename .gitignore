@@ -88,3 +88,10 @@ asm_cleaning*
 experiments/
 # objdiff targets (made from the base ROM)
 expected/
+
+# PC port build; port/ keeps scripts that the rules above would ignore
+build_pc/
+port/generated/failed_probe.c
+!port/tools/
+!port/**/*.py
+!CMakeLists.txt
