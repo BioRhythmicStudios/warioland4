@@ -5,13 +5,13 @@
 
 #define MAX_OAM_SLOTS 128
 
-struct AnimationFrame {
+struct AGB_ALIGN AnimationFrame {
     const u16* oam;
     u8 time;
 };
 
 // ????
-struct AnimationFrameU16 {
+struct AGB_ALIGN AnimationFrameU16 {
     const u16* oam;
     u16 time;
 };

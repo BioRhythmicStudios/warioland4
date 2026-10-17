@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct BossDoorOpeningBackground {
+struct AGB_ALIGN BossDoorOpeningBackground {
     u16 x;
     u16 y;
     u8 padding4[4];
@@ -14,12 +14,12 @@ struct BossDoorOpeningBackground {
     u8 padding10[2];
 };
 
-struct BossDoorOpeningScrollOffset {
+struct AGB_ALIGN BossDoorOpeningScrollOffset {
     u16 horizontal;
     u16 vertical;
 };
 
-struct BossDoorOpeningIcon {
+struct AGB_ALIGN BossDoorOpeningIcon {
     u16 animationTimer;
     u16 frame;
     u8 state;

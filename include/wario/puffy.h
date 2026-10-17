@@ -3,13 +3,13 @@
 
 #include "types.h"
 
-struct PuffyAnimationFrame {
+struct AGB_ALIGN PuffyAnimationFrame {
     const u16* oam;
     u32 unk4;
     u8 time;
 };
 
-struct PuffyGraphicsFrame {
+struct AGB_ALIGN PuffyGraphicsFrame {
     const u8* data;
     const u16* oam;
     u32 unk8;

@@ -30,7 +30,7 @@ extern const u8 sStageEjectionBgPalette[];
 extern const u8 sStageEjectionBgTiles[];
 extern const u8 sStageEjectionBgTilemap[];
 
-struct Dma3RegsStageEjection {
+struct AGB_ALIGN Dma3RegsStageEjection {
     const void* src;
     void* dst;
     u32 control;

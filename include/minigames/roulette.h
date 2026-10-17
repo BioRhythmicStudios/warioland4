@@ -5,12 +5,12 @@
 #include "oam.h"
 #include "types.h"
 
-struct RouletteAnimationState {
+struct AGB_ALIGN RouletteAnimationState {
     u16 timer;
     u16 frame;
 };
 
-struct RouletteItem {
+struct AGB_ALIGN RouletteItem {
     s16 x;
     s16 y;
     s16 scale;
@@ -20,14 +20,14 @@ struct RouletteItem {
     s16 reserved;
 };
 
-struct RouletteSmallState {
+struct AGB_ALIGN RouletteSmallState {
     u16 x;
     u16 y;
     u8 frame;
     u8 pad5[3];
 };
 
-struct RouletteMainState {
+struct AGB_ALIGN RouletteMainState {
     u8 pad0[4];
     u16 scale;
     u8 pad6[2];
@@ -36,7 +36,7 @@ struct RouletteMainState {
     u8 active;
 };
 
-struct RouletteRenderStack {
+struct AGB_ALIGN RouletteRenderStack {
     s16 affineA;
     s16 affineB;
     s16 affineC;

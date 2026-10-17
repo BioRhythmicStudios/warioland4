@@ -3,7 +3,7 @@
 
 #include "oam.h"
 
-struct Unk_82DDCF0 {
+struct AGB_ALIGN Unk_82DDCF0 {
     struct AnimationFrameU16* unk0;
     struct AnimationFrameU16* unk4;
     struct AnimationFrameU16* unk8;

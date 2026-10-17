@@ -654,6 +654,7 @@ u32 UpdateBugleNoteDriftMotion(void)
     value = sprite->yPosition;
     value -= 2;
     sprite->yPosition = value;
+    RETURN_NO_VALUE(0);
 }
 u32 ApplyBugleNoteRotatingAffine(u8 angle)
 {
@@ -714,6 +715,7 @@ u32 ApplyBugleNoteRotatingAffine(u8 angle)
     value += (u32)table;
     trigValue = *(const s16*)value;
     *destination = FixedMul(trigValue, FixedInverse(scale));
+    RETURN_NO_VALUE(0);
 }
 u32 ApplyBugleNotePulseAffine(u8 angle)
 {
@@ -762,6 +764,7 @@ u32 ApplyBugleNotePulseAffine(u8 angle)
 
     tableOrSine = (s32)&gSecondarySpriteAffinePD;
     *(s16*)tableOrSine = FixedMul(cosine, FixedInverse(scale));
+    RETURN_NO_VALUE(0);
 }
 void UpdateBugleNote6SecondarySprite(void)
 {

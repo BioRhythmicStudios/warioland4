@@ -29,9 +29,9 @@ extern u32 gUnk_3000040;
 extern const u8 sTemporarySaveHeaderSignature1[];
 extern const u8 sTemporarySaveHeaderSignature2[];
 
-typedef union RegPair8 {
+typedef union AGB_ALIGN RegPair8 {
     unsigned long long q;
-    struct {
+    struct AGB_ALIGN {
         u32 lo;
         u32 hi;
     } w;
@@ -84,13 +84,13 @@ extern u8 gUnk_3003BF8[];
 void SerializeGameStateToTemporarySave(void);
 void func_8000EC4(void);
 
-typedef struct {
+typedef struct AGB_ALIGN {
     u32 words[2];
 } SaveBlock8;
-typedef struct {
+typedef struct AGB_ALIGN {
     u32 words[3];
 } SaveBlock12;
-typedef struct {
+typedef struct AGB_ALIGN {
     u32 words[11];
 } SaveBlock44;
 
@@ -134,7 +134,11 @@ extern u16 gBg2XPosition;
 extern u16 gBg2YPosition;
 extern u16 gBg3XPosition;
 extern u16 gBg3YPosition;
+#ifdef PORTABLE
+#include <string.h>
+#else
 void* memcpy(void* destination, const void* source, u32 size);
+#endif
 
 void BuildTitleScreenSaveHeader(void);
 void ValidateAndRepairSaveHeaderCopies(void);
@@ -2412,6 +2416,7 @@ void RestoreTempSaveStageSelection(void)
     }
 }
 
+#ifndef PORTABLE
 const u8 sBackupSramTestSignature[16] = "Wari4_AGB_BackUp";
 const u8 sSaveFooterSignature[8] = "SAVE_END";
 const u8 sMainSaveHeaderSignature1[16] = "AutoSAVEWar4key1";
@@ -2460,3 +2465,21 @@ const u8 sStageNameValidationStrings[56] =
     "STe4boSS"
     "MinIGaMe"
     "sElecTWn";
+#else
+extern const u8 sBackupSramTestSignature[16];
+extern const u8 sSaveFooterSignature[8];
+extern const u8 sMainSaveHeaderSignature1[16];
+extern const u8 sMainSaveHeaderSignature2[16];
+extern const u8 sTemporarySaveHeaderSignature1[16];
+extern const u8 sTemporarySaveHeaderSignature2[16];
+extern const u8 sUsTitleSaveVersionString[20];
+extern const u8 sJpTitleSaveVersionString[20];
+extern u8* const sPrimarySaveHeaderBuffers[2];
+extern u8* const sSecondarySaveHeaderBuffers[2];
+extern u8* const sMainSaveDataBuffers[2];
+extern u8* const sStageSelectionSaveBuffers[2];
+extern const u8 sSaveSlotValidationSignatures[18];
+extern const u8 sStageSelectionSaveSignature[16];
+extern const u8 sPassageNameValidationStrings[48];
+extern const u8 sStageNameValidationStrings[56];
+#endif

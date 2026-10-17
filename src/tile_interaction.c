@@ -27,6 +27,7 @@ s32 SetBg1Tile(u32 tile, u32 y, u32 x);
 void SetBg1TileAndGraphics(u32 tile, u32 y, u32 x);
 void SetBg2TileAndGraphics(u16 tile, u16 y, u16 x);
 
+#ifndef PORTABLE
 const u16 sSingleTileBreakSoundIds[] = {
     0xFC,  0x104, 0xFE,  0x106, 0x100, 0x108, 0x102, 0x10A, 0x10C, 0x10D, 0x10C,
     0x10D, 0x10C, 0x10D, 0x10C, 0x10D, 0xFC,  0x104, 0xFC,  0x104, 0xFC,  0x104,
@@ -44,6 +45,12 @@ const u8 sTileEffectPositions[] = {
 };
 
 const u16 sTileInteractionSoundIds[] = {0x140, 0x152, 0x141, 0x153, 0x142, 0x154};
+#else
+extern const u16 sSingleTileBreakSoundIds[];
+extern const u16 sAdjacentTileBreakSoundIds[];
+extern const u8 sTileEffectPositions[];
+extern const u16 sTileInteractionSoundIds[];
+#endif
 
 s32 ProcessTileInteractionAttribute(struct TileInteractionContext* ctx);
 s32 ProcessFragileTileAttribute(struct TileInteractionContext* ctx);
@@ -1714,7 +1721,7 @@ void ProcessTileAtPosition(u32 y, u32 x)
     u32 attribute;
     u32 savedAttribute;
     u8* switches;
-    struct {
+    struct AGB_ALIGN {
         volatile u32 bg0;
         volatile u32 attribute;
         volatile u32 bg2;
@@ -2055,7 +2062,7 @@ void ClearTileAndSpawnAlternateEffect(u32 y, u32 x)
 void UpdateWarioEnvironmentalTiles(void)
 {
     /* Required for byte-exact agbcc allocation or scheduling; direct C alternatives were tested. */
-    struct Frame {
+    struct AGB_ALIGN Frame {
         u32 bg0Attributes[2];
         u32 bg1Attributes[2];
         u32 bg2Attributes[2];

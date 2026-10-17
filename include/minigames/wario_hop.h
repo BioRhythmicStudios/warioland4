@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct WarioHopObjState {
+struct AGB_ALIGN WarioHopObjState {
     u16 x;
     u16 y;
     u16 angle;
@@ -14,7 +14,7 @@ struct WarioHopObjState {
     u16 yOffset;
 };
 
-struct WarioHopSmallState {
+struct AGB_ALIGN WarioHopSmallState {
     u16 x;
     u16 y;
     u8 type;
@@ -25,7 +25,7 @@ struct WarioHopSmallState {
     u8 padB;
 };
 
-struct WarioHopMidState {
+struct AGB_ALIGN WarioHopMidState {
     u16 x;
     u16 y;
     u16 angle;

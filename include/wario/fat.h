@@ -4,7 +4,7 @@
 #include "types.h"
 #include "wario.h"
 
-struct FatWarioGraphicsFrame {
+struct AGB_ALIGN FatWarioGraphicsFrame {
     const u8* gfx;
     const u16* oam;
     u8 time;

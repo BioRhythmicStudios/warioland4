@@ -251,7 +251,7 @@ enum WarioPoseMask {
     WPOSE_MASK_COUNT
 };
 
-struct WarioData {
+struct AGB_ALIGN WarioData {
     /* 0x00 */ u8 reaction;
     /* 0x01 */ u8 pose;
     /* 0x02 */ u8 unk_02;
@@ -287,21 +287,21 @@ struct WarioData {
     /* 0x3B */ u8 unk_3B;
 }; /* size: 0x3C */
 
-struct WarioLife {
+struct AGB_ALIGN WarioLife {
     u8 current;
     u8 filling;
     u8 unk_2;
     u8 unk_3;
 };
 
-struct WarioAfterimage {
+struct AGB_ALIGN WarioAfterimage {
     u8 unk0;
     u8 unk1;
     u8 unk2;
     const u16* unk4;
 };
 
-struct WarioEffect {
+struct AGB_ALIGN WarioEffect {
     u8 type;
     u8 status;
     u8 animationTimer;
@@ -309,14 +309,14 @@ struct WarioEffect {
     void* pObjData;
 };
 
-struct CarriedSprite {
+struct AGB_ALIGN CarriedSprite {
     u8 state;
     u8 unk1;
     u16 xOffset;
     u16 yOffset;
 };
 
-struct WarioDustEffect {
+struct AGB_ALIGN WarioDustEffect {
     u8 unk0;
     u8 unk1;
     u8 unk2;
@@ -325,12 +325,12 @@ struct WarioDustEffect {
     struct AnimationFrameU16* unk8;
 };
 
-struct WarioAfterimageData {
+struct AGB_ALIGN WarioAfterimageData {
     u16 previousXPositions[32];
     u16 previousYPositions[32];
 };
 
-struct WarioAnimation {
+struct AGB_ALIGN WarioAnimation {
     struct AnimationFrame* left;
     struct AnimationFrame* right;
 };

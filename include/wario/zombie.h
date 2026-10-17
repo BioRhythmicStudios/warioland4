@@ -4,7 +4,7 @@
 #include "types.h"
 #include "wario.h"
 
-struct ZombieWarioGraphicsFrame {
+struct AGB_ALIGN ZombieWarioGraphicsFrame {
     const u8* gfx;
     const u16* oam;
     u8 time;

@@ -2,7 +2,9 @@
 #include "fixed_point.h"
 #include "gba.h"
 #include "gba/m4a.h"
+#include "demo.h"
 #include "global_data.h"
+#include "interrupt_callbacks.h"
 #include "interrupts.h"
 #include "main.h"
 #include "oam.h"
@@ -253,6 +255,8 @@ void UpdateEndingCutsceneParticlePositions(void);
 void InitializeEndingCutscene(void);
 u16* BuildCutsceneBackgroundAffineMatrix(u16* destination, s32 angle, s32 scaleX, s32 scaleY, s32 centerX, s32 centerY);
 void WaitForVBlankInterrupt(void);
+// minigame_transition.h declares WaitForVBlankInterrupt differently, so it is not included.
+void SubGameClearGraphicsMemory(void);
 u16* AppendCutsceneOamTemplate(const u16* source, u16* destination, s32 xOffset, s32 yOffset);
 void FinalizeCutsceneOamBuffer(u16* destination);
 void ResetCutsceneBackgroundRegisters(void);

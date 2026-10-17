@@ -4,7 +4,13 @@
 #include "gba/types.h"
 
 
+#ifdef PORTABLE
+// Portable builds hand BIOS calls to the platform layer.
+void PlatformSyscall(int num);
+#define _SYSCALL(num) PlatformSyscall(num)
+#else
 #define _SYSCALL(num) asm("svc " #num)
+#endif
 #define SYSCALL(num) _SYSCALL(num)
 
 #define SYSCALL_SoftReset 0

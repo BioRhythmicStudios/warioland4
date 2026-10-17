@@ -11,6 +11,11 @@
 #include "wario.h"
 #include "wario/normal.h"
 
+#ifdef PORTABLE
+// agbcc calls func_8023BFC without a prototype here; with one, it narrows the arguments.
+#include "sprite_util.h"
+#endif
+
 extern const struct AnimationFrame sCuckooCondorClawOpenOam[];
 
 #define SpriteCollisionTransformWario(react)                                   \

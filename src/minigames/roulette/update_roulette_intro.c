@@ -1,5 +1,7 @@
 #include "minigames/roulette.h"
 
+#include "minigame.h"
+
 int UpdateRouletteIntro(void)
 {
     switch (gMinigameSequenceState) {

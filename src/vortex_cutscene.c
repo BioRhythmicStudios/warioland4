@@ -184,7 +184,7 @@ void InitializeVortexCutsceneFromPortal(void)
 
 void InitializeVortexCutsceneFromPassage(void)
 {
-    struct VortexSpriteStateCopy {
+    struct AGB_ALIGN VortexSpriteStateCopy {
         u32 words[5];
     };
     u32 control;
@@ -584,8 +584,8 @@ void RenderVortexCutsceneOam(void)
        This routine only ever selects one of the first few affine matrices, so
        it writes the 3-bit index the hardware reads for that, leaving the two
        flip bits alone. */
-    typedef union {
-        struct {
+    typedef union AGB_ALIGN {
+        struct AGB_ALIGN {
             u32 y : 8;
             u32 affineMode : 2;
             u32 objMode : 2;
@@ -607,7 +607,7 @@ void RenderVortexCutsceneOam(void)
             u16 sign : 1;
         } split;
 
-        struct {
+        struct AGB_ALIGN {
             u16 attr0;
             u16 attr1;
             u16 attr2;

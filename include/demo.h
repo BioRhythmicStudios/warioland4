@@ -5,7 +5,7 @@
 
 #define DEMO_INPUT_SIZE 256
 
-struct DemoConfiguration {
+struct AGB_ALIGN DemoConfiguration {
     u8 passage;
     u8 stage;
     u8 room;

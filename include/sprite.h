@@ -429,7 +429,7 @@ enum SpriteCollisionFlags {
     SPRITE_COLLISION_ANY = SPRITE_COLLISION_VERTICAL | SPRITE_COLLISION_HORIZONTAL,
 };
 
-struct PrimarySpriteData {
+struct AGB_ALIGN PrimarySpriteData {
     /* 0x00 */ u16 status;
     /* 0x04 */ const struct AnimationFrame* pOamData;
     /* 0x08 */ u16 yPosition;

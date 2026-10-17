@@ -1,11 +1,19 @@
 #include "interrupts.h"
 #include "oam.h"
 
+#ifndef PORTABLE
 IWRAM_DATA OamData gOamBuffer[MAX_OAM_SLOTS] = {};
 IWRAM_DATA u16 gButtonsHeld = 0;
 IWRAM_DATA u16 gButtonsHeldCopy = 0;
 IWRAM_DATA u16 gButtonsPressed = 0;
 IWRAM_DATA u8 gOamSlotsUsed = 0;
+#else
+extern OamData gOamBuffer[MAX_OAM_SLOTS];
+extern u16 gButtonsHeld;
+extern u16 gButtonsHeldCopy;
+extern u16 gButtonsPressed;
+extern u8 gOamSlotsUsed;
+#endif
 
 void LZ77UnCompVramWrapper(const u32* src, void* dest)
 {

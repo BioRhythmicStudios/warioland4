@@ -564,7 +564,7 @@ int TryStartCuckooCondorGrab(void)
     }
 after_check:
     if (flag == 0)
-        return;
+        RETURN_NO_VALUE(0);
 trigger:
     slot = SpriteUtilFindSprite(0xE8, 0);
     sprites = gSpriteData;
@@ -585,6 +585,7 @@ trigger:
     current->work2 = 0x10;
     m4aSongNumStart(SOUND_A2);
     keep = 0;
+    RETURN_NO_VALUE(0);
 }
 
 void CuckooCondorMoveClock(void)

@@ -3,13 +3,13 @@
 
 #include "types.h"
 
-struct FrozenAnimationFrame {
+struct AGB_ALIGN FrozenAnimationFrame {
     const u16* oam;
     u32 unk4;
     u8 time;
 };
 
-struct FrozenGraphicsFrame {
+struct AGB_ALIGN FrozenGraphicsFrame {
     const u8* data;
     const u16* oam;
     u32 unk8;

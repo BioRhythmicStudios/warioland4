@@ -4,7 +4,7 @@
 #include "game_screen_helpers.h"
 #include "main.h"
 
-struct BgClipStack {
+struct AGB_ALIGN BgClipStack {
     u32 bg0Attribute;
     u32 attributes[2];
     s32 yPosition;

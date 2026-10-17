@@ -9,6 +9,7 @@
 #include "voice_set.h"
 #include "wario.h"
 
+#ifndef PORTABLE
 const u16 sVortexLargePartOam_Frame1[] = {
     1,
     OAM_ENTRY(-32, -32, SPRITE_SIZE_64x64, 0, 512, 8, 0),
@@ -39,6 +40,19 @@ const struct AnimationFrame sVortexKeyzerOam[] = {{sVortexKeyzerOam_Frame1, 200}
 const u16 sVortexPal[] = {
 #include "data/sprites/vortex.pal.inc"
 };
+#else
+extern const u16 sVortexLargePartOam_Frame1[];
+extern const u16 sVortexMediumPartOam_Frame1[];
+extern const u16 sVortexSmallPartOam_Frame1[];
+extern const u16 sVortexWarioOam_Frame1[];
+extern const u16 sVortexKeyzerOam_Frame1[];
+extern const struct AnimationFrame sVortexLargePartOam[];
+extern const struct AnimationFrame sVortexMediumPartOam[];
+extern const struct AnimationFrame sVortexSmallPartOam[];
+extern const struct AnimationFrame sVortexWarioOam[];
+extern const struct AnimationFrame sVortexKeyzerOam[];
+extern const u16 sVortexPal[];
+#endif
 
 void VortexSetCommonProperties(void)
 {

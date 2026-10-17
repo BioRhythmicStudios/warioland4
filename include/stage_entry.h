@@ -4,19 +4,19 @@
 #include "gba.h"
 #include "oam.h"
 
-struct StageEntryAnimationState {
+struct AGB_ALIGN StageEntryAnimationState {
     u16 timer;
     u16 frame;
 };
 
-struct StageEntryPositionedAnimationState {
+struct AGB_ALIGN StageEntryPositionedAnimationState {
     u16 timer;
     u16 frame;
     u16 x;
     u16 y;
 };
 
-struct StageEntryAnimatedSpriteState {
+struct AGB_ALIGN StageEntryAnimatedSpriteState {
     u16 timer;
     u16 frame;
     u16 x;
@@ -24,7 +24,7 @@ struct StageEntryAnimatedSpriteState {
     u8 attribute;
 };
 
-struct StageEntrySpriteState {
+struct AGB_ALIGN StageEntrySpriteState {
     u16 x;
     u16 y;
     const u8* data;

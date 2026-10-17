@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct StageResultsTreasure {
+struct AGB_ALIGN StageResultsTreasure {
     u16 x;
     u16 y;
     u16 scale;
@@ -11,7 +11,7 @@ struct StageResultsTreasure {
     u8 padding;
 };
 
-struct StageResultsIcon {
+struct AGB_ALIGN StageResultsIcon {
     u16 x;
     u16 y;
     u8 state;

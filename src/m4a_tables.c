@@ -5,6 +5,7 @@
 // Some of these functions have different signatures, so we need to make this
 // an array of void pointers or a struct. It's simpler to just make it an array
 // for now.
+#ifndef PORTABLE
 void * const sMPlayJumpTableTemplate[] = {
     ply_fine,
     ply_goto,
@@ -198,6 +199,17 @@ const u8 sClockTable[] = {
     0x5C,
     0x60,
 };
+#else
+extern void * const sMPlayJumpTableTemplate[];
+extern const u8 sScaleTable[];
+extern const u32 sFreqTable[];
+extern const u16 sPcmSamplesPerVBlankTable[];
+extern const u8 sCgbScaleTable[];
+extern const s16 sCgbFreqTable[];
+extern const u8 sNoiseTable[];
+extern const u8 sCgb3Vol[];
+extern const u8 sClockTable[];
+#endif
 
 const XcmdFunc sXcmdTable[] = {
     ply_xxx,

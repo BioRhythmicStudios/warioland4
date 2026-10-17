@@ -1,6 +1,7 @@
 #include "scrolling.h"
 #include "background_registers.h"
 #include "global_data.h"
+#include "screen_shake.h"
 
 void UpdateBackgroundScrollRegisters()
 {
@@ -113,7 +114,7 @@ void UpdateLayer3ScrollEffect()
     }
 }
 
-typedef struct VerticalScrollingTileUpload {
+typedef struct AGB_ALIGN VerticalScrollingTileUpload {
     u8 tileCount;
     u8 unused;
     u16 destinationBlock;
@@ -489,7 +490,7 @@ descriptor_done_vertical:
     }
 }
 
-typedef struct HorizontalScrollingTileUpload {
+typedef struct AGB_ALIGN HorizontalScrollingTileUpload {
     u8 tileCount;
     u8 unused;
     u16 destinationFlags;

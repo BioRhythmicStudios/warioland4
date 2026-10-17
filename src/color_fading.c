@@ -10,25 +10,29 @@
 #include "sound.h"
 #include "wario.h"
 
-struct GrayscaleWeights {
+struct AGB_ALIGN GrayscaleWeights {
     s32 red;
     s32 green;
     s32 blue;
 };
 
-struct PaletteFadeLoopState {
+struct AGB_ALIGN PaletteFadeLoopState {
     s32 nextBank;
     s32 count;
 };
 
-struct PaletteBufferPair {
+struct AGB_ALIGN PaletteBufferPair {
     u16* dst;
     u16* srcB;
 };
 
 typedef u16 (*ColorBlendFunction)(u32, u32, u32, u32);
 
+#ifdef PORTABLE
+#include <string.h>
+#else
 void* memcpy(void* destination, const void* source, unsigned long size);
+#endif
 
 extern const struct GrayscaleWeights sGrayscaleWeights;
 extern ColorBlendFunction sColorBlendFunctionTable[];

@@ -4,7 +4,7 @@
 #include "oam.h"
 #include "types.h"
 
-struct ItemShopCursorState {
+struct AGB_ALIGN ItemShopCursorState {
     u16 animationTimer;
     u16 animationFrame;
     s16 x;
@@ -13,7 +13,7 @@ struct ItemShopCursorState {
     u8 padding[3];
 };
 
-struct ItemShopAnimationState {
+struct AGB_ALIGN ItemShopAnimationState {
     u16 animationTimer;
     u16 animationFrame;
     s16 x;

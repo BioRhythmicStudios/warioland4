@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct CameraControlArea {
+struct AGB_ALIGN CameraControlArea {
     u8 mode;
     u8 unused01;
     u16 maxX;

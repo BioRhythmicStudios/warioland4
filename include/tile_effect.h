@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct TileEffectState {
+struct AGB_ALIGN TileEffectState {
     u8 state;
     u8 type;
     u8 timer;

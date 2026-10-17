@@ -9,6 +9,7 @@
 #include "sprite_collision.h"
 #include "wario.h"
 
+#ifndef PORTABLE
 const s16 sSpriteFallingOffscreenYVelocity[] = {
     -28, -24, -20, -16, -12, -12, -8, -8, -4, -4, 0,  0,  0,  0,  0,  0,
     0,   4,   0,   4,   8,   8,   12, 8,  12, 12, 16, 16, 20, 24, 28, S16_MAX,
@@ -211,6 +212,31 @@ const u16 sSpriteThrownUpHardYVelocityHeavy[] = {
     -28, -24, -20, -20, -20, -16, -16, -16, -12, -12, -12, -12, -8, -8, -4,      -4,
     0,   0,   0,   4,   4,   8,   8,   12,  12,  16,  16,  20,  20, 24, S16_MAX,
 };
+#else
+extern const s16 sSpriteFallingOffscreenYVelocity[];
+extern const s16 sSpriteFallingOffscreenYVelocityHeavy[];
+extern const s16 sUnk_8352A28[];
+extern const s16 sUnk_8352A68[];
+extern const s16 sUnk_8352AA2[];
+extern const s16 sUnk_8352AAC[];
+extern const u16 sUnk_8352AB2[];
+extern const u16 sUnk_8352ABE[];
+extern const u16 sUnk_8352AC6[];
+extern const u16 sUnk_8352AD4[];
+extern const s16 sSpriteGravityVelocityTable[];
+extern const s16 sUnk_8352AFC[];
+extern const s16 sUnk_8352B18[];
+extern const s16 sUnk_8352B2C[];
+extern const s16 sUnk_8352B40[];
+extern const s16 sSpriteThrownForwardSoftYVelocity[];
+extern const s16 sSpriteThrownForwardSoftYVelocityHeavy[];
+extern const u16 sSpriteThrownForwardHardYVelocity[];
+extern const u16 sSpriteThrownForwardHardYVelocityHeavy[];
+extern const u16 sSpriteThrownUpSoftYVelocity[];
+extern const u16 sSpriteThrownUpSoftYVelocityHeavy[];
+extern const u16 sSpriteThrownUpHardYVelocity[];
+extern const u16 sSpriteThrownUpHardYVelocityHeavy[];
+#endif
 
 void func_80238A4(void)
 {

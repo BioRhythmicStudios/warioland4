@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct BgTileLookupPointers {
+struct AGB_ALIGN BgTileLookupPointers {
     u8* bg0;
     u8* bg1;
     u8* bg2;

@@ -106,7 +106,7 @@ enum ScoreSpriteID {
     SSPRITE_MAX = 90
 };
 
-struct ItemCollection {
+struct AGB_ALIGN ItemCollection {
     u8 jewelPieceNE : 1;
     u8 jewelPieceSE : 1;
     u8 jewelPieceSW : 1;

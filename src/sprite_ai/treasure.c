@@ -6,6 +6,7 @@
 #include "voice_set.h"
 #include "wario.h"
 
+#ifndef PORTABLE
 const s16 sTreasureFloatYVelocity[] = {
     0, 0, 0, 0, 0, 0, -1, -1, -2, -2, -3, -4, -3, -2, -2, -1, -1, 0, 0, 0,       0,
     0, 0, 0, 0, 0, 1, 1,  2,  2,  3,  4,  3,  2,  2,  1,  1,  0,  0, 0, S16_MAX,
@@ -333,6 +334,69 @@ const struct AnimationFrame sBoxHeartRefillOpenedOam[] = {
     {sBoxHeartRefillOpenedOamFrame, U8_MAX},
     ANIMATION_TERMINATOR
 };
+#else
+extern const s16 sTreasureFloatYVelocity[];
+extern const u16 sHeartRefillOam_Frame1[];
+extern const u16 sHeartRefillOam_Frame2[];
+extern const u16 sJewelPieceNWOamFrame[];
+extern const u16 sJewelPieceSWOamFrame[];
+extern const u16 sJewelPieceNEOamFrame[];
+extern const u16 sJewelPieceSEOamFrame[];
+extern const u16 sTreasureUnusedOamFrame1[];
+extern const u16 sTreasureGlowOam_Frame2[];
+extern const u16 sTreasureGlowOam_Frame1[];
+extern const u16 sTreasureGlowOam_Frame3[];
+extern const u16 sTreasureGlowDisappearingOam_Frame1[];
+extern const u16 sTreasureGlowDisappearingOam_Frame2[];
+extern const u16 sTreasureUnusedOamFrame2[];
+extern const u16 sTreasureUnusedOamFrame3[];
+extern const u16 sHeartRefillOam_Frame3[];
+extern const u16 sTreasureUnusedOamFrame4[];
+extern const u16 sCDOamFrame[];
+extern const struct AnimationFrame sCDOam[];
+extern const struct AnimationFrame sHeartRefillOam[];
+extern const struct AnimationFrame sJewelPieceNWOam[];
+extern const struct AnimationFrame sJewelPieceSWOam[];
+extern const struct AnimationFrame sJewelPieceNEOam[];
+extern const struct AnimationFrame sJewelPieceSEOam[];
+extern const struct AnimationFrame sTreasureGlowOam[];
+extern const struct AnimationFrame sTreasureGlowDisappearingOam[];
+extern const u16 sBoxCDClosedOamFrame[];
+extern const u16 sBoxCDOpeningOam_Frame1[];
+extern const u16 sBoxCDOpeningOam_Frame2[];
+extern const u16 sBoxCDOpenedOamFrame[];
+extern const u16 sBoxCDOpeningOam_Frame3[];
+extern const u16 sBoxUnusedOamFrame1[];
+extern const u16 sBoxUnusedOamFrame2[];
+extern const u16 sBoxJewelPieceNWClosedOamFrame[];
+extern const u16 sBoxJewelPieceOpeningOam_Frame1[];
+extern const u16 sBoxJewelPieceOpeningOam_Frame2[];
+extern const u16 sBoxJewelPieceOpeningOam_Frame3[];
+extern const u16 sBoxJewelPieceOpenedOamFrame[];
+extern const u16 sBoxUnusedOamFrame3[];
+extern const u16 sBoxUnusedOamFrame4[];
+extern const u16 sBoxJewelPieceNEClosedOamFrame[];
+extern const u16 sBoxJewelPieceSWClosedOamFrame[];
+extern const u16 sBoxJewelPieceSEClosedOamFrame[];
+extern const u16 sBoxHeartRefillClosedOamFrame[];
+extern const u16 sBoxHeartRefillOpeningOam_Frame1[];
+extern const u16 sBoxHeartRefillOpeningOam_Frame2[];
+extern const u16 sBoxHeartRefillOpenedOamFrame[];
+extern const u16 sBoxHeartRefillOpeningOam_Frame3[];
+extern const u16 sBoxUnusedOamFrame5[];
+extern const struct AnimationFrame sBoxCDOpeningOam[];
+extern const struct AnimationFrame sBoxCDClosedOam[];
+extern const struct AnimationFrame sBoxCDOpenedOam[];
+extern const struct AnimationFrame sBoxJewelPieceOpeningOam[];
+extern const struct AnimationFrame sBoxJewelPieceNWClosedOam[];
+extern const struct AnimationFrame sBoxJewelPieceSWClosedOam[];
+extern const struct AnimationFrame sBoxJewelPieceNEClosedOam[];
+extern const struct AnimationFrame sBoxJewelPieceSEClosedOam[];
+extern const struct AnimationFrame sBoxJewelPieceOpenedOam[];
+extern const struct AnimationFrame sBoxHeartRefillOpeningOam[];
+extern const struct AnimationFrame sBoxHeartRefillClosedOam[];
+extern const struct AnimationFrame sBoxHeartRefillOpenedOam[];
+#endif
 
 void BoxSetCommonProperties(void)
 {

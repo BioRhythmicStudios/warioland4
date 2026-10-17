@@ -3,10 +3,16 @@
 #include "gba/defines.h"
 #include "gba/m4a.h"
 
+#ifndef PORTABLE
 char SoundMainRAM_Buffer[0x400] __attribute__((section(".bss.code"), aligned(4))) = {};
 
 struct SoundInfo gSoundInfo __attribute__((section("common_data"))) = {};
+#else
+extern char SoundMainRAM_Buffer[0x400];
+extern struct SoundInfo gSoundInfo;
+#endif
 MPlayFunc gMPlayJumpTable[36] __attribute__((section("common_data"))) = {};
+#ifndef PORTABLE
 struct CgbChannel gCgbChans[4] __attribute__((section("common_data"))) = {};
 struct MusicPlayerInfo gMPlayInfo_0 __attribute__((section("common_data"))) = {};
 struct MusicPlayerInfo gMPlayInfo_1 __attribute__((section("common_data"))) = {};
@@ -17,6 +23,18 @@ struct MusicPlayerInfo gMPlayInfo_5 __attribute__((section("common_data"))) = {}
 struct MusicPlayerInfo gMPlayInfo_6 __attribute__((section("common_data"))) = {};
 u8 gMPlayMemAccArea[0x10] __attribute__((section("common_data"))) = {};
 struct MusicPlayerInfo gMPlayInfo_7 __attribute__((section("common_data"))) = {};
+#else
+extern struct CgbChannel gCgbChans[4];
+extern struct MusicPlayerInfo gMPlayInfo_0;
+extern struct MusicPlayerInfo gMPlayInfo_1;
+extern struct MusicPlayerInfo gMPlayInfo_2;
+extern struct MusicPlayerInfo gMPlayInfo_3;
+extern struct MusicPlayerInfo gMPlayInfo_4;
+extern struct MusicPlayerInfo gMPlayInfo_5;
+extern struct MusicPlayerInfo gMPlayInfo_6;
+extern u8 gMPlayMemAccArea[0x10];
+extern struct MusicPlayerInfo gMPlayInfo_7;
+#endif
 
 
 u32 MidiKeyToFreq(struct WaveData *wav, u8 key, u8 fineAdjust) {

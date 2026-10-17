@@ -3,14 +3,14 @@
 
 #include "types.h"
 
-struct PassageClearAnimationState {
+struct AGB_ALIGN PassageClearAnimationState {
     u16 timer;
     u16 frame;
     u8 state;
     u8 padding[3];
 };
 
-struct PassageClearParticle {
+struct AGB_ALIGN PassageClearParticle {
     s16 x;
     s16 y;
     u8 type;
@@ -18,7 +18,7 @@ struct PassageClearParticle {
 };
 
 /* Both coordinates are 12.4 fixed point. */
-struct PassageClearBonusItem {
+struct AGB_ALIGN PassageClearBonusItem {
     s16 x;
     s16 y;
 };

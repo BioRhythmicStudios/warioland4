@@ -1,6 +1,15 @@
 #ifndef GUARD_GBA_TYPES_H
 #define GUARD_GBA_TYPES_H
 
+// agbcc aligns every struct and union to at least 4 bytes, so their sizes are multiples of 4.
+// Every definition carries AGB_ALIGN (tools/port_struct_align_codemod.py) so that portable
+// builds lay them out the same way.
+#ifdef PORTABLE
+#define AGB_ALIGN __attribute__((aligned(4)))
+#else
+#define AGB_ALIGN
+#endif
+
 typedef unsigned char      u8;
 typedef unsigned short     u16;
 typedef unsigned int       u32;
@@ -40,7 +49,7 @@ typedef u32 bool32;
 #define S64_MAX (9223372036854775807ll)
 #define U64_MAX (18446744073709551615ull)
 
-struct BgCnt {
+struct AGB_ALIGN BgCnt {
     u16 priority:2;
     u16 charBaseBlock:2;
     u16 dummy:2;
@@ -52,15 +61,15 @@ struct BgCnt {
 };
 typedef volatile struct BgCnt vBgCnt;
 
-struct PlttData {
+struct AGB_ALIGN PlttData {
     u16 r:5; // red
     u16 g:5; // green
     u16 b:5; // blue
     u16 unused_15:1;
 };
 
-typedef union {
-    struct {
+typedef union AGB_ALIGN {
+    struct AGB_ALIGN {
     /*0x00*/ u32 y:8;
     /*0x01*/ u32 affineMode:2;  // 0x1, 0x2 -> 0x4
              u32 objMode:2;     // 0x4, 0x8 -> 0xC
@@ -81,7 +90,7 @@ typedef union {
              u16 sign:1;
     } split;
 
-    struct {
+    struct AGB_ALIGN {
         u16 attr0;
         u16 attr1;
         u16 attr2;
@@ -135,7 +144,7 @@ typedef union {
 #define SPRITE_SIZE(dim)  ((dim >> 2) & 0x03)
 #define SPRITE_SHAPE(dim) (dim & 0x03)
 
-struct BgAffineSrcData {
+struct AGB_ALIGN BgAffineSrcData {
     s32 texX;
     s32 texY;
     s16 scrX;
@@ -145,7 +154,7 @@ struct BgAffineSrcData {
     u16 alpha;
 };
 
-struct BgAffineDstData {
+struct AGB_ALIGN BgAffineDstData {
     s16 pa;
     s16 pb;
     s16 pc;
@@ -154,14 +163,14 @@ struct BgAffineDstData {
     s32 dy;
 };
 
-struct ObjAffineSrcData {
+struct AGB_ALIGN ObjAffineSrcData {
     s16 xScale;
     s16 yScale;
     u16 rotation;
 };
 
 // Normal SIO Control Structure
-struct SioNormalCnt {
+struct AGB_ALIGN SioNormalCnt {
     u16 sck_I_O:1;          // Clock I/O Select
     u16 sck:1;              // Internal Clock Select
     u16 ackRecv:1;          // Transfer Enable Flag Receive
@@ -185,7 +194,7 @@ struct SioNormalCnt {
 #define ST_SIO_IN_SCK_2M            1       //                  Select 2MHz
 
 // Multi-player SIO Control Structure
-struct SioMultiCnt {
+struct AGB_ALIGN SioMultiCnt {
     u16 baudRate:2;    // baud rate
     u16 si:1;          // SI terminal
     u16 sd:1;          // SD terminal
@@ -209,7 +218,7 @@ struct SioMultiCnt {
 #define ST_SIO_MULTI_CHILD          0       //                  Connect slave
 
 // UART - SIO Control Structure
-struct SioUartCnt {
+struct AGB_ALIGN SioUartCnt {
     u16 baudRate:2;         // Baud Rate
     u16 ctsEnable:1;        // Send Signal Enable
     u16 paritySelect:1;     // Parity Even/Odd
@@ -236,7 +245,7 @@ struct SioUartCnt {
 #define ST_SIO_PARITY_ODD           1       // Odd parity
 
 // JOY Bus Communication Control Structure
-struct JoyCnt {
+struct AGB_ALIGN JoyCnt {
     u8  ifReset:1;         // JOY Bus Reset Interrupt Request
     u8  ifRecv:1;          // JOY Bus Received Interrupt Request
     u8  ifSend:1;          // JOY Bus Sent Interrupt Request
@@ -246,7 +255,7 @@ struct JoyCnt {
 };
 
 // JOY Bus Communication Status Structure
-struct JoyStat {
+struct AGB_ALIGN JoyStat {
     u8  unused_0:1;
     u8  recv:1;             // Receive Status
     u8  unused_2:1;
@@ -256,7 +265,7 @@ struct JoyStat {
 };
 
 // General Input/Output Control Structure
-struct RCnt {
+struct AGB_ALIGN RCnt {
     u8  sc:1;               // Data
     u8  sd:1;
     u8  si:1;

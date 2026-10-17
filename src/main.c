@@ -22,6 +22,7 @@
 
 void irq_handler(void);  // test
 
+#ifndef PORTABLE
 IWRAM_DATA u8 gGoldenTreasureCount = 0;
 IWRAM_DATA s8 gPauseFlag = 0;
 IWRAM_DATA u8 gUnk_3000C36 = 0;
@@ -35,6 +36,21 @@ IWRAM_DATA s8 gUnk_3000C40 = 0;
 IWRAM_DATA u8 gMainTimer = 0;
 IWRAM_DATA vu16 gInterruptCheck = 0;
 IWRAM_DATA u16 gInterruptHandlerBuffer[] = {};
+#else
+extern u8 gGoldenTreasureCount;
+extern s8 gPauseFlag;
+extern u8 gUnk_3000C36;
+extern s8 gUnk_3000C37;
+extern u8 gCurrentShopItem;
+extern s16 gMainGameMode;
+extern s16 gSubGameMode;
+extern s8 gStageEntrySoftResetDisabled;
+extern s8 gStageEntryPauseMenuDisabled;
+extern s8 gUnk_3000C40;
+extern u8 gMainTimer;
+extern vu16 gInterruptCheck;
+extern u16 gInterruptHandlerBuffer[];
+#endif
 
 void AgbMain(void)
 {
