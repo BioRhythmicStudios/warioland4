@@ -112,7 +112,7 @@ def main():
     lines = [HEADER.replace('//', '#'), '# Absolute symbols at GBA addresses for the game\'s data.\n']
     for name in sorted(data, key=lambda n: (data[n], n)):
         lines.append('    .globl %s\n    .set %s, 0x%08X\n' % (name, name, data[name]))
-    (OUT / 'gba_symbols.s').write_text(''.join(lines))
+    (OUT / 'gba_symbols.s').write_bytes(''.join(lines).encode())
 
     lines = [HEADER, '#include "port/gba_functions.h"\n\n']
     lines += ['void %s(void);\n' % name for _, name in functions]
@@ -120,14 +120,14 @@ def main():
     lines.append('const struct GbaFunction gGbaFunctions[] = {\n')
     lines += ['    { 0x%08X, (PortFunc)%s },\n' % (addr & ~1, name) for addr, name in functions]
     lines.append('};\n\nconst unsigned int gGbaFunctionCount = sizeof(gGbaFunctions) / sizeof(gGbaFunctions[0]);\n')
-    (OUT / 'gba_functions.c').write_text(''.join(lines))
+    (OUT / 'gba_functions.c').write_bytes(''.join(lines).encode())
 
     lines = [HEADER, '// The GBA functions below have no native version yet. A platform definition\n',
              '// of the same name replaces the weak stub.\n', '#include "port/gba_functions.h"\n\n']
     for name in stubs:
         lines.append('__attribute__((weak)) void %s(void) { PortMissingFunction("%s", 0x%08X); }\n'
                      % (name, name, elf[name][0]))
-    (OUT / 'gba_stubs.c').write_text(''.join(lines))
+    (OUT / 'gba_stubs.c').write_bytes(''.join(lines).encode())
 
     print('%d data symbols, %d native functions in the dispatch table, %d stubs'
           % (len(data), len(functions), len(stubs)))
