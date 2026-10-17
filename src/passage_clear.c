@@ -314,8 +314,8 @@ void UpdatePassageClearBanner(void)
     const u16* xOffsets;
     u16* timer;
     const u16* yOffsets;
-    const u16** animation;
-    const u16* const* animations;
+    GBA_TYPEOF(const u16**, &gPassageClearBannerOam) animation;
+    GBA_TYPEOF(const u16* const*, &(sPassageClearBannerOamFrames)[0]) animations;
     const u8* animationIndices;
 
     state = gStageEntryMainSpriteState;
@@ -327,7 +327,7 @@ void UpdatePassageClearBanner(void)
     animation = &gPassageClearBannerOam;
     animations = sPassageClearBannerOamFrames;
     animationIndices = sPassageClearBannerFrameIndices;
-    *animation = animations[animationIndices[*timer]];
+    GP_SET(*animation, GP(animations[animationIndices[*timer]]));
 }
 
 void UpdatePassageClearBlendFade(void)

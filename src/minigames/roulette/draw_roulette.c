@@ -331,8 +331,8 @@ void DrawRoulette(void)
             int itemIndex;
             itemIndex = 0;
             do {
-                struct RouletteItem **currentItemRef;
-                struct RouletteItem **itemsBase;
+                GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) currentItemRef;
+                GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) itemsBase;
                 int itemOffset;
                 int nextItem;
                 struct RouletteItem *itemPtr;
@@ -341,8 +341,8 @@ void DrawRoulette(void)
                 int itemLimit;
                 itemsBase = gRouletteItemDrawOrder;
                 itemOffset = itemIndex << 2;
-                itemsBase = (struct RouletteItem **)(itemOffset + (u32)itemsBase);
-                itemPtr = *itemsBase;
+                itemsBase = (GBA_TYPEOF(struct RouletteItem **, itemsBase))(itemOffset + (u32)itemsBase);
+                itemPtr = GP(*itemsBase);
                 itemZero = 0;
                 itemX = itemPtr->x;
                 itemLimit = 250;
@@ -366,14 +366,14 @@ rouletteItemUpdate:
                     SortRouletteItemsByScale();
 rouletteItemDraw:
                     {
-                        const u16 **animBase;
-                        struct RouletteItem **itemsBase2;
+                        GBA_TYPEOF(const u16 **, &(gRouletteItemOamTable)[0]) animBase;
+                        GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) itemsBase2;
                         int savedOffset;
                         animBase = gRouletteItemOamTable;
                         itemsBase2 = gRouletteItemDrawOrder;
                         savedOffset = stack.itemOffset;
-                        currentItemRef = (struct RouletteItem **)(savedOffset + (u32)itemsBase2);
-                        src = animBase[(*currentItemRef)->value];
+                        currentItemRef = (GBA_TYPEOF(struct RouletteItem **, currentItemRef))(savedOffset + (u32)itemsBase2);
+                        src = GP(animBase[(GP(*currentItemRef))->value]);
                     }
                     total += *src++;
                     {
@@ -407,7 +407,7 @@ rouletteItemDraw:
                             int byteOffset;
                             OamData *oam;
                             OamData *base;
-                            struct RouletteItem **savedRef;
+                            GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) savedRef;
                             struct RouletteItem *savedItem;
                             int coord;
 
@@ -417,18 +417,18 @@ rouletteItemDraw:
                             base = gOamBuffer;
                             oam = (OamData *)(byteOffset + (u32)base);
                             savedRef = GP(stack.itemRef);
-                            savedItem = *savedRef;
+                            savedItem = GP(*savedRef);
                             ((u8 *)oam)[0] = savedItem->y + value - 16;
                             ((u8 *)oam)[1] |= 3;
 
                             value = *src++;
                             *rawDst++ = value;
                             {
-                                struct RouletteItem **ref;
+                                GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) ref;
                                 struct RouletteItem *cur;
                                 int zero;
                                 ref = GP(stack.itemRef);
-                                cur = *ref;
+                                cur = GP(*ref);
                                 zero = 0;
                                 coord = cur->x;
                             }
@@ -531,9 +531,9 @@ rouletteItemDraw:
                     {
                         const s16 *sinPtr;
                         s32 sin64;
-                        struct RouletteItem **affineItemRef;
+                        GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) affineItemRef;
                         int savedOffset;
-                        struct RouletteItem **itemsBase3;
+                        GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) itemsBase3;
                         s32 sin0;
                         s32 negSin0;
 
@@ -543,11 +543,11 @@ rouletteItemDraw:
                         sin64 = *sinPtr;
                         savedOffset = stack.itemOffset;
                         itemsBase3 = gRouletteItemDrawOrder;
-                        affineItemRef = (struct RouletteItem **)(savedOffset + (u32)itemsBase3);
+                        affineItemRef = (GBA_TYPEOF(struct RouletteItem **, affineItemRef))(savedOffset + (u32)itemsBase3);
 
                         {
                             struct RouletteItem *scaleItem;
-                            scaleItem = *affineItemRef;
+                            scaleItem = GP(*affineItemRef);
                             inverse = scaleItem->scale;
                         }
                         stack.affineA = FixedMul(sin64, (s16)FixedInverse(inverse));
@@ -566,7 +566,7 @@ rouletteItemDraw:
                         }
                         {
                             struct RouletteItem *scaleItem;
-                            scaleItem = *affineItemRef;
+                            scaleItem = GP(*affineItemRef);
                             inverse = scaleItem->scale;
                         }
                         {
@@ -590,7 +590,7 @@ rouletteItemDraw:
                         }
                         {
                             struct RouletteItem *scaleItem;
-                            scaleItem = *affineItemRef;
+                            scaleItem = GP(*affineItemRef);
                             inverse = scaleItem->scale;
                         }
                         {
@@ -606,7 +606,7 @@ rouletteItemDraw:
                         {
                             struct RouletteItem *scaleItem;
                             u32 scaleOffset;
-                            scaleItem = *affineItemRef;
+                            scaleItem = GP(*affineItemRef);
                             scaleOffset = 4;
                             inverse = scaleItem->scale;
                         }
@@ -616,7 +616,7 @@ rouletteItemDraw:
                             struct RouletteItem *scaleItem;
                             s32 scaleCheck;
                             u32 scaleOffset;
-                            scaleItem = *affineItemRef;
+                            scaleItem = GP(*affineItemRef);
                             scaleOffset = 4;
                             scaleCheck = scaleItem->scale;
                             if (scaleCheck > 512) {

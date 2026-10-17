@@ -437,7 +437,7 @@ void func_8092DFC(void)
     register u32 off PIN("r1");
     register u32 cidx PIN("r0");
     register struct SaveClearAnimationState* firstData PIN("r3");
-    const u8* const* tbl;
+    GBA_TYPEOF(const u8* const*, &(sUnk_878F93C)[0]) tbl;
     u32 type;
     register u32 switchType PIN("r0");
     u32 xhalf;
@@ -485,7 +485,7 @@ loop:
             cidx = idx;
             cidx += i;
             data = (struct SaveClearAnimationState*)((u8*)&gUnk_3004A70 + (cidx << 2));
-            anim = tbl[data->type];
+            anim = GP(tbl[data->type]);
             if (data->timer >= anim[(data->frame << 3) + 4]) {
                 data->timer = 0;
                 data->frame++;
@@ -501,7 +501,7 @@ loop:
             cidx = idx;
             cidx += i;
             data = (struct SaveClearAnimationState*)((u8*)&gUnk_3004A70 + (cidx << 2));
-            anim = tbl[data->type];
+            anim = GP(tbl[data->type]);
             if (data->timer >= anim[(data->frame << 3) + 4]) {
                 data->timer = 0;
                 data->frame++;
@@ -531,7 +531,7 @@ loop:
             xhalf = (u16)xpos;
         }
         anim += data2->frame << 3;
-        src = *(const u16* const*)anim;
+        src = GP(*(GBA_PTR(const u16*) const *)anim);
         slots += *src;
         src++;
     }

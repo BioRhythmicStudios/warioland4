@@ -232,7 +232,7 @@ void DrawPrimarySprites(void)
     s32 spriteIndex;
     struct PrimarySpriteData* spriteBase;
     struct PrimarySpriteData* currentSprite;
-    const u16** currentOam;
+    GBA_TYPEOF(const u16**, &gCurrentSpriteOamData) currentOam;
     u32 temp0;
     u32 temp1;
     struct PrimarySpriteData* sprite;
@@ -260,7 +260,7 @@ firstLoop:
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
-        *currentOam = (const u16*)temp0;
+        GP_SET(*currentOam, (const u16*)temp0);
         temp0 = spriteIndex;
         DrawCurrentPrimarySprite(temp0);
     }
@@ -294,7 +294,7 @@ secondLoop:
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
-        *currentOam = (const u16*)temp0;
+        GP_SET(*currentOam, (const u16*)temp0);
         temp0 = spriteIndex;
         DrawCurrentPrimarySprite(temp0);
     }
@@ -331,7 +331,7 @@ thirdLoop:
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
-        *currentOam = (const u16*)temp0;
+        GP_SET(*currentOam, (const u16*)temp0);
         temp0 = spriteIndex;
         DrawCurrentPrimarySprite(temp0);
     }
@@ -365,7 +365,7 @@ fourthLoop:
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
-        *currentOam = (const u16*)temp0;
+        GP_SET(*currentOam, (const u16*)temp0);
         temp0 = spriteIndex;
         DrawCurrentPrimarySprite(temp0);
     }
@@ -399,7 +399,7 @@ fifthLoop:
         temp0 <<= 3;
         temp0 += temp1;
         temp0 = *((u32*)temp0);
-        *currentOam = (const u16*)temp0;
+        GP_SET(*currentOam, (const u16*)temp0);
         temp0 = spriteIndex;
         DrawCurrentPrimarySprite(temp0);
     }

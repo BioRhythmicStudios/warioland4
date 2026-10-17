@@ -7331,7 +7331,7 @@ damageFlagDone:
 selectDirectionFromR1:
             tempR0 = directionValue << 2;
             tempR0 += tempR1;
-            animation = *(const struct WarioAnimationFrame **)tempR0;
+            animation = GP(*(GBA_PTR(const struct WarioAnimationFrame *) *)tempR0);
             goto animationSelected;
 
         case 34:
@@ -7360,7 +7360,7 @@ selectPoseDirectionFromR0:
 selectBaseR0:
             tempR1 += tempR0;
 loadAnimationR1:
-            animation = *(const struct WarioAnimationFrame **)tempR1;
+            animation = GP(*(GBA_PTR(const struct WarioAnimationFrame *) *)tempR1);
             goto animationSelected;
 
     }

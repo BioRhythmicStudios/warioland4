@@ -1652,42 +1652,42 @@ void func_8005500(s32 frame)
 
                 timerPointer = &gUnk_3002C64;
                 if (*timerPointer < (u32)gCutsceneAnimationFinished) {
-                    u16** destination1Pointer;
-                    register u16** destination2Pointer PIN("r5");
+                    GBA_TYPEOF(u16**, &gUnk_3002C88) destination1Pointer;
+                    register GBA_TYPEOF(u16**, &gUnk_3002C8C) destination2Pointer PIN("r5");
 
                     destination1Pointer = &gUnk_3002C88;
                     {
                         u16* destination;
-                        const u16** sourcePointer;
+                        GBA_TYPEOF(const u16**, &gUnk_3002C90) sourcePointer;
                         const u16* source;
                         u16 value;
 
-                        destination = *destination1Pointer;
+                        destination = GP(*destination1Pointer);
                         sourcePointer = &gUnk_3002C90;
-                        source = *sourcePointer;
+                        source = GP(*sourcePointer);
                         value = *source;
                         *destination = value;
                         source++;
-                        *sourcePointer = source;
+                        GP_SET(*sourcePointer, source);
                         destination++;
-                        *destination1Pointer = destination;
+                        GP_SET(*destination1Pointer, destination);
                     }
                     destination2Pointer = &gUnk_3002C8C;
                     {
                         u16* destination;
-                        const u16** sourcePointer;
+                        GBA_TYPEOF(const u16**, &gUnk_3002C94) sourcePointer;
                         const u16* source;
                         u16 value;
 
-                        destination = *destination2Pointer;
+                        destination = GP(*destination2Pointer);
                         sourcePointer = &gUnk_3002C94;
-                        source = *sourcePointer;
+                        source = GP(*sourcePointer);
                         value = *source;
                         *destination = value;
                         source++;
-                        *sourcePointer = source;
+                        GP_SET(*sourcePointer, source);
                         destination++;
-                        *destination2Pointer = destination;
+                        GP_SET(*destination2Pointer, destination);
                     }
                     if ((++*timerPointer % (u32)gUnk_3002C9A) == 0) {
                         s32 divisor;
@@ -1697,11 +1697,11 @@ void func_8005500(s32 frame)
                         divisor = gUnk_3002C9A;
                         adjustment = 64 - divisor;
                         adjustment <<= 1;
-                        destination = *destination1Pointer;
+                        destination = GP(*destination1Pointer);
                         destination = (u16*)((u8*)destination + adjustment);
-                        *destination1Pointer = destination;
+                        GP_SET(*destination1Pointer, destination);
                         destination = (u16*)((u8*)destination + 64);
-                        *destination2Pointer = destination;
+                        GP_SET(*destination2Pointer, destination);
                     }
                 } else {
                     gUnk_3002C60++;
@@ -1891,42 +1891,42 @@ void func_80058AC(s32 frame)
 
                 timerPointer = &gUnk_3002C64;
                 if (*timerPointer < (u32)gCutsceneAnimationFinished) {
-                    u16** destination1Pointer;
-                    register u16** destination2Pointer PIN("r5");
+                    GBA_TYPEOF(u16**, &gUnk_3002C88) destination1Pointer;
+                    register GBA_TYPEOF(u16**, &gUnk_3002C8C) destination2Pointer PIN("r5");
 
                     destination1Pointer = &gUnk_3002C88;
                     {
                         u16* dst;
-                        const u16** sourcePointer;
+                        GBA_TYPEOF(const u16**, &gUnk_3002C90) sourcePointer;
                         const u16* source;
                         u16 value;
 
-                        dst = *destination1Pointer;
+                        dst = GP(*destination1Pointer);
                         sourcePointer = &gUnk_3002C90;
-                        source = *sourcePointer;
+                        source = GP(*sourcePointer);
                         value = *source;
                         *dst = value;
                         source++;
-                        *sourcePointer = source;
+                        GP_SET(*sourcePointer, source);
                         dst++;
-                        *destination1Pointer = dst;
+                        GP_SET(*destination1Pointer, dst);
                     }
                     destination2Pointer = &gUnk_3002C8C;
                     {
                         u16* dst;
-                        const u16** sourcePointer;
+                        GBA_TYPEOF(const u16**, &gUnk_3002C94) sourcePointer;
                         const u16* source;
                         u16 value;
 
-                        dst = *destination2Pointer;
+                        dst = GP(*destination2Pointer);
                         sourcePointer = &gUnk_3002C94;
-                        source = *sourcePointer;
+                        source = GP(*sourcePointer);
                         value = *source;
                         *dst = value;
                         source++;
-                        *sourcePointer = source;
+                        GP_SET(*sourcePointer, source);
                         dst++;
-                        *destination2Pointer = dst;
+                        GP_SET(*destination2Pointer, dst);
                     }
                     if ((++*timerPointer % (u32)gUnk_3002C9A) == 0) {
                         s32 divisor;
@@ -1936,11 +1936,11 @@ void func_80058AC(s32 frame)
                         divisor = gUnk_3002C9A;
                         adjustment = 64 - divisor;
                         adjustment <<= 1;
-                        dst = *destination1Pointer;
+                        dst = GP(*destination1Pointer);
                         dst = (u16*)((u8*)dst + adjustment);
-                        *destination1Pointer = dst;
+                        GP_SET(*destination1Pointer, dst);
                         dst = (u16*)((u8*)dst + 64);
-                        *destination2Pointer = dst;
+                        GP_SET(*destination2Pointer, dst);
                     }
                 } else {
                     gUnk_3002C60++;
@@ -7996,7 +7996,7 @@ s32 SelectCutsceneGfx1(s32 timer, u8** outGfx)
     frameTimer = timer % 24;
 
     if (frameTimer <= 5) {
-        *outGfx = &sCutsceneGfx1_Frame0;
+        *outGfx = GBA_AS(*outGfx, &sCutsceneGfx1_Frame0);
     } else if (frameTimer <= 11) {
         *outGfx = &sCutsceneGfx1_Frame1;
     } else if (frameTimer <= 17) {

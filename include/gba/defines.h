@@ -40,9 +40,9 @@
 #define ASM_BARRIER_VOLATILE(...) asm volatile("" __VA_ARGS__)
 #endif
 
-#define SOUND_INFO_PTR (*(struct SoundInfo **)0x3007FF0)
+#define SOUND_INFO_PTR (*(GBA_PTR(struct SoundInfo *) *)0x3007FF0)
 #define INTR_CHECK     (*(u16 *)0x3007FF8)
-#define INTR_VECTOR    (*(void **)0x3007FFC)
+#define INTR_VECTOR    (*(GBA_PTR(void *) *)0x3007FFC)
 
 #define EWRAM_START 0x02000000
 #define EWRAM_SIZE  0x40000

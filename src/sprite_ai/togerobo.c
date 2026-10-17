@@ -875,7 +875,7 @@ void func_8036384(void)
         register u8 *fields PIN("r1");
         oam = sTogeroboOam_83BD00C;
         fields = (u8 *)sprite;
-        *(const struct AnimationFrame **)(fields + 4) = oam;
+        GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(fields + 4), oam);
         fields[22] = zeroByte;
         *(u16 *)(fields + 20) = zeroHalf;
         fields[30] = 9;

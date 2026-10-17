@@ -2485,7 +2485,7 @@ void BeginShopkeeperTransformationReturn(void)
     if (value > 15) {
         sprite = (u32)&gCurrentSprite;
         value = (u32)sShopkeeperSmileDropOam;
-        *(const struct AnimationFrame**)(sprite + 4) = (const struct AnimationFrame*)value;
+        GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(sprite + 4), (const struct AnimationFrame*)value);
         value = 0;
         *(volatile u8*)(sprite + 22) = value;
         *(volatile u16*)(sprite + 20) = value;
@@ -2503,7 +2503,7 @@ void BeginShopkeeperTransitionReturn(void)
     if (value == 17) {
         value = (u32)&gCurrentSprite;
         temp = (u32)sShopkeeperTransitionRunOam;
-        *(const struct AnimationFrame**)(value + 4) = (const struct AnimationFrame*)temp;
+        GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(value + 4), (const struct AnimationFrame*)temp);
         temp = 0;
         *(volatile u8*)(value + 22) = temp;
         *(volatile u16*)(value + 20) = temp;
@@ -2612,7 +2612,7 @@ void InitAppleBomb(void)
     *(volatile u8*)value = temp;
     value = (u32)sAppleBombIdleOam;
     temp = (u32)s;
-    *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(temp + 22) = flag;
     *(volatile u16*)(temp + 20) = zeroHalf;
     if (gCurrentRoom == 0) {
@@ -3035,19 +3035,19 @@ void InitPurchasedItemDisplay(void)
     flag = (u32)s;
     switch (value) {
         case 0:
-            *(const struct AnimationFrame**)(flag + 4) = sPurchasedAppleBombOam;
+            GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(flag + 4), sPurchasedAppleBombOam);
             break;
         case 1:
-            *(const struct AnimationFrame**)(flag + 4) = sPurchasedBlastCannonOam;
+            GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(flag + 4), sPurchasedBlastCannonOam);
             break;
         case 4:
-            *(const struct AnimationFrame**)(flag + 4) = sPurchasedBlackDogOam;
+            GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(flag + 4), sPurchasedBlackDogOam);
             break;
         case 6:
-            *(const struct AnimationFrame**)(flag + 4) = sPurchasedBigFistOam;
+            GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(flag + 4), sPurchasedBigFistOam);
             break;
         case 7:
-            *(const struct AnimationFrame**)(flag + 4) = sPurchasedBlackDragonOam;
+            GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(flag + 4), sPurchasedBlackDragonOam);
             break;
         default:
             *(volatile u16*)flag = 0;
@@ -3142,7 +3142,7 @@ void InitBlastCannon(void)
     *(volatile u8*)value = temp;
     value = (u32)sBlastCannonIdleOam;
     temp = (u32)s;
-    *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(temp + 22) = flag;
     *(volatile u16*)(temp + 20) = zeroHalf;
     if (gCurrentRoom == 0) {
@@ -3240,7 +3240,7 @@ void InitBlastCannonball(void)
     *(volatile u8*)value = temp;
     value = (u32)sBlastCannonballOam;
     temp = (u32)s;
-    *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(temp + 22) = zero;
     *(volatile u16*)(temp + 20) = zeroHalf;
     temp += 39;
@@ -3759,7 +3759,7 @@ void InitVizormanBeamCore(void)
     *(volatile u8*)value = temp;
     value = (u32)sVizormanBeamCoreInitialOam;
     temp = (u32)sprite;
-    *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(temp + 22) = zero;
     *(volatile u16*)(temp + 20) = zeroHalf;
     value = 18;
@@ -3857,7 +3857,7 @@ void InitVizormanBeamGlow(void)
     *(volatile u8*)value = temp;
     value = (u32)sVizormanBeamGlowInitialOam;
     temp = (u32)sprite;
-    *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(temp + 22) = zero;
     *(volatile u16*)(temp + 20) = zeroHalf;
     value = 18;
@@ -4006,7 +4006,7 @@ void InitBugle(void)
     *(volatile u8*)value = temp;
     value = (u32)sBugleIdleOam;
     temp = (u32)s;
-    *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(temp + 22) = r2;
     *(volatile u16*)(temp + 20) = zeroHalf;
     if (gCurrentRoom == 0) {
@@ -4105,7 +4105,7 @@ void UpdateBugleAttack(void)
             value = 24;
             ((struct PrimarySpriteData*)temp)->pose = value;
             value = (u32)sBugleIdleOam;
-            *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+            GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
             ((struct PrimarySpriteData*)temp)->currentAnimationFrame = zero;
             ((struct PrimarySpriteData*)temp)->animationTimer = zero;
         }
@@ -4553,7 +4553,7 @@ void InitBlackDog(void)
     value++;
     *(volatile u8*)value = temp;
     value = (u32)sBlackDogIdleOam;
-    *(const struct AnimationFrame**)(s + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(s + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(s + 22) = zero;
     *(volatile u16*)(s + 20) = r2;
     if (gCurrentRoom == 0) {
@@ -4945,7 +4945,7 @@ void InitLargeLips(void)
     value++;
     *(volatile u8*)value = temp;
     value = (u32)sLargeLipsIdleOam;
-    *(const struct AnimationFrame**)(s + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(s + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(s + 22) = zero;
     *(volatile u16*)(s + 20) = flag;
     if (gCurrentRoom == 0) {
@@ -5282,13 +5282,13 @@ void InitLargeLipsKissEffect(void)
 case1:
     value = (u32)sLargeLipsKissEffectBOam;
     flag = (u32)s;
-    *(const struct AnimationFrame**)(flag + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(flag + 4), (const struct AnimationFrame*)value);
     goto done;
 case2:
     value = (u32)sLargeLipsKissEffectCOam;
     temp = (u32)s;
 store:
-    *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
 done:;
 }
 
@@ -6336,7 +6336,7 @@ void InitBlackDragon(void)
     value++;
     *(volatile u8*)value = temp;
     value = (u32)sBlackDragonIdleOam;
-    *(const struct AnimationFrame**)(sprite + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(sprite + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(sprite + 22) = zeroByte;
     *(volatile u16*)(sprite + 20) = zero;
     if (*(volatile u8*)&gCurrentRoom == 0) {
@@ -6702,7 +6702,7 @@ void InitBlackDragonFire(void)
     *(volatile u8*)value = temp;
     value = (u32)sBlackDragonFireOam;
     temp = (u32)sprite;
-    *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(temp + 22) = zero;
     *(volatile u16*)(temp + 20) = zeroHalf;
     *(volatile u8*)(temp + 28) = size;
@@ -6971,7 +6971,7 @@ void InitBossTreasureChest(void)
     *(volatile u8*)value = temp;
     value = (u32)sBossTreasureChestInitialOam;
     temp = (u32)sprite;
-    *(const struct AnimationFrame**)(temp + 4) = (const struct AnimationFrame*)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(temp + 4), (const struct AnimationFrame*)value);
     *(volatile u8*)(temp + 22) = zero;
     *(volatile u16*)(temp + 20) = zeroHalf;
     *(volatile u8*)(temp + 28) = collision;

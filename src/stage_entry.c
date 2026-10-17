@@ -50,7 +50,7 @@ void InitializeStageEntrySceneGraphics(void)
 {
     register vu32* dma PIN("r2");
     const u32* stageIndexTable;
-    const u8* const* passageGraphics;
+    GBA_TYPEOF(const u8* const*, &(sStageEntryPassageBgGraphics)[0]) passageGraphics;
     struct ItemCollection* collectionEntry;
     u8* stageGraphicIndex;
     u8* stageGraphicMirror;
@@ -182,7 +182,7 @@ void InitializeStageEntrySceneGraphics(void)
         {
             vu32* dma1;
             dma1 = initialDma;
-            dma1[0] = (u32)passageGraphics[gCurrentPassage];
+            dma1[0] = (u32)GP(passageGraphics[gCurrentPassage]);
             dma1[1] = 0x06000000;
             dma1[2] = 0x80002E00;
             dma1[2];
@@ -514,7 +514,7 @@ void InitializeStageEntryMovingLandingState(void)
 
 void LoadStageEntryTilemapChunks(void)
 {
-    const u8* const* table;
+    GBA_TYPEOF(const u8* const*, &(sStageEntryBg1TilemapChunkTable)[0]) table;
     u8* stage;
     u8* passage;
     u32 control;
@@ -523,16 +523,16 @@ void LoadStageEntryTilemapChunks(void)
         vu32* dma;
 
         dma = (vu32*)0x040000D4;
-        table = sStageEntryBg0TilemapChunkTable;
+        table = GBA_AS(table, sStageEntryBg0TilemapChunkTable);
         stage = &gCurrentStageNumber;
         passage = &gCurrentPassage;
-        dma[0] = (u32)table[*passage * 7 + *stage];
+        dma[0] = (u32)GP(table[*passage * 7 + *stage]);
         dma[1] = 0x0600C800;
         control = 0x80000400;
         dma[2] = control;
         dma[2];
         table = sStageEntryBg1TilemapChunkTable;
-        dma[0] = (u32)table[*passage * 7 + *stage];
+        dma[0] = (u32)GP(table[*passage * 7 + *stage]);
         dma[1] = 0x0600D800;
         dma[2] = control;
         dma[2];
@@ -540,16 +540,16 @@ void LoadStageEntryTilemapChunks(void)
         vu32* dma;
 
         dma = (vu32*)0x040000D4;
-        table = sStageEntryBg0TilemapChunkTable;
+        table = GBA_AS(table, sStageEntryBg0TilemapChunkTable);
         stage = &gCurrentStageNumber;
         passage = &gCurrentPassage;
-        dma[0] = (u32)table[*passage * 7 + *stage];
+        dma[0] = (u32)GP(table[*passage * 7 + *stage]);
         dma[1] = 0x0600C000;
         control = 0x80000400;
         dma[2] = control;
         dma[2];
         table = sStageEntryBg1TilemapChunkTable;
-        dma[0] = (u32)table[*passage * 7 + *stage];
+        dma[0] = (u32)GP(table[*passage * 7 + *stage]);
         dma[1] = 0x0600D000;
         dma[2] = control;
         dma[2];

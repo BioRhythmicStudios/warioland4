@@ -13,7 +13,7 @@
 void UpdateSecondarySprites(void)
 {
     register struct SecondarySprite* spriteBase PIN("r2");
-    void (*const* aiTable)(void);
+    GBA_TYPEOF(ProcedureFunc const *, &sSecondarySpriteAITable[0]) aiTable;
     u32 offset;
     s32 index;
     index = 0;
@@ -28,7 +28,7 @@ void UpdateSecondarySprites(void)
         sprite = (struct SecondarySprite*)(byteOffset + ((u32)spriteBase));
         if ((sprite->status & 5) == 5) {
             gCurrentSecondarySprite = *sprite;
-            aiTable[gCurrentSecondarySprite.id]();
+            GF(aiTable[gCurrentSecondarySprite.id])();
             if (gCurrentSecondarySprite.status & 1) {
                 DrawCurrentSecondarySprite(index);
             }
@@ -44,11 +44,11 @@ void UpdateSecondarySprites(void)
     } while (index <= 7);
     {
         register struct SecondarySprite* sprite PIN("r9");
-        void (*const* secondAiTable)(void);
+        GBA_TYPEOF(ProcedureFunc const *, &sSecondarySpriteAITable[0]) secondAiTable;
         index = 0;
         {
             struct SecondarySprite* freshSpriteBase;
-            register void (*const* freshAiTable)(void) PIN("r1");
+            register GBA_TYPEOF(ProcedureFunc const *, &sSecondarySpriteAITable[0]) freshAiTable PIN("r1");
             freshSpriteBase = gSecondarySpriteData;
             sprite = freshSpriteBase;
             ASM_BARRIER(: "=r"(freshAiTable) : "0"(sSecondarySpriteAITable) : "r8");
@@ -63,7 +63,7 @@ void UpdateSecondarySprites(void)
                 struct SecondarySprite* current;
                 current = &gCurrentSecondarySprite;
                 *current = *sprite;
-                secondAiTable[current->id]();
+                GF(secondAiTable[current->id])();
                 active &= current->status;
                 if (active != 0) {
                     DrawCurrentSecondarySprite(index);

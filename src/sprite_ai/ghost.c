@@ -582,7 +582,7 @@ matched:
         oamAddress += 4;
         oamAddress = (u32)offset + oamAddress;
         oam = sGhostOam_83C5528;
-        *(const struct AnimationFrame **)oamAddress = oam;
+        GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)oamAddress, oam);
         zero = 0;
         mirror->currentAnimationFrame = zero;
         mirror->animationTimer = zero;
@@ -1192,7 +1192,7 @@ loop:
             base = oamBase;
             address = (u32)offset + base;
             oam = childOam;
-            *(const struct AnimationFrame **)address = oam;
+            GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)address, oam);
         }
         ASM_BARRIER(: "+r"(zero));
         child->currentAnimationFrame = zero;
@@ -1431,7 +1431,7 @@ void func_803FDEC(void)
 
     oam = sGhostOam_83C5528;
     fieldPtr = (u8 *)sprite;
-    *(const struct AnimationFrame **)(fieldPtr + 4) = oam;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(fieldPtr + 4), oam);
     *(fieldPtr + 22) = zeroByte;
     *(u16 *)(fieldPtr + 20) = zeroHalf;
     *(fieldPtr + 28) = flags;
@@ -1482,7 +1482,7 @@ void func_803FE54(void)
 
     oam = sKeyzerIdleOam;
     fieldPtr = (u8 *)sprite;
-    *(const struct AnimationFrame **)(fieldPtr + 4) = oam;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(fieldPtr + 4), oam);
     *(fieldPtr + 22) = zeroByte;
     *(u16 *)(fieldPtr + 20) = zeroHalf;
     *(fieldPtr + 28) = flags;

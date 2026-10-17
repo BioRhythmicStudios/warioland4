@@ -540,9 +540,9 @@ void DrawStageEjection(void)
             new_var2 = (u8*)obj;
             if (new_var2[12] != 0) {
                 {
-                    const u16* const* frameTable;
+                    GBA_TYPEOF(const u16* const*, &(sStageEjectionTreasureOamFrames)[0]) frameTable;
                     frameTable = sStageEjectionTreasureOamFrames;
-                    frame = frameTable[slot];
+                    frame = GP(frameTable[slot]);
                 }
                 next += *frame;
                 frame++;

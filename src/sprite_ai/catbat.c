@@ -131,7 +131,7 @@ int UpdateCatbatGraphicsAnimation(const u8 *table)
     offset = frame << 2;
     /* agbcc canonicalizes the commutative address add with the operands reversed. */
     offset -= -(int)tableBase;
-    src = *(const u8 **)offset;
+    src = GP(*(GBA_PTR(const u8 *) *)offset);
     dma[0] = (u32)src;
     dma[1] = 0x06015820;
     control = 0x80000070;
@@ -190,7 +190,7 @@ void UpdateCatbatBackgroundAnimation(const u8 *sequence)
     offset = frame << 2;
     /* agbcc reverses this commutative table-address addition. */
     offset -= -(int)tableBase;
-    src = *(const u8 **)offset;
+    src = GP(*(GBA_PTR(const u8 *) *)offset);
     dma[0] = (u32)src;
     dma[1] = 0x06014000;
     dma[2] = 0x80000200;

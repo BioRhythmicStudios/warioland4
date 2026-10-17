@@ -933,7 +933,7 @@ void UpdateBigBoardSecondarySprite(void)
         GP_SET(gCurrentSecondarySpriteOamData, sUnk_83BF986);
     } else {
         struct SecondarySprite* current;
-        const u8** destination;
+        GBA_TYPEOF(const u8**, &gCurrentSecondarySpriteOamData) destination;
         const u8* table;
         const u8* spaces;
         u32 index;
@@ -948,7 +948,7 @@ void UpdateBigBoardSecondarySprite(void)
         index <<= 3;
         index += (u32)table;
         index = *(const u32*)index;
-        *destination = (const u8*)index;
+        GP_SET(*destination, (const u8*)index);
     }
 }
 

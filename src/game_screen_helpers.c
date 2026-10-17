@@ -372,8 +372,8 @@ void LoadRoom(void)
     u32 dmaEnable;
     struct TilesetLoadData tileset;
     const struct RoomHeader* roomTable;
-    const struct RoomHeader* const* roomTableBase;
-    const struct RoomHeader* const* roomTablePointer;
+    GBA_TYPEOF(const struct RoomHeader* const*, &(sRoomHeaderTables)[0]) roomTableBase;
+    GBA_PTR(const struct RoomHeader*) const * roomTablePointer;
     const void* selectedData;
     u32 roomIndex;
     register u16 tileAttribute PIN("r3");
@@ -383,10 +383,10 @@ void LoadRoom(void)
     InitializeRoomState();
     roomHeader = &gCurrentRoomHeader;
     roomTableBase = sRoomHeaderTables;
-    roomTablePointer = (const struct RoomHeader* const*)(gStageRoomTableIndex * 4);
-    roomTablePointer = (const struct RoomHeader* const*)((u32)roomTablePointer + (u32)roomTableBase);
+    roomTablePointer = (GBA_TYPEOF(const struct RoomHeader* const*, roomTablePointer))(gStageRoomTableIndex * 4);
+    roomTablePointer = (GBA_TYPEOF(const struct RoomHeader* const*, roomTablePointer))((u32)roomTablePointer + (u32)roomTableBase);
     roomIndex = gCurrentRoom;
-    roomTable = *roomTablePointer;
+    roomTable = GP(*roomTablePointer);
     *roomHeader = roomTable[roomIndex];
     tileset = sTilesetLoadData[roomHeader->tileset];
     UpdateBossRoomState();
@@ -535,7 +535,7 @@ void LoadRoomBackgrounds(void)
     dma->control;
 
     roomDataBase = 0x02000000;
-    data = *(const u8**)(roomDataBase + gCurrentRoom * 4);
+    data = GP(*(GBA_PTR(const u8*) *)(roomDataBase + gCurrentRoom * 4));
     backgroundInfo = &gBackgroundInfo;
     backgroundInfo->bg1Width = *(const u16*)data;
     data += 2;
@@ -1126,7 +1126,7 @@ void PreloadStageRoomBackgrounds(void)
     s32 index;
     const u8* stageCountBase;
     const u8* stageCountTable;
-    u8** destinationTable;
+    GBA_PTR(u8*) * destinationTable;
     const u8* graphics;
     u32 size;
     s32 stageOffset;
@@ -1139,12 +1139,12 @@ void PreloadStageRoomBackgrounds(void)
     stageCountBase++;
     if (index < stageCountBase[stageOffset]) {
         stageCountTable = stageCountBase;
-        destinationTable = (u8**)0x02000000;
+        destinationTable = (GBA_TYPEOF(u8**, destinationTable))0x02000000;
         do {
             graphics = (const u8*)GP(entry->pBg1Data);
             size = (graphics[0] * graphics[1] + 2) * 2;
             DecompressRoomBackground(2, graphics, destination);
-            *destinationTable++ = destination;
+            GP_SET(*destinationTable++, destination);
             destination += size;
             entry++;
             index++;

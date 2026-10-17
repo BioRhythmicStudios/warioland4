@@ -382,7 +382,7 @@ void ItemShopVBlank(void)
 {
     vu32* dma;
     vu16* window;
-    const u8* const* table;
+    GBA_PTR(const u8*) const * table;
     u32 index;
 
     m4aSoundVSync();
@@ -399,14 +399,14 @@ void ItemShopVBlank(void)
 
     switch (gLanguage) {
         case 0:
-            table = (const u8* const*)sUnk_8730150;
+            table = (GBA_TYPEOF(const u8* const*, table))sUnk_8730150;
             index = gItemShopMessageId;
-            Shop_DrawText(table[index], 0x7800, 26);
+            Shop_DrawText(GP(table[index]), 0x7800, 26);
             break;
         case 1:
-            table = (const u8* const*)sUnk_8730114;
+            table = (GBA_TYPEOF(const u8* const*, table))sUnk_8730114;
             index = gItemShopMessageId;
-            Shop_DrawText(table[index], 0x7800, 26);
+            Shop_DrawText(GP(table[index]), 0x7800, 26);
             break;
     }
 }
@@ -916,7 +916,7 @@ void DrawItemShopSprites(void)
 
     {
         u16* state = gItemShopShopkeeperAnimationState;
-        const struct AnimationFrame** animationPointer;
+        GBA_TYPEOF(const struct AnimationFrame**, &gItemShopShopkeeperAnimation) animationPointer;
         register const struct AnimationFrame* loadedAnimation PIN("r5");
         register const struct AnimationFrame* animation PIN("r12");
 
@@ -927,7 +927,7 @@ void DrawItemShopSprites(void)
             state[0] = timer;
             animationFrame = state[1];
             animationPointer = &gItemShopShopkeeperAnimation;
-            loadedAnimation = *animationPointer;
+            loadedAnimation = GP(*animationPointer);
             ASM_BARRIER(: "+r"(loadedAnimation));
             animation = loadedAnimation;
             if (animation[animationFrame].time < timer) {
@@ -938,7 +938,7 @@ void DrawItemShopSprites(void)
                     register u16 zeroFrame PIN("r1") = slot;
                     state[1] = zeroFrame;
                     if (animation == sItemShopShopkeeperVoiceAnimation) {
-                        *animationPointer = sItemShopShopkeeperIdleAnimation;
+                        GP_SET(*animationPointer, sItemShopShopkeeperIdleAnimation);
                     }
                 }
             }
@@ -946,7 +946,7 @@ void DrawItemShopSprites(void)
 
         {
             u16 finalFrame = state[1];
-            const struct AnimationFrame* finalAnimation = *animationPointer;
+            const struct AnimationFrame* finalAnimation = GP(*animationPointer);
             frameData = GP(finalAnimation[finalFrame].oam);
         }
     }
@@ -1023,21 +1023,21 @@ void DrawItemShopSprites(void)
         }
 
         {
-            const struct AnimationFrame** animationPointer;
+            GBA_TYPEOF(const struct AnimationFrame**, &gItemShopCursorAnimation) animationPointer;
             const struct AnimationFrame* animation;
             u16 animationFrame;
 
             {
                 register u16 timer PIN("r0") = cursor->animationTimer;
                 u16 frame;
-                const struct AnimationFrame** ap;
+                GBA_TYPEOF(const struct AnimationFrame**, &gItemShopCursorAnimation) ap;
                 timer++;
                 cursor->animationTimer = timer;
                 frame = cursor->animationFrame;
                 animationFrame = frame;
                 ap = &gItemShopCursorAnimation;
                 animationPointer = ap;
-                animation = *ap;
+                animation = GP(*ap);
                 if (animation[frame].time < timer) {
                     cursor->animationTimer = 0;
                     cursor->animationFrame++;
@@ -1052,8 +1052,8 @@ void DrawItemShopSprites(void)
 
             {
                 u16 finalFrame = cursor->animationFrame;
-                const struct AnimationFrame** finalPointer = &gItemShopCursorAnimation;
-                const struct AnimationFrame* finalAnimation = *finalPointer;
+                GBA_TYPEOF(const struct AnimationFrame**, &gItemShopCursorAnimation) finalPointer = &gItemShopCursorAnimation;
+                const struct AnimationFrame* finalAnimation = GP(*finalPointer);
                 frameData = GP(finalAnimation[finalFrame].oam);
             }
         }
@@ -1134,10 +1134,10 @@ void DrawItemShopSprites(void)
     }
 
     {
-        const struct AnimationFrame* const* animationTable;
+        GBA_PTR(const struct AnimationFrame*) const * animationTable;
         register s32 nextIndex PIN("r12");
 
-        animationTable = (const struct AnimationFrame* const*)sUnk_872FF9C;
+        animationTable = (GBA_TYPEOF(const struct AnimationFrame* const*, animationTable))sUnk_872FF9C;
         {
             u32 zero = 0;
             nextIndex = zero;
@@ -1159,7 +1159,7 @@ void DrawItemShopSprites(void)
                     indexBytes = i << 1;
                     tableIndex = indexBytes + i;
                     tableIndex += itemState;
-                    animation = animationTable[tableIndex];
+                    animation = GP(animationTable[tableIndex]);
                     offset = indexBytes;
                 }
                 if (state == 1) {

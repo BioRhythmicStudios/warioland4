@@ -35,7 +35,7 @@ u32 UpdateCractusGraphicsAnimation(const u8 *animation)
     u32 frame;
     volatile u32 *dma;
     const void *source;
-    register const void *const *sourceTable PIN("r2");
+    register GBA_TYPEOF(const void *const *, &(sUnk_878F170)[0]) sourceTable PIN("r2");
     u32 control;
 
     data = animation;
@@ -77,7 +77,7 @@ u32 UpdateCractusGraphicsAnimation(const u8 *animation)
     sourceTable = sUnk_878F170;
     value = frame << 2;
     value += (u32)sourceTable;
-    source = *(const void *const *)value;
+    source = GP(*(GBA_PTR(const void *) const *)value);
     dma[0] = (u32)source;
     dma[1] = 0x6014000;
     control = 0x80000070;
@@ -1039,7 +1039,7 @@ void UpdateCractusBossPose113(void)
     offset *= stride;
     basePlus4 = ((u32) sprites) + 4;
     offset += basePlus4;
-    *((const struct AnimationFrame **) offset) = sCractusBossArmExtendedOam;
+    GP_SET(*((GBA_PTR(const struct AnimationFrame *) *) offset), sCractusBossArmExtendedOam);
     slot = SpriteUtilFindSprite(220, 0);
     slot219 = SpriteUtilFindSprite(219, 0);
     sprite->xPosition += 256;

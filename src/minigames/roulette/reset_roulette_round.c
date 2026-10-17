@@ -81,9 +81,9 @@ void ResetRouletteRound(void)
     }
 
     {
-        struct RouletteItem **base;
+        GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) base;
         struct RouletteItem *item;
-        register struct RouletteItem **dst PIN("r1");
+        register GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) dst PIN("r1");
         base = gRouletteItemDrawOrder;
         item = gRouletteItems;
         item += 2;
@@ -91,7 +91,7 @@ void ResetRouletteRound(void)
         dst += 2;
         do
         {
-            *dst = item;
+            GP_SET(*dst, item);
             item--;
             dst--;
         } while ((s32)dst >= (s32)base);

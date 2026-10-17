@@ -1418,7 +1418,7 @@ void BeginGoldenDivaFirstPhase(void)
     value = data + 4;
     value = offset + value;
     timer = (u8 *)sGoldenDivaBodyPhaseStartOam;
-    *(const struct AnimationFrame **)value = (const struct AnimationFrame *)timer;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)value, (const struct AnimationFrame *)timer);
     offset += data;
     ((struct PrimarySpriteData *)offset)->currentAnimationFrame = zero;
     ((struct PrimarySpriteData *)offset)->animationTimer = zero;
@@ -1743,7 +1743,7 @@ void BeginGoldenDivaFaceAnimation(void)
     value = data + 4;
     value = (offset) - (-(value));
     stride = (u32)sGoldenDivaBodyFaceStartOam;
-    *(const struct AnimationFrame **)value = (const struct AnimationFrame *)stride;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)value, (const struct AnimationFrame *)stride);
     offset += data;
     value = 0;
     *(u8 *)(offset + 22) = value;
@@ -1814,7 +1814,7 @@ void UpdateGoldenDivaFaceAnimation(void)
             value = data + 4;
             index += value;
             value = (u32)sGoldenDivaBodyFaceLoopOam;
-            *(const struct AnimationFrame **)index = (const struct AnimationFrame *)value;
+            GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)index, (const struct AnimationFrame *)value);
 
             value = gCuckooCondorMoveRight;
             if (value == 0) {
@@ -2011,7 +2011,7 @@ void BeginGoldenDivaAttack(void)
                 data += 4;
                 stride += data;
                 offset = (u32)sGoldenDivaBodyAttackOam;
-                *(const struct AnimationFrame **)stride = (const struct AnimationFrame *)offset;
+                GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)stride, (const struct AnimationFrame *)offset);
             }
             gBgAnimationTimer = zero;
             gSpriteAiDynamicGraphicsTimer = zero;
@@ -3544,16 +3544,16 @@ void InitGoldenDivaMask(void)
         *(u16 *)constant &= 0xDFFB;
         switch (((struct PrimarySpriteData *)constant)->roomSlot) {
             case 1:
-                *(const struct AnimationFrame **)(constant + 4) = sGoldenDivaRedMaskOam;
+                GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(constant + 4), sGoldenDivaRedMaskOam);
                 break;
             case 2:
-                *(const struct AnimationFrame **)(constant + 4) = sGoldenDivaGreenMaskOam;
+                GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(constant + 4), sGoldenDivaGreenMaskOam);
                 break;
             case 3:
-                *(const struct AnimationFrame **)(constant + 4) = sGoldenDivaBlueMaskOam;
+                GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(constant + 4), sGoldenDivaBlueMaskOam);
                 break;
             default:
-                *(const struct AnimationFrame **)(constant + 4) = sGoldenDivaWhiteMaskOam;
+                GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(constant + 4), sGoldenDivaWhiteMaskOam);
                 break;
         }
     }

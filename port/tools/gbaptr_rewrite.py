@@ -237,54 +237,7 @@ def rewrite_unit(args):
         if val is None:
             manual.append((where(node), key, ps))
             continue
-        outer, ops = skip_parens(val, ps)
-        parent = ops[-1] if ops else {}
-        pk = parent.get('kind')
-        get, set_ = ('GF', 'GF_SET') if kind == 'func' else ('GP', 'GP_SET')
-        sp = span_of(val)
-        if sp is None:
-            manual.append((where(node), key, 'inside a macro body'))
-            continue
-        f, s, e = sp
-        if pk == 'ImplicitCastExpr' and parent.get('castKind') == 'LValueToRValue':
-            edits.insert_open(f, s, get + '(', e - s)
-            edits.insert_close(f, e, ')', e - s)
-        elif pk in ('BinaryOperator', 'CompoundAssignOperator') and parent['inner'][0] is outer \
-                and parent.get('opcode') in ('=', '+=', '-='):
-            if kind == 'func' and parent['opcode'] != '=':
-                manual.append((where(node), key, 'arithmetic on a function pointer'))
-                continue
-            macro = {'=': set_, '+=': 'GP_ADD', '-=': 'GP_SUB'}[parent['opcode']]
-            osp, vsp, psp = span_of(outer), span_of(parent['inner'][1]), span_of(parent)
-            if not osp or not vsp or not psp or osp[0] != vsp[0]:
-                manual.append((where(node), key, 'assignment inside a macro body'))
-                continue
-            gp = ops[-2] if len(ops) >= 2 else {}
-            if gp.get('kind') not in ('CompoundStmt', 'ForStmt', 'IfStmt', 'WhileStmt', 'DoStmt', 'LabelStmt',
-                                      'CaseStmt', 'DefaultStmt') and not (gp.get('kind') == 'BinaryOperator' and gp.get('opcode') == ','):
-                manual.append((where(node), key, 'value of an assignment is used (%s)' % gp.get('kind')))
-            edits.insert_open(f, osp[1], macro + '(', psp[2] - psp[1])
-            edits.replace(f, osp[2], vsp[1], ', ')
-            edits.insert_close(f, vsp[2], ')', psp[2] - psp[1])
-        elif pk == 'UnaryOperator' and parent.get('opcode') in ('++', '--'):
-            if kind == 'func':
-                manual.append((where(node), key, 'arithmetic on a function pointer'))
-                continue
-            psp, osp = span_of(parent), span_of(outer)
-            if not psp or not osp:
-                manual.append((where(node), key, 'increment inside a macro body'))
-                continue
-            name = ('GP_POST' if parent.get('isPostfix') else 'GP_PRE') + ('INC' if parent['opcode'] == '++' else 'DEC')
-            if parent.get('isPostfix'):
-                edits.insert_open(f, osp[1], name + '(', psp[2] - psp[1])
-                edits.replace(f, osp[2], psp[2], ')')
-            else:
-                edits.replace(f, psp[1], osp[1], name + '(')
-                edits.insert_close(f, osp[2], ')', psp[2] - psp[1])
-        elif pk == 'UnaryExprOrTypeTraitExpr':
-            pass  # sizeof: the size is the same 4 bytes
-        else:
-            manual.append((where(node), key, 'used as %s %s' % (pk, parent.get('opcode') or parent.get('castKind') or '')))
+        convert_value(edits, manual, where(node), key, kind, val, ps)
 
     decl_edits = []
     for key, kind, node in decls:
@@ -294,6 +247,59 @@ def rewrite_unit(args):
         else:
             decl_edits.append(res)
     return r, edits.items, decl_edits, manual
+
+
+def convert_value(edits, manual, where, key, kind, val, ps):
+    """Edits for one use of a converted pointer: val is the expression holding the
+    pointer (ps its parents). Reads become GP(), writes GP_SET() and so on."""
+    outer, ops = skip_parens(val, ps)
+    parent = ops[-1] if ops else {}
+    pk = parent.get('kind')
+    get, set_ = ('GF', 'GF_SET') if kind == 'func' else ('GP', 'GP_SET')
+    sp = span_of(val)
+    if sp is None:
+        manual.append((where, key, 'inside a macro body'))
+        return
+    f, s, e = sp
+    if pk == 'ImplicitCastExpr' and parent.get('castKind') == 'LValueToRValue':
+        edits.insert_open(f, s, get + '(', e - s)
+        edits.insert_close(f, e, ')', e - s)
+    elif pk in ('BinaryOperator', 'CompoundAssignOperator') and parent['inner'][0] is outer \
+            and parent.get('opcode') in ('=', '+=', '-='):
+        if kind == 'func' and parent['opcode'] != '=':
+            manual.append((where, key, 'arithmetic on a function pointer'))
+            return
+        macro = {'=': set_, '+=': 'GP_ADD', '-=': 'GP_SUB'}[parent['opcode']]
+        osp, vsp, psp = span_of(outer), span_of(parent['inner'][1]), span_of(parent)
+        if not osp or not vsp or not psp or osp[0] != vsp[0]:
+            manual.append((where, key, 'assignment inside a macro body'))
+            return
+        gp = ops[-2] if len(ops) >= 2 else {}
+        if gp.get('kind') not in ('CompoundStmt', 'ForStmt', 'IfStmt', 'WhileStmt', 'DoStmt', 'LabelStmt',
+                                  'CaseStmt', 'DefaultStmt') and not (gp.get('kind') == 'BinaryOperator' and gp.get('opcode') == ','):
+            manual.append((where, key, 'value of an assignment is used (%s)' % gp.get('kind')))
+        edits.insert_open(f, osp[1], macro + '(', psp[2] - psp[1])
+        edits.replace(f, osp[2], vsp[1], ', ')
+        edits.insert_close(f, vsp[2], ')', psp[2] - psp[1])
+    elif pk == 'UnaryOperator' and parent.get('opcode') in ('++', '--'):
+        if kind == 'func':
+            manual.append((where, key, 'arithmetic on a function pointer'))
+            return
+        psp, osp = span_of(parent), span_of(outer)
+        if not psp or not osp:
+            manual.append((where, key, 'increment inside a macro body'))
+            return
+        name = ('GP_POST' if parent.get('isPostfix') else 'GP_PRE') + ('INC' if parent['opcode'] == '++' else 'DEC')
+        if parent.get('isPostfix'):
+            edits.insert_open(f, osp[1], name + '(', psp[2] - psp[1])
+            edits.replace(f, osp[2], psp[2], ')')
+        else:
+            edits.replace(f, psp[1], osp[1], name + '(')
+            edits.insert_close(f, osp[2], ')', psp[2] - psp[1])
+    elif pk == 'UnaryExprOrTypeTraitExpr':
+        pass  # sizeof: the size is the same 4 bytes
+    else:
+        manual.append((where, key, 'used as %s %s' % (pk, parent.get('opcode') or parent.get('castKind') or '')))
 
 
 STORAGE = ('extern', 'static')

@@ -16,6 +16,7 @@
 //   GF(x)                     the value of a function pointer, as a native function
 //   GF_SET(x, f)              stores the GBA address of the function f in x
 //   GBA_TYPEOF(T, expr)       type T on the GBA, the type of expr on the PC
+//   GBA_AS(var, expr)         expr, converted to the type of var on the PC
 //
 // On the GBA every macro expands to the original expression, so agbcc's output is unchanged.
 // port/tools/gbaptr_rewrite.py converts the declarations and their uses, and
@@ -55,6 +56,7 @@ static inline u32 GbaPtrAddress_(__UINTPTR_TYPE__ address)
 // Every GBA_PTR() is its own union type, so a local that walks a table of them takes the
 // type of the table's element pointer on the PC.
 #define GBA_TYPEOF(T, expr) __typeof__(expr)
+#define GBA_AS(var, expr) ((__typeof__(var))(expr))
 
 #else
 
@@ -74,6 +76,7 @@ static inline u32 GbaPtrAddress_(__UINTPTR_TYPE__ address)
 #define GF_SET(x, f) ((x) = (f))
 
 #define GBA_TYPEOF(T, expr) T
+#define GBA_AS(var, expr) (expr)
 
 #endif
 

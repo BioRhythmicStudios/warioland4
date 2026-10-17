@@ -9,9 +9,9 @@ void SortRouletteItemsByScale(void)
     struct RouletteItem *swappedItem;
 
     {
-        struct RouletteItem **base;
+        GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) base;
         struct RouletteItem *itemPtr;
-        struct RouletteItem **refPtr;
+        GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) refPtr;
         base = gRouletteItemDrawOrder;
         itemPtr = gRouletteItems;
         /* Keep the data relocation unmodified; the target adds 24 at runtime. */
@@ -20,7 +20,7 @@ void SortRouletteItemsByScale(void)
         refPtr = base;
         refPtr += 2;
         do {
-            *refPtr = itemPtr;
+            GP_SET(*refPtr, itemPtr);
             itemPtr--;
             refPtr--;
         } while ((int)refPtr >= (int)base);

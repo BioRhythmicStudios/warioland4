@@ -36,6 +36,8 @@ struct AGB_ALIGN RouletteMainState {
     u8 active;
 };
 
+extern GBA_PTR(struct RouletteItem*) gRouletteItemDrawOrder[3];
+
 struct AGB_ALIGN RouletteRenderStack {
     s16 affineA;
     s16 affineB;
@@ -46,7 +48,7 @@ struct AGB_ALIGN RouletteRenderStack {
     GBA_PTR(s16*) affineDPtr;
     int nextItem;
     int itemOffset;
-    GBA_PTR(struct RouletteItem**) itemRef;
+    GBA_PTR(GBA_TYPEOF(struct RouletteItem**, &(gRouletteItemDrawOrder)[0])) itemRef;
 };
 
 extern u16 gUnk_300188E;
@@ -70,7 +72,6 @@ extern struct RouletteSmallState gRouletteMiddleResult;
 extern struct RouletteSmallState gRouletteBottomResult;
 extern u8 gRouletteWinningValues[3];
 extern s16 gRouletteTickPeriod;
-extern GBA_PTR(struct RouletteItem*) gRouletteItemDrawOrder[3];
 extern u16 gRouletteMoveStartX;
 extern u16 gRouletteMoveStartY;
 extern u16 gRouletteMoveStartTile;

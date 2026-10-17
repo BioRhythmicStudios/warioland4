@@ -1891,7 +1891,7 @@ poseTen:
 
 loadAnimationR0:
     tempR0 += tempR1;
-    animation = *(const struct WarioAnimationFrame **)tempR0;
+    animation = GP(*(GBA_PTR(const struct WarioAnimationFrame *) *)tempR0);
     goto animationSelected;
 
 defaultAnimation:
@@ -1903,7 +1903,7 @@ defaultAnimation:
     tempR1 += tempR2;
 
 loadAnimationR1:
-    animation = *(const struct WarioAnimationFrame **)tempR1;
+    animation = GP(*(GBA_PTR(const struct WarioAnimationFrame *) *)tempR1);
 
 animationSelected:
     animation += wario->unk_1F;

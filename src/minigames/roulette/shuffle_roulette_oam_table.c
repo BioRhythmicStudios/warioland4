@@ -8,11 +8,11 @@ void ShuffleRouletteOamTable(void)
     u8 swappedOrder;
 
     {
-        const u16 **dst;
-        register const u16 **frames PIN("r0");
+        GBA_TYPEOF(const u16 **, &(gRouletteItemOamTable)[0]) dst;
+        register GBA_TYPEOF(const u16 **, &(sRouletteItemOamFrames)[0]) frames PIN("r0");
         dst = gRouletteItemOamTable;
         frames = sRouletteItemOamFrames;
-        *dst = *frames;
+        GP_SET(*dst, GP(*frames));
     }
 
     {
@@ -47,10 +47,10 @@ void ShuffleRouletteOamTable(void)
     }
 
     {
-        const u16 **dstBase;
-        const u16 **frames;
+        GBA_TYPEOF(const u16 **, &(gRouletteItemOamTable)[0]) dstBase;
+        GBA_TYPEOF(const u16 **, &(sRouletteItemOamFrames)[0]) frames;
         u8 *order;
-        const u16 **dst;
+        GBA_TYPEOF(const u16 **, &(gRouletteItemOamTable)[0]) dst;
         dstBase = gRouletteItemOamTable;
         frames = sRouletteItemOamFrames;
         order = gRouletteOamOrder;
@@ -60,7 +60,7 @@ void ShuffleRouletteOamTable(void)
             int frameIndex;
             frameIndex = *order;
             frameIndex++;
-            *dst++ = frames[frameIndex];
+            GP_SET(*dst++, GP(frames[frameIndex]));
             order++;
             i--;
         } while (i >= 0);

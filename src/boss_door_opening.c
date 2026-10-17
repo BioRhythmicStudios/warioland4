@@ -679,7 +679,7 @@ void UpdateBossDoorOpeningSprites(void)
                 modeIndex <<= 4;
                 tableIndex += modeIndex;
                 tableIndex += (u32)tableBase;
-                largeAnimation = *(const struct AnimationFrame* const*)tableIndex;
+                largeAnimation = GP(*(GBA_PTR(const struct AnimationFrame*) const *)tableIndex);
                 timer = largeIcon->animationTimer;
                 timer++;
                 largeIcon->animationTimer = timer;
@@ -822,7 +822,7 @@ void UpdateBossDoorOpeningSprites(void)
                                 tableIndex += (u32)(*modeAddress) << 5;
                                 tableBase = (const u8*)sUnk_863C5F4;
                                 tableIndex += (u32)tableBase;
-                                activeAnimation = *(const struct AnimationFrame* const*)tableIndex;
+                                activeAnimation = GP(*(GBA_PTR(const struct AnimationFrame*) const *)tableIndex);
                                 source = GP(activeAnimation[0].oam);
                                 slot += *source++;
                                 {
@@ -1061,7 +1061,7 @@ void UpdateBossDoorOpeningSprites(void)
                             tableOffset = activeTableOffset;
                             modeOffset = (tableOffset) - (-(modeOffset));
                             modeOffset += (u32)firstTableBase;
-                            firstAnimation = *(const struct AnimationFrame* const*)modeOffset;
+                            firstAnimation = GP(*(GBA_PTR(const struct AnimationFrame*) const *)modeOffset);
                             timer = loopIcon->animationTimer;
                             timer++;
                             loopIcon->animationTimer = timer;
@@ -1183,7 +1183,7 @@ void UpdateBossDoorOpeningSprites(void)
                                 tableIndex += modeOffset;
                                 tableBase = (const u8*)sUnk_863C5F4;
                                 tableIndex += (u32)tableBase;
-                                secondAnimation = *(const struct AnimationFrame* const*)tableIndex;
+                                secondAnimation = GP(*(GBA_PTR(const struct AnimationFrame*) const *)tableIndex);
                                 source = (GP(secondAnimation[0].oam));
                                 slot += *source++;
                                 {
@@ -1309,7 +1309,7 @@ void UpdateBossDoorOpeningSprites(void)
             tableIndex = *modeAddress;
             tableIndex <<= 2;
             tableIndex += (u32)tableBase;
-            finalAnimation = *(const struct AnimationFrame* const*)tableIndex;
+            finalAnimation = GP(*(GBA_PTR(const struct AnimationFrame*) const *)tableIndex);
             iconAddress = &gUnk_3004760;
             finalState = iconAddress->state;
             finalIcon = iconAddress;
@@ -1621,7 +1621,7 @@ void UpdateBossDoorOpeningSprites(void)
                     tableIndex <<= 4;
                     tableIndex = (inactiveTableOffset) - (-(tableIndex));
                     tableIndex += (u32)tableBase;
-                    firstAnimation = *(const struct AnimationFrame* const*)tableIndex;
+                    firstAnimation = GP(*(GBA_PTR(const struct AnimationFrame*) const *)tableIndex);
                     timer = currentIcon->animationTimer;
                     timer++;
                     currentIcon->animationTimer = timer;
@@ -1738,7 +1738,7 @@ void UpdateBossDoorOpeningSprites(void)
                         tableIndex += modeOffset;
                         tableBase = (const u8*)sUnk_863C5F4;
                         tableIndex += (u32)tableBase;
-                        secondAnimation = *(const struct AnimationFrame* const*)tableIndex;
+                        secondAnimation = GP(*(GBA_PTR(const struct AnimationFrame*) const *)tableIndex);
                         source = GP(secondAnimation[0].oam);
                         slot += *source++;
                         {
@@ -1854,7 +1854,7 @@ void UpdateBossDoorOpeningSprites(void)
         tableIndex = *modeAddress;
         tableIndex <<= 2;
         tableIndex += (u32)tableBase;
-        finalAnimation = *(const struct AnimationFrame* const*)tableIndex;
+        finalAnimation = GP(*(GBA_PTR(const struct AnimationFrame*) const *)tableIndex);
         finalIcon = &gUnk_3004760;
         source = (GP(finalAnimation[finalIcon->frame].oam));
         slot += *source++;

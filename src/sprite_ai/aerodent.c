@@ -1045,7 +1045,7 @@ void AerodentCompanionUpdateCombat(void)
 
                         fieldBase = (u32)sprites + 4;
                         index += fieldBase;
-                        *(const struct AnimationFrame **)index = sAerodentOam_83DAB28;
+                        GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)index, sAerodentOam_83DAB28);
                     }
                     slotCopy = slot;
                     index = *slotCopy;
@@ -1348,7 +1348,7 @@ void AerodentCompanionReturnToParent(void)
         index = (u32)sprites + 4;
         index = offset + index;
         animation = sAerodentOam_83DAB28;
-        *(const struct AnimationFrame **)index = animation;
+        GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)index, animation);
         slotCopy = timer;
 
         index = *slotCopy;

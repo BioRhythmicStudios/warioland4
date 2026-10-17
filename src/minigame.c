@@ -922,7 +922,7 @@ void InitMinigameResultsMenu(void)
 void ApplyMinigameMenuVBlank(void)
 {
     vu16* window;
-    const u16* const* table;
+    GBA_PTR(const u16*) const * table;
     u32 index;
 
     window = (vu16*)0x04000040;
@@ -932,14 +932,14 @@ void ApplyMinigameMenuVBlank(void)
 
     switch (gLanguage) {
         case 0:
-            table = (const u16* const*)sMinigameEnglishMessageTable;
+            table = (GBA_TYPEOF(const u16* const*, table))sMinigameEnglishMessageTable;
             index = gMinigameMessageId;
-            Shop_DrawText(table[index], 0x7800, 26);
+            Shop_DrawText(GP(table[index]), 0x7800, 26);
             break;
         case 1:
-            table = (const u16* const*)sMinigameJapaneseMessageTable;
+            table = (GBA_TYPEOF(const u16* const*, table))sMinigameJapaneseMessageTable;
             index = gMinigameMessageId;
-            Shop_DrawText(table[index], 0x7800, 26);
+            Shop_DrawText(GP(table[index]), 0x7800, 26);
             break;
     }
 }
@@ -982,7 +982,7 @@ s32 HandleMinigameMenuInput(void)
                 requiredScore *= 2;
                 scoreValue = *score;
                 if (scoreValue >= (s32)requiredScore) {
-                    const u8** animation;
+                    GBA_PTR(const u8*)* animation;
                     const u8* animationTable;
                     u8* coords;
                     u32 zero;
@@ -992,9 +992,9 @@ s32 HandleMinigameMenuInput(void)
                     u8* entry;
 
                     m4aSongNumStart(0x126);
-                    animation = (const u8**)&gMinigameCursorAnimation;
+                    animation = (GBA_TYPEOF(const u8**, animation))&gMinigameCursorAnimation;
                     animationTable = (const u8*)sMinigameCursorConfirmAnimation;
-                    *animation = animationTable;
+                    GP_SET(*animation, animationTable);
                     coords = gMinigameCursorAnimationState;
                     direction = 0;
                     zero = 0;
@@ -1329,7 +1329,7 @@ void DrawMinigameMenuSprites(void)
             const u8* collection;
             collection = (const u8*)gCurrentCollection;
             if ((collection[16] & 0x20) == 0) {
-                source = *(const u16* const*)sMinigameLockedIconAnimation;
+                source = GP(*(GBA_PTR(const u16*) const *)sMinigameLockedIconAnimation);
                 slots += *source++;
                 if (slots > 128) {
                     return;
@@ -1394,7 +1394,7 @@ void DrawMinigameMenuSprites(void)
 
             {
                 u8* coords;
-                const u8** animationPointer;
+                GBA_PTR(const u8*)* animationPointer;
                 register const u8* currentAnimation PIN("r4");
                 register u32 timer PIN("r1");
                 register u16 frame PIN("r0");
@@ -1404,8 +1404,8 @@ void DrawMinigameMenuSprites(void)
                 timer++;
                 *(u16*)(coords + 0) = timer;
                 frame = *(u16*)(coords + 2);
-                animationPointer = (const u8**)&gMinigameCursorAnimation;
-                currentAnimation = *animationPointer;
+                animationPointer = (GBA_TYPEOF(const u8**, animationPointer))&gMinigameCursorAnimation;
+                currentAnimation = GP(*animationPointer);
                 {
                     u32 duration;
                     duration = ((const struct AnimationFrame*)currentAnimation)[frame].time;
@@ -1429,7 +1429,7 @@ void DrawMinigameMenuSprites(void)
                 frame = *(u16*)(coords + 2);
                 {
                     const u8* reloadedAnimation;
-                    reloadedAnimation = *animationPointer;
+                    reloadedAnimation = GP(*animationPointer);
                     source = GP(((const struct AnimationFrame*)reloadedAnimation)[frame].oam);
                 }
                 slots += *source++;

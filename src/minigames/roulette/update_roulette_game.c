@@ -130,8 +130,8 @@ advanceStateCached:
             return 0;
         SortRouletteItemsByScale();
         {
-            struct RouletteItem **base;
-            struct RouletteItem **ref;
+            GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) base;
+            GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) ref;
             register int hiddenX PIN("r2");
             int count;
             struct RouletteItem *hidden;
@@ -142,7 +142,7 @@ advanceStateCached:
             ref = base + 1;
             count = 1;
             do {
-                hidden = *ref++;
+                hidden = GP(*ref++);
                 hidden->x = hiddenX;
                 count--;
             } while (count >= 0);
@@ -150,12 +150,12 @@ advanceStateCached:
         m4aSongNumStart(587);
         {
             struct RouletteSmallState *result;
-            struct RouletteItem **base;
+            GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) base;
             struct RouletteItem *item;
 
             result = &gRouletteTopResult;
             base = gRouletteItemDrawOrder;
-            item = base[0];
+            item = GP(base[0]);
             result->frame = item->value;
             gRouletteMoveStartX = item->x;
             gRouletteMoveStartY = item->y;
@@ -206,8 +206,8 @@ advanceStateCached:
             return 0;
         SortRouletteItemsByScale();
         {
-            struct RouletteItem **base;
-            struct RouletteItem **ref;
+            GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) base;
+            GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) ref;
             register int hiddenX PIN("r2");
             int count;
             struct RouletteItem *hidden;
@@ -218,7 +218,7 @@ advanceStateCached:
             ref = base + 1;
             count = 1;
             do {
-                hidden = *ref++;
+                hidden = GP(*ref++);
                 hidden->x = hiddenX;
                 count--;
             } while (count >= 0);
@@ -226,12 +226,12 @@ advanceStateCached:
         m4aSongNumStart(588);
         {
             struct RouletteSmallState *result;
-            struct RouletteItem **base;
+            GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) base;
             struct RouletteItem *item;
 
             result = &gRouletteMiddleResult;
             base = gRouletteItemDrawOrder;
-            item = base[0];
+            item = GP(base[0]);
             result->frame = item->value;
             gRouletteMoveStartX = item->x;
             gRouletteMoveStartY = item->y;
@@ -278,8 +278,8 @@ advanceStateCached:
             return 0;
         SortRouletteItemsByScale();
         {
-            register struct RouletteItem **base PIN("r0");
-            register struct RouletteItem **ref PIN("r3");
+            register GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) base PIN("r0");
+            register GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) ref PIN("r3");
             int hiddenX;
             int count;
             struct RouletteItem *hidden;
@@ -290,7 +290,7 @@ advanceStateCached:
             ref = base + 1;
             count = 1;
             do {
-                hidden = *ref++;
+                hidden = GP(*ref++);
                 hidden->x = hiddenX;
                 count--;
             } while (count >= 0);
@@ -298,12 +298,12 @@ advanceStateCached:
         m4aSongNumStart(589);
         {
             struct RouletteSmallState *result;
-            struct RouletteItem **base;
+            GBA_TYPEOF(struct RouletteItem **, &(gRouletteItemDrawOrder)[0]) base;
             struct RouletteItem *item;
 
             result = &gRouletteBottomResult;
             base = gRouletteItemDrawOrder;
-            item = base[0];
+            item = GP(base[0]);
             result->frame = item->value;
             gRouletteMoveStartX = item->x;
             gRouletteMoveStartY = item->y;

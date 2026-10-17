@@ -140,12 +140,12 @@ void SetupDemo(void)
         u32 pointerOffset;
         u32 control;
         const u16* counts;
-        const u16* const* inputTable;
+        GBA_TYPEOF(const u16* const*, &(sDemoInputStreams)[0]) inputTable;
 
         dma = (volatile struct DemoDmaRegisters*)0x040000D4;
         inputTable = sDemoInputStreams;
         pointerOffset = demoIndex << 2;
-        GP_SET(dma->source, *(const u16* const*)(pointerOffset + (u32)inputTable));
+        GP_SET(dma->source, GP(*(GBA_PTR(const u16*) const *)(pointerOffset + (u32)inputTable)));
         GP_SET(dma->destination, gDemoInputs);
         counts = sDemoInputDmaWordCounts;
         counts = (const u16*)((u32)doubledIndex + (u32)counts);
@@ -154,7 +154,7 @@ void SetupDemo(void)
         dma->control = control;
         dma->control;
 
-        GP_SET(dma->source, *(const u16* const*)((const u8*)sDemoInputLengthStreams + pointerOffset));
+        GP_SET(dma->source, GP(*(GBA_PTR(const u16*) const *)((const u8*)sDemoInputLengthStreams + pointerOffset)));
         GP_SET(dma->destination, gDemoInputLengths);
         dma->control = control;
         dma->control;

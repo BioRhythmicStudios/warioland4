@@ -148,7 +148,7 @@ void CreditsVBlankMain(void)
 void CreditsVBlankTreasureDma(void)
 {
     vu32* dma;
-    const u8* const* frames;
+    GBA_TYPEOF(const u8* const*, &(sCreditsTreasureFrameGfxPointers)[0]) frames;
     u8* state;
 
     m4aSoundVSync();
@@ -160,15 +160,15 @@ void CreditsVBlankTreasureDma(void)
 
     frames = sCreditsTreasureFrameGfxPointers;
     state = (u8*)&gCreditsTreasureState;
-    dma[0] = (u32)frames[state[4]];
+    dma[0] = (u32)GP(frames[state[4]]);
     dma[1] = 0x06010720;
     dma[2] = 0x80000030;
     dma[2];
-    dma[0] = (u32)(frames[state[4]] + 0x60);
+    dma[0] = (u32)(GP(frames[state[4]]) + 0x60);
     dma[1] = 0x06010b20;
     dma[2] = 0x80000030;
     dma[2];
-    dma[0] = (u32)(frames[state[4]] + 0xc0);
+    dma[0] = (u32)(GP(frames[state[4]]) + 0xc0);
     dma[1] = 0x06010f20;
     dma[2] = 0x80000030;
     dma[2];
@@ -1754,18 +1754,18 @@ u32 UpdateCreditsSequence(void)
                 }
                 if (done != 0) {
                     vu32* caseDma;
-                    const u8* const* caseTable;
+                    GBA_TYPEOF(const u8* const*, &(sCreditsScenePalettes)[0]) caseTable;
                     register struct CreditsTreasureState* dmaState PIN("r3");
 
                     caseDma = (vu32*)REG_ADDR_DMA3;
-                    caseTable = sCreditsSceneTilemaps;
+                    caseTable = GBA_AS(caseTable, sCreditsSceneTilemaps);
                     dmaState = &gCreditsTreasureState;
-                    caseDma[0] = (u32)caseTable[dmaState->treasureIndex];
+                    caseDma[0] = (u32)GP(caseTable[dmaState->treasureIndex]);
                     caseDma[1] = 0x06000000;
                     caseDma[2] = 0x80001E00;
                     caseDma[2];
                     caseTable = sCreditsScenePalettes;
-                    caseDma[0] = (u32)caseTable[dmaState->treasureIndex];
+                    caseDma[0] = (u32)GP(caseTable[dmaState->treasureIndex]);
                     caseDma[1] = 0x050001E0;
                     caseDma[2] = 0x80000010;
                     caseDma[2];
@@ -1872,7 +1872,7 @@ u32 UpdateCreditsSequence(void)
                 }
                 if ((s32)caseState->sequenceTimer > maskOrTarget) {
                     vu32* caseDma;
-                    register const u8* const* caseTable PIN("r2");
+                    register GBA_TYPEOF(const u8* const*, &(sCreditsCaptionTilemaps)[0]) caseTable PIN("r2");
                     u16 dmaFill;
 
                     caseDma = (vu32*)&dmaFill;
@@ -1891,7 +1891,7 @@ u32 UpdateCreditsSequence(void)
                     } else {
                         caseDma = (vu32*)REG_ADDR_DMA3;
                         caseTable = sCreditsCaptionTilemaps;
-                        caseDma[0] = (u32)caseTable[caseState->treasureIndex];
+                        caseDma[0] = (u32)GP(caseTable[caseState->treasureIndex]);
                         caseDma[1] = 0x0600A000;
                         caseDma[2] = 0x80000280;
                         caseDma[2];

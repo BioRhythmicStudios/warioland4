@@ -1605,7 +1605,7 @@ void DrawPassageScreenSprites(void)
                     {
                         struct PassageIconState* state;
                         state = iconState;
-                        animation = *((const struct AnimationFrame* const*)(((const u8*)sUnk_863C4AC) + tableOffset));
+                        animation = GP(*((GBA_PTR(const struct AnimationFrame*) const *)(((const u8*)sUnk_863C4AC) + tableOffset)));
                         do {
                             struct PassageIconState* advanceState;
                             const struct AnimationFrame* advanceAnimation;
@@ -1637,7 +1637,7 @@ void DrawPassageScreenSprites(void)
                         frameAddress = *((u16*)(frameAddress + 2));
                         frameAddress <<= 3;
                         frameAddress += (u32)animation;
-                        frameOam = *((const u16**)frameAddress);
+                        frameOam = GP(*((GBA_PTR(const u16*) *)frameAddress));
                         do {
                             const u16* drawFrame;
                             drawFrame = frameOam;
@@ -1703,7 +1703,7 @@ void DrawPassageScreenSprites(void)
                             }
                         } while (0);
                     }
-                    animation = *((const struct AnimationFrame* const*)(((const u8*)sUnk_863C4BC) + tableOffset));
+                    animation = GP(*((GBA_PTR(const struct AnimationFrame*) const *)(((const u8*)sUnk_863C4BC) + tableOffset)));
                     do {
                         register const u16* drawFrame PIN("r3");
                         drawFrame = GP(animation[0].oam);
@@ -2178,7 +2178,7 @@ void DrawPassageScreenSprites(void)
                         const u16* drawFrame;
                         register u32 frameValue PIN("r0");
                         frameValue = (u32)sUnk_86413BC;
-                        drawFrame = *(const u16**)frameValue;
+                        drawFrame = GP(*(GBA_PTR(const u16*) *)frameValue);
                         frameValue = *drawFrame;
                         used += frameValue;
                         drawFrame++;
@@ -2529,16 +2529,16 @@ void DrawPassageScreenSprites(void)
         u16* state;
         register u32 timer PIN("r1");
         u32 frame;
-        register const struct AnimationFrame** animationPointer PIN("r3");
+        register GBA_TYPEOF(const struct AnimationFrame**, &gUnk_3003C40) animationPointer PIN("r3");
         const struct AnimationFrame* animation;
-        const struct AnimationFrame** savedAnimationPointer;
+        GBA_TYPEOF(const struct AnimationFrame**, &gUnk_3003C40) savedAnimationPointer;
         state = gStageEntryMainSpriteState;
         timer = state[0];
         timer++;
         state[0] = timer;
         frame = state[1];
         animationPointer = &gUnk_3003C40;
-        animation = *animationPointer;
+        animation = GP(*animationPointer);
         {
             u32 frameTime;
             frameTime = animation[frame].time;
@@ -2561,10 +2561,10 @@ void DrawPassageScreenSprites(void)
         }
         frame = state[1];
         {
-            const struct AnimationFrame** pointerLow;
+            GBA_TYPEOF(const struct AnimationFrame**, &gUnk_3003C40) pointerLow;
             register const struct AnimationFrame* animationLow PIN("r1");
             pointerLow = savedAnimationPointer;
-            animationLow = *pointerLow;
+            animationLow = GP(*pointerLow);
             do {
                 const u16* drawFrame;
                 drawFrame = GP(animationLow[frame].oam);
@@ -2723,7 +2723,7 @@ s32 OpenPassageScreenWindow(void)
 
 #define DRAW_PASSAGE_NAME_TEXT(tableValue) \
     do { \
-        const u8 *const *nameTable; \
+        GBA_TYPEOF(const u8 *const *, &(tableValue)[0]) nameTable; \
         u8 *stagePointer; \
         u32 stageOffset; \
         u8 *passagePointer; \
@@ -2742,7 +2742,7 @@ s32 OpenPassageScreenWindow(void)
         passageOffset <<= 3; \
         stageOffset += passageOffset; \
         stageOffset += (u32)nameTable; \
-        text = *(const u8 **)stageOffset; \
+        text = GP(*(GBA_PTR(const u8 *) *)stageOffset); \
         Shop_DrawText(text, 0x7800, 26); \
     } while (0)
 

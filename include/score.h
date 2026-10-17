@@ -123,7 +123,7 @@ struct AGB_ALIGN ItemCollection {
 #define DIVA_DEFEATED cd
 
 extern const struct AnimationFrame sUnk_840FB94[];
-extern void (*const sSecondarySpriteAITable[])(void);
+extern GBA_FUNC_PTR(ProcedureFunc) const sSecondarySpriteAITable[];
 
 extern struct ItemCollection gCurrentCollection[PASSAGE_MAX][STAGE_MAX];
 extern s32 gHighScoreTable[PASSAGE_MAX][NORMAL_STAGE_COUNT];

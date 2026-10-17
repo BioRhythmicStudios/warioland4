@@ -260,7 +260,7 @@ void ProcessFrozenWarioCollision(void)
 void LoadFrozenWarioGraphics(int index)
 {
     u32 value;
-    const struct FrozenGraphicsFrame** table;
+    GBA_TYPEOF(const struct FrozenGraphicsFrame**, &(sFrozenGraphicsTable)[0]) table;
     struct WarioData* wario;
     const struct FrozenGraphicsFrame* frame;
     const u8* gfx;
@@ -271,7 +271,7 @@ void LoadFrozenWarioGraphics(int index)
     wario = (struct WarioData*)0x03001898;
     value += wario->pose << 3;
     value += (u32)table;
-    frame = *(const struct FrozenGraphicsFrame**)value;
+    frame = GP(*(GBA_PTR(const struct FrozenGraphicsFrame*) *)value);
     frame += wario->unk_1F;
     gfx = GP(frame->data);
     wario->objData1Size = gfx[0] << 5;

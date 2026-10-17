@@ -146,7 +146,7 @@ s32 GetSpriteBlockCollisionAtPosition(u16 y, u16 x)
         backgroundInfo = (u8*)&gBackgroundInfo;
         layerInfo = backgroundInfo + layer * 8;
         layerCollision[layer] = context.localY * *(u16*)(layerInfo + 4) + context.localX;
-        layerCollision[layer] = (*(u16**)layerInfo)[layerCollision[layer]];
+        layerCollision[layer] = (GP(*(GBA_PTR(u16*) *)layerInfo))[layerCollision[layer]];
         if (*(u8*)&gSpriteTileInteractionMode != 0 && layer == 1) {
             if (ProcessTileInteractionAtPosition(context.localY, context.localX, layerCollision[1]) != 0) {
                 if (*(u8*)&gSpriteTileInteractionMode == 3) {

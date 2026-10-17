@@ -1802,7 +1802,7 @@ void UpdateTimeUpSecondarySprite(void)
 
         case 3: {
             struct SecondarySprite* sprite;
-            const u16** animationDestination;
+            GBA_TYPEOF(const u16**, &gCurrentSecondarySpriteOamData) animationDestination;
             u32 oldStatus;
             register u32 flag PIN("r1");
             u32 status;
@@ -1816,7 +1816,7 @@ void UpdateTimeUpSecondarySprite(void)
             status |= oldStatus;
             sprite->status = status;
             animationDestination = &gCurrentSecondarySpriteOamData;
-            *animationDestination = sUnk_840F1C8;
+            GP_SET(*animationDestination, sUnk_840F1C8);
             timerOrPosition = sprite->timer;
 
             if (timerOrPosition != 0) {
@@ -1832,7 +1832,7 @@ void UpdateTimeUpSecondarySprite(void)
                     sprite->yPosition = 24;
                     sprite->xPosition = 828;
                     sprite->pose = 4;
-                    *animationDestination = sUnk_840F200;
+                    GP_SET(*animationDestination, sUnk_840F200);
                     timerOrPosition = 0xFD;
                     status &= timerOrPosition;
                     sprite->status = status;
@@ -1844,7 +1844,7 @@ void UpdateTimeUpSecondarySprite(void)
 
         case 4: {
             struct SecondarySprite* sprite;
-            const u16** animationDestination;
+            GBA_TYPEOF(const u16**, &gCurrentSecondarySpriteOamData) animationDestination;
             u32 oldStatus;
             register u32 flagOrPosition PIN("r0");
             register u32 status PIN("r2");
@@ -1861,7 +1861,7 @@ void UpdateTimeUpSecondarySprite(void)
             status &= flagOrPosition;
             sprite->status = status;
             animationDestination = &gCurrentSecondarySpriteOamData;
-            *animationDestination = sUnk_840F200;
+            GP_SET(*animationDestination, sUnk_840F200);
             flagOrPosition = sprite->xPosition;
             flagOrPosition -= 16;
             sprite->xPosition = flagOrPosition;
@@ -1873,7 +1873,7 @@ void UpdateTimeUpSecondarySprite(void)
 
                 sprite->xPosition = 608;
                 sprite->pose = 5;
-                *animationDestination = sUnk_840F214;
+                GP_SET(*animationDestination, sUnk_840F214);
                 bit = 2;
                 newStatus = status;
                 newStatus |= bit;
@@ -2948,13 +2948,13 @@ void UpdateTreasureExitSecondarySprite(void)
 
             if (gCurrentSecondarySprite.timer == 3 && angle == 0) {
                 const u16* animation;
-                const u16** animationDestination;
+                GBA_PTR(const u16*) * animationDestination;
 
                 gCurrentSecondarySprite.pose++;
                 gTimerState = 6;
                 animation = sUnk_8411FEA;
-                animationDestination = (const u16**)cosine;
-                *animationDestination = animation;
+                animationDestination = (GBA_TYPEOF(const u16**, animationDestination))cosine;
+                GP_SET(*animationDestination, animation);
                 VoiceSetPlay(11);
             }
             break;
@@ -3258,7 +3258,7 @@ void UpdateStageExitVortexSecondarySprite(void)
 
                         animation = sUnk_8411FEA;
                         sprite = (struct SecondarySprite*)cosine;
-                        *(const u16**)sprite = animation;
+                        GP_SET(*(GBA_PTR(const u16*) *)sprite, animation);
                     }
                     ((struct SecondarySprite*)relative)->timer = 30;
                     m4aSongNumStart(23);

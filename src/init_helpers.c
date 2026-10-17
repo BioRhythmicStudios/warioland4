@@ -38,8 +38,15 @@ void InitializeVideoMemory(void)
 
 void InitializeInterruptHandler(void)
 {
+#ifdef PORTABLE
+    // irq_handler is ARM code: copy its bytes from the ROM image so that IWRAM matches the
+    // GBA's. The platform layer calls the interrupt callbacks itself.
+    DmaCopy16(3, (const void *)(PortNativeFunctionToGba((void (*)(void))irq_handler) & ~1u),
+              gInterruptHandlerBuffer, sizeof(gInterruptHandlerBuffer));
+#else
     DmaCopy16(3, irq_handler, gInterruptHandlerBuffer, sizeof(gInterruptHandlerBuffer));
-    INTR_VECTOR = &gInterruptHandlerBuffer;
+#endif
+    GP_SET(INTR_VECTOR, &gInterruptHandlerBuffer);
 }
 
 void ResetFreeOam(void)

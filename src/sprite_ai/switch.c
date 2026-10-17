@@ -370,7 +370,7 @@ void SwitchEffectInit(void)
     *(volatile u8 *)ptr = value4;
     oam = sSwitchEffectIdleOam;
     drawPtr = (u8*)sprite;
-    *(const struct AnimationFrame**)(drawPtr + 4) = oam;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame*) *)(drawPtr + 4), oam);
     drawPtr[22] = zero;
     *(u16*)(drawPtr + 20) = zero16;
     drawPtr[30] = zero;

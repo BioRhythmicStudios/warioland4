@@ -1797,7 +1797,7 @@ void DrawHomerunDerby(void)
           dataPointer = (OamByte *) sHomerunPitcherAnimations;
           objectState = (OamByte *) &gHomerunPitcherAnimation;
           pitcherAnimationType = *((u8 *) (((u8 *) objectState) + 4));
-          pitcherAnimation = (OamByte *) ((struct AnimationFrame **) dataPointer)[pitcherAnimationType];
+          pitcherAnimation = (OamByte *) GP(((GBA_PTR(struct AnimationFrame *) *) dataPointer)[pitcherAnimationType]);
           if (pitcherAnimationType == 3)
           {
             m4aSongNumStart(0x226U);

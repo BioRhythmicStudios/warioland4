@@ -424,7 +424,7 @@ void LoadBatWarioGraphics(int index)
     int value;
     struct WarioData* wario;
     int pose;
-    register const struct BatGraphicsFrame** table PIN("r2");
+    register GBA_TYPEOF(const struct BatGraphicsFrame**, &(sBatGraphicsTable)[0]) table PIN("r2");
     u32 offset;
     const struct BatGraphicsFrame* frame;
     const u8* gfx;
@@ -438,7 +438,7 @@ void LoadBatWarioGraphics(int index)
         pose <<= 3;
         offset += pose;
         offset += (u32)table;
-        frame = *(const struct BatGraphicsFrame**)offset;
+        frame = GP(*(GBA_PTR(const struct BatGraphicsFrame*) *)offset);
         frame += wario->unk_1F;
         gfx = GP(frame->data);
         wario->objData1Size = gfx[0] << 5;

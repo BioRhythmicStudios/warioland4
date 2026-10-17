@@ -515,7 +515,7 @@ void CuckooCondorEnterArena(void)
         offset *= size;
         value = (u32)sprites + 4;
         value = offset + value;
-        *(const struct AnimationFrame **)value = sCuckooCondorClawOpenOam;
+        GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)value, sCuckooCondorClawOpenOam);
         other = (struct PrimarySpriteData *)(offset + (u32)sprites);
         other->currentAnimationFrame = zero;
         other->animationTimer = zero;
@@ -573,7 +573,7 @@ trigger:
     offset *= size;
     value = (u32)sprites + 4;
     value = offset + value;
-    *(const struct AnimationFrame **)value = sCuckooCondorClawGrabOam;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)value, sCuckooCondorClawGrabOam);
     offset += (u32)sprites;
     zero = 0;
     *(u8 *)(offset + 0x16) = zero;
@@ -921,7 +921,7 @@ void CuckooCondorHandleClockDamage(void)
                     raw--;
                     *(u8 *)(reg6 + 0x1D) = raw;
                     UpdateBossHealthGauge();
-                    *(const struct AnimationFrame **)(reg6 + 4) = sCuckooCondorHurtOam;
+                    GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(reg6 + 4), sCuckooCondorHurtOam);
                     *(u8 *)(reg6 + 0x16) = zero;
                     *(u16 *)(reg6 + 0x14) = zero;
                     VoiceSetPlay(13);
@@ -2340,7 +2340,7 @@ void InitCuckooCondorHead(void)
     *(volatile u8 *)ptr2 = status;
     value = (u32)sCuckooCondorHeadIdleOam;
     ptr = (u8 *)sprite;
-    *(const struct AnimationFrame **)(ptr + 4) = (const struct AnimationFrame *)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(ptr + 4), (const struct AnimationFrame *)value);
     *(ptr + 0x16) = zeroByte;
     *(u16 *)(ptr + 0x14) = zeroHalf;
     value = 0x10;
@@ -2710,7 +2710,7 @@ void InitCuckooCondorSmallDebris(void)
     *ptr2 = status;
     value = (u32)sCuckooCondorSmallDebrisOam;
     ptr = (u8 *)sprite;
-    *(const struct AnimationFrame **)(ptr + 4) = (const struct AnimationFrame *)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(ptr + 4), (const struct AnimationFrame *)value);
     *(ptr + 0x16) = zeroByte;
     *(u16 *)(ptr + 0x14) = zeroHalf;
     value = 0x1C;
@@ -2855,7 +2855,7 @@ void InitCuckooCondorLargeDebris(void)
     *ptr2 = status;
     value = (u32)sCuckooCondorClockPieceTopOam;
     ptr = (u8 *)sprite;
-    *(const struct AnimationFrame **)(ptr + 4) = (const struct AnimationFrame *)value;
+    GP_SET(*(GBA_PTR(const struct AnimationFrame *) *)(ptr + 4), (const struct AnimationFrame *)value);
     *(ptr + 0x16) = zeroByte;
     *(u16 *)(ptr + 0x14) = zeroHalf;
     value = 0x1C;

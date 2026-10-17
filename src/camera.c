@@ -8,7 +8,7 @@ struct AGB_ALIGN CameraTargetPosition {
     u16 y;
 };
 
-extern GBA_PTR(const u8* const*) const sRoomCameraControlDataTable[];
+extern GBA_PTR(GBA_PTR(const u8*) const*) const sRoomCameraControlDataTable[];
 
 void MoveCameraTowardTarget(s32 x, s32 y);
 s32 GetCameraXForControlArea(const struct CameraControlArea* area, const struct CameraTargetPosition* position);
@@ -175,9 +175,9 @@ s32 GetCameraYForControlArea(const struct CameraControlArea* area, const struct 
 
 void LoadCurrentRoomCameraControlData(void)
 {
-    const u8* const* list;
+    GBA_TYPEOF(const u8* const*, GP(sRoomCameraControlDataTable[0])) list;
     const u8* entry;
-    const u8** output;
+    GBA_TYPEOF(const u8**, &gCurrentRoomCameraControlData) output;
     register u8* roomPtr PIN("r4");
     u8 room;
     s32 roomId;
@@ -185,10 +185,10 @@ void LoadCurrentRoomCameraControlData(void)
     list = GP(sRoomCameraControlDataTable[gStageRoomTableIndex]);
     roomPtr = &gCurrentRoom;
     output = &gCurrentRoomCameraControlData;
-    while ((roomId = (entry = *list)[0]) != (room = *roomPtr) && roomId != 0xFF) {
+    while ((roomId = (entry = GP(*list))[0]) != (room = *roomPtr) && roomId != 0xFF) {
         list++;
     }
-    *output = entry;
+    GP_SET(*output, entry);
 }
 
 void BuildCurrentRoomCameraControlAreas(void)

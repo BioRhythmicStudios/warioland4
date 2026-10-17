@@ -36,6 +36,10 @@ void* memcpy(void* destination, const void* source, unsigned long size);
 
 extern const struct GrayscaleWeights sGrayscaleWeights;
 extern ColorBlendFunction sColorBlendFunctionTable[];
+#ifdef PORTABLE
+// On the GBA this follows sColorBlendFunctionTable directly (src/data/color_fading_pointers.c).
+extern ColorBlendFunction sColorBlendFunctionTableTail[];
+#endif
 extern const s8 sRoomPaletteColorOffsets[];
 extern const u8 sPaletteFadeAmounts[];
 extern const u8 sPaletteFadeStepLimits[];
@@ -1357,10 +1361,17 @@ void ApplyTimedPaletteFade(s16* arg0, u16* arg1, u8* arg2)
             blue = (color & 0x7C00) >> 10;
             index = timer[0];
             index--;
+#ifdef PORTABLE
+            // The GBA indexes both arrays as one through a byte address; the native arrays
+            // are separate and their addresses do not fit a u32.
+            amount = timer[3];
+            func = index == 0 ? table[0] : sColorBlendFunctionTableTail[index - 1];
+#else
             index <<= 2;
             index += (u32)table;
             amount = timer[3];
             func = *(ColorBlendFunction*)index;
+#endif
             *dst = func(red, green, blue, amount);
             i++;
             amount = 2;

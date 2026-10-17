@@ -840,7 +840,7 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
     register u32 commonFlag PIN("r6");
     u32 saveIndex;
     u16* secondaryBase;
-    const u8* const* saveTable;
+    GBA_TYPEOF(const u8* const*, &(sPrimarySaveHeaderBuffers)[0]) saveTable;
     u32 hiddenFlag;
 
     saveIndex = idx;
@@ -868,7 +868,7 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
         } while (remaining >= 0);
     }
 
-    saveData = saveTable[saveIndex];
+    saveData = GP(saveTable[saveIndex]);
     entry = saveData + 172;
     {
         u32 commonValue;
@@ -1006,7 +1006,7 @@ void RefreshFileSelectSaveSummary(u8 saveIndex)
     u32 tableOffset;
     u32 saveOffset;
     u8* save;
-    const u8* const* tableEntry;
+    GBA_TYPEOF(const u8* const*, &(sPrimarySaveHeaderBuffers)[0]) tableEntry;
     u8 saveType;
 
     index = saveIndex;
@@ -1015,23 +1015,23 @@ void RefreshFileSelectSaveSummary(u8 saveIndex)
     save = (u8*)(saveOffset + (u32)saveData);
     tableEntry = sPrimarySaveHeaderBuffers;
     tableOffset = index << 2;
-    tableEntry = (const u8* const*)(tableOffset + (u32)tableEntry);
-    save[2] = (*tableEntry)[25];
-    save[3] = (*tableEntry)[26];
-    save[4] = (*tableEntry)[24];
+    tableEntry = (GBA_TYPEOF(const u8* const*, tableEntry))(tableOffset + (u32)tableEntry);
+    save[2] = (GP(*tableEntry))[25];
+    save[3] = (GP(*tableEntry))[26];
+    save[4] = (GP(*tableEntry))[24];
     saveType = save[0];
     if (saveType == 3) {
-        const u8* const* alternateEntry;
+        GBA_PTR(const u8*) const * alternateEntry;
 
-        alternateEntry = (const u8* const*)((const u8*)sStageSelectionSaveBuffers + tableOffset);
-        save[2] = (*alternateEntry)[1];
-        save[3] = (*alternateEntry)[2];
+        alternateEntry = (GBA_TYPEOF(const u8* const*, alternateEntry))((const u8*)sStageSelectionSaveBuffers + tableOffset);
+        save[2] = (GP(*alternateEntry))[1];
+        save[3] = (GP(*alternateEntry))[2];
     } else if (saveType == 2) {
-        const u8* const* alternateEntry;
+        GBA_PTR(const u8*) const * alternateEntry;
 
-        alternateEntry = (const u8* const*)((const u8*)sMainSaveDataBuffers + tableOffset);
-        save[2] = (*alternateEntry)[25];
-        save[3] = (*alternateEntry)[26];
+        alternateEntry = (GBA_TYPEOF(const u8* const*, alternateEntry))((const u8*)sMainSaveDataBuffers + tableOffset);
+        save[2] = (GP(*alternateEntry))[25];
+        save[3] = (GP(*alternateEntry))[26];
     }
     {
         u8* finalSave;
@@ -1072,14 +1072,14 @@ void DrawFileSelectSaveNameTiles(u8 saveIndex)
         }
     } else if (save[3] <= 5) {
         u32 language;
-        register const u8* const* table PIN("r3");
+        register GBA_TYPEOF(const u8* const*, &(sFileSelectPassageNameTableLanguage1)[0]) table PIN("r3");
         u32 tableIndex;
         u32 saveValue;
         register u32 valueOffset PIN("r0");
 
         language = gLanguage;
         if (language == 0) {
-            table = sFileSelectPassageNameTableLanguage0;
+            table = GBA_AS(table, sFileSelectPassageNameTableLanguage0);
         } else {
             table = sFileSelectPassageNameTableLanguage1;
         }
@@ -1091,22 +1091,22 @@ void DrawFileSelectSaveNameTiles(u8 saveIndex)
         valueOffset <<= 3;
         tableIndex += valueOffset;
         tableIndex += (u32)table;
-        text = *(const u8**)tableIndex;
+        text = GP(*(GBA_PTR(const u8*) *)tableIndex);
     } else {
         u32 language;
-        register const u8* const* table PIN("r1");
+        register GBA_TYPEOF(const u8* const*, &(sFileSelectStageNameTableLanguage1)[0]) table PIN("r1");
         u32 tableIndex;
 
         language = gLanguage;
         if (language == 0) {
-            table = sFileSelectStageNameTableLanguage0;
+            table = GBA_AS(table, sFileSelectStageNameTableLanguage0);
         } else {
             table = sFileSelectStageNameTableLanguage1;
         }
         tableIndex = save[2];
         tableIndex <<= 2;
         tableIndex += (u32)table;
-        text = *(const u8**)tableIndex;
+        text = GP(*(GBA_PTR(const u8*) *)tableIndex);
     }
     {
         u32 highMask;
@@ -1327,7 +1327,7 @@ u32 UpdateFileSelectSaveRecovery(void)
                 switch (saveType) {
                     case 1: {
                         vu32* dma;
-                        const u8* const* destinationTable;
+                        GBA_TYPEOF(const u8* const*, &(sMainSaveDataBuffers)[0]) destinationTable;
                         u32 destinationAddress;
 
                         u16* fillPointer;
@@ -1352,11 +1352,11 @@ u32 UpdateFileSelectSaveRecovery(void)
                     }
                     case 2: {
                         vu32* dma;
-                        register const u8* const* table PIN("r1");
+                        register GBA_TYPEOF(const u8* const*, &(sPrimarySaveHeaderBuffers)[0]) table PIN("r1");
                         u32 tableAddress;
 
                         dma = (vu32*)0x040000D4;
-                        table = sSecondarySaveHeaderBuffers;
+                        table = GBA_AS(table, sSecondarySaveHeaderBuffers);
                         tableAddress = selectedIndex << 2;
                         tableAddress += (u32)table;
                         dma[0] = *(u32*)tableAddress;
@@ -1376,7 +1376,7 @@ u32 UpdateFileSelectSaveRecovery(void)
                     }
                     case 3: {
                         vu32* dma;
-                        const u8* const* destinationTable;
+                        GBA_TYPEOF(const u8* const*, &(sPrimarySaveHeaderBuffers)[0]) destinationTable;
                         u32 destinationAddress;
 
                         fillValue = 0;
@@ -1472,7 +1472,7 @@ u32 FileSelectSubroutine(void)
                         songAddress += songOffsetOrIndex;
                         songAddress <<= 2;
                         songAddress += (u32)musicPlayers;
-                        m4aMPlayFadeOut(*(struct MusicPlayerInfo**)songAddress, 2);
+                        m4aMPlayFadeOut(GP(*(GBA_PTR(struct MusicPlayerInfo*) *)songAddress), 2);
                     }
                     {
                         u8* cutsceneState;
@@ -1873,7 +1873,7 @@ action_nine: {
     register u8* selectedFile PIN("r4");
     u8* saveData;
     u32 index;
-    const u8* const* table;
+    GBA_TYPEOF(const u8* const*, &(sMainSaveDataBuffers)[0]) table;
     u32 tableAddress;
 
     u16* fillPointer;
@@ -1883,7 +1883,7 @@ action_nine: {
     *fillPointer = zero;
     dma = DMA3;
     dma[0] = (u32)fillPointer;
-    table = sPrimarySaveHeaderBuffers;
+    table = GBA_AS(table, sPrimarySaveHeaderBuffers);
     selectedFile = &gSelectedSaveFile;
     index = *selectedFile;
     index <<= 2;
@@ -1978,7 +1978,7 @@ action_sixteen: {
     tableOffset += songIndex;
     tableOffset <<= 2;
     tableOffset += (u32)mplayTable;
-    mplayInfo = *(void**)tableOffset;
+    mplayInfo = GP(*(GBA_PTR(void*) *)tableOffset);
     trackMask = 0xFFFF;
     volume = 40;
     m4aMPlayVolumeControl(mplayInfo, trackMask, volume);
@@ -2098,7 +2098,7 @@ void SetFileSelectActionAndSound(u8 action, u8 sound)
             tableOffset += songIndex;
             tableOffset <<= 2;
             tableOffset += (u32)mplayTable;
-            mplayInfo = *(void**)tableOffset;
+            mplayInfo = GP(*(GBA_PTR(void*) *)tableOffset);
             trackMask = 0xFFFF;
             volume = 0x8C;
             m4aMPlayVolumeControl(mplayInfo, trackMask, volume);
@@ -2355,15 +2355,15 @@ void UpdateFileSelectMainAnimationPosition(void)
         u32 saveValue;
         register u32 maskedValue PIN("r1");
         u32 hasSave;
-        const u8* const* offsetTables;
+        GBA_TYPEOF(const u8* const*, &(sFileSelectCursorPathOffsets)[0]) offsetTables;
         u32 tableOffset;
         s32 stateIndex;
         const u8* offsetTable;
         u32 offsetAddress;
         u32 pathOffset;
-        const u8* const* pathTables;
+        GBA_TYPEOF(const u8* const*, &(sFileSelectCursorPositionPaths)[0]) pathTables;
         u32 pathTableOffset;
-        const u8* const* pathEntry;
+        GBA_PTR(const u8*) const * pathEntry;
         register const u8* path PIN("r3");
         u32 markerAddress;
         s32 marker;
@@ -2383,7 +2383,7 @@ void UpdateFileSelectMainAnimationPosition(void)
         tableOffset = hasSave << 2;
         tableOffset += (u32)offsetTables;
         stateIndex = state[1];
-        offsetTable = *(const u8* const*)tableOffset;
+        offsetTable = GP(*(GBA_PTR(const u8*) const *)tableOffset);
         offsetAddress = (u32)offsetTable + stateIndex;
         pathOffset = *(const u8*)offsetAddress;
         switch (stateIndex) {
@@ -2400,8 +2400,8 @@ void UpdateFileSelectMainAnimationPosition(void)
 
         pathTables = sFileSelectCursorPositionPaths;
         pathTableOffset = hasSave << 2;
-        pathEntry = (const u8* const*)(pathTableOffset + (u32)pathTables);
-        path = *pathEntry;
+        pathEntry = (GBA_TYPEOF(const u8* const*, pathEntry))(pathTableOffset + (u32)pathTables);
+        path = GP(*pathEntry);
         markerAddress = (u32)path + pathOffset;
         marker = *(const s8*)markerAddress;
         pathOffset++;
@@ -2421,7 +2421,7 @@ void UpdateFileSelectMainAnimationPosition(void)
             coordinate = *(u16*)(data + 12);
             value += coordinate;
             *(u16*)(data + 0) = value;
-            secondPath = *pathEntry;
+            secondPath = GP(*pathEntry);
             secondAddress = pathOffset + (u32)secondPath;
             secondValue = *(const s8*)(secondAddress + 2);
             secondCoordinate = *(u16*)(data + 14);
@@ -2445,7 +2445,7 @@ void UpdateFileSelectMainAnimationPosition(void)
             valueAddress = ((u32)path) - (-(valueAddress));
             value = *(const s8*)valueAddress;
             *(u16*)(data + 0) = value;
-            secondPath = *pathEntry;
+            secondPath = GP(*pathEntry);
             secondAddress = pathOffset + (u32)secondPath;
             secondValue = *(const s8*)(secondAddress + 2);
             *(u16*)(data + 2) = secondValue;
@@ -2804,7 +2804,7 @@ void UpdateAndDrawFileSelectSprites(void)
     register u32 offset PIN("r1");
     register u32 combinedIndex PIN("r0");
     register struct SaveClearAnimationState* firstState PIN("r3");
-    const u8* const* animationTable;
+    GBA_TYPEOF(const u8* const*, &(sFileSelectSpriteAnimations)[0]) animationTable;
     u32 type;
     register u32 switchType PIN("r0");
     u32 xPosition;
@@ -2888,7 +2888,7 @@ loop:
             combinedIndex <<= 2;
             stateBase = (u8*)&gUnk_3004A70;
             state = (struct SaveClearAnimationState*)(combinedIndex + (u32)stateBase);
-            animation = animationTable[state->type];
+            animation = GP(animationTable[state->type]);
             if (state->timer >= animation[(state->frame << 3) + 4]) {
                 state->timer = 0;
                 state->frame++;
@@ -2909,7 +2909,7 @@ loop:
             combinedIndex <<= 2;
             stateBase = (u8*)&gUnk_3004A70;
             state = (struct SaveClearAnimationState*)(combinedIndex + (u32)stateBase);
-            animation = animationTable[state->type];
+            animation = GP(animationTable[state->type]);
             if (state->timer >= animation[(state->frame << 3) + 4]) {
                 state->timer = 0;
                 state->frame++;
@@ -2934,7 +2934,7 @@ loop:
             combinedIndex <<= 2;
             stateBase = (u8*)&gUnk_3004A70;
             state = (struct SaveClearAnimationState*)(combinedIndex + (u32)stateBase);
-            animation = animationTable[state->type];
+            animation = GP(animationTable[state->type]);
             if (state->timer >= animation[(state->frame << 3) + 4]) {
                 state->timer = 0;
                 state->frame++;
@@ -2974,7 +2974,7 @@ loop:
         x -= backgroundX;
         xPosition = (u16)x;
         animation += state->frame << 3;
-        source = *(const u16* const*)animation;
+        source = GP(*(GBA_PTR(const u16*) const *)animation);
         slots += *source;
         source++;
     }

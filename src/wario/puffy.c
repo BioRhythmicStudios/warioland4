@@ -252,7 +252,7 @@ void UpdatePuffyWarioCollision(void)
 void LoadPuffyWarioGraphics(int index)
 {
     u32 value;
-    const struct PuffyGraphicsFrame** table;
+    GBA_TYPEOF(const struct PuffyGraphicsFrame**, &(sPuffyGraphicsTable)[0]) table;
     struct WarioData* wario;
     const struct PuffyGraphicsFrame* frame;
     const u8* data;
@@ -263,7 +263,7 @@ void LoadPuffyWarioGraphics(int index)
     wario = &gWarioData;
     value += wario->pose << 3;
     value += (u32)table;
-    frame = *(const struct PuffyGraphicsFrame**)value;
+    frame = GP(*(GBA_PTR(const struct PuffyGraphicsFrame*) *)value);
     frame += wario->unk_1F;
     data = GP(frame->data);
     wario->objData1Size = data[0] << 5;
