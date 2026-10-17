@@ -68,6 +68,18 @@ def lib_symbols(tool, lib):
     return defined, undefined - set(defined)
 
 
+STATIC_DEFINITION = re.compile(r'^static\s+(?:inline\s+)?[^;=(]*?\b([A-Za-z_]\w*)\s*\([^;{]*\)\s*\{', re.M)
+
+
+def c_static_functions():
+    """Return {name: source} for the static functions defined in the game sources."""
+    found = {}
+    for path in sorted(pathlib.Path('src').rglob('*.c')):
+        for m in STATIC_DEFINITION.finditer(path.read_text(errors='replace')):
+            found.setdefault(m.group(1), path.as_posix())
+    return found
+
+
 def is_function(kind):
     return kind in 'Tt'
 
@@ -103,7 +115,10 @@ def main():
     stubs = sorted(n for n in unresolved if n in elf and elf[n] and is_function(elf[n][1])
                    and n not in NATIVE_RUNTIME and n not in FUNCTIONS_USED_AS_DATA)
     missing = sorted(n for n in unresolved if n not in elf and n not in NATIVE_RUNTIME)
-    local_functions = sorted(n for n, s in elf.items() if s and s[1] == 't')
+    # Local code symbols are asm labels unless a game source defines a static function of that
+    # name. A static function has no native symbol, so a GBA pointer to it could not dispatch.
+    static_functions = c_static_functions()
+    local_functions = sorted(n for n, s in elf.items() if s and s[1] == 't' and n in static_functions)
 
     if errors:
         sys.exit('\n'.join(errors))
@@ -132,7 +147,9 @@ def main():
     print('%d data symbols, %d native functions in the dispatch table, %d stubs'
           % (len(data), len(functions), len(stubs)))
     print('stubs: ' + ' '.join(stubs))
-    print('%d static GBA functions have no native symbol to dispatch to' % len(local_functions))
+    if local_functions:
+        print('static functions in the ELF, not dispatchable (make them non-static under PORTABLE): '
+              + ' '.join('%s (%s)' % (n, static_functions[n]) for n in local_functions))
     if missing:
         print('referenced but not in the ELF (the platform must define them): ' + ' '.join(missing))
 
