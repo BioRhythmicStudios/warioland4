@@ -2198,227 +2198,227 @@ void InitializeSubGameTransitionGraphics(void)
     REG_DISPCNT = 0;
 }
 
-void UpdateLayeredSubGameCutscene(s32 frame)
-{
-    u16* destination;
-    const u16* oamData;
-    u32 fillValue;
-    vu16* bg0Vofs;
-    vu32* dma;
-
-    switch (gUnk_3002C60) {
-        case 0:
-            LZ77UnCompVram(sUnk_829443C, (void*)0x06000000);
-            LZ77UnCompVram(sUnk_8295954, (void*)0x06004000);
-            gUnk_3002C60++;
-            break;
-
-        case 1:
-            LZ77UnCompVram(sUnk_8298A50, (void*)0x06010000);
-            if (gUnk_3002C74 != 0) {
-                gUnk_3002C60 = 6;
-            } else {
-                InterruptCallbackSetVCount(ApplyCutsceneBg0Scroll);
-                *((vu16*)0x04000004) &= 0x00FF;
-                *((vu16*)0x04000004) |= 0x9720;
-                *((vu16*)0x04000200) |= 4;
-                gUnk_3002C60++;
-            }
-            WaitForVBlankInterrupt();
-            *((vu16*)0x04000000) = 0x1F00;
-            break;
-
-        case 2:
-            if (gUnk_3002C9A > 148) {
-                gUnk_3002C9A--;
-            }
-            *((vu16*)0x04000010) = -(frame << 1);
-            if (gCutsceneBackgroundVerticalOffset > 0) {
-                if (gCutsceneBackgroundVerticalOffset > 10 && (frame & 3) == 3) {
-                    gCutsceneBackgroundVerticalOffset--;
-                } else if (gCutsceneBackgroundVerticalOffset > 4 && (frame & 7) == 7) {
-                    gCutsceneBackgroundVerticalOffset--;
-                } else if ((frame & 15) == 15) {
-                    gCutsceneBackgroundVerticalOffset--;
-                }
-            }
-            bg0Vofs = (vu16*)0x04000012;
-            *bg0Vofs = gCutsceneBackgroundVerticalOffset;
-            if (frame > 400 && (frame & 15) == 15) {
-                u16* alphaA = (u16*)&gUnk_3002C5A;
-                u16* alphaB;
-                if (*alphaA != 0) {
-                    (*alphaA)--;
-                }
-                alphaB = (u16*)&gUnk_3002C5C;
-                if (*alphaB <= 15) {
-                    (*alphaB)++;
-                }
-                *((vu16*)0x04000052) = (*alphaB << 8) | *alphaA;
-                CutsceneLoadObjPalette(*alphaB);
-                if (*alphaB == 16) {
-                    *((vu16*)0x04000200) &= 0xFFFB;
-                    *bg0Vofs = 0;
-                    gUnk_3002C60++;
-                }
-            }
-            break;
-
-        case 3:
-            if ((u32)gUnk_3002C64 <= 7) {
-                u32 dst = 0x06008000 + (gUnk_3002C64++ << 9);
-                fillValue = 0x03FF03FF;
-                dma = (vu32*)0x040000D4;
-                dma[0] = (u32)&fillValue;
-                dma[1] = dst;
-                dma[2] = 0x85000080;
-                dma[2];
-            } else {
-                if (gUnk_3002C78 != 0) {
-                    oamData = sUnk_8298908;
-                } else {
-                    oamData = sUnk_829892E;
-                }
-                DecodeCutsceneTileRuns(oamData, (u16*)0x06008000);
-                {
-                    vu16* scroll;
-                    register s16 negTwo asm("r1");
-
-                    gCutsceneBackgroundHorizontalOffset = 0;
-                    {
-                        register s16* vertical asm("r0");
-                        vertical = &gCutsceneBackgroundVerticalOffset;
-                        *vertical = -2;
-                    }
-                    negTwo = -2;
-                    scroll = (vu16*)0x04000010;
-                    *scroll = 0;
-                    scroll++;
-                    *scroll = negTwo;
-                }
-                gUnk_3002C64 = 0;
-                gUnk_3002C60++;
-            }
-            break;
-
-        case 4:
-            if ((u32)(gUnk_3002C64++) > 300) {
-                s32 low = frame & 15;
-                u16* alphaA = (u16*)&gUnk_3002C5A;
-                if (low == 15) {
-                    u16* alphaB;
-                    if (*alphaA <= 15) {
-                        (*alphaA)++;
-                    }
-                    alphaB = (u16*)&gUnk_3002C5C;
-                    if (*alphaB != 0) {
-                        (*alphaB)--;
-                    }
-                    *((vu16*)0x04000052) = (*alphaB << 8) | *alphaA;
-                }
-                if (*alphaA == 16) {
-                    gUnk_3002C60++;
-                }
-            }
-            break;
-
-        case 5:
-            gCutsceneAnimationFinished -= 8;
-            if (gCutsceneAnimationFinished <= 108) {
-                gCutsceneAnimationFinished = 109;
-            }
-            // fallthrough
-        case 6:
-            if (gCutsceneAnimationFinished == 109) {
-                InitCutsceneDarkenBlend(63);
-                gUnk_3002C64 = 0;
-                gUnk_3002C60++;
-            }
-            break;
-
-        case 7:
-            if (gButtonsPressed != 0) {
-                gUnk_3002C64 = 0;
-                gUnk_3002C5E = 0;
-                *((vu16*)0x04000054) = 0;
-            }
-            gUnk_3002C64++;
-            if ((u32)gUnk_3002C64 > 3600) {
-                if (IncreaseCutsceneBlendCoefficient(3) != 0) {
-                    StartDemoPlayback();
-                }
-            } else if (gButtonsPressed == 1 || gButtonsPressed == 8) {
-                m4aSongNumStartOrChange(298);
-                VoiceSetPlay(3);
-                gUnk_3002C64 = 0;
-                gUnk_3002C60++;
-            }
-            break;
-
-        case 8:
-            if ((u32)(gUnk_3002C64++) <= 15) {
-                gUnk_3002C9A++;
-            } else {
-                gUnk_3002C9E = gUnk_3002C9A + 40;
-                gLayeredCutsceneOamOffsetX = gUnk_3002C9C - 14;
-                gUnk_3002C64 = 0;
-                gUnk_3002C60++;
-            }
-            break;
-
-        case 9:
-        case 10:
-            gUnk_3002C9A -= 4;
-            if (gUnk_3002C9A < -100) {
-                InitCutsceneDarkenBlend(63);
-                gUnk_3002C60++;
-            }
-            break;
-
-        case 11:
-            if (IncreaseCutsceneBlendCoefficient(0) != 0) {
-                gSubGameMode++;
-            }
-            break;
-    }
-
-    destination = gOamBuffer;
-    if (gUnk_3002C60 == 9) {
-        if (SelectCutsceneOamAnimation08(gUnk_3002C64++, &oamData) != 0) {
-            gUnk_3002C60++;
-        }
-        destination = AppendCutsceneOamTemplate(oamData, destination, gUnk_3002C9E, gLayeredCutsceneOamOffsetX);
-        gUnk_3002C9E++;
-    }
-    destination = AppendLayeredWarioCutsceneOam(destination, gUnk_3002C60, frame);
-    if (gUnk_3002C60 > 4) {
-        SetCutsceneOamFrame07(&oamData);
-        destination = AppendCutsceneOamTemplate(oamData, destination, gCutsceneAnimationFinished, 76);
-    }
-    if (gUnk_3002C60 == 7) {
-        if (gLayeredCutsceneOamOffsetY != 0) {
-            SelectCutsceneOamAnimation09(frame, &oamData);
-        } else {
-            SelectCutsceneOamAnimation04(frame, &oamData);
-        }
-        destination = AppendCutsceneOamTemplate(oamData, destination, 74, 76);
-    }
-    if (gUnk_3002C60 > 7) {
-        if (gLayeredCutsceneOamOffsetY != 0) {
-            SelectCutsceneOamAnimation10(frame, &oamData);
-        } else {
-            SelectCutsceneOamAnimation05(frame, &oamData);
-        }
-        destination = AppendCutsceneOamTemplate(oamData, destination, 74, 76);
-    }
-    FinalizeCutsceneOamBuffer(destination);
-    *((vu16*)0x04000014) = -(frame << 2);
-    *((vu16*)0x04000018) = -(frame >> 3);
-    *((vu16*)0x0400001C) = -(frame >> 4);
-    if (gUnk_3002C60 <= 5 && (gButtonsPressed & 9) != 0) {
-        *((vu16*)0x04000200) &= 0xFFFB;
-        gSubGameMode = 46;
-    }
+void UpdateLayeredSubGameCutscene(s32 frame)
+{
+    u16* destination;
+    const u16* oamData;
+    u32 fillValue;
+    vu16* bg0Vofs;
+    vu32* dma;
+
+    switch (gUnk_3002C60) {
+        case 0:
+            LZ77UnCompVram(sUnk_829443C, (void*)0x06000000);
+            LZ77UnCompVram(sUnk_8295954, (void*)0x06004000);
+            gUnk_3002C60++;
+            break;
+
+        case 1:
+            LZ77UnCompVram(sUnk_8298A50, (void*)0x06010000);
+            if (gUnk_3002C74 != 0) {
+                gUnk_3002C60 = 6;
+            } else {
+                InterruptCallbackSetVCount(ApplyCutsceneBg0Scroll);
+                *((vu16*)0x04000004) &= 0x00FF;
+                *((vu16*)0x04000004) |= 0x9720;
+                *((vu16*)0x04000200) |= 4;
+                gUnk_3002C60++;
+            }
+            WaitForVBlankInterrupt();
+            *((vu16*)0x04000000) = 0x1F00;
+            break;
+
+        case 2:
+            if (gUnk_3002C9A > 148) {
+                gUnk_3002C9A--;
+            }
+            *((vu16*)0x04000010) = -(frame << 1);
+            if (gCutsceneBackgroundVerticalOffset > 0) {
+                if (gCutsceneBackgroundVerticalOffset > 10 && (frame & 3) == 3) {
+                    gCutsceneBackgroundVerticalOffset--;
+                } else if (gCutsceneBackgroundVerticalOffset > 4 && (frame & 7) == 7) {
+                    gCutsceneBackgroundVerticalOffset--;
+                } else if ((frame & 15) == 15) {
+                    gCutsceneBackgroundVerticalOffset--;
+                }
+            }
+            bg0Vofs = (vu16*)0x04000012;
+            *bg0Vofs = gCutsceneBackgroundVerticalOffset;
+            if (frame > 400 && (frame & 15) == 15) {
+                u16* alphaA = (u16*)&gUnk_3002C5A;
+                u16* alphaB;
+                if (*alphaA != 0) {
+                    (*alphaA)--;
+                }
+                alphaB = (u16*)&gUnk_3002C5C;
+                if (*alphaB <= 15) {
+                    (*alphaB)++;
+                }
+                *((vu16*)0x04000052) = (*alphaB << 8) | *alphaA;
+                CutsceneLoadObjPalette(*alphaB);
+                if (*alphaB == 16) {
+                    *((vu16*)0x04000200) &= 0xFFFB;
+                    *bg0Vofs = 0;
+                    gUnk_3002C60++;
+                }
+            }
+            break;
+
+        case 3:
+            if ((u32)gUnk_3002C64 <= 7) {
+                u32 dst = 0x06008000 + (gUnk_3002C64++ << 9);
+                fillValue = 0x03FF03FF;
+                dma = (vu32*)0x040000D4;
+                dma[0] = (u32)&fillValue;
+                dma[1] = dst;
+                dma[2] = 0x85000080;
+                dma[2];
+            } else {
+                if (gUnk_3002C78 != 0) {
+                    oamData = sUnk_8298908;
+                } else {
+                    oamData = sUnk_829892E;
+                }
+                DecodeCutsceneTileRuns(oamData, (u16*)0x06008000);
+                {
+                    vu16* scroll;
+                    register s16 negTwo asm("r1");
+
+                    gCutsceneBackgroundHorizontalOffset = 0;
+                    {
+                        register s16* vertical asm("r0");
+                        vertical = &gCutsceneBackgroundVerticalOffset;
+                        *vertical = -2;
+                    }
+                    negTwo = -2;
+                    scroll = (vu16*)0x04000010;
+                    *scroll = 0;
+                    scroll++;
+                    *scroll = negTwo;
+                }
+                gUnk_3002C64 = 0;
+                gUnk_3002C60++;
+            }
+            break;
+
+        case 4:
+            if ((u32)(gUnk_3002C64++) > 300) {
+                s32 low = frame & 15;
+                u16* alphaA = (u16*)&gUnk_3002C5A;
+                if (low == 15) {
+                    u16* alphaB;
+                    if (*alphaA <= 15) {
+                        (*alphaA)++;
+                    }
+                    alphaB = (u16*)&gUnk_3002C5C;
+                    if (*alphaB != 0) {
+                        (*alphaB)--;
+                    }
+                    *((vu16*)0x04000052) = (*alphaB << 8) | *alphaA;
+                }
+                if (*alphaA == 16) {
+                    gUnk_3002C60++;
+                }
+            }
+            break;
+
+        case 5:
+            gCutsceneAnimationFinished -= 8;
+            if (gCutsceneAnimationFinished <= 108) {
+                gCutsceneAnimationFinished = 109;
+            }
+            // fallthrough
+        case 6:
+            if (gCutsceneAnimationFinished == 109) {
+                InitCutsceneDarkenBlend(63);
+                gUnk_3002C64 = 0;
+                gUnk_3002C60++;
+            }
+            break;
+
+        case 7:
+            if (gButtonsPressed != 0) {
+                gUnk_3002C64 = 0;
+                gUnk_3002C5E = 0;
+                *((vu16*)0x04000054) = 0;
+            }
+            gUnk_3002C64++;
+            if ((u32)gUnk_3002C64 > 3600) {
+                if (IncreaseCutsceneBlendCoefficient(3) != 0) {
+                    StartDemoPlayback();
+                }
+            } else if (gButtonsPressed == 1 || gButtonsPressed == 8) {
+                m4aSongNumStartOrChange(298);
+                VoiceSetPlay(3);
+                gUnk_3002C64 = 0;
+                gUnk_3002C60++;
+            }
+            break;
+
+        case 8:
+            if ((u32)(gUnk_3002C64++) <= 15) {
+                gUnk_3002C9A++;
+            } else {
+                gUnk_3002C9E = gUnk_3002C9A + 40;
+                gLayeredCutsceneOamOffsetX = gUnk_3002C9C - 14;
+                gUnk_3002C64 = 0;
+                gUnk_3002C60++;
+            }
+            break;
+
+        case 9:
+        case 10:
+            gUnk_3002C9A -= 4;
+            if (gUnk_3002C9A < -100) {
+                InitCutsceneDarkenBlend(63);
+                gUnk_3002C60++;
+            }
+            break;
+
+        case 11:
+            if (IncreaseCutsceneBlendCoefficient(0) != 0) {
+                gSubGameMode++;
+            }
+            break;
+    }
+
+    destination = gOamBuffer;
+    if (gUnk_3002C60 == 9) {
+        if (SelectCutsceneOamAnimation08(gUnk_3002C64++, &oamData) != 0) {
+            gUnk_3002C60++;
+        }
+        destination = AppendCutsceneOamTemplate(oamData, destination, gUnk_3002C9E, gLayeredCutsceneOamOffsetX);
+        gUnk_3002C9E++;
+    }
+    destination = AppendLayeredWarioCutsceneOam(destination, gUnk_3002C60, frame);
+    if (gUnk_3002C60 > 4) {
+        SetCutsceneOamFrame07(&oamData);
+        destination = AppendCutsceneOamTemplate(oamData, destination, gCutsceneAnimationFinished, 76);
+    }
+    if (gUnk_3002C60 == 7) {
+        if (gLayeredCutsceneOamOffsetY != 0) {
+            SelectCutsceneOamAnimation09(frame, &oamData);
+        } else {
+            SelectCutsceneOamAnimation04(frame, &oamData);
+        }
+        destination = AppendCutsceneOamTemplate(oamData, destination, 74, 76);
+    }
+    if (gUnk_3002C60 > 7) {
+        if (gLayeredCutsceneOamOffsetY != 0) {
+            SelectCutsceneOamAnimation10(frame, &oamData);
+        } else {
+            SelectCutsceneOamAnimation05(frame, &oamData);
+        }
+        destination = AppendCutsceneOamTemplate(oamData, destination, 74, 76);
+    }
+    FinalizeCutsceneOamBuffer(destination);
+    *((vu16*)0x04000014) = -(frame << 2);
+    *((vu16*)0x04000018) = -(frame >> 3);
+    *((vu16*)0x0400001C) = -(frame >> 4);
+    if (gUnk_3002C60 <= 5 && (gButtonsPressed & 9) != 0) {
+        *((vu16*)0x04000200) &= 0xFFFB;
+        gSubGameMode = 46;
+    }
 }
 
 u16* AppendLayeredWarioCutsceneOam(u16* destination, s32 mode, s32 timer)
