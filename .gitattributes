@@ -1,2 +1,10 @@
 # Shell scripts run inside WSL; CRLF line endings would break them
 *.sh text eol=lf
+
+# C sources and headers are stored with LF. Declaring them as text also stops Git
+# from guessing "binary" when a file picks up stray CRs, which once let a CRLF copy
+# of src/cutscenes.c be committed byte for byte (9a6ff05).
+*.c text eol=lf
+*.h text eol=lf
+# Committed upstream with CRLF; leave it as it is.
+src/wario/normal.c -text
