@@ -286,4 +286,6 @@ struct AGB_ALIGN RCnt {
 #define ST_R_IN                     0       // Select input
 #define ST_R_OUT                    1       // Select output
 
+#include "gba/gba_ptr.h"
+
 #endif // GUARD_GBA_TYPES_H

@@ -21,4 +21,12 @@ PortFunc PortLookupGbaFunction(unsigned int gbaAddress);
 // Reports a call to a GBA function that has no native version, and stops.
 __attribute__((noreturn)) void PortMissingFunction(const char *name, unsigned int gbaAddress);
 
+// Function pointers held in GBA memory (include/gba/gba_ptr.h). Both map 0 and NULL to each
+// other and stop with an error for a function missing from the table.
+PortFunc PortGbaFunctionToNative(unsigned int gbaAddress);
+unsigned int PortNativeFunctionToGba(PortFunc func);
+
+// Reports a native address stored in GBA memory that does not fit 32 bits, and stops.
+__attribute__((noreturn)) void PortBadGbaPointer(unsigned long long address);
+
 #endif  // GUARD_PORT_GBA_FUNCTIONS_H
