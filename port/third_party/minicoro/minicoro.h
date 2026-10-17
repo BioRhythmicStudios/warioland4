@@ -300,7 +300,8 @@ struct mco_coro {
   unsigned char* storage;
   size_t bytes_stored;
   size_t storage_size;
-  void* asan_prev_stack; /* Used by address sanitizer. */
+  const void* asan_host_bottom; /* Used by address sanitizer: stack of the context that resumed this coroutine. [wl4 patch] */
+  size_t asan_host_size;        /* Used by address sanitizer. [wl4 patch] */
   void* tsan_prev_fiber; /* Used by thread sanitizer. */
   void* tsan_fiber; /* Used by thread sanitizer. */
   size_t magic_number; /* Used to check stack overflow. */
@@ -318,10 +319,12 @@ typedef struct mco_desc {
   /* These must be initialized only through `mco_init_desc`. */
   size_t coro_size;           /* Coroutine structure size. */
   size_t stack_size;          /* Coroutine stack size. */
+  void* stack_base;           /* Caller-provided stack, or NULL. Set through `mco_desc_init_with_stack`. [wl4 patch] */
 } mco_desc;
 
 /* Coroutine functions. */
 MCO_API mco_desc mco_desc_init(void (*func)(mco_coro* co), size_t stack_size);  /* Initialize description of a coroutine. When stack size is 0 then MCO_DEFAULT_STACK_SIZE is used. */
+MCO_API mco_desc mco_desc_init_with_stack(void (*func)(mco_coro* co), void* stack_base, size_t stack_size); /* Like `mco_desc_init`, but the coroutine runs on the caller's stack memory, which must stay valid while the coroutine exists. Assembly and ucontext backends only. [wl4 patch] */
 MCO_API mco_result mco_init(mco_coro* co, mco_desc* desc);                      /* Initialize the coroutine. */
 MCO_API mco_result mco_uninit(mco_coro* co);                                    /* Uninitialize the coroutine, may fail if it's not dead or suspended. */
 MCO_API mco_result mco_create(mco_coro** out_co, mco_desc* desc);               /* Allocates and initializes a new coroutine. */
@@ -574,15 +577,6 @@ static MCO_FORCE_INLINE void _mco_prepare_jumpin(mco_coro* co) {
     prev_co->state = MCO_NORMAL;
   }
   mco_current_co = co;
-#ifdef _MCO_USE_ASAN
-  if(prev_co) {
-    void* bottom_old = NULL;
-    size_t size_old = 0;
-    __sanitizer_finish_switch_fiber(prev_co->asan_prev_stack, (const void**)&bottom_old, &size_old);
-    prev_co->asan_prev_stack = NULL;
-  }
-  __sanitizer_start_switch_fiber(&co->asan_prev_stack, co->stack_base, co->stack_size);
-#endif
 #ifdef _MCO_USE_TSAN
   co->tsan_prev_fiber = __tsan_get_current_fiber();
   __tsan_switch_to_fiber(co->tsan_fiber, 0);
@@ -599,15 +593,6 @@ static MCO_FORCE_INLINE void _mco_prepare_jumpout(mco_coro* co) {
     prev_co->state = MCO_RUNNING;
   }
   mco_current_co = prev_co;
-#ifdef _MCO_USE_ASAN
-  void* bottom_old = NULL;
-  size_t size_old = 0;
-  __sanitizer_finish_switch_fiber(co->asan_prev_stack, (const void**)&bottom_old, &size_old);
-  co->asan_prev_stack = NULL;
-  if(prev_co) {
-    __sanitizer_start_switch_fiber(&prev_co->asan_prev_stack, bottom_old, size_old);
-  }
-#endif
 #ifdef _MCO_USE_TSAN
   void* tsan_prev_fiber = co->tsan_prev_fiber;
   co->tsan_prev_fiber = NULL;
@@ -619,6 +604,10 @@ static void _mco_jumpin(mco_coro* co);
 static void _mco_jumpout(mco_coro* co);
 
 static MCO_NO_INLINE void _mco_main(mco_coro* co) {
+#if defined(_MCO_USE_ASAN) && (defined(MCO_USE_UCONTEXT) || defined(MCO_USE_ASM))
+  /* [wl4 patch] First entry: finish the switch from the resuming context and note its stack. */
+  __sanitizer_finish_switch_fiber(NULL, &co->asan_host_bottom, &co->asan_host_size);
+#endif
   co->func(co); /* Run the coroutine function. */
   co->state = MCO_DEAD; /* Coroutine finished successfully, set state to dead. */
   _mco_jumpout(co); /* Jump back to the old context .*/
@@ -671,7 +660,11 @@ typedef struct _mco_ctxbuf {
   void* stack_base;
 } _mco_ctxbuf;
 
-#if defined(__GNUC__)
+#if defined(__clang__)
+/* [wl4 patch] AddressSanitizer would pad these code bytes with redzones and move them to a
+   non-executable section. */
+#define _MCO_ASM_BLOB __attribute__((section(".text"), no_sanitize("address")))
+#elif defined(__GNUC__)
 #define _MCO_ASM_BLOB __attribute__((section(".text")))
 #elif defined(_MSC_VER)
 #define _MCO_ASM_BLOB __declspec(allocate(".text"))
@@ -1313,16 +1306,33 @@ typedef struct _mco_context {
   _mco_ctxbuf back_ctx;
 } _mco_context;
 
+/* [wl4 patch] Each switch is wrapped in __sanitizer_start_switch_fiber before it and
+   __sanitizer_finish_switch_fiber after it, on the stack that is being left. */
 static void _mco_jumpin(mco_coro* co) {
   _mco_context* context = (_mco_context*)co->context;
   _mco_prepare_jumpin(co);
+#ifdef _MCO_USE_ASAN
+  void* asan_fake_stack = NULL;
+  __sanitizer_start_switch_fiber(&asan_fake_stack, co->stack_base, co->stack_size);
+#endif
   _mco_switch(&context->back_ctx, &context->ctx); /* Do the context switch. */
+#ifdef _MCO_USE_ASAN
+  __sanitizer_finish_switch_fiber(asan_fake_stack, NULL, NULL);
+#endif
 }
 
 static void _mco_jumpout(mco_coro* co) {
   _mco_context* context = (_mco_context*)co->context;
   _mco_prepare_jumpout(co);
+#ifdef _MCO_USE_ASAN
+  void* asan_fake_stack = NULL;
+  /* A dead coroutine is never resumed, so its fake stack is released (NULL). */
+  __sanitizer_start_switch_fiber(co->state == MCO_DEAD ? NULL : &asan_fake_stack, co->asan_host_bottom, co->asan_host_size);
+#endif
   _mco_switch(&context->ctx, &context->back_ctx); /* Do the context switch. */
+#ifdef _MCO_USE_ASAN
+  __sanitizer_finish_switch_fiber(asan_fake_stack, &co->asan_host_bottom, &co->asan_host_size);
+#endif
 }
 
 static mco_result _mco_create_context(mco_coro* co, mco_desc* desc) {
@@ -1337,7 +1347,7 @@ static mco_result _mco_create_context(mco_coro* co, mco_desc* desc) {
   /* Initialize storage. */
   unsigned char* storage = (unsigned char*)storage_addr;
   /* Initialize stack. */
-  void *stack_base = (void*)stack_addr;
+  void *stack_base = desc->stack_base ? desc->stack_base : (void*)stack_addr; /* [wl4 patch] */
   size_t stack_size = desc->stack_size;
   /* Make the context. */
   mco_result res = _mco_makectx(co, &context->ctx, stack_base, stack_size);
@@ -1345,7 +1355,7 @@ static mco_result _mco_create_context(mco_coro* co, mco_desc* desc) {
     return res;
   }
 #ifdef MCO_USE_VALGRIND
-  context->valgrind_stack_id = VALGRIND_STACK_REGISTER(stack_addr, stack_addr + stack_size);
+  context->valgrind_stack_id = VALGRIND_STACK_REGISTER((size_t)stack_base, (size_t)stack_base + stack_size); /* [wl4 patch] */
 #endif
   co->context = context;
   co->stack_base = stack_base;
@@ -1680,6 +1690,15 @@ mco_desc mco_desc_init(void (*func)(mco_coro* co), size_t stack_size) {
   return desc;
 }
 
+/* [wl4 patch] */
+mco_desc mco_desc_init_with_stack(void (*func)(mco_coro* co), void* stack_base, size_t stack_size) {
+  mco_desc desc = mco_desc_init(func, stack_size);
+  _mco_init_desc_sizes(&desc, 0); /* The coroutine memory holds no stack. */
+  desc.stack_base = stack_base;
+  desc.stack_size = stack_size;
+  return desc;
+}
+
 static mco_result _mco_validate_desc(mco_desc* desc) {
   if(!desc) {
     MCO_LOG("coroutine description is NULL");
@@ -1697,6 +1716,17 @@ static mco_result _mco_validate_desc(mco_desc* desc) {
     MCO_LOG("coroutine size is invalid");
     return MCO_INVALID_ARGUMENTS;
   }
+  /* [wl4 patch] */
+  if(desc->stack_base && (((size_t)desc->stack_base | desc->stack_size) & 15)) {
+    MCO_LOG("coroutine stack must be aligned to 16 bytes");
+    return MCO_INVALID_ARGUMENTS;
+  }
+#if !defined(MCO_USE_UCONTEXT) && !defined(MCO_USE_ASM)
+  if(desc->stack_base) {
+    MCO_LOG("caller-provided stacks need the assembly or ucontext backend");
+    return MCO_INVALID_ARGUMENTS;
+  }
+#endif
   return MCO_SUCCESS;
 }
 
@@ -1819,8 +1849,12 @@ mco_result mco_yield(mco_coro* co) {
   /* Asyncify already checks for stack overflow. */
 #else
   /* This check happens when the stack overflow already happened, but better later than never. */
+#if defined(__GNUC__) || defined(__clang__)
+  size_t stack_addr = (size_t)__builtin_frame_address(0); /* [wl4 patch] Not an ASan fake stack slot. */
+#else
   volatile size_t dummy;
   size_t stack_addr = (size_t)&dummy;
+#endif
   size_t stack_min = (size_t)co->stack_base;
   size_t stack_max = stack_min + co->stack_size;
   if(co->magic_number != MCO_MAGIC_NUMBER || stack_addr < stack_min || stack_addr > stack_max) { /* Stack overflow. */

@@ -21,3 +21,26 @@ Attribution**, Copyright (c) 2021-2023 Eduardo Bart. Neither requires keeping a 
 The assembly context switch is marked as taken from LuaCoco by Mike Pall, under the **MIT
 licence**, Copyright (C) 2004-2016 Mike Pall. That licence asks for its notice to be kept
 with copies. The notice stays in `minicoro.h`, and binary releases must include it as well.
+
+## Local patches
+
+Each change is marked `[wl4 patch]` in `minicoro.h`; `git log -p` on the file shows them
+against the vendored original.
+
+1. **Caller-provided stacks.** `mco_desc_init_with_stack(func, stack_base, stack_size)`
+   and a `stack_base` field in `mco_desc` run the coroutine on memory the caller owns.
+   The port uses this for the game stack, which sits at a fixed low address with guard pages
+   (see `port/include/port/gba_memory.h`). Assembly and ucontext backends only.
+2. **AddressSanitizer fiber annotations.** Upstream calls `__sanitizer_start_switch_fiber`
+   and `__sanitizer_finish_switch_fiber` in the wrong places. It never finishes the first
+   switch into a coroutine. It finishes a resume only when the coroutine next yields, and
+   it never annotates the switch back to the resuming context. Every switch in
+   `_mco_jumpin`/`_mco_jumpout` is now wrapped: `start` before it, on the stack being left,
+   and `finish` right after it. The coroutine's first entry finishes in `_mco_main`, and a
+   coroutine that has finished releases its fake stack. The Windows-fiber and asyncify
+   backends no longer have annotations (the port does not use them).
+3. **Code bytes kept out of ASan.** The Windows x64 switch is a byte array placed in
+   `.text`. Clang's AddressSanitizer padded it and moved it to a non-executable section,
+   so the array is marked `no_sanitize("address")`.
+4. **Stack overflow check.** `mco_yield` measures the stack with `__builtin_frame_address(0)`,
+   not the address of a local, which ASan may put on a fake stack.
