@@ -6,7 +6,19 @@ Shared log for Claude Code, GPT-6 and Codex. Update it after every session, and 
 - **Working tree**: present in the local `src/` files but not committed.
 - **decomp.wtf saved best**: the "best attempt" stored in the decomp.wtf database. It can differ from the local file.
 
-## Status (updated 2026-10-17, session 26, by Claude)
+## Status (updated 2026-10-17, session 27, by Claude)
+
+- **2026-10-17 Claude session 27, WarioHopDrawSprites: MATCHED.**
+  - Went from 709 / 98.5% to exact in 10 local compiles (9 trials plus 1 re-check of the checkpointed copy) and 1 decomp.wtf submission. It was auto-committed as `04a2c15` (single file, 0 CR bytes in the blob).
+  - Independent check: full objdiff build + `tools/objcmp.py` = **11 non-identical** (was 12). decomp.wtf **4,013 / 4,024, 98.4% of code**. Not pushed.
+  - Approach: clean sibling-style rewrite (no pins, no asm), in the `DrawSoundRoomSprites` / `RenderPauseScreenOam` loop form with a 3-bit `affineIndex` union, rather than editing Codex's pinned N1 (190 changed lines). H1 was at 192.
+  - What mattered:
+    - A `u32 active` camera-mode local and chained `matrixNPtr` locals (106).
+    - Using `gWarioHopPlayerShadow` directly instead of a `shadow` pointer local, which fixed the shadow loop's hoist order (88).
+    - `gWarioHopObstacles[({ j; })].animFrame` in the obstacle `src =` line (exact).
+  - Why the statement expression works: it adds one luid (block notes count), so loop pass 1 hoists the j loop's symbol load (life 4 → 5 meets `threshold*savings*lifetime >= insn_count`). In pass 2, `combine_movables` then can't merge it with the inner loop's hoisted load, and cse2 stops folding the inner draw pointer into a copy. That restores the target's `adds r0, r2, #0; adds r6, r1, r0`.
+  - Candidates H1–H8, the runner and the analysis are in `reports/hop_draw_sibling_candidates/README.md`.
+  - Sibling check: `UpdateBossDoorOpeningSprites` has the same OAM-loop siblings plus an `s16 affine[4]` block like `RenderStageEntrySprites`. Not claimed this session.
 
 - **2026-10-17 Claude session 26, RenderPauseScreenOam: MATCHED.** 28807 / 45.4% to exact in 7 local trials + 1 decomp.wtf submission (plus 1 diagnostic `-dg` compile). Commits `9337476` (declare `sUnk_86D36DC` as `[][4]`; a `[state - 1][piece]` table, only used here) and `239c3c4` (match), both auto-committed by decomp.wtf, single file each, verified 0 CR bytes in the committed blobs. Independent check: full objdiff build + `tools/objcmp.py` = **12 non-identical** (was 13); decomp.wtf **4,012 / 4,024, 98.0% of code**. Not pushed. Full target from `objdump -d -r --disassemble=RenderPauseScreenOam expected/us/obj/pause_screen.o` (1,016 normalized lines). The tail that was missing has: a second per-jewel block (`!gPauseAllJewelPiecesCollected && state` draws `sUnk_86D36DC[state-1][i]`), an all-jewels sprite (no >128 check), keyzer (`sUnk_86D36D4` x table, y+96), CD (gated on `gUnk_3003C4A == 0`, x+200) and the high-score medal (>599/>999/>799). Jewel animation table is `sUnk_86D36FC[i]`, not `sUnk_86D36DC`. What mattered, in order: (1) the DrawSoundRoomSprites `for (; currentSlot < nextSlot; currentSlot++)` loop copied literally into all 10 sections (91.8% opcodes); (2) not reusing one `animation` local across section 1 and the item sections (99.2%); (3) high-score arms assign `src = X->oam` directly so they cross-jump instead of if-converting, keyzer/CD state locals as `u32` (no copy into r4); (4) **section 1 uses `gPauseScreenAnimation` directly instead of a local**, which loads the frame index before the pointer and gives the target's spill set with r5 (96 changed lines); (5) one shared `animation` local for language/jewel/jewel-piece/keyzer/CD (target keeps all of them in r3) = exact. No register pins, no asm. Candidates A–F in the session scratchpad.
 
@@ -82,7 +94,7 @@ Checked in session 13. For 13 of the 15 open functions the local file and the sa
 | ~~DrawHomerunDerby~~ | 0 | 100 | **MATCHED**: code by Codex (commit 89a6f56); recorded by decomp.wtf in session 13 after the `expected/` fix (commit 7fc2668) |
 | func_804A508 | 25 | 99.8 | Session 15: natural index loop plus `do { } while (0)` X-load wrappers (165 → 25). Left: 9 operand diffs, all reload register choices (two prologue output reloads r4 vs r0, two post-loop ldrsh zero indices). Before: Codex improved it from 425. Missing `mov r3, r10` at the first `mode1HighY` stack store; X-address and ldrsh scratch registers. Session 14: the `locals` struct form can't produce the `mov r3, r10` (needs a spilled pseudo); next step is the natural loop. See `reports/swinging_platform_for_gpt6.md` |
 | func_804A84C | 25 | 99.8 | Session 15: ported func_804A508's natural-loop source (AC→AD, six child tables), 165 → 25. Same 9-operand reload residual as the twin. Before: session 14 ported Codex's changes (370 → 165) |
-| WarioHopDrawSprites | 709 | 98.5 | Register scheduling throughout |
+| ~~WarioHopDrawSprites~~ | 0 | 100 | **MATCHED 2026-10-17 (Claude, session 27), commit 04a2c15**. Sibling-style rewrite plus a `({ j; })` luid nudge for the obstacle pointer; see session 27 |
 | WarioHopInit | 1004 | 95.5 | Register allocation of hoisted DMA sources and struct copies |
 | UpdateBossDoorOpeningSprites | 1235 | 97.9 | Limit init registers; stack slot offsets |
 | RefreshRouletteResultTiles | 1690 | 80.3 | Saved source unchanged; session-21 local M1 has 62 vs baseline 203 full changed lines, unsubmitted. Quotient copy, loop motion and third-loop allocation remain. Live baseline saves only r8; old extra-r9 note was stale. See `reports/roulette_result_candidates/README.md`. |
