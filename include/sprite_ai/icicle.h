@@ -2,6 +2,7 @@
 #define SPRITE_AI_ICICLE_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sIcicleIdleOam[];
 extern const struct AnimationFrame sIcicleWarningOam[];

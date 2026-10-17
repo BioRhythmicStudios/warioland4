@@ -2,6 +2,7 @@
 #define SPRITE_AI_SWINGING_PLATFORM_H
 
 #include "types.h"
+#include "oam.h"
 
 struct AnimationFrame;
 

@@ -2,6 +2,7 @@
 #define SPRITE_AI_TOGEROBO_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sTogeroboOam_83BCEB4[];
 extern const struct AnimationFrame sTogeroboOam_83BCEFC[];

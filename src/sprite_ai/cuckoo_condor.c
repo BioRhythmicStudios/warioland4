@@ -1501,7 +1501,7 @@ void CuckooCondorHandleShopItemHit(void)
         temp = 3;
         ((struct PrimarySpriteData *)sprite)->pose = temp;
         temp = (u32)sCuckooCondorClockIdleOam;
-        (u32)((struct PrimarySpriteData *)sprite)->pOamData = temp;
+        ((struct PrimarySpriteData *)sprite)->pOamData = (const struct AnimationFrame *)temp;
         ((struct PrimarySpriteData *)sprite)->currentAnimationFrame = value;
         ((struct PrimarySpriteData *)sprite)->animationTimer = value;
         SpriteUtilStartBossTimer();

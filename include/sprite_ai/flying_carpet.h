@@ -2,6 +2,7 @@
 #define SPRITE_AI_FLYING_CARPET_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sMagicCarpetRiddenOam[];
 extern const struct AnimationFrame sMagicCarpetFlyingOam[];

@@ -102,7 +102,7 @@ void ShieragutchiFall(void)
     int new_var;
     struct PrimarySpriteData* sprite;
     u8 index;
-    const u16 previousMovement;
+    u16 previousMovement;
     s16 movement;
 
     sprite = &gCurrentSprite;

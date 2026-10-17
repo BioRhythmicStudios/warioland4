@@ -2,6 +2,7 @@
 #define SPRITE_AI_PIG_HEAD_STATUE_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sPigHeadStatueIdleOam[];
 extern const struct AnimationFrame sPigHeadStatueOpeningOam[];

@@ -2,6 +2,7 @@
 #define SPRITE_AI_SWITCH_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sSwitchIdleOam[];
 extern const struct AnimationFrame sEscapeSwitchPressedOam[];

@@ -64,7 +64,7 @@ void TogetogeFall(void)
     struct PrimarySpriteData* sprite;
     u32 y;
     int previousIndex;
-    const u16 previousMovement;
+    u16 previousMovement;
     s16 movement;
     u8 index;
     sprite = &gCurrentSprite;

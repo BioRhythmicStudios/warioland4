@@ -2,6 +2,7 @@
 #define SPRITE_AI_SPRITE_A9_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sSpriteA9Oam_83E1F30[];
 extern const struct AnimationFrame sSpriteA9Oam_83E1F68[];

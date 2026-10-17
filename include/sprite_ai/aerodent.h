@@ -2,6 +2,7 @@
 #define SPRITE_AI_AERODENT_H
 
 #include "types.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sAerodentOam_83DAB28[];
 extern const struct AnimationFrame sAerodentOam_83DABB0[];

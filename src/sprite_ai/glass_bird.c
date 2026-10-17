@@ -1,4 +1,5 @@
 
+#include "oam.h"
 #include "sound.h"
 #include "sprite.h"
 #include "sprite_util.h"

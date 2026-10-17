@@ -2,6 +2,7 @@
 #define SPRITE_AI_MONEY_SUNFLOWER_H
 
 #include "sprite.h"
+#include "oam.h"
 
 extern const struct AnimationFrame sMoneySunflowerFullOam[];
 extern const struct AnimationFrame sMoneySunflowerLargeOam[];
