@@ -2901,7 +2901,7 @@ waitOne:
             (*statePointer)++;
             value = 90;
             *(u8 *)temp = value;
-            sWarioPoseRequestFuncTable[wario->reaction](66);
+            GF(sWarioPoseRequestFuncTable[wario->reaction])(66);
             break;
         }
         case 13:

@@ -415,9 +415,9 @@ extern const u8 sBigFistGfx[0x1000];
 extern const u8 sBlackDragonGfx[0x1000];
 extern const u16 sTimeUpTextPal[];
 extern const u16 sTimeUpWarioPal[];
-extern const u8* sBossLifeMeterGfx[];
-extern const u8* sHeartGaugeGfx[];
-extern const u8* sHeartMeterGfx[];
+extern GBA_PTR(const u8*) sBossLifeMeterGfx[];
+extern GBA_PTR(const u8*) sHeartGaugeGfx[];
+extern GBA_PTR(const u8*) sHeartMeterGfx[];
 #endif
 
 void LoadHudSpriteGraphics(void)
@@ -463,7 +463,7 @@ void UpdateBossHealthGauge(void)
     u8 health;
 
     health = gCurrentSprite.health;
-    DmaCopy16(3, sBossLifeMeterGfx[health], 0x6012C00, 10 * TILE_SIZE_4BPP);
+    DmaCopy16(3, GP(sBossLifeMeterGfx[health]), 0x6012C00, 10 * TILE_SIZE_4BPP);
 }
 
 void UpdateWarioLifeHud(void)
@@ -493,7 +493,7 @@ void UpdateWarioLifeHud(void)
         }
     }
 
-    gCurrentHeartGaugeGfx = (u8*)sHeartGaugeGfx[gHeartGauge.current];
+    GP_SET(gCurrentHeartGaugeGfx, (u8*)GP(sHeartGaugeGfx[gHeartGauge.current]));
 
     if (heartGaugeIncrease == 8) {
         if (gHeartMeter.current + gHeartMeter.filling > 7) {
@@ -531,9 +531,9 @@ void UpdateWarioLifeHud(void)
         if ((gMainTimer & 0x3F) == 0x20 && gWarioPauseTimer == 0) {
             m4aSongNumStart(0x1C8);
         }
-        gCurrentHeartMeterGfx = (u8*)sHeartMeterGfx[9];
+        GP_SET(gCurrentHeartMeterGfx, (u8*)GP(sHeartMeterGfx[9]));
     } else {
-        gCurrentHeartMeterGfx = (u8*)sHeartMeterGfx[heartMeter->current];
+        GP_SET(gCurrentHeartMeterGfx, (u8*)GP(sHeartMeterGfx[heartMeter->current]));
     }
 }
 
@@ -930,7 +930,7 @@ void UpdateBigBoardSecondarySprite(void)
     }
 
     if (gUnk_3000038 == 0 || gCurrentSecondarySprite.pose == 2) {
-        gCurrentSecondarySpriteOamData = sUnk_83BF986;
+        GP_SET(gCurrentSecondarySpriteOamData, sUnk_83BF986);
     } else {
         struct SecondarySprite* current;
         const u8** destination;

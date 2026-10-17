@@ -17,7 +17,7 @@ struct AGB_ALIGN FrozenGraphicsFrame {
 
 extern const struct FrozenAnimationFrame sFrozenTransformAnimation[];
 extern const struct FrozenAnimationFrame sFrozenBonkAnimation[];
-extern const struct FrozenGraphicsFrame* sFrozenGraphicsTable[];
+extern GBA_PTR(const struct FrozenGraphicsFrame*) sFrozenGraphicsTable[];
 extern const u8 sFrozenPoseData[];
 extern const u8 sFrozenPalette[];
 

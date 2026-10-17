@@ -20,7 +20,7 @@
 
 u8 UpdateFrozenWario(void)
 {
-    return sFrozenWarioPoseTable[gWarioData.pose]();
+    return GF(sFrozenWarioPoseTable[gWarioData.pose])();
 }
 
 u8 FrozenWarioTransforming(void)

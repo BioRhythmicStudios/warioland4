@@ -18,9 +18,9 @@ extern u16 gStageEntryWindowBottom;
 extern u8 gCurrentShopItem;
 extern u8 gItemShopMessageId;
 extern u16 gItemShopShopkeeperAnimationState[2];
-extern const struct AnimationFrame* gItemShopShopkeeperAnimation;
+extern GBA_PTR(const struct AnimationFrame*) gItemShopShopkeeperAnimation;
 extern struct ItemShopCursorState gItemShopCursor;
-extern const struct AnimationFrame* gItemShopCursorAnimation;
+extern GBA_PTR(const struct AnimationFrame*) gItemShopCursorAnimation;
 extern struct ItemShopAnimationState gItemShopItemIconAnimationState;
 extern u8 gItemShopItemAvailability[10];
 extern u16 gItemShopTargetMedalCount;
@@ -306,7 +306,7 @@ void InitializeItemShop(void)
     gItemShopTimer = 0;
     gItemShopShopkeeperAnimationState[0] = 0;
     gItemShopShopkeeperAnimationState[1] = 0;
-    gItemShopShopkeeperAnimation = sItemShopShopkeeperIdleAnimation;
+    GP_SET(gItemShopShopkeeperAnimation, sItemShopShopkeeperIdleAnimation);
     gItemShopCursor.animationTimer = 0;
     gItemShopCursor.animationFrame = 0;
     gItemShopCursor.item = 0;
@@ -317,7 +317,7 @@ void InitializeItemShop(void)
         gItemShopCursor.x = *((const u16*)sUnk_872FEE4);
         gItemShopCursor.y = *((const u16*)sUnk_872FEF8);
     }
-    gItemShopCursorAnimation = sItemShopCursorIdleAnimation;
+    GP_SET(gItemShopCursorAnimation, sItemShopCursorIdleAnimation);
     gItemShopItemIconAnimationState.animationTimer = 0;
     gItemShopItemIconAnimationState.animationFrame = 0;
     i = 0;
@@ -458,14 +458,14 @@ u32 HandleItemShopInput(void)
 
             gSoundRoomMessageTimer = direction;
             gItemShopMessageId = 14;
-            gItemShopShopkeeperAnimation = sItemShopShopkeeperVoiceAnimation;
+            GP_SET(gItemShopShopkeeperAnimation, sItemShopShopkeeperVoiceAnimation);
             gItemShopShopkeeperAnimationState[1] = direction;
             gItemShopShopkeeperAnimationState[0] = direction;
             goto done;
         purchase:
             m4aSongNumStart(0x125);
 
-            gItemShopCursorAnimation = sItemShopCursorPurchaseAnimation;
+            GP_SET(gItemShopCursorAnimation, sItemShopCursorPurchaseAnimation);
             gItemShopCursor.animationFrame = direction;
             gItemShopCursor.animationTimer = direction;
             gCurrentShopItem = GetPreviousShopIndex(gItemShopCursor.item);

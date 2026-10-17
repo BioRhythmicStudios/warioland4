@@ -147,8 +147,8 @@ extern u8 gHomerunPitchLevel;
 extern u16 gMedalCount;
 extern u16 gMinigameHighScores;
 
-extern struct AnimationFrame *sHomerunPitcherAnimations[];
-extern struct AnimationFrame *sHomerunResultAnimations[];
+extern GBA_PTR(struct AnimationFrame *) sHomerunPitcherAnimations[];
+extern GBA_PTR(struct AnimationFrame *) sHomerunResultAnimations[];
 extern u16 sHomerunPitchSounds[];
 extern u8 sHomerunPitchPathChoices[];
 extern u8 sHomerunPitchAnimationsNormal[];
@@ -159,16 +159,16 @@ extern const u16 sHomerunPitchPathY[];
 extern u8 sHomerunHitSpeed[];
 extern s8 sHomerunHitLift[];
 extern const u8 sHomerunBatAngles[];
-extern struct AnimationFrame *sHomerunBonusAnimations[];
+extern GBA_PTR(struct AnimationFrame *) sHomerunBonusAnimations[];
 extern s32 sHomerunBonusYLimits[];
 extern struct AnimationFrame sHomerunBallIdleAnimation[];
 extern struct AnimationFrame sHomerunBallHitAnimation[];
 extern struct AnimationFrame sHomerunBallHitDurations[];
 extern struct AnimationFrame sHomerunBatAnimation[];
 extern struct AnimationFrame sHomerunBallPitchAnimation[];
-extern u16 *sHomerunCameraOamMode2;
-extern u16 *sHomerunCameraOamMode1;
-extern u16 *sHomerunStaticOam;
+extern GBA_PTR(u16 *) sHomerunCameraOamMode2;
+extern GBA_PTR(u16 *) sHomerunCameraOamMode1;
+extern GBA_PTR(u16 *) sHomerunStaticOam;
 extern struct AnimationFrame sHomerunBallPitchDurations[];
 extern u8 sHomerunBgTilemapA[];
 extern u8 sHomerunBgTilemapB[];
@@ -1223,11 +1223,11 @@ void DrawHomerunDerby(void)
   {
     if (byteValue == 1)
     {
-      frameData = sHomerunCameraOamMode1;
+      frameData = GP(sHomerunCameraOamMode1);
     }
     if (byteValue == 2)
     {
-      frameData = sHomerunCameraOamMode2;
+      frameData = GP(sHomerunCameraOamMode2);
     }
     nextOamIndex += *frameData;
     frameData = (u16 *) (((u8 *) frameData) + 2);
@@ -1464,8 +1464,8 @@ void DrawHomerunDerby(void)
     {
       do
       {
-        nextOamIndex += *sHomerunStaticOam;
-        frameData = sHomerunStaticOam + 1;
+        nextOamIndex += *GP(sHomerunStaticOam);
+        frameData = GP(sHomerunStaticOam) + 1;
         if (((s32) firstOamIndex) < ((s32) nextOamIndex))
         {
           positionValue = (s32) ((OamByte *) gOamBuffer);
@@ -1660,7 +1660,7 @@ void DrawHomerunDerby(void)
     else
     {
       bonusAnimationIndex = gHomerunBonusRender.animationIndex;
-      bonusAnimationFrames = sHomerunBonusAnimations[bonusAnimationIndex];
+      bonusAnimationFrames = GP(sHomerunBonusAnimations[bonusAnimationIndex]);
       bonusOamBytes = (OamByte *) bonusAnimationFrames;
       bonusAnimationTimer = gHomerunBonusRender.animationTimer + 1;
       gHomerunBonusRender.animationTimer = bonusAnimationTimer;
@@ -1691,7 +1691,7 @@ void DrawHomerunDerby(void)
           }
         }
       }
-      bonusOamBytes = (OamByte *) sHomerunBonusAnimations[(*bonusRenderState).animationIndex];
+      bonusOamBytes = (OamByte *) GP(sHomerunBonusAnimations[(*bonusRenderState).animationIndex]);
       bonusFrameData = GP(((struct AnimationFrame *) bonusOamBytes)[gHomerunBonusRender.animationFrame].oam);
       nextOamIndex += *bonusFrameData;
       frameData = bonusFrameData + 1;
@@ -1730,7 +1730,7 @@ void DrawHomerunDerby(void)
         firstOamIndex = nextOamIndex;
       }
     }
-    pitcherAnimation = (OamByte *) sHomerunPitcherAnimations[gHomerunPitcherAnimation.animationIndex];
+    pitcherAnimation = (OamByte *) GP(sHomerunPitcherAnimations[gHomerunPitcherAnimation.animationIndex]);
     pitcherAnimationTimer = gHomerunPitcherAnimation.animationTimer + 1;
     gHomerunPitcherAnimation.animationTimer = pitcherAnimationTimer;
     if (((u32) ((struct AnimationFrame *) pitcherAnimation)[gHomerunPitcherAnimation.animationFrame].time) >= ((u32) ((u16) pitcherAnimationTimer)))
@@ -1778,7 +1778,7 @@ void DrawHomerunDerby(void)
         if (pitcherAnimationIndex == 4)
         {
           pitcherState->animationIndex = 5U;
-          pitcherAnimation = (OamByte *) sHomerunPitcherAnimations[5];
+          pitcherAnimation = (OamByte *) GP(sHomerunPitcherAnimations[5]);
         }
         else
           if (((u32) ((u8) (pitcherAnimationIndex - 1))) <= 3U)
@@ -1851,7 +1851,7 @@ void DrawHomerunDerby(void)
     }
     if (((u32) ((u8) (gMinigameState - 0xB))) <= 2U)
     {
-      resultAnimation = (OamByte *) sHomerunResultAnimations[gHomerunPitchResult];
+      resultAnimation = (OamByte *) GP(sHomerunResultAnimations[gHomerunPitchResult]);
       resultAnimationTimer = gHomerunResultRender.animationTimer + 1;
       if (1)
       {

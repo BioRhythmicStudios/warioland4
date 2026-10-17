@@ -34,7 +34,7 @@ extern s32 gTotalScore;
 extern s32 gHighScoreTable[6][4];
 extern u8 gCurrentCollection[];
 extern struct PassageIconState gUnk_3004708[];
-extern const struct AnimationFrame* gUnk_3003C40;
+extern GBA_PTR(const struct AnimationFrame*) gUnk_3003C40;
 
 extern const u32 sUnk_863C41C[];
 extern const u32 sUnk_863C424[];
@@ -47,18 +47,18 @@ extern const u32 sUnk_863C584[];
 extern const u32 sUnk_863C5A4[];
 extern const u32 sUnk_863C5AC[];
 extern const u32 sUnk_863C5B4[];
-extern const struct AnimationFrame* const sUnk_863C4AC[];
-extern const struct AnimationFrame* const sUnk_863C4BC[];
-extern const struct AnimationFrame* const sUnk_863C4CC[];
-extern const struct AnimationFrame* const sUnk_863C5D4[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_863C4AC[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_863C4BC[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_863C4CC[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_863C5D4[];
 extern const struct AnimationFrame sUnk_864130C[];
 extern const struct AnimationFrame sUnk_864131C[];
 extern const struct AnimationFrame sUnk_864132C[];
 extern const struct AnimationFrame sUnk_864133C[];
 extern const struct AnimationFrame sUnk_86413BC[];
 extern const struct AnimationFrame sUnk_86413CC[];
-extern const u8* const sFileSelectPassageNameTableLanguage1[];
-extern const u8* const sFileSelectPassageNameTableLanguage0[];
+extern GBA_PTR(const u8*) const sFileSelectPassageNameTableLanguage1[];
+extern GBA_PTR(const u8*) const sFileSelectPassageNameTableLanguage0[];
 extern const u8 sStageEntryPassageOverlayGraphics[];
 extern const u8 sUnk_869CE48[];
 extern const u8 sUnk_869F448[];
@@ -80,14 +80,14 @@ s32 PassageScreenSubroutine(void)
         case 0:
             if (gUnk_3003C45 == 0) {
                 if (HandlePassageScreenInput() != 0) {
-                    gUnk_3003C40 = sUnk_863C5D4[gStageEntryMainSpriteFalling];
+                    GP_SET(gUnk_3003C40, GP(sUnk_863C5D4[gStageEntryMainSpriteFalling]));
                     return 1;
                 }
             } else {
                 UpdatePassageStageCursorMovement();
                 gUnk_3003C54 = 0;
             }
-            gUnk_3003C40 = sUnk_863C5D4[gStageEntryMainSpriteFalling];
+            GP_SET(gUnk_3003C40, GP(sUnk_863C5D4[gStageEntryMainSpriteFalling]));
             break;
         case 1:
             UpdatePassageStageCursorSound();
@@ -552,7 +552,7 @@ void InitializePassageScreen(void)
                     falling = &gStageEntryMainSpriteFalling;
                     *falling = zeroByte;
                 }
-                gUnk_3003C40 = sUnk_863C5D4[0];
+                GP_SET(gUnk_3003C40, GP(sUnk_863C5D4[0]));
                 gStageEntrySequenceTimer = zeroHalf;
                 gStageEntrySequenceStep = zeroByte;
                 gUnk_3003C54 = zeroByte;

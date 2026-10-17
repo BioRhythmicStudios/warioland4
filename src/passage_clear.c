@@ -18,7 +18,7 @@ extern const u8 sPassageClearBg2Tilemap[];
 extern const u8 sPassageClearBg1Tilemap0[];
 extern const u16 sPassageClearBannerXOffsets[];
 extern const u16 sPassageClearBannerYOffsets[];
-extern const u16* const sPassageClearBannerOamFrames[];
+extern GBA_PTR(const u16*) const sPassageClearBannerOamFrames[];
 extern const u8 sPassageClearBannerFrameIndices[];
 extern const s32 sPassageClearBonusItemInitialXOffsets[];
 extern const s32 sPassageClearBonusItemInitialYOffsets[];
@@ -33,9 +33,9 @@ extern const struct AnimationFrame sPassageClearBonusItemAnimation[];
 extern const s32 sPassageClearBonusItemXVelocities[];
 extern const s32 sPassageClearBonusItemYVelocities[];
 extern const s32 sPassageClearParticleAngleSteps[];
-extern const u16* const sPassageClearSlowParticleOamFrames[];
-extern const u16* const sPassageClearMediumParticleOamFrames[];
-extern const u16* const sPassageClearFastParticleOamFrames[];
+extern GBA_PTR(const u16*) const sPassageClearSlowParticleOamFrames[];
+extern GBA_PTR(const u16*) const sPassageClearMediumParticleOamFrames[];
+extern GBA_PTR(const u16*) const sPassageClearFastParticleOamFrames[];
 
 s32 MinigameRandom(void);
 
@@ -527,7 +527,7 @@ void RenderPassageClearOam(void)
         }
     }
 
-    src = gPassageClearBannerOam;
+    src = GP(gPassageClearBannerOam);
     nextSlot += *(src++);
     if (nextSlot > 128) {
         return;
@@ -612,7 +612,7 @@ void RenderPassageClearOam(void)
 
     for (i = 0; i < 5; i++) {
         if (gPassageClearFastParticles[i].type != 0) {
-            src = sPassageClearFastParticleOamFrames[gPassageClearFastParticles[i].type - 1];
+            src = GP(sPassageClearFastParticleOamFrames[gPassageClearFastParticles[i].type - 1]);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;
@@ -640,7 +640,7 @@ void RenderPassageClearOam(void)
 
     for (i = 0; i < 5; i++) {
         if (gPassageClearMediumParticles[i].type != 0) {
-            src = sPassageClearMediumParticleOamFrames[gPassageClearMediumParticles[i].type - 1];
+            src = GP(sPassageClearMediumParticleOamFrames[gPassageClearMediumParticles[i].type - 1]);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;
@@ -668,7 +668,7 @@ void RenderPassageClearOam(void)
 
     for (i = 0; i < 5; i++) {
         if (gPassageClearSlowParticles[i].type != 0) {
-            src = sPassageClearSlowParticleOamFrames[gPassageClearSlowParticles[i].type - 1];
+            src = GP(sPassageClearSlowParticleOamFrames[gPassageClearSlowParticles[i].type - 1]);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;

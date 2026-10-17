@@ -45,8 +45,8 @@ extern const s16 sUnk_83CF9EA[];
 extern const s16 sUnk_83CFA0A[];
 extern const s16 sUnk_83CFA7C[];
 extern const s16 sUnk_83CFACE[];
-extern const void *const sUnk_878F0E4[];
-extern const void *const sUnk_878F0F8[];
+extern GBA_PTR(const void *) const sUnk_878F0E4[];
+extern GBA_PTR(const void *) const sUnk_878F0F8[];
 
 void UpdateBossHealthGauge(void);
 void DespawnActiveCatbatProjectile(void)

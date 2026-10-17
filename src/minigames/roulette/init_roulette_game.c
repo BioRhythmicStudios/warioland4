@@ -358,7 +358,7 @@ void InitRouletteGame(void)
       }
       for (i = 0; i < 3; i++)
       {
-        gRouletteItemDrawOrder[i] = &gRouletteItems[i];
+        GP_SET(gRouletteItemDrawOrder[i], &gRouletteItems[i]);
       }
 
       *rouletteCounter = 48;

@@ -20,7 +20,7 @@ extern const struct BatAnimationFrame sBatFlyAnimation[];
 extern const struct BatAnimationFrame sBatLandAnimation[];
 extern const struct BatAnimationFrame sBatTurnAnimation[];
 extern const struct BatAnimationFrame sBatRecoverAnimation[];
-extern const struct BatGraphicsFrame* sBatGraphicsTable[];
+extern GBA_PTR(const struct BatGraphicsFrame*) sBatGraphicsTable[];
 extern const u8 sBatPoseData[];
 extern const u8 sBatPalette[];
 

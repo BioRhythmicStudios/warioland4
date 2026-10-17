@@ -15,9 +15,11 @@
 //   GP_POSTINC(x)             x++, and GP_PREINC, GP_POSTDEC, GP_PREDEC
 //   GF(x)                     the value of a function pointer, as a native function
 //   GF_SET(x, f)              stores the GBA address of the function f in x
+//   GBA_TYPEOF(T, expr)       type T on the GBA, the type of expr on the PC
 //
 // On the GBA every macro expands to the original expression, so agbcc's output is unchanged.
-// port/tools/gbaptr_rewrite.py converts the declarations and their uses.
+// port/tools/gbaptr_rewrite.py converts the declarations and their uses, and
+// port/tools/gbaptr_derived.py the locals and casts that point into converted tables.
 
 #ifdef PORTABLE
 
@@ -50,6 +52,10 @@ static inline u32 GbaPtrAddress_(__UINTPTR_TYPE__ address)
 #define GF(x) ((__typeof__((x).f_[0]))PortGbaFunctionToNative((x).a))
 #define GF_SET(x, f) ((void)(__typeof__((x).f_[0] = (f)) *)0, (x).a = PortNativeFunctionToGba((void (*)(void))(f)))
 
+// Every GBA_PTR() is its own union type, so a local that walks a table of them takes the
+// type of the table's element pointer on the PC.
+#define GBA_TYPEOF(T, expr) __typeof__(expr)
+
 #else
 
 #define GBA_PTR(T) T
@@ -66,6 +72,8 @@ static inline u32 GbaPtrAddress_(__UINTPTR_TYPE__ address)
 
 #define GF(x) (x)
 #define GF_SET(x, f) ((x) = (f))
+
+#define GBA_TYPEOF(T, expr) T
 
 #endif
 

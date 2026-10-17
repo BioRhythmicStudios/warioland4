@@ -57,13 +57,13 @@ extern const u8 sFileSelectBaseTilemapCompressed[];
 extern const u8 sFileSelectDefaultTilemapCompressed[];
 extern const u8 sFileSelectAlternateTilemapCompressed[];
 extern const u8 sFileSelectInterfaceTiles[];
-extern const u8* const sFileSelectCursorPositionPaths[];
-extern const u8* const sFileSelectCursorPathOffsets[];
-extern const u8* const sFileSelectSpriteAnimations[];
-extern const u8* const sFileSelectStageNameTableLanguage1[];
-extern const u8* const sFileSelectStageNameTableLanguage0[];
-extern const u8* const sFileSelectPassageNameTableLanguage1[];
-extern const u8* const sFileSelectPassageNameTableLanguage0[];
+extern GBA_PTR(const u8*) const sFileSelectCursorPositionPaths[];
+extern GBA_PTR(const u8*) const sFileSelectCursorPathOffsets[];
+extern GBA_PTR(const u8*) const sFileSelectSpriteAnimations[];
+extern GBA_PTR(const u8*) const sFileSelectStageNameTableLanguage1[];
+extern GBA_PTR(const u8*) const sFileSelectStageNameTableLanguage0[];
+extern GBA_PTR(const u8*) const sFileSelectPassageNameTableLanguage1[];
+extern GBA_PTR(const u8*) const sFileSelectPassageNameTableLanguage0[];
 
 void FileSelectVBlankCallback(void);
 void FileSelectSoundMainCallback(void);
@@ -629,7 +629,7 @@ void DrawFileSelectScoreTiles(u8 idx, u8 hidden)
             } while ((s32)digitPointer >= (s32)digits);
         }
     } else {
-        value = *(u32*)(sPrimarySaveHeaderBuffers[idx] + 32);
+        value = *(u32*)(GP(sPrimarySaveHeaderBuffers[idx]) + 32);
         digits[0] = (value / 10000) % 10;
         if (digits[0] != 0) {
             digits[0] |= attributes;

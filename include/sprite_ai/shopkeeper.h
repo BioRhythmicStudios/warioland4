@@ -247,6 +247,6 @@ extern const u16 sBugleNoteAffineAngleTable[];
 extern const u16 sShopkeeperItemTiles[];
 extern const s16 sSpriteGravityVelocityTable[];
 extern const u16 sSpriteAffineScaleTable[][2];
-extern const void* sShopkeeperGraphicsFramePointers[];
+extern GBA_PTR(const void*) sShopkeeperGraphicsFramePointers[];
 
 #endif /* SPRITE_AI_SHOPKEEPER_H */

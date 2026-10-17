@@ -20,7 +20,7 @@ void CopyWarioPalette(const void* source, u32 destination, u32 size);
 
 u8 UpdatePuffyWario(void)
 {
-    return sPuffyWarioPoseTable[gWarioData.pose]();
+    return GF(sPuffyWarioPoseTable[gWarioData.pose])();
 }
 
 u8 PuffyWarioTransforming(void)

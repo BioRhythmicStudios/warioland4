@@ -14,7 +14,7 @@
 
 u8 UpdateFatWario(void)
 {
-    return sFatWarioPoseTable[gWarioData.pose]();
+    return GF(sFatWarioPoseTable[gWarioData.pose])();
 }
 
 u8 FatWarioTransforming(void)
@@ -614,7 +614,7 @@ void LoadFatWarioGraphics(int variant)
     graphicsVariant = (u8)variant;
     UpdateWarioPositionHistory();
 
-    frame = sFatWarioGraphicsTable[gWarioData.pose][graphicsVariant];
+    frame = GP(sFatWarioGraphicsTable[gWarioData.pose][graphicsVariant]);
     frame += gWarioData.unk_1F;
     gfx = GP(frame->gfx);
     gWarioData.objData1Size = gfx[0] << 5;

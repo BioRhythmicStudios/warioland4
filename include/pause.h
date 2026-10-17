@@ -15,7 +15,7 @@ typedef struct AGB_ALIGN PauseAnimationState {
     u16 animationFrame;
 } PauseAnimationState;
 
-extern const struct AnimationFrame* gPauseScreenAnimation;
+extern GBA_PTR(const struct AnimationFrame*) gPauseScreenAnimation;
 extern struct PauseScreenState gPauseScreenState;
 extern PauseAnimationState gPauseJewelAnimationStates[4];
 extern PauseAnimationState gPauseCdAnimationState;

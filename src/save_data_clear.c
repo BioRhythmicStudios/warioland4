@@ -21,7 +21,7 @@ extern u8 sUnk_8746480[];
 extern u8 sUnk_8746680[];
 extern u8 sUnk_8746880[];
 extern u8 sUnk_8746926[];
-extern const u8* const sUnk_878F93C[];
+extern GBA_PTR(const u8*) const sUnk_878F93C[];
 
 extern void func_8092DA0(void);
 extern void func_8092DEC(void);

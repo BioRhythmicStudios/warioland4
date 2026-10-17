@@ -19,8 +19,8 @@ struct AGB_ALIGN DemoConfiguration {
 extern const u16 sDemoInputDmaWordCounts[];
 extern const struct DemoConfiguration sDemoConfigurations[];
 extern const u8 sDemoOrder[];
-extern const u16* const sDemoInputStreams[];
-extern const u16* const sDemoInputLengthStreams[];
+extern GBA_PTR(const u16*) const sDemoInputStreams[];
+extern GBA_PTR(const u16*) const sDemoInputLengthStreams[];
 
 extern u16 gDemoInputs[DEMO_INPUT_SIZE];
 extern u16 gDemoInputLengths[DEMO_INPUT_SIZE];

@@ -11,7 +11,7 @@ struct AGB_ALIGN FlamingWarioGraphicsFrame {
     u8 pad_09[3];
 };
 
-extern const struct FlamingWarioGraphicsFrame* const sFlamingWarioGraphicsTable[][2];
+extern GBA_PTR(const struct FlamingWarioGraphicsFrame*) const sFlamingWarioGraphicsTable[][2];
 extern const u8 sFlamingWarioPoseProperties[][8];
 extern const u8 sFlamingWarioBluePalette[];
 extern const u8 sFlamingWarioGreenPalette[];

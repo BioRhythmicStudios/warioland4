@@ -25,7 +25,7 @@ extern void func_8016614(u8 value);
 
 u8 UpdateFlatWario(void)
 {
-    return sFlatWarioPoseTable[gWarioData.pose]();
+    return GF(sFlatWarioPoseTable[gWarioData.pose])();
 }
 
 u8 FlatWarioTransforming(void)
@@ -406,7 +406,7 @@ void LoadFlatWarioGraphics(u8 value)
     const u8* graphics;
 
     UpdateWarioPositionHistory();
-    frame = sFlatWarioAnimationTable[gWarioData.pose][value];
+    frame = GP(sFlatWarioAnimationTable[gWarioData.pose][value]);
     frame += gWarioData.unk_1F;
     graphics = (const u8*)GP(frame->objData);
     gWarioData.objData1Size = *graphics++ << 5;

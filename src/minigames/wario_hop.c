@@ -62,8 +62,8 @@ extern const s32 sUnk_870CDE4[];
 extern const u32 sUnk_870CDF4[];
 extern const u32 sUnk_870CE04[];
 extern const u32 sUnk_870CDA8[];
-extern const struct AnimationFrame *const sUnk_870CE14[];
-extern const struct AnimationFrame *const sUnk_870CE24[];
+extern GBA_PTR(const struct AnimationFrame *) const sUnk_870CE14[];
+extern GBA_PTR(const struct AnimationFrame *) const sUnk_870CE24[];
 extern const s32 sUnk_870CE40[];
 extern const s32 sUnk_870CE5C[];
 extern const u32 sUnk_870CE78[];
@@ -72,8 +72,8 @@ extern const struct AnimationFrame sWarioHopMedalHighlightOam[];
 extern const struct AnimationFrame sWarioHopPlayerOam[];
 extern const struct AnimationFrame sWarioHopBonusEffectOam[];
 extern const struct AnimationFrame sWarioHopMedalEffectOam[];
-extern const u16 *sUnk_870D880;
-extern const u16 *sUnk_870D890;
+extern GBA_PTR(const u16 *) sUnk_870D880;
+extern GBA_PTR(const u16 *) sUnk_870D890;
 extern const u8 sUnk_870CC18[];
 extern const u8 sUnk_870CCE0[];
 extern const u16 sUnk_870CA28[][62];
@@ -971,10 +971,10 @@ void WarioHopDrawSprites(void)
 
     if (active != 0) {
         if (active == 1) {
-            src = sUnk_870D880;
+            src = GP(sUnk_870D880);
         }
         if (active == 2) {
-            src = sUnk_870D890;
+            src = GP(sUnk_870D890);
         }
         total += *(src++);
         for (; i < total; i++) {
@@ -1019,7 +1019,7 @@ void WarioHopDrawSprites(void)
         raw++;
     }
 
-    animation = sUnk_870CE14[gWarioHopSpeedLevel];
+    animation = GP(sUnk_870CE14[gWarioHopSpeedLevel]);
     if (gMinigameState <= 2) {
         gWarioHopPlayerShadow.animTimer++;
     }
@@ -1086,7 +1086,7 @@ void WarioHopDrawSprites(void)
 
     for (j = 0; j < 7; j++) {
         if (((struct WarioHopSmallState*)0x03004950)[j].type != 0) {
-            animation = sUnk_870CE24[((struct WarioHopSmallState*)0x03004950)[j].type - 1];
+            animation = GP(sUnk_870CE24[((struct WarioHopSmallState*)0x03004950)[j].type - 1]);
             ((struct WarioHopSmallState*)0x03004950)[j].animTimer++;
             if (animation[((struct WarioHopSmallState*)0x03004950)[j].animFrame].time <
                 ((struct WarioHopSmallState*)0x03004950)[j].animTimer) {

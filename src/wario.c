@@ -295,13 +295,13 @@ void WarioProcessControls(void)
     gPreviousXPosition = current->xPosition;
     gPreviousYPosition = current->yPosition;
 
-    poseRequest = sWarioPoseHandlerTable[current->reaction]();
+    poseRequest = GF(sWarioPoseHandlerTable[current->reaction])();
     if (poseRequest != 0xFF) {
-        sWarioPoseRequestFuncTable[current->reaction](poseRequest);
+        GF(sWarioPoseRequestFuncTable[current->reaction])(poseRequest);
     }
 
-    sUnk_82DED90[wario->reaction]();
-    sUnk_82DECD0[wario->reaction]();
+    GF(sUnk_82DED90[wario->reaction])();
+    GF(sUnk_82DECD0[wario->reaction])();
 
     if (gCurrentCarriedSprite.state != 0) {
         UpdateCarriedSpriteOffsets();
@@ -370,8 +370,8 @@ horizontalDone:
         collision->flags = 0x40;
     }
 
-    sUnk_82DED00[wario->reaction]();
-    sUnk_82DED90[wario->reaction]();
+    GF(sUnk_82DED00[wario->reaction])();
+    GF(sUnk_82DED90[wario->reaction])();
 }
 
 void ProcessWarioInteraction(void)
@@ -400,7 +400,7 @@ void ProcessWarioInteraction(void)
     } else {
         direction = 1;
     }
-    sUnk_82DED30[current->reaction](direction);
+    GF(sUnk_82DED30[current->reaction])(direction);
 
     if (current->reaction == REACTION_WATER) {
         if (gWarioWaterCollisionActive == 0) {
@@ -414,7 +414,7 @@ void ProcessWarioInteraction(void)
 void FinalizeWarioUpdate(void)
 {
     if (gSwitchPressed == 0 || gWarioData.reaction == REACTION_NORMAL) {
-        sUnk_82DED60[gWarioData.reaction]();
+        GF(sUnk_82DED60[gWarioData.reaction])();
     }
 
     switch (gPreviousReaction) {

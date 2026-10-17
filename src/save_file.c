@@ -18,9 +18,9 @@ extern const u8 sMainSaveHeaderSignature2[];
 extern const u8 sUsTitleSaveVersionString[];
 extern const u8 sSaveSlotValidationSignatures[];
 extern const u8 sStageSelectionSaveSignature[];
-extern u8* const sPrimarySaveHeaderBuffers[];
-extern u8* const sSecondarySaveHeaderBuffers[];
-extern u8* const sMainSaveDataBuffers[];
+extern GBA_PTR(u8*) const sPrimarySaveHeaderBuffers[];
+extern GBA_PTR(u8*) const sSecondarySaveHeaderBuffers[];
+extern GBA_PTR(u8*) const sMainSaveDataBuffers[];
 
 extern u8 gLanguage;
 extern u8 gUnk_300001C;
@@ -71,7 +71,7 @@ extern u8 gStageRoomTableIndex;
 extern u32 gUnk_3000040;
 extern const u8 sTemporarySaveHeaderSignature1[];
 extern const u8 sTemporarySaveHeaderSignature2[];
-extern u8* const sStageSelectionSaveBuffers[];
+extern GBA_PTR(u8*) const sStageSelectionSaveBuffers[];
 extern u8 gDifficulty;
 extern u16 gMedalCount;
 extern u32 gTotalScore;
@@ -1601,8 +1601,8 @@ void DmaLoadSelectedSaveFileBlocks(void)
     vu32* dma;
 
     dma = (vu32*)0x040000D4;
-    dma[0] = (u32)sPrimarySaveHeaderBuffers[gSelectedSaveFile];
-    dma[1] = (u32)sSecondarySaveHeaderBuffers[gSelectedSaveFile];
+    dma[0] = (u32)GP(sPrimarySaveHeaderBuffers[gSelectedSaveFile]);
+    dma[1] = (u32)GP(sSecondarySaveHeaderBuffers[gSelectedSaveFile]);
     dma[2] = 0x80000100;
     func_8000F90(dma[2]);
 }
@@ -1826,9 +1826,9 @@ u32 ValidateAndClearSaveSlotCopy(u8 copy, u8 selectedFile)
     footerMismatch = 0;
 
     if (copy == 0) {
-        save = sPrimarySaveHeaderBuffers[selectedFile];
+        save = GP(sPrimarySaveHeaderBuffers[selectedFile]);
     } else {
-        save = sSecondarySaveHeaderBuffers[selectedFile];
+        save = GP(sSecondarySaveHeaderBuffers[selectedFile]);
     }
 
     checksumStorage = &gUnk_3000040;
@@ -1930,7 +1930,7 @@ u32 ValidateMainSaveSlot(u8 selectedFile, u32 statusValue)
     headerMismatch = result;
     footerMismatch = result;
     gSelectedSaveFile = selected;
-    save = sMainSaveDataBuffers[selected];
+    save = GP(sMainSaveDataBuffers[selected]);
 
     checksumStorage = &gUnk_3000040;
     *checksumStorage = save[4];
@@ -2048,12 +2048,12 @@ void FlushSaveFileAndMaybeRestoreTempSave(void)
 
     if (gSelectedSaveFile == 1) {
         dma = (vu32*)0x040000D4;
-        dma[0] = (u32)sPrimarySaveHeaderBuffers[1];
-        dma[1] = (u32)sPrimarySaveHeaderBuffers[0];
+        dma[0] = (u32)GP(sPrimarySaveHeaderBuffers[1]);
+        dma[1] = (u32)GP(sPrimarySaveHeaderBuffers[0]);
         dma[2] = 0x80000200;
         (void)dma[2];
-        dma[0] = (u32)sMainSaveDataBuffers[1];
-        dma[1] = (u32)sMainSaveDataBuffers[0];
+        dma[0] = (u32)GP(sMainSaveDataBuffers[1]);
+        dma[1] = (u32)GP(sMainSaveDataBuffers[0]);
         dma[2] = 0x80001C00;
         (void)dma[2];
     }
@@ -2073,12 +2073,12 @@ void FlushSaveFileAndRefreshSaveData(void)
 
     if (gSelectedSaveFile == 1) {
         dma = (vu32*)0x040000D4;
-        dma[0] = (u32)sPrimarySaveHeaderBuffers[1];
-        dma[1] = (u32)sPrimarySaveHeaderBuffers[0];
+        dma[0] = (u32)GP(sPrimarySaveHeaderBuffers[1]);
+        dma[1] = (u32)GP(sPrimarySaveHeaderBuffers[0]);
         dma[2] = 0x80000200;
         (void)dma[2];
-        dma[0] = (u32)sMainSaveDataBuffers[1];
-        dma[1] = (u32)sMainSaveDataBuffers[0];
+        dma[0] = (u32)GP(sMainSaveDataBuffers[1]);
+        dma[1] = (u32)GP(sMainSaveDataBuffers[0]);
         dma[2] = 0x80001C00;
         (void)dma[2];
     }
@@ -2314,7 +2314,7 @@ u32 ValidateStageSelectionSaveSlot(u8 selectedFile)
     u32 passage;
     register u32 stage PIN("r5");
 
-    data = sStageSelectionSaveBuffers[selectedFile];
+    data = GP(sStageSelectionSaveBuffers[selectedFile]);
     save = data;
     if (data[0] != 0) {
         data++;
@@ -2474,10 +2474,6 @@ extern const u8 sTemporarySaveHeaderSignature1[16];
 extern const u8 sTemporarySaveHeaderSignature2[16];
 extern const u8 sUsTitleSaveVersionString[20];
 extern const u8 sJpTitleSaveVersionString[20];
-extern u8* const sPrimarySaveHeaderBuffers[2];
-extern u8* const sSecondarySaveHeaderBuffers[2];
-extern u8* const sMainSaveDataBuffers[2];
-extern u8* const sStageSelectionSaveBuffers[2];
 extern const u8 sSaveSlotValidationSignatures[18];
 extern const u8 sStageSelectionSaveSignature[16];
 extern const u8 sPassageNameValidationStrings[48];

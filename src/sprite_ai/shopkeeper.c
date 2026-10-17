@@ -89,7 +89,7 @@ void ShopkeeperUpdateGraphicsScript(const u8* script)
         *(u8*)temp = delay;
     }
     dma = (struct ShopkeeperDmaRegisters*)0x40000D4;
-    src = (const u8*)sShopkeeperGraphicsFramePointers[frame];
+    src = (const u8*)GP(sShopkeeperGraphicsFramePointers[frame]);
     GP_SET(dma->src, src);
     GP_SET(dma->dst, (void*)0x6012400);
     dma->control = 0x80000080;
@@ -544,9 +544,9 @@ void InitShopkeeper(void)
         s->xPosition = value;
         value = gCurrentPassage;
         if (value == 5 || gCurrentShopItem != 0) {
-            sWarioPoseRequestFuncTable[gWarioData.reaction](55);
+            GF(sWarioPoseRequestFuncTable[gWarioData.reaction])(55);
         } else {
-            sWarioPoseRequestFuncTable[gWarioData.reaction](56);
+            GF(sWarioPoseRequestFuncTable[gWarioData.reaction])(56);
         }
     }
 }

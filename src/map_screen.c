@@ -25,7 +25,7 @@ extern u8 gUnk_3003C6E;
 extern u16 gUnk_3003C6C;
 extern u16 gUnk_3003C70;
 extern u16 gUnk_3003C78[];
-extern const struct AnimationFrame* gUnk_3003C64;
+extern GBA_PTR(const struct AnimationFrame*) gUnk_3003C64;
 extern u8 gUnk_3003C96;
 extern const u16 sUnk_864BD58[];
 extern u8 gCurrentPassage;
@@ -33,7 +33,7 @@ extern u8 gCurrentStageNumber;
 extern u8 gUnk_3003C94;
 extern u8 gStageEntryMainSpriteFalling;
 extern u16 gStageEntryMainSpriteState[];
-extern const struct AnimationFrame* gUnk_3003C40;
+extern GBA_PTR(const struct AnimationFrame*) gUnk_3003C40;
 extern u16 gUnk_3003C88[];
 extern u16 gStageEntryWindowLeft;
 extern u16 gStageEntryWindowRight;
@@ -44,9 +44,9 @@ extern const s32 sUnk_8639510[];
 extern const s32 sUnk_863951C[];
 extern const s32 sUnk_863926C[];
 extern const s32 sUnk_8639288[];
-extern const struct AnimationFrame* const sUnk_86392C0[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_86392C0[];
 extern const s32 sUnk_8639528[];
-extern const struct AnimationFrame* gUnk_3003C68;
+extern GBA_PTR(const struct AnimationFrame*) gUnk_3003C68;
 extern u32 gStageEntryShakeMode;
 extern s16 gSoundRoomMessageTimer;
 extern const struct AnimationFrame sUnk_86404A4[];
@@ -84,7 +84,7 @@ extern const s32 sUnk_86395A4[];
 extern const struct AnimationFrame sUnk_8640B28[];
 extern const s32 sUnk_8639534[];
 extern const s32 sUnk_8639550[];
-extern const struct AnimationFrame* const sUnk_8639618[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_8639618[];
 extern const u16 sUnk_8640A58[];
 extern const struct AnimationFrame sUnk_863FF84[];
 void VoiceSetPlay(s32 voice);
@@ -98,8 +98,8 @@ extern const u16 sUnk_864BDB8[];
 extern const u16 sUnk_864BDD8[];
 
 extern u8 gLanguage;
-extern const u16* const sFileSelectStageNameTableLanguage0[];
-extern const u16* const sFileSelectStageNameTableLanguage1[];
+extern GBA_PTR(const u16*) const sFileSelectStageNameTableLanguage0[];
+extern GBA_PTR(const u16*) const sFileSelectStageNameTableLanguage1[];
 s32 UpdateStageEntryHorizontalShake(void);
 void Shop_DrawText(const u16* text, u32 dst, u32 unused);
 
@@ -116,16 +116,16 @@ int UpdateMapScreen(void)
                 gUnk_3003C94 = 3;
             }
 
-            gUnk_3003C40 = sUnk_86392C0[gStageEntryMainSpriteFalling];
+            GP_SET(gUnk_3003C40, GP(sUnk_86392C0[gStageEntryMainSpriteFalling]));
             AdvanceMapScreenWarioAnimation();
             UpdateMapScreenTreasurePalettes();
 
             if (gStageEntryMainSpriteFalling == 1) {
-                gUnk_3003C64 = sUnk_86404A4;
+                GP_SET(gUnk_3003C64, sUnk_86404A4);
                 gUnk_3003C78[0] = 0;
                 gUnk_3003C78[1] = 0;
             } else {
-                gUnk_3003C64 = sUnk_8640394;
+                GP_SET(gUnk_3003C64, sUnk_8640394);
             }
 
             AdvanceMapScreenDoorAnimation();
@@ -304,13 +304,13 @@ void InitMapScreen(void)
     mainState[4] = sUnk_863926C[gCurrentPassage] << 5;
     mainState[5] = sUnk_8639288[gCurrentPassage] << 5;
     gStageEntryMainSpriteFalling = zero8;
-    gUnk_3003C40 = sUnk_86392C0[0];
+    GP_SET(gUnk_3003C40, GP(sUnk_86392C0[0]));
     gUnk_3003C74[0] = zero16;
     gUnk_3003C74[1] = zero16;
     gUnk_3003C96 = zero8;
     gUnk_3003C78[0] = zero16;
     gUnk_3003C78[1] = zero16;
-    gUnk_3003C64 = sUnk_86404A4;
+    GP_SET(gUnk_3003C64, sUnk_86404A4);
     gUnk_3003C60 = 5;
     gUnk_3003C7C[0] = zero16;
     gUnk_3003C7C[1] = zero16;
@@ -360,7 +360,7 @@ void InitMapScreen(void)
     gUnk_3003C88[3] = 0;
     gUnk_3003C88[0] = sUnk_8639510[*mapMode] << 4;
     gUnk_3003C88[1] = sUnk_863951C[*mapMode] << 4;
-    gUnk_3003C68 = (const struct AnimationFrame*)sUnk_8639528[*mapMode];
+    GP_SET(gUnk_3003C68, (const struct AnimationFrame*)sUnk_8639528[*mapMode]);
 
     {
         vu16* scroll;
@@ -453,10 +453,10 @@ void StartMapScreenIntroSequence(void)
     gUnk_3003C6C = 0;
     InitMapScreen();
     gUnk_3003C94 = 1;
-    gUnk_3003C64 = sUnk_8640404;
+    GP_SET(gUnk_3003C64, sUnk_8640404);
     gStageEntryMainSpriteState[4] = 0xF00;
     gStageEntryMainSpriteState[5] = 0x1900;
-    gUnk_3003C40 = sUnk_8640900;
+    GP_SET(gUnk_3003C40, sUnk_8640900);
 }
 
 void StartMapScreenFinalPassageIntro(void)
@@ -482,10 +482,10 @@ void StartMapScreenFinalPassageIntro(void)
     value = table[5] + 42;
     position[5] = value << 5;
 
-    gUnk_3003C40 = sUnk_86392C0[1];
+    GP_SET(gUnk_3003C40, GP(sUnk_86392C0[1]));
     gUnk_3003C88[0] = sUnk_8639510[1] << 4;
     gUnk_3003C88[1] = sUnk_863951C[1] << 4;
-    gUnk_3003C68 = sUnk_8639528[1];
+    GP_SET(gUnk_3003C68, sUnk_8639528[1]);
     gStageEntryShakeMode = 2;
     m4aSongNumStart(0x1AB);
 }
@@ -717,12 +717,12 @@ void UpdateMapScreenBackgroundsAndText(void)
     language = gLanguage;
     switch (language) {
         case 0:
-            text = sFileSelectStageNameTableLanguage0[gCurrentPassage];
+            text = GP(sFileSelectStageNameTableLanguage0[gCurrentPassage]);
             Shop_DrawText(text, 0x7800, 26);
             break;
 
         case 1:
-            text = sFileSelectStageNameTableLanguage1[gCurrentPassage];
+            text = GP(sFileSelectStageNameTableLanguage1[gCurrentPassage]);
             Shop_DrawText(text, 0x7800, 26);
             break;
     }
@@ -797,12 +797,12 @@ void UpdateMapScreenIntroSequence(void)
                 m4aSongNumStart(0x1B2);
             }
             gUnk_3003C78[0]++;
-            if (gUnk_3003C64[gUnk_3003C78[1]].time < gUnk_3003C78[0]) {
+            if (GP(gUnk_3003C64)[gUnk_3003C78[1]].time < gUnk_3003C78[0]) {
                 gUnk_3003C78[0] = 1;
                 gUnk_3003C78[1]++;
-                if (gUnk_3003C64[gUnk_3003C78[1]].time == 0) {
+                if (GP(gUnk_3003C64)[gUnk_3003C78[1]].time == 0) {
                     gStageEntrySequenceStep++;
-                    gUnk_3003C64 = sUnk_8640454;
+                    GP_SET(gUnk_3003C64, sUnk_8640454);
                     gUnk_3003C78[0] = 0;
                     gUnk_3003C78[1] = 0;
                     gStageEntryMainSpriteState[5] = 0x400;
@@ -826,7 +826,7 @@ void UpdateMapScreenIntroSequence(void)
                 gStageEntryShakeMode = 4;
                 gStageEntryMainSpriteState[1] = 0;
                 gStageEntryMainSpriteState[0] = 0;
-                gUnk_3003C40 = sUnk_86409E0;
+                GP_SET(gUnk_3003C40, sUnk_86409E0);
                 VoiceSetPlay(4);
                 m4aSongNumStart(0x1B4);
                 gStageEntrySequenceStep++;
@@ -835,13 +835,13 @@ void UpdateMapScreenIntroSequence(void)
 
         case 2:
             gStageEntryMainSpriteState[0]++;
-            if (gUnk_3003C40[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
+            if (GP(gUnk_3003C40)[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
                 gStageEntryMainSpriteState[0] = 1;
                 gStageEntryMainSpriteState[1]++;
-                if (gUnk_3003C40[gStageEntryMainSpriteState[1]].time == 0) {
+                if (GP(gUnk_3003C40)[gStageEntryMainSpriteState[1]].time == 0) {
                     gStageEntryShakeMode = 0;
                     gStageEntryShakeTimer = 0;
-                    gUnk_3003C40 = sUnk_8640960;
+                    GP_SET(gUnk_3003C40, sUnk_8640960);
                     gStageEntrySequenceStep++;
                     gStageEntryMainSpriteState[0] = 0;
                     gStageEntryMainSpriteState[1] = 0;
@@ -851,28 +851,28 @@ void UpdateMapScreenIntroSequence(void)
 
         case 3:
             gUnk_3003C78[0]++;
-            if (gUnk_3003C64[gUnk_3003C78[1]].time < gUnk_3003C78[0]) {
+            if (GP(gUnk_3003C64)[gUnk_3003C78[1]].time < gUnk_3003C78[0]) {
                 gUnk_3003C78[0] = 1;
                 gUnk_3003C78[1]++;
-                if ((gUnk_3003C78[1] == 1) && (gUnk_3003C64 != sUnk_86404A4)) {
+                if ((gUnk_3003C78[1] == 1) && (GP(gUnk_3003C64) != sUnk_86404A4)) {
                     m4aSongNumStart(0x1B2);
                 }
-                if (gUnk_3003C64[gUnk_3003C78[1]].time == 0) {
-                    gUnk_3003C64 = sUnk_86404A4;
+                if (GP(gUnk_3003C64)[gUnk_3003C78[1]].time == 0) {
+                    GP_SET(gUnk_3003C64, sUnk_86404A4);
                     gUnk_3003C78[0] = 0;
                     gUnk_3003C78[1] = 0;
                 }
             }
 
             gStageEntryMainSpriteState[0]++;
-            if (gUnk_3003C40[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
+            if (GP(gUnk_3003C40)[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
                 gStageEntryMainSpriteState[0] = 1;
                 gStageEntryMainSpriteState[1]++;
                 if ((gStageEntryMainSpriteState[1] == 1) || (gStageEntryMainSpriteState[1] == 3)) {
                     m4aSongNumStart(8);
                 }
-                if (gUnk_3003C40[gStageEntryMainSpriteState[1]].time == 0) {
-                    gUnk_3003C40 = sUnk_8640858;
+                if (GP(gUnk_3003C40)[gStageEntryMainSpriteState[1]].time == 0) {
+                    GP_SET(gUnk_3003C40, sUnk_8640858);
                     gUnk_3003C94 = 0;
                     gStageEntrySequenceStep = 0;
                     gUnk_3003C78[0] = 0;
@@ -907,7 +907,7 @@ void UpdateMapScreenBossUnlockSequence(void)
                 gStageEntryShakeMode = 2;
                 gStageEntryMainSpriteFalling = 1;
                 m4aSongNumStart(8);
-                gUnk_3003C40 = sUnk_86392C0[gStageEntryMainSpriteFalling];
+                GP_SET(gUnk_3003C40, GP(sUnk_86392C0[gStageEntryMainSpriteFalling]));
             }
             break;
 
@@ -1001,7 +1001,7 @@ void UpdateMapScreenFinalPassageSequence(void)
                 gStageEntrySequenceStep++;
                 gStageEntryShakeTimer = zero1;
                 *shakeMode = 1;
-                gUnk_3003C68 = sUnk_863FD1C;
+                GP_SET(gUnk_3003C68, sUnk_863FD1C);
                 gUnk_3003C88[2] = zero2;
                 gUnk_3003C88[3] = zero2;
                 m4aSongNumStart(0x1C9);
@@ -1011,15 +1011,15 @@ void UpdateMapScreenFinalPassageSequence(void)
 
         case 2:
             gUnk_3003C88[2]++;
-            if (gUnk_3003C68[gUnk_3003C88[3]].time < gUnk_3003C88[2]) {
+            if (GP(gUnk_3003C68)[gUnk_3003C88[3]].time < gUnk_3003C88[2]) {
                 gUnk_3003C88[2] = 1;
                 gUnk_3003C88[3]++;
                 if (gUnk_3003C88[3] == 3) {
                     gStageEntryShakeMode = 1;
                 }
-                if (gUnk_3003C68[gUnk_3003C88[3]].time == 0) {
+                if (GP(gUnk_3003C68)[gUnk_3003C88[3]].time == 0) {
                     gUnk_3003C88[3] = 0;
-                    gUnk_3003C68 = sUnk_8639528[2];
+                    GP_SET(gUnk_3003C68, sUnk_8639528[2]);
                     gStageEntrySequenceStep++;
                     {
                         u16* velocityPtr;
@@ -1064,7 +1064,7 @@ int UpdateMapScreenStageStartTransition(void)
     switch (gStageEntrySequenceStep) {
         case 0:
             gStageEntryMainSpriteFalling = sUnk_86395FC[gCurrentPassage];
-            gUnk_3003C40 = sUnk_86392C0[gStageEntryMainSpriteFalling];
+            GP_SET(gUnk_3003C40, GP(sUnk_86392C0[gStageEntryMainSpriteFalling]));
 
             velocity = &gUnk_3003C46;
             *velocity = ((sUnk_86395C4[gCurrentPassage] - sUnk_863926C[gCurrentPassage]) << 5) / 12;
@@ -1101,7 +1101,7 @@ void AdvanceMapScreenWarioAnimation(void)
     timer += 1;
     state[0] = timer;
     frame = state[1];
-    animation = gUnk_3003C40;
+    animation = GP(gUnk_3003C40);
     frame <<= 3;
     frame += (u32)animation;
     frame = *(u8*)(frame + 4);
@@ -1128,7 +1128,7 @@ void AdvanceMapScreenWarioAnimation(void)
 
             state2 = gStageEntryMainSpriteState;
             timer = state2[1];
-            animation2 = gUnk_3003C40;
+            animation2 = GP(gUnk_3003C40);
             timer <<= 3;
             timer += (u32)animation2;
             timer = *(u8*)(timer + 4);
@@ -1152,7 +1152,7 @@ void AdvanceMapScreenDoorAnimation(void)
     timer += 1;
     state[0] = timer;
     frame = state[1];
-    animation = gUnk_3003C64;
+    animation = GP(gUnk_3003C64);
     duration = animation[frame].time;
 
     if (duration < (u16)timer) {
@@ -1401,7 +1401,7 @@ void DrawMapScreenSprites(void)
     } while (0);
     if (*((s16*)&gUnk_3003C6C) != 0) {
         u16* mainState;
-        frame = GP(gUnk_3003C40[gStageEntryMainSpriteState[1]].oam);
+        frame = GP(GP(gUnk_3003C40)[gStageEntryMainSpriteState[1]].oam);
         do {
             count = *frame;
             used += count;
@@ -1597,10 +1597,10 @@ void DrawMapScreenSprites(void)
     }
     if ((gUnk_3003C94 != 4) || (gStageEntrySequenceStep != 2)) {
         gUnk_3003C88[2]++;
-        if (gUnk_3003C68[gUnk_3003C88[3]].time < gUnk_3003C88[2]) {
+        if (GP(gUnk_3003C68)[gUnk_3003C88[3]].time < gUnk_3003C88[2]) {
             gUnk_3003C88[2] = 1;
             gUnk_3003C88[3]++;
-            if (gUnk_3003C68[gUnk_3003C88[3]].time == 0) {
+            if (GP(gUnk_3003C68)[gUnk_3003C88[3]].time == 0) {
                 gUnk_3003C88[3] = 0;
             }
         }
@@ -1608,7 +1608,7 @@ void DrawMapScreenSprites(void)
     if (gUnk_3003C95 != 0) {
         u16* spriteState;
         spriteState = gUnk_3003C88;
-        frame = GP(gUnk_3003C68[spriteState[3]].oam);
+        frame = GP(GP(gUnk_3003C68)[spriteState[3]].oam);
         do {
             count = *frame;
             used += count;
@@ -1659,7 +1659,7 @@ void DrawMapScreenSprites(void)
     }
     if (*((s16*)&gUnk_3003C6C) == 0) {
         u16* mainStateZero;
-        frame = GP(gUnk_3003C40[gStageEntryMainSpriteState[1]].oam);
+        frame = GP(GP(gUnk_3003C40)[gStageEntryMainSpriteState[1]].oam);
         do {
             count = *frame;
             used += count;
@@ -1784,7 +1784,7 @@ void DrawMapScreenSprites(void)
                 }
             } while (0);
         } else {
-            animation = sUnk_8639618[*stageSelectPtr - 3];
+            animation = GP(sUnk_8639618[*stageSelectPtr - 3]);
             state = gUnk_3003C7C;
             state[0]++;
             if (animation[state[1]].time < state[0]) {
@@ -1863,7 +1863,7 @@ void DrawMapScreenSprites(void)
         u8* modePtrCheck;
         modePtrCheck = &gUnk_3003C94;
         if (*modePtrCheck <= 3) {
-            frame = GP(gUnk_3003C64[gUnk_3003C78[1]].oam);
+            frame = GP(GP(gUnk_3003C64)[gUnk_3003C78[1]].oam);
             do {
                 count = *frame;
                 used += count;

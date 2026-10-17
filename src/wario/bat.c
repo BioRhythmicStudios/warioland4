@@ -26,7 +26,7 @@
 
 u8 UpdateBatWario(void)
 {
-    return sBatWarioPoseTable[gWarioData.pose]();
+    return GF(sBatWarioPoseTable[gWarioData.pose])();
 }
 
 u8 BatWarioTransforming(void)

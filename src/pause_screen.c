@@ -19,8 +19,8 @@ struct AGB_ALIGN DmaRegisters {
 extern u8 gLanguage;
 extern u8 gCurrentStageNumber;
 extern u8 gCurrentPassage;
-extern const u8* const sFileSelectPassageNameTableLanguage0[][6];
-extern const u8* const sFileSelectPassageNameTableLanguage1[][6];
+extern GBA_PTR(const u8*) const sFileSelectPassageNameTableLanguage0[][6];
+extern GBA_PTR(const u8*) const sFileSelectPassageNameTableLanguage1[][6];
 extern void Shop_DrawText(const u8* str, u32 tileBase, u32 param);
 extern void m4aMPlayContinue(struct MusicPlayerInfo* mplayInfo);
 extern u16 gUnk_3000000;
@@ -45,9 +45,9 @@ extern const s32 sUnk_86D36A4[];
 extern const s32 sUnk_86D36B8[];
 extern const s32 sUnk_86D36CC[];
 extern const s32 sUnk_86D36D4[];
-extern const struct AnimationFrame* const sUnk_86D36DC[][4];
-extern const struct AnimationFrame* const sUnk_86D36FC[];
-extern const struct AnimationFrame* const sUnk_86D370C[2][2];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_86D36DC[][4];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_86D36FC[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_86D370C[2][2];
 extern const struct AnimationFrame sUnk_86D3CF8[];
 extern const struct AnimationFrame sUnk_86D3D08[];
 extern const struct AnimationFrame sUnk_86D3DB0[];
@@ -119,7 +119,7 @@ u32 PauseScreenSubroutine(void)
             result_r0 = UpdatePauseScreenConfirmation();
             if (result_r0 == 1) {
                 gUnk_3000000 = 4;
-                gPauseScreenAnimation = sUnk_86D3F58;
+                GP_SET(gPauseScreenAnimation, sUnk_86D3F58);
                 gPauseScreenState.animationFrame = 0;
                 gPauseScreenState.animationTimer = 0;
                 if (gPauseScreenState.confirmedSelection == 1) {
@@ -162,10 +162,10 @@ void PauseScreenVBlank(void)
 
     switch (gLanguage) {
         case 0:
-            Shop_DrawText(sFileSelectPassageNameTableLanguage0[gCurrentPassage][gCurrentStageNumber], 0x7800, 26);
+            Shop_DrawText(GP(sFileSelectPassageNameTableLanguage0[gCurrentPassage][gCurrentStageNumber]), 0x7800, 26);
             break;
         case 1:
-            Shop_DrawText(sFileSelectPassageNameTableLanguage1[gCurrentPassage][gCurrentStageNumber], 0x7800, 26);
+            Shop_DrawText(GP(sFileSelectPassageNameTableLanguage1[gCurrentPassage][gCurrentStageNumber]), 0x7800, 26);
             break;
     }
 }
@@ -403,7 +403,7 @@ void InitializePauseScreen(void)
     gColorFading.uploadFlags = 3;
     FillColorFadePalettes();
 
-    gPauseScreenAnimation = sUnk_86D3F40;
+    GP_SET(gPauseScreenAnimation, sUnk_86D3F40);
     gPauseScreenState.animationTimer = 0;
     gPauseScreenState.animationFrame = 0;
     gPauseScreenState.selection = 0;
@@ -561,7 +561,7 @@ u32 UpdatePauseScreenSelection(void)
         case 0:
             buttons = gButtonsPressed;
             if (buttons & 1) {
-                gPauseScreenAnimation = sUnk_86D3F58;
+                GP_SET(gPauseScreenAnimation, sUnk_86D3F58);
                 gPauseScreenState.animationFrame = 0;
                 gPauseScreenState.animationTimer = 0;
                 gPauseFlag = 1;
@@ -715,17 +715,17 @@ void RenderPauseScreenOam(void)
     dest = (u16*)&gOamBuffer[nextSlot];
 
     gPauseScreenState.animationTimer++;
-    if (gPauseScreenAnimation[gPauseScreenState.animationFrame].time < gPauseScreenState.animationTimer) {
+    if (GP(gPauseScreenAnimation)[gPauseScreenState.animationFrame].time < gPauseScreenState.animationTimer) {
         gPauseScreenState.animationTimer = 1;
         gPauseScreenState.animationFrame++;
-        if (gPauseScreenAnimation[gPauseScreenState.animationFrame].time == 0) {
+        if (GP(gPauseScreenAnimation)[gPauseScreenState.animationFrame].time == 0) {
             gPauseScreenState.animationFrame = 0;
-            if (gPauseScreenAnimation == sUnk_86D3F58) {
+            if (GP(gPauseScreenAnimation) == sUnk_86D3F58) {
                 gPauseScreenState.animationFrame = 1;
             }
         }
     }
-    src = GP(gPauseScreenAnimation[gPauseScreenState.animationFrame].oam);
+    src = GP(GP(gPauseScreenAnimation)[gPauseScreenState.animationFrame].oam);
     nextSlot += *(src++);
     if (nextSlot > 128) {
         return;
@@ -744,9 +744,9 @@ void RenderPauseScreenOam(void)
 
     if ((u8)(gPauseScreenState.selection - 3) <= 1) {
         if (gLanguage == 0) {
-            animation = sUnk_86D370C[0][gPauseScreenState.selection - 3];
+            animation = GP(sUnk_86D370C[0][gPauseScreenState.selection - 3]);
         } else {
-            animation = sUnk_86D370C[1][gPauseScreenState.selection - 3];
+            animation = GP(sUnk_86D370C[1][gPauseScreenState.selection - 3]);
         }
         src = GP(animation->oam);
         nextSlot += *(src++);
@@ -827,7 +827,7 @@ void RenderPauseScreenOam(void)
 
     for (i = 0; i < 4; i++) {
         if (gPauseJewelPieceStates[i] == 2) {
-            animation = sUnk_86D36FC[i];
+            animation = GP(sUnk_86D36FC[i]);
             gPauseJewelAnimationStates[i].animationTimer++;
             if (animation[gPauseJewelAnimationStates[i].animationFrame].time <
                 gPauseJewelAnimationStates[i].animationTimer) {
@@ -855,7 +855,7 @@ void RenderPauseScreenOam(void)
             }
         }
         if (gPauseAllJewelPiecesCollected == 0 && gPauseJewelPieceStates[i] != 0) {
-            animation = sUnk_86D36DC[gPauseJewelPieceStates[i] - 1][i];
+            animation = GP(sUnk_86D36DC[gPauseJewelPieceStates[i] - 1][i]);
             src = GP(animation->oam);
             nextSlot += *(src++);
             if (nextSlot > 128) {

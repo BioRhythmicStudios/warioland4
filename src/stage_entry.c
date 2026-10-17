@@ -214,7 +214,7 @@ void InitializeStageEntrySceneGraphics(void)
             {
                 vu32* dma4;
                 dma4 = (vu32*)0x040000D4;
-                dma4[0] = (u32)sStageEntryPassagePalettes[gCurrentPassage];
+                dma4[0] = (u32)GP(sStageEntryPassagePalettes[gCurrentPassage]);
                 ASM_BARRIER_VOLATILE(: : "r"(dma3Scratch));
                 dma4[1] = 0x05000000;
                 dma4[2] = 0x80000100;
@@ -275,7 +275,7 @@ copyNormalStageGraphics: {
     u8* normalSelectedStage;
     ASM_BARRIER_VOLATILE(: "=r"(normalSelectedStage));
     dma = (vu32*)0x040000D4;
-    dma[0] = (u32)sStageEntryStagePalettes[gCurrentPassage][(*normalSelectedStage) - 1];
+    dma[0] = (u32)GP(sStageEntryStagePalettes[gCurrentPassage][(*normalSelectedStage) - 1]);
     {
         u32 normalOffset;
         normalOffset = (*normalSelectedStage) << 5;
@@ -296,7 +296,7 @@ afterStageGraphics:
         dma = (vu32*)0x040000D4;
         {
             register u8* keyzerStagePtr PIN("r4");
-            dma[0] = (u32)sStageEntryStagePalettes[gCurrentPassage][*(keyzerStagePtr = &gCurrentStageNumber)];
+            dma[0] = (u32)GP(sStageEntryStagePalettes[gCurrentPassage][*(keyzerStagePtr = &gCurrentStageNumber)]);
             dma[1] = 0x05000140 + ((*keyzerStagePtr) << 5);
             ASM_BARRIER_VOLATILE(: : "r"(keyzerStagePtr));
         }
@@ -330,7 +330,7 @@ afterStageGraphics:
     scroll = GetStageEntryWrappedScrollValue(horizontalScroll);
     if (scroll <= 255) {
         dma = (vu32*)0x040000D4;
-        dma[0] = (u32)sStageEntryBg0TilemapChunkTable[(gCurrentPassage * 7) + (*stageVariant)];
+        dma[0] = (u32)GP(sStageEntryBg0TilemapChunkTable[(gCurrentPassage * 7) + (*stageVariant)]);
         dma[1] = 0x0600C000;
         dma[2] = 0x80000400;
         dma[2];
@@ -338,13 +338,13 @@ afterStageGraphics:
         }
 
         dma = (vu32*)0x040000D4;
-        dma[0] = (u32)sStageEntryBg1TilemapChunkTable[(gCurrentPassage * 7) + (*stageVariant)];
+        dma[0] = (u32)GP(sStageEntryBg1TilemapChunkTable[(gCurrentPassage * 7) + (*stageVariant)]);
         dma[1] = 0x0600D000;
         dma[2] = 0x80000400;
         dma[2];
     } else {
         dma = (vu32*)0x040000D4;
-        dma[0] = (u32)sStageEntryBg0TilemapChunkTable[(gCurrentPassage * 7) + (*stageVariant)];
+        dma[0] = (u32)GP(sStageEntryBg0TilemapChunkTable[(gCurrentPassage * 7) + (*stageVariant)]);
         dma[1] = 0x0600C800;
         dma[2] = 0x80000400;
         dma[2];
@@ -352,7 +352,7 @@ afterStageGraphics:
         }
 
         dma = (vu32*)0x040000D4;
-        dma[0] = (u32)sStageEntryBg1TilemapChunkTable[(gCurrentPassage * 7) + (*stageVariant)];
+        dma[0] = (u32)GP(sStageEntryBg1TilemapChunkTable[(gCurrentPassage * 7) + (*stageVariant)]);
         dma[1] = 0x0600D800;
         dma[2] = 0x80000400;
         dma[2];
@@ -410,7 +410,7 @@ void InitializeStageEntryState(void)
         gStageEntryCompanionKeyzerState.frame = 0;
         gStageEntryCompanionKeyzerState.x = 220;
         gStageEntryCompanionKeyzerState.y = 142;
-        gStageEntryCompanionKeyzerAnimation = sStageEntryKeyzerCompanionAnimation;
+        GP_SET(gStageEntryCompanionKeyzerAnimation, sStageEntryKeyzerCompanionAnimation);
 
         gStageEntryCompanionSpriteState.x = sStageEntryKeyzerXPositions[0];
         gStageEntryCompanionSpriteState.y = sStageEntryKeyzerYPositions[0];
@@ -422,7 +422,7 @@ void InitializeStageEntryState(void)
         gStageEntryFlyingKeyzerState.frame = 0;
         gStageEntryFlyingKeyzerState.timer = 0;
         gStageEntryFlyingKeyzerState.attribute = 64;
-        gStageEntryFlyingKeyzerAnimation = sStageEntryKeyzerFlightAnimation;
+        GP_SET(gStageEntryFlyingKeyzerAnimation, sStageEntryKeyzerFlightAnimation);
 
         gStageEntrySparkleGroupState.frame = 0;
         gStageEntrySparkleGroupState.timer = 0;
@@ -435,8 +435,8 @@ void InitializeStageEntryState(void)
         gStageEntrySequenceMode = 4;
     }
 
-    gStageEntryMainAnimation = sStageEntryKeyzerMainAnimation;
-    gStageEntrySecondaryAnimation = sStageEntrySecondaryAnimation;
+    GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerMainAnimation);
+    GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryAnimation);
 }
 
 void InitializeStageEntryLandingState(void)
@@ -462,8 +462,8 @@ void InitializeStageEntryLandingState(void)
         m4aSongNumStart(0x1C7);
     }
     gStageEntrySequenceMode = 2;
-    gStageEntryMainAnimation = sStageEntryLandingIntroAnimation;
-    gStageEntrySecondaryAnimation = sStageEntrySecondaryIdleAnimation;
+    GP_SET(gStageEntryMainAnimation, sStageEntryLandingIntroAnimation);
+    GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryIdleAnimation);
 }
 
 void InitializeStageEntryKeyzerArrivalState(void)
@@ -483,8 +483,8 @@ void InitializeStageEntryKeyzerArrivalState(void)
     gStageEntryMainSpriteState[6] = 0;
     gStageEntryUseAffineMainSprite = 0;
     gStageEntrySequenceMode = 1;
-    gStageEntryMainAnimation = sStageEntryIdleAnimationsByVariant[gStageEntryIdleAnimationVariant];
-    gStageEntrySecondaryAnimation = sStageEntrySecondaryIdleAnimation;
+    GP_SET(gStageEntryMainAnimation, GP(sStageEntryIdleAnimationsByVariant[gStageEntryIdleAnimationVariant]));
+    GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryIdleAnimation);
 }
 
 void InitializeStageEntryMovingLandingState(void)
@@ -508,8 +508,8 @@ void InitializeStageEntryMovingLandingState(void)
     gStageEntryHorizontalVelocity = -70;
     gStageEntryVerticalVelocity = -50;
     gStageEntrySequenceMode = 3;
-    gStageEntryMainAnimation = sStageEntryMovingLandingIntroAnimation;
-    gStageEntrySecondaryAnimation = sStageEntrySecondaryIdleAnimation;
+    GP_SET(gStageEntryMainAnimation, sStageEntryMovingLandingIntroAnimation);
+    GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryIdleAnimation);
 }
 
 void LoadStageEntryTilemapChunks(void)
@@ -598,7 +598,7 @@ s32 UpdateStageEntryKeyzerSequence(void)
             gStageEntryMainSpriteState[2] += sStageEntryKeyzerApproachXOffsets[gStageEntrySequenceTimer];
             gStageEntryMainSpriteState[3] += sStageEntryKeyzerApproachYOffsets[gStageEntrySequenceTimer];
             gStageEntrySequenceTimer++;
-            gStageEntryMainAnimation = sStageEntryKeyzerMovingAnimation;
+            GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerMovingAnimation);
             if (gStageEntrySequenceTimer == 23) {
                 gStageEntrySequenceStep++;
                 gStageEntrySequenceTimer = 0;
@@ -608,7 +608,7 @@ s32 UpdateStageEntryKeyzerSequence(void)
         case 2:
             gStageEntryMainSpriteState[2] += sStageEntryKeyzerImpactXOffsets[gStageEntrySequenceTimer];
             gStageEntryMainSpriteState[3] += sStageEntryKeyzerImpactYOffsets[gStageEntrySequenceTimer];
-            gStageEntryMainAnimation = sStageEntryKeyzerImpactAnimation;
+            GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerImpactAnimation);
             if (gStageEntrySequenceTimer == 8) {
                 VoiceSetPlay(3);
                 m4aSongNumStart(218);
@@ -623,17 +623,17 @@ s32 UpdateStageEntryKeyzerSequence(void)
             break;
 
         case 3:
-            gStageEntryMainAnimation = sStageEntryKeyzerRiseAnimation;
+            GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerRiseAnimation);
             gStageEntryMainSpriteState[3] += sStageEntryKeyzerRiseYOffsets[gStageEntrySequenceTimer];
             gStageEntrySecondarySpriteState.timer++;
-            gStageEntrySecondaryAnimation = sStageEntrySecondaryIntroAnimation;
-            if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time <
+            GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryIntroAnimation);
+            if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time <
                 gStageEntrySecondarySpriteState.timer) {
                 gStageEntrySecondarySpriteState.timer = 1;
                 gStageEntrySecondarySpriteState.frame++;
-                if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time == 0) {
+                if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time == 0) {
                     gStageEntrySecondarySpriteState.frame = 0;
-                    gStageEntrySecondaryAnimation = sStageEntrySecondaryLoopAnimation;
+                    GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryLoopAnimation);
                     gStageEntrySequenceStep++;
                     gStageEntrySequenceTimer = 0;
                     break;
@@ -649,14 +649,14 @@ s32 UpdateStageEntryKeyzerSequence(void)
                 gStageEntryKeyzerTargetState[4] = 256;
             }
             gStageEntrySecondarySpriteState.timer++;
-            gStageEntrySecondaryAnimation = sStageEntrySecondaryLoopAnimation;
-            if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time <
+            GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryLoopAnimation);
+            if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time <
                 gStageEntrySecondarySpriteState.timer) {
                 gStageEntrySecondarySpriteState.timer = 1;
                 gStageEntrySecondarySpriteState.frame++;
-                if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time == 0) {
+                if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time == 0) {
                     gStageEntrySecondarySpriteState.frame = 0;
-                    gStageEntrySecondaryAnimation = sStageEntrySecondaryAnimation;
+                    GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryAnimation);
                     gStageEntrySequenceStep++;
                     gStageEntrySequenceTimer = 0;
                     break;
@@ -668,7 +668,7 @@ s32 UpdateStageEntryKeyzerSequence(void)
         case 5:
             gStageEntryMainSpriteState[2] += sStageEntryKeyzerExitXOffsets[gStageEntrySequenceTimer];
             gStageEntryMainSpriteState[3] += sStageEntryKeyzerExitYOffsets[gStageEntrySequenceTimer];
-            gStageEntryMainAnimation = sStageEntryKeyzerMovingAnimation;
+            GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerMovingAnimation);
             if (gStageEntrySequenceTimer == 11) {
                 gStageEntrySequenceStep++;
                 gStageEntrySequenceTimer = 0;
@@ -680,7 +680,7 @@ s32 UpdateStageEntryKeyzerSequence(void)
         case 6:
             gStageEntryMainSpriteState[2] += sStageEntryKeyzerFinalXOffsets[gStageEntrySequenceTimer];
             gStageEntryMainSpriteState[3] += sStageEntryKeyzerFinalYOffsets[gStageEntrySequenceTimer];
-            gStageEntryMainAnimation = sStageEntryKeyzerImpactAnimation;
+            GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerImpactAnimation);
             if (gStageEntrySequenceTimer == 7) {
                 gStageEntrySequenceStep++;
                 gStageEntrySequenceTimer = 0;
@@ -691,7 +691,7 @@ s32 UpdateStageEntryKeyzerSequence(void)
 
         case 7:
             gStageEntryUseAffineMainSprite = 1;
-            gStageEntryMainAnimation = sStageEntryKeyzerMainAnimation;
+            GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerMainAnimation);
             gStageEntryMainSpriteState[2] = gStageEntryKeyzerTargetState[2];
             gStageEntryMainSpriteState[3] = gStageEntryKeyzerTargetState[3] + 16;
             gStageEntryMainSpriteState[6] = (gStageEntryMainSpriteState[6] + 248) & 0xFF;
@@ -755,7 +755,7 @@ s32 UpdateStageEntryLandingSequence(void)
                 gStageEntryMainSpriteState[2] = 56;
                 gStageEntryMainSpriteState[3] = 136;
                 gStageEntryMainSpriteFalling = 0;
-                gStageEntryMainAnimation = sStageEntryLandingAnimation;
+                GP_SET(gStageEntryMainAnimation, sStageEntryLandingAnimation);
                 gStageEntrySequenceStep++;
                 gStageEntryBlinkVisible = 1;
             }
@@ -852,7 +852,7 @@ s32 UpdateStageEntryMovingLandingSequence(void)
                 gStageEntryMainSpriteState[2] = 56;
                 gStageEntryMainSpriteState[3] = 136;
                 gStageEntryMainSpriteFalling = 0;
-                gStageEntryMainAnimation = sStageEntryLandingAnimation;
+                GP_SET(gStageEntryMainAnimation, sStageEntryLandingAnimation);
                 gStageEntrySequenceStep++;
                 gStageEntryBlinkVisible = 1;
             }
@@ -900,8 +900,8 @@ s32 UpdateStageEntryNoKeyzerSequence(void)
                 gStageEntryMainSpriteState[7] = 256;
                 gStageEntryUseAffineMainSprite = 0;
                 gStageEntryMainSpriteFalling = 1;
-                gStageEntryMainAnimation = sStageEntryKeyzerMovingAnimation;
-                gStageEntrySecondaryAnimation = sStageEntrySecondaryFallAnimation;
+                GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerMovingAnimation);
+                GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryFallAnimation);
                 gStageEntryVerticalVelocity = -20;
             }
             break;
@@ -909,7 +909,7 @@ s32 UpdateStageEntryNoKeyzerSequence(void)
         case 1:
             gStageEntryVerticalVelocity += 4;
             if (gStageEntryVerticalVelocity > 0) {
-                gStageEntryMainAnimation = sStageEntryKeyzerImpactAnimation;
+                GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerImpactAnimation);
             }
             gStageEntryMainSpriteState[3] += gStageEntryVerticalVelocity >> 4;
             gStageEntryMainSpriteState[2] += -3;
@@ -921,11 +921,11 @@ s32 UpdateStageEntryNoKeyzerSequence(void)
                 gStageEntryMainSpriteFalling = 0;
                 gStageEntryMainSpriteState[3] = 136;
                 gStageEntryMainSpriteState[2] = 56;
-                gStageEntryMainAnimation = sStageEntryLandingAnimation;
+                GP_SET(gStageEntryMainAnimation, sStageEntryLandingAnimation);
                 gStageEntrySequenceStep++;
             }
             gStageEntrySecondarySpriteState.timer++;
-            if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time <
+            if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time <
                 gStageEntrySecondarySpriteState.timer) {
                 gStageEntrySecondarySpriteState.timer = 1;
                 gStageEntrySecondarySpriteState.frame++;
@@ -938,14 +938,14 @@ s32 UpdateStageEntryNoKeyzerSequence(void)
 
         case 2:
             gStageEntrySecondarySpriteState.timer++;
-            if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time <
+            if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time <
                 gStageEntrySecondarySpriteState.timer) {
                 gStageEntrySecondarySpriteState.timer = 1;
                 gStageEntrySecondarySpriteState.frame++;
                 if (gStageEntrySecondarySpriteState.frame == 8) {
                     if (gCurrentCollection[gCurrentPassage][gCurrentStageNumber].keyzer) {
                         m4aSongNumStart(447);
-                        gStageEntryMainAnimation = sStageEntryKeyzerFoundAnimation;
+                        GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerFoundAnimation);
                         gStageEntryShowCollectionSparkle = 1;
                         gStageEntrySequenceStep++;
                     } else {
@@ -961,24 +961,24 @@ s32 UpdateStageEntryNoKeyzerSequence(void)
 
         case 3:
             gStageEntryMainSpriteState[0]++;
-            if (gStageEntryMainAnimation[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
+            if (GP(gStageEntryMainAnimation)[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
                 gStageEntryMainSpriteState[1]++;
-                if (gStageEntryMainAnimation[gStageEntryMainSpriteState[1]].time == 0) {
+                if (GP(gStageEntryMainAnimation)[gStageEntryMainSpriteState[1]].time == 0) {
                     gStageEntryMainSpriteState[0] = 1;
                     gStageEntryMainSpriteState[1] = 0;
                     gStageEntryShowCollectionSparkle = 0;
                     gStageEntrySequenceStep = 5;
-                    gStageEntryMainAnimation = sStageEntryIdleAnimationsByVariant[gStageEntryIdleAnimationVariant];
+                    GP_SET(gStageEntryMainAnimation, GP(sStageEntryIdleAnimationsByVariant[gStageEntryIdleAnimationVariant]));
                 }
             }
             gStageEntrySecondarySpriteState.timer++;
-            if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time <
+            if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time <
                 gStageEntrySecondarySpriteState.timer) {
                 gStageEntrySecondarySpriteState.timer = 1;
                 gStageEntrySecondarySpriteState.frame++;
-                if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time == 0) {
+                if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time == 0) {
                     gStageEntrySecondarySpriteState.frame = 0;
-                    gStageEntrySecondaryAnimation = sStageEntrySecondaryIdleAnimation;
+                    GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryIdleAnimation);
                 }
             }
             gStageEntryKeyzerTargetState[4] -= 2;
@@ -989,15 +989,15 @@ s32 UpdateStageEntryNoKeyzerSequence(void)
 
         case 4:
             gStageEntrySecondarySpriteState.timer++;
-            if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time <
+            if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time <
                 gStageEntrySecondarySpriteState.timer) {
                 gStageEntrySecondarySpriteState.timer = 1;
                 gStageEntrySecondarySpriteState.frame++;
-                if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time == 0) {
+                if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time == 0) {
                     gStageEntrySecondarySpriteState.frame = 0;
-                    gStageEntrySecondaryAnimation = sStageEntrySecondaryIdleAnimation;
+                    GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryIdleAnimation);
                     gStageEntrySequenceStep++;
-                    gStageEntryMainAnimation = sStageEntryIdleAnimationsByVariant[gStageEntryIdleAnimationVariant];
+                    GP_SET(gStageEntryMainAnimation, GP(sStageEntryIdleAnimationsByVariant[gStageEntryIdleAnimationVariant]));
                 }
             }
             gStageEntryKeyzerTargetState[4] -= 2;
@@ -1044,8 +1044,8 @@ s32 UpdateStageEntryWithKeyzerSequence(void)
                 gStageEntryMainSpriteState[7] = 256;
                 gStageEntryUseAffineMainSprite = 0;
                 gStageEntryMainSpriteFalling = 1;
-                gStageEntryMainAnimation = sStageEntryKeyzerMovingAnimation;
-                gStageEntrySecondaryAnimation = sStageEntrySecondaryFallAnimation;
+                GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerMovingAnimation);
+                GP_SET(gStageEntrySecondaryAnimation, sStageEntrySecondaryFallAnimation);
                 gStageEntryVerticalVelocity = -20;
             }
             break;
@@ -1054,7 +1054,7 @@ s32 UpdateStageEntryWithKeyzerSequence(void)
             if (gStageEntryMainSpriteFalling != 0) {
                 gStageEntryVerticalVelocity += 4;
                 if (gStageEntryVerticalVelocity > 0) {
-                    gStageEntryMainAnimation = sStageEntryKeyzerImpactAnimation;
+                    GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerImpactAnimation);
                 }
                 gStageEntryMainSpriteState[3] += gStageEntryVerticalVelocity >> 4;
                 gStageEntryMainSpriteState[2] += -3;
@@ -1068,12 +1068,12 @@ s32 UpdateStageEntryWithKeyzerSequence(void)
                 gStageEntryMainSpriteFalling = 0;
                 gStageEntryMainSpriteState[3] = 136;
                 gStageEntryMainSpriteState[2] = 56;
-                gStageEntryMainAnimation = sStageEntryLandingAnimation;
+                GP_SET(gStageEntryMainAnimation, sStageEntryLandingAnimation);
             }
             UpdateStageEntrySecondaryAnimationAndScale();
             UpdateStageEntryFlyingKeyzerAnimation();
             if (gStageEntrySequenceTimer > 39) {
-                gStageEntryFlyingKeyzerAnimation = sStageEntryFlyingKeyzerEscapeAnimation;
+                GP_SET(gStageEntryFlyingKeyzerAnimation, sStageEntryFlyingKeyzerEscapeAnimation);
                 gStageEntryFlyingKeyzerState.attribute = 0;
                 m4aSongNumStart(448);
                 gStageEntrySequenceStep++;
@@ -1095,7 +1095,7 @@ s32 UpdateStageEntryWithKeyzerSequence(void)
                 gStageEntryFlyingKeyzerState.y = 200;
             }
             if (gStageEntrySequenceTimer == 43) {
-                gStageEntryFlyingKeyzerAnimation = sStageEntryFlyingKeyzerSpinAnimation;
+                GP_SET(gStageEntryFlyingKeyzerAnimation, sStageEntryFlyingKeyzerSpinAnimation);
                 gStageEntryFlyingKeyzerState.frame = 0;
                 gStageEntryFlyingKeyzerState.timer = 0;
             }
@@ -1115,8 +1115,8 @@ s32 UpdateStageEntryWithKeyzerSequence(void)
             if (gStageEntrySequenceTimer <= 277) {
                 gStageEntryCompanionSpriteState.x = sStageEntryKeyzerXPositions[gStageEntrySequenceTimer];
                 gStageEntryCompanionSpriteState.y = sStageEntryKeyzerYPositions[gStageEntrySequenceTimer];
-                GP_SET(gStageEntryCompanionSpriteState.data, sStageEntryCompanionSpriteDataByFrame
-                    [sStageEntryCompanionSpriteFrameIndices[gStageEntrySequenceTimer]]);
+                GP_SET(gStageEntryCompanionSpriteState.data, GP(sStageEntryCompanionSpriteDataByFrame
+                    [sStageEntryCompanionSpriteFrameIndices[gStageEntrySequenceTimer]]));
             } else {
                 gStageEntryCompanionSpriteState.y = 200;
             }
@@ -1137,11 +1137,11 @@ s32 UpdateStageEntryWithKeyzerSequence(void)
             if (gStageEntrySequenceTimer == 259) {
                 gStageEntryCompanionKeyzerState.frame = 0;
                 gStageEntryCompanionKeyzerState.timer = 0;
-                gStageEntryCompanionKeyzerAnimation = sStageEntryCompanionKeyzerRescueAnimation;
+                GP_SET(gStageEntryCompanionKeyzerAnimation, sStageEntryCompanionKeyzerRescueAnimation);
                 m4aSongNumStart(457);
             }
             if (UpdateStageEntryCompanionKeyzerAnimation() != 0 && gStageEntrySequenceTimer > 259) {
-                gStageEntryMainAnimation = sStageEntryKeyzerRewardAnimation;
+                GP_SET(gStageEntryMainAnimation, sStageEntryKeyzerRewardAnimation);
                 gStageEntryShowCollectionSparkle = 1;
                 gStageEntryMainSpriteState[1] = 0;
                 gStageEntryMainSpriteState[0] = 0;
@@ -1165,20 +1165,20 @@ s32 UpdateStageEntryWithKeyzerSequence(void)
                 BackupPalettesForColorFade();
             }
             dma = (vu32*)0x040000D4;
-            dma[0] = (u32)(sStageEntryStagePalettes[gCurrentPassage][gCurrentStageNumber] +
+            dma[0] = (u32)(GP(sStageEntryStagePalettes[gCurrentPassage][gCurrentStageNumber]) +
                            (gStageEntryKeyzerPaletteStep << 5));
             dma[1] = 0x05000140 + (gCurrentStageNumber << 5);
             dma[2] = 0x80000010;
             dma[2];
             gStageEntrySequenceTimer++;
             gStageEntryMainSpriteState[0]++;
-            if (gStageEntryMainAnimation[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
+            if (GP(gStageEntryMainAnimation)[gStageEntryMainSpriteState[1]].time < gStageEntryMainSpriteState[0]) {
                 gStageEntryMainSpriteState[0] = 1;
                 gStageEntryMainSpriteState[1]++;
-                if (gStageEntryMainAnimation[gStageEntryMainSpriteState[1]].time == 0) {
+                if (GP(gStageEntryMainAnimation)[gStageEntryMainSpriteState[1]].time == 0) {
                     gStageEntryMainSpriteState[1] = 0;
                     gStageEntryShowCollectionSparkle = 0;
-                    gStageEntryMainAnimation = sStageEntryIdleAnimationsByVariant[gStageEntryIdleAnimationVariant];
+                    GP_SET(gStageEntryMainAnimation, GP(sStageEntryIdleAnimationsByVariant[gStageEntryIdleAnimationVariant]));
                     gStageEntrySequenceStep++;
                     m4aSongNumStart(221);
                 }
@@ -1201,11 +1201,11 @@ s32 UpdateStageEntryWithKeyzerSequence(void)
 s32 UpdateStageEntryFlyingKeyzerAnimation(void)
 {
     gStageEntryFlyingKeyzerState.timer++;
-    if (gStageEntryFlyingKeyzerAnimation[gStageEntryFlyingKeyzerState.frame].time <
+    if (GP(gStageEntryFlyingKeyzerAnimation)[gStageEntryFlyingKeyzerState.frame].time <
         gStageEntryFlyingKeyzerState.timer) {
         gStageEntryFlyingKeyzerState.timer = 1;
         gStageEntryFlyingKeyzerState.frame++;
-        if (gStageEntryFlyingKeyzerAnimation[gStageEntryFlyingKeyzerState.frame].time == 0) {
+        if (GP(gStageEntryFlyingKeyzerAnimation)[gStageEntryFlyingKeyzerState.frame].time == 0) {
             gStageEntryFlyingKeyzerState.frame = 0;
             return 1;
         }
@@ -1216,11 +1216,11 @@ s32 UpdateStageEntryFlyingKeyzerAnimation(void)
 s32 UpdateStageEntryCompanionKeyzerAnimation(void)
 {
     gStageEntryCompanionKeyzerState.timer++;
-    if (gStageEntryCompanionKeyzerAnimation[gStageEntryCompanionKeyzerState.frame].time <
+    if (GP(gStageEntryCompanionKeyzerAnimation)[gStageEntryCompanionKeyzerState.frame].time <
         gStageEntryCompanionKeyzerState.timer) {
         gStageEntryCompanionKeyzerState.timer = 1;
         gStageEntryCompanionKeyzerState.frame++;
-        if (gStageEntryCompanionKeyzerAnimation[gStageEntryCompanionKeyzerState.frame].time == 0) {
+        if (GP(gStageEntryCompanionKeyzerAnimation)[gStageEntryCompanionKeyzerState.frame].time == 0) {
             gStageEntryCompanionKeyzerState.frame = 0;
             return 1;
         }
@@ -1233,13 +1233,13 @@ void UpdateStageEntrySecondaryAnimationAndScale(void)
     s32 value;
 
     gStageEntrySecondarySpriteState.timer++;
-    if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time <
+    if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time <
         gStageEntrySecondarySpriteState.timer) {
         gStageEntrySecondarySpriteState.timer = 1;
         gStageEntrySecondarySpriteState.frame++;
-        if (gStageEntrySecondaryAnimation[gStageEntrySecondarySpriteState.frame].time == 0) {
+        if (GP(gStageEntrySecondaryAnimation)[gStageEntrySecondarySpriteState.frame].time == 0) {
             gStageEntrySecondarySpriteState.frame = 0;
-            gStageEntrySecondaryAnimation = (const struct AnimationFrame*)sStageEntrySecondaryIdleAnimation;
+            GP_SET(gStageEntrySecondaryAnimation, (const struct AnimationFrame*)sStageEntrySecondaryIdleAnimation);
         }
     }
 
@@ -1454,7 +1454,7 @@ void RenderStageEntrySprites(void)
         }
     }
     if (gStageEntryBlinkVisible == 0) {
-        src = GP(gStageEntryMainAnimation[((struct StageEntryPositionedAnimationState*)gStageEntryMainSpriteState)->frame]
+        src = GP(GP(gStageEntryMainAnimation)[((struct StageEntryPositionedAnimationState*)gStageEntryMainSpriteState)->frame]
                   .oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
@@ -1670,7 +1670,7 @@ void RenderStageEntrySprites(void)
         register s32 modeMask PIN("r0");
         register s32 priorityBase PIN("r12");
         u32 modeByte;
-        src = GP(gStageEntryFlyingKeyzerAnimation[gStageEntryFlyingKeyzerState.frame].oam);
+        src = GP(GP(gStageEntryFlyingKeyzerAnimation)[gStageEntryFlyingKeyzerState.frame].oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;
@@ -1812,7 +1812,7 @@ void RenderStageEntrySprites(void)
         {
             struct StageEntryPositionedAnimationState* secondaryState;
             secondaryState = (struct StageEntryPositionedAnimationState*)&gStageEntrySecondarySpriteState;
-            src = GP(gStageEntrySecondaryAnimation[secondaryState->frame].oam);
+            src = GP(GP(gStageEntrySecondaryAnimation)[secondaryState->frame].oam);
         }
         nextSlot += *(src++);
         if (nextSlot > 128) {
@@ -1996,7 +1996,7 @@ void RenderStageEntrySprites(void)
         }
     }
     if (gStageEntrySequenceMode == 5) {
-        src = GP(gStageEntryCompanionKeyzerAnimation[gStageEntryCompanionKeyzerState.frame].oam);
+        src = GP(GP(gStageEntryCompanionKeyzerAnimation)[gStageEntryCompanionKeyzerState.frame].oam);
         nextSlot += *(src++);
         if (nextSlot > 128) {
             return;

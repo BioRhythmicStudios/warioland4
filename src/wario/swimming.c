@@ -14,7 +14,7 @@
 
 u8 UpdateWarioWaterPose(void)
 {
-    return sWarioWaterPoseTable[gWarioData.pose]();
+    return GF(sWarioWaterPoseTable[gWarioData.pose])();
 }
 
 u8 UpdateWarioWaterLanding(void)
@@ -1926,7 +1926,7 @@ animationSelected:
             case 7:
             case 8:
                 gWarioPaletteSize = 0x60;
-                palette = sWarioGroundPoundPaletteFrames[wario->unk_1F];
+                palette = GP(sWarioGroundPoundPaletteFrames[wario->unk_1F]);
                 CopyWarioPalette(palette, 0, 0x10);
                 palette = sWarioGroundPoundSecondaryPalette;
                 CopyWarioPalette(palette, 0x10, 0x10);

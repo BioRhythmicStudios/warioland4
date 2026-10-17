@@ -8,7 +8,7 @@
 #define MAX_HEARTS (8)
 #define HEART_GAUGE_MAX (8)
 
-#define WarioRequestPose(pose) (sWarioPoseRequestFuncTable[gWarioData.reaction](pose))
+#define WarioRequestPose(pose) (GF(sWarioPoseRequestFuncTable[gWarioData.reaction])(pose))
 
 typedef u8 (*WarioPoseFunc)(void);
 typedef void (*WarioInteractionFunc)(u8);
@@ -370,30 +370,29 @@ extern struct WarioDustEffect sEmptyDustEffect;
 extern struct WarioAnimation sUnk_82DDCD0[];
 extern u16 sWarioDefaultObjPalette[];
 extern u16 sWarioGroundPoundPalette[];
-extern WarioPoseFunc sWarioPoseHandlerTable[REACTION_COUNT];
-extern WarioInteractionFunc sWarioPoseRequestFuncTable[REACTION_COUNT];
-extern WarioInteractionFunc sUnk_82DED30[];
-extern WarioPoseFunc sWarioNormalPoseTable[WPOSE_NORMAL_COUNT];
-extern WarioPoseFunc sWarioWaterPoseTable[WPOSE_WATER_COUNT];
-extern WarioPoseFunc sFlamingWarioPoseTable[WPOSE_FLAMING_COUNT];
-extern WarioPoseFunc sFatWarioPoseTable[WPOSE_FAT_COUNT];
-extern WarioPoseFunc sFrozenWarioPoseTable[WPOSE_FROZEN_COUNT];
-extern WarioPoseFunc sZombieWarioPoseTable[WPOSE_ZOMBIE_COUNT];
-extern WarioPoseFunc sSnowmanWarioPoseTable[WPOSE_SNOWMAN_COUNT];
-extern WarioPoseFunc sBouncyWarioPoseTable[WPOSE_BOUNCY_COUNT];
-extern WarioPoseFunc sPuffyWarioPoseTable[WPOSE_PUFFY_COUNT];
-extern WarioPoseFunc sBatWarioPoseTable[WPOSE_BAT_COUNT];
-extern WarioPoseFunc sFlatWarioPoseTable[WPOSE_FLAT_COUNT];
-extern WarioPoseFunc sWarioMaskPoseTable[WPOSE_MASK_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sWarioPoseHandlerTable[REACTION_COUNT];
+extern GBA_FUNC_PTR(WarioInteractionFunc) sWarioPoseRequestFuncTable[REACTION_COUNT];
+extern GBA_FUNC_PTR(WarioInteractionFunc) sUnk_82DED30[];
+extern GBA_FUNC_PTR(WarioPoseFunc) sWarioNormalPoseTable[WPOSE_NORMAL_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sWarioWaterPoseTable[WPOSE_WATER_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sFlamingWarioPoseTable[WPOSE_FLAMING_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sFatWarioPoseTable[WPOSE_FAT_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sFrozenWarioPoseTable[WPOSE_FROZEN_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sZombieWarioPoseTable[WPOSE_ZOMBIE_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sSnowmanWarioPoseTable[WPOSE_SNOWMAN_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sBouncyWarioPoseTable[WPOSE_BOUNCY_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sPuffyWarioPoseTable[WPOSE_PUFFY_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sBatWarioPoseTable[WPOSE_BAT_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sFlatWarioPoseTable[WPOSE_FLAT_COUNT];
+extern GBA_FUNC_PTR(WarioPoseFunc) sWarioMaskPoseTable[WPOSE_MASK_COUNT];
 extern u8 sUnk_82DF094[];
 extern u16 sWarioCollisionPointTable[][3];
 extern u16 sCarriedSpriteXOffsets[];
 extern u16 sCarriedSpriteYOffsets[];
-extern WarioPoseFunc sUnk_82DECD0[];
-extern WarioPoseFunc sUnk_82DED00[];
-extern WarioInteractionFunc sUnk_82DED30[];
-extern WarioPoseFunc sUnk_82DED60[];
-extern WarioPoseFunc sUnk_82DED90[];
+extern GBA_FUNC_PTR(WarioPoseFunc) sUnk_82DECD0[];
+extern GBA_FUNC_PTR(WarioPoseFunc) sUnk_82DED00[];
+extern GBA_FUNC_PTR(WarioPoseFunc) sUnk_82DED60[];
+extern GBA_FUNC_PTR(WarioPoseFunc) sUnk_82DED90[];
 
 void PrepareWarioUpdate(void);
 void CopyWarioPalette(const void* source, int destinationIndex, int size);

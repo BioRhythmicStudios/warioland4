@@ -412,7 +412,7 @@ s32 TryTriggerRoomTransitionAtTile(s32 y, s32 x)
         return y;
     }
 
-    entry = (const u8*)sRoomStartDataTables[gStageRoomTableIndex];
+    entry = (const u8*)GP(sRoomStartDataTables[gStageRoomTableIndex]);
     while (entry[0] != 0) {
         if (entry[0] == 2 && entry[1] == gCurrentRoom && entry[2] <= xCoord && xCoord <= entry[3] &&
             entry[4] <= yCoord && yCoord <= entry[5]) {
@@ -445,7 +445,7 @@ void CheckRoomTransitionAtPosition(u16 y, u16 x)
 
     tileY = y >> 6;
     tileX = x >> 6;
-    entry = (const u8*)sRoomStartDataTables[gStageRoomTableIndex];
+    entry = (const u8*)GP(sRoomStartDataTables[gStageRoomTableIndex]);
     while (entry[0] != 0) {
         s32 fadeMusic;
 

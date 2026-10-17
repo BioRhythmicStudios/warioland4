@@ -46,6 +46,6 @@ extern u8 gPassageClearParticleAffineAngles[];
 extern u8 gPassageClearSlowParticleIndex;
 extern u8 gPassageClearMediumParticleIndex;
 extern u8 gPassageClearFastParticleIndex;
-extern const u16* gPassageClearBannerOam;
+extern GBA_PTR(const u16*) gPassageClearBannerOam;
 
 #endif  // PASSAGE_CLEAR_H

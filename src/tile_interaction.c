@@ -1876,7 +1876,7 @@ void ProcessTileAtPosition(u32 y, u32 x)
             }
             if (slots.attribute == 0x69) {
                 gWarioData.reaction = 2;
-                sWarioPoseRequestFuncTable[2](0);
+                GF(sWarioPoseRequestFuncTable[2])(0);
             }
             break;
         case 1:
@@ -1987,7 +1987,7 @@ s32 ProcessWarioReactionTile(s32 attribute, s32 pose)
         if (gWarioData.reaction == 8) {
             gWarioData.reaction = 0;
         }
-        sWarioPoseRequestFuncTable[gWarioData.reaction]((u8)poseReg);
+        GF(sWarioPoseRequestFuncTable[gWarioData.reaction])((u8)poseReg);
         ChangeStageScoreAndDropCoins(-10);
     }
     return hit;
@@ -2237,7 +2237,7 @@ void UpdateWarioEnvironmentalTiles(void)
     switch (gWarioData.reaction) {
         case 10:
             if (gWarioData.pose != 6 && (frame.bg1Attributes[0] == 0x7D || frame.bg1Attributes[1] == 0x7D)) {
-                sWarioPoseRequestFuncTable[10](6);
+                GF(sWarioPoseRequestFuncTable[10])(6);
             }
             break;
         case 5:
@@ -2268,7 +2268,7 @@ s32 RequestWarioPoseForTileAttributes(const u32* attributes, u32 pose)
     }
     for (i = 0; i <= 5; i++, attributes++) {
         if (*attributes == 124) {
-            sWarioPoseRequestFuncTable[wario->reaction]((u8)pose);
+            GF(sWarioPoseRequestFuncTable[wario->reaction])((u8)pose);
             return 1;
         }
     }

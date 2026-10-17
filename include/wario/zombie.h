@@ -11,7 +11,7 @@ struct AGB_ALIGN ZombieWarioGraphicsFrame {
     u8 pad_09[3];
 };
 
-extern const struct ZombieWarioGraphicsFrame* const sZombieWarioGraphicsTable[][2];
+extern GBA_PTR(const struct ZombieWarioGraphicsFrame*) const sZombieWarioGraphicsTable[][2];
 extern const u8 sZombieWarioPoseProperties[][8];
 extern const u8 sZombieWarioPalette[];
 extern const u8 sZombieWarioPoseUnk05Values[];

@@ -89,9 +89,9 @@
 #include "sprite_ai/yeti.h"
 
 extern ProcedureFunc sPrimarySpriteAITable[];
-extern const u8* const sPrimarySpriteGraphicsPointers[];
-extern const u8* const sPrimarySpritePalettePointers[];
-extern const u8* const sRoomSpriteGraphicsLists[];
+extern GBA_PTR(const u8*) const sPrimarySpriteGraphicsPointers[];
+extern GBA_PTR(const u8*) const sPrimarySpritePalettePointers[];
+extern GBA_PTR(const u8*) const sRoomSpriteGraphicsLists[];
 extern const u32 sPrimarySpriteGraphicsSizes[];
 extern const u8 sOamWidthByShapeAndSize[];
 

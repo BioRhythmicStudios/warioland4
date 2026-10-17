@@ -708,10 +708,10 @@ void LoadCutsceneBackgroundVariant(u32 variant)
     u16* destination;
 
     index = variant & 3;
-    DecodeCutsceneTileRuns(sUnk_878E790[index], (u16*)0x06008000);
+    DecodeCutsceneTileRuns(GP(sUnk_878E790[index]), (u16*)0x06008000);
     CopyCutsceneTilemapRect(sUnk_8288E6C + index * 8, (u16*)0x0600934E, 2, 4, 32);
     CopyCutsceneTilemapRect(sUnk_8288EAC + index * 36, (u16*)0x06009220, 4, 9, 32);
-    DecodeCutsceneTileRuns(sUnk_878E780[index], (u16*)0x06009000);
+    DecodeCutsceneTileRuns(GP(sUnk_878E780[index]), (u16*)0x06009000);
     value = sUnk_878E6CC[index];
     destination = (u16*)0x06009C7E;
     for (i = 23; i >= 0; i--) {
@@ -1627,19 +1627,19 @@ void func_8005500(s32 frame)
                 *(vu16*)0x04000016 = *(u16*)offsetOrPointer;
             } else {
                 if (gUnk_3002C78 != 0) {
-                    gUnk_3002C88 = (u16*)0x06008386;
-                    gUnk_3002C90 = sUnk_82941D2;
-                    gUnk_3002C94 = sUnk_829420E;
+                    GP_SET(gUnk_3002C88, (u16*)0x06008386);
+                    GP_SET(gUnk_3002C90, sUnk_82941D2);
+                    GP_SET(gUnk_3002C94, sUnk_829420E);
                     gCutsceneAnimationFinished = 30;
                     gUnk_3002C9A = 24;
                 } else {
-                    gUnk_3002C88 = (u16*)0x06008382;
-                    gUnk_3002C90 = sUnk_829424A;
-                    gUnk_3002C94 = sUnk_82942A2;
+                    GP_SET(gUnk_3002C88, (u16*)0x06008382);
+                    GP_SET(gUnk_3002C90, sUnk_829424A);
+                    GP_SET(gUnk_3002C94, sUnk_82942A2);
                     gCutsceneAnimationFinished = 44;
                     gUnk_3002C9A = 28;
                 }
-                gUnk_3002C8C = (u16*)((u8*)gUnk_3002C88 + 64);
+                GP_SET(gUnk_3002C8C, (u16*)((u8*)GP(gUnk_3002C88) + 64));
                 gUnk_3002C60++;
                 gUnk_3002C64 = 0;
             }
@@ -1866,19 +1866,19 @@ void func_80058AC(s32 frame)
                 *(vu16*)0x04000016 = *(u16*)offsetOrPointer;
             } else {
                 if (gUnk_3002C78 != 0) {
-                    gUnk_3002C88 = (u16*)0x06008390;
-                    gUnk_3002C90 = sUnk_82D825E;
-                    gUnk_3002C94 = sUnk_82D8278;
+                    GP_SET(gUnk_3002C88, (u16*)0x06008390);
+                    GP_SET(gUnk_3002C90, sUnk_82D825E);
+                    GP_SET(gUnk_3002C94, sUnk_82D8278);
                     gCutsceneAnimationFinished = 13;
                     gUnk_3002C9A = 13;
                 } else {
-                    gUnk_3002C88 = (u16*)0x06008388;
-                    gUnk_3002C90 = sUnk_82D8292;
-                    gUnk_3002C94 = sUnk_82D82D0;
+                    GP_SET(gUnk_3002C88, (u16*)0x06008388);
+                    GP_SET(gUnk_3002C90, sUnk_82D8292);
+                    GP_SET(gUnk_3002C94, sUnk_82D82D0);
                     gCutsceneAnimationFinished = 31;
                     gUnk_3002C9A = 22;
                 }
-                gUnk_3002C8C = (u16*)((u8*)gUnk_3002C88 + 64);
+                GP_SET(gUnk_3002C8C, (u16*)((u8*)GP(gUnk_3002C88) + 64));
                 gUnk_3002C60++;
                 gUnk_3002C64 = 0;
             }
@@ -3314,8 +3314,8 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
     x = gCutscenePrimaryObjectX;
     y = gCutscenePrimaryObjectY;
     destination = ((u16 * (*)(s32, s32, s32, s32, s32)) CutsceneWarioDrawPoseOam)(x, y, 1, effectMode, 0);
-    if (destination > gUnk_3002C70) {
-        gUnk_3002C70 = destination;
+    if (destination > GP(gUnk_3002C70)) {
+        GP_SET(gUnk_3002C70, destination);
     }
 
     if ((u16)(gUnk_3002C60 - 6) <= 3) {
@@ -6288,8 +6288,8 @@ void WriteCutsceneOamAffineMatrix(u32 matrixIndex, s32 angle, s32 scaleX, s32 sc
     *destination = FixedMul(cosine, (s16)FixedInverse((s16)scaleY));
     destination++;
 
-    if ((OamData*)destination > gUnk_3002C70) {
-        gUnk_3002C70 = (OamData*)destination;
+    if ((OamData*)destination > GP(gUnk_3002C70)) {
+        GP_SET(gUnk_3002C70, (OamData*)destination);
     }
 }
 
@@ -6348,8 +6348,8 @@ u16* AppendCutsceneOamTemplate(const u16* source, u16* destination, s32 xOffset,
             destination += 2;
             count--;
         }
-        if (destination > (u16*)gUnk_3002C70) {
-            gUnk_3002C70 = (OamData*)destination;
+        if (destination > (u16*)GP(gUnk_3002C70)) {
+            GP_SET(gUnk_3002C70, (OamData*)destination);
         }
     }
     return destination;
@@ -6357,14 +6357,14 @@ u16* AppendCutsceneOamTemplate(const u16* source, u16* destination, s32 xOffset,
 
 void FinalizeCutsceneOamBuffer(u16* destination)
 {
-    while (destination < (u16*)gUnk_3002C70) {
+    while (destination < (u16*)GP(gUnk_3002C70)) {
         *destination = 0xD0;
         destination++;
         *destination = 0;
         destination += 3;
     }
 
-    gUnk_3002C6C = (u32)gUnk_3002C70 - (u32)gOamBuffer;
+    gUnk_3002C6C = (u32)GP(gUnk_3002C70) - (u32)gOamBuffer;
 }
 
 void ResetCutsceneBackgroundRegisters(void)
@@ -7447,7 +7447,7 @@ u16* CutsceneWarioDrawPoseOam(s32 xOffset, s32 yOffset, u16 priority, u16 heldKe
 
     gButtonsPressed = pressedKeys;
     gButtonsHeld = heldKeys;
-    sWarioPoseHandlerTable[gWarioData.reaction]();
+    GF(sWarioPoseHandlerTable[gWarioData.reaction])();
     gButtonsPressed = oldPressed;
     gButtonsHeld = oldHeld;
 
@@ -7456,7 +7456,7 @@ u16* CutsceneWarioDrawPoseOam(s32 xOffset, s32 yOffset, u16 priority, u16 heldKe
     if (isFacingRight) {
         direction = 0;
     }
-    sUnk_82DED30[gWarioData.reaction](direction);
+    GF(sUnk_82DED30[gWarioData.reaction])(direction);
 
     gOamSlotsUsed = 0;
     oamDst = (u16*)gOamBuffer;
@@ -10072,8 +10072,8 @@ s32 ReadEndingCutsceneIndexedPathPair(s32 pathIndex, u32 timer, u16* xOut, u16* 
         timer = maxTimer;
     }
 
-    xPath = sEndingCutscenePathXTable[pathIndex];
-    yPath = sEndingCutscenePathYTable[pathIndex];
+    xPath = GP(sEndingCutscenePathXTable[pathIndex]);
+    yPath = GP(sEndingCutscenePathYTable[pathIndex]);
 
     *xOut = xPath[timer];
     *yOut = yPath[timer];
@@ -10403,8 +10403,8 @@ s32 CalculateCutsceneScrollPath01(s32 tableIndex, s32 step, s16* pX, s16* pY)
     u16* table2;
     s32 index;
 
-    table1 = sUnk_878E7C0[(s16)tableIndex];
-    table2 = sUnk_878E7D0[(s16)tableIndex];
+    table1 = GP(sUnk_878E7C0[(s16)tableIndex]);
+    table2 = GP(sUnk_878E7D0[(s16)tableIndex]);
     index = 0;
     if (step >= 0) {
         index = step;
@@ -10423,8 +10423,8 @@ s32 CalculateCutsceneScrollPath02(s32 tableIndex, s32 step, s16* pX, s16* pY)
     u16* table2;
     s32 index;
 
-    table1 = sUnk_878E7E0[(s16)tableIndex];
-    table2 = sUnk_878E7F0[(s16)tableIndex];
+    table1 = GP(sUnk_878E7E0[(s16)tableIndex]);
+    table2 = GP(sUnk_878E7F0[(s16)tableIndex]);
     index = 0;
     if (step >= 0) {
         index = step;

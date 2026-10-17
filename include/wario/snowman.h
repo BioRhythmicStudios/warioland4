@@ -4,7 +4,7 @@
 #include "global_data.h"
 #include "types.h"
 
-extern const struct WarioAnimationFrame* const sSnowmanWarioAnimationTable[][2];
+extern GBA_PTR(const struct WarioAnimationFrame*) const sSnowmanWarioAnimationTable[][2];
 extern const struct WarioPoseProperty sSnowmanWarioPoseProperties[];
 extern const u16 sSnowmanWarioPalette[];
 

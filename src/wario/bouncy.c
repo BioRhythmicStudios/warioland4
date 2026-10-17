@@ -13,7 +13,7 @@
 
 u8 UpdateBouncyWario(void)
 {
-    return sBouncyWarioPoseTable[gWarioData.pose]();
+    return GF(sBouncyWarioPoseTable[gWarioData.pose])();
 }
 
 u8 BouncyWarioTransforming(void)
@@ -370,7 +370,7 @@ void UpdateBouncyWarioGraphics(u8 variant)
     const u16* palette;
 
     UpdateWarioPositionHistory();
-    frames = sUnk_82DDB10[gWarioData.pose][variant];
+    frames = GP(sUnk_82DDB10[gWarioData.pose][variant]);
     frame = &frames[gWarioData.unk_1F];
     data = GP(frame->objData);
     gWarioData.objData1Size = *data << 5;

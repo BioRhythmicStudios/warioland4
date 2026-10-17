@@ -16,7 +16,7 @@ void SubGameInitAndDispatch(u32 subGameMode)
     ResetCutsceneBackgroundRegisters();
 
     gUnk_3002C6C = 0;
-    gUnk_3002C70 = gOamBuffer;
+    GP_SET(gUnk_3002C70, gOamBuffer);
 
     fillValue = 0xA0;
     {

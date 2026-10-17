@@ -12,7 +12,7 @@ extern const struct WarioAnimationFrame sFlatWarioDetransformingAnimation[];
 extern const u16 sFlatWarioHorizontalMovement[];
 extern const u16 sFlatWarioVerticalMovement[];
 extern const struct WarioPoseProperty sFlatWarioPoseProperties[];
-extern const struct WarioAnimationFrame* sFlatWarioAnimationTable[][2];
+extern GBA_PTR(const struct WarioAnimationFrame*) sFlatWarioAnimationTable[][2];
 
 u8 UpdateFlatWario(void);
 u8 FlatWarioTransforming(void);

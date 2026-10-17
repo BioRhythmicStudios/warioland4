@@ -918,7 +918,7 @@ void DrawCurrentSecondarySprite(u32 index)
         u8* currentSlotPointer;
         currentSlotPointer = &gOamSlotsUsed;
         currentSlot = *currentSlotPointer;
-        source = (const u16*)gCurrentSecondarySpriteOamData;
+        source = (const u16*)GP(gCurrentSecondarySpriteOamData);
         count = *source++;
         nextSlot = count + currentSlot;
         if ((s32)nextSlot > 127) {
@@ -1009,7 +1009,7 @@ void DrawCurrentSecondarySprite(u32 index)
             currentSlotPointer = &gOamSlotsUsed;
             currentSlot = *currentSlotPointer;
         }
-        source = (const u16*)gCurrentSecondarySpriteOamData;
+        source = (const u16*)GP(gCurrentSecondarySpriteOamData);
         count = *source++;
         nextSlot = count + currentSlot;
         if ((s32)nextSlot > 127) {
@@ -1192,7 +1192,7 @@ void DrawCurrentSecondarySprite(u32 index)
             currentSlotPointer = &gOamSlotsUsed;
             currentSlot = *currentSlotPointer;
         }
-        source = (const u16*)gCurrentSecondarySpriteOamData;
+        source = (const u16*)GP(gCurrentSecondarySpriteOamData);
         count = *source++;
         nextSlot = count + currentSlot;
         if ((s32)nextSlot > 127) {
@@ -1585,5 +1585,5 @@ void AdvanceSecondarySpriteAnimation(const struct AnimationFrame* animation)
             gCurrentSecondarySprite.animationTimer = 0;
         }
     }
-    gCurrentSecondarySpriteOamData = GP(animation[gCurrentSecondarySprite.animationTimer].oam);
+    GP_SET(gCurrentSecondarySpriteOamData, GP(animation[gCurrentSecondarySprite.animationTimer].oam));
 }

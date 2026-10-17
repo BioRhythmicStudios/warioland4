@@ -3,9 +3,9 @@
 
 #include "types.h"
 
-extern ProcedureFunc gVBlankCallback;
-extern ProcedureFunc gHBlankCallback;
-extern ProcedureFunc gVCountCallback;
+extern GBA_FUNC_PTR(ProcedureFunc) gVBlankCallback;
+extern GBA_FUNC_PTR(ProcedureFunc) gHBlankCallback;
+extern GBA_FUNC_PTR(ProcedureFunc) gVCountCallback;
 
 void InterruptCallbackCallVBlank(void);
 void InterruptCallbackSetVBlank(ProcedureFunc cb);

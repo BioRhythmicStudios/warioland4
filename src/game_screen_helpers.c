@@ -675,7 +675,7 @@ void InitializeRoomState(void)
     }
 
     gUnk_3000046 = 0;
-    roomData = sRoomStartDataTables[gStageRoomTableIndex];
+    roomData = GP(sRoomStartDataTables[gStageRoomTableIndex]);
     roomIndex = gUnk_3000025;
     roomData += roomIndex;
     gCurrentRoom = roomData->room;
@@ -1132,7 +1132,7 @@ void PreloadStageRoomBackgrounds(void)
     s32 stageOffset;
 
     destination = (u8*)0x02000040;
-    entry = sRoomHeaderTables[gStageRoomTableIndex];
+    entry = GP(sRoomHeaderTables[gStageRoomTableIndex]);
     index = 0;
     stageCountBase = sStageRoomCounts;
     stageOffset = gCurrentStageID * 12;

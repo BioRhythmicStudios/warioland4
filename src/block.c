@@ -18,7 +18,7 @@ struct AGB_ALIGN BlockCollisionContext {
 
 typedef s32 (*BlockCollisionHandler)(struct BlockCollisionContext* context);
 
-extern const BlockCollisionHandler sBlockCollisionHandlers[];
+extern GBA_FUNC_PTR(BlockCollisionHandler) const sBlockCollisionHandlers[];
 extern s32 ProcessTileInteractionAtPosition(u16 y, u16 x, u16 tileType);
 
 s32 GetSwitchBlockCollision(struct BlockCollisionContext* context);
@@ -48,7 +48,7 @@ void UpdateRoomStartDebugInfo(void)
     attribute = GP(gBackgroundInfo.pBg1Data)[tileTypeIndex];
     attribute = GP(gBackgroundTileTables.attributes)[attribute];
     gGameScreenDebugInfo.tileAttribute = attribute;
-    roomStart = sRoomStartDataTables[gStageRoomTableIndex];
+    roomStart = GP(sRoomStartDataTables[gStageRoomTableIndex]);
     entryIndex = 0;
 
     while (roomStart->type != 0) {
@@ -106,7 +106,7 @@ s32 GetWarioBlockCollisionAtPosition(u32 yPosition, u32 xPosition)
     result = 0;
 
     if (context.tileType <= 12) {
-        result = sBlockCollisionHandlers[context.tileType](&context);
+        result = GF(sBlockCollisionHandlers[context.tileType])(&context);
     } else if ((u32)(context.tileType - 20) <= 43) {
         result = GetSwitchBlockCollision(&context);
     } else {
@@ -116,7 +116,7 @@ s32 GetWarioBlockCollisionAtPosition(u32 yPosition, u32 xPosition)
     if (context.tileType == 0) {
         context.tileType = layerCollision[2];
         if (context.tileType == 12 && gCurrentRoomHeader.bg2Param == 16) {
-            result = sBlockCollisionHandlers[12](&context);
+            result = GF(sBlockCollisionHandlers[12])(&context);
         } else if ((u32)(context.tileType - 38) <= 7 && gCurrentRoomHeader.bg2Param == 16) {
             result = GetSwitchBlockCollision(&context);
         }
@@ -167,7 +167,7 @@ s32 GetSpriteBlockCollisionAtPosition(u16 y, u16 x)
     layer = 0;
 
     if (context.tileType <= 12) {
-        layer = sBlockCollisionHandlers[context.tileType](&context);
+        layer = GF(sBlockCollisionHandlers[context.tileType])(&context);
     } else if ((u32)(context.tileType - 20) <= 43) {
         layer = GetSwitchBlockCollision(&context);
     } else {
@@ -177,7 +177,7 @@ s32 GetSpriteBlockCollisionAtPosition(u16 y, u16 x)
     if (context.tileType == 0) {
         context.tileType = layerCollision[2];
         if (context.tileType == 12 && gCurrentRoomHeader.bg2Param == 16) {
-            layer = sBlockCollisionHandlers[12](&context);
+            layer = GF(sBlockCollisionHandlers[12])(&context);
         } else if ((u32)(context.tileType - 38) <= 7 && gCurrentRoomHeader.bg2Param == 16) {
             layer = GetSwitchBlockCollision(&context);
         }

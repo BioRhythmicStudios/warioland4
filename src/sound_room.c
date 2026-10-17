@@ -50,9 +50,9 @@ extern const u32 sUnk_863C6D4[][4];
 extern const u32 sUnk_863C714[];
 extern const u32 sUnk_863C754[];
 extern const u32 sUnk_863C794[];
-extern const u16* const sUnk_863C7D4[][4];
-extern const u16* const sUnk_863C814[][4];
-extern const struct AnimationFrame* const sUnk_863C854[];
+extern GBA_PTR(const u16*) const sUnk_863C7D4[][4];
+extern GBA_PTR(const u16*) const sUnk_863C814[][4];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_863C854[];
 extern const u32 sUnk_863C85C[];
 extern const u16 sUnk_863D85C[];
 extern const u16 sUnk_863D97C[];
@@ -1126,7 +1126,7 @@ void DrawSoundRoomSprites(void)
         for (stage = 0; stage < 4; stage++) {
             if (passage == (u8)gSoundRoomSelectedPassage && stage == (u8)gSoundRoomSelectedStage &&
                 (u8)gSoundRoomMenuState > 2) {
-                src = sUnk_863C7D4[passage][stage];
+                src = GP(sUnk_863C7D4[passage][stage]);
                 nextSlot += *(src++);
                 for (; currentSlot < nextSlot; currentSlot++) {
                     attr = *(src++);
@@ -1142,7 +1142,7 @@ void DrawSoundRoomSprites(void)
                     dest++;
                 }
             } else if (gCurrentCollection[passage + 1][stage].cd) {
-                src = sUnk_863C7D4[passage][stage];
+                src = GP(sUnk_863C7D4[passage][stage]);
                 nextSlot += *(src++);
                 for (; currentSlot < nextSlot; currentSlot++) {
                     attr = *(src++);
@@ -1160,7 +1160,7 @@ void DrawSoundRoomSprites(void)
     }
 
     if ((u8)gSoundRoomMenuState > 2) {
-        src = sUnk_863C814[(u8)gSoundRoomSelectedPassage][(u8)gSoundRoomSelectedStage];
+        src = GP(sUnk_863C814[(u8)gSoundRoomSelectedPassage][(u8)gSoundRoomSelectedStage]);
     } else if (*(u8*)&gSoundRoomMusicEnabled != 0) {
         if (gMPlayMemAccArea[0] % 2 == 1 && gMPlayMemAccArea[0] <= 99) {
             src = sUnk_864262A;
@@ -1247,9 +1247,9 @@ void DrawSoundRoomSprites(void)
                 gSoundRoomTrackAnimState[1] = 0;
             }
             if (cycle < 300) {
-                animation = sUnk_863C854[0];
+                animation = GP(sUnk_863C854[0]);
             } else {
-                animation = sUnk_863C854[1];
+                animation = GP(sUnk_863C854[1]);
             }
             gSoundRoomTrackAnimState[0]++;
             if (animation[gSoundRoomTrackAnimState[1]].time < gSoundRoomTrackAnimState[0]) {

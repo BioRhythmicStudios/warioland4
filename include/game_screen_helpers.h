@@ -34,8 +34,8 @@ struct AGB_ALIGN RoomStartData {
 };
 
 extern const struct TilesetLoadData sTilesetLoadData[];
-extern const struct RoomHeader* const sRoomHeaderTables[];
-extern const struct RoomStartData* const sRoomStartDataTables[];
+extern GBA_PTR(const struct RoomHeader*) const sRoomHeaderTables[];
+extern GBA_PTR(const struct RoomStartData*) const sRoomStartDataTables[];
 extern const u8 sBlankBackgroundTiles[];
 extern const u8 sBossRoomBackgroundData[];
 extern const u8 sBossPauseBackgroundTiles[];

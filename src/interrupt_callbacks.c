@@ -4,8 +4,8 @@
 
 void InterruptCallbackCallVBlank(void)
 {
-    if (gVBlankCallback != NULL) {
-        gVBlankCallback();
+    if (GF(gVBlankCallback) != NULL) {
+        GF(gVBlankCallback)();
     }
 
     REG_IF |= INTR_FLAG_VBLANK;
@@ -14,16 +14,16 @@ void InterruptCallbackCallVBlank(void)
 
 void InterruptCallbackSetVBlank(ProcedureFunc cb)
 {
-    gVBlankCallback = cb;
+    GF_SET(gVBlankCallback, cb);
     if (cb == NULL) {
-        gVBlankCallback = InterruptCallbackEmpty;
+        GF_SET(gVBlankCallback, InterruptCallbackEmpty);
     }
 }
 
 void InterruptCallbackCallHBlank(void)
 {
-    if (gHBlankCallback != NULL) {
-        gHBlankCallback();
+    if (GF(gHBlankCallback) != NULL) {
+        GF(gHBlankCallback)();
     }
 
     REG_IF |= INTR_FLAG_HBLANK;
@@ -31,16 +31,16 @@ void InterruptCallbackCallHBlank(void)
 
 void InterruptCallbackSetHBlank(ProcedureFunc cb)
 {
-    gHBlankCallback = cb;
+    GF_SET(gHBlankCallback, cb);
     if (cb == NULL) {
-        gHBlankCallback = InterruptCallbackEmpty;
+        GF_SET(gHBlankCallback, InterruptCallbackEmpty);
     }
 }
 
 void InterruptCallbackCallVCount(void)
 {
-    if (gVCountCallback != NULL) {
-        gVCountCallback();
+    if (GF(gVCountCallback) != NULL) {
+        GF(gVCountCallback)();
     }
 
     REG_IF |= INTR_FLAG_VCOUNT;
@@ -48,9 +48,9 @@ void InterruptCallbackCallVCount(void)
 
 void InterruptCallbackSetVCount(ProcedureFunc cb)
 {
-    gVCountCallback = cb;
+    GF_SET(gVCountCallback, cb);
     if (cb == NULL) {
-        gVCountCallback = InterruptCallbackEmpty;
+        GF_SET(gVCountCallback, InterruptCallbackEmpty);
     }
 }
 

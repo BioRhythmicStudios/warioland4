@@ -19,7 +19,7 @@ extern const struct PuffyAnimationFrame sPuffyTransformingAnimation[];
 extern const struct PuffyAnimationFrame sPuffyFloatingAnimation[];
 extern const struct PuffyAnimationFrame sPuffyHitCeilingAnimation[];
 extern const struct PuffyAnimationFrame sPuffyInhalingAnimation[];
-extern const struct PuffyGraphicsFrame* sPuffyGraphicsTable[];
+extern GBA_PTR(const struct PuffyGraphicsFrame*) sPuffyGraphicsTable[];
 extern const u8 sPuffyPoseData[];
 extern const u8 sPuffyPalette[];
 

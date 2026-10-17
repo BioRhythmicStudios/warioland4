@@ -3,10 +3,10 @@
 
 #include "global_data.h"
 
-extern u8* const sPrimarySaveHeaderBuffers[SAVE_COUNT];
-extern u8* const sSecondarySaveHeaderBuffers[SAVE_COUNT];
-extern u8* const sMainSaveDataBuffers[SAVE_COUNT];
-extern u8* const sStageSelectionSaveBuffers[SAVE_COUNT];
+extern GBA_PTR(u8*) const sPrimarySaveHeaderBuffers[SAVE_COUNT];
+extern GBA_PTR(u8*) const sSecondarySaveHeaderBuffers[SAVE_COUNT];
+extern GBA_PTR(u8*) const sMainSaveDataBuffers[SAVE_COUNT];
+extern GBA_PTR(u8*) const sStageSelectionSaveBuffers[SAVE_COUNT];
 
 void BuildTitleScreenSaveHeader(void);
 void ValidateAndRepairSaveHeaderCopies(void);

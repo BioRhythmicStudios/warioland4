@@ -1,8 +1,6 @@
 #include "minigames/roulette.h"
 #include "fixed_point.h"
 
-extern struct RouletteItem *gRouletteItemDrawOrder[3];
-extern const u16 *gRouletteItemOamTable[15];
 extern const struct AnimationFrame sRouletteMainState1Oam[];
 extern const struct AnimationFrame sRouletteMainState2Oam[];
 extern const struct AnimationFrame sRoulettePromptOam[];

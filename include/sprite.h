@@ -468,7 +468,7 @@ extern struct PrimarySpriteData gSpriteData[MAX_SPRITE_COUNT];
 extern u8 gPersistentSpriteData[16][MAX_SPRITE_SLOTS_PER_ROOM];
 #define MAKE_PERSISTENT_DATA(pose, status) (((pose) << 4) | (status))
 extern struct PrimarySpriteData gCurrentSprite;
-extern const u16* gCurrentSpriteOamData;
+extern GBA_PTR(const u16*) gCurrentSpriteOamData;
 
 extern u8 gSpriteCollisionResult;
 extern u8 gSpriteCollisionTileType;

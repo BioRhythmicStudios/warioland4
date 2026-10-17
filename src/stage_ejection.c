@@ -17,7 +17,7 @@ extern const s32 sStageEjectionParticleYVelocities[];
 extern const s32 sStageEjectionParticleXVelocities[];
 extern const s32 sStageEjectionParticleSpawnOffsets[];
 extern const s32 sStageEjectionTreasureSpawnYThresholds[];
-extern const u16* const sStageEjectionTreasureOamFrames[];
+extern GBA_PTR(const u16*) const sStageEjectionTreasureOamFrames[];
 extern const s32 sStageEjectionTreasureYVelocities[];
 extern const s32 sStageEjectionTreasureXVelocities[];
 extern const u16 sStageEjectionWarioOam[];

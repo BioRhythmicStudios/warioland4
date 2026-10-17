@@ -105,9 +105,9 @@ extern const u8 sBossTreasureSpritePalette[];
 extern const u8 sBossTreasureSpriteTiles[];
 extern const u16 sBossTreasureIdlePaletteFlashFrames[];
 extern const u16 sBossTreasureActivePaletteFlashFrames[];
-extern const u16* const sBossTreasureItemOamFramesByPassage[];
-extern const u16* const sBossTreasureUnlockIconOamFrames[];
-extern const u16* const sBossTreasureSparkleOamFrames[];
+extern GBA_PTR(const u16*) const sBossTreasureItemOamFramesByPassage[];
+extern GBA_PTR(const u16*) const sBossTreasureUnlockIconOamFrames[];
+extern GBA_PTR(const u16*) const sBossTreasureSparkleOamFrames[];
 extern const u16 sBossTreasureItemOamFrame[];
 extern const struct AnimationFrame sBossTreasureParticleAnimation[];
 
@@ -1211,7 +1211,7 @@ void DrawBossTreasureCutsceneSprites(void)
 
             if (gBossTreasureItems[i].active != 0) {
                 if (i == 0) {
-                    src = sBossTreasureItemOamFramesByPassage[gCurrentPassageTemp - 1];
+                    src = GP(sBossTreasureItemOamFramesByPassage[gCurrentPassageTemp - 1]);
                 } else {
                     src = sBossTreasureItemOamFrame;
                 }
@@ -1258,7 +1258,7 @@ void DrawBossTreasureCutsceneSprites(void)
 
             if (gBossTreasureItems[i].active != 0) {
                 if (i == 0) {
-                    src = sBossTreasureItemOamFramesByPassage[gCurrentPassageTemp - 1];
+                    src = GP(sBossTreasureItemOamFramesByPassage[gCurrentPassageTemp - 1]);
                 } else {
                     src = sBossTreasureItemOamFrame;
                 }
@@ -1311,7 +1311,7 @@ void DrawBossTreasureCutsceneSprites(void)
 
     for (i = 0; i < 11; i++) {
         if (gBossTreasureUnlockSparkles[i].active != 0) {
-            src = sBossTreasureSparkleOamFrames[i];
+            src = GP(sBossTreasureSparkleOamFrames[i]);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;
@@ -1333,7 +1333,7 @@ void DrawBossTreasureCutsceneSprites(void)
 
     for (i = 4; i >= 0; i--) {
         if (gBossTreasureUnlockIcons[i].active != 0) {
-            src = sBossTreasureUnlockIconOamFrames[gCurrentPassageTemp - 1];
+            src = GP(sBossTreasureUnlockIconOamFrames[gCurrentPassageTemp - 1]);
             nextSlot += *(src++);
             if (nextSlot > 128) {
                 return;

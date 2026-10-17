@@ -19,7 +19,7 @@ extern u8 gBgAnimationFrame;
 extern u8 gBgAnimationTimer;
 extern u8 gSpriteAiDynamicGraphicsTimer;
 
-extern const void *const sUnk_878F170[];
+extern GBA_PTR(const void *) const sUnk_878F170[];
 
 void UpdateBossHealthGauge(void);
 

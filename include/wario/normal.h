@@ -21,11 +21,11 @@ extern const u8 sWarioWeakThrowStateTable[];
 extern const u8 sWarioChargedThrowStateTable[];
 extern const u8 sWarioTurningThrowStateTable[];
 
-extern const struct WarioAnimationFrame* const sWarioPoseAnimationTable[];
-extern const struct WarioAnimationFrame* const sWarioCarryingAnimationTable[];
-extern const struct WarioAnimationFrame* const sWarioUpwardThrowAnimationTable[];
-extern const struct WarioAnimationFrame* const sWarioAirborneAnimationTable[];
-extern const struct WarioAnimationFrame* const sWarioIdleInputAnimationTable[];
+extern GBA_PTR(const struct WarioAnimationFrame*) const sWarioPoseAnimationTable[];
+extern GBA_PTR(const struct WarioAnimationFrame*) const sWarioCarryingAnimationTable[];
+extern GBA_PTR(const struct WarioAnimationFrame*) const sWarioUpwardThrowAnimationTable[];
+extern GBA_PTR(const struct WarioAnimationFrame*) const sWarioAirborneAnimationTable[];
+extern GBA_PTR(const struct WarioAnimationFrame*) const sWarioIdleInputAnimationTable[];
 
 extern const struct WarioAnimationFrame sWarioWalkingAnimation[];
 extern const struct WarioAnimationFrame sWarioFastWalkingAnimation[];
@@ -80,7 +80,7 @@ extern const u16 sWarioDashAttackPaletteFrames[];
 extern const u16 sWarioDamageFlashPalette[];
 extern const u16 sWarioUnusedPose76AlternatePalette[];
 extern const u16 sWarioGroundPoundSecondaryPalette[];
-extern const u16* const sWarioGroundPoundPaletteFrames[];
+extern GBA_PTR(const u16*) const sWarioGroundPoundPaletteFrames[];
 extern const u16 sWarioUnusedPose76Palette[];
 extern const u16 sWarioChargedThrowPaletteFrames[];
 extern const u16 sWarioDumbbellSecondaryPalette[];

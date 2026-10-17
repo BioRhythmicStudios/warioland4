@@ -7,7 +7,7 @@
 
 u8 UpdateMaskWario(void)
 {
-    return sWarioMaskPoseTable[gWarioData.pose]();
+    return GF(sWarioMaskPoseTable[gWarioData.pose])();
 }
 
 u8 MaskWarioTransforming(void)
@@ -207,7 +207,7 @@ void LoadMaskWarioGraphics(u8 variant)
 
     UpdateWarioPositionHistory();
 
-    frame = sMaskWarioGraphicsTable[gWarioData.pose][variant];
+    frame = GP(sMaskWarioGraphicsTable[gWarioData.pose][variant]);
     frame += gWarioData.unk_1F;
     gfx = GP(frame->gfx);
     gWarioData.objData1Size = gfx[0] << 5;

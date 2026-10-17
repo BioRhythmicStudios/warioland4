@@ -75,7 +75,7 @@ u8 UpdateNormalWarioPose(void)
     }
 
     if (pose == 0xFF) {
-        pose = sWarioNormalPoseTable[gWarioData.pose]();
+        pose = GF(sWarioNormalPoseTable[gWarioData.pose])();
     }
     return pose;
 }
@@ -7425,7 +7425,7 @@ animationSelected:
         case 29:
         case 30:
             gWarioPaletteSize = 96;
-            palette = sWarioGroundPoundPaletteFrames[wario->unk_1F];
+            palette = GP(sWarioGroundPoundPaletteFrames[wario->unk_1F]);
             CopyWarioPalette(palette, 0, 16);
             palette = sWarioGroundPoundSecondaryPalette;
             CopyWarioPalette(palette, 16, 16);

@@ -305,7 +305,7 @@ extern const s32 sVoiceSet_19[];
 extern const s32 sVoiceSet_20[];
 extern const s32 sVoiceSet_21[];
 extern const s32 sVoiceSet_22[];
-extern const s32* const sVoiceSetPointers[VS_COUNT];
+extern GBA_PTR(const s32*) const sVoiceSetPointers[VS_COUNT];
 #endif
 
 void VoiceSetPlay(s32 voiceSet)
@@ -333,5 +333,5 @@ void VoiceSetPlay(s32 voiceSet)
             }
     }
     chosenSound = MinigameRandom() % sVoiceSetSizes[voiceSet];
-    m4aSongNumStart(sVoiceSetPointers[voiceSet][chosenSound]);
+    m4aSongNumStart(GP(sVoiceSetPointers[voiceSet])[chosenSound]);
 }

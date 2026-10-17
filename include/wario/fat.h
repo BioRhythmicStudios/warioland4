@@ -11,7 +11,7 @@ struct AGB_ALIGN FatWarioGraphicsFrame {
     u8 pad_09[3];
 };
 
-extern const struct FatWarioGraphicsFrame* const sFatWarioGraphicsTable[][2];
+extern GBA_PTR(const struct FatWarioGraphicsFrame*) const sFatWarioGraphicsTable[][2];
 extern const u8 sFatWarioPoseProperties[][8];
 extern const struct FatWarioGraphicsFrame sFatWarioTransformingFrames[];
 extern const struct FatWarioGraphicsFrame sFatWarioTurningFrames[];

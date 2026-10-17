@@ -38,7 +38,7 @@ extern const u8 sUnk_868A01C[];
 extern const u16 sStageEjectionWarioOam[];
 extern const u16 sUnk_863D9EC[];
 extern const u16 sUnk_863D9F4[];
-extern const u16* const sUnk_863A47C[];
+extern GBA_PTR(const u16*) const sUnk_863A47C[];
 extern const struct AnimationFrame sUnk_863DB7C[];
 extern const struct AnimationFrame sUnk_863DBE4[];
 extern const struct AnimationFrame sUnk_863DCB4[];
@@ -718,7 +718,7 @@ void RenderVortexCutsceneOam(void)
 
     if ((gSubGameMode == 18) && (gStageEntrySequenceStep > 1)) {
         if ((gStageEntrySequenceStep == 3) && (gStageResultsAnimationFinished == 0)) {
-            src = sUnk_863A47C[gStageResultsTreasure.state];
+            src = GP(sUnk_863A47C[gStageResultsTreasure.state]);
             nextSlot += *(src++);
             pbPtr = &affine[1];
             pcPtr = &affine[2];
@@ -787,7 +787,7 @@ void RenderVortexCutsceneOam(void)
 
         for (i = 0; i <= 3; i++) {
             if (gStageResultsTreasureIcons[i].state != 0) {
-                src = sUnk_863A47C[i];
+                src = GP(sUnk_863A47C[i]);
                 nextSlot += *(src++);
                 for (; currentSlot < nextSlot; currentSlot++) {
                     attr = *(src++);

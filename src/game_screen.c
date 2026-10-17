@@ -197,8 +197,8 @@ void func_801BC0C(void)
             DmaCopy16(3, GP(gWarioData.pObjData2), 0x6010400, gWarioData.objData2Size);
         }
     }
-    DmaCopy16(3, gCurrentHeartMeterGfx, 0x6011200, 0x100);
-    DmaCopy16(3, gCurrentHeartGaugeGfx, 0x6011600, 0x100);
+    DmaCopy16(3, GP(gCurrentHeartMeterGfx), 0x6011200, 0x100);
+    DmaCopy16(3, GP(gCurrentHeartGaugeGfx), 0x6011600, 0x100);
 
     if (gBldCnt != 0) {
         REG_BLDCNT = gBldCnt;
@@ -231,8 +231,8 @@ void func_801BD4C(void)
         }
         DmaCopy16(3, gWarioPalette, OBJ_PLTT, gWarioPaletteSize);
     }
-    DmaCopy16(3, gCurrentHeartMeterGfx, 0x6011200, 0x100);
-    DmaCopy16(3, gCurrentHeartGaugeGfx, 0x6011600, 0x100);
+    DmaCopy16(3, GP(gCurrentHeartMeterGfx), 0x6011200, 0x100);
+    DmaCopy16(3, GP(gCurrentHeartGaugeGfx), 0x6011600, 0x100);
 
     if (gBldCnt != 0) {
         REG_BLDCNT = gBldCnt;
@@ -274,8 +274,8 @@ void func_801BEA8(void)
         }
         DmaCopy16(3, gWarioPalette, OBJ_PLTT, gWarioPaletteSize);
     }
-    DmaCopy16(3, gCurrentHeartMeterGfx, 0x6011200, 0x100);
-    DmaCopy16(3, gCurrentHeartGaugeGfx, 0x6011600, 0x100);
+    DmaCopy16(3, GP(gCurrentHeartMeterGfx), 0x6011200, 0x100);
+    DmaCopy16(3, GP(gCurrentHeartGaugeGfx), 0x6011600, 0x100);
 
     if (gBldAlpha != 0) {
         REG_BLDALPHA = gBldAlpha;

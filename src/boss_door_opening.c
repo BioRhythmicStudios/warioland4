@@ -21,11 +21,11 @@ extern const u16 sUnk_863C5DC[];
 extern const s32 sUnk_863C674[2][4];
 extern const u8 sUnk_86AE648[];
 s32 UpdateStageEntryHorizontalShake(void);
-extern const struct AnimationFrame* const sUnk_863C654[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_863C654[];
 extern const struct AnimationFrame sUnk_8642464[];
-extern const struct AnimationFrame* const sUnk_863C5EC[];
-extern const struct AnimationFrame* const sUnk_863C5F4[];
-extern const struct AnimationFrame* const sUnk_863C634[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_863C5EC[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_863C5F4[];
+extern GBA_PTR(const struct AnimationFrame*) const sUnk_863C634[];
 
 s32 UpdateBossDoorOpeningState(void)
 {

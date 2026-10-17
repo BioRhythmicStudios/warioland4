@@ -200,7 +200,7 @@ const u8 sClockTable[] = {
     0x60,
 };
 #else
-extern void * const sMPlayJumpTableTemplate[];
+extern GBA_PTR(void *) const sMPlayJumpTableTemplate[];
 extern const u8 sScaleTable[];
 extern const u32 sFreqTable[];
 extern const u16 sPcmSamplesPerVBlankTable[];

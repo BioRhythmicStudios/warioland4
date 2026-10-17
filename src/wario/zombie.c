@@ -13,7 +13,7 @@
 
 u8 UpdateZombieWario(void)
 {
-    return sZombieWarioPoseTable[gWarioData.pose]();
+    return GF(sZombieWarioPoseTable[gWarioData.pose])();
 }
 
 u8 ZombieWarioTransforming(void)
@@ -558,7 +558,7 @@ void LoadZombieWarioGraphics(int variant)
 
     graphicsVariant = (u8)variant;
     UpdateWarioPositionHistory();
-    frame = sZombieWarioGraphicsTable[gWarioData.pose][graphicsVariant];
+    frame = GP(sZombieWarioGraphicsTable[gWarioData.pose][graphicsVariant]);
     frame += gWarioData.unk_1F;
     gfx = GP(frame->gfx);
     gWarioData.objData1Size = gfx[0] << 5;

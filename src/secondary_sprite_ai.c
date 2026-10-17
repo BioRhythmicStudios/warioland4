@@ -328,7 +328,7 @@ void UpdateWarioCenteredScaleEffectSecondarySprite(void)
 
     sprite = &gCurrentSecondarySprite;
     sprite->status |= 2;
-    gCurrentSecondarySpriteOamData = sWarioCenteredScaleEffectOam;
+    GP_SET(gCurrentSecondarySpriteOamData, sWarioCenteredScaleEffectOam);
     timer = sprite->timer;
     scale = sUnk_8416774[timer];
 
@@ -367,7 +367,7 @@ void UpdateLittleHeartPopSecondarySprite(void)
 
     sprite = &gCurrentSecondarySprite;
     sprite->status |= 2;
-    gCurrentSecondarySpriteOamData = sLittleHeartOam_Frame1;
+    GP_SET(gCurrentSecondarySpriteOamData, sLittleHeartOam_Frame1);
     timer = sprite->timer;
     scale = sUnk_8416774[timer];
 
@@ -784,7 +784,7 @@ void UpdateBugleNote6SecondarySprite(void)
     } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote6OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote6OamFrame);
     }
 }
 
@@ -806,7 +806,7 @@ void UpdateBugleNote1SecondarySprite(void)
     } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote1OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote1OamFrame);
     }
 }
 
@@ -828,7 +828,7 @@ void UpdateBugleNote10SecondarySprite(void)
     } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote10OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote10OamFrame);
     }
 }
 
@@ -850,7 +850,7 @@ void UpdateBugleNote2SecondarySprite(void)
     } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote2OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote2OamFrame);
     }
 }
 
@@ -872,7 +872,7 @@ void UpdateBugleNote9SecondarySprite(void)
     } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote9OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote9OamFrame);
     }
 }
 
@@ -894,7 +894,7 @@ void UpdateBugleNote3SecondarySprite(void)
     } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote3OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote3OamFrame);
     }
 }
 
@@ -916,7 +916,7 @@ void UpdateBugleNote8SecondarySprite(void)
     } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote8OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote8OamFrame);
     }
 }
 
@@ -938,7 +938,7 @@ void UpdateBugleNote4SecondarySprite(void)
     } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote4OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote4OamFrame);
     }
 }
 
@@ -960,7 +960,7 @@ void UpdateBugleNote7SecondarySprite(void)
     } else {
         ApplyBugleNoteRotatingAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote7OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote7OamFrame);
     }
 }
 
@@ -982,7 +982,7 @@ void UpdateBugleNote5SecondarySprite(void)
     } else {
         ApplyBugleNotePulseAffine(timer);
         UpdateBugleNoteDriftMotion();
-        gCurrentSecondarySpriteOamData = sBugleNote5OamFrame;
+        GP_SET(gCurrentSecondarySpriteOamData, sBugleNote5OamFrame);
     }
 }
 
@@ -1745,7 +1745,7 @@ void UpdateTimeUpSecondarySprite(void)
 
             sprite = &gCurrentSecondarySprite;
             sprite->status |= 6;
-            gCurrentSecondarySpriteOamData = sUnk_840F1C8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_840F1C8);
             table = (u32)sUnk_84168B4;
             timer = sprite->timer;
             entry = timer << 1;
@@ -1766,7 +1766,7 @@ void UpdateTimeUpSecondarySprite(void)
 
         case 1:
             gCurrentSecondarySprite.status |= 6;
-            gCurrentSecondarySpriteOamData = sUnk_840F1C8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_840F1C8);
 
             if ((gCurrentSecondarySprite.yPosition >> 2) > 2) {
                 gCurrentSecondarySprite.yPosition -= 16;
@@ -1778,7 +1778,7 @@ void UpdateTimeUpSecondarySprite(void)
 
         case 2:
             gCurrentSecondarySprite.status |= 6;
-            gCurrentSecondarySpriteOamData = sUnk_840F1C8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_840F1C8);
 
             if (gTimerState == 2) {
                 gCurrentSecondarySprite.pose = 3;
@@ -1888,7 +1888,7 @@ void UpdateTimeUpSecondarySprite(void)
 
             sprite = &gCurrentSecondarySprite;
             sprite->status |= 6;
-            gCurrentSecondarySpriteOamData = sUnk_840F214;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_840F214);
 
             if (gTimerState != 4) {
                 if (gStageScore != 0) {
@@ -1912,13 +1912,13 @@ void UpdateTimeUpSecondarySprite(void)
 
             sprite = &gCurrentSecondarySprite;
             sprite->status |= 6;
-            gCurrentSecondarySpriteOamData = sUnk_840F1C8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_840F1C8);
             goto state_6_7_movement;
 
             case 7:
                 sprite = &gCurrentSecondarySprite;
                 sprite->status |= 6;
-                gCurrentSecondarySpriteOamData = sUnk_840F214;
+                GP_SET(gCurrentSecondarySpriteOamData, sUnk_840F214);
 
             state_6_7_movement:
                 timerOrPosition = sprite->timer;
@@ -1986,7 +1986,7 @@ void UpdateTimeUpSecondarySprite(void)
             dmaReg[2] = dmaControlLarge;
             dmaReg[2];
 
-            gCurrentSecondarySpriteOamData = sUnk_8411AFC;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411AFC);
             scale = 16;
             sprite->pose = 11;
 
@@ -2007,121 +2007,121 @@ void UpdateTimeUpSecondarySprite(void)
             if (gTimerState == 6) {
                 gCurrentSecondarySprite.yPosition = 320;
                 gCurrentSecondarySprite.xPosition = 480;
-                gCurrentSecondarySpriteOamData = sUnk_8411B48;
+                GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411B48);
                 scale = 32;
                 gCurrentSecondarySprite.pose++;
                 ConvertObjPaletteBankToGrayscale(8);
             } else {
-                gCurrentSecondarySpriteOamData = sUnk_8411AFC;
+                GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411AFC);
                 scale = 16;
             }
             break;
 
         case 12:
-            gCurrentSecondarySpriteOamData = sUnk_8411B94;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411B94);
             scale = 64;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 13:
-            gCurrentSecondarySpriteOamData = sUnk_8411BE0;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411BE0);
             scale = 96;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 14:
-            gCurrentSecondarySpriteOamData = sUnk_8411C2C;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411C2C);
             scale = 128;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 15:
-            gCurrentSecondarySpriteOamData = sUnk_8411C78;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411C78);
             scale = 160;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 16:
-            gCurrentSecondarySpriteOamData = sUnk_8411CC4;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411CC4);
             scale = 192;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 17:
-            gCurrentSecondarySpriteOamData = sUnk_8411D10;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411D10);
             scale = 224;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 18:
-            gCurrentSecondarySpriteOamData = sUnk_8411D5C;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411D5C);
             scale = 256;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 19:
-            gCurrentSecondarySpriteOamData = sUnk_8411DA8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411DA8);
             scale = 288;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 20:
-            gCurrentSecondarySpriteOamData = sUnk_8411DF4;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411DF4);
             scale = 320;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 21:
-            gCurrentSecondarySpriteOamData = sUnk_8411E40;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411E40);
             scale = 352;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 22:
-            gCurrentSecondarySpriteOamData = sUnk_8411E8C;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411E8C);
             scale = 384;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 23:
-            gCurrentSecondarySpriteOamData = sUnk_8411ED8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411ED8);
             scale = 416;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 25:
-            gCurrentSecondarySpriteOamData = sUnk_8411F70;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411F70);
             scale = 480;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 26:
             gTimerState = 7;
-            gCurrentSecondarySpriteOamData = sUnk_8411FBC;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FBC);
             scale = 512;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 27:
-            gCurrentSecondarySpriteOamData = sUnk_8411F70;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411F70);
             scale = 480;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 29:
-            gCurrentSecondarySpriteOamData = sUnk_8411ED8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411ED8);
             scale = 416;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 30:
-            gCurrentSecondarySpriteOamData = sUnk_8411E8C;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411E8C);
             scale = 384;
             gCurrentSecondarySprite.pose = 39;
             break;
 
         case 39:
-            gCurrentSecondarySpriteOamData = sUnk_8411ED8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411ED8);
             scale = 416;
             gCurrentSecondarySprite.pose++;
             break;
@@ -2129,13 +2129,13 @@ void UpdateTimeUpSecondarySprite(void)
         case 24:
         case 28:
         case 40:
-            gCurrentSecondarySpriteOamData = sUnk_8411F24;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411F24);
             scale = 448;
             gCurrentSecondarySprite.pose++;
             break;
 
         case 41:
-            gCurrentSecondarySpriteOamData = sUnk_8411F70;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411F70);
             scale = 480;
             gCurrentSecondarySprite.pose++;
             gCurrentSecondarySprite.timer = 120;
@@ -2143,7 +2143,7 @@ void UpdateTimeUpSecondarySprite(void)
             break;
 
         case 42:
-            gCurrentSecondarySpriteOamData = sUnk_8411FBC;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FBC);
             scale = 512;
 
             if (gCurrentSecondarySprite.timer == 50) {
@@ -2169,7 +2169,7 @@ void UpdateTimeUpSecondarySprite(void)
             break;
 
         case 43:
-            gCurrentSecondarySpriteOamData = sUnk_8411FBC;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FBC);
             scale = 512;
             break;
 
@@ -2179,7 +2179,7 @@ void UpdateTimeUpSecondarySprite(void)
 
             sprite = &gCurrentSecondarySprite;
             sprite->status |= 6;
-            gCurrentSecondarySpriteOamData = sUnk_840F1C8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_840F1C8);
             timerOrPosition = sprite->timer;
 
             if (timerOrPosition != 0) {
@@ -2201,7 +2201,7 @@ void UpdateTimeUpSecondarySprite(void)
         default:
             gCurrentSecondarySprite.status &= 0xFD;
             gCurrentSecondarySprite.status &= 0xFB;
-            gCurrentSecondarySpriteOamData = sUnk_840F1C8;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_840F1C8);
             break;
     }
 
@@ -2277,7 +2277,7 @@ void UpdateCDIconSecondarySprite(void)
 
             angle = gCurrentSecondarySprite.timer;
             gCurrentSecondarySprite.status |= 2;
-            gCurrentSecondarySpriteOamData = sUnk_8411994;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411994);
             break;
         }
 
@@ -2326,7 +2326,7 @@ void UpdateCDIconSecondarySprite(void)
 
             scale = 0x200;
             gCurrentSecondarySprite.status |= 2;
-            gCurrentSecondarySpriteOamData = sUnk_8411994;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411994);
             break;
         }
 
@@ -2337,7 +2337,7 @@ void UpdateCDIconSecondarySprite(void)
             scale = 0x200;
             sprite = &gCurrentSecondarySprite;
             sprite->status |= 2;
-            gCurrentSecondarySpriteOamData = sUnk_8411994;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411994);
             value = sprite->timer;
             value--;
             sprite->timer = value;
@@ -2354,7 +2354,7 @@ void UpdateCDIconSecondarySprite(void)
             u32 value;
 
             angle = 0;
-            gCurrentSecondarySpriteOamData = sUnk_8411994;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411994);
             sprite = &gCurrentSecondarySprite;
             value = sprite->timer;
             value -= 16;
@@ -2388,7 +2388,7 @@ void UpdateCDIconSecondarySprite(void)
         case 4:
             sprite = &gCurrentSecondarySprite;
             sprite->status &= 0xFD;
-            gCurrentSecondarySpriteOamData = sUnk_8411A4CFrame0;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411A4CFrame0);
 
             if (gWarioPauseTimer == 0) {
                 sprite->pose = 5;
@@ -2518,7 +2518,7 @@ void UpdateJewelPieceIconSecondarySprite(void)
     value = 4;
     value |= status;
     current->status = value;
-    gCurrentSecondarySpriteOamData = sUnk_8414A54;
+    GP_SET(gCurrentSecondarySpriteOamData, sUnk_8414A54);
     value = current->pose;
     sprite = current;
 
@@ -2748,7 +2748,7 @@ void UpdateCollectedCDSecondarySprite(void)
     status = value;
     status |= pose;
     sprite->status = status;
-    gCurrentSecondarySpriteOamData = sUnk_8414A4C;
+    GP_SET(gCurrentSecondarySpriteOamData, sUnk_8414A4C);
     pose = sprite->pose;
 
     switch (pose) {
@@ -2857,7 +2857,7 @@ void UpdateTreasureExitSecondarySprite(void)
             sprite->work0 += 16;
             angle = sprite->work0;
             scale = 0x100;
-            gCurrentSecondarySpriteOamData = sUnk_8411FE2;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FE2);
             stateFlags = sprite->timer;
             condition = 1;
             condition &= stateFlags;
@@ -2983,40 +2983,40 @@ void UpdateTreasureExitSecondarySprite(void)
                 dmaReg[2] = dmaControl;
                 dmaReg[2];
                 scale += 32;
-                gCurrentSecondarySpriteOamData = sUnk_8411FF8;
+                GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FF8);
                 gCurrentSecondarySprite.pose++;
             } else {
-                gCurrentSecondarySpriteOamData = sUnk_8411FEA;
+                GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FEA);
             }
             break;
 
         case 2:
             scale = 0x140;
-            gCurrentSecondarySpriteOamData = sUnk_8412006;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8412006);
             gCurrentSecondarySprite.pose++;
             break;
 
         case 3:
             scale = 0x160;
-            gCurrentSecondarySpriteOamData = sUnk_8412014;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8412014);
             gCurrentSecondarySprite.pose++;
             break;
 
         case 4:
             scale = 0x180;
-            gCurrentSecondarySpriteOamData = sUnk_8412022;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8412022);
             gCurrentSecondarySprite.pose++;
             break;
 
         case 5:
             scale = 0x1A0;
-            gCurrentSecondarySpriteOamData = sUnk_8412030;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8412030);
             gCurrentSecondarySprite.pose++;
             break;
 
         case 6:
             scale = 0x1C0;
-            gCurrentSecondarySpriteOamData = sUnk_841203E;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_841203E);
             gCurrentSecondarySprite.pose++;
             break;
 
@@ -3026,7 +3026,7 @@ void UpdateTreasureExitSecondarySprite(void)
             register u32 dmaControl PIN("r2");
 
             scale = 0x1E0;
-            gCurrentSecondarySpriteOamData = sUnk_841204C;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_841204C);
             dmaReg = (volatile u32*)0x040000D4;
             dmaValue = (u32)sTimeUpEffect2Gfx;
             dmaReg[0] = dmaValue;
@@ -3049,7 +3049,7 @@ void UpdateTreasureExitSecondarySprite(void)
 
         case 8:
             scale = 0x200;
-            gCurrentSecondarySpriteOamData = sUnk_841205A;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_841205A);
             gCurrentSecondarySprite.timer--;
 
             if (gCurrentSecondarySprite.timer == 0) {
@@ -3064,7 +3064,7 @@ void UpdateTreasureExitSecondarySprite(void)
             s16 signedMovement;
 
             scale = 0x200;
-            gCurrentSecondarySpriteOamData = sUnk_841205A;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_841205A);
             timer = gCurrentSecondarySprite.timer;
             movement = (u16)sUnk_8416A46[timer];
             signedMovement = sUnk_8416A46[timer];
@@ -3084,7 +3084,7 @@ void UpdateTreasureExitSecondarySprite(void)
 
         case 10:
             scale = 0x200;
-            gCurrentSecondarySpriteOamData = sUnk_841205A;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_841205A);
             position = gCurrentSecondarySprite.yPosition;
             position += 6;
             gCurrentSecondarySprite.yPosition = position;
@@ -3097,7 +3097,7 @@ void UpdateTreasureExitSecondarySprite(void)
         default:
             flags &= 0xFD;
             current->status = flags;
-            gCurrentSecondarySpriteOamData = sUnk_841205A;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_841205A);
             break;
     }
 
@@ -3161,7 +3161,7 @@ void UpdateStageExitVortexSecondarySprite(void)
 
             current->work0 += 16;
             angle = current->work0;
-            gCurrentSecondarySpriteOamData = sUnk_8411FE2;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FE2);
             stateFlags = current->timer;
             condition = 1;
             condition &= stateFlags;
@@ -3270,7 +3270,7 @@ void UpdateStageExitVortexSecondarySprite(void)
         case 1: {
             u32 value;
 
-            gCurrentSecondarySpriteOamData = sUnk_8411FEA;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FEA);
             value = current->timer;
             value--;
             current->timer = value;
@@ -3294,7 +3294,7 @@ void UpdateStageExitVortexSecondarySprite(void)
             u32 tableAddress;
             s16 signedMovement;
 
-            gCurrentSecondarySpriteOamData = sUnk_8411FEA;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FEA);
             timer = current->timer;
             relative = (u32)sUnk_8416A88;
             tableAddress = timer << 1;
@@ -3317,7 +3317,7 @@ void UpdateStageExitVortexSecondarySprite(void)
             u32 noValue;
             u32 statePosition;
 
-            gCurrentSecondarySpriteOamData = sUnk_8411FEA;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FEA);
             statePosition = current->yPosition;
             statePosition += 16;
             noValue = 0;
@@ -3340,7 +3340,7 @@ void UpdateStageExitVortexSecondarySprite(void)
         }
 
         default:
-            gCurrentSecondarySpriteOamData = sUnk_8411FEA;
+            GP_SET(gCurrentSecondarySpriteOamData, sUnk_8411FEA);
             break;
     }
 

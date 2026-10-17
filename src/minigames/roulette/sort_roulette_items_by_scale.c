@@ -27,16 +27,16 @@ void SortRouletteItemsByScale(void)
     }
 
     for (i = 0; i <= 1; i++) {
-        selectedScale = gRouletteItemDrawOrder[i]->scale;
+        selectedScale = GP(gRouletteItemDrawOrder[i])->scale;
         selected = i;
         for (j = i + 1; j <= 2; j++) {
-            if (gRouletteItemDrawOrder[j]->scale > selectedScale) {
-                selectedScale = gRouletteItemDrawOrder[j]->scale;
+            if (GP(gRouletteItemDrawOrder[j])->scale > selectedScale) {
+                selectedScale = GP(gRouletteItemDrawOrder[j])->scale;
                 selected = j;
             }
         }
-        swappedItem = gRouletteItemDrawOrder[i];
-        gRouletteItemDrawOrder[i] = gRouletteItemDrawOrder[selected];
-        gRouletteItemDrawOrder[selected] = swappedItem;
+        swappedItem = GP(gRouletteItemDrawOrder[i]);
+        GP_SET(gRouletteItemDrawOrder[i], GP(gRouletteItemDrawOrder[selected]));
+        GP_SET(gRouletteItemDrawOrder[selected], swappedItem);
     }
 }

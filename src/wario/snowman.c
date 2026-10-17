@@ -17,7 +17,7 @@ extern const struct AnimationFrameU16 sUnk_82E04C4[];
 
 u8 UpdateSnowmanWario(void)
 {
-    return sSnowmanWarioPoseTable[gWarioData.pose]();
+    return GF(sSnowmanWarioPoseTable[gWarioData.pose])();
 }
 
 u8 SnowmanWarioTransforming(void)
@@ -549,7 +549,7 @@ void UpdateSnowmanWarioGraphics(u8 variant)
     const u8* data;
 
     UpdateWarioPositionHistory();
-    frames = sSnowmanWarioAnimationTable[gWarioData.pose][variant];
+    frames = GP(sSnowmanWarioAnimationTable[gWarioData.pose][variant]);
     frame = &frames[gWarioData.unk_1F];
     data = GP(frame->objData);
     gWarioData.objData1Size = *data << 5;

@@ -30,9 +30,9 @@ extern const u32 sMinigameCursorYPositions[];
 extern const u32 sMinigameNavigationTable[];
 extern const struct AnimationFrame sMinigameCursorConfirmAnimation[];
 extern u8 gMinigameCursorAnimationState[];
-extern const struct AnimationFrame* gMinigameCursorAnimation;
+extern GBA_PTR(const struct AnimationFrame*) gMinigameCursorAnimation;
 extern u8 gMinigameSparkleAnimationState[];
-extern const struct AnimationFrame* const sMinigameItemAnimationTable[3][6];
+extern GBA_PTR(const struct AnimationFrame*) const sMinigameItemAnimationTable[3][6];
 extern const u32 sMinigameSparkleXOffsets[];
 extern const u32 sMinigameSparkleYOffsets[];
 extern const struct AnimationFrame sMinigameSparkleAnimation[];
@@ -770,7 +770,7 @@ durationDone:;
         selectionData[1] = entryZero;
     }
 
-    gMinigameCursorAnimation = sMinigameCursorIdleAnimation;
+    GP_SET(gMinigameCursorAnimation, sMinigameCursorIdleAnimation);
     {
         u16* timer;
         u16 loopZero;

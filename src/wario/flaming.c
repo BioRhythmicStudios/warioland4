@@ -13,7 +13,7 @@
 
 u8 UpdateFlamingWario(void)
 {
-    return sFlamingWarioPoseTable[gWarioData.pose]();
+    return GF(sFlamingWarioPoseTable[gWarioData.pose])();
 }
 
 u8 FlamingWarioBlue(void)
@@ -710,7 +710,7 @@ void LoadFlamingWarioGraphics(int variant)
 
     graphicsVariant = (u8)variant;
     UpdateWarioPositionHistory();
-    frame = sFlamingWarioGraphicsTable[gWarioData.pose][graphicsVariant];
+    frame = GP(sFlamingWarioGraphicsTable[gWarioData.pose][graphicsVariant]);
     frame += gWarioData.unk_1F;
     gfx = GP(frame->gfx);
     gWarioData.objData1Size = gfx[0] << 5;
