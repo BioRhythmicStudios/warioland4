@@ -90,7 +90,7 @@ experiments/
 expected/
 
 # PC port build; port/ keeps scripts that the rules above would ignore
-build_pc/
+build_pc*/
 port/generated/failed_probe.c
 !port/tools/
 !port/**/*.py

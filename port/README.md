@@ -63,3 +63,20 @@ generate from Windows after `cmake --build`:
 
 `port/tools/gen_layout_asserts.py` regenerates the layout checks. It runs under WSL,
 because it needs agbcc and libclang (`pip install libclang`).
+
+## Runtime
+
+`wl4.exe [ROM] [--selftest] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+
+At startup, `port/src/gba_memory.c` reserves the GBA regions at their real addresses
+(`port/include/port/gba_memory.h`). It also reserves the game stack at `0x01020000`–`0x01810000`,
+with a guard page, 60 KiB of headroom and inaccessible blocks around it. A vectored
+exception handler reports faults on GBA addresses (for example a write to the read-only
+ROM) and overflows of the game stack. `port/src/rom.c` loads the ROM (default
+`baserom_us.gba`), checks its size and MD5, and makes it read-only. The game runs as a
+minicoro coroutine on the low stack (`port/src/game_thread.c`).
+
+`--selftest` runs the coroutine through yields and 2 MiB of recursion. `--fault` and
+`--asan-probe` trigger the fault reports and an AddressSanitizer report on the game stack.
+To build with AddressSanitizer, configure with `-DWL4_ASAN=ON`. Then put
+`llvm-mingw/x86_64-w64-mingw32/bin` on `PATH` for `libclang_rt.asan_dynamic-x86_64.dll`.

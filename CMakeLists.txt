@@ -3,6 +3,12 @@ cmake_minimum_required(VERSION 3.20)
 project(warioland4_pc C ASM)
 
 option(WL4_CAST_WARNINGS "Show the pointer/integer cast warnings (the GbaPtr worklist)" OFF)
+option(WL4_ASAN "Build with AddressSanitizer" OFF)
+
+if(WL4_ASAN)
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=address)
+endif()
 
 # Game code: everything in src/ except the ROM data in src/data/, which the port reads from
 # the user's ROM. The function pointer tables there hold native addresses, so they are built.
@@ -42,13 +48,18 @@ add_library(wl4_platform_stub STATIC port/platform/stub/platform_stub.c)
 # and stubs for the functions that are still asm.
 add_executable(wl4
     port/src/main.c
+    port/src/game_thread.c
     port/src/gba_functions.c
+    port/src/gba_memory.c
     port/src/gba_runtime.c
+    port/src/md5.c
+    port/src/os_win32.c
+    port/src/rom.c
     port/generated/gba_symbols.s
     port/generated/gba_functions.c
     port/generated/gba_stubs.c
 )
-target_include_directories(wl4 PRIVATE port/include)
+target_include_directories(wl4 PRIVATE port/include port/third_party/minicoro)
 # gba_functions.c declares every game function as void(void) to take its address.
 set_source_files_properties(port/generated/gba_functions.c PROPERTIES COMPILE_OPTIONS -Wno-incompatible-library-redeclaration)
 target_link_libraries(wl4 PRIVATE wl4_game wl4_platform_stub)
