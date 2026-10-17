@@ -45,7 +45,7 @@ extern const s32 sUnk_86D36A4[];
 extern const s32 sUnk_86D36B8[];
 extern const s32 sUnk_86D36CC[];
 extern const s32 sUnk_86D36D4[];
-extern const struct AnimationFrame* const sUnk_86D36DC[];
+extern const struct AnimationFrame* const sUnk_86D36DC[][4];
 extern const struct AnimationFrame* const sUnk_86D36FC[];
 extern const struct AnimationFrame* const sUnk_86D370C[2][2];
 extern const struct AnimationFrame sUnk_86D3CF8[];
