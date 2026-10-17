@@ -473,9 +473,9 @@ void LoadRoom(void)
             register u32 overlayDmaEnable PIN("r1");
 
             overlayBuffer = (u8*)0x0201F840;
-            asm volatile("" : "+r"(overlayBuffer));
+            ASM_BARRIER_VOLATILE(: "+r"(overlayBuffer));
             transferSize = DecompressRoomBackground(0, selectedData, overlayBuffer);
-            asm("" : "+r"(transferSize));
+            ASM_BARRIER(: "+r"(transferSize));
             overlayDma = (struct DmaRegisters*)0x040000D4;
             overlayDma->source = (void*)0x0201F840;
             overlayDma->destination = (void*)0x06003800;
@@ -888,7 +888,7 @@ void DrawRoomBackgroundLayer(u8 layer)
 
                 calculation = xPosition >> 6;
                 width = 21;
-                asm("" : "+r"(width));
+                ASM_BARRIER(: "+r"(width));
                 columns = width;
                 calculation -= 3;
                 calculation <<= 16;
@@ -972,7 +972,7 @@ void DrawRoomBackgroundLayer(u8 layer)
             {
                 register s32 rowLimit PIN("r3");
                 rowLimit = rows;
-                asm("" : "+r"(rowLimit));
+                ASM_BARRIER(: "+r"(rowLimit));
                 if (row >= rowLimit) {
                     goto RenderComplete;
                 }
@@ -987,7 +987,7 @@ void DrawRoomBackgroundLayer(u8 layer)
             register u32 columnCount PIN("r0");
 
             rowBackground = savedBackground;
-            asm("" : "+r"(rowBackground));
+            ASM_BARRIER(: "+r"(rowBackground));
             sourceIndex = rowBackground->bg0Width * row;
             {
                 u32 columnRegister;
@@ -997,7 +997,7 @@ void DrawRoomBackgroundLayer(u8 layer)
             }
             nextRow = row + 1;
             nextY = yPosition + 1;
-            asm("" : "+r"(nextY));
+            ASM_BARRIER(: "+r"(nextY));
             nextStartY = nextY;
             columnCount = columns;
             if (columnCount != 0) {
@@ -1025,9 +1025,9 @@ void DrawRoomBackgroundLayer(u8 layer)
                     register u16* sourcePointer PIN("r4");
 
                     vramBase = 0x06000000;
-                    asm("" : "+r"(vramBase));
+                    ASM_BARRIER(: "+r"(vramBase));
                     destinationBase = screenBlockOffset;
-                    asm("" : "+r"(destinationBase));
+                    ASM_BARRIER(: "+r"(destinationBase));
                     destination = (vu16*)(destinationBase + vramBase);
                     screenColumn = column & 0x1F;
                     if ((screenColumn & 0x10) != 0) {
@@ -1040,13 +1040,13 @@ void DrawRoomBackgroundLayer(u8 layer)
                         mask = screenColumn & 0xF;
                         columnOffset = mask << 1;
                         rowBase = rowOffset;
-                        asm("" : "+r"(rowBase));
+                        ASM_BARRIER(: "+r"(rowBase));
                         tileOffset = rowBase + columnOffset;
-                        asm("" : "+r"(tileOffset));
+                        ASM_BARRIER(: "+r"(tileOffset));
                     }
                     destination += tileOffset;
                     indexValue = sourceIndex;
-                    asm("" : "+r"(indexValue));
+                    ASM_BARRIER(: "+r"(indexValue));
                     sourceOffset = indexValue << 1;
                     sourcePointer = source;
                     sourceOffset = sourceOffset + (u32)sourcePointer;
@@ -1067,11 +1067,11 @@ void DrawRoomBackgroundLayer(u8 layer)
                 register u32 normalizedY PIN("r0");
                 register s32 rowLimit PIN("r3");
                 nextYRaw = nextStartY;
-                asm("" : "+r"(nextYRaw));
+                ASM_BARRIER(: "+r"(nextYRaw));
                 normalizedY = nextYRaw << 16;
                 yPosition = normalizedY >> 16;
                 rowLimit = rows;
-                asm("" : "+r"(rowLimit));
+                ASM_BARRIER(: "+r"(rowLimit));
                 if (row >= rowLimit) {
                     break;
                 }
@@ -1102,7 +1102,7 @@ RenderComplete: {
         layerTemporary = layerValue;
         layerOffset = layerTemporary << 12;
         vramBase = 0x06000000;
-        asm("" : "+r"(vramBase));
+        ASM_BARRIER(: "+r"(vramBase));
         dmaRegister->destination = (void*)(layerOffset + vramBase);
         controlValue = 0x80000400;
         controlRegister = controlValue;

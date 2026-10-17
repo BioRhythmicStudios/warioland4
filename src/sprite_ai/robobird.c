@@ -106,7 +106,7 @@ void RobobirdAttackDelay(void)
     if (timer != 0) {
         u16 compareTimer;
         compareTimer = timer;
-        asm("" : "+r"(compareTimer));
+        ASM_BARRIER(: "+r"(compareTimer));
         if (compareTimer == 9) {
             u8* extent;
             if (sprite->status & SPRITE_STATUS_FACING_RIGHT) {

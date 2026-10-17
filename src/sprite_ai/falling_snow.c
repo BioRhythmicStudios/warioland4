@@ -235,7 +235,7 @@ void InitFallingSnowFragment(void)
         statusBits = 0x400;
         base = statusBits;
         zero = 0;
-        asm volatile("" : "+r"(zero));
+        ASM_BARRIER_VOLATILE(: "+r"(zero));
         zero16 = 0;
         status = base;
         status |= oldStatus;

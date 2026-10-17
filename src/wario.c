@@ -323,7 +323,7 @@ void WarioProcessCollision(void)
     initialCollision->unk_00 = 0;
     initialCollision->flags = 0;
     /* Preserve the dedicated byte-clear register used by the original schedule. */
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     initialCollision->unk_12 = zero;
     initialCollision->unk_13 = zero;
     initialCollision->unk_14 = zero;

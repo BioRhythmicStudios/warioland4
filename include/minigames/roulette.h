@@ -140,7 +140,7 @@ void AnimateRouletteResultTiles(void);
     if (frame < 0) \
         frameOffset = frame + 3; \
     frameOffset >>= 2; \
-    asm volatile("" : "+r"(frameOffset)); \
+    ASM_BARRIER_VOLATILE(: "+r"(frameOffset)); \
     quotient = frameOffset; \
     frameOffset = quotient << 2; \
     frameOffset = frame - frameOffset; \
@@ -163,7 +163,7 @@ void AnimateRouletteResultTiles(void);
     if (frame < 0) \
         frameOffset = frame + 3; \
     frameOffset >>= 2; \
-    asm volatile("" : "+r"(frameOffset)); \
+    ASM_BARRIER_VOLATILE(: "+r"(frameOffset)); \
     quotient = frameOffset; \
     frameOffset = quotient << 2; \
     frameOffset = frame - frameOffset; \
@@ -175,6 +175,14 @@ void AnimateRouletteResultTiles(void);
         src += (s32)base; \
     } \
 } while (0)
+
+// Both adds stay in one asm statement so agbcc keeps the original order.
+#ifdef PORTABLE
+#define ROULETTE_ADVANCE_DMA_POINTERS(dst, src, step) ((dst) += (step), (src) += (step))
+#else
+#define ROULETTE_ADVANCE_DMA_POINTERS(dst, src, step) \
+    asm volatile("add %0, %0, %2\nadd %1, %1, %2" : "+r"(dst), "+r"(src) : "r"(step))
+#endif
 
 #define RUN_FOUR_DMAS(destination) do { \
     register volatile u32 *dma PIN("r4"); \
@@ -208,8 +216,7 @@ void AnimateRouletteResultTiles(void);
                 value &= pollMask; \
             } while (value != 0); \
         } \
-        asm volatile("add %0, %0, %2\nadd %1, %1, %2" \
-                     : "+r"(dst), "+r"(src) : "r"(step)); \
+        ROULETTE_ADVANCE_DMA_POINTERS(dst, src, step); \
         count--; \
     } while (count >= 0); \
 } while (0)

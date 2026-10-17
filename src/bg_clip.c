@@ -59,7 +59,7 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
     tileY = shiftedY >> 22;
     tileX = shiftedX >> 22;
     roomHeaderInit = &gCurrentRoomHeader;
-    asm("" : "=r"(roomHeader) : "0"(roomHeaderInit));
+    ASM_BARRIER(: "=r"(roomHeader) : "0"(roomHeaderInit));
     attributeTable = gBackgroundTileTables.attributes;
     destination = stack.attributes;
     layer = (struct BackgroundInfo*)&background->pBg1Data;
@@ -328,7 +328,7 @@ s32 GetBg2CollisionTypeAtTile(s32 y, s32 x)
     u16 tile;
 
     y = (u16)y;
-    asm("" : "+r"(y));
+    ASM_BARRIER(: "+r"(y));
     yCoord = y;
     xCoord = (u16)x;
     xSaved = xCoord;
@@ -393,7 +393,7 @@ s32 TryTriggerRoomTransitionAtTile(s32 y, s32 x)
     s16* modeState;
 
     temporary = y;
-    asm("" : "+r"(temporary));
+    ASM_BARRIER(: "+r"(temporary));
     temporary <<= 16;
     yCoord = (u32)temporary >> 16;
     xCoord = (u16)x;

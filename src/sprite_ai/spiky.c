@@ -506,9 +506,9 @@ void SpikyAirborne(void)
     timerCopy = --(*timerPointer);
     if (timerCopy != 0) {
         timer = *timerPointer;
-        asm("" : "+r"(timer));
+        ASM_BARRIER(: "+r"(timer));
         timerCopy = timer;
-        asm("" : "+r"(timerCopy));
+        ASM_BARRIER(: "+r"(timerCopy));
         if (timer == 38 || timer == 33) {
             sprite->yPosition -= 16;
         } else if (timer == 29) {

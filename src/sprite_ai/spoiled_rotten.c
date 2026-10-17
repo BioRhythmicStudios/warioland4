@@ -424,7 +424,7 @@ void func_803B164(void)
     struct PrimarySpriteData *end;
     u8 zero;
 
-    asm("" ::: "r6");
+    ASM_BARRIER(::: "r6");
     current = &gCurrentSprite;
     oam = sSpoiledRottenOam_83C30F4;
     sprite = gSpriteData;

@@ -276,7 +276,7 @@ void MPlayExtender(struct CgbChannel *cgbChans)
 }
 
 void MusicPlayerJumpTableCopy(void) {
-    asm("swi 0x2A");
+    SYSCALL(SYSCALL_GetJumpList);
 }
 
 void ClearChain(void *x)

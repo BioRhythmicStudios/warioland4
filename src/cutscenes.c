@@ -999,7 +999,7 @@ void UpdateLayeredBackgroundTransition(s32 inputFrame)
                 u32 dmaValue;
                 dma = (vu32*)0x040000D4;
                 dma[0] = new_var;
-                asm("" : "=r"(dmaValue) : "0"((u32)0x05000020));
+                ASM_BARRIER(: "=r"(dmaValue) : "0"((u32)0x05000020));
                 dma[1] = dmaValue;
                 dmaValue = 0x84000008;
                 dma[2] = dmaValue;
@@ -1086,7 +1086,7 @@ void UpdateLayeredBackgroundTransition(s32 inputFrame)
                 }
             } else {
                 s32 elseOffset;
-                asm("" : "=r"(elseOffset));
+                ASM_BARRIER(: "=r"(elseOffset));
                 destination = AppendCutsceneOamTemplate((u16*)oam, destination, (-elseOffset) + 128, wave + 64);
             }
             FinalizeCutsceneOamBuffer(destination);
@@ -1180,7 +1180,7 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
                 offsetPointer = &gUnk_3002C44;
                 negativeOffset = 8;
                 negativeOffset = -negativeOffset;
-                asm("" : "+r"(negativeOffset));
+                ASM_BARRIER(: "+r"(negativeOffset));
                 offsetValue = negativeOffset;
                 *offsetPointer = offsetValue;
             }
@@ -1191,7 +1191,7 @@ void UpdateLayeredSpriteCutsceneSequence(s32 inputFrame)
                 register s32 storedDisplayValue PIN("r0");
                 displayPointer = (volatile u16*)0x04000000;
                 displayValue = 0x1404;
-                asm("" : "+r"(displayPointer), "+r"(displayValue));
+                ASM_BARRIER(: "+r"(displayPointer), "+r"(displayValue));
                 storedDisplayValue = displayValue;
                 *displayPointer = storedDisplayValue;
             }
@@ -1571,7 +1571,7 @@ void func_8005500(s32 frame)
                     register s32 negativeValue PIN("r1");
 
                     negativeValue = -144;
-                    asm("" : : "r"(negativeValue));
+                    ASM_BARRIER(: : "r"(negativeValue));
                     workValue = negativeValue;
                     *verticalPointer = workValue;
                     gUnk_3002C60++;
@@ -1593,13 +1593,13 @@ void func_8005500(s32 frame)
             if (signedVertical < 0) {
                 if (signedVertical < -40) {
                     work = unsignedVertical + 1;
-                    asm("" : : "r"(work));
+                    ASM_BARRIER(: : "r"(work));
                     goto storeVertical3;
                 }
                 if (signedVertical < -20) {
                     if ((frame & 1) != 0) {
                         work = unsignedVertical + 1;
-                        asm("" : : "r"(work));
+                        ASM_BARRIER(: : "r"(work));
                         goto storeVertical3;
                     }
                 }
@@ -1614,7 +1614,7 @@ void func_8005500(s32 frame)
                     }
                 }
                 if ((frame & 7) == 7) {
-                    asm("" : : : "memory");
+                    ASM_BARRIER(: : : "memory");
                     work = *(u16*)offsetOrPointer;
                     work++;
                 storeVertical3:
@@ -1810,7 +1810,7 @@ void func_80058AC(s32 frame)
                     register s32 negativeValue PIN("r1");
 
                     negativeValue = -144;
-                    asm("" : : "r"(negativeValue));
+                    ASM_BARRIER(: : "r"(negativeValue));
                     workValue = negativeValue;
                     *verticalPointer = workValue;
                     gUnk_3002C60++;
@@ -1832,13 +1832,13 @@ void func_80058AC(s32 frame)
             if (signedVertical < 0) {
                 if (signedVertical < -40) {
                     work = unsignedVertical + 1;
-                    asm("" : : "r"(work));
+                    ASM_BARRIER(: : "r"(work));
                     goto storeVertical3;
                 }
                 if (signedVertical < -20) {
                     if ((frameReg & 1) != 0) {
                         work = unsignedVertical + 1;
-                        asm("" : : "r"(work));
+                        ASM_BARRIER(: : "r"(work));
                         goto storeVertical3;
                     }
                 }
@@ -1853,7 +1853,7 @@ void func_80058AC(s32 frame)
                     }
                 }
                 if ((frameReg & 7) == 7) {
-                    asm("" : : : "memory");
+                    ASM_BARRIER(: : : "memory");
                     work = *(u16*)offsetOrPointer;
                     work++;
                 storeVertical3:
@@ -3280,7 +3280,7 @@ void UpdateLayeredWarioCutsceneSequence(s32 inputFrame)
             xValue++;
             *xPointer = xValue;
             signedX = *xPointer;
-            asm("" : "+r"(signedX));
+            ASM_BARRIER(: "+r"(signedX));
             parabolaOffset = signedX;
             parabolaOffset -= 104;
             gCutscenePrimaryObjectY = (parabolaOffset * parabolaOffset) / 8 + 136;
@@ -3801,7 +3801,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                         signedValue = animationValue - 1;
                         *animationPointer = signedValue;
                         signedValue = *animationPointer;
-                        asm("" : "+r"(signedValue));
+                        ASM_BARRIER(: "+r"(signedValue));
                         deltaValue = signedValue;
                         deltaValue -= 104;
                         secondaryYPointer = &gUnk_3002C9A;
@@ -3874,7 +3874,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     }
                     zero = 0;
                     secondaryX = *(s16*)secondaryXPointer;
-                    asm("" : "+r"(secondaryX));
+                    ASM_BARRIER(: "+r"(secondaryX));
                     parabolaDelta = secondaryX;
                     parabolaDelta -= 116;
                     secondaryYPointer = &gUnk_3002C9E;
@@ -3890,7 +3890,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     (*secondaryXPointer)++;
                     zero = 0;
                     secondaryX = *(s16*)secondaryXPointer;
-                    asm("" : "+r"(secondaryX));
+                    ASM_BARRIER(: "+r"(secondaryX));
                     parabolaDelta = secondaryX;
                     parabolaDelta -= 136;
                     secondaryYPointer = &gUnk_3002C9E;
@@ -4009,7 +4009,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 (*secondaryXPointer)--;
                 zero = 0;
                 secondaryX = *secondaryXPointer;
-                asm("" : "+r"(secondaryX));
+                ASM_BARRIER(: "+r"(secondaryX));
                 parabolaDelta = secondaryX;
                 parabolaDelta -= 120;
                 secondaryYPointer = &gUnk_3002C9E;
@@ -4062,7 +4062,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     *primaryXPointer = primaryXValue;
                     zero = 0;
                     primaryXSigned = *primaryXPointer;
-                    asm("" : "+r"(primaryXSigned));
+                    ASM_BARRIER(: "+r"(primaryXSigned));
                     parabolaDelta = primaryXSigned;
                     parabolaDelta -= 104;
                     primaryYPointer = &gCutscenePrimaryObjectY;
@@ -4151,7 +4151,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 objectPointer = &gCutsceneBackgroundHorizontalOffset;
                 horizontalBase = 136;
                 horizontalBase <<= 1;
-                asm("" : "+r"(horizontalBase));
+                ASM_BARRIER(: "+r"(horizontalBase));
                 horizontalValue = horizontalBase;
                 *objectPointer = horizontalValue;
                 objectPointer = &gCutsceneBackgroundVerticalOffset;
@@ -4168,7 +4168,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 animationPointer = &gCutsceneAnimationFinished;
                 animationOffset = 128;
                 animationOffset <<= 1;
-                asm("" : "+r"(animationOffset));
+                ASM_BARRIER(: "+r"(animationOffset));
                 animationValue = horizontalValue + animationOffset;
                 *animationPointer = animationValue;
                 objectPointer = &gUnk_3002C9A;
@@ -4177,7 +4177,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 objectPointer = &gCutscenePrimaryObjectX;
                 primaryOffset = 148;
                 primaryOffset <<= 1;
-                asm("" : "+r"(primaryOffset));
+                ASM_BARRIER(: "+r"(primaryOffset));
                 horizontalValue += primaryOffset;
                 *objectPointer = horizontalValue;
                 objectPointer = &gCutscenePrimaryObjectY;
@@ -4192,7 +4192,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 displayControl = (vu16*)0x04000000;
                 displayValue = 152;
                 displayValue <<= 5;
-                asm("" : "+r"(displayValue));
+                ASM_BARRIER(: "+r"(displayValue));
                 displayCopy = displayValue;
                 *displayControl = displayCopy;
             }
@@ -4350,7 +4350,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                     register u32 fillLoad PIN("r1");
                     fillPointer = &fillValue;
                     fillLoad = 0x03FF;
-                    asm("" : "+r"(fillPointer), "+r"(fillLoad));
+                    ASM_BARRIER(: "+r"(fillPointer), "+r"(fillLoad));
                     fillConstant = fillLoad;
                     *fillPointer = fillConstant;
                     fillDma = (vu32*)0x040000D4;
@@ -4376,7 +4376,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
 
                     fillPointer = &fillValue;
                     thirdConstant = 0x93A0;
-                    asm("" : "+r"(thirdConstant));
+                    ASM_BARRIER(: "+r"(thirdConstant));
                     thirdFill = thirdConstant;
                     *fillPointer = thirdFill;
                     fillDma[0] = (u32)fillPointer;
@@ -4430,7 +4430,7 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 displayControl = (vu16*)0x04000000;
                 displayValue = 184;
                 displayValue <<= 5;
-                asm("" : "+r"(displayValue));
+                ASM_BARRIER(: "+r"(displayValue));
                 displayCopy = displayValue;
                 *displayControl = displayCopy;
             }
@@ -4447,13 +4447,13 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
                 register s32 guard1 PIN("r1");
                 register s32 guard2 PIN("r2");
                 register s32 guard3 PIN("r3");
-                asm("" : "=r"(guard6), "=r"(guard0), "=r"(guard1), "=r"(guard2), "=r"(guard3));
+                ASM_BARRIER(: "=r"(guard6), "=r"(guard0), "=r"(guard1), "=r"(guard2), "=r"(guard3));
                 if (treasureCount != 0) {
                     SelectLayeredCutsceneOamSequence00(frame, &primaryOam);
                     SelectLayeredCutsceneOamSequence01(frame, &offsetOam);
                     ConfigureLayeredCutsceneOamOffsets(SelectLayeredCutsceneOamSequence01);
                 } else {
-                    asm("" : : "r"(guard6), "r"(guard0), "r"(guard1), "r"(guard2), "r"(guard3));
+                    ASM_BARRIER(: : "r"(guard6), "r"(guard0), "r"(guard1), "r"(guard2), "r"(guard3));
                     SelectLayeredCutsceneOamSequence10(frame, &primaryOam);
                 }
             }
@@ -4566,15 +4566,15 @@ void UpdateLayeredEndingTreasureCutsceneSequence(s32 inputFrame)
         primaryYLoadPointer = &gCutscenePrimaryObjectY;
         primaryYPointer = primaryYLoadPointer;
         primaryYLoaded = *primaryYLoadPointer;
-        asm("" : "+r"(primaryYLoaded));
+        ASM_BARRIER(: "+r"(primaryYLoaded));
         primaryYCopy = primaryYLoaded;
         primaryYLoaded = gCutsceneBackgroundVerticalOffset;
         primaryYPosition = primaryYCopy;
-        asm("" : "+r"(primaryYLoaded), "+r"(primaryYPosition));
+        ASM_BARRIER(: "+r"(primaryYLoaded), "+r"(primaryYPosition));
         primaryYPosition -= primaryYLoaded;
         primaryYPosition -= verticalWave;
         primaryYCopy = primaryYPosition;
-        asm volatile("" : "+r"(primaryYCopy));
+        ASM_BARRIER_VOLATILE(: "+r"(primaryYCopy));
         destination = AppendCutsceneOamTemplate(selectedOam, destination, primaryXPosition, primaryYPosition);
         if (gUnk_3002C60 > 5) {
             register s16* primaryYLowPointer PIN("r4");
@@ -6294,8 +6294,7 @@ void WaitForVBlankInterrupt(void)
     gInterruptCheck &= 0xFFFE;
 
     do {
-        /* agbcc has no C expression for the BIOS Halt SWI; this is the exact target svc 2. */
-        asm("svc 2");
+        SYSCALL(SYSCALL_Halt);
     } while ((gInterruptCheck & 1) == 0);
 }
 

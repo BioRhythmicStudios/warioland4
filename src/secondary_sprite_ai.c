@@ -1808,7 +1808,7 @@ void UpdateTimeUpSecondarySprite(void)
             sprite = &gCurrentSecondarySprite;
             oldStatus = sprite->status;
             flag = 6;
-            asm("" : "+r"(flag) : "r"(oldStatus));
+            ASM_BARRIER(: "+r"(flag) : "r"(oldStatus));
             status = flag;
             status |= oldStatus;
             sprite->status = status;
@@ -1851,7 +1851,7 @@ void UpdateTimeUpSecondarySprite(void)
             oldStatus = sprite->status;
             flagOrPosition = 4;
             zero = 0;
-            asm("" : "+r"(flagOrPosition) : "r"(zero));
+            ASM_BARRIER(: "+r"(flagOrPosition) : "r"(zero));
             status = flagOrPosition;
             status |= oldStatus;
             flagOrPosition = 0xFD;
@@ -2368,9 +2368,9 @@ void UpdateCDIconSecondarySprite(void)
                     scale = sprite->timer;
                     temporary = 0x80;
                     temporary <<= 1;
-                    asm("" : "+r"(temporary));
+                    ASM_BARRIER(: "+r"(temporary));
                     mask = temporary;
-                    asm("" : "+r"(mask));
+                    ASM_BARRIER(: "+r"(mask));
                     scale |= mask;
                 }
             } else {
@@ -2741,7 +2741,7 @@ void UpdateCollectedCDSecondarySprite(void)
     sprite = &gCurrentSecondarySprite;
     pose = sprite->status;
     value = 4;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     status = value;
     status |= pose;
     sprite->status = status;
@@ -3144,7 +3144,7 @@ void UpdateStageExitVortexSecondarySprite(void)
         newStatus = 6;
         unusedZero = 0;
         /* Preserve the original agbcc low-register pressure and scheduling. */
-        asm volatile("" : "+l"(unusedZero) : "r"(oldStatus), "r"(newStatus), "r"(current) : "r3", "r4", "r5", "r6");
+        ASM_BARRIER_VOLATILE(: "+l"(unusedZero) : "r"(oldStatus), "r"(newStatus), "r"(current) : "r3", "r4", "r5", "r6");
         newStatus |= oldStatus;
         current->status = newStatus;
     }
@@ -3365,7 +3365,7 @@ void UpdateStageExitVortexSecondarySprite(void)
     }
 
     /* Keep the zero temporary live so agbcc reserves r7 through the function. */
-    asm("" : : "r"(unusedZero));
+    ASM_BARRIER(: : "r"(unusedZero));
 }
 void ClampFallingSecondarySpriteAtBottom(u16 xVelocity)
 {

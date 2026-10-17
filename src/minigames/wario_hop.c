@@ -612,7 +612,7 @@ s32 WarioHopUpdateJumpArc(void)
         second->y -= movement;
     }
     frame = *(s16 *)((u8 *)first + 2);
-    asm("" : : "r"(accelValue));
+    ASM_BARRIER(: : "r"(accelValue));
     if (frame > 0x8C0) {
         first->y = 0x8C0;
     }
@@ -711,10 +711,10 @@ void WarioHopUpdateObstacles(void)
 
     base = gWarioHopObstacles;
     passLimit = 0xA80;
-    asm("" : : "r"(base), "r"(passLimit));
+    ASM_BARRIER(: : "r"(base), "r"(passLimit));
     offset = 0;
     farLimit = 0x1180;
-    asm("" : : "r"(farLimit));
+    ASM_BARRIER(: : "r"(farLimit));
     i = 6;
     do {
         struct WarioHopSmallState *item;

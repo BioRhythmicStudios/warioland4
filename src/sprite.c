@@ -436,12 +436,12 @@ void DrawCurrentPrimarySprite(u32 spriteIndex)
     r12 = spriteIndex;
     r0 = (u32)&gOamSlotsUsed;
     r1 = *(u8*)r0;
-    asm("" : "+r"(r1));
+    ASM_BARRIER(: "+r"(r1));
     r8 = r1;
     r1 = (u32)&gCurrentSpriteOamData;
     r6 = *(u32*)r1;
     r2 = *(u16*)r6;
-    asm("" : "+r"(r2));
+    ASM_BARRIER(: "+r"(r2));
     r9 = r2;
     r6 += 2;
     r1 = r9;
@@ -451,7 +451,7 @@ void DrawCurrentPrimarySprite(u32 spriteIndex)
     }
 
     r3 = r8;
-    asm("" : "+r"(r3));
+    ASM_BARRIER(: "+r"(r3));
     r0 = r3 << 3;
     r3 = (u32)gOamBuffer;
     r5 = r0 + r3;
@@ -536,7 +536,7 @@ entry_loop:
     *(u16*)r5 = r4;
     r5 += 2;
     r2 = r10;
-    asm("" : "+r"(r2));
+    ASM_BARRIER(: "+r"(r2));
     r1 = r4 + r2;
     r0 = 0x1FF;
     r1 &= r0;
@@ -573,7 +573,7 @@ entry_loop:
     r1 += r0;
     r0 = 0x3FF;
     r9 = r0;
-    asm("" : "+r"(r9));
+    ASM_BARRIER(: "+r"(r9));
     r0 = r9;
     r1 &= r0;
     r0 = ~0x3FF;
@@ -605,7 +605,7 @@ entry_loop:
         r1 <<= 3;
         r1 = r4 + r1;
         r0 = r10;
-        asm("" : "+r"(r0));
+        ASM_BARRIER(: "+r"(r0));
         r1 = r0 - r1;
         r2 = 0x1FF;
         r1 &= r2;
@@ -654,7 +654,7 @@ entry_loop:
         r2 &= r0;
         r2 <<= 1;
         r0 = 15;
-        asm("" : "+r"(r0));
+        ASM_BARRIER(: "+r"(r0));
         r0 = -r0;
         r1 &= r0;
         r1 |= r2;
@@ -683,7 +683,7 @@ entry_loop:
     }
 
 after_entries:
-    asm("" : : "r"(r0), "r"(r1), "r"(r2));
+    ASM_BARRIER(: : "r"(r0), "r"(r1), "r"(r2));
     gOamSlotsUsed = (u8)totalSlots;
     r0 = affine;
     if (r0 != 0) {
@@ -882,7 +882,7 @@ init_loop:
     r0 = *(volatile u32*)(r2 + 8);
 
     r3 = 0xFF;
-    asm("" : "+r"(r3));
+    ASM_BARRIER(: "+r"(r3));
     r9 = r3;
     r0 = *(u8*)r6;
     if ((s32)r0 > 90) {
@@ -1126,12 +1126,12 @@ void SpawnRoomSprite(u32 roomSlot, u32 y, u32 x, u32 persistent)
 
     slot = roomSlot;
     xPosition = x;
-    asm("" : "+m"(xPosition));
+    ASM_BARRIER(: "+m"(xPosition));
     persistentValue = (u8)persistent;
     index = 0;
     spriteBase = gSpriteData;
     temp2 = sizeof(struct PrimarySpriteData);
-    asm("" : "+r"(temp2));
+    ASM_BARRIER(: "+r"(temp2));
     stride = temp2;
     one = 1;
     temp2 = (u32)&gRoomSpriteData[0][2];
@@ -1172,7 +1172,7 @@ loop:
 
     temp0 -= 1;
     temp0 = (u8)temp0;
-    asm("" : "+r"(temp0));
+    ASM_BARRIER(: "+r"(temp0));
     temp1 = temp0;
     temp1 -= 16;
     temp2 = (u32)gRoomSpriteGraphicsSlots;

@@ -115,7 +115,7 @@ void UpdateCractusSegmentHorizontalFollow(void)
     sprite = &gCurrentSprite;
     value = 128;
     value <<= 2;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     target = value;
     coordinate = sprite->xPosition;
     value = target + coordinate;
@@ -216,7 +216,7 @@ void UpdateCractusSegmentVerticalFollow(void)
     value -= speed;
     speed = 128;
     speed <<= 2;
-    asm("" : "+r"(speed));
+    ASM_BARRIER(: "+r"(speed));
     target = speed;
     value += target;
     current = (u16)value;
@@ -243,7 +243,7 @@ void UpdateCractusSegmentVerticalFollow(void)
         if (speed == 0)
             speed = 1;
     }
-    asm("" : : : "memory");
+    ASM_BARRIER(: : : "memory");
     if (current > target) {
         value = sprite->yPosition;
         value -= speed;
@@ -279,7 +279,7 @@ void UpdateCractusSegmentVerticalSpacing(void)
     sprite = &gCurrentSprite;
     value = 128;
     value <<= 2;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     target = value;
     coordinate = sprite->yPosition;
     value = target + coordinate;
@@ -1477,7 +1477,7 @@ void UpdateCractusBossPose18(void)
     slot219 = (u8)SpriteUtilFindSprite(219, 0);
     sprite = &gCurrentSprite;
     indexOffset = 42;
-    asm("" : "+r"(indexOffset));
+    ASM_BARRIER(: "+r"(indexOffset));
     indexOffset += (u32)sprite;
     indexAddress = (u8 *)indexOffset;
     indexPtr = indexAddress;
@@ -1642,9 +1642,9 @@ void UpdateCractusBossPose19(void)
                 register u32 coordinate PIN("r3");
                 offset = 230;
                 offset <<= 2;
-                asm("" : "+r"(offset));
+                ASM_BARRIER(: "+r"(offset));
                 y = offset;
-                asm("" : "+r"(y));
+                ASM_BARRIER(: "+r"(y));
                 coordinate = sprite->yPosition;
                 y += coordinate;
                 y = (u16)y;
@@ -1670,9 +1670,9 @@ void UpdateCractusBossPose19(void)
                 velocity = *(const u16 *)address;
                 loadZero = 0;
                 signedLoad = *(const s16 *)((const u8 *)address + loadZero);
-                asm("" : "+r"(signedLoad));
+                ASM_BARRIER(: "+r"(signedLoad));
                 signedVelocity = signedLoad;
-                asm("" : "+r"(signedVelocity));
+                ASM_BARRIER(: "+r"(signedVelocity));
                 if (signedVelocity == 0x7FFF) {
                     address = (index - 1) << 1;
                     address = (u32)(address + (u8 *)table);
@@ -1936,7 +1936,7 @@ void UpdateCractusBossPose114(void)
         {
             register s32 maskSeed PIN("r1");
             maskSeed = -1;
-            asm("" : : "r"(maskSeed));
+            ASM_BARRIER(: : "r"(maskSeed));
             mask = maskSeed;
         }
         *work3 = 255;
@@ -2949,7 +2949,7 @@ void InitCractusStemSegment(void)
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
     statusBits = 0x8408;
-    asm("" : "+r"(statusBits));
+    ASM_BARRIER(: "+r"(statusBits));
     status = statusBits;
     zeroByte = 0;
     zeroHalf = 0;
@@ -3082,9 +3082,9 @@ void InitCractusArmSegmentCommon(void)
     sprite = &gCurrentSprite;
     temp = sprite->status;
     statusBits = 0x8408;
-    asm("" : "+r"(statusBits));
+    ASM_BARRIER(: "+r"(statusBits));
     value = statusBits;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zeroByte = 0;
     zeroHalf = 0;
     value |= temp;
@@ -3141,7 +3141,7 @@ void InitCractusArmSegmentA(void)
         case 3:
             sprite = &gCurrentSprite;
             animation = sCractusArmSegmentA3Oam;
-            asm volatile("" ::: "memory");
+            ASM_BARRIER_VOLATILE(::: "memory");
             break;
         case 4:
             sprite = &gCurrentSprite;
@@ -3182,7 +3182,7 @@ void InitCractusArmSegmentB(void)
         case 3:
             sprite = &gCurrentSprite;
             animation = sCractusArmSegmentB3Oam;
-            asm volatile("" ::: "memory");
+            ASM_BARRIER_VOLATILE(::: "memory");
             break;
         case 4:
             sprite = &gCurrentSprite;
@@ -3510,7 +3510,7 @@ void UpdateCractusArmSegmentPose15(void)
                 gCurrentSprite.work3 = timerValue;
             else {
                 gCurrentSprite.work3 = yDelta;
-                asm("" : : "r"(timerValue));
+                ASM_BARRIER(: : "r"(timerValue));
             }
         }
         gCurrentSprite.work1 = gBgAnimationTimer + gBgAnimationFrame;
@@ -3530,7 +3530,7 @@ void UpdateCractusArmSegmentPose15(void)
                 gCurrentSprite.work3 = timerValue;
             else {
                 gCurrentSprite.work3 = yDelta;
-                asm("" : : "r"(timerValue));
+                ASM_BARRIER(: : "r"(timerValue));
             }
         }
         gCurrentSprite.work1 = gBgAnimationTimer + gBgAnimationFrame;
@@ -3819,9 +3819,9 @@ void InitCractusStemTip(void)
     sprite = &gCurrentSprite;
     temp = sprite->status;
     statusBits = 0x8408;
-    asm("" : "+r"(statusBits));
+    ASM_BARRIER(: "+r"(statusBits));
     value = statusBits;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zeroByte = 0;
     zeroHalf = 0;
     value |= temp;
@@ -3901,7 +3901,7 @@ void InitCractusDefeatPiece(void)
     fieldR1[26] = value;
     temp = *(u16 *)fieldR1;
     statusBits = 0x400;
-    asm("" : "+r"(statusBits));
+    ASM_BARRIER(: "+r"(statusBits));
     value = statusBits;
     zeroByte = 0;
     value |= temp;
@@ -4083,9 +4083,9 @@ void InitCractusDefeatAttachment(void)
     ((struct PrimarySpriteData *)temp)->drawPriority = value;
     temp = *(u16 *)temp;
     collision = 0x400;
-    asm("" : "+r"(collision));
+    ASM_BARRIER(: "+r"(collision));
     value = collision;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zeroByte = 0;
     value |= temp;
     temp = 0xFFFB;
@@ -4161,9 +4161,9 @@ void InitCractusProjectile(void)
     sprite = &gCurrentSprite;
     temp = sprite->status;
     extent = 0x400;
-    asm("" : "+r"(extent));
+    ASM_BARRIER(: "+r"(extent));
     value = extent;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zeroByte = 0;
     zeroHalf = 0;
     value |= temp;
@@ -4254,7 +4254,7 @@ void UpdateCractusProjectilePose16(void)
     }
 
     value = 42;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     value += (u32)current;
     indexPtr = (u8 *)value;
     index = *(u8 *)value;
@@ -4264,7 +4264,7 @@ void UpdateCractusProjectilePose16(void)
     velocity = *(const u16 *)value;
     zero = 0;
     signedVelocity = *(const s16 *)((const u8 *)value + zero);
-    asm("" : : "r"(sprite));
+    ASM_BARRIER(: : "r"(sprite));
     if (signedVelocity == 0x7FFF) {
         u32 offset;
         register u32 yPosition PIN("r0");
@@ -4751,9 +4751,9 @@ void SpriteCractusImpactEffect(void)
         temp = *(u16 *)temp;
         extent = 128;
         extent <<= 3;
-        asm("" : "+r"(extent));
+        ASM_BARRIER(: "+r"(extent));
         value = extent;
-        asm("" : "+r"(value));
+        ASM_BARRIER(: "+r"(value));
         zero = 0;
         value |= temp;
         temp = 0xFFFB;

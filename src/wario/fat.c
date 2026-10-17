@@ -104,7 +104,7 @@ u8 FatWarioWalking(void)
             test ^= direction;
             test &= held;
             test <<= 16;
-            asm("" : "+r"(test));
+            ASM_BARRIER(: "+r"(test));
             if (test != 0) {
                 return 2;
             }
@@ -160,7 +160,7 @@ u8 FatWarioFalling(void)
     wario = &gWarioData;
     held = *buttons;
     direction = wario->horizontalDirection;
-    asm("" : "=r"(active) : "0"(held));
+    ASM_BARRIER(: "=r"(active) : "0"(held));
     active &= direction;
     if (active != 0) {
         s32 right;
@@ -177,7 +177,7 @@ u8 FatWarioFalling(void)
         test = direction;
         test &= held;
         test <<= 16;
-        asm("" : "+r"(test));
+        ASM_BARRIER(: "+r"(test));
         if (test != 0) {
             wario->horizontalDirection = direction;
         }
@@ -492,7 +492,7 @@ void UpdateFatWarioMotion(void)
             u16 xPosition;
 
             delta = xVelocity;
-            asm("" : "+r"(delta));
+            ASM_BARRIER(: "+r"(delta));
             positionWario = &gWarioData;
             xPosition = positionWario->xPosition;
             xPosition += delta;

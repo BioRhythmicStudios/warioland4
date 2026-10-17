@@ -153,7 +153,7 @@ layer_loop:
     *(u8*)scratch1 = scratch0;
 
     scratch2 = (u32)layerParams;
-    asm("" : "+r"(scratch2));
+    ASM_BARRIER(: "+r"(scratch2));
     scratch0 = scratch2 + layerOrBackground;
     scratch1 = *(u8*)scratch0;
     scratch0 = 0x10;
@@ -192,7 +192,7 @@ layer_loop:
     scratch0 <<= 16;
     scratch2 = scratch0 >> 16;
     signedRow = (s32)scratch0 >> 16;
-    asm volatile("" : "+r"(layerOrBackground), "+r"(upload), "+r"(signedRow));
+    ASM_BARRIER_VOLATILE(: "+r"(layerOrBackground), "+r"(upload), "+r"(signedRow));
 
     scratch0 = layerOrBackground + 1;
     nextLayer = scratch0;
@@ -235,7 +235,7 @@ layer_loop:
     }
 
     scratch2 = tileCount;
-    asm("" : "+r"(scratch2));
+    ASM_BARRIER(: "+r"(scratch2));
     scratch2 <<= 2;
     tileCount = scratch2;
     scratch0 = (u32)upload;
@@ -371,13 +371,13 @@ outer_loop_vertical:
             {
                 register u32 constant PIN("r0");
                 constant = 0xF;
-                asm("" : "+r"(constant));
+                ASM_BARRIER(: "+r"(constant));
                 blockMask = constant;
             }
             {
                 register u32 constant PIN("r1");
                 constant = 0x10;
-                asm("" : "+r"(constant));
+                ASM_BARRIER(: "+r"(constant));
                 rowBit = constant;
             }
             {
@@ -473,7 +473,7 @@ outer_loop_vertical:
             destination[1] = *(u16*)((u32)source + (copiedTiles++ << 1));
             destination[0x20] = *(u16*)((u32)source + (copiedTiles++ << 1));
             destination[0x21] = *(u16*)((u32)source + (copiedTiles++ << 1));
-            asm("" : : "r"(source));
+            ASM_BARRIER(: : "r"(source));
             destinationBlock++;
             if (copiedTiles < tileCount) {
                 goto copy_loop_vertical;
@@ -529,7 +529,7 @@ layer_loop:
     *(u8*)scratch1 = scratch0;
 
     scratch2 = (u32)layerParams;
-    asm("" : "+r"(scratch2));
+    ASM_BARRIER(: "+r"(scratch2));
     scratch0 = scratch2 + layerOrBackground;
     scratch1 = *(u8*)scratch0;
     scratch0 = 0x10;
@@ -568,7 +568,7 @@ layer_loop:
     scratch0 <<= 16;
     scratch2 = scratch0 >> 16;
     signedColumn = (s32)scratch0 >> 16;
-    asm volatile("" : "+r"(layerOrBackground), "+r"(upload), "+r"(signedColumn));
+    ASM_BARRIER_VOLATILE(: "+r"(layerOrBackground), "+r"(upload), "+r"(signedColumn));
 
     scratch0 = layerOrBackground + 1;
     nextLayer = scratch0;
@@ -611,7 +611,7 @@ layer_loop:
     }
 
     scratch2 = tileCount;
-    asm("" : "+r"(scratch2));
+    ASM_BARRIER(: "+r"(scratch2));
     scratch2 <<= 2;
     tileCount = scratch2;
     scratch0 = (u32)upload;
@@ -732,7 +732,7 @@ outer_loop:
     if (tileCount != 0) {
         vramBase = 0x06000000 + (uploadIndex << 12);
         destinationFlags = upload->destinationFlags;
-        asm("" : "+r"(destinationFlags));
+        ASM_BARRIER(: "+r"(destinationFlags));
 
         if ((destinationFlags & 0x10) != 0) {
             vramBase = 0x06000800 + (uploadIndex << 12);

@@ -95,7 +95,7 @@ void InitializeStageEntrySceneGraphics(void)
         stageGraphicStore = &gStageEntryStageGraphicMirror;
         *stageGraphicStore = stageGraphic;
         gStageEntryStageGraphicId = stageGraphic;
-        asm volatile("" : "=r"(stageGraphicMirrorReg) : "0"(stageGraphicStore));
+        ASM_BARRIER_VOLATILE(: "=r"(stageGraphicMirrorReg) : "0"(stageGraphicStore));
         stageGraphicMirror = stageGraphicMirrorReg;
     }
     gStageEntrySecondarySpriteState.timer = 0;
@@ -191,7 +191,7 @@ void InitializeStageEntrySceneGraphics(void)
         }
         dma = (vu32*)0x040000D4;
         dma[0] = (u32)(sStageEntryPassageOverlayGraphics + (gCurrentPassage * 0x1400));
-        asm volatile("" : : "r"(sequenceStore));
+        ASM_BARRIER_VOLATILE(: : "r"(sequenceStore));
         dma[1] = 0x06005C00;
         dma[2] = 0x80000A00;
         dma[2];
@@ -215,7 +215,7 @@ void InitializeStageEntrySceneGraphics(void)
                 vu32* dma4;
                 dma4 = (vu32*)0x040000D4;
                 dma4[0] = (u32)sStageEntryPassagePalettes[gCurrentPassage];
-                asm volatile("" : : "r"(dma3Scratch));
+                ASM_BARRIER_VOLATILE(: : "r"(dma3Scratch));
                 dma4[1] = 0x05000000;
                 dma4[2] = 0x80000100;
                 dma4[2];
@@ -254,7 +254,7 @@ void InitializeStageEntrySceneGraphics(void)
         {
             register u32 graphicsDestinationLoad PIN("r6");
             graphicsDestinationLoad = 0x06005E80;
-            asm volatile("" : "=r"(graphicsDestination) : "0"(graphicsDestinationLoad));
+            ASM_BARRIER_VOLATILE(: "=r"(graphicsDestination) : "0"(graphicsDestinationLoad));
         }
         graphicsControl = 0x80000050;
         do {
@@ -273,14 +273,14 @@ void InitializeStageEntrySceneGraphics(void)
     goto afterStageGraphics;
 copyNormalStageGraphics: {
     u8* normalSelectedStage;
-    asm volatile("" : "=r"(normalSelectedStage));
+    ASM_BARRIER_VOLATILE(: "=r"(normalSelectedStage));
     dma = (vu32*)0x040000D4;
     dma[0] = (u32)sStageEntryStagePalettes[gCurrentPassage][(*normalSelectedStage) - 1];
     {
         u32 normalOffset;
         normalOffset = (*normalSelectedStage) << 5;
         graphicsStep = 0x05000120;
-        asm volatile("" : "+r"(graphicsStep));
+        ASM_BARRIER_VOLATILE(: "+r"(graphicsStep));
         normalOffset += graphicsStep;
         dma[1] = normalOffset;
     }
@@ -298,7 +298,7 @@ afterStageGraphics:
             register u8* keyzerStagePtr PIN("r4");
             dma[0] = (u32)sStageEntryStagePalettes[gCurrentPassage][*(keyzerStagePtr = &gCurrentStageNumber)];
             dma[1] = 0x05000140 + ((*keyzerStagePtr) << 5);
-            asm volatile("" : : "r"(keyzerStagePtr));
+            ASM_BARRIER_VOLATILE(: : "r"(keyzerStagePtr));
         }
         dma[2] = 0x80000010;
         dma[2];
@@ -1355,7 +1355,7 @@ void RenderStageEntrySprites(void)
                         {
                             register const u16* entryPositionY PIN("r2");
                             entryPositionY = entryPosition;
-                            asm("" : "+r"(entryPositionY) : "r"(entryPosition));
+                            ASM_BARRIER(: "+r"(entryPositionY) : "r"(entryPosition));
                             entryState->y = entryPositionY[3];
                         }
                     }
@@ -1401,7 +1401,7 @@ void RenderStageEntrySprites(void)
                         {
                             register const u16* entryPositionY PIN("r2");
                             entryPositionY = entryPosition;
-                            asm("" : "+r"(entryPositionY) : "r"(entryPosition));
+                            ASM_BARRIER(: "+r"(entryPositionY) : "r"(entryPosition));
                             entryState->y = entryPositionY[3];
                         }
                     }

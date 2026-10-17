@@ -581,7 +581,7 @@ void UpdateFlamingWarioMotion(void)
             u16 xPosition;
 
             delta = xVelocity;
-            asm("" : "+r"(delta));
+            ASM_BARRIER(: "+r"(delta));
             positionWario = &gWarioData;
             xPosition = positionWario->xPosition;
             xPosition += delta;

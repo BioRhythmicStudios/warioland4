@@ -259,7 +259,7 @@ void InitTogenobiInnerPart(void)
     current->warioCollision = 81;
     property = (u8*)current;
     property += 32;
-    asm("" : "+r"(property));
+    ASM_BARRIER(: "+r"(property));
     distance = 16;
     *property = distance;
     property++;
@@ -338,7 +338,7 @@ void UpdateTogenobiInnerPartPosition(void)
     value = (u32)current;
     value += 42;
     value = *(u8*)value;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     reg3 = sizeof(struct PrimarySpriteData);
     reg1 = value;
     reg1 *= reg3;

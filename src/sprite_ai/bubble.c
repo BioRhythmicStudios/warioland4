@@ -221,7 +221,7 @@ wallCollision:
         collisionWork = (u32)&gSpriteCollisionTileType;
         groundCollisionValue = *(u8 *)collisionWork;
         groundCollisionMask = 15;
-        asm("" : "+r"(groundCollisionMask));
+        ASM_BARRIER(: "+r"(groundCollisionMask));
         r0Work = groundCollisionMask;
         r0Work &= groundCollisionValue;
         if (r0Work != 0) {
@@ -235,7 +235,7 @@ wallCollision:
         xValue = (u32)xValue >> 16;
         BubbleCollisionCheck(topY, xValue);
         groundCollisionValue = *(u8 *)collisionWork;
-        asm("" : "+r"(groundCollisionMask));
+        ASM_BARRIER(: "+r"(groundCollisionMask));
         r0Work = groundCollisionMask;
         r0Work &= groundCollisionValue;
         if (r0Work != 0) {
@@ -289,7 +289,7 @@ void InitBubble(void)
     zero = 0;
     status |= SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
     /* agbcc otherwise removes the required zero OR used by the original register flow. */
-    asm volatile("" : "+r"(zero));
+    ASM_BARRIER_VOLATILE(: "+r"(zero));
     status |= zero;
     sprite->status = status;
     bounds = (u8 *)sprite + 32;

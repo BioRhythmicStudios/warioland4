@@ -200,7 +200,7 @@ int UpdateBossTreasureCutscene(void)
             treasureIndex = 0;
             if (treasureIndex <= gBossTreasureLastItemIndex) {
                 caseCounterPointer = &gStageEntrySequenceTimer;
-                asm("" : : "r"(caseCounterPointer));
+                ASM_BARRIER(: : "r"(caseCounterPointer));
                 treasure = (u8*)gBossTreasureItems;
                 caseTrigger = 14;
                 do {
@@ -272,7 +272,7 @@ int UpdateBossTreasureCutscene(void)
                 sparkleIndex = 0;
                 while (sparkleIndex <= 10) {
                     timer = *((const u8*)(((u32)sparkleIndex) + ((u32)sparkleStartTimes)));
-                    asm("" : "=r"(freshCounter) : "0"(&gStageEntrySequenceTimer));
+                    ASM_BARRIER(: "=r"(freshCounter) : "0"(&gStageEntrySequenceTimer));
                     if ((*freshCounter) == timer) {
                         register s32 activeOne PIN("r0") = 1;
                         ((struct BossTreasureSparkleSlot*)gBossTreasureUnlockSparkles)[sparkleIndex].active = activeOne;
@@ -291,9 +291,9 @@ int UpdateBossTreasureCutscene(void)
                 iconTrigger = 34;
                 {
                     s32 holdR7;
-                    asm volatile("" : "=r"(holdR7));
+                    ASM_BARRIER_VOLATILE(: "=r"(holdR7));
                     while (treasureIndex <= 4) {
-                        asm volatile("" : "+r"(holdR7));
+                        ASM_BARRIER_VOLATILE(: "+r"(holdR7));
                         if ((*((volatile u16*)(&gStageEntrySequenceTimer))) == iconTrigger) {
                             icon[2] = 1;
                         }
@@ -311,7 +311,7 @@ int UpdateBossTreasureCutscene(void)
                         icon += 4;
                         iconTrigger -= 5;
                         treasureIndex++;
-                        asm volatile("" : "+r"(holdR7));
+                        ASM_BARRIER_VOLATILE(: "+r"(holdR7));
                     }
                 }
             }

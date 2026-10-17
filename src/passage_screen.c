@@ -384,19 +384,19 @@ void InitializePassageScreen(void)
                 register u32 evenValue PIN("r3");
                 bgControl = (vu16*)0x04000008;
                 evenValue = 0x1800;
-                asm("" : "+r"(evenValue));
+                ASM_BARRIER(: "+r"(evenValue));
                 value = evenValue;
                 *bgControl++ = value;
                 oddValue = 0x1A01;
-                asm("" : "+r"(oddValue));
+                ASM_BARRIER(: "+r"(oddValue));
                 value = oddValue;
                 *bgControl++ = value;
                 evenValue = 0x5C02;
-                asm("" : "+r"(evenValue));
+                ASM_BARRIER(: "+r"(evenValue));
                 value = evenValue;
                 *bgControl++ = value;
                 oddValue = 0x1E03;
-                asm("" : "+r"(oddValue));
+                ASM_BARRIER(: "+r"(oddValue));
                 value = oddValue;
                 *bgControl = value;
             }
@@ -468,7 +468,7 @@ void InitializePassageScreen(void)
                     }
                     selected = stageIndex + 1;
                 passage_selection_store:
-                    asm("" : "+r"(selectedStagePointer));
+                    ASM_BARRIER(: "+r"(selectedStagePointer));
                     *selectedStagePointer = selected;
                     *selectedStageIndexPointer = stageIndex;
                 }
@@ -498,9 +498,9 @@ void InitializePassageScreen(void)
                     tableIndex += (u32)scrollTable;
                     flag = *(u32*)tableIndex;
                     base = 0x200;
-                    asm("" : "+r"(base));
+                    ASM_BARRIER(: "+r"(base));
                     scrollValue = base;
-                    asm("" : "+r"(scrollValue));
+                    ASM_BARRIER(: "+r"(scrollValue));
                     scrollValue -= flag;
                 }
                 zeroByte = 0;
@@ -654,7 +654,7 @@ void InitializePassageScreen(void)
                 register u32 displayBase PIN("r1");
                 register u32 value PIN("r0");
                 displayBase = 0x1F00;
-                asm("" : "+r"(displayBase));
+                ASM_BARRIER(: "+r"(displayBase));
                 value = displayBase;
                 *displayControl = value;
             }
@@ -703,7 +703,7 @@ void BeginPassageStageSwitch(void)
     passage = gUnk_3003C4A;
     value = table[passage * 5 + stage];
     work = 0x200;
-    asm("" : "=r"(result) : "0"(work));
+    ASM_BARRIER(: "=r"(result) : "0"(work));
     result -= value;
     work = 0;
     *scroll = result;
@@ -1028,7 +1028,7 @@ void LoadPassageStageDisplayGraphics(void)
         if (currentStage == 5) {
             register u32 passageFive PIN("r3");
             passageFive = 5;
-            asm("" : "+r"(passageFive));
+            ASM_BARRIER(: "+r"(passageFive));
             passage = passageFive;
             stage = 1;
             goto zeroPaletteVariant;
@@ -1090,7 +1090,7 @@ void LoadPassageStageDisplayGraphics(void)
             flag = *(u8*)collectionOffset;
             flag <<= 26;
             one = 1;
-            asm("" : "+r"(one));
+            ASM_BARRIER(: "+r"(one));
             paletteVariant = one;
             if (flag >= 0) {
                 goto copyGraphics;
@@ -1135,7 +1135,7 @@ copyGraphics:
             sourceAddress = source + graphicsOffset;
             dma[0] = sourceAddress;
             destinationBase = 0x06005C00;
-            asm("" : "+r"(destinationBase));
+            ASM_BARRIER(: "+r"(destinationBase));
             graphicsOffset += destinationBase;
             dma[1] = graphicsOffset;
             control = 0x80000050;
@@ -1157,7 +1157,7 @@ copyGraphics:
     {
         register u32 variant PIN("r0");
         variant = paletteVariant;
-        asm("" : "+r"(variant));
+        ASM_BARRIER(: "+r"(variant));
         if (variant != 0) {
             vu32* paletteDma;
             u32 stageOffset;
@@ -1656,7 +1656,7 @@ void DrawPassageScreenSprites(void)
                                 byteMask = (u32)(-13);
                                 screenOffset = drawn << 3;
                                 screenBase = gOamBuffer;
-                                asm("" : "+r"(screenOffset));
+                                ASM_BARRIER(: "+r"(screenOffset));
                                 screen = (u8*)screenOffset;
                                 screen += (u32)screenBase;
                                 drawn = used - drawn;
@@ -1718,19 +1718,19 @@ void DrawPassageScreenSprites(void)
                             register u8* screenBase PIN("r1");
                             register u8* screen PIN("r4");
                             screen = &gUnk_3003C4A;
-                            asm("" : "+r"(screen));
+                            ASM_BARRIER(: "+r"(screen));
                             passagePtr = screen;
                             screenOffset = (u32)sUnk_863C5A4;
                             xTable = (const s32*)screenOffset;
                             screenOffset = drawn << 3;
                             screenBase = gOamBuffer;
-                            asm("" : "+r"(screenOffset));
+                            ASM_BARRIER(: "+r"(screenOffset));
                             screen = (u8*)screenOffset;
                             screen += (u32)screenBase;
                             {
                                 register u32 lowMask PIN("r2");
                                 lowMask = (u32)(-13);
-                                asm("" : "+r"(lowMask));
+                                ASM_BARRIER(: "+r"(lowMask));
                                 byteMask = lowMask;
                             }
                             drawn = used - drawn;
@@ -2439,20 +2439,20 @@ void DrawPassageScreenSprites(void)
                 lowValue = (u32)(-13);
                 byteMask = lowValue;
                 lowPointer = &gUnk_3004729;
-                asm("" : "+r"(lowPointer));
+                ASM_BARRIER(: "+r"(lowPointer));
                 yPosition = lowPointer;
                 {
                     register u8* reverseLow PIN("r4");
                     reverseLow = &gUnk_3004728;
-                    asm("" : "+r"(reverseLow));
+                    ASM_BARRIER(: "+r"(reverseLow));
                     reverseIndex = reverseLow;
                 }
                 screenOffset = drawn << 3;
-                asm("" : "+r"(screenOffset));
+                ASM_BARRIER(: "+r"(screenOffset));
                 screen = (u8*)screenOffset;
                 screen += (u32)screenBase;
                 lowValue = 0x1FF;
-                asm("" : "+r"(lowValue));
+                ASM_BARRIER(: "+r"(lowValue));
                 coordinateMask = lowValue;
                 drawn = used - drawn;
                 do {
@@ -2496,7 +2496,7 @@ void DrawPassageScreenSprites(void)
                     x = *((const s32*)value);
                     x = attr + x;
                     attr = coordinateMask;
-                    asm("" : "+r"(attr));
+                    ASM_BARRIER(: "+r"(attr));
                     x &= attr;
                     attr = *((u16*)(screen + 2));
                     value = 0xFFFFFE00;
@@ -2584,11 +2584,11 @@ void DrawPassageScreenSprites(void)
                     {
                         register u32 clearLow PIN("r4");
                         clearLow = 0xFFFFFE00;
-                        asm("" : "+r"(clearLow));
+                        ASM_BARRIER(: "+r"(clearLow));
                         clearMask = clearLow;
                     }
                     screenOffset = drawn << 3;
-                    asm("" : "+r"(screenOffset));
+                    ASM_BARRIER(: "+r"(screenOffset));
                     screen = (u8*)screenOffset;
                     screen += (u32)screenBase;
                     lowValue = 0x1FF;
@@ -2614,7 +2614,7 @@ void DrawPassageScreenSprites(void)
                         x >>= 21;
                         x = (attr) - (-(x));
                         attr = coordinateMask;
-                        asm("" : "+r"(attr));
+                        ASM_BARRIER(: "+r"(attr));
                         x &= attr;
                         attr = *((u16*)(screen + 2));
                         value = clearMask;

@@ -58,7 +58,7 @@ u8 ZombieWarioWalking(void)
             active ^= direction;
             active &= held;
             active <<= 16;
-            asm("" : "+r"(active));
+            ASM_BARRIER(: "+r"(active));
             if (active != 0) {
                 return 11;
             }
@@ -155,7 +155,7 @@ u8 ZombieWarioFalling(void)
             velocity ^= direction;
             velocity &= held;
             velocity <<= 16;
-            asm("" : "+r"(velocity));
+            ASM_BARRIER(: "+r"(velocity));
             velocity >>= 16;
             if (velocity != 0) {
                 return 12;
@@ -408,7 +408,7 @@ void UpdateZombieWarioMotion(void)
             register u32 delta PIN("r2");
             struct WarioData *positionWario;
             u16 xPosition;
-            delta = xVelocity; asm("" : "+r"(delta)); positionWario = &gWarioData;
+            delta = xVelocity; ASM_BARRIER(: "+r"(delta)); positionWario = &gWarioData;
             xPosition = positionWario->xPosition; xPosition += delta; positionWario->xPosition = xPosition;
         }
     }

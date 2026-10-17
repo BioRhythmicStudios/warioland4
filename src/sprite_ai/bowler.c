@@ -109,7 +109,7 @@ setAttackPose:
             return;
         }
         *work1Pointer = oldTimer;
-        asm("");
+        ASM_BARRIER();
         goto setWalkPose;
     }
 
@@ -370,7 +370,7 @@ void InitBowlerBall(void)
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
     value = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     status = value;
     value = 0;
     zero16 = 0;
@@ -696,7 +696,7 @@ void SpriteBowlerBall(void)
             sprite->work1 -= 5;
         table = sSinCosTable;
         /* Keep the sprite base live while invalidating the prior temporary work pointer. */
-        asm("" : "+r"(sprite) : : "r1");
+        ASM_BARRIER(: "+r"(sprite) : : "r1");
         anglePointer = (u8*)sprite;
         anglePointer += 40;
         index = *anglePointer;

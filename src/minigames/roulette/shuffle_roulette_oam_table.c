@@ -19,7 +19,7 @@ void ShuffleRouletteOamTable(void)
         u8 *order;
         order = gRouletteOamOrder;
         /* Prevent agbcc from folding +13 into the relocation addend. */
-        asm volatile("" : "+r"(order));
+        ASM_BARRIER_VOLATILE(: "+r"(order));
         i = 13;
         order += 13;
         do {

@@ -212,7 +212,7 @@ scanLoop:
             range = (u8)(globalId + 0x7F);
             if (range <= 4 && globalId >= selectedId) {
                 selectedIndex = index;
-                asm("" ::: "memory");
+                ASM_BARRIER(::: "memory");
                 selectedId = sprite->globalID;
             }
         }
@@ -436,9 +436,9 @@ void func_803F66C(void)
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
     flags = 0xA408;
-    asm("" : "+r"(flags));
+    ASM_BARRIER(: "+r"(flags));
     status = flags;
-    asm("" : "+r"(status));
+    ASM_BARRIER(: "+r"(status));
     zero = 0;
     status |= oldStatus;
     sprite->status = status;
@@ -673,7 +673,7 @@ void func_803F7CC(void)
     {
         register u32 direction PIN("r1");
         direction = facing;
-        asm("" : : "r"(direction));
+        ASM_BARRIER(: : "r"(direction));
         if (direction != 0) {
             if ((s32)spriteX > (s32)(warioX + 64)) {
             func_803F944();
@@ -691,7 +691,7 @@ void func_803F7CC(void)
 
             current = &gCurrentSprite;
             indexPtr = (u8 *)41;
-            asm("" : : "r"(indexPtr));
+            ASM_BARRIER(: : "r"(indexPtr));
             indexPtr = (u8 *)((u32)indexPtr + (u32)current);
             indexAlias = indexPtr;
             currentIndex = *indexPtr;
@@ -737,7 +737,7 @@ void func_803F7CC(void)
 
             current = &gCurrentSprite;
             indexPtr = (u8 *)41;
-            asm("" : : "r"(indexPtr));
+            ASM_BARRIER(: : "r"(indexPtr));
             indexPtr = (u8 *)((u32)indexPtr + (u32)current);
             indexAlias = indexPtr;
             currentIndex = *indexPtr;
@@ -812,7 +812,7 @@ void func_803F958(void)
     {
         register u8 *address PIN("r0");
         address = (u8 *)41;
-        asm("" : : "r"(address));
+        ASM_BARRIER(: : "r"(address));
         address = (u8 *)((u32)address + (u32)sprite);
         indexPtr = address;
         index = *address;
@@ -1016,14 +1016,14 @@ void func_803FB28(void)
         u32 adjusted;
         adjusted = (u16)(xPosition + 0x1000);
         spriteX = adjusted;
-        asm("" : : : "r0");
+        ASM_BARRIER(: : : "r0");
         saved[0] = spriteX;
     }
     {
         u32 adjusted;
         adjusted = (u16)(gWarioData.xPosition + 0x1000);
         warioX = adjusted;
-        asm("" : : : "r1");
+        ASM_BARRIER(: : : "r1");
         saved[1] = warioX;
     }
     status = sprite->status;
@@ -1036,7 +1036,7 @@ void func_803FB28(void)
     {
         register u8 *address PIN("r1");
         address = (u8 *)41;
-        asm("" : : "r"(address));
+        ASM_BARRIER(: : "r"(address));
         address = (u8 *)((u32)address + (u32)sprite);
         indexPtr = address;
         index = *address;
@@ -1194,7 +1194,7 @@ loop:
             oam = childOam;
             *(const struct AnimationFrame **)address = oam;
         }
-        asm("" : "+r"(zero));
+        ASM_BARRIER(: "+r"(zero));
         child->currentAnimationFrame = zero;
         child->animationTimer = zero;
         goto found;
@@ -1250,7 +1250,7 @@ void func_803FCF8(void)
 
         offsetValue = 128;
         offsetValue <<= 5;
-        asm("" : "+r"(offsetValue));
+        ASM_BARRIER(: "+r"(offsetValue));
         positionOffset = offsetValue;
     }
     limitPosition = baseX;
@@ -1262,7 +1262,7 @@ void func_803FCF8(void)
     facing = (u16)(sprite->status & 0x40);
 
     verticalIndex = 42;
-    asm("" : : "r"(verticalIndex));
+    ASM_BARRIER(: : "r"(verticalIndex));
     verticalIndex += (u32)sprite;
     verticalIndexPtr = (u8 *)verticalIndex;
     verticalIndex = *(u8 *)verticalIndex;
@@ -1329,7 +1329,7 @@ turnAway:
         u32 newX;
 
         address = 41;
-        asm("" : : "r"(address));
+        ASM_BARRIER(: : "r"(address));
         address += (u32)sprite;
         horizontalIndexPtr = (u8 *)address;
         horizontalIndex = *(u8 *)address;
@@ -1401,9 +1401,9 @@ void func_803FDEC(void)
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
     flags = 0xA400;
-    asm("" : "+r"(flags));
+    ASM_BARRIER(: "+r"(flags));
     status = flags;
-    asm("" : "+r"(status));
+    ASM_BARRIER(: "+r"(status));
     zeroByte = 0;
     zeroHalf = 0;
     status |= oldStatus;
@@ -1452,9 +1452,9 @@ void func_803FE54(void)
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
     flags = 0x8440;
-    asm("" : "+r"(flags));
+    ASM_BARRIER(: "+r"(flags));
     status = flags;
-    asm("" : "+r"(status));
+    ASM_BARRIER(: "+r"(status));
     zeroByte = 0;
     zeroHalf = 0;
     status |= oldStatus;
@@ -1778,7 +1778,7 @@ useNegativeOffset:
 
         negativeOffset = 0xFFD0;
         adjustedPosition = negativeOffset;
-        asm("" : "+r"(negativeOffset), "+r"(adjustedPosition));
+        ASM_BARRIER(: "+r"(negativeOffset), "+r"(adjustedPosition));
         /* agbcc otherwise loads the halfword before copying the literal to r0. */
         sprite = (struct PrimarySpriteData *)sprite->xPosition;
         adjustedPosition += (u32)sprite;

@@ -147,7 +147,7 @@ void ShopkeeperFollowWario(void)
     r3 = &gCurrentSprite;
     r0 = 128;
     r0 <<= 2;
-    asm volatile("" : "+r"(r0));
+    ASM_BARRIER_VOLATILE(: "+r"(r0));
     r1 = r0;
     r2 = r3->xPosition;
     r0 = r1 + r2;
@@ -224,7 +224,7 @@ x_speed_done2:
     if (r4 < r1) {
         r0 = *(volatile u16 *)&r3->xPosition;
         /* Pure C changes the operand order and therefore the Thumb encoding. */
-        asm("" : "+r"(r0) : "r"(r2));
+        ASM_BARRIER(: "+r"(r0) : "r"(r2));
         r0 = r2 - -(int)r0;
 
         goto x_store;
@@ -242,7 +242,7 @@ x_done:
     r1 <<= 2;
 
     r0 = r1;
-    asm volatile("" : "+r"(r0));
+    ASM_BARRIER_VOLATILE(: "+r"(r0));
     r2 = r3->yPosition;
     r0 += r2;
     r4 = (u16)r0;
@@ -251,7 +251,7 @@ x_done:
     /*
      * A C assignment emits mov r0, r1; the original uses add r0, r1, #0.
      */
-    asm volatile("" : "=r"(r0) : "0"(r1));
+    ASM_BARRIER_VOLATILE(: "=r"(r0) : "0"(r1));
     r5 = *(u16*)(r5 + 20);
     r0 += r5;
     r1 = (u16)r0;
@@ -290,7 +290,7 @@ y_speed_done:
     /*
      * Pure C commutes the operands, producing a different Thumb encoding.
      */
-    asm("" : "+r"(r0) : "r"(r2));
+    ASM_BARRIER(: "+r"(r0) : "r"(r2));
     r0 = r2 - -(int)r0;
 
 y_store:
@@ -348,7 +348,7 @@ found:
     r2 = (u32)&gCurrentSprite;
     r0 = 128;
     r0 <<= 2;
-    asm volatile("" : "+r"(r0));
+    ASM_BARRIER_VOLATILE(: "+r"(r0));
     r1 = r0;
     r3 = *(u16 *)&((struct PrimarySpriteData *)r2)->xPosition;
     r0 = r1 + r3;
@@ -433,7 +433,7 @@ x_speed_done2:
     if (r4 < r3) {
         r0 = *(volatile u16 *)&((struct PrimarySpriteData *)r2)->xPosition;
         /* Pure C changes the operand order and therefore the Thumb encoding. */
-        asm("" : "+r"(r0) : "r"(r1));
+        ASM_BARRIER(: "+r"(r0) : "r"(r1));
         r0 = r1 - -(int)r0;
 
         goto x_store;
@@ -449,9 +449,9 @@ x_store:
 x_done:
     r1 = 128;
     r1 <<= 2;
-    asm volatile("" : "+r"(r1));
+    ASM_BARRIER_VOLATILE(: "+r"(r1));
     r0 = r1;
-    asm volatile("" : "+r"(r0));
+    ASM_BARRIER_VOLATILE(: "+r"(r0));
     r3 = *(u16 *)&((struct PrimarySpriteData *)r2)->yPosition;
     r0 += r3;
     r4 = (u16)r0;
@@ -461,7 +461,7 @@ x_done:
     r1 += (u32)r6;
     r3 = 129;
     r3 <<= 2;
-    asm volatile("" : "+r"(r3));
+    ASM_BARRIER_VOLATILE(: "+r"(r3));
     r0 = r3;
 
     r1 = *(volatile u16*)(r1 + 8);
@@ -469,7 +469,7 @@ x_done:
      * agbcc changes the operand order for the equivalent C addition; retain
      * the target add r0, r0, r1 instruction.
      */
-    asm("" : "+r"(r0) : "r"(r1));
+    ASM_BARRIER(: "+r"(r0) : "r"(r1));
     r0 += r1;
     r3 = (u16)r0;
     if (r4 <= r3) {
@@ -507,7 +507,7 @@ y_speed_done:
     /*
      * Pure C commutes the operands, producing a different Thumb encoding.
      */
-    asm("" : "+r"(r0) : "r"(r1));
+    ASM_BARRIER(: "+r"(r0) : "r"(r1));
     r0 = r1 - -(int)r0;
 
 y_store:
@@ -917,7 +917,7 @@ void UpdateShopkeeperSmilePose(void)
             temp += (u32)table;
             value = s->yPosition;
             temp = *(volatile u16*)temp;
-            asm("" : "+r"(value), "+r"(temp));
+            ASM_BARRIER(: "+r"(value), "+r"(temp));
             value += temp;
         } else {
             value = index + 1;
@@ -1158,7 +1158,7 @@ void ShrinkShopkeeperSmile(void)
     r1 = 0;
     trig = *(s16*)r0;
     r0 = 39;
-    asm("" : "+r"(r0));
+    ASM_BARRIER(: "+r"(r0));
     r0 += (u32)s;
     scalePtr = (u8*)r0;
     r0 = *(u8*)r0;
@@ -1404,7 +1404,7 @@ void WaitForShopkeeperBugleReady(void)
     byte = value >> 24;
     if (byte != 0) {
         value = byte;
-        asm("" : "+r"(value));
+        ASM_BARRIER(: "+r"(value));
         if (value == 50) {
             register struct PrimarySpriteData* base PIN("r1");
             base = gSpriteData;
@@ -1616,7 +1616,7 @@ passage4:
     r0 = r5->xPosition;
     r0 += 2;
     r5->xPosition = r0;
-    asm volatile("" : : "i"(44));
+    ASM_BARRIER_VOLATILE(: : "i"(44));
     goto add_secondary2;
 passage5:
     r0 = r4;
@@ -1629,7 +1629,7 @@ passage5:
     r0 = r5->xPosition;
     r0 += 2;
     r5->xPosition = r0;
-    asm volatile("" : : "i"(55));
+    ASM_BARRIER_VOLATILE(: : "i"(55));
     goto add_secondary2;
 passage_default:
     r0 = r4;
@@ -1689,7 +1689,7 @@ void WaitForShopkeeperVizormanReady(void)
     byte = value >> 24;
     if (byte != 0) {
         value = byte;
-        asm("" : "+r"(value));
+        ASM_BARRIER(: "+r"(value));
         if (value == 50) {
             register struct PrimarySpriteData* base PIN("r1");
             base = gSpriteData;
@@ -2201,7 +2201,7 @@ void InitShopkeeperTransition(void)
     r1 = s->status;
     r2 = 129;
     r2 <<= 3;
-    asm("" : "+r"(r2));
+    ASM_BARRIER(: "+r"(r2));
     r0 = r2;
 
     zero = 0;
@@ -2583,7 +2583,7 @@ void InitAppleBomb(void)
     temp = *(volatile u16*)s;
     flag = 0x80;
     flag <<= 3;
-    asm("" : "+r"(flag));
+    ASM_BARRIER(: "+r"(flag));
     value = flag;
     flag = 0;
     zeroHalf = 0;
@@ -2705,7 +2705,7 @@ void UpdateAppleBombFlight(void)
     r0 &= r1;
     if (r0 == 0) {
         r1 = s->roomSlot;
-        asm volatile("" : : "r"(r1));
+        ASM_BARRIER_VOLATILE(: : "r"(r1));
         r3 = (struct PrimarySpriteData*)(u32)s->yPosition;
         r3 = (struct PrimarySpriteData*)((u32)r3 - 32);
         r0 = s->xPosition;
@@ -2721,7 +2721,7 @@ void UpdateAppleBombFlight(void)
             r0 += 12;
             r3->xPosition = r0;
             r0 = 42;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             r0 += (u32)r3;
             ip = (u8*)r0;
             r2 = *(u8*)r0;
@@ -2743,7 +2743,7 @@ void UpdateAppleBombFlight(void)
             r0 += 12;
             r3->xPosition = r0;
             r6 = 42;
-            asm volatile("" : "+r"(r6));
+            ASM_BARRIER_VOLATILE(: "+r"(r6));
             r6 += (u32)r3;
             ip = (u8*)r6;
             r2 = *(u8*)r6;
@@ -2755,7 +2755,7 @@ void UpdateAppleBombFlight(void)
             r0 += 16;
             r3->xPosition = r0;
             r6 = 42;
-            asm volatile("" : "+r"(r6));
+            ASM_BARRIER_VOLATILE(: "+r"(r6));
             r6 += (u32)r3;
             ip = (u8*)r6;
             r2 = *(u8*)r6;
@@ -2767,7 +2767,7 @@ void UpdateAppleBombFlight(void)
             r0 += 12;
             r3->xPosition = r0;
             r6 = 42;
-            asm volatile("" : "+r"(r6));
+            ASM_BARRIER_VOLATILE(: "+r"(r6));
             r6 += (u32)r3;
             ip = (u8*)r6;
             r2 = *(u8*)r6;
@@ -2779,7 +2779,7 @@ void UpdateAppleBombFlight(void)
             r0 += 12;
             r3->xPosition = r0;
             r6 = 42;
-            asm volatile("" : "+r"(r6));
+            ASM_BARRIER_VOLATILE(: "+r"(r6));
             r6 += (u32)r3;
             ip = (u8*)r6;
             r2 = *(u8*)r6;
@@ -2821,7 +2821,7 @@ fallback:
     r0 += 12;
     s->xPosition = r0;
     r6 = 42;
-    asm volatile("" : "+r"(r6));
+    ASM_BARRIER_VOLATILE(: "+r"(r6));
     r6 += (u32)s;
     ip = (u8*)r6;
     r2 = *(u8*)r6;
@@ -2876,7 +2876,7 @@ void UpdateAppleBombBurst(void)
 
     r3 = &gCurrentSprite;
     r0 = 39;
-    asm volatile("" : "+r"(r0));
+    ASM_BARRIER_VOLATILE(: "+r"(r0));
     r0 += (u32)r3;
     ip = (u8*)r0;
     r0 = *(u8*)r0;
@@ -2894,7 +2894,7 @@ void UpdateAppleBombBurst(void)
         case 55:
             r0 = *(volatile u16*)((u8*)r2 + 8);
             r0 -= 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto y_to_r3_x_minus;
         case 50:
             r0 = *(volatile u16*)((u8*)r2 + 8);
@@ -2904,7 +2904,7 @@ void UpdateAppleBombBurst(void)
 
             r0 = *(volatile u16*)((u8*)r2 + 10);
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_to_r1;
         case 40:
             r0 = *(volatile u16*)((u8*)r2 + 8);
@@ -2914,7 +2914,7 @@ void UpdateAppleBombBurst(void)
 
             r0 = *(volatile u16*)((u8*)r2 + 10);
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_to_r1;
         case 29:
             r0 = *(volatile u16*)((u8*)r2 + 8);
@@ -2928,7 +2928,7 @@ void UpdateAppleBombBurst(void)
 
             r0 = *(volatile u16*)((u8*)r2 + 10);
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_to_r1;
         case 20:
         case 45:
@@ -2993,9 +2993,9 @@ void InitPurchasedItemDisplay(void)
 
     flag = 0x80;
     flag <<= 3;
-    asm("" : "+r"(flag));
+    ASM_BARRIER(: "+r"(flag));
     value = flag;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero = 0;
     zeroHalf = 0;
     value |= temp;
@@ -3113,7 +3113,7 @@ void InitBlastCannon(void)
     temp = *(volatile u16*)s;
     flag = 0x80;
     flag <<= 3;
-    asm("" : "+r"(flag));
+    ASM_BARRIER(: "+r"(flag));
     value = flag;
     flag = 0;
     zeroHalf = 0;
@@ -3182,7 +3182,7 @@ void UpdateBlastCannonCountdown(void)
     if (value == 0) {
         goto zero;
     }
-    asm("" : "=r"(old) : "0"(value));
+    ASM_BARRIER(: "=r"(old) : "0"(value));
     if (old != 32) {
         goto done;
     }
@@ -3211,9 +3211,9 @@ void InitBlastCannonball(void)
 
     flag = 0x80;
     flag <<= 3;
-    asm("" : "+r"(flag));
+    ASM_BARRIER(: "+r"(flag));
     value = flag;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero = 0;
     zeroHalf = 0;
     value |= temp;
@@ -3278,7 +3278,7 @@ void UpdateBlastCannonballFlight(void)
     r0 &= r1;
     if (r0 == 0) {
         r1 = s->roomSlot;
-        asm volatile("" : : "r"(r1));
+        ASM_BARRIER_VOLATILE(: : "r"(r1));
         r3 = (struct PrimarySpriteData*)(u32)s->yPosition;
         r3 = (struct PrimarySpriteData*)((u32)r3 - 32);
         r0 = s->xPosition;
@@ -3294,7 +3294,7 @@ void UpdateBlastCannonballFlight(void)
             r0 += 12;
             r3->xPosition = r0;
             r0 = 42;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             r0 += (u32)r3;
             ip = (u8*)r0;
             r2 = *(u8*)r0;
@@ -3316,7 +3316,7 @@ void UpdateBlastCannonballFlight(void)
             r0 += 12;
             r3->xPosition = r0;
             r6 = 42;
-            asm volatile("" : "+r"(r6));
+            ASM_BARRIER_VOLATILE(: "+r"(r6));
             r6 += (u32)r3;
             ip = (u8*)r6;
             r2 = *(u8*)r6;
@@ -3328,7 +3328,7 @@ void UpdateBlastCannonballFlight(void)
             r0 += 16;
             r3->xPosition = r0;
             r6 = 42;
-            asm volatile("" : "+r"(r6));
+            ASM_BARRIER_VOLATILE(: "+r"(r6));
             r6 += (u32)r3;
             ip = (u8*)r6;
             r2 = *(u8*)r6;
@@ -3340,7 +3340,7 @@ void UpdateBlastCannonballFlight(void)
             r0 += 12;
             r3->xPosition = r0;
             r6 = 42;
-            asm volatile("" : "+r"(r6));
+            ASM_BARRIER_VOLATILE(: "+r"(r6));
             r6 += (u32)r3;
             ip = (u8*)r6;
             r2 = *(u8*)r6;
@@ -3352,7 +3352,7 @@ void UpdateBlastCannonballFlight(void)
             r0 += 12;
             r3->xPosition = r0;
             r6 = 42;
-            asm volatile("" : "+r"(r6));
+            ASM_BARRIER_VOLATILE(: "+r"(r6));
             r6 += (u32)r3;
             ip = (u8*)r6;
             r2 = *(u8*)r6;
@@ -3394,7 +3394,7 @@ fallback:
     r0 += 12;
     s->xPosition = r0;
     r6 = 42;
-    asm volatile("" : "+r"(r6));
+    ASM_BARRIER_VOLATILE(: "+r"(r6));
     r6 += (u32)s;
     ip = (u8*)r6;
     r2 = *(u8*)r6;
@@ -3449,7 +3449,7 @@ void UpdateBlastCannonballBurst(void)
 
     r3 = &gCurrentSprite;
     r0 = 39;
-    asm volatile("" : "+r"(r0));
+    ASM_BARRIER_VOLATILE(: "+r"(r0));
     r0 += (u32)r3;
     ip = (u8*)r0;
     r0 = *(u8*)r0;
@@ -3467,7 +3467,7 @@ void UpdateBlastCannonballBurst(void)
         case 55:
             r0 = *(volatile u16*)((u8*)r2 + 8);
             r0 -= 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto y_to_r3_x_minus;
         case 50:
             r0 = *(volatile u16*)((u8*)r2 + 8);
@@ -3477,7 +3477,7 @@ void UpdateBlastCannonballBurst(void)
 
             r0 = *(volatile u16*)((u8*)r2 + 10);
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_to_r1;
         case 40:
             r0 = *(volatile u16*)((u8*)r2 + 8);
@@ -3487,7 +3487,7 @@ void UpdateBlastCannonballBurst(void)
 
             r0 = *(volatile u16*)((u8*)r2 + 10);
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_to_r1;
         case 30:
             r0 = *(volatile u16*)((u8*)r2 + 8);
@@ -3501,7 +3501,7 @@ void UpdateBlastCannonballBurst(void)
 
             r0 = *(volatile u16*)((u8*)r2 + 10);
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_to_r1;
         case 20:
         case 45:
@@ -3666,7 +3666,7 @@ void InitVizorman(void)
     input = s->status;
     temp = 0x80;
     temp <<= 3;
-    asm("" : "+r"(temp));
+    ASM_BARRIER(: "+r"(temp));
     value = temp;
     zero = 0;
     temp = 0;
@@ -3731,7 +3731,7 @@ void InitVizormanBeamCore(void)
     temp = *(volatile u16*)sprite;
     zero = 0x80;
     zero <<= 3;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     value = zero;
     zero = 0;
     zeroHalf = 0;
@@ -3829,7 +3829,7 @@ void InitVizormanBeamGlow(void)
     temp = *(volatile u16*)sprite;
     zero = 0x80;
     zero <<= 3;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     value = zero;
     zero = 0;
     zeroHalf = 0;
@@ -3977,7 +3977,7 @@ void InitBugle(void)
     temp = *(volatile u16*)s;
     r2 = 0x80;
     r2 <<= 3;
-    asm("" : "+r"(r2));
+    ASM_BARRIER(: "+r"(r2));
     value = r2;
     r2 = 0;
     zeroHalf = 0;
@@ -4127,7 +4127,7 @@ void SelectBugleNoteAnimation(void)
     r2 = 144;
     r2 <<= 3;
 
-    asm("" : "=r"(r0) : "0"(r2));
+    ASM_BARRIER(: "=r"(r0) : "0"(r2));
     r4 = 0;
     r3 = 0;
     r0 |= r1;
@@ -4287,7 +4287,7 @@ void UpdateBugleNoteAffine(void)
         set_affine_bit:
             r1 = r3->status;
             r2 = (struct PrimarySpriteData*)(129 << 7);
-            asm volatile("" : "+r"(r2));
+            ASM_BARRIER_VOLATILE(: "+r"(r2));
             r0 = (u32)r2;
             r0 |= r1;
             r3->status = r0;
@@ -4327,9 +4327,9 @@ scale_ready:
             register u32 r1Live PIN("r1");
 
             /* Both registers must be unavailable for the C signed load to use r2. */
-            asm("" : "=r"(r0Live), "=r"(r1Live));
+            ASM_BARRIER(: "=r"(r0Live), "=r"(r1Live));
             r4 = *(const s16 *)r4;
-            asm("" : : "r"(r0Live), "r"(r1Live));
+            ASM_BARRIER(: : "r"(r0Live), "r"(r1Live));
         }
         r0 = r7;
         r0 = FixedInverse(r0);
@@ -4352,7 +4352,7 @@ scale_ready:
     } else {
         r5 = (s32)sSinCosTable;
         r0 = 39;
-        asm volatile("" : "+r"(r0));
+        ASM_BARRIER_VOLATILE(: "+r"(r0));
         r0 += (u32)r6;
         r8 = (u8*)r0;
         r0 = *(u8*)r0;
@@ -4376,9 +4376,9 @@ scale_ready:
             register u32 r2Live PIN("r2");
 
             /* Preserve r1 as the index register for this existing C read. */
-            asm("" : "=r"(r2Live));
+            ASM_BARRIER(: "=r"(r2Live));
             r4 = *(s16 *)(r0 + r1);
-            asm("" : : "r"(r2Live));
+            ASM_BARRIER(: : "r"(r2Live));
         }
         r0 = r7;
         r0 = FixedInverse(r0);
@@ -4395,9 +4395,9 @@ scale_ready:
             register u32 r2Live PIN("r2");
 
             /* Preserve r1 as the index register for this existing C read. */
-            asm("" : "=r"(r2Live));
+            ASM_BARRIER(: "=r"(r2Live));
             r4 = *(s16 *)(r0 + r1);
-            asm("" : : "r"(r2Live));
+            ASM_BARRIER(: : "r"(r2Live));
         }
         r4 = -r4;
         r0 = r7;
@@ -4416,9 +4416,9 @@ scale_ready:
             register u32 r2Live PIN("r2");
 
             /* Preserve r1 as the index register for this existing C read. */
-            asm("" : "=r"(r2Live));
+            ASM_BARRIER(: "=r"(r2Live));
             r4 = *(s16 *)(r0 + r1);
-            asm("" : : "r"(r2Live));
+            ASM_BARRIER(: : "r"(r2Live));
         }
         r0 = r7;
         r0 = FixedInverse(r0);
@@ -4522,7 +4522,7 @@ void InitBlackDog(void)
     temp = *(volatile u16*)s;
     r2 = 0x81;
     r2 <<= 3;
-    asm("" : "+r"(r2));
+    ASM_BARRIER(: "+r"(r2));
     value = r2;
     zero = 0;
     r2 = 0;
@@ -4583,7 +4583,7 @@ void StartBlackDogAttack(void)
 
     r2 = &gCurrentSprite;
     r0 = 42;
-    asm volatile("" : "+r"(r0));
+    ASM_BARRIER_VOLATILE(: "+r"(r0));
     r0 += (u32)r2;
     ip = (u8*)r0;
     r3 = *(u8*)r0;
@@ -4731,13 +4731,13 @@ void UpdateBlackDogAttack(void)
             r0 = r2;
 
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 30:
         case 80:
             r0 = r4;
             r0 -= 32;
-            asm volatile("" : : : "cc");
+            ASM_BARRIER_VOLATILE(: : : "cc");
             goto y_done_x_minus;
         case 25:
         case 75:
@@ -4748,7 +4748,7 @@ void UpdateBlackDogAttack(void)
 
             r0 = r2;
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 15:
         case 65:
@@ -4759,7 +4759,7 @@ void UpdateBlackDogAttack(void)
 
             r0 = r2;
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 10:
         case 35:
@@ -4917,7 +4917,7 @@ void InitLargeLips(void)
 
     flag = 129;
     flag <<= 3;
-    asm("" : "+r"(flag));
+    ASM_BARRIER(: "+r"(flag));
     value = flag;
 
     zero = 0;
@@ -5041,7 +5041,7 @@ void MoveLargeLipsIntoPosition(void)
         }
     }
     zero = 39;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     zero += (u32)s;
     value = *(volatile u8*)zero;
     value -= 1;
@@ -5084,7 +5084,7 @@ void StartLargeLipsKiss(void)
         value = s->xPosition;
         value -= 64;
         stackSlot = value;
-        asm("" ::: "r1");
+        ASM_BARRIER(::: "r1");
         ((void (*)(u32, u32, u32, u32))SpawnHighPriorityPrimarySprite)(201, 0, 0, z);
         func_8026E78();
         m4aSongNumStart(513);
@@ -5233,9 +5233,9 @@ void InitLargeLipsKissEffect(void)
 
     flag = 137;
     flag <<= 7;
-    asm("" : "+r"(flag));
+    ASM_BARRIER(: "+r"(flag));
     value = flag;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero = 0;
     zeroHalf = 0;
     value |= temp;
@@ -5443,7 +5443,7 @@ void MoveLargeLipsKissEffect(void)
     }
     ended = 0;
     r1 = 42;
-    asm("" : "+r"(r1));
+    ASM_BARRIER(: "+r"(r1));
     r1 += (u32)s;
     work3 = (u8*)r1;
     r2 = *(u8*)r1;
@@ -5541,7 +5541,7 @@ void FadeLargeLipsKissEffect(void)
         goto done;
     }
     r0 = 42;
-    asm("" : "+r"(r0));
+    ASM_BARRIER(: "+r"(r0));
     r0 += (u32)s;
     work3 = (u8*)r0;
     r3 = *(u8*)r0;
@@ -5572,12 +5572,12 @@ void FadeLargeLipsKissEffect(void)
     r0 = (s16)r5;
     r0 *= r2;
     r4 = s->yPosition;
-    asm("" : "+r"(r4));
+    ASM_BARRIER(: "+r"(r4));
     r0 += r4;
     s->yPosition = r0;
     r1 = (s16)r1;
 
-    asm("" : "=r"(r0) : "0"(r1));
+    ASM_BARRIER(: "=r"(r0) : "0"(r1));
     r0 *= r2;
     r1 = s->xPosition;
 
@@ -5588,7 +5588,7 @@ void FadeLargeLipsKissEffect(void)
     r3 = 0;
     /* Keep the existing r1 and r2 values live so the signed load uses r3. */
     r5 = *(const s16 *)r0;
-    asm("" : : "r"(r1), "r"(r2));
+    ASM_BARRIER(: : "r"(r1), "r"(r2));
     r0 = scale;
     r0 = FixedInverse(r0);
     r1 = r0;
@@ -5695,7 +5695,7 @@ void InitBigFist(void)
     s = &gCurrentSprite;
     r1 = s->status;
     r2 = 0x4488;
-    asm("" : "+r"(r2));
+    ASM_BARRIER(: "+r"(r2));
     r0 = r2;
 
     r4 = 0;
@@ -5706,7 +5706,7 @@ void InitBigFist(void)
     r1 = 0xFFFB;
     r0 &= r1;
     s->status = r0;
-    asm("" : "+r"(r4));
+    ASM_BARRIER(: "+r"(r4));
     s->warioCollision = r4;
     r1 = (u32)s + 32;
     r0 = 64;
@@ -5726,7 +5726,7 @@ void InitBigFist(void)
     r0++;
     *(u8*)r0 = r1;
     s->pOamData = sBigFistIdleOam;
-    asm("" : "+r"(r4));
+    ASM_BARRIER(: "+r"(r4));
     s->currentAnimationFrame = r4;
     s->animationTimer = r2;
     {
@@ -6006,7 +6006,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 -= 64;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 80:
             r0 = r3;
@@ -6014,7 +6014,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 += 64;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 75:
             r0 = r3;
@@ -6022,7 +6022,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 -= 64;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 70:
             r0 = r3;
@@ -6030,7 +6030,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 -= 64;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 65:
             r0 = r3;
@@ -6038,7 +6038,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 += 64;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 60:
             r0 = r3;
@@ -6046,7 +6046,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 -= 64;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 55:
             r0 = r3;
@@ -6054,7 +6054,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 += 64;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 50:
             r0 = r3;
@@ -6062,7 +6062,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 -= 64;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 45:
             r0 = r3;
@@ -6081,12 +6081,12 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 20:
             r0 = r3;
             r0 -= 32;
-            asm volatile("" : : "r"(r0) : "memory");
+            ASM_BARRIER_VOLATILE(: : "r"(r0) : "memory");
             goto y_done_x_minus;
         case 15:
             r0 = r3;
@@ -6094,7 +6094,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 5:
             r0 = r3;
@@ -6102,7 +6102,7 @@ void UpdateBigFistAttack(void)
             r3 = (u16)r0;
             r0 = r2;
             r0 += 32;
-            asm volatile("" : "+r"(r0));
+            ASM_BARRIER_VOLATILE(: "+r"(r0));
             goto x_done;
         case 25:
         case 0:
@@ -6140,7 +6140,7 @@ maybe_spawn:
 
 timer_zero:
     r1 = r4->roomSlot;
-    asm volatile("" : : "r"(r1));
+    ASM_BARRIER_VOLATILE(: : "r"(r1));
     r3 = r4->yPosition;
     r0 = r4->xPosition;
     r0 += 64;
@@ -6305,7 +6305,7 @@ void InitBlackDragon(void)
     temp = *(volatile u16*)sprite;
     zero = 129;
     zero <<= 3;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     value = zero;
     zeroByte = 0;
     zero = 0;
@@ -6426,13 +6426,13 @@ void MoveBlackDragonIntoAttackPosition(void)
         temp = 0;
         sprite->currentAnimationFrame = temp;
         /* agbcc reuses r0 here; this single move preserves the required second zero before strh. */
-        asm volatile("" : "=r"(temp));
+        ASM_BARRIER_VOLATILE(: "=r"(temp));
         temp = 0;
         sprite->animationTimer = 0;
     }
 
     zero = 39;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     zero += (u32)sprite;
     temp = *(volatile u8*)zero;
     temp--;
@@ -6670,9 +6670,9 @@ void InitBlackDragonFire(void)
     sprite = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)sprite;
     size = 0x400;
-    asm("" : "+r"(size), "+r"(temp));
+    ASM_BARRIER(: "+r"(size), "+r"(temp));
     value = size;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero = 0;
     zeroHalf = 0;
     value |= temp;
@@ -6787,7 +6787,7 @@ void UpdateBlackDragonFireCollision(void)
     data = sprite;
     data += 39;
     value = *data;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     counter = value + 1;
     *data = counter;
     value = 7;
@@ -6941,9 +6941,9 @@ void InitBossTreasureChest(void)
     sprite = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)sprite;
     collision = 0x408;
-    asm("" : : "r"(collision));
+    ASM_BARRIER(: : "r"(collision));
     value = collision;
-    asm("" : "+r"(value));
+    ASM_BARRIER(: "+r"(value));
     zero = 0;
     zeroHalf = 0;
     value |= temp;
@@ -7229,7 +7229,7 @@ void UpdateBossTreasureRewards(void)
 
     r2 = (u32)&gCurrentSprite;
     r0 = 42;
-    asm volatile("" : "+r"(r0));
+    ASM_BARRIER_VOLATILE(: "+r"(r0));
     r0 += r2;
     indexPtr = (u8*)r0;
     r3 = *(u8*)r0;
@@ -7599,7 +7599,7 @@ void UpdateShopkeeperCommonAnimation(void)
     sprite = (volatile u8*)&gCurrentSprite;
     temp = *(volatile u16*)sprite;
     zero = 0x400;
-    asm("" : : "r"(zero));
+    ASM_BARRIER(: : "r"(zero));
     value = zero;
     zero = 0;
     zeroHalf = 0;

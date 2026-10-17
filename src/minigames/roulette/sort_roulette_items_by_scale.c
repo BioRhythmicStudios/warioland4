@@ -15,7 +15,7 @@ void SortRouletteItemsByScale(void)
         base = gRouletteItemDrawOrder;
         itemPtr = gRouletteItems;
         /* Keep the data relocation unmodified; the target adds 24 at runtime. */
-        asm volatile("" : "+r"(itemPtr));
+        ASM_BARRIER_VOLATILE(: "+r"(itemPtr));
         itemPtr += 2;
         refPtr = base;
         refPtr += 2;

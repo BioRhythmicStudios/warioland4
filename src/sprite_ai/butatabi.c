@@ -53,7 +53,7 @@ void InitButatabi(void)
     sprite->hitboxExtentUp = sixteen;
     sprite->hitboxExtentDown = thirtyTwo;
     sprite->pOamData = sButatabiMovingOam;
-    asm("" : "+r"(zero));
+    ASM_BARRIER(: "+r"(zero));
     sprite->currentAnimationFrame = zero;
     sprite->animationTimer = zero16;
     sprite->pose = sixteen;

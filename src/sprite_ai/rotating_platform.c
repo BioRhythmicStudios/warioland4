@@ -74,7 +74,7 @@ void func_802822C(void)
 
     temp = FALSE;
     /* Keep the zero value live in r0 through the loop exit. */
-    asm("" : "+r"(temp));
+    ASM_BARRIER(: "+r"(temp));
     if (temp != FALSE) {
         goto foundSprite;
     }

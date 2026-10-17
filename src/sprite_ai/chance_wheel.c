@@ -38,7 +38,7 @@ void ClearChanceWheelRewardSprites(void)
 clear:
             zero = 0;
             /* Keep zero in r0 for the target halfword store. */
-            asm("" : "+r"(zero));
+            ASM_BARRIER(: "+r"(zero));
             sprite->status = zero;
         }
 next:

@@ -24,7 +24,7 @@ void SwitchSetCommonProperties(void)
     status = statusValue;
     zero = 0;
     zero16 = 0;
-    asm volatile("" : "+r"(zero16));
+    ASM_BARRIER_VOLATILE(: "+r"(zero16));
     status |= oldStatus;
     ptr = (u8*)sprite;
     *(u16*)ptr = status;
@@ -345,7 +345,7 @@ void SwitchEffectInit(void)
     status = statusBits;
     zero = 0;
     zero16 = 0;
-    asm volatile("" : "+r"(zero16));
+    ASM_BARRIER_VOLATILE(: "+r"(zero16));
     status |= oldStatus;
     status &= 0xFFFB;
     drawPtr = (u8*)sprite;

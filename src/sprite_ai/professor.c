@@ -1039,10 +1039,10 @@ void SpriteProfessorProjectile(void)
         spriteStatus = projectileState->status;
         ignoreCollisionFlag = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
         /* Prevent agbcc from folding the shifted spriteStatus mask into the later copy. */
-        asm("" : "+r"(ignoreCollisionFlag));
+        ASM_BARRIER(: "+r"(ignoreCollisionFlag));
         statusWithIgnoredCollision = ignoreCollisionFlag;
         /* Keep the copied mask in r0 before agbcc materializes the shared zeroValue in r3. */
-        asm("" : "+r"(statusWithIgnoredCollision));
+        ASM_BARRIER(: "+r"(statusWithIgnoredCollision));
         zeroValue = 0;
         statusWithIgnoredCollision |= spriteStatus;
         spriteStatus = 0xFFFB;

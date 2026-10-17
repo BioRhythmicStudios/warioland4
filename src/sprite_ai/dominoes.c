@@ -184,7 +184,7 @@ void AdvanceDominoAtTile(int yArg, int xArg)
     found = 0;
     i = 0;
     address = gRoomSpriteData;
-    asm("" : "+r"(address));
+    ASM_BARRIER(: "+r"(address));
     data = address;
     if (y != data[0] || x != data[1]) {
         while (1) {
@@ -513,7 +513,7 @@ void UpdateDominoChain(void)
             u32 callY;
             u32 callX;
 
-            asm volatile("" : "+r"(sprite));
+            ASM_BARRIER_VOLATILE(: "+r"(sprite));
             callY = sprite->yPosition >> 6;
             callX = sprite->xPosition;
             AdvanceDominoAtTile(callY, callX >> 6);
@@ -566,7 +566,7 @@ void UpdateDominoChain(void)
             u32 callY;
             u32 callX;
 
-            asm volatile("" : "+r"(sprite));
+            ASM_BARRIER_VOLATILE(: "+r"(sprite));
             callY = sprite->yPosition >> 6;
             callX = sprite->xPosition;
             AdvanceDominoAtTile(callY, callX >> 6);
@@ -619,7 +619,7 @@ void UpdateDominoChain(void)
             u32 callY;
             u32 callX;
 
-            asm volatile("" : "+r"(sprite));
+            ASM_BARRIER_VOLATILE(: "+r"(sprite));
             callY = sprite->yPosition >> 6;
             callX = sprite->xPosition;
             AdvanceDominoAtTile(callY, callX >> 6);
@@ -672,7 +672,7 @@ void UpdateDominoChain(void)
             u32 callY;
             u32 callX;
 
-            asm volatile("" : "+r"(sprite));
+            ASM_BARRIER_VOLATILE(: "+r"(sprite));
             callY = sprite->yPosition >> 6;
             callX = sprite->xPosition;
             AdvanceDominoAtTile(callY, callX >> 6);
@@ -686,7 +686,7 @@ void UpdateDominoChain(void)
         register u8 *timerPtr PIN("r1");
 
         base = &gCurrentSprite;
-        asm volatile("" : "+r"(base));
+        ASM_BARRIER_VOLATILE(: "+r"(base));
         timerPtr = (u8 *)base;
         timerPtr += 39;
         value = *timerPtr;
@@ -741,7 +741,7 @@ void UpdateDominoChain(void)
         register u8 *timerPtr PIN("r1");
 
         base = &gCurrentSprite;
-        asm volatile("" : "+r"(base));
+        ASM_BARRIER_VOLATILE(: "+r"(base));
         timerPtr = (u8 *)base;
         timerPtr += 39;
         value = *timerPtr;
@@ -796,7 +796,7 @@ void UpdateDominoChain(void)
         register u8 *timerPtr PIN("r1");
 
         base = &gCurrentSprite;
-        asm volatile("" : "+r"(base));
+        ASM_BARRIER_VOLATILE(: "+r"(base));
         timerPtr = (u8 *)base;
         timerPtr += 39;
         value = *timerPtr;
@@ -851,7 +851,7 @@ void UpdateDominoChain(void)
         register u8 *timerPtr PIN("r1");
 
         base = &gCurrentSprite;
-        asm volatile("" : "+r"(base));
+        ASM_BARRIER_VOLATILE(: "+r"(base));
         timerPtr = (u8 *)base;
         timerPtr += 39;
         value = *timerPtr;
@@ -2873,7 +2873,7 @@ void SpriteDominoTile6(void)
     case 3:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(3));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(3));
         goto commonUpdate;
     case 4:
         target = &gCurrentSprite;
@@ -2882,7 +2882,7 @@ void SpriteDominoTile6(void)
     case 5:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(5));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(5));
         goto commonUpdate;
     case 6:
         target = &gCurrentSprite;
@@ -2891,7 +2891,7 @@ void SpriteDominoTile6(void)
     case 7:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(7));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(7));
         goto commonUpdate;
     case 8:
         target = &gCurrentSprite;
@@ -2900,7 +2900,7 @@ void SpriteDominoTile6(void)
     case 9:
         target = &gCurrentSprite;
         oam = sDominoTile6Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(9));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(9));
         goto commonUpdate;
     case 10:
         target = &gCurrentSprite;
@@ -2968,7 +2968,7 @@ void SpriteDominoTile7(void)
     case 3:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(3));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(3));
         goto commonUpdate;
     case 4:
         target = &gCurrentSprite;
@@ -2977,7 +2977,7 @@ void SpriteDominoTile7(void)
     case 5:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(5));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(5));
         goto commonUpdate;
     case 6:
         target = &gCurrentSprite;
@@ -2986,7 +2986,7 @@ void SpriteDominoTile7(void)
     case 7:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(7));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(7));
         goto commonUpdate;
     case 8:
         target = &gCurrentSprite;
@@ -2995,7 +2995,7 @@ void SpriteDominoTile7(void)
     case 9:
         target = &gCurrentSprite;
         oam = sDominoTile7Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(9));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(9));
         goto commonUpdate;
     case 10:
         target = &gCurrentSprite;
@@ -3063,7 +3063,7 @@ void SpriteDominoTile8(void)
     case 3:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(3));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(3));
         goto commonUpdate;
     case 4:
         target = &gCurrentSprite;
@@ -3072,7 +3072,7 @@ void SpriteDominoTile8(void)
     case 5:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(5));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(5));
         goto commonUpdate;
     case 6:
         target = &gCurrentSprite;
@@ -3081,7 +3081,7 @@ void SpriteDominoTile8(void)
     case 7:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(7));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(7));
         goto commonUpdate;
     case 8:
         target = &gCurrentSprite;
@@ -3090,7 +3090,7 @@ void SpriteDominoTile8(void)
     case 9:
         target = &gCurrentSprite;
         oam = sDominoTile8Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(9));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(9));
         goto commonUpdate;
     case 10:
         target = &gCurrentSprite;
@@ -3158,7 +3158,7 @@ void SpriteDominoTile9(void)
     case 3:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation1Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(3));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(3));
         goto commonUpdate;
     case 4:
         target = &gCurrentSprite;
@@ -3167,7 +3167,7 @@ void SpriteDominoTile9(void)
     case 5:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation2Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(5));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(5));
         goto commonUpdate;
     case 6:
         target = &gCurrentSprite;
@@ -3176,7 +3176,7 @@ void SpriteDominoTile9(void)
     case 7:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation3Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(7));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(7));
         goto commonUpdate;
     case 8:
         target = &gCurrentSprite;
@@ -3185,7 +3185,7 @@ void SpriteDominoTile9(void)
     case 9:
         target = &gCurrentSprite;
         oam = sDominoTile9Animation4Oam;
-        asm volatile("" : "+r"(target), "+r"(oam) : "i"(9));
+        ASM_BARRIER_VOLATILE(: "+r"(target), "+r"(oam) : "i"(9));
         goto commonUpdate;
     case 10:
         target = &gCurrentSprite;

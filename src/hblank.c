@@ -1165,7 +1165,7 @@ void UpdateDualRippleHBlank(void)
 
             work_r0 = scroll_r6->bg3Vertical;
             work_r0 += line_r3;
-            asm("" : "+r"(work_r0));
+            ASM_BARRIER(: "+r"(work_r0));
 
             temp2_r2 = work_r0;
             off_r1 = phase_sl[0];
@@ -1224,7 +1224,7 @@ void UpdateDualRippleHBlank(void)
 
             work_r0 = scroll_r6->bg3Vertical;
             work_r0 += line_r3;
-            asm("" : "+r"(work_r0));
+            ASM_BARRIER(: "+r"(work_r0));
 
             temp2_r2 = work_r0;
             off_r1 = phase_sl[0];
@@ -1319,7 +1319,7 @@ void UpdatePaletteFadeHBlankTable(void)
         line_r6 = 0;
 
         work_r2 = (u32)gHBlankLineValues;
-        asm("" : "+r"(work_r2));
+        ASM_BARRIER(: "+r"(work_r2));
         dst_r9 = (u16*)work_r2;
 
         greenMask_r8 = 0x3E0;
@@ -1349,10 +1349,10 @@ void UpdatePaletteFadeHBlankTable(void)
             work_r1 -= work_r0;
 
             work_r2 = 0xFFFF83E0;
-            asm("" : "+r"(work_r2));
+            ASM_BARRIER(: "+r"(work_r2));
 
             work_r0 = work_r2;
-            asm("" : "+r"(work_r0));
+            ASM_BARRIER(: "+r"(work_r0));
 
             work_r1 &= work_r0;
             work_r1 <<= 16;

@@ -220,7 +220,7 @@ u32 InitializeFileSelect(void)
         backgroundSource = sFileSelectBaseTilemapCompressed;
         workPointer = (u8*)0x0201F040;
         decompressedSize = (s32)DecompressRoomBackground(0, backgroundSource, workPointer);
-        asm("" : "+r"(decompressedSize));
+        ASM_BARRIER(: "+r"(decompressedSize));
         dma = DMA3;
         dma[0] = (u32)workPointer;
         dma[1] = 0x0600D000;
@@ -239,7 +239,7 @@ u32 InitializeFileSelect(void)
             }
         }
         decompressedSize = (s32)DecompressRoomBackground(0, backgroundSource, workPointer);
-        asm("" : "+r"(decompressedSize));
+        ASM_BARRIER(: "+r"(decompressedSize));
         dma[0] = (u32)workPointer;
         dma[1] = 0x0600E000;
         dmaCount = (u32)(decompressedSize / 2);
@@ -446,7 +446,7 @@ void InitializeFileSelectAnimations(u32 inputMode)
     u16 coordinate;
 
     /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-    asm("" : "=r"(mode) : "0"(inputMode));
+    ASM_BARRIER(: "=r"(mode) : "0"(inputMode));
     mode = (u8)mode;
     data = (u8*)&gUnk_3004A70;
     styleTable = sFileSelectStyleAnimationTypes;
@@ -537,7 +537,7 @@ void DrawFileSelectDifficultyTiles(u8 saveIndex)
     i = 0;
     attributeLiteral = 0xFFFFE000;
     /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-    asm("" : "+r"(attributeLiteral));
+    ASM_BARRIER(: "+r"(attributeLiteral));
     attributes = attributeLiteral;
     bottomTile = baseTile;
     bottomTile += 32;
@@ -620,7 +620,7 @@ void DrawFileSelectScoreTiles(u8 idx, u8 hidden)
             hiddenTile |= hiddenDigit;
             hiddenAddress = (u32)digits;
             /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-            asm("" : "+r"(hiddenAddress));
+            ASM_BARRIER(: "+r"(hiddenAddress));
             hiddenAddress += 10;
             digitPointer = (u16*)hiddenAddress;
             do {
@@ -724,13 +724,13 @@ void DrawFileSelectTreasureCountTiles(u8 idx, u8 hidden)
         tableOffset += entryAddress;
         entryAddress = *(u32*)tableOffset;
         /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-        asm("" : "+r"(entryAddress));
+        ASM_BARRIER(: "+r"(entryAddress));
         entry = (const u8*)entryAddress;
         entry += 36;
         row = 0;
         column = idx << 3;
         /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-        asm("" : "+r"(column));
+        ASM_BARRIER(: "+r"(column));
         saveOffset = column;
         loopMask = 16;
         do {
@@ -742,7 +742,7 @@ void DrawFileSelectTreasureCountTiles(u8 idx, u8 hidden)
                 entryValue = entry[0];
                 maskedValue = loopMask;
                 /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-                asm("" : "+r"(maskedValue));
+                ASM_BARRIER(: "+r"(maskedValue));
                 maskedValue &= entryValue;
                 if (maskedValue != 0 && column <= 3 && row != 0) {
                     count++;
@@ -803,13 +803,13 @@ void DrawFileSelectTreasureCountTiles(u8 idx, u8 hidden)
         rowOffset = 215;
         rowOffset <<= 1;
         /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-        asm("" : "+r"(rowOffset));
+        ASM_BARRIER(: "+r"(rowOffset));
         combinedOffset = tilemapOffset + rowOffset;
         bottomBase = 0x0600D040;
         bottomRow = (vu16*)(combinedOffset + bottomBase);
         topBase = 0x0600D000;
         /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-        asm("" : "+r"(topBase));
+        ASM_BARRIER(: "+r"(topBase));
         topRow = (vu16*)(combinedOffset + topBase);
         remaining = 1;
         do {
@@ -881,7 +881,7 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
     {
         register u32 offsetValue PIN("r0");
         offsetValue = saveIndex;
-        asm("" : : "r"(offsetValue));
+        ASM_BARRIER(: : "r"(offsetValue));
         offsetValue <<= 3;
         saveOffset = offsetValue;
     }
@@ -897,7 +897,7 @@ void DrawFileSelectCollectionTiles(u8 idx, u32 hidden)
         {
             register u32 bitMaskValue PIN("r2");
             bitMaskValue = 32;
-            asm("" : "+r"(bitMaskValue));
+            ASM_BARRIER(: "+r"(bitMaskValue));
             bitMask = bitMaskValue;
         }
         secondaryStart = (s32)secondaryBase;
@@ -1120,7 +1120,7 @@ void DrawFileSelectSaveNameTiles(u8 saveIndex)
         highMask = 0xE0;
         lowMask = 0x1F;
         attributeLiteral = 0xFFFFE000;
-        asm("" : : "r"(attributeLiteral));
+        ASM_BARRIER(: : "r"(attributeLiteral));
         attributes = attributeLiteral;
         bottomRow = destination + 32;
         topRow = destination;
@@ -1164,7 +1164,7 @@ void DrawFileSelectLabelTiles(void)
         vu16* base;
 
         base = (vu16*)0x0600C4AC;
-        asm("" : "+r"(base));
+        ASM_BARRIER(: "+r"(base));
         index = 0;
         source = sFileSelectLabelTileData;
         bottomRow = base;
@@ -1428,7 +1428,7 @@ u32 FileSelectSubroutine(void)
 
             initResult = InitializeFileSelect();
             /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-            asm("" : "=r"(modePointer));
+            ASM_BARRIER(: "=r"(modePointer));
             nextMode = 1;
             if (initResult != 0) {
                 nextMode = 8;
@@ -2440,7 +2440,7 @@ void UpdateFileSelectMainAnimationPosition(void)
             stateValue = *(volatile u8*)state;
             /* Keep the path offset live so agbcc preserves the original add operand order. */
             /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
-            asm("" : : "r"(pathOffset));
+            ASM_BARRIER(: : "r"(pathOffset));
             valueAddress = pathOffset + stateValue;
             valueAddress = ((u32)path) - (-(valueAddress));
             value = *(const s8*)valueAddress;
@@ -2840,7 +2840,7 @@ loop:
         goto end_iteration;
     }
     switchType = type;
-    asm("" : "+r"(switchType));
+    ASM_BARRIER(: "+r"(switchType));
     switch (switchType) {
         case 1:
         case 3:
@@ -3003,7 +3003,7 @@ loop:
                 register u16* writePointer PIN("r2");
 
                 writePointer = destination;
-                asm("" : "+r"(writePointer));
+                ASM_BARRIER(: "+r"(writePointer));
                 *writePointer = attribute;
             }
             destination++;
@@ -3014,7 +3014,7 @@ loop:
                 register u16* writePointer PIN("r2");
 
                 writePointer = destination;
-                asm("" : "+r"(writePointer));
+                ASM_BARRIER(: "+r"(writePointer));
                 *writePointer = attribute1;
             }
             destination++;
@@ -3054,7 +3054,7 @@ loop:
                 register u32 destinationStep PIN("r2");
 
                 destinationStep = 4;
-                asm("" : "+r"(destinationStep));
+                ASM_BARRIER(: "+r"(destinationStep));
                 destination = (u16*)((u8*)destination + destinationStep);
             }
             oam += 8;

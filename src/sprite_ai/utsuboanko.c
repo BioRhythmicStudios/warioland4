@@ -71,7 +71,7 @@ void UtsuboankoEmerge(void)
 
         shiftedTimer = nextTimer << 24;
         /* Keep the byte truncation in r0 before agbcc moves the timer to r1. */
-        asm("" : "+r" (shiftedTimer));
+        ASM_BARRIER(: "+r" (shiftedTimer));
         timer = shiftedTimer >> 24;
     }
     if (timer != 0) {

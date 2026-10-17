@@ -198,7 +198,7 @@ void func_805FE34(void)
         register u32 check PIN("r0");
         check = timer;
         /* Keep the countdown comparison in r0 instead of coalescing it with r1. */
-        asm("" : "+r"(check));
+        ASM_BARRIER(: "+r"(check));
         if (check == 42)
             sprite->warioCollision = 3;
         func_80238A4();

@@ -603,9 +603,9 @@ void RenderCreditsOam(void)
         register u32 stateX PIN("r3");
         initialState = &gCreditsBannerSpriteState.sprite;
         wrapOffset = -448;
-        asm("" : "+r"(wrapOffset));
+        ASM_BARRIER(: "+r"(wrapOffset));
         wrappedX = wrapOffset;
-        asm("" : "+r"(wrappedX));
+        ASM_BARRIER(: "+r"(wrappedX));
         stateX = initialState->x;
         wrappedX += stateX;
         wrappedX = (u16)wrappedX;
@@ -624,16 +624,16 @@ void RenderCreditsOam(void)
         register u32 mask PIN("r1");
         newX = state->x - 8;
         maskConst = 0x1FF;
-        asm("" : "+r"(maskConst));
+        ASM_BARRIER(: "+r"(maskConst));
         mask = maskConst;
-        asm("" : "+r"(mask));
+        ASM_BARRIER(: "+r"(mask));
         newX &= mask;
         state->x = newX;
     }
     {
         register u32 sx PIN("r0");
         sx = state->x;
-        asm("" : "+r"(sx));
+        ASM_BARRIER(: "+r"(sx));
         xOffset = sx;
         yOffset = state->y;
     }
@@ -732,7 +732,7 @@ void RenderCreditsOam(void)
         register u32 stateY PIN("r4");
         u32 frameOffset;
         stateY = state->y;
-        asm("" : "+r"(stateY));
+        ASM_BARRIER(: "+r"(stateY));
         yOffset = stateY;
         frameOffset = state->frame;
         frameOffset <<= 3;
@@ -797,10 +797,10 @@ void RenderCreditsOam(void)
                 tickState = effectState;
                 tickState->timer++;
                 effectX = 50;
-                asm("" : "+r"(effectX));
+                ASM_BARRIER(: "+r"(effectX));
                 xOffset = effectX;
                 effectY = 140;
-                asm("" : "+r"(effectY));
+                ASM_BARRIER(: "+r"(effectY));
                 yOffset = effectY;
                 outputFrame = tickState->frame;
                 outputFrame <<= 3;
@@ -812,9 +812,9 @@ void RenderCreditsOam(void)
                 register s32 updatedNextSlot PIN("r1");
                 objectCount = *src;
                 updatedNextSlot = nextSlot;
-                asm("" : "+r"(updatedNextSlot));
+                ASM_BARRIER(: "+r"(updatedNextSlot));
                 updatedNextSlot += objectCount;
-                asm("" : "+r"(updatedNextSlot));
+                ASM_BARRIER(: "+r"(updatedNextSlot));
                 nextSlot = updatedNextSlot;
                 src++;
             }
@@ -828,9 +828,9 @@ void RenderCreditsOam(void)
                 CreditsOamData* effectOam;
                 u32 oamOffset;
                 oamBase = (CreditsOamData*)gOamBuffer;
-                asm("" : "+r"(oamBase));
+                ASM_BARRIER(: "+r"(oamBase));
                 xMaskLoad = 0x1FF;
-                asm("" : "+r"(xMaskLoad));
+                ASM_BARRIER(: "+r"(xMaskLoad));
                 xMask = xMaskLoad;
                 preservedMaskLoad = ~0x1FF;
                 preservedMask = preservedMaskLoad;
@@ -838,7 +838,7 @@ void RenderCreditsOam(void)
                 oamOffset = currentSlot;
                 oamOffset <<= 3;
                 effectOam = (CreditsOamData*)(oamOffset + (u32)oamBase);
-                asm("" : "+r"(effectOam) : "r"(priorityMask));
+                ASM_BARRIER(: "+r"(effectOam) : "r"(priorityMask));
                 currentSlot = nextSlot - currentSlot;
                 do {
                     u32 newX;
@@ -921,9 +921,9 @@ void RenderCreditsOam(void)
                 effectX = tickState->x;
                 xOffset = effectX;
                 effectY = tickState->y;
-                asm("" : "+r"(effectY));
+                ASM_BARRIER(: "+r"(effectY));
                 yOffset = effectY;
-                asm("" : "+r"(tickState), "+r"(effectX));
+                ASM_BARRIER(: "+r"(tickState), "+r"(effectX));
                 outputFrame = tickState->frame;
                 outputFrame <<= 3;
                 animation = (const struct AnimationFrame*)(outputFrame + (u32)tableCopy);
@@ -1126,7 +1126,7 @@ void RenderCreditsOam(void)
             u32 affineFrameOffset;
             affineFrameOffset = anchor->frame;
             affineFrameOffset <<= 3;
-            asm("" : "+r"(affineFrameOffset), "+r"(animation));
+            ASM_BARRIER(: "+r"(affineFrameOffset), "+r"(animation));
             animation = (const struct AnimationFrame*)(affineFrameOffset + (u32)sCreditsNormalAnchorAffineAnimation);
         }
         src = animation->oam;
@@ -1185,7 +1185,7 @@ void RenderCreditsOam(void)
                 register u32 holdR3 PIN("r3");
                 s32 cosineValue;
                 cosineValue = sSinCosTable[gCreditsTreasureAffineAngle + 64];
-                asm("" : "+r"(cosineValue) : "r"(holdR2), "r"(holdR3));
+                ASM_BARRIER(: "+r"(cosineValue) : "r"(holdR2), "r"(holdR3));
                 affinePdValue = (u16)FixedMul(cosineValue, (s16)FixedInverse(256));
             }
             rotationPd = &affine[3];
@@ -1276,7 +1276,7 @@ void RenderCreditsOam(void)
             affine[0] = FixedMul(sSinCosTable[64], (s16)FixedInverse((s16)({
                                      register struct CreditsTreasureAnim* scaleState PIN("r4");
                                      scaleState = treasureState;
-                                     asm("" : "+r"(scaleState));
+                                     ASM_BARRIER(: "+r"(scaleState));
                                      scaleState->scaleX;
                                  })));
             {
@@ -1298,7 +1298,7 @@ void RenderCreditsOam(void)
                 affinePdValue = FixedMul(sSinCosTable[64], (s16)FixedInverse((s16)({
                                              register struct CreditsTreasureAnim* scaleState PIN("r4");
                                              scaleState = treasureState;
-                                             asm("" : "+r"(scaleState));
+                                             ASM_BARRIER(: "+r"(scaleState));
                                              scaleState->scaleY;
                                          })));
                 *pdPtr = affinePdValue;
@@ -1314,7 +1314,7 @@ void RenderCreditsOam(void)
                 {
                     register s16* pcPointer PIN("r4");
                     pcPointer = pcPtr;
-                    asm("" : "+r"(pcPointer));
+                    ASM_BARRIER(: "+r"(pcPointer));
                     affineOutput = *pcPointer;
                 }
                 oamBase[6].all.affineParam = affineOutput;
@@ -1365,7 +1365,7 @@ void RenderCreditsOam(void)
         *pdPtr = FixedMul(sSinCosTable[64], (s16)FixedInverse((s16)({
                               register struct CreditsTreasureDrop* scaleState PIN("r4");
                               scaleState = &gCreditsTreasureDrop;
-                              asm("" : "+r"(scaleState));
+                              ASM_BARRIER(: "+r"(scaleState));
                               scaleState->scale;
                           })));
         gOamBuffer[8].all.affineParam = affine[0];
@@ -1373,7 +1373,7 @@ void RenderCreditsOam(void)
         {
             register s16* pcPointer PIN("r4");
             pcPointer = pcPtr;
-            asm("" : "+r"(pcPointer));
+            ASM_BARRIER(: "+r"(pcPointer));
             gOamBuffer[10].all.affineParam = *pcPointer;
         }
         gOamBuffer[11].all.affineParam = *pdPtr;
@@ -1388,7 +1388,7 @@ void RenderCreditsOam(void)
             register u32 foregroundY PIN("r1");
             foregroundState = &gCreditsAnchorSpriteState.sprite;
             foregroundY = foregroundState->y;
-            asm("" : "+r"(foregroundY));
+            ASM_BARRIER(: "+r"(foregroundY));
             yOffset = foregroundY;
         }
     } else {
@@ -1396,9 +1396,9 @@ void RenderCreditsOam(void)
         {
             register u32 holdR3 PIN("r3");
             register u32 foregroundY PIN("r2");
-            asm("" : "=r"(holdR3));
+            ASM_BARRIER(: "=r"(holdR3));
             foregroundY = anchor->y;
-            asm("" : : "r"(holdR3));
+            ASM_BARRIER(: : "r"(holdR3));
             yOffset = foregroundY;
         }
     }
@@ -1434,7 +1434,7 @@ void RenderCreditsOam(void)
         scrollState = secondState;
         position = scrollState->x - 1;
         positionMask = 0x1FF;
-        asm("" : "+r"(positionMask));
+        ASM_BARRIER(: "+r"(positionMask));
         maskCopy = positionMask;
         position &= maskCopy;
         scrollState->x = position;
@@ -1465,9 +1465,9 @@ void RenderCreditsOam(void)
         register s32 stripNextSlot PIN("r2");
         stripObjectCount = *src;
         stripNextSlot = nextSlot;
-        asm("" : "+r"(stripNextSlot));
+        ASM_BARRIER(: "+r"(stripNextSlot));
         stripNextSlot += stripObjectCount;
-        asm("" : "+r"(stripNextSlot));
+        ASM_BARRIER(: "+r"(stripNextSlot));
         nextSlot = stripNextSlot;
         src++;
     }
@@ -1528,7 +1528,7 @@ void RenderCreditsOam(void)
     {
         register u32 finalY PIN("r4");
         finalY = ((struct CreditsSpriteState*)animation)->y;
-        asm("" : "+r"(finalY));
+        ASM_BARRIER(: "+r"(finalY));
         yOffset = finalY;
     }
     {
@@ -1555,7 +1555,7 @@ void RenderCreditsOam(void)
         register u8 usedSlots PIN("r4");
         register u8* usedSlotsPtr PIN("r3");
         usedSlots = nextSlot;
-        asm("" : "+r"(usedSlots));
+        ASM_BARRIER(: "+r"(usedSlots));
         usedSlotsPtr = &gOamSlotsUsed;
         *usedSlotsPtr = usedSlots;
     }

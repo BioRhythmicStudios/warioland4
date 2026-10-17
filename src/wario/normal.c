@@ -123,7 +123,7 @@ u8 UpdateNormalWarioWalking(void)
     }
   }
   value = GetBackgroundCollisionAtPosition(wario->yPosition + 1, wario->xPosition - 30);
-  asm("" : "=r"(acceleration) : "0"(value));
+  ASM_BARRIER(: "=r"(acceleration) : "0"(value));
   acceleration >>= 16;
   mask = 0xFF;
   acceleration &= mask;
@@ -689,7 +689,7 @@ u8 UpdateNormalWarioFalling(void)
             /* agbcc otherwise folds the copy into the AND and overwrites held. */
             test = newDirection;
             test &= held;
-            asm("" : "+r"(test));
+            ASM_BARRIER(: "+r"(test));
             movementResult = (s16)test;
             if (movementResult != 0) {
                 wario->horizontalDirection = newDirection;
@@ -4723,7 +4723,7 @@ store_index_801318C:
             index = 0x30;
             value ^= index;
             /* agbcc otherwise folds the required XOR/AND pair into a BIC. */
-            asm("" : "+r"(value));
+            ASM_BARRIER(: "+r"(value));
             value &= index;
             wario->horizontalDirection = value;
             gCurrentCarriedSprite.state = 0;
@@ -6317,7 +6317,7 @@ retryFirstPoint:
 
             adjustedY = r7Value - 1;
             zeroStoreWario = wario;
-            asm("" : : "r"(adjustedY), "r"(zeroStoreWario) : "memory");
+            ASM_BARRIER(: : "r"(adjustedY), "r"(zeroStoreWario) : "memory");
             zeroStoreWario->yPosition = adjustedY;
         }
     }
@@ -6753,7 +6753,7 @@ u8 ResolveWarioFloorCollision(void)
 
                     adjustedValue = outputs.adjustedX;
                     currentX = pointValue;
-                    asm("" : "+r"(currentX));
+                    ASM_BARRIER(: "+r"(currentX));
                     pointValue = (u16)(adjustedValue - currentX + collisionData->unk_06);
                     currentX = activeWario->xPosition;
                     result = ((s32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(
@@ -6930,7 +6930,7 @@ u8 ResolveWarioLadderCollision(void)
 
           tileX = wario->xPosition;
           tileY = probeY;
-          asm("" : : "r"(tileX), "r"(tileY));
+          ASM_BARRIER(: : "r"(tileX), "r"(tileY));
           tile = GetBackgroundCollisionAtPosition(tileY, tileX) >> 16;
       }
       if (((u32) (tile - 2)) <= 1)
@@ -6961,7 +6961,7 @@ u8 ResolveWarioLadderCollision(void)
 
         tileX = wario->xPosition;
         tileY = yPosition;
-        asm("" : : "r"(tileX), "r"(tileY));
+        ASM_BARRIER(: : "r"(tileX), "r"(tileY));
         tile = GetBackgroundCollisionAtPosition(tileY, tileX) >> 16;
     }
     if (((u32) (tile - 2)) > 1)
@@ -6990,7 +6990,7 @@ u8 ResolveWarioLadderCollision(void)
 
         tileX = wario->xPosition;
         tileY = yPosition;
-        asm("" : : "r"(tileX), "r"(tileY));
+        ASM_BARRIER(: : "r"(tileX), "r"(tileY));
         tile = GetBackgroundCollisionAtPosition(tileY, tileX) >> 16;
     }
     if (((locals.water != 0) && (tile != 2)) && (tile != 3))
@@ -7021,7 +7021,7 @@ u8 ResolveWarioVerticalFenceCollision(void)
     {
         register struct WarioData *base PIN("r1");
         base = &gWarioData;
-        asm("" : "+r"(base));
+        ASM_BARRIER(: "+r"(base));
         wario = base;
     }
     {

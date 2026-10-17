@@ -546,7 +546,7 @@ loop:
     {
         register u32 tmpCount PIN("r1");
         tmpCount = slots;
-        asm("" : "+r"(tmpCount));
+        ASM_BARRIER(: "+r"(tmpCount));
         count = tmpCount - oldSlots;
     }
     do {

@@ -677,7 +677,7 @@ void InitMoguramenProjectile(void)
         flagsCopy = flags;
         /* agbcc otherwise schedules these zeros before the status flag copy. */
         zeroByte = 0;
-        asm("" : "+r"(zeroByte));
+        ASM_BARRIER(: "+r"(zeroByte));
         zeroHalf = 0;
         statusValue = flagsCopy | status;
     }

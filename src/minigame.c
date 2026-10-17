@@ -675,7 +675,7 @@ void InitMinigameMenu(void)
             goto setDuration50;
         }
         *messageDuration = 20;
-        asm volatile(""
+        ASM_BARRIER_VOLATILE(
                      :
                      : "r"(collectionFlags),
                        "r"(busy),
@@ -701,7 +701,7 @@ durationDone:;
         u32 keepR1;
         u32 keepR2;
         u32 totalScore;
-        asm volatile("" : "=r"(keepR1), "=r"(keepR2));
+        ASM_BARRIER_VOLATILE(: "=r"(keepR1), "=r"(keepR2));
         totalScore = gTotalScore;
         UploadTallFiveDigitNumberTiles(totalScore, totalScoreTiles, 0x59A0);
     }
@@ -1450,16 +1450,16 @@ void DrawMinigameMenuSprites(void)
                     oamBase = (u8*)gOamBuffer;
                     copyCoords = coords;
                     maskTemp = 0x1FF;
-                    asm volatile("" : "+r"(maskTemp));
+                    ASM_BARRIER_VOLATILE(: "+r"(maskTemp));
                     xMask = maskTemp;
                     attrMaskTemp = 0xFFFFFE00;
                     attr1Mask = attrMaskTemp;
                     clearTemp = 13;
                     clearTemp = -clearTemp;
-                    asm volatile("" : "+r"(clearTemp));
+                    ASM_BARRIER_VOLATILE(: "+r"(clearTemp));
                     clearMask = clearTemp;
                     maskTemp = processed;
-                    asm volatile("" : "+r"(maskTemp));
+                    ASM_BARRIER_VOLATILE(: "+r"(maskTemp));
                     attrMaskTemp = maskTemp << 3;
                     copyAdjust = (u8*)((u32)attrMaskTemp + (u32)oamBase);
                     adjust = copyAdjust;
@@ -1497,7 +1497,7 @@ void DrawMinigameMenuSprites(void)
                             u32 maskedFlags;
                             oldFlags = adjust[5];
                             maskedFlags = clearMask;
-                            asm volatile("" : "+r"(maskedFlags));
+                            ASM_BARRIER_VOLATILE(: "+r"(maskedFlags));
                             maskedFlags &= oldFlags;
                             adjust[5] = maskedFlags;
                         }
@@ -1607,23 +1607,23 @@ void DrawMinigameMenuSprites(void)
         }
 
         r4v = 1;
-        asm volatile("" : "+r"(r4v));
+        ASM_BARRIER_VOLATILE(: "+r"(r4v));
         r4v += index;
         nextIndex = r4v;
         if (processed < slots) {
             r0v = r1v;
-            asm volatile("" : "+r"(r0v));
+            ASM_BARRIER_VOLATILE(: "+r"(r0v));
             r6v = r2v + r0v;
             r1v = processed;
-            asm volatile("" : "+r"(r1v));
+            ASM_BARRIER_VOLATILE(: "+r"(r1v));
             r0v = r1v << 3;
             r2v = (u32)gOamBuffer;
             r4v = r0v + r2v;
             r0v = 0x1FF;
-            asm volatile("" : "+r"(r0v));
+            ASM_BARRIER_VOLATILE(: "+r"(r0v));
             index = r0v;
             r1v = -13;
-            asm volatile("" : "+r"(r1v));
+            ASM_BARRIER_VOLATILE(: "+r"(r1v));
             clearMask = r1v;
             r2v = processed;
             r2v = slots - r2v;
@@ -1712,7 +1712,7 @@ void DrawMinigameMenuSprites(void)
         }
 
         r4v = 0;
-        asm volatile("" : "+r"(r4v));
+        ASM_BARRIER_VOLATILE(: "+r"(r4v));
         index = r4v;
     finalAnimationLoop:
         r1v = statePointer;
@@ -1729,7 +1729,7 @@ void DrawMinigameMenuSprites(void)
         }
 
         r4v = 1;
-        asm volatile("" : "+r"(r4v));
+        ASM_BARRIER_VOLATILE(: "+r"(r4v));
         r4v += index;
         nextIndex = r4v;
         if (processed < slots) {
@@ -1740,7 +1740,7 @@ void DrawMinigameMenuSprites(void)
             r0v = *(u32*)r0v;
             index = r0v;
             r4v = processed;
-            asm volatile("" : "+r"(r4v));
+            ASM_BARRIER_VOLATILE(: "+r"(r4v));
             r0v = r4v << 3;
             r2v = (u32)gOamBuffer;
             r4v = r0v + r2v;

@@ -160,7 +160,7 @@ void BuildGrayscaleBgPaletteBuffer(void)
         blue <<= 2;
         COMPILER_BARRIER(blue);
         value = blue;
-        asm volatile("" : "+r"(value));
+        ASM_BARRIER_VOLATILE(: "+r"(value));
         green = color;
         green &= value;
         green >>= 5;
@@ -168,7 +168,7 @@ void BuildGrayscaleBgPaletteBuffer(void)
         blue <<= 7;
         COMPILER_BARRIER(blue);
         value = blue;
-        asm volatile("" : "+r"(value));
+        ASM_BARRIER_VOLATILE(: "+r"(value));
         color &= value;
         blue = color >> 10;
 
@@ -937,15 +937,15 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
             green = 0xF8;
             green <<= 2;
             bits = green;
-            asm("" : : "r"(bits), "r"(green));
+            ASM_BARRIER(: : "r"(bits), "r"(green));
             green = color;
             green &= bits;
             green >>= 5;
-            asm volatile("" : "+r"(r7Value));
+            ASM_BARRIER_VOLATILE(: "+r"(r7Value));
             r7Value = 0xF8;
             r7Value <<= 7;
             bits = r7Value;
-            asm("" : : "r"(bits), "r"(r7Value));
+            ASM_BARRIER(: : "r"(bits), "r"(r7Value));
             color &= bits;
             color >>= 10;
             red += green;
@@ -976,7 +976,7 @@ void ConvertObjPaletteBankToGrayscale(u8 arg0)
         value = offset + base;
         dma[0] = value;
         r7Value = 0x02020600;
-        asm volatile("" : "+r"(r7Value));
+        ASM_BARRIER_VOLATILE(: "+r"(r7Value));
         value = offset + r7Value;
         dma[1] = value;
         value = 0x200;
