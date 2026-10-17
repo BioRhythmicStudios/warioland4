@@ -30,6 +30,7 @@
 #include "gba.h"
 #include "gba/defines.h"
 #include "gba/flash_internal.h"
+#include "gba/gba_ptr.h"
 #include "gba/io_reg.h"
 #include "gba/isagbprint.h"
 #include "gba/m4a.h"
@@ -181,15 +182,12 @@
 LAYOUT_SIZE(OamData, 8);
 LAYOUT_OFFSET(OamData, split, 0);
 LAYOUT_OFFSET(OamData, all, 0);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct AnimatedGraphicsDefinition, 8);
 LAYOUT_OFFSET(struct AnimatedGraphicsDefinition, mode, 0);
 LAYOUT_OFFSET(struct AnimatedGraphicsDefinition, frameDelay, 1);
 LAYOUT_OFFSET(struct AnimatedGraphicsDefinition, frameCount, 2);
 LAYOUT_OFFSET(struct AnimatedGraphicsDefinition, pad3, 3);
 LAYOUT_OFFSET(struct AnimatedGraphicsDefinition, tiles, 4);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct AnimatedGraphicsState, 12);
 LAYOUT_OFFSET(struct AnimatedGraphicsState, mode, 0);
 LAYOUT_OFFSET(struct AnimatedGraphicsState, frameDelay, 1);
@@ -200,22 +198,16 @@ LAYOUT_OFFSET(struct AnimatedGraphicsState, pad5, 5);
 LAYOUT_OFFSET(struct AnimatedGraphicsState, pad6, 6);
 LAYOUT_OFFSET(struct AnimatedGraphicsState, pad7, 7);
 LAYOUT_OFFSET(struct AnimatedGraphicsState, tiles, 8);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct AnimationFrame, 8);
 LAYOUT_OFFSET(struct AnimationFrame, oam, 0);
 LAYOUT_OFFSET(struct AnimationFrame, time, 4);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct AnimationFrameU16, 8);
 LAYOUT_OFFSET(struct AnimationFrameU16, oam, 0);
 LAYOUT_OFFSET(struct AnimationFrameU16, time, 4);
-#endif
 LAYOUT_SIZE(struct BackgroundCollisionData, 8);
 LAYOUT_OFFSET(struct BackgroundCollisionData, primaryType, 0);
 LAYOUT_OFFSET(struct BackgroundCollisionData, waterType, 2);
 LAYOUT_OFFSET(struct BackgroundCollisionData, bg2Type, 4);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct BackgroundInfo, 32);
 LAYOUT_OFFSET(struct BackgroundInfo, pBg0Data, 0);
 LAYOUT_OFFSET(struct BackgroundInfo, bg0Width, 4);
@@ -229,7 +221,6 @@ LAYOUT_OFFSET(struct BackgroundInfo, bg2Height, 22);
 LAYOUT_OFFSET(struct BackgroundInfo, pBg3Data, 24);
 LAYOUT_OFFSET(struct BackgroundInfo, bg3Width, 28);
 LAYOUT_OFFSET(struct BackgroundInfo, bg3Height, 30);
-#endif
 LAYOUT_SIZE(struct BackgroundPositionState, 8);
 LAYOUT_OFFSET(struct BackgroundPositionState, x, 0);
 LAYOUT_OFFSET(struct BackgroundPositionState, y, 2);
@@ -244,24 +235,18 @@ LAYOUT_OFFSET(struct BackgroundScroll, bg2Horizontal, 8);
 LAYOUT_OFFSET(struct BackgroundScroll, bg2Vertical, 10);
 LAYOUT_OFFSET(struct BackgroundScroll, bg3Horizontal, 12);
 LAYOUT_OFFSET(struct BackgroundScroll, bg3Vertical, 14);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct BackgroundTileTables, 12);
 LAYOUT_OFFSET(struct BackgroundTileTables, top, 0);
 LAYOUT_OFFSET(struct BackgroundTileTables, bottom, 4);
 LAYOUT_OFFSET(struct BackgroundTileTables, attributes, 8);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct BatAnimationFrame, 12);
 LAYOUT_OFFSET(struct BatAnimationFrame, oam, 0);
 LAYOUT_OFFSET(struct BatAnimationFrame, unk4, 4);
 LAYOUT_OFFSET(struct BatAnimationFrame, time, 8);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct BatGraphicsFrame, 12);
 LAYOUT_OFFSET(struct BatGraphicsFrame, data, 0);
 LAYOUT_OFFSET(struct BatGraphicsFrame, oam, 4);
 LAYOUT_OFFSET(struct BatGraphicsFrame, unk8, 8);
-#endif
 LAYOUT_SIZE(struct BgAffineDstData, 16);
 LAYOUT_OFFSET(struct BgAffineDstData, pa, 0);
 LAYOUT_OFFSET(struct BgAffineDstData, pb, 2);
@@ -278,12 +263,10 @@ LAYOUT_OFFSET(struct BgAffineSrcData, sx, 12);
 LAYOUT_OFFSET(struct BgAffineSrcData, sy, 14);
 LAYOUT_OFFSET(struct BgAffineSrcData, alpha, 16);
 LAYOUT_SIZE(struct BgCnt, 4);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct BgTileLookupPointers, 12);
 LAYOUT_OFFSET(struct BgTileLookupPointers, bg0, 0);
 LAYOUT_OFFSET(struct BgTileLookupPointers, bg1, 4);
 LAYOUT_OFFSET(struct BgTileLookupPointers, bg2, 8);
-#endif
 LAYOUT_SIZE(struct BossDoorOpeningBackground, 20);
 LAYOUT_OFFSET(struct BossDoorOpeningBackground, x, 0);
 LAYOUT_OFFSET(struct BossDoorOpeningBackground, y, 2);
@@ -314,7 +297,6 @@ LAYOUT_OFFSET(struct CarriedSprite, state, 0);
 LAYOUT_OFFSET(struct CarriedSprite, unk1, 1);
 LAYOUT_OFFSET(struct CarriedSprite, xOffset, 2);
 LAYOUT_OFFSET(struct CarriedSprite, yOffset, 4);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct CgbChannel, 64);
 LAYOUT_OFFSET(struct CgbChannel, sf, 0);
 LAYOUT_OFFSET(struct CgbChannel, ty, 1);
@@ -353,7 +335,6 @@ LAYOUT_OFFSET(struct CgbChannel, tp, 44);
 LAYOUT_OFFSET(struct CgbChannel, pp, 48);
 LAYOUT_OFFSET(struct CgbChannel, np, 52);
 LAYOUT_OFFSET(struct CgbChannel, d4, 56);
-#endif
 LAYOUT_SIZE(struct ColorFading, 8);
 LAYOUT_OFFSET(struct ColorFading, type, 0);
 LAYOUT_OFFSET(struct ColorFading, timer, 1);
@@ -417,20 +398,16 @@ LAYOUT_OFFSET(struct DemoConfiguration, warioX, 4);
 LAYOUT_OFFSET(struct DemoConfiguration, warioY, 6);
 LAYOUT_OFFSET(struct DemoConfiguration, songId, 8);
 LAYOUT_OFFSET(struct DemoConfiguration, paddingA, 10);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct FatWarioGraphicsFrame, 12);
 LAYOUT_OFFSET(struct FatWarioGraphicsFrame, gfx, 0);
 LAYOUT_OFFSET(struct FatWarioGraphicsFrame, oam, 4);
 LAYOUT_OFFSET(struct FatWarioGraphicsFrame, time, 8);
 LAYOUT_OFFSET(struct FatWarioGraphicsFrame, pad_09, 9);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct FlamingWarioGraphicsFrame, 12);
 LAYOUT_OFFSET(struct FlamingWarioGraphicsFrame, gfx, 0);
 LAYOUT_OFFSET(struct FlamingWarioGraphicsFrame, oam, 4);
 LAYOUT_OFFSET(struct FlamingWarioGraphicsFrame, time, 8);
 LAYOUT_OFFSET(struct FlamingWarioGraphicsFrame, pad_09, 9);
-#endif
 LAYOUT_SIZE(struct FlashSector, 12);
 LAYOUT_OFFSET(struct FlashSector, size, 0);
 LAYOUT_OFFSET(struct FlashSector, shift, 4);
@@ -451,18 +428,14 @@ LAYOUT_OFFSET(struct FlashType, romSize, 0);
 LAYOUT_OFFSET(struct FlashType, sector, 4);
 LAYOUT_OFFSET(struct FlashType, wait, 16);
 LAYOUT_OFFSET(struct FlashType, ids, 20);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct FrozenAnimationFrame, 12);
 LAYOUT_OFFSET(struct FrozenAnimationFrame, oam, 0);
 LAYOUT_OFFSET(struct FrozenAnimationFrame, unk4, 4);
 LAYOUT_OFFSET(struct FrozenAnimationFrame, time, 8);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct FrozenGraphicsFrame, 12);
 LAYOUT_OFFSET(struct FrozenGraphicsFrame, data, 0);
 LAYOUT_OFFSET(struct FrozenGraphicsFrame, oam, 4);
 LAYOUT_OFFSET(struct FrozenGraphicsFrame, unk8, 8);
-#endif
 LAYOUT_SIZE(struct GameMusicState, 12);
 LAYOUT_OFFSET(struct GameMusicState, state, 0);
 LAYOUT_OFFSET(struct GameMusicState, memoryAccessState, 1);
@@ -495,14 +468,11 @@ LAYOUT_OFFSET(struct ItemShopCursorState, item, 8);
 LAYOUT_OFFSET(struct ItemShopCursorState, padding, 9);
 LAYOUT_SIZE(struct JoyCnt, 4);
 LAYOUT_SIZE(struct JoyStat, 4);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct MaskWarioGraphicsFrame, 12);
 LAYOUT_OFFSET(struct MaskWarioGraphicsFrame, gfx, 0);
 LAYOUT_OFFSET(struct MaskWarioGraphicsFrame, oam, 4);
 LAYOUT_OFFSET(struct MaskWarioGraphicsFrame, time, 8);
 LAYOUT_OFFSET(struct MaskWarioGraphicsFrame, pad_09, 9);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct MultiBootParam, 76);
 LAYOUT_OFFSET(struct MultiBootParam, system_work, 0);
 LAYOUT_OFFSET(struct MultiBootParam, handshake_data, 20);
@@ -523,15 +493,11 @@ LAYOUT_OFFSET(struct MultiBootParam, sendflag, 72);
 LAYOUT_OFFSET(struct MultiBootParam, probe_target_bit, 73);
 LAYOUT_OFFSET(struct MultiBootParam, check_wait, 74);
 LAYOUT_OFFSET(struct MultiBootParam, server_type, 75);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct MusicPlayer, 12);
 LAYOUT_OFFSET(struct MusicPlayer, info, 0);
 LAYOUT_OFFSET(struct MusicPlayer, track, 4);
 LAYOUT_OFFSET(struct MusicPlayer, unk_8, 8);
 LAYOUT_OFFSET(struct MusicPlayer, unk_A, 10);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct MusicPlayerInfo, 64);
 LAYOUT_OFFSET(struct MusicPlayerInfo, songHeader, 0);
 LAYOUT_OFFSET(struct MusicPlayerInfo, status, 4);
@@ -554,8 +520,6 @@ LAYOUT_OFFSET(struct MusicPlayerInfo, tone, 48);
 LAYOUT_OFFSET(struct MusicPlayerInfo, ident, 52);
 LAYOUT_OFFSET(struct MusicPlayerInfo, func, 56);
 LAYOUT_OFFSET(struct MusicPlayerInfo, intp, 60);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct MusicPlayerTrack, 80);
 LAYOUT_OFFSET(struct MusicPlayerTrack, flags, 0);
 LAYOUT_OFFSET(struct MusicPlayerTrack, wait, 1);
@@ -596,7 +560,6 @@ LAYOUT_OFFSET(struct MusicPlayerTrack, unk_3A, 58);
 LAYOUT_OFFSET(struct MusicPlayerTrack, unk_3C, 60);
 LAYOUT_OFFSET(struct MusicPlayerTrack, cmdPtr, 64);
 LAYOUT_OFFSET(struct MusicPlayerTrack, patternStack, 68);
-#endif
 LAYOUT_SIZE(struct ObjAffineSrcData, 8);
 LAYOUT_OFFSET(struct ObjAffineSrcData, xScale, 0);
 LAYOUT_OFFSET(struct ObjAffineSrcData, yScale, 2);
@@ -628,7 +591,6 @@ LAYOUT_OFFSET(struct PauseScreenState, animationFrame, 2);
 LAYOUT_OFFSET(struct PauseScreenState, selection, 4);
 LAYOUT_OFFSET(struct PauseScreenState, confirmedSelection, 5);
 LAYOUT_SIZE(struct PlttData, 4);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct PrimarySpriteData, 44);
 LAYOUT_OFFSET(struct PrimarySpriteData, status, 0);
 LAYOUT_OFFSET(struct PrimarySpriteData, pOamData, 4);
@@ -660,25 +622,19 @@ LAYOUT_OFFSET(struct PrimarySpriteData, work0, 39);
 LAYOUT_OFFSET(struct PrimarySpriteData, work1, 40);
 LAYOUT_OFFSET(struct PrimarySpriteData, work2, 41);
 LAYOUT_OFFSET(struct PrimarySpriteData, work3, 42);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct PuffyAnimationFrame, 12);
 LAYOUT_OFFSET(struct PuffyAnimationFrame, oam, 0);
 LAYOUT_OFFSET(struct PuffyAnimationFrame, unk4, 4);
 LAYOUT_OFFSET(struct PuffyAnimationFrame, time, 8);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct PuffyGraphicsFrame, 12);
 LAYOUT_OFFSET(struct PuffyGraphicsFrame, data, 0);
 LAYOUT_OFFSET(struct PuffyGraphicsFrame, oam, 4);
 LAYOUT_OFFSET(struct PuffyGraphicsFrame, unk8, 8);
-#endif
 LAYOUT_SIZE(struct RCnt, 4);
 LAYOUT_SIZE(struct RoomEffectState, 4);
 LAYOUT_OFFSET(struct RoomEffectState, type, 0);
 LAYOUT_OFFSET(struct RoomEffectState, timer, 1);
 LAYOUT_OFFSET(struct RoomEffectState, value, 2);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct RoomHeader, 44);
 LAYOUT_OFFSET(struct RoomHeader, tileset, 0);
 LAYOUT_OFFSET(struct RoomHeader, bg0Param, 1);
@@ -698,7 +654,6 @@ LAYOUT_OFFSET(struct RoomHeader, pSHardSpriteData, 36);
 LAYOUT_OFFSET(struct RoomHeader, raster, 40);
 LAYOUT_OFFSET(struct RoomHeader, water, 41);
 LAYOUT_OFFSET(struct RoomHeader, musicVolume, 42);
-#endif
 LAYOUT_SIZE(struct RoomStartData, 12);
 LAYOUT_OFFSET(struct RoomStartData, type, 0);
 LAYOUT_OFFSET(struct RoomStartData, room, 1);
@@ -729,7 +684,6 @@ LAYOUT_OFFSET(struct RouletteMainState, pad6, 6);
 LAYOUT_OFFSET(struct RouletteMainState, x, 8);
 LAYOUT_OFFSET(struct RouletteMainState, y, 10);
 LAYOUT_OFFSET(struct RouletteMainState, active, 12);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct RouletteRenderStack, 32);
 LAYOUT_OFFSET(struct RouletteRenderStack, affineA, 0);
 LAYOUT_OFFSET(struct RouletteRenderStack, affineB, 2);
@@ -741,7 +695,6 @@ LAYOUT_OFFSET(struct RouletteRenderStack, affineDPtr, 16);
 LAYOUT_OFFSET(struct RouletteRenderStack, nextItem, 20);
 LAYOUT_OFFSET(struct RouletteRenderStack, itemOffset, 24);
 LAYOUT_OFFSET(struct RouletteRenderStack, itemRef, 28);
-#endif
 LAYOUT_SIZE(struct RouletteSmallState, 8);
 LAYOUT_OFFSET(struct RouletteSmallState, x, 0);
 LAYOUT_OFFSET(struct RouletteSmallState, y, 2);
@@ -797,13 +750,10 @@ LAYOUT_OFFSET(struct SioNormalCnt, unused_31_24, 3);
 LAYOUT_SIZE(struct SioUartCnt, 4);
 LAYOUT_OFFSET(struct SioUartCnt, data, 2);
 LAYOUT_OFFSET(struct SioUartCnt, unused_31_24, 3);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct Song, 8);
 LAYOUT_OFFSET(struct Song, header, 0);
 LAYOUT_OFFSET(struct Song, ms, 4);
 LAYOUT_OFFSET(struct Song, me, 6);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct SongHeader, 12);
 LAYOUT_OFFSET(struct SongHeader, trackCount, 0);
 LAYOUT_OFFSET(struct SongHeader, blockCount, 1);
@@ -811,8 +761,6 @@ LAYOUT_OFFSET(struct SongHeader, priority, 2);
 LAYOUT_OFFSET(struct SongHeader, reverb, 3);
 LAYOUT_OFFSET(struct SongHeader, tone, 4);
 LAYOUT_OFFSET(struct SongHeader, part, 8);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct SoundChannel, 64);
 LAYOUT_OFFSET(struct SoundChannel, status, 0);
 LAYOUT_OFFSET(struct SoundChannel, type, 1);
@@ -847,8 +795,6 @@ LAYOUT_OFFSET(struct SoundChannel, np, 52);
 LAYOUT_OFFSET(struct SoundChannel, d4, 56);
 LAYOUT_OFFSET(struct SoundChannel, xpi, 60);
 LAYOUT_OFFSET(struct SoundChannel, xpc, 62);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct SoundInfo, 4016);
 LAYOUT_OFFSET(struct SoundInfo, ident, 0);
 LAYOUT_OFFSET(struct SoundInfo, pcmDmaCounter, 4);
@@ -876,7 +822,6 @@ LAYOUT_OFFSET(struct SoundInfo, ExtVolPit, 60);
 LAYOUT_OFFSET(struct SoundInfo, gap2, 64);
 LAYOUT_OFFSET(struct SoundInfo, chans, 80);
 LAYOUT_OFFSET(struct SoundInfo, pcmBuffer, 848);
-#endif
 LAYOUT_SIZE(struct StageEjectionParticle, 16);
 LAYOUT_OFFSET(struct StageEjectionParticle, xVelocity, 0);
 LAYOUT_OFFSET(struct StageEjectionParticle, yVelocity, 2);
@@ -920,7 +865,6 @@ LAYOUT_OFFSET(struct TileInteractionContext, collisionMode, 8);
 LAYOUT_OFFSET(struct TileInteractionContext, debrisOffset, 9);
 LAYOUT_OFFSET(struct TileInteractionContext, soundIndex, 10);
 LAYOUT_OFFSET(struct TileInteractionContext, padding, 11);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct TilesetLoadData, 36);
 LAYOUT_OFFSET(struct TilesetLoadData, backgroundGraphics, 0);
 LAYOUT_OFFSET(struct TilesetLoadData, backgroundGraphicsSize, 4);
@@ -933,8 +877,6 @@ LAYOUT_OFFSET(struct TilesetLoadData, metatileTop, 20);
 LAYOUT_OFFSET(struct TilesetLoadData, metatileBottom, 24);
 LAYOUT_OFFSET(struct TilesetLoadData, metatileAttributes, 28);
 LAYOUT_OFFSET(struct TilesetLoadData, extraPalette, 32);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct ToneData, 12);
 LAYOUT_OFFSET(struct ToneData, type, 0);
 LAYOUT_OFFSET(struct ToneData, key, 1);
@@ -945,13 +887,11 @@ LAYOUT_OFFSET(struct ToneData, attack, 8);
 LAYOUT_OFFSET(struct ToneData, decay, 9);
 LAYOUT_OFFSET(struct ToneData, sustain, 10);
 LAYOUT_OFFSET(struct ToneData, release, 11);
-#endif
 LAYOUT_SIZE(struct TransparencyState, 4);
 LAYOUT_OFFSET(struct TransparencyState, targetAlpha, 0);
 LAYOUT_OFFSET(struct TransparencyState, currentAlpha, 1);
 LAYOUT_OFFSET(struct TransparencyState, defaultAlpha, 2);
 LAYOUT_OFFSET(struct TransparencyState, blendTimer, 3);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct Unk_82DDCF0, 48);
 LAYOUT_OFFSET(struct Unk_82DDCF0, unk0, 0);
 LAYOUT_OFFSET(struct Unk_82DDCF0, unk4, 4);
@@ -965,29 +905,22 @@ LAYOUT_OFFSET(struct Unk_82DDCF0, unk20, 32);
 LAYOUT_OFFSET(struct Unk_82DDCF0, unk24, 36);
 LAYOUT_OFFSET(struct Unk_82DDCF0, unk28, 40);
 LAYOUT_OFFSET(struct Unk_82DDCF0, unk2C, 44);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct WarioAfterimage, 8);
 LAYOUT_OFFSET(struct WarioAfterimage, unk0, 0);
 LAYOUT_OFFSET(struct WarioAfterimage, unk1, 1);
 LAYOUT_OFFSET(struct WarioAfterimage, unk2, 2);
 LAYOUT_OFFSET(struct WarioAfterimage, unk4, 4);
-#endif
 LAYOUT_SIZE(struct WarioAfterimageData, 128);
 LAYOUT_OFFSET(struct WarioAfterimageData, previousXPositions, 0);
 LAYOUT_OFFSET(struct WarioAfterimageData, previousYPositions, 64);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct WarioAnimation, 8);
 LAYOUT_OFFSET(struct WarioAnimation, left, 0);
 LAYOUT_OFFSET(struct WarioAnimation, right, 4);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct WarioAnimationFrame, 12);
 LAYOUT_OFFSET(struct WarioAnimationFrame, objData, 0);
 LAYOUT_OFFSET(struct WarioAnimationFrame, oamData, 4);
 LAYOUT_OFFSET(struct WarioAnimationFrame, time, 8);
 LAYOUT_OFFSET(struct WarioAnimationFrame, padding, 9);
-#endif
 LAYOUT_SIZE(struct WarioCollisionData, 24);
 LAYOUT_OFFSET(struct WarioCollisionData, unk_00, 0);
 LAYOUT_OFFSET(struct WarioCollisionData, flags, 2);
@@ -1007,7 +940,6 @@ LAYOUT_OFFSET(struct WarioCollisionData, unk_11, 17);
 LAYOUT_OFFSET(struct WarioCollisionData, unk_12, 18);
 LAYOUT_OFFSET(struct WarioCollisionData, unk_13, 19);
 LAYOUT_OFFSET(struct WarioCollisionData, unk_14, 20);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct WarioData, 60);
 LAYOUT_OFFSET(struct WarioData, reaction, 0);
 LAYOUT_OFFSET(struct WarioData, pose, 1);
@@ -1042,8 +974,6 @@ LAYOUT_OFFSET(struct WarioData, hitboxOffsetRight, 54);
 LAYOUT_OFFSET(struct WarioData, hitboxOffsetBottom, 56);
 LAYOUT_OFFSET(struct WarioData, unk_3A, 58);
 LAYOUT_OFFSET(struct WarioData, unk_3B, 59);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct WarioDustEffect, 12);
 LAYOUT_OFFSET(struct WarioDustEffect, unk0, 0);
 LAYOUT_OFFSET(struct WarioDustEffect, unk1, 1);
@@ -1051,28 +981,21 @@ LAYOUT_OFFSET(struct WarioDustEffect, unk2, 2);
 LAYOUT_OFFSET(struct WarioDustEffect, unk4, 4);
 LAYOUT_OFFSET(struct WarioDustEffect, unk6, 6);
 LAYOUT_OFFSET(struct WarioDustEffect, unk8, 8);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct WarioEffect, 8);
 LAYOUT_OFFSET(struct WarioEffect, type, 0);
 LAYOUT_OFFSET(struct WarioEffect, status, 1);
 LAYOUT_OFFSET(struct WarioEffect, animationTimer, 2);
 LAYOUT_OFFSET(struct WarioEffect, unk_3, 3);
 LAYOUT_OFFSET(struct WarioEffect, pObjData, 4);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct WarioEffectFrame, 8);
 LAYOUT_OFFSET(struct WarioEffectFrame, data, 0);
 LAYOUT_OFFSET(struct WarioEffectFrame, time, 4);
 LAYOUT_OFFSET(struct WarioEffectFrame, pad, 6);
-#endif
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct WarioEffectGfx, 16);
 LAYOUT_OFFSET(struct WarioEffectGfx, pGfx1, 0);
 LAYOUT_OFFSET(struct WarioEffectGfx, gfx1Size, 4);
 LAYOUT_OFFSET(struct WarioEffectGfx, pGfx2, 8);
 LAYOUT_OFFSET(struct WarioEffectGfx, gfx2Size, 12);
-#endif
 LAYOUT_SIZE(struct WarioHitbox, 8);
 LAYOUT_OFFSET(struct WarioHitbox, left, 0);
 LAYOUT_OFFSET(struct WarioHitbox, top, 2);
@@ -1132,13 +1055,11 @@ LAYOUT_OFFSET(struct Window, right, 1);
 LAYOUT_OFFSET(struct Window, top, 2);
 LAYOUT_OFFSET(struct Window, bottom, 3);
 LAYOUT_OFFSET(struct Window, content, 4);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct ZombieWarioGraphicsFrame, 12);
 LAYOUT_OFFSET(struct ZombieWarioGraphicsFrame, gfx, 0);
 LAYOUT_OFFSET(struct ZombieWarioGraphicsFrame, oam, 4);
 LAYOUT_OFFSET(struct ZombieWarioGraphicsFrame, time, 8);
 LAYOUT_OFFSET(struct ZombieWarioGraphicsFrame, pad_09, 9);
-#endif
 LAYOUT_SIZE(union CreditsSpriteStorage, 8);
 LAYOUT_OFFSET(union CreditsSpriteStorage, bytes, 0);
 LAYOUT_OFFSET(union CreditsSpriteStorage, sprite, 0);

@@ -10,8 +10,9 @@ target. The output, port/generated/layout_asserts_<n>.c, asserts agbcc's size an
 offsets. Some headers declare the same function or variable with different types, so the
 headers are split into groups that compile together, one file per group.
 
-Structs that hold pointers cannot match until GbaPtr replaces their pointer fields, so
-their checks are compiled only when PORT_CHECK_POINTER_LAYOUTS is defined. Bitfields
+Pointers held in GBA memory are GBA_PTR() unions of 4 bytes (include/gba/gba_ptr.h). A
+struct that still holds native pointers cannot match, so its checks are compiled only when
+PORT_CHECK_POINTER_LAYOUTS is defined; only the unused FlashSetupInfo is left. Bitfields
 have no offset, so only the size of a struct with bitfields is checked.
 """
 import pathlib
@@ -60,6 +61,8 @@ def holds_pointer(t, seen=()):
     if t.kind in (ci.TypeKind.POINTER, ci.TypeKind.BLOCKPOINTER, ci.TypeKind.FUNCTIONPROTO,
                   ci.TypeKind.FUNCTIONNOPROTO):
         return True
+    if t.kind == ci.TypeKind.CONSTANTARRAY and t.element_count == 0:
+        return False  # GBA_PTR()'s zero-length type carrier takes no space
     if t.kind in (ci.TypeKind.CONSTANTARRAY, ci.TypeKind.INCOMPLETEARRAY):
         return holds_pointer(t.element_type, seen)
     if t.kind == ci.TypeKind.RECORD:
@@ -183,7 +186,7 @@ def main():
                 if not host_ok:
                     summary['mismatch'].append((n, r['host_size'], gba[(n, '#size')], r['host_align'], gba[(n, '#align')]))
         (OUT / ('layout_asserts_%d.c' % gi)).write_text('\n'.join(lines) + '\n')
-    print('%d header groups, %d records: %d checked now, %d with pointers deferred to GbaPtr'
+    print('%d header groups, %d records: %d checked now, %d with native pointers, not checked'
           % (len(groups), len(records), summary['checked'], summary['pointer']))
     for n, hs, gs, ha, ga in summary['mismatch']:
         print('MISMATCH %s: PC size %d align %d, agbcc size %d align %d' % (n, hs, ha, gs, ga))

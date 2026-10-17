@@ -21,10 +21,8 @@ LAYOUT_OFFSET(struct StageEntryPositionedAnimationState, timer, 0);
 LAYOUT_OFFSET(struct StageEntryPositionedAnimationState, frame, 2);
 LAYOUT_OFFSET(struct StageEntryPositionedAnimationState, x, 4);
 LAYOUT_OFFSET(struct StageEntryPositionedAnimationState, y, 6);
-#ifdef PORT_CHECK_POINTER_LAYOUTS
 LAYOUT_SIZE(struct StageEntrySpriteState, 12);
 LAYOUT_OFFSET(struct StageEntrySpriteState, x, 0);
 LAYOUT_OFFSET(struct StageEntrySpriteState, y, 2);
 LAYOUT_OFFSET(struct StageEntrySpriteState, data, 4);
 LAYOUT_OFFSET(struct StageEntrySpriteState, attribute, 8);
-#endif
