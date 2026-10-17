@@ -18,6 +18,10 @@
 #include "voice_set.h"
 #include "wario_palette.h"
 
+#ifdef PORTABLE
+#include <string.h>
+#endif
+
 extern const u16 sWarioCollisionPointTable[];
 #define sWarioCollisionPoints ((const u16 (*)[3])sWarioCollisionPointTable)
 #define WARIO_POINT(side, index) ((sWarioCollisionPointTable + (index))[(side) * 3])
@@ -5479,7 +5483,7 @@ u8 CheckWarioTileCollision(u32 xPosition, u32 yPosition, u16 *newYPosition, u16 
 }
 u32 CheckWarioHorizontalCollision(u32 side, u16 *newXPosition, u32 verticalOffset)
 {
-    volatile struct { u16 *output; u32 offset; } locals;
+    volatile struct AGB_ALIGN { u16 *output; u32 offset; } locals;
     register u32 index PIN("r8");
     u32 result;
     u32 xPosition, yPosition, collision;
@@ -5625,7 +5629,7 @@ u32 CheckWarioHorizontalCollision(u32 side, u16 *newXPosition, u32 verticalOffse
 
 int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
 {
-    volatile struct {
+    volatile struct AGB_ALIGN {
         u32 index;
         u32 offset;
     } locals;
@@ -5878,7 +5882,7 @@ int CheckWarioVerticalCollision(u32 index, u32 offset, u32 mode)
 
 u32 CheckWarioPointCollision(u32 index, u32 yPosition, u16 *secondaryResult)
 {
-    volatile struct {
+    volatile struct AGB_ALIGN {
         u16 *secondaryResult;
     } locals;
     u32 normalizedIndex;
@@ -6182,7 +6186,7 @@ u8 ResolveWarioStandardCollision(void)
 
 u8 ResolveWarioLandingCollision(void)
 {
-    volatile struct {
+    volatile struct AGB_ALIGN {
         u16 newX;
         u16 newY;
         u16 inWater;
@@ -6544,7 +6548,7 @@ returnFC:
 
 u8 ResolveWarioFloorCollision(void)
 {
-    struct {
+    struct AGB_ALIGN {
         u16 adjustedX;
         u16 adjustedY;
         u16 secondary;
@@ -6865,7 +6869,7 @@ u8 ResolveWarioTileEdgeCollision(void)
 
 u8 ResolveWarioLadderCollision(void)
 {
-      volatile struct 
+      volatile struct AGB_ALIGN 
       {
           u16 newX;
           u16 newY;
@@ -7009,7 +7013,7 @@ u8 ResolveWarioVerticalFenceCollision(void)
     u16 *tableEntry;
     u32 tableValue;
     register struct WarioData *wario PIN("r10");
-    struct {
+    struct AGB_ALIGN {
         u16 collision;
         u16 padding;
         volatile u32 secondaryIndex;

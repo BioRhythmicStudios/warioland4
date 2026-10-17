@@ -3,14 +3,14 @@
 
 #include "global_data.h"
 
-struct PauseScreenState {
+struct AGB_ALIGN PauseScreenState {
     u16 animationTimer;
     u16 animationFrame;
     u8 selection;
     u8 confirmedSelection;
 };
 
-typedef struct PauseAnimationState {
+typedef struct AGB_ALIGN PauseAnimationState {
     u16 animationTimer;
     u16 animationFrame;
 } PauseAnimationState;

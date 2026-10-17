@@ -5,6 +5,7 @@
 #include "global_data.h"
 #include "init_helpers.h"
 #include "minigame.h"
+#include "save_file.h"
 #include "shop.h"
 #include "stage_select.h"
 
@@ -1550,7 +1551,7 @@ void DrawPassageScreenSprites(void)
     s32 used;
     s32 drawn;
     u32 tableOffset;
-    struct {
+    struct AGB_ALIGN {
         s32 index;
         s32 count;
         s32 stateOffset;
@@ -1817,9 +1818,9 @@ void DrawPassageScreenSprites(void)
                                     u8* screen;
                                     coordinateOffset = tableOffset;
                                     {
-                                        register union {
+                                        register union AGB_ALIGN {
                                             unsigned long long q;
-                                            struct {
+                                            struct AGB_ALIGN {
                                                 u32 lo;
                                                 u32 hi;
                                             } w;
@@ -2121,9 +2122,9 @@ void DrawPassageScreenSprites(void)
                     }
                 }
                 {
-                    register union {
+                    register union AGB_ALIGN {
                         unsigned long long q;
-                        struct {
+                        struct AGB_ALIGN {
                             u32 lo;
                             u32 hi;
                         } w;
@@ -2193,9 +2194,9 @@ void DrawPassageScreenSprites(void)
                             u8* screen;
                             coordinateOffset = tableOffset;
                             {
-                                register union {
+                                register union AGB_ALIGN {
                                     unsigned long long q;
-                                    struct {
+                                    struct AGB_ALIGN {
                                         u32 lo;
                                         u32 hi;
                                     } w;
@@ -2226,9 +2227,9 @@ void DrawPassageScreenSprites(void)
                                 x = *((const s32*)(((const u8*)sUnk_863C584) + value));
                                 x = attr + x;
                                 {
-                                    register union {
+                                    register union AGB_ALIGN {
                                         unsigned long long q;
-                                        struct {
+                                        struct AGB_ALIGN {
                                             u32 lo;
                                             u32 hi;
                                         } w;
@@ -2263,9 +2264,9 @@ void DrawPassageScreenSprites(void)
                     } while (0);
                 }
                 {
-                    union {
+                    union AGB_ALIGN {
                         unsigned long long q;
-                        struct {
+                        struct AGB_ALIGN {
                             u32 lo;
                             u32 hi;
                         } w;
@@ -2327,9 +2328,9 @@ void DrawPassageScreenSprites(void)
                                 screenOffset <<= 2;
                                 coordinateOffset = screenOffset;
                                 {
-                                    register union {
+                                    register union AGB_ALIGN {
                                         unsigned long long q;
-                                        struct {
+                                        struct AGB_ALIGN {
                                             u32 lo;
                                             u32 hi;
                                         } w;
@@ -2360,9 +2361,9 @@ void DrawPassageScreenSprites(void)
                                     x = *((const s32*)(((const u8*)sUnk_863C5B4) + value));
                                     x = attr + x;
                                     {
-                                        register union {
+                                        register union AGB_ALIGN {
                                             unsigned long long q;
-                                            struct {
+                                            struct AGB_ALIGN {
                                                 u32 lo;
                                                 u32 hi;
                                             } w;

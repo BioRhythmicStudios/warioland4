@@ -6,6 +6,7 @@
 #include "voice_set.h"
 #include "wario.h"
 
+#ifndef PORTABLE
 const u16 sKeyzerOamFrame_83B4554[] = {
     2,
     OAM_ENTRY(-16, -2, SPRITE_SIZE_16x8, 0, 294, 6, 0),
@@ -317,6 +318,58 @@ const struct AnimationFrame sKeyzerOam_83B4A04[] = {
 
 const s16 sKeyzerFloatYVelocity[] = {0, 0, 0, 0, 0, 0, -1, -1, -1, -2, -2, -3, -2, -2, -1, -1, -1, 0, 0, 0,      0,
                                      0, 0, 0, 0, 0, 1, 1,  1,  2,  2,  3,  2,  2,  1,  1,  1,  0,  0, 0, S16_MAX};
+#else
+extern const u16 sKeyzerOamFrame_83B4554[];
+extern const u16 sKeyzerOamFrame_83B4562[];
+extern const u16 sKeyzerOamFrame_83B4570[];
+extern const u16 sKeyzerOamFrame_83B457E[];
+extern const u16 sKeyzerIdleOam_Frame1[];
+extern const u16 sKeyzerIdleOam_Frame2[];
+extern const u16 sKeyzerIdleOam_Frame3[];
+extern const u16 sKeyzerIdleOam_Frame4[];
+extern const u16 sKeyzerOamFrame_83B45F4[];
+extern const u16 sKeyzerOamFrame_83B45FC[];
+extern const u16 sKeyzerOamFrame_83B4604[];
+extern const u16 sKeyzerOamFrame_83B460C[];
+extern const u16 sKeyzerOamFrame_83B4614[];
+extern const u16 sKeyzerOamFrame_83B4622[];
+extern const u16 sKeyzerOamFrame_83B4630[];
+extern const u16 sKeyzerOamFrame_83B463E[];
+extern const u16 sKeyzerOamFrame_83B464C[];
+extern const u16 sKeyzerIdleOam_Frame5[];
+extern const u16 sKeyzerIdleOam_Frame6[];
+extern const u16 sKeyzerIdleOam_Frame7[];
+extern const u16 sKeyzerIdleOam_Frame8[];
+extern const u16 sKeyzerOamFrame_83B46AA[];
+extern const u16 sKeyzerOamFrame_83B46B8[];
+extern const u16 sKeyzerOamFrame_83B46C6[];
+extern const u16 sKeyzerOamFrame_83B46D4[];
+extern const u16 sKeyzerOamFrame_83B46E2[];
+extern const u16 sKeyzerOamFrame_83B46FC[];
+extern const u16 sKeyzerOamFrame_83B4716[];
+extern const u16 sKeyzerOamFrame_83B4730[];
+extern const u16 sKeyzerOamFrame_83B474A[];
+extern const u16 sKeyzerOamFrame_83B4758[];
+extern const u16 sKeyzerOamFrame_83B4766[];
+extern const u16 sKeyzerOamFrame_83B4774[];
+extern const u16 sKeyzerOamFrame_83B4788[];
+extern const u16 sKeyzerOamFrame_83B479C[];
+extern const u16 sKeyzerOamFrame_83B47B0[];
+extern const struct AnimationFrame sKeyzerOam_83B47C4[];
+extern const struct AnimationFrame sKeyzerOam_83B47EC[];
+extern const struct AnimationFrame sKeyzerOam_83B4814[];
+extern const struct AnimationFrame sKeyzerOam_83B483C[];
+extern const struct AnimationFrame sKeyzerOam_83B4864[];
+extern const struct AnimationFrame sKeyzerOam_83B488C[];
+extern const struct AnimationFrame sKeyzerOam_83B48B4[];
+extern const struct AnimationFrame sKeyzerOam_83B48DC[];
+extern const struct AnimationFrame sKeyzerOam_83B4904[];
+extern const struct AnimationFrame sKeyzerIdleOam[];
+extern const struct AnimationFrame sKeyzerOam_83B4974[];
+extern const struct AnimationFrame sKeyzerOam_83B49BC[];
+extern const struct AnimationFrame sKeyzerOam_83B4A04[];
+extern const s16 sKeyzerFloatYVelocity[];
+#endif
 
 void KeyzerInit()
 {

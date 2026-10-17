@@ -915,8 +915,8 @@ void WarioHopDrawSprites(void)
 {
     /* OamData merges attr1 bits 9..13 into one 5-bit matrixNum. The affine sprites
        here only write the 3-bit affine index (as in DrawSoundRoomSprites). */
-    typedef union {
-        struct {
+    typedef union AGB_ALIGN {
+        struct AGB_ALIGN {
             u32 y : 8;
             u32 affineMode : 2;
             u32 objMode : 2;
@@ -938,7 +938,7 @@ void WarioHopDrawSprites(void)
             u16 sign : 1;
         } split;
 
-        struct {
+        struct AGB_ALIGN {
             u16 attr0;
             u16 attr1;
             u16 attr2;

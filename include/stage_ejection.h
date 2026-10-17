@@ -3,7 +3,7 @@
 
 #include "global_data.h"
 
-struct StageEjectionParticle {
+struct AGB_ALIGN StageEjectionParticle {
     s16 xVelocity;
     s16 yVelocity;
     u16 x;
@@ -14,7 +14,7 @@ struct StageEjectionParticle {
     u8 padding[3];
 };
 
-struct StageEjectionTreasureParticle {
+struct AGB_ALIGN StageEjectionTreasureParticle {
     u16 xVelocity;
     u16 yVelocity;
     u16 x;

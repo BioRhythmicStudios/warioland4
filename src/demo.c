@@ -9,13 +9,13 @@
 #include "sram_misc.h"
 #include "wario.h"
 
-struct DemoDmaRegisters {
+struct AGB_ALIGN DemoDmaRegisters {
     const void* source;
     void* destination;
     vu32 control;
 };
 
-struct DemoMusicState {
+struct AGB_ALIGN DemoMusicState {
     u8 state;
     u8 memoryAccessState;
     u16 songId;

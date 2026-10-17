@@ -671,6 +671,7 @@ u8 LoadStageCollectiblesFromSave(void)
         gCollectedKeyzer = 0;
     }
 function_end:
+    RETURN_NO_VALUE(0);
 }
 
 void InitStageHudAndScore(void)

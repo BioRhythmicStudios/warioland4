@@ -3,7 +3,11 @@
 #include "input.h"
 #include "types.h"
 
+#ifndef PORTABLE
 IWRAM_DATA u8 gDemoState = 0;
+#else
+extern u8 gDemoState;
+#endif
 
 void DemoInputSubroutine(void)
 {

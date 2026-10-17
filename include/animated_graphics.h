@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct AnimatedGraphicsState {
+struct AGB_ALIGN AnimatedGraphicsState {
     u8 mode;
     u8 frameDelay;
     u8 frameTimer;
@@ -15,7 +15,7 @@ struct AnimatedGraphicsState {
     const void* tiles;
 };
 
-struct AnimatedGraphicsDefinition {
+struct AGB_ALIGN AnimatedGraphicsDefinition {
     u8 mode;
     u8 frameDelay;
     u8 frameCount;

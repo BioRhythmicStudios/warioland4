@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct CreditsSpriteState {
+struct AGB_ALIGN CreditsSpriteState {
     u8 frame;
     u8 timer;
     u8 active;
@@ -12,7 +12,7 @@ struct CreditsSpriteState {
     u16 y;
 };
 
-struct CreditsObjectState {
+struct AGB_ALIGN CreditsObjectState {
     u16 reserved0;
     u8 timer;
     u8 reserved3;
@@ -20,7 +20,7 @@ struct CreditsObjectState {
     u16 y;
 };
 
-struct CreditsSpawnState {
+struct AGB_ALIGN CreditsSpawnState {
     u8 reserved0[2];
     u8 count;
     u8 reserved3;
@@ -28,13 +28,13 @@ struct CreditsSpawnState {
     u16 y;
 };
 
-struct CreditsAnchor {
+struct AGB_ALIGN CreditsAnchor {
     u8 reserved0[4];
     u16 x;
     u16 y;
 };
 
-union CreditsSpriteStorage {
+union AGB_ALIGN CreditsSpriteStorage {
     u8 bytes[8];
     struct CreditsSpriteState sprite;
     struct CreditsObjectState object;
@@ -42,7 +42,7 @@ union CreditsSpriteStorage {
     struct CreditsAnchor anchor;
 };
 
-struct CreditsTreasureState {
+struct AGB_ALIGN CreditsTreasureState {
     u8 phase;
     u8 treasureIndex;
     u16 currentTreasureBit;
@@ -51,7 +51,7 @@ struct CreditsTreasureState {
     u16 sequenceTimer;
 };
 
-struct CreditsTreasureAnim {
+struct AGB_ALIGN CreditsTreasureAnim {
     u8 type;
     u8 frame;
     u8 timer;
@@ -64,7 +64,7 @@ struct CreditsTreasureAnim {
     u16 reserved14;
 };
 
-struct CreditsTreasureDrop {
+struct AGB_ALIGN CreditsTreasureDrop {
     u8 state;
     u8 timer;
     u16 scale;

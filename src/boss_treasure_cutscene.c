@@ -7,7 +7,7 @@
 #include "score.h"
 #include "stage_select.h"
 
-struct BossTreasureItem {
+struct AGB_ALIGN BossTreasureItem {
     s16 x;
     s16 y;
     s16 scale;
@@ -15,21 +15,21 @@ struct BossTreasureItem {
     u8 unused;
 };
 
-struct BossTreasureUnlockIcon {
+struct AGB_ALIGN BossTreasureUnlockIcon {
     u8 x;
     u8 y;
     u8 active;
     u8 unused;
 };
 
-struct BossTreasureSparkleSlot {
+struct AGB_ALIGN BossTreasureSparkleSlot {
     u8 x;
     u8 y;
     u8 active;
     u8 unused;
 };
 
-struct BossTreasureParticle {
+struct AGB_ALIGN BossTreasureParticle {
     s16 x;
     s16 y;
     u8 scaleIndex;
@@ -1084,8 +1084,8 @@ void UpdateBossTreasurePaletteFlash(void)
 
 void DrawBossTreasureCutsceneSprites(void)
 {
-    typedef union {
-        struct {
+    typedef union AGB_ALIGN {
+        struct AGB_ALIGN {
             u32 y : 8;
             u32 affineMode : 2;
             u32 objMode : 2;
@@ -1107,7 +1107,7 @@ void DrawBossTreasureCutsceneSprites(void)
             u16 sign : 1;
         } split;
 
-        struct {
+        struct AGB_ALIGN {
             u16 attr0;
             u16 attr1;
             u16 attr2;

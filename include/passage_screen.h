@@ -4,7 +4,7 @@
 #include "gba.h"
 #include "oam.h"
 
-struct PassageIconState {
+struct AGB_ALIGN PassageIconState {
     u16 timer;
     u16 frame;
     u8 active;

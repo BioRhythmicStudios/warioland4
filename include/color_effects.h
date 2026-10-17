@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct ColorFading {
+struct AGB_ALIGN ColorFading {
     u8 type;
     u8 timer;
     u8 progress;

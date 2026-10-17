@@ -69,7 +69,7 @@ enum SwitchState {
     SWITCH_STATE_SWITCHING_OFF,
 };
 
-struct GameScreenDebugInfo {
+struct AGB_ALIGN GameScreenDebugInfo {
     u8 freeCameraEnabled;
     u8 roomEntryTensDigit;
     u8 roomEntryOnesDigitAndPalette;
@@ -78,7 +78,7 @@ struct GameScreenDebugInfo {
     u8 reserved06[2];
 };
 
-struct BackgroundInfo {
+struct AGB_ALIGN BackgroundInfo {
     u16* pBg0Data;
     u16 bg0Width;
     u16 bg0Height;
@@ -93,7 +93,7 @@ struct BackgroundInfo {
     u16 bg3Height;
 };
 
-struct RoomHeader {
+struct AGB_ALIGN RoomHeader {
     u8 tileset;
     u8 bg0Param;
     u8 bg1Param;
@@ -114,13 +114,13 @@ struct RoomHeader {
     u16 musicVolume;
 };
 
-struct BackgroundCollisionData {
+struct AGB_ALIGN BackgroundCollisionData {
     u16 primaryType;
     u16 waterType;
     u16 bg2Type;
 };
 
-struct BackgroundScroll {
+struct AGB_ALIGN BackgroundScroll {
     u16 bg0Horizontal;
     u16 bg0Vertical;
     u16 bg1Horizontal;
@@ -131,7 +131,7 @@ struct BackgroundScroll {
     u16 bg3Vertical;
 };
 
-struct Window {
+struct AGB_ALIGN Window {
     u8 left;
     u8 right;
     u8 top;
@@ -139,7 +139,7 @@ struct Window {
     u8 content;
 };
 
-struct WarioCollisionData {
+struct AGB_ALIGN WarioCollisionData {
     u16 unk_00;
     u16 flags;
     u8 unk_04;
@@ -160,7 +160,7 @@ struct WarioCollisionData {
     u8 unk_14;
 };
 
-struct WarioPoseProperty {
+struct AGB_ALIGN WarioPoseProperty {
     u8 unk_00;
     u8 unk_01;
     u8 unk_02;
@@ -171,34 +171,34 @@ struct WarioPoseProperty {
     u8 unk_07;
 };
 
-struct WarioAnimationFrame {
+struct AGB_ALIGN WarioAnimationFrame {
     const u8* objData;
     const u16* oamData;
     u8 time;
     u8 padding[3];
 };
 
-struct WarioHitbox {
+struct AGB_ALIGN WarioHitbox {
     s16 left;
     s16 top;
     s16 right;
     s16 bottom;
 };
 
-struct TransparencyState {
+struct AGB_ALIGN TransparencyState {
     u8 targetAlpha;
     u8 currentAlpha;
     u8 defaultAlpha;
     u8 blendTimer;
 };
 
-struct BackgroundTileTables {
+struct AGB_ALIGN BackgroundTileTables {
     const u16* top;
     const u8* bottom;
     const u16* attributes;
 };
 
-struct GameMusicState {
+struct AGB_ALIGN GameMusicState {
     u8 state;
     u8 memoryAccessState;
     u16 songId;
@@ -210,33 +210,33 @@ struct GameMusicState {
     u8 specialPlayerId;
 };
 
-struct BackgroundPositionState {
+struct AGB_ALIGN BackgroundPositionState {
     u16 x;
     u16 y;
     s8 xOffset;
     s8 yOffset;
 };
 
-struct RoomEffectState {
+struct AGB_ALIGN RoomEffectState {
     u8 type;
     u8 timer;
     u16 value;
 };
 
-struct ScreenShakeParameters {
+struct AGB_ALIGN ScreenShakeParameters {
     u8 duration;
     u8 frameTimer;
     u8 amplitude;
     u8 direction;
 };
 
-struct WarioEffectFrame {
+struct AGB_ALIGN WarioEffectFrame {
     const void* data;
     u16 time;
     u16 pad;
 };
 
-struct SecondarySprite {
+struct AGB_ALIGN SecondarySprite {
     u8 status;
     u8 work0;
     u8 id;
@@ -248,7 +248,7 @@ struct SecondarySprite {
     u16 xPosition;
 };
 
-struct SaveDataClearData {
+struct AGB_ALIGN SaveDataClearData {
     u8 pad_00[0x08];
     u8 unk_08;
     u8 unk_09;
@@ -269,7 +269,7 @@ struct SaveDataClearData {
     u8 unk_22;
 };
 
-struct SaveClearAnimationState {
+struct AGB_ALIGN SaveClearAnimationState {
     u16 y;
     u16 x;
     u8 pad_04[4];

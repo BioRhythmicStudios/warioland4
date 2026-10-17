@@ -23,6 +23,10 @@
 #include "wario_effects.h"
 #include "wario_palette.h"
 
+#ifdef PORTABLE
+#include <string.h>
+#endif
+
 u32 GameScreenSubroutine(void)
 {
     u32 result;

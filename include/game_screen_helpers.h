@@ -5,7 +5,7 @@
 #include "scrolling.h"
 #include "types.h"
 
-struct TilesetLoadData {
+struct AGB_ALIGN TilesetLoadData {
     const void* backgroundGraphics;
     u16 backgroundGraphicsSize;
     u16 padding06;
@@ -19,7 +19,7 @@ struct TilesetLoadData {
     const void* extraPalette;
 };
 
-struct RoomStartData {
+struct AGB_ALIGN RoomStartData {
     u8 type;
     u8 room;
     u8 x;

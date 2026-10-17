@@ -1,10 +1,17 @@
 #include "save_file.h"
 #include "sram.h"
 
+#ifndef PORTABLE
 u8* const sUnk_80953EC[SAVE_COUNT] = {(u8*)0xE000100, (u8*)0xE000500};
 u8* const sUnk_80953F4[SAVE_COUNT] = {(u8*)0xE000300, (u8*)0xE000700};
 u8* const sUnk_80953FC[SAVE_COUNT] = {(u8*)0xE0002E0, (u8*)0xE0006E0};
 u8* const sUnk_8095404[SAVE_COUNT] = {(u8*)0xE001000, (u8*)0xE004800};
+#else
+extern u8* const sUnk_80953EC[SAVE_COUNT];
+extern u8* const sUnk_80953F4[SAVE_COUNT];
+extern u8* const sUnk_80953FC[SAVE_COUNT];
+extern u8* const sUnk_8095404[SAVE_COUNT];
+#endif
 
 void func_8000CA8(void)
 {

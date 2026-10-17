@@ -1,5 +1,9 @@
 #include "transparency.h"
 
+#ifdef PORTABLE
+#include <string.h>
+#endif
+
 void TransparencyProcessTiles(s32 isMoving)
 {
     u8 alphaTable[7];

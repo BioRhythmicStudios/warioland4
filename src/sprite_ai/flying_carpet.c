@@ -28,6 +28,7 @@ volatile long UpdateMagicCarpetCollisionTimer(void)
             }
         }
     }
+    RETURN_NO_VALUE(0);
 }
 
 void InitMagicCarpet(void)

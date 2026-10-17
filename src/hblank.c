@@ -12,12 +12,13 @@ extern s16 gHBlankScrollPhase;
 extern s16 gHBlankLineOffsets[];
 extern u8 gHBlankWavePhase;
 
-struct Dma3Regs_HBlankCallbackCopy {
+struct AGB_ALIGN Dma3Regs_HBlankCallbackCopy {
     void* src;
     void* dst;
     u32 control;
 };
 
+#ifndef PORTABLE
 static const u8 sHBlankSineWave128[128] = {
     0x00, 0x06, 0x0C, 0x13, 0x19, 0x1F, 0x25, 0x2B, 0x31, 0x36, 0x3C, 0x41, 0x47, 0x4C, 0x51, 0x55, 0x5A, 0x5E, 0x62,
     0x66, 0x6A, 0x6D, 0x70, 0x73, 0x75, 0x78, 0x7A, 0x7B, 0x7D, 0x7E, 0x7E, 0x7F, 0x7F, 0x7F, 0x7E, 0x7E, 0x7D, 0x7B,
@@ -205,6 +206,17 @@ static const u8 sHBlankTinyRipple16[16] = {
     0xFF,
     0x00,
 };
+#else
+extern const u8 sHBlankSineWave128[128];
+extern const u8 sHBlankSmallRipple16[16];
+extern const u8 sHBlankMediumRipple32[32];
+extern const u8 sHBlankEscapeRipple32[32];
+extern const u8 sHBlankMediumRipple32Alt[32];
+extern const u8 sHBlankEscapeWaveGrowthTable[2080];
+extern const u8 sHBlankBg0Ripple64[64];
+extern const u8 sHBlankFineRipple32[32];
+extern const u8 sHBlankTinyRipple16[16];
+#endif
 
 void InitRoomHBlank(void)
 {

@@ -18,7 +18,7 @@
 #include "voice_set.h"
 #include "wario.h"
 
-struct GoldenDivaDmaRegs {
+struct AGB_ALIGN GoldenDivaDmaRegs {
     vu32 src;
     vu32 dst;
     vu32 control;

@@ -6,6 +6,7 @@
 #include "voice_set.h"
 #include "wario.h"
 
+#ifndef PORTABLE
 const u16 sCoin500PointsOam_Frame1[] = {
     1,
     OAM_ENTRY(-8, -15, SPRITE_SIZE_16x16, 0, 430, 6, 0),
@@ -499,6 +500,87 @@ const struct AnimationFrame sLittleHeartOamData[] = {
 const s16 sDiamondFloatYVelocity[] = {0, 0, 0, 0, 0,           0, 0, 0, 0, -PIXEL_SIZE, 0,      0, 0, 0, 0,
                                       0, 0, 0, 0, -PIXEL_SIZE, 0, 0, 0, 0, 0,           0,      0, 0, 0, PIXEL_SIZE,
                                       0, 0, 0, 0, 0,           0, 0, 0, 0, PIXEL_SIZE,  S16_MAX};
+#else
+extern const u16 sCoin500PointsOam_Frame1[];
+extern const u16 sCoin500PointsOam_Frame2[];
+extern const u16 sCoin500PointsOam_Frame3[];
+extern const u16 sCoin500PointsOam_Frame4[];
+extern const u16 sCoin500PointsOam_Frame5[];
+extern const u16 sCoin500PointsOam_Frame6[];
+extern const u16 sCoin500PointsOam_Frame7[];
+extern const u16 sCoin100PointsOam_Frame1[];
+extern const u16 sCoin100PointsOam_Frame2[];
+extern const u16 sCoin100PointsOam_Frame3[];
+extern const u16 sCoin100PointsOam_Frame4[];
+extern const u16 sCoin100PointsOam_Frame5[];
+extern const u16 sCoin100PointsOam_Frame6[];
+extern const u16 sCoin100PointsOam_Frame7[];
+extern const u16 sCoin50PointsOam_Frame1[];
+extern const u16 sCoin50PointsOam_Frame2[];
+extern const u16 sCoin50PointsOam_Frame3[];
+extern const u16 sCoin50PointsOam_Frame4[];
+extern const u16 sCoin50PointsOam_Frame5[];
+extern const u16 sCoin50PointsOam_Frame6[];
+extern const u16 sCoin50PointsOam_Frame7[];
+extern const u16 sCoin10PointsOam_Frame1[];
+extern const u16 sCoin10PointsOam_Frame2[];
+extern const u16 sCoin10PointsOam_Frame3[];
+extern const u16 sCoin10PointsOam_Frame4[];
+extern const u16 sCoin10PointsOam_Frame5[];
+extern const u16 sCoinsUnusedOamFrame[];
+extern const struct AnimationFrame sCoin500PointsOamData[];
+extern const struct AnimationFrame sCoin100PointsOamData[];
+extern const struct AnimationFrame sCoin50PointsOamData[];
+extern const struct AnimationFrame sCoin10PointsOamData[];
+extern const u16 sCoinsUnusedOam_Frame1[];
+extern const u16 sCoinsUnusedOam_Frame2[];
+extern const u16 sCoinsUnusedOam_Frame3[];
+extern const u16 sCoinsUnusedOam_Frame4[];
+extern const u16 sCoinsUnusedOam_Frame5[];
+extern const u16 sCoinsUnusedOam_Frame6[];
+extern const u16 sCoinsUnusedOam_Frame7[];
+extern const u16 sCoinsUnusedOam_Frame8[];
+extern const struct AnimationFrame sCoinsUnusedOamData[];
+extern const u16 sDiamondOam_Frame1[];
+extern const u16 sDiamondOam_Frame2[];
+extern const u16 sDiamondOam_Frame3[];
+extern const u16 sDiamondOam_Frame4[];
+extern const u16 sDiamondOam_Frame5[];
+extern const u16 sDiamondOam_Frame6[];
+extern const u16 sDiamondOam_Frame7[];
+extern const u16 sDiamondOam_Frame8[];
+extern const u16 sDiamondOam_Frame9[];
+extern const u16 sDiamondOam_Frame10[];
+extern const u16 sDiamondOam_Frame11[];
+extern const u16 sDiamondOam_Frame12[];
+extern const u16 sDiamondOam_Frame13[];
+extern const u16 sDiamondOam_Frame14[];
+extern const u16 sDiamondOam_Frame15[];
+extern const u16 sDiamondOam_Frame16[];
+extern const u16 sDiamondOam_Frame17[];
+extern const u16 sDiamondOam_Frame18[];
+extern const u16 sDiamondOam_Frame19[];
+extern const u16 sDiamondOam_Frame20[];
+extern const u16 sDiamondOam_Frame21[];
+extern const u16 sDiamondOam_Frame22[];
+extern const u16 sDiamondOam_Frame23[];
+extern const u16 sDiamondOam_Frame24[];
+extern const u16 sDiamondOam_Frame25[];
+extern const u16 sDiamondOam_Frame26[];
+extern const u16 sDiamondOam_Frame27[];
+extern const u16 sDiamondOam_Frame28[];
+extern const u16 sDiamondOam_Frame29[];
+extern const u16 sDiamondOam_Frame30[];
+extern const u16 sDiamondOam_Frame31[];
+extern const u16 sDiamondOam_Frame32[];
+extern const struct AnimationFrame sDiamondOamData[];
+extern const u16 sLittleHeartOam_Frame1[];
+extern const u16 sLittleHeartOam_Frame2[];
+extern const u16 sLittleHeartOam_Frame3[];
+extern const u16 sLittleHeartOam_Frame4[];
+extern const struct AnimationFrame sLittleHeartOamData[];
+extern const s16 sDiamondFloatYVelocity[];
+#endif
 
 void func_802BADC(void)
 {

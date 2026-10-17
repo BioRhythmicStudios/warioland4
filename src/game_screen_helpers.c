@@ -33,7 +33,7 @@ void m4aMPlayFadeOutTemporarily();
 
 #define SE_HURRY_UP_SWITCH 0xD9
 
-struct DmaRegisters {
+struct AGB_ALIGN DmaRegisters {
     const void* source;
     void* destination;
     vu32 control;

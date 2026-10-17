@@ -3,7 +3,7 @@
 #include "global_data.h"
 #include "wario.h"
 
-struct CameraTargetPosition {
+struct AGB_ALIGN CameraTargetPosition {
     u16 x;
     u16 y;
 };

@@ -7,7 +7,7 @@
 #include "oam.h"
 #include "stage_select.h"
 
-struct Dma3Regs {
+struct AGB_ALIGN Dma3Regs {
     vu32 src;
     vu32 dst;
     vu32 cnt;
@@ -30,7 +30,7 @@ struct Dma3Regs {
 
 typedef u8 OamByte;
 
-struct HomerunBallState {
+struct AGB_ALIGN HomerunBallState {
     u16 animationTimer;
     u16 animationFrame;
     u16 xPosition;
@@ -46,7 +46,7 @@ struct HomerunBallState {
 };
 
 
-struct HomerunBallRenderState {
+struct AGB_ALIGN HomerunBallRenderState {
     u16 animationTimer;
     u16 animationFrame;
     s16 xPosition;
@@ -62,7 +62,7 @@ struct HomerunBallRenderState {
     s16 scale;
 };
 
-struct HomerunBatState {
+struct AGB_ALIGN HomerunBatState {
     u16 animationTimer;
     u16 animationFrame;
     u16 angle;
@@ -70,7 +70,7 @@ struct HomerunBatState {
     u8 contactFrame;
 };
 
-struct HomerunCameraState {
+struct AGB_ALIGN HomerunCameraState {
     u16 reserved0;
     u16 reserved2;
     u16 scale;
@@ -81,7 +81,7 @@ struct HomerunCameraState {
     u8 oamMode;
 };
 
-struct HomerunSimpleAnimation {
+struct AGB_ALIGN HomerunSimpleAnimation {
     u16 animationTimer;
     u16 animationFrame;
     s16 xPosition;
@@ -91,19 +91,19 @@ struct HomerunSimpleAnimation {
     u8 nextAnimationIndex;
 };
 
-struct HomerunPitcherState {
+struct AGB_ALIGN HomerunPitcherState {
     u16 animationTimer;
     u16 animationFrame;
     u8 animationIndex;
     u8 pitchCounter;
 };
 
-struct HomerunAnimationCursor {
+struct AGB_ALIGN HomerunAnimationCursor {
     u16 animationTimer;
     u16 animationFrame;
 };
 
-struct HomerunBonusState {
+struct AGB_ALIGN HomerunBonusState {
     u16 animationTimer;
     u16 animationFrame;
     u16 xPosition;

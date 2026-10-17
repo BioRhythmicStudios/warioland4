@@ -37,7 +37,7 @@
 #define SOUND_MODE_DA_BIT       0x00B00000
 #define SOUND_MODE_DA_BIT_SHIFT 20
 
-struct WaveData {
+struct AGB_ALIGN WaveData {
     u16 type;
     u16 status;
     u32 freq;
@@ -54,7 +54,7 @@ struct WaveData {
 #define TONEDATA_P_S_PAN    0xc0
 #define TONEDATA_P_S_PAM    TONEDATA_P_S_PAN
 
-struct ToneData {
+struct AGB_ALIGN ToneData {
     u8 type;
     u8 key;
     u8 length; // sound length (compatible sound)
@@ -66,7 +66,7 @@ struct ToneData {
     u8 release;
 };
 
-struct CgbChannel {
+struct AGB_ALIGN CgbChannel {
     u8 sf;
     u8 ty;
     u8 rightVolume;
@@ -108,7 +108,7 @@ struct CgbChannel {
 
 struct MusicPlayerTrack;
 
-struct SoundChannel {
+struct AGB_ALIGN SoundChannel {
     u8 status;
     u8 type;
     u8 rightVolume;
@@ -148,7 +148,7 @@ struct SoundChannel {
 
 #define PCM_DMA_BUF_SIZE 1584 // size of Direct Sound buffer
 
-struct SoundInfo {
+struct AGB_ALIGN SoundInfo {
     // This field is normally equal to ID_NUMBER but it is set to other
     // values during sensitive operations for locking purposes.
     // This field should be volatile but isn't. This could potentially cause
@@ -185,7 +185,7 @@ struct SoundInfo {
     s8 pcmBuffer[PCM_DMA_BUF_SIZE * 2];
 };
 
-struct SongHeader {
+struct AGB_ALIGN SongHeader {
     u8 trackCount;
     u8 blockCount;
     u8 priority;
@@ -201,7 +201,7 @@ struct SongHeader {
 #define MPT_FLG_START  0x40
 #define MPT_FLG_EXIST  0x80
 
-struct MusicPlayerTrack {
+struct AGB_ALIGN MusicPlayerTrack {
     u8 flags;
     u8 wait;
     u8 patternLevel;
@@ -253,7 +253,7 @@ struct MusicPlayerTrack {
 #define FADE_VOL_MAX    64
 #define FADE_VOL_SHIFT  2
 
-struct MusicPlayerInfo {
+struct AGB_ALIGN MusicPlayerInfo {
     struct SongHeader *songHeader;
     u32 status;
     u8 trackCount;
@@ -277,14 +277,14 @@ struct MusicPlayerInfo {
     u32 intp;
 };
 
-struct MusicPlayer {
+struct AGB_ALIGN MusicPlayer {
     struct MusicPlayerInfo *info;
     struct MusicPlayerTrack *track;
     u8 unk_8;
     u16 unk_A;
 };
 
-struct Song {
+struct AGB_ALIGN Song {
     struct SongHeader *header;
     u16 ms;
     u16 me;

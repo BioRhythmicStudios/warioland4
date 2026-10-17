@@ -26,6 +26,7 @@ const s32 sVoiceSet_20[3];
 const s32 sVoiceSet_21[3];
 const s32 sVoiceSet_22[3];
 
+#ifndef PORTABLE
 const s32 sVoiceSetSizes[VS_COUNT] = {
     [VS_WARIO_REACTION_END] = ARRAY_SIZE(sVoiceSet_Wario_ReactionEnd),
     [VS_WARIO_TREASURE] = ARRAY_SIZE(sVoiceSet_Wario_Treasure),
@@ -279,6 +280,33 @@ const s32* const sVoiceSetPointers[VS_COUNT] = {
     [VS_21] = sVoiceSet_21,
     [VS_22] = sVoiceSet_22,
 };
+#else
+extern const s32 sVoiceSetSizes[VS_COUNT];
+extern const s32 sVoiceSet_Wario_ReactionEnd[];
+extern const s32 sVoiceSet_Wario_Treasure[];
+extern const s32 sVoiceSet_Wario_KeyzerGet[];
+extern const s32 sVoiceSet_Wario_VortexOpen[];
+extern const s32 sVoiceSet_Wario_Hurt[];
+extern const s32 sVoiceSet_Wario_HurryUp[];
+extern const s32 sVoiceSet_Wario_Screams[];
+extern const s32 sVoiceSet_Wario_Goodbye_Unused[];
+extern const s32 sVoiceSet_Wario_EnteringPyramid[];
+extern const s32 sVoiceSet_Wario_WorkoutEnd[];
+extern const s32 sVoiceSet_Wario_EnteringBossRoom[];
+extern const s32 sVoiceSet_Wario_Dying[];
+extern const s32 sVoiceSet_12[];
+extern const s32 sVoiceSet_13[];
+extern const s32 sVoiceSet_14[];
+extern const s32 sVoiceSet_15[];
+extern const s32 sVoiceSet_16[];
+extern const s32 sVoiceSet_17[];
+extern const s32 sVoiceSet_18[];
+extern const s32 sVoiceSet_19[];
+extern const s32 sVoiceSet_20[];
+extern const s32 sVoiceSet_21[];
+extern const s32 sVoiceSet_22[];
+extern const s32* const sVoiceSetPointers[VS_COUNT];
+#endif
 
 void VoiceSetPlay(s32 voiceSet)
 {

@@ -5,6 +5,7 @@
 #include "sprite_util.h"
 #include "wario.h"
 
+#ifndef PORTABLE
 const u16 sRockOam_Frame1[] = {
     2,
     OAM_ENTRY(-10, -16, SPRITE_SIZE_16x16, 0, 512, 8, 0),
@@ -29,6 +30,14 @@ const u16 sRockOam_UnusedFrame4[] = {
 };
 
 const struct AnimationFrame sRockOamData[] = {{sRockOam_Frame1, 0xC8}, ANIMATION_TERMINATOR};
+#else
+extern const u16 sRockOam_Frame1[];
+extern const u16 sRockOam_UnusedFrame1[];
+extern const u16 sRockOam_UnusedFrame2[];
+extern const u16 sRockOam_UnusedFrame3[];
+extern const u16 sRockOam_UnusedFrame4[];
+extern const struct AnimationFrame sRockOamData[];
+#endif
 
 void RockInit(void)
 {

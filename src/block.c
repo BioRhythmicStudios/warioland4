@@ -7,7 +7,7 @@
 #define BLOCK_TILE_SIZE 64
 #define BLOCK_TILE_MASK 63
 
-struct BlockCollisionContext {
+struct AGB_ALIGN BlockCollisionContext {
     s32 tileType;
     s32 localX;
     s32 localY;

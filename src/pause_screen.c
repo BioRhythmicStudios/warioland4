@@ -10,7 +10,7 @@
 #include "stage_entry.h"
 #include "stage_select.h"
 
-struct DmaRegisters {
+struct AGB_ALIGN DmaRegisters {
     vu32 src;
     vu32 dst;
     vu32 cnt;

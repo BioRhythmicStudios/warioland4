@@ -5,6 +5,10 @@
 #include "voice_set.h"
 #include "wario_palette.h"
 
+#ifdef PORTABLE
+#include <string.h>
+#endif
+
 void PrepareWarioUpdate(void)
 {
     struct WarioData* wario;

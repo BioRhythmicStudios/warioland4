@@ -412,8 +412,8 @@ void SpawnPassageClearParticles(void)
 
 void RenderPassageClearOam(void)
 {
-    typedef union {
-        struct {
+    typedef union AGB_ALIGN {
+        struct AGB_ALIGN {
             u32 y : 8;
             u32 affineMode : 2;
             u32 objMode : 2;
@@ -435,7 +435,7 @@ void RenderPassageClearOam(void)
             u16 sign : 1;
         } split;
 
-        struct {
+        struct AGB_ALIGN {
             u16 attr0;
             u16 attr1;
             u16 attr2;

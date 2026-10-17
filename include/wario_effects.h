@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-struct WarioEffectGfx {
+struct AGB_ALIGN WarioEffectGfx {
     void* pGfx1;
     u32 gfx1Size;
     void* pGfx2;

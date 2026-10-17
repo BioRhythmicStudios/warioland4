@@ -21,6 +21,14 @@
 #define PIN(reg) asm(reg)
 #endif
 
+// A few matched functions are declared non-void but return without a value, and every
+// caller ignores the result. Portable builds return the given value so the compiler accepts them.
+#ifdef PORTABLE
+#define RETURN_NO_VALUE(value) return value
+#else
+#define RETURN_NO_VALUE(value) return
+#endif
+
 // Empty asm statements that only steer agbcc's register allocation and scheduling.
 // The operands follow the template, e.g. ASM_BARRIER(: "+r"(x)).
 // Portable builds drop them.

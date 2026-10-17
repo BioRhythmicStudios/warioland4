@@ -11,7 +11,7 @@
 
 #define SECTORS_PER_BANK 16
 
-struct FlashSector
+struct AGB_ALIGN FlashSector
 {
     u32 size;
     u8 shift;
@@ -19,14 +19,14 @@ struct FlashSector
     u16 top;
 };
 
-struct FlashType {
+struct AGB_ALIGN FlashType {
     u32 romSize;
     struct FlashSector sector;
     u16 wait[2]; // game pak bus read/write wait
 
     // TODO: add support for anonymous unions/structs if possible
-    union {
-        struct {
+    union AGB_ALIGN {
+        struct AGB_ALIGN {
         u8 makerId;
         u8 deviceId;
         } separate;
@@ -34,7 +34,7 @@ struct FlashType {
     } ids;
 };
 
-struct FlashSetupInfo
+struct AGB_ALIGN FlashSetupInfo
 {
     u16 (*programFlashByte)(u16, u32, u8);
     u16 (*programFlashSector)(u16, void *);

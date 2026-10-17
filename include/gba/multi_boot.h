@@ -8,7 +8,7 @@
 #define MULTIBOOT_SEND_SIZE_MIN 0x100   // Minimum transmission size
 #define MULTIBOOT_SEND_SIZE_MAX 0x40000 // Maximum transmission size
 
-struct MultiBootParam
+struct AGB_ALIGN MultiBootParam
 {
     /* 0x00 */ u32 system_work[5];                   // Can be rewritten within system call.
                                                      // Used with library also.

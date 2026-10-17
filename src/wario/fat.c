@@ -7,6 +7,7 @@
 #include "sound.h"
 #include "voice_set.h"
 #include "wario.h"
+#include "wario/normal.h"
 #include "wario/swimming.h"
 #include "wario/fat.h"
 #include "wario_palette.h"

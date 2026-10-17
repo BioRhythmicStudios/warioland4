@@ -5,7 +5,7 @@
 #include "tile_effect.h"
 #include "types.h"
 
-struct TileInteractionContext {
+struct AGB_ALIGN TileInteractionContext {
     u16 xTile;
     u16 yTile;
     u16 attribute;

@@ -14,7 +14,7 @@
 #include "voice_set.h"
 #include "wario.h"
 
-struct ShopkeeperDmaRegisters {
+struct AGB_ALIGN ShopkeeperDmaRegisters {
     const void* volatile src;
     void* volatile dst;
     volatile u32 control;

@@ -2,7 +2,11 @@
 
 typedef void* (*SramOperationFunc)(u8*, u8*, u32);
 
+#ifndef PORTABLE
 const char sSramVersion[] = "SRAM_V112";
+#else
+extern const char sSramVersion[];
+#endif
 
 void SramWriteUncheckedInternal(u8* src, u8* dest, u32 size)
 {

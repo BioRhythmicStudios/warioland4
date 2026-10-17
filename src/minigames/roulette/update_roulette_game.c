@@ -1,5 +1,7 @@
 #include "minigames/roulette.h"
 
+#include "minigame.h"
+
 int UpdateRouletteGame(void)
 {
     register u8 *statePtr;

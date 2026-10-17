@@ -3,13 +3,13 @@
 
 #include "types.h"
 
-struct BatAnimationFrame {
+struct AGB_ALIGN BatAnimationFrame {
     const u16* oam;
     u32 unk4;
     u8 time;
 };
 
-struct BatGraphicsFrame {
+struct AGB_ALIGN BatGraphicsFrame {
     const u8* data;
     const u16* oam;
     u32 unk8;

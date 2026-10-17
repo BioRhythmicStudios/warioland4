@@ -4,6 +4,7 @@
 #include "sound.h"
 #include "sprite_util.h"
 
+#ifndef PORTABLE
 const u16 sSpearMaskWalkingOam_Frame1[] = {
     3,
     OAM_ENTRY(-17, -13, SPRITE_SIZE_32x8, 0, 595, 8, 0),
@@ -677,6 +678,112 @@ const struct AnimationFrame sSpearMaskChasingOam[] = {
     {sSpearMaskChasingOam_Frame6, 4},
     ANIMATION_TERMINATOR
 };
+#else
+extern const u16 sSpearMaskWalkingOam_Frame1[];
+extern const u16 sSpearMaskWalkingOam_Frame2[];
+extern const u16 sSpearMaskWalkingOam_Frame3[];
+extern const u16 sSpearMaskWalkingOam_Frame4[];
+extern const u16 sSpearMaskWalkingOam_Frame5[];
+extern const u16 sSpearMaskWalkingOam_Frame6[];
+extern const u16 sOamFrame_83B3A78[];
+extern const u16 sOamFrame_83B3A98[];
+extern const u16 sSpearMaskCrushedOam_Frame1[];
+extern const u16 sSpearMaskCrushedOam_Frame2[];
+extern const u16 sSpearMaskBashedOam_Frame1[];
+extern const u16 sSpearMaskBashedOam_Frame2[];
+extern const u16 sSpearMaskTurning1Oam_Frame1[];
+extern const u16 sSpearMaskTurning1Oam_Frame2[];
+extern const u16 sSpearMaskTurning2Oam_Frame1[];
+extern const u16 sSpearMaskTurning2Oam_Frame2[];
+extern const u16 sSpearMaskTurning2Oam_Frame3[];
+extern const u16 sSpearMaskTurning3Oam_Frame1[];
+extern const u16 sSpearMaskTurning3Oam_Frame2[];
+extern const u16 sOamFrame_83B3B9A[];
+extern const u16 sSpearMaskHitWarioOam_Frame1[];
+extern const u16 sSpearMaskStunnedOam_Frame1[];
+extern const u16 sSpearMaskStunnedOam_Frame2[];
+extern const u16 sSpearMaskStunnedOam_Frame3[];
+extern const u16 sSpearMaskStunnedOam_Frame4[];
+extern const u16 sSpearMaskStunnedOam_Frame5[];
+extern const u16 sSpearMaskStunnedOam_Frame6[];
+extern const u16 sSpearMaskGettingUpOam_Frame1[];
+extern const u16 sSpearMaskGettingUpOam_Frame2[];
+extern const u16 sSpearMaskGettingUpOam_Frame3[];
+extern const u16 sSpearMaskGettingUpOam_Frame4[];
+extern const u16 sSpearMaskGettingUpOam_Frame5[];
+extern const u16 sSpearMaskGettingUpOam_Frame6[];
+extern const u16 sSpearMaskGettingUpOam_Frame7[];
+extern const u16 sSpearMaskGettingUpOam_Frame8[];
+extern const u16 sSpearMaskGettingUpOam_Frame9[];
+extern const u16 sSpearMaskGettingUpOam_Frame10[];
+extern const u16 sSpearMaskGettingUpOam_Frame11[];
+extern const u16 sSpearMaskGettingUpOam_Frame12[];
+extern const u16 sSpearMaskGettingUpOam_Frame13[];
+extern const u16 sSpearMaskTurningOam_Frame3[];
+extern const u16 sSpearMaskSpearTwirlingOam_Frame1[];
+extern const u16 sSpearMaskSpearTwirlingOam_Frame2[];
+extern const u16 sSpearMaskSpearTwirlingOam_Frame3[];
+extern const u16 sSpearMaskSpearTwirlingOam_Frame4[];
+extern const u16 sSpearMaskTurningOam_Frame1[];
+extern const u16 sSpearMaskTurningOam_Frame2[];
+extern const u16 sOamFrame_83B3E6C[];
+extern const u16 sOamFrame_83B3E86[];
+extern const u16 sOamFrame_83B3EA6[];
+extern const u16 sOamFrame_83B3EC6[];
+extern const u16 sOamFrame_83B3EE6[];
+extern const u16 sOamFrame_83B3F06[];
+extern const u16 sOamFrame_83B3F26[];
+extern const u16 sOamFrame_83B3F46[];
+extern const u16 sSpearMaskStartingCaseOam_Frame1[];
+extern const u16 sSpearMaskStartingCaseOam_Frame2[];
+extern const u16 sSpearMaskStartingCaseOam_Frame3[];
+extern const u16 sSpearMaskChasingOam_Frame1[];
+extern const u16 sSpearMaskChasingOam_Frame2[];
+extern const u16 sSpearMaskChasingOam_Frame3[];
+extern const u16 sSpearMaskChasingOam_Frame4[];
+extern const u16 sSpearMaskChasingOam_Frame5[];
+extern const u16 sSpearMaskChasingOam_Frame6[];
+extern const u16 sSpearMaskTransforming1Oam_Frame1[];
+extern const u16 sSpearMaskTransforming2Oam_Frame1[];
+extern const u16 sOamFrame_83B4048[];
+extern const u16 sSpearMaskRecoveringOam_Frame1[];
+extern const u16 sSpearMaskRecoveringOam_Frame2[];
+extern const u16 sOamFrame_83B4090[];
+extern const u16 sOamFrame_83B40B0[];
+extern const u16 sOamFrame_83B40D0[];
+extern const u16 sOamFrame_83B40EA[];
+extern const u16 sOamFrame_83B4104[];
+extern const u16 sOamFrame_83B411E[];
+extern const u16 sOamFrame_83B4138[];
+extern const u16 sOamFrame_83B4152[];
+extern const struct AnimationFrame sSpearMaskWalkingOam[];
+extern const struct AnimationFrame sSpearMaskCrushedOam[];
+extern const struct AnimationFrame sSpearMaskTackledOam[];
+extern const struct AnimationFrame sSpearMaskTurning1Oam[];
+extern const struct AnimationFrame sSpearMaskTurning2Oam[];
+extern const struct AnimationFrame sSpearMaskTurning3Oam[];
+extern const struct AnimationFrame sSpearMaskOam_83B4224[];
+extern const struct AnimationFrame sSpearMaskStunnedOam[];
+extern const struct AnimationFrame sSpearMaskGettingUpOam[];
+extern const struct AnimationFrame sSpearMaskTransforming1Oam[];
+extern const struct AnimationFrame sSpearMaskTransforming2Oam[];
+extern const struct AnimationFrame sSpearMaskOam_83B4334[];
+extern const struct AnimationFrame sSpearMaskOam_83B4344[];
+extern const struct AnimationFrame sSpearMaskHitWarioOam[];
+extern const struct AnimationFrame sSpearMaskPushedOam[];
+extern const struct AnimationFrame sSpearMaskOam_83B4374[];
+extern const struct AnimationFrame sSpearMaskRecoveringOam[];
+extern const struct AnimationFrame sSpearMaskOam_83B43A4[];
+extern const struct AnimationFrame sSpearMaskSpearTwirlingOam[];
+extern const struct AnimationFrame sSpearMaskTurningOam[];
+extern const struct AnimationFrame sSpearMaskOam_83B4424[];
+extern const struct AnimationFrame sSpearMaskOam_83B443C[];
+extern const struct AnimationFrame sSpearMaskOam_83B4464[];
+extern const struct AnimationFrame sSpearMaskOam_83B4484[];
+extern const struct AnimationFrame sSpearMaskOam_83B44AC[];
+extern const struct AnimationFrame sSpearMaskStartingChaseOam[];
+extern const struct AnimationFrame sSpearMaskChasingOam[];
+#endif
 
 void SpearMaskSetWalkingHitbox(void)
 {
