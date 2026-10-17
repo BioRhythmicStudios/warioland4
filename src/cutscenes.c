@@ -2282,12 +2282,15 @@ void UpdateLayeredSubGameCutscene(s32 frame)
                 DecodeCutsceneTileRuns(oamData, (u16*)0x06008000);
                 {
                     vu16* scroll;
-                    s32 negTwo;
-                    
+                    register s16 negTwo asm("r1");
 
                     gCutsceneBackgroundHorizontalOffset = 0;
-                    gCutsceneBackgroundVerticalOffset = -2;
-                    negTwo = (u16)-2;
+                    {
+                        register s16* vertical asm("r0");
+                        vertical = &gCutsceneBackgroundVerticalOffset;
+                        *vertical = -2;
+                    }
+                    negTwo = -2;
                     scroll = (vu16*)0x04000010;
                     *scroll = 0;
                     scroll++;
