@@ -9,11 +9,11 @@ void InitBossCorridorCat(void)
     struct PrimarySpriteData *sprite;
     struct PrimarySpriteData *caseSprite;
     int zeroHalf;
-    register int zeroByte asm("r2");
-    register int offset asm("r0");
+    register int zeroByte PIN("r2");
+    register int offset PIN("r0");
     int slot;
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     int random;
 
     persistentData = &gPersistentSpriteData[0][0];
@@ -99,7 +99,7 @@ void BossCorridorCatWaitToTurn(void)
     u8 timer;
     u16 oldStatus;
     s32 status;
-    register int zero asm("r2");
+    register int zero PIN("r2");
 
     sprite = &gCurrentSprite;
     pointerValue = 39;

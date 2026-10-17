@@ -313,7 +313,7 @@ void func_8092B30(void)
         }
     }
     {
-        register int clear asm("r4");
+        register int clear PIN("r4");
         volatile u16* bgReg;
         bgReg = (volatile u16*)0x0400000E;
         clear = 0;
@@ -358,7 +358,7 @@ void func_8092CC4(void)
 
 void func_8092D2C(void)
 {
-    register struct SaveDataClearData* data asm("r2");
+    register struct SaveDataClearData* data PIN("r2");
     u8* tbl;
     u8* ptr;
     s32 value;
@@ -426,26 +426,26 @@ void func_8092DFC(void)
     u16* dest;
     u32 slots;
     u32 oldSlots;
-    register u32 i asm("r4");
-    register u32 next asm("r8");
+    register u32 i PIN("r4");
+    register u32 next PIN("r8");
     u32 yoff;
-    register s32 xoff asm("ip");
-    register const u8* anim asm("r5");
+    register s32 xoff PIN("ip");
+    register const u8* anim PIN("r5");
     const u16* src;
     u32 idx;
     u32 twice;
-    register u32 off asm("r1");
-    register u32 cidx asm("r0");
-    register struct SaveClearAnimationState* firstData asm("r3");
+    register u32 off PIN("r1");
+    register u32 cidx PIN("r0");
+    register struct SaveClearAnimationState* firstData PIN("r3");
     const u8* const* tbl;
     u32 type;
-    register u32 switchType asm("r0");
+    register u32 switchType PIN("r0");
     u32 xhalf;
     u32 count;
     u8* oam;
     u32 attr;
     u32 attr1;
-    register u8* oamBase asm("r0");
+    register u8* oamBase PIN("r0");
 
     dest = (u16*)gOamBuffer;
     idx = (u32)&gOamSlotsUsed;
@@ -544,7 +544,7 @@ loop:
     xoff = (s16)xhalf;
     oam = (u8*)((oldSlots << 3) + (u32)oamBase);
     {
-        register u32 tmpCount asm("r1");
+        register u32 tmpCount PIN("r1");
         tmpCount = slots;
         asm("" : "+r"(tmpCount));
         count = tmpCount - oldSlots;
@@ -561,7 +561,7 @@ loop:
         dest++;
         attr1 += xoff;
         {
-            register u32 mask9 asm("r2");
+            register u32 mask9 PIN("r2");
             mask9 = 0x1FF;
             attr1 &= mask9;
         }
@@ -598,7 +598,7 @@ end_iter:
     i = next;
     if ((s32)i > 2) {
         {
-            register u32 finalSlots asm("r0");
+            register u32 finalSlots PIN("r0");
             finalSlots = slots;
             anim = (const u8*)&gOamSlotsUsed;
             *(u8*)anim = finalSlots;

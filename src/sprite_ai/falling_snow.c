@@ -216,19 +216,19 @@ void FallingSnowChildExpire(void)
 
 void InitFallingSnowFragment(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
+    register struct PrimarySpriteData* sprite PIN("ip");
     u8 zero;
     u16 zero16;
-    register u16 status asm("r4");
+    register u16 status PIN("r4");
     u8 one;
     u8* ptr;
-    register u8* ptr32 asm("r1");
+    register u8* ptr32 PIN("r1");
 
     sprite = &gCurrentSprite;
     {
         s32 oldStatus;
         u32 statusBits;
-        register u16 base asm("r0");
+        register u16 base PIN("r0");
         u32 mask;
 
         oldStatus = sprite->status;
@@ -283,7 +283,7 @@ void InitFallingSnowFragment(void)
         else
         {
             const struct AnimationFrame* oam;
-            register struct PrimarySpriteData* dst asm("r1");
+            register struct PrimarySpriteData* dst PIN("r1");
             oam = sFallingSnowFragmentRightOam;
             dst = sprite;
             dst->pOamData = oam;

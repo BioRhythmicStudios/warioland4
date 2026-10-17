@@ -119,14 +119,14 @@ void InitPigHeadProjectile(void)
     struct PrimarySpriteData* sprite;
     u8 zero;
     u16 zero16;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     u16 oldStatus;
 
     sprite = &gCurrentSprite;
     oldStatus = sprite->status;
     status = SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
     {
-        register u8 zeroTemp asm("r2");
+        register u8 zeroTemp PIN("r2");
         zeroTemp = 0;
         zero = zeroTemp;
         zero16 = 0;
@@ -166,7 +166,7 @@ void PigHeadProjectileFall(void)
     }
 
     if (gSpriteCollisionResult) {
-        register u32 zero asm("r1");
+        register u32 zero PIN("r1");
         u32 zero16;
 
         zero = 0;
@@ -235,8 +235,8 @@ void PigHeadProjectileDespawn(void)
 {
     struct PrimarySpriteData* sprite;
     u8* timer;
-    register int value asm("r1");
-    register u8 oldValue asm("r0");
+    register int value PIN("r1");
+    register u8 oldValue PIN("r0");
 
     sprite = &gCurrentSprite;
     timer = &sprite->work0;
@@ -244,7 +244,7 @@ void PigHeadProjectileDespawn(void)
     value = oldValue - 1;
     *timer = value;
     if ((u8)value != 0) {
-        register u32 check asm("r0");
+        register u32 check PIN("r0");
 
         check = (u8)value;
         if (check <= 14) {

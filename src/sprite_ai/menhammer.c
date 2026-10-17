@@ -164,8 +164,8 @@ void MenhammerAttack(void)
 {
     {
         struct PrimarySpriteData *sprite;
-        register u8 *work0Pointer asm("r5");
-        register u32 initialWork0 asm("r6");
+        register u8 *work0Pointer PIN("r5");
+        register u32 initialWork0 PIN("r6");
         u32 work0;
 
         sprite = &gCurrentSprite;
@@ -210,10 +210,10 @@ void MenhammerAttack(void)
 
     {
         struct PrimarySpriteData *spriteBase;
-        register u8 *indexPointer asm("ip");
+        register u8 *indexPointer PIN("ip");
         u32 index;
         const s16 *table;
-        register u32 r4Value asm("r4");
+        register u32 r4Value PIN("r4");
         u32 r5Value;
         u32 velocityAddress;
         s32 signedVelocity;
@@ -236,7 +236,7 @@ void MenhammerAttack(void)
         sentinel = 0x7FFF;
         r4Value = (u32) spriteBase;
         if (signedVelocity == sentinel) {
-            register u32 previousVelocityAddress asm("r1");
+            register u32 previousVelocityAddress PIN("r1");
 
             previousVelocityAddress = index - 1;
             previousVelocityAddress <<= 1;
@@ -246,7 +246,7 @@ void MenhammerAttack(void)
             yPosition = yPosition + previousVelocityAddress;
         } else {
             u32 nextIndex;
-            register u8 *storePointer asm("r1");
+            register u8 *storePointer PIN("r1");
 
             nextIndex = index + 1;
             storePointer = indexPointer;
@@ -258,7 +258,7 @@ void MenhammerAttack(void)
         r5Value = r4Value;
 
         if (((struct PrimarySpriteData *) r5Value)->status & SPRITE_STATUS_FACING_RIGHT) {
-            register u32 xPosition asm("r1");
+            register u32 xPosition PIN("r1");
 
             xPosition = ((struct PrimarySpriteData *) r5Value)->xPosition;
             xPosition += 8;

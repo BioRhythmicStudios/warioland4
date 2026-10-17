@@ -19,7 +19,7 @@ int UpdateRouletteGame(void)
         if (MinigameWaitForFrames(40) == 0)
             return 0;
         {
-            register int barrier asm("r2");
+            register int barrier PIN("r2");
             asm volatile("" : "=r"(barrier));
         }
         goto advanceStateReload;
@@ -36,7 +36,7 @@ int UpdateRouletteGame(void)
         if (MinigameWaitForFrames(60) == 0)
             return 0;
         { 
-            register int barrier asm("r2");
+            register int barrier PIN("r2");
             asm volatile("" : "=r"(barrier));
         }
         goto advanceStateReload;
@@ -69,7 +69,7 @@ int UpdateRouletteGame(void)
     case 5:
         {
             u16 *timerPtr;
-            register int timer asm("r2");
+            register int timer PIN("r2");
             s16 period;
 
             timerPtr = &gMinigameSequenceTimer;
@@ -130,7 +130,7 @@ advanceStateCached:
         {
             struct RouletteItem **base;
             struct RouletteItem **ref;
-            register int hiddenX asm("r2");
+            register int hiddenX PIN("r2");
             int count;
             struct RouletteItem *hidden;
 
@@ -170,7 +170,7 @@ advanceStateCached:
             if (done != 1)
                 return 0;
             {
-                register u8 *caseState asm("r1");
+                register u8 *caseState PIN("r1");
                 caseState = &gMinigameState;
                 (*caseState)++;
             }
@@ -179,7 +179,7 @@ advanceStateCached:
         {
             u16 *itemHalfwords;
             int zero;
-            register int angle asm("r2");
+            register int angle PIN("r2");
             int count;
 
             itemHalfwords = (u16 *)gRouletteItems;
@@ -206,7 +206,7 @@ advanceStateCached:
         {
             struct RouletteItem **base;
             struct RouletteItem **ref;
-            register int hiddenX asm("r2");
+            register int hiddenX PIN("r2");
             int count;
             struct RouletteItem *hidden;
 
@@ -238,7 +238,7 @@ advanceStateCached:
         }
         UpdateRouletteResultTiles();
         {
-            register int barrier asm("r2");
+            register int barrier PIN("r2");
             asm volatile("" : "=r"(barrier));
         }
         goto advanceStateReload;
@@ -252,7 +252,7 @@ advanceStateCached:
         {
             u16 *itemHalfwords;
             int zero;
-            register int angle asm("r2");
+            register int angle PIN("r2");
             int count;
 
             itemHalfwords = (u16 *)gRouletteItems;
@@ -276,8 +276,8 @@ advanceStateCached:
             return 0;
         SortRouletteItemsByScale();
         {
-            register struct RouletteItem **base asm("r0");
-            register struct RouletteItem **ref asm("r3");
+            register struct RouletteItem **base PIN("r0");
+            register struct RouletteItem **ref PIN("r3");
             int hiddenX;
             int count;
             struct RouletteItem *hidden;
@@ -310,7 +310,7 @@ advanceStateCached:
         }
         UpdateRouletteResultTiles();
         {
-            register int barrier asm("r2");
+            register int barrier PIN("r2");
             asm volatile("" : "=r"(barrier));
         }
         goto advanceStateReload;

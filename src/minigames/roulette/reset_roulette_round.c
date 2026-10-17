@@ -48,12 +48,12 @@ void ResetRouletteRound(void)
     ShuffleRouletteValuePool();
 
     {
-        register s32 tileValue asm("r0");
+        register s32 tileValue PIN("r0");
         s32 tileOffset;
         struct RouletteItem *item;
         s32 y;
         s32 x;
-        register s32 remaining asm("r5");
+        register s32 remaining PIN("r5");
         s32 angle;
         register s32 inactive;
 
@@ -83,7 +83,7 @@ void ResetRouletteRound(void)
     {
         struct RouletteItem **base;
         struct RouletteItem *item;
-        register struct RouletteItem **dst asm("r1");
+        register struct RouletteItem **dst PIN("r1");
         base = gRouletteItemDrawOrder;
         item = gRouletteItems;
         item += 2;
@@ -99,9 +99,9 @@ void ResetRouletteRound(void)
 
     {
         s32 index;
-        register u8 *values asm("r6");
+        register u8 *values PIN("r6");
         u8 *dst;
-        register s32 value asm("r0");
+        register s32 value PIN("r0");
 
         index = 0;
         do

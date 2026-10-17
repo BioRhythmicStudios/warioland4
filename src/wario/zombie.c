@@ -132,7 +132,7 @@ u8 ZombieWarioFalling(void)
 
     {
         const u16 *buttons;
-        register struct WarioData *address asm("r1");
+        register struct WarioData *address PIN("r1");
         u32 velocity;
 
         buttons = &gButtonsHeld;
@@ -405,7 +405,7 @@ void UpdateZombieWarioMotion(void)
         else xVelocity = *(u16 *)&wario->xVelocity;
         xVelocity <<= 16; xVelocity = (s32)xVelocity >> 19; xVelocity <<= 16; xVelocity >>= 16;
         {
-            register u32 delta asm("r2");
+            register u32 delta PIN("r2");
             struct WarioData *positionWario;
             u16 xPosition;
             delta = xVelocity; asm("" : "+r"(delta)); positionWario = &gWarioData;

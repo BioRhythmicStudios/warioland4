@@ -131,8 +131,8 @@ void PrepareVerticalScrollingTileUploads(s32 scrollDelta)
         gCurrentRoomHeader.bg2Param,
     };
     u32 scratch0;
-    register u32 scratch1 asm("r1");
-    register u32 scratch2 asm("r2");
+    register u32 scratch1 PIN("r1");
+    register u32 scratch2 PIN("r2");
     s32 signedRow;
     u32 xPositionOrTileIndex;
     u32 layerOrBackground;
@@ -141,7 +141,7 @@ void PrepareVerticalScrollingTileUploads(s32 scrollDelta)
     s32 tileCount;
     VerticalScrollingTileUpload* nextUpload;
     s32 nextLayer;
-    register VerticalScrollingTileUpload* upload asm("ip");
+    register VerticalScrollingTileUpload* upload PIN("ip");
     u16* destination;
 
     upload = gVerticalScrollingTileUploads;
@@ -335,19 +335,19 @@ void ApplyVerticalScrollingTileUploads(void)
     VerticalScrollingTileUpload* upload;
     VerticalScrollingTileUpload* descriptor;
     VerticalScrollingTileUpload* nextUpload;
-    register VerticalScrollingTileUpload* fieldDescriptor asm("r2");
-    register u16* source asm("r4");
+    register VerticalScrollingTileUpload* fieldDescriptor PIN("r2");
+    register u16* source PIN("r4");
     u32 sourceOffset;
     u32 firstTileOffset;
     u32 firstMask;
-    register volatile u16* destination asm("r1");
+    register volatile u16* destination PIN("r1");
     u32 vramBase;
     u32 destinationBlock;
     u8 tileCount;
     s32 copiedTiles;
     u32 blockMask;
     u32 rowBit;
-    register u32 rowOffset asm("ip");
+    register u32 rowOffset PIN("ip");
     u32 tileOffset;
     s32 uploadIndex;
     s32 nextUploadIndex;
@@ -369,13 +369,13 @@ outer_loop_vertical:
 
         if (copiedTiles < tileCount) {
             {
-                register u32 constant asm("r0");
+                register u32 constant PIN("r0");
                 constant = 0xF;
                 asm("" : "+r"(constant));
                 blockMask = constant;
             }
             {
-                register u32 constant asm("r1");
+                register u32 constant PIN("r1");
                 constant = 0x10;
                 asm("" : "+r"(constant));
                 rowBit = constant;
@@ -507,8 +507,8 @@ void PrepareHorizontalScrollingTileUploads(s32 scrollDelta)
         gCurrentRoomHeader.bg2Param,
     };
     u32 scratch0;
-    register u32 scratch1 asm("r1");
-    register u32 scratch2 asm("r2");
+    register u32 scratch1 PIN("r1");
+    register u32 scratch2 PIN("r2");
     s32 signedColumn;
     u32 yPositionOrTileIndex;
     u32 layerOrBackground;
@@ -712,7 +712,7 @@ void ApplyHorizontalScrollingTileUploads(void)
     HorizontalScrollingTileUpload* upload;
     HorizontalScrollingTileUpload* nextUpload;
     u16* source;
-    register volatile u16* destination asm("r0");
+    register volatile u16* destination PIN("r0");
     u32 vramBase;
     u16 destinationFlags;
     u32 destinationBlock;
@@ -720,7 +720,7 @@ void ApplyHorizontalScrollingTileUploads(void)
     s32 copiedTiles;
     u32 mask;
     s32 uploadIndex;
-    register s32 nextUploadIndex asm("r8");
+    register s32 nextUploadIndex PIN("r8");
 
     upload = gHorizontalScrollingTileUploads;
     uploadIndex = 0;
@@ -825,7 +825,7 @@ descriptor_done:
 void WaitForDma3Transfer(void)
 {
     volatile u32* dma;
-    register u32 enableMask asm("r1");
+    register u32 enableMask PIN("r1");
     s32 status;
 
     dma = (volatile u32*)0x040000D4;

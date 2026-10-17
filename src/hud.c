@@ -467,7 +467,7 @@ void DrawGameplayHudOam(void)
 {
     u16* dest;
     int new_var;
-    register u32 count asm("ip");
+    register u32 count PIN("ip");
     u8 stage;
     int new_var2;
     u8* base;
@@ -529,7 +529,7 @@ void DrawGameplayHudOam(void)
         {
             u8* oam;
             {
-                register u32 tempCount asm("r2");
+                register u32 tempCount PIN("r2");
                 tempCount = count;
                 *(dest++) = tempCount;
                 stage = 6;
@@ -540,8 +540,8 @@ void DrawGameplayHudOam(void)
             }
             {
                 u32 result;
-                register u16 oldAttr asm("r1");
-                register u8* storeOam asm("r2");
+                register u16 oldAttr PIN("r1");
+                register u8* storeOam PIN("r2");
                 u32 hardMask;
 
                 oldAttr = *(u16*)(base + 2);
@@ -713,7 +713,7 @@ void UpdateBigBoardSecondarySprite(void)
                 }
             }
             {
-                register u32 frame asm("r0");
+                register u32 frame PIN("r0");
                 u32 nextFrame;
                 u32 value;
                 u32 four;
@@ -748,7 +748,7 @@ void UpdateBigBoardSecondarySprite(void)
             break;
         case 2: {
             u32 value;
-            register u32 mask asm("r1");
+            register u32 mask PIN("r1");
             value = sprite->animationTimer;
             value -= 7;
             value = (u16)value;
@@ -792,9 +792,9 @@ void UpdateBigBoardSecondarySprite(void)
             }
             {
                 u32 frame;
-                register u32 four asm("r4");
+                register u32 four PIN("r4");
                 u32 oldX;
-                register u32 value asm("r1");
+                register u32 value PIN("r1");
                 frame = sprite->animationTimer;
                 frame--;
                 sprite->animationTimer = frame;
@@ -814,9 +814,9 @@ void UpdateBigBoardSecondarySprite(void)
             }
             break;
         case 4: {
-            register struct SecondarySprite* current asm("r1");
+            register struct SecondarySprite* current PIN("r1");
             u32 value;
-            register u32 mask asm("r3");
+            register u32 mask PIN("r3");
             current = sprite;
             value = current->timer;
             value--;

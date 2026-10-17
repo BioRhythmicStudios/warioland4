@@ -182,14 +182,14 @@ void func_8032604(void)
 void func_803262C(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 next asm("r2");
+    register u32 next PIN("r2");
     u8 timer;
     u32 check;
 
     sprite = &gCurrentSprite;
     {
         u8 *work0;
-        register u32 old asm("r0");
+        register u32 old PIN("r0");
         work0 = &sprite->work0;
         old = *work0;
         next = old - 1;
@@ -361,7 +361,7 @@ void func_8032988(void)
 
 void func_80329AC(void)
 {
-    register u32 timer asm("r2");
+    register u32 timer PIN("r2");
     u32 original;
 
     timer = gCurrentSprite.work0;

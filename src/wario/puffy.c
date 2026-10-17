@@ -43,10 +43,10 @@ u8 PuffyWarioTransforming(void)
 u8 PuffyWarioFloating(void)
 {
     struct WarioData* wario;
-    register int held asm("r2");
+    register int held PIN("r2");
     int direction;
-    register int temp asm("r0");
-    register struct WarioData* animationWario asm("r2");
+    register int temp PIN("r0");
+    register struct WarioData* animationWario PIN("r2");
     const struct PuffyAnimationFrame* animation;
     u16* heldPtr;
     if (gButtonsPressed & 2) {
@@ -186,8 +186,8 @@ end:
 
 void UpdatePuffyWarioPosition(void)
 {
-    register u8* hitbox asm("r3");
-    register const u8* data asm("r2");
+    register u8* hitbox PIN("r3");
+    register const u8* data PIN("r2");
     struct WarioData* wario;
     const u8* ptr;
     u32 index;
@@ -220,7 +220,7 @@ void UpdatePuffyWarioPosition(void)
 void UpdatePuffyWarioCollision(void)
 {
     u8* hitbox;
-    register const u8* data asm("r2");
+    register const u8* data PIN("r2");
     struct WarioData* wario;
     const u8* ptr;
     u32 index;

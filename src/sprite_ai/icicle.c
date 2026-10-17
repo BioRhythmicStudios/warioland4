@@ -10,8 +10,8 @@ void InitIcicle(void)
     struct PrimarySpriteData *current;
     struct PrimarySpriteData *sprite;
     u16 oldStatus;
-    register u16 status asm("r0");
-    register int zeroByte asm("r2");
+    register u16 status PIN("r0");
+    register int zeroByte PIN("r2");
     int zeroHalf;
     u8 *bounds;
     u8 *rightExtent;
@@ -54,8 +54,8 @@ void IcicleWaitToFall(void)
 {
     struct PrimarySpriteData *sprite;
     u8 *timerPointer;
-    register int oldTimer asm("r0");
-    register int nextTimer asm("r1");
+    register int oldTimer PIN("r0");
+    register int nextTimer PIN("r1");
     s32 timer;
 
     sprite = &gCurrentSprite;
@@ -195,8 +195,8 @@ void InitIcicleWarning(void)
     struct PrimarySpriteData *current;
     struct PrimarySpriteData *sprite;
     u16 oldStatus;
-    register u16 status asm("r0");
-    register int zeroByte asm("r2");
+    register u16 status PIN("r0");
+    register int zeroByte PIN("r2");
     int zeroHalf;
     u8 *bounds;
     u8 *hitbox;

@@ -13,9 +13,9 @@ extern const struct AnimationFrame sRobobirdFastAttackOam[];
 
 void InitRobobird(void)
 {
-    register struct PrimarySpriteData* sprite asm("r12");
+    register struct PrimarySpriteData* sprite PIN("r12");
     struct PrimarySpriteData* finalSprite;
-    register u8* p asm("r0");
+    register u8* p PIN("r0");
     u8* q;
     u8 zero;
     u8 thirtyTwo;
@@ -40,7 +40,7 @@ void InitRobobird(void)
     q += 2;
     *(volatile u8 *)q = 28;
     {
-        register const struct AnimationFrame* oam asm("r0");
+        register const struct AnimationFrame* oam PIN("r0");
         oam = sRobobirdIdleOam;
         finalSprite = sprite;
         finalSprite->pOamData = oam;
@@ -91,9 +91,9 @@ void RobobirdAttackDelay(void)
 {
     struct PrimarySpriteData* sprite;
     u8* timerPointer;
-    register u8 oldTimer asm("r0");
-    register u8 nextTimer asm("r2");
-    register u32 shiftedTimer asm("r0");
+    register u8 oldTimer PIN("r0");
+    register u8 nextTimer PIN("r2");
+    register u32 shiftedTimer PIN("r0");
     s32 timer;
 
     sprite = &gCurrentSprite;
@@ -180,7 +180,7 @@ void SetRobobirdDefeated(void)
     sprite->health = zero2;
     sprite->drawPriority = zero2;
     {
-        register u16 status asm("r1");
+        register u16 status PIN("r1");
         u16 masked;
         status = sprite->status;
         masked = status & ~SPRITE_STATUS_CAN_HIT_OTHER_SPRITES;

@@ -50,7 +50,7 @@ void MoveCameraTowardTarget(s32 x, s32 y)
     u32 targetX;
     u16* positionY;
     u16* positionX;
-    register u16* pointer asm("r0");
+    register u16* pointer PIN("r0");
     s32 targetY;
     s32 delta;
     s32 movement;
@@ -178,7 +178,7 @@ void LoadCurrentRoomCameraControlData(void)
     const u8* const* list;
     const u8* entry;
     const u8** output;
-    register u8* roomPtr asm("r4");
+    register u8* roomPtr PIN("r4");
     u8 room;
     s32 roomId;
 
@@ -193,13 +193,13 @@ void LoadCurrentRoomCameraControlData(void)
 
 void BuildCurrentRoomCameraControlAreas(void)
 {
-    register u32 value asm("r0");
-    register u32 countOrBoundary asm("r1");
-    register u32 baseAddress asm("r2");
+    register u32 value PIN("r0");
+    register u32 countOrBoundary PIN("r1");
+    register u32 baseAddress PIN("r2");
     s32 offsetOrLimit;
     u32 recordAddress;
     u32 areaAddress;
-    register u32 backgroundInfoAddress asm("r6");
+    register u32 backgroundInfoAddress PIN("r6");
     struct CameraControlArea* areas;
     u32 xTile;
     u32 remaining;
@@ -512,8 +512,8 @@ void UpdateStandardCamera(const struct CameraTargetPosition* position)
     s32 value;
     s32 limit;
     s32 positionValue;
-    register s32 cameraTarget asm("r3");
-    register s32 positionAddress asm("r4");
+    register s32 cameraTarget PIN("r3");
+    register s32 positionAddress PIN("r4");
     s32 boundsAddress;
     s32 cameraStateAddress;
     s16* subGameModePtr;

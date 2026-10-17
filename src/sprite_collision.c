@@ -864,7 +864,7 @@ void SpriteCollisionProcess(void)
 {
     s32 slot;
 
-    register struct WarioData* collisionWario asm("r6");
+    register struct WarioData* collisionWario PIN("r6");
     u16 warioY;
     u16 warioX;
     u16 warioTop;
@@ -921,8 +921,8 @@ void SpriteCollisionProcess(void)
                 spriteBottom = spriteY - -(s32)hitboxDown;
             } else {
                 /* Both branches must leave the sum in r0 so they share one u16 truncation into r5. */
-                register u16 mask asm("r5") = hitboxDown & S8_MAX;
-                register u16 res asm("r0") = spriteY - mask;
+                register u16 mask PIN("r5") = hitboxDown & S8_MAX;
+                register u16 res PIN("r0") = spriteY - mask;
                 spriteBottom = res;
             }
 
@@ -3052,7 +3052,7 @@ void func_80222D8(s32 slot, u16 bottom, u16 left, u16 right)
                     gWarioData.xPosition = left - gWarioData.hitboxOffsetRight;
                     {
                         /* Keep the explicit sprite-address multiply in agbcc's r0. */
-                        register u32 spriteStride asm("r0");
+                        register u32 spriteStride PIN("r0");
                         spriteStride = sizeof(gSpriteData[0]);
                         ((struct PrimarySpriteData*)((u8*)gSpriteData + spriteStride * slot))->pose =
                             SPOSE_TACKLED_RIGHT_INIT;
@@ -3074,7 +3074,7 @@ void func_80222D8(s32 slot, u16 bottom, u16 left, u16 right)
                     }
                     {
                         /* Keep the explicit sprite-address multiply in agbcc's r0. */
-                        register u32 spriteStride asm("r0");
+                        register u32 spriteStride PIN("r0");
                         spriteStride = sizeof(gSpriteData[0]);
                         ((struct PrimarySpriteData*)((u8*)gSpriteData + spriteStride * slot))->pose =
                             SPOSE_TACKLED_LEFT_INIT;

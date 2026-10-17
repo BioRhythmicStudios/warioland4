@@ -53,13 +53,13 @@ void SpriteBossTreasure(void)
     u32 relativeY;
     u8 one;
     s32 completed;
-    register u32 coordinate asm("r1");
+    register u32 coordinate PIN("r1");
     struct PrimarySpriteData* current;
     s32 pose;
     u32 backgroundPosition;
     u8* indexPtr;
     u8* indexBase;
-    register const s16* velocities asm("r8");
+    register const s16* velocities PIN("r8");
 
     completed = 0;
     sprite = &gCurrentSprite;
@@ -369,7 +369,7 @@ void SpriteBossTreasure(void)
         }
 
         case SPOSE_73: {
-            register u8* timer asm("r5");
+            register u8* timer PIN("r5");
             timer = &sprite->work0;
             if (--*timer != 0) {
                 break;

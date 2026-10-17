@@ -28,7 +28,7 @@ void UpdateRouletteWheel(void)
         if (current->active != 0) {
             {
                 u16 speed;
-                register u16 oldAngle asm("r2");
+                register u16 oldAngle PIN("r2");
                 s32 sum;
                 s32 signedSum;
 
@@ -48,7 +48,7 @@ void UpdateRouletteWheel(void)
             }
 
             {
-                register s32 index asm("r2");
+                register s32 index PIN("r2");
                 s32 sample;
                 s32 product;
 
@@ -94,7 +94,7 @@ void UpdateRouletteWheel(void)
         accumulatorValue = *(s16 *)(accumulatorValue + zeroOffset);
         if (accumulatorValue == 0) {
         volatile u8 *selectedIndex;
-        register const s16 *selectedSin asm("r4");
+        register const s16 *selectedSin PIN("r4");
 
         selectedIndex = &gRouletteSelectedItemIndex;
         {
@@ -110,7 +110,7 @@ void UpdateRouletteWheel(void)
         {
             struct RouletteItem *selected;
             s32 sample;
-            register s32 product asm("r1");
+            register s32 product PIN("r1");
             s32 index;
 
             {
@@ -212,10 +212,10 @@ void UpdateRouletteWheel(void)
         sum += *(u16 *)accumulatorPtr;
         *accumulatorPtr = sum;
         if ((s16)sum > 2047) {
-        register u16 zero asm("r4");
+        register u16 zero PIN("r4");
         volatile u8 *selectedPtr;
         u16 selectedValue;
-        register volatile u8 *sequencePtr asm("r3");
+        register volatile u8 *sequencePtr PIN("r3");
         u32 sequenceValue;
 
         zero = 0;

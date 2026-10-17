@@ -65,10 +65,10 @@ void GlassBirdFragmentBreakInit(void)
 {
     struct PrimarySpriteData* sprite;
     u16 oldStatus;
-    register u16 status asm("r2");
+    register u16 status PIN("r2");
     u32 one;
     u32 zero16;
-    register u32 zero asm("r3");
+    register u32 zero PIN("r3");
 
     sprite = &gCurrentSprite;
     zero16 = 0;

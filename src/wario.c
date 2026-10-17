@@ -44,7 +44,7 @@ void CopyWarioPalette(const void* source, int destinationIndex, int size)
     const u16* src;
     int start;
     int end;
-    register u16* dst asm("r1");
+    register u16* dst PIN("r1");
     int byteOffset;
 
     src = source;
@@ -73,7 +73,7 @@ s32 GetAdjustedWarioXVelocity(void)
     originalVelocity = velocity;
     if ((gCurrentCarriedSprite.unk1 & 0xF) > 1) {
         s32 value;
-        register s32 limit asm("r1");
+        register s32 limit PIN("r1");
 
         value = (s16)velocity;
         if (value > 40) {
@@ -88,7 +88,7 @@ s32 GetAdjustedWarioXVelocity(void)
 
     {
         u16 direction;
-        register u16 flags asm("r2");
+        register u16 flags PIN("r2");
 
         direction = wario->horizontalDirection;
         flags = (u16)wario->unk_1C;
@@ -191,7 +191,7 @@ void UpdateWarioHorizontalCollisionOffset(void)
 void UpdateCarriedSpriteOffsets(void)
 {
     struct CarriedSprite* carried;
-    register const u16* offsets asm("r2");
+    register const u16* offsets PIN("r2");
     s32 index;
     s32 xOffset;
 
@@ -209,7 +209,7 @@ void UpdateCarriedSpriteOffsets(void)
     carried->xOffset = xOffset;
 
     {
-        register struct CarriedSprite* current asm("r2");
+        register struct CarriedSprite* current PIN("r2");
         const u16* yOffsets;
         s32 yIndex;
 
@@ -225,7 +225,7 @@ void UpdateWarioPositionHistory(void)
     struct WarioAfterimage* afterimage;
     u8 timer;
     u16* indexPtr;
-    register u16 index asm("r2");
+    register u16 index PIN("r2");
     u16* history;
     u16* slot;
     u32 offset;
@@ -265,7 +265,7 @@ void UpdateWarioPositionHistory(void)
 void WarioProcessControls(void)
 {
     struct WarioData* wario;
-    register struct WarioData* current asm("r4");
+    register struct WarioData* current PIN("r4");
     struct WarioCollisionData* collision;
     s32 zero;
     s32 mode;
@@ -306,12 +306,12 @@ void WarioProcessControls(void)
 
 void WarioProcessCollision(void)
 {
-    register struct WarioCollisionData* initialCollision asm("r1");
+    register struct WarioCollisionData* initialCollision PIN("r1");
     struct WarioCollisionData* collision;
     struct WarioData* initialWario;
     struct WarioData* wario;
     u32 currentX;
-    register u8 zero asm("r5");
+    register u8 zero PIN("r5");
     u16* previousXPointer;
     u32 previousX;
     u32 currentY;
@@ -373,7 +373,7 @@ horizontalDone:
 void ProcessWarioInteraction(void)
 {
     struct WarioData* wario;
-    register struct WarioData* current asm("r4");
+    register struct WarioData* current PIN("r4");
     struct CarriedSprite* carried;
     u8 value;
     u8 direction;

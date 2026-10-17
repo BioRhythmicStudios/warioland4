@@ -274,7 +274,7 @@ int UpdateBossTreasureCutscene(void)
                     timer = *((const u8*)(((u32)sparkleIndex) + ((u32)sparkleStartTimes)));
                     asm("" : "=r"(freshCounter) : "0"(&gStageEntrySequenceTimer));
                     if ((*freshCounter) == timer) {
-                        register s32 activeOne asm("r0") = 1;
+                        register s32 activeOne PIN("r0") = 1;
                         ((struct BossTreasureSparkleSlot*)gBossTreasureUnlockSparkles)[sparkleIndex].active = activeOne;
                     } else if ((*state3Counter) == (timer + sBossTreasureSparkleDurations[sparkleIndex])) {
                         ((struct BossTreasureSparkleSlot*)gBossTreasureUnlockSparkles)[sparkleIndex].active = 0;

@@ -14,21 +14,21 @@ struct BgClipStack {
 s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
 {
     register struct BackgroundCollisionData* collision;
-    register struct BackgroundCollisionData* collisionInit asm("r1");
+    register struct BackgroundCollisionData* collisionInit PIN("r1");
     struct BackgroundInfo* background;
     struct BackgroundInfo* backgroundInit;
-    register struct RoomHeader* roomHeader asm("sl");
-    register struct RoomHeader* roomHeaderInit asm("r3");
+    register struct RoomHeader* roomHeader PIN("sl");
+    register struct RoomHeader* roomHeaderInit PIN("r3");
     u32 tileY;
-    register u32 tileX asm("ip");
+    register u32 tileX PIN("ip");
     u32 attribute;
     u32 shiftedY;
-    register u32 shiftedX asm("r4");
-    register s32 xTruncated asm("r1");
-    register s32 collisionType asm("r2");
+    register u32 shiftedX PIN("r4");
+    register s32 xTruncated PIN("r1");
+    register s32 collisionType PIN("r2");
     s32 overrideType;
     s32 one;
-    register s32 limit asm("r0");
+    register s32 limit PIN("r0");
     u32 parameter;
     struct BgClipStack stack;
     const u16* attributeTable;
@@ -65,9 +65,9 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
     layer = (struct BackgroundInfo*)&background->pBg1Data;
     layerIndex = 1;
     do {
-        register u32 temporary asm("r0");
+        register u32 temporary PIN("r0");
         u32 product;
-        register u32 tileIndex asm("r2");
+        register u32 tileIndex PIN("r2");
         const u16* tileMap;
 
         temporary = layer->bg0Width;
@@ -117,7 +117,7 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
     }
 
     if (collisionType == 0) {
-        register struct RoomHeader* headerTemporary asm("r3");
+        register struct RoomHeader* headerTemporary PIN("r3");
 
         headerTemporary = roomHeader;
         if (headerTemporary->bg2Param != 16) {
@@ -155,7 +155,7 @@ s32 GetBackgroundCollisionAtPosition(u16 y, u16 x)
             rangeValue = value;
             rangeValue -= 152;
             if (rangeValue <= 3) {
-                register u32 switchState asm("r1");
+                register u32 switchState PIN("r1");
                 u32 maskedState;
 
                 overrideType = rangeValue;
@@ -210,9 +210,9 @@ process_bg0_collision:
         goto secondary_collision_done;
     }
     {
-        register struct BackgroundInfo* backgroundTemporary asm("r1");
+        register struct BackgroundInfo* backgroundTemporary PIN("r1");
         s32 bound;
-        register s32 coordinate asm("r3");
+        register s32 coordinate PIN("r3");
         u32 width;
 
         backgroundTemporary = background;
@@ -234,7 +234,7 @@ process_bg0_collision:
         return collision->primaryType << 16;
 
     bg0_in_bounds: {
-        register u32 tileIndex asm("r0");
+        register u32 tileIndex PIN("r0");
         struct BackgroundInfo* backgroundReload;
         const u16* tileMap;
         struct BackgroundTileTables* tables;
@@ -315,16 +315,16 @@ secondary_collision_done:
 
 s32 GetBg2CollisionTypeAtTile(s32 y, s32 x)
 {
-    register u32 yCoord asm("r5");
+    register u32 yCoord PIN("r5");
     u32 xCoord;
     u16 xSaved;
     struct BackgroundCollisionData* collision;
     struct BackgroundCollisionData* collisionTemp;
-    register struct BackgroundInfo* background asm("r4");
+    register struct BackgroundInfo* background PIN("r4");
     s32 result;
     s32 zero;
     u32 indexTemporary;
-    register const u16* tileMap asm("r1");
+    register const u16* tileMap PIN("r1");
     u16 tile;
 
     y = (u16)y;
@@ -399,7 +399,7 @@ s32 TryTriggerRoomTransitionAtTile(s32 y, s32 x)
     xCoord = (u16)x;
     result = 0;
     {
-        register s16* modePointer asm("r1");
+        register s16* modePointer PIN("r1");
         u16 offset;
 
         modePointer = &gSubGameMode;
@@ -482,8 +482,8 @@ void ApplyRoomTransitionTileOffset(u8 value)
     struct BackgroundInfo* widthBackground;
     u16* loadedMap;
     s32 firstIndex;
-    register s32 secondIndex asm("r4");
-    register s32 temporary asm("r0");
+    register s32 secondIndex PIN("r4");
+    register s32 temporary PIN("r0");
     u16* data;
     u16* map;
     u16 tile;

@@ -166,8 +166,8 @@ void InitMapScreen(void)
     const void* bgMap3;
     const struct MusicPlayer* musicPlayers;
     const struct Song* songs;
-    register volatile u32* dma asm("r1");
-    register u32 mask asm("r2");
+    register volatile u32* dma PIN("r1");
+    register u32 mask PIN("r2");
     u32 control;
     u16 zero16;
     u8 zero8;
@@ -340,7 +340,7 @@ void InitMapScreen(void)
             *modeZero = zero8;
             mapMode = modeZero;
         } else {
-            register u8* modeStore asm("r1");
+            register u8* modeStore PIN("r1");
             u32 modeValue;
 
             if (((collection[40] & 0x20) != 0) && ((collection[64] & 0x20) != 0) && ((collection[88] & 0x20) != 0) &&
@@ -407,7 +407,7 @@ void InitMapScreen(void)
     *(vu16*)0x0400004A = 8;
     {
         vu16* blendReg;
-        register u16 blendValue asm("r0");
+        register u16 blendValue PIN("r0");
         blendReg = (vu16*)0x04000052;
         asm("" : "=r"(blendValue) : "0"(0x0A0A), "r"(blendReg));
         *blendReg = blendValue;
@@ -513,15 +513,15 @@ void StartMapScreenBossUnlockSequence(void)
 
 int UpdateMapScreenPassageInput(void)
 {
-    register u32 directionOrPrevious asm("r5");
+    register u32 directionOrPrevious PIN("r5");
     u32 fallingOrDestination;
-    register u32 mapModeOrDurationTable asm("r8");
-    register u32 transitionPointer asm("r9");
+    register u32 mapModeOrDurationTable PIN("r8");
+    register u32 transitionPointer PIN("r9");
     u32 passageTableOrXSpeed;
-    register s32 passageOrTransition asm("r4");
+    register s32 passageOrTransition PIN("r4");
     u32 directionOffset;
     u8* fallingSource;
-    register u16 buttons asm("r2");
+    register u16 buttons PIN("r2");
     u8* currentPassagePointer;
     u32 previousFalling;
     u32 pressed;
@@ -563,13 +563,13 @@ int UpdateMapScreenPassageInput(void)
     passageOrTransition = *currentPassagePointer;
 
     {
-        register u32 byteOffset asm("r1");
+        register u32 byteOffset PIN("r1");
         u32 mode;
         s32 tableValue;
 
         byteOffset = directionOffset + (passageOrTransition << 4);
         {
-            register u8* mapModePointer asm("r2");
+            register u8* mapModePointer PIN("r2");
             mapModePointer = &gUnk_3003C95;
             mapModeOrDurationTable = (u32)mapModePointer;
             mode = *mapModePointer;
@@ -599,12 +599,12 @@ int UpdateMapScreenPassageInput(void)
                 passageOrTransition = *(const s32*)transitionAddress;
             }
             {
-                register u8* transitionStore asm("r1");
+                register u8* transitionStore PIN("r1");
                 transitionStore = (u8*)transitionPointer;
                 *transitionStore = passageOrTransition;
             }
             {
-                register u8* transitionRead asm("r2");
+                register u8* transitionRead PIN("r2");
                 const s32* fallingTable;
                 fallingTable = sUnk_8639490;
                 transitionRead = (u8*)transitionPointer;
@@ -627,14 +627,14 @@ int UpdateMapScreenPassageInput(void)
                 numerator = (sUnk_86392A4[*currentPassagePointer] - sUnk_86392A4[*(u8*)directionOrPrevious]) << 4;
                 mapModeOrDurationTable = (u32)sUnk_86394C8;
                 {
-                    register u8* transitionRead asm("r2");
+                    register u8* transitionRead PIN("r2");
                     transitionRead = (u8*)transitionPointer;
                     *(u16*)fallingOrDestination = numerator / ((const s32*)mapModeOrDurationTable)[*transitionRead];
                 }
             }
 
             {
-                register u8* transitionRead asm("r2");
+                register u8* transitionRead PIN("r2");
                 s32 denominator;
                 s32 numerator;
 
@@ -644,8 +644,8 @@ int UpdateMapScreenPassageInput(void)
                 passageTableOrXSpeed = numerator / denominator;
             }
             {
-                register u32 xValue asm("r1");
-                register u16* xDestination asm("r0");
+                register u32 xValue PIN("r1");
+                register u16* xDestination PIN("r0");
                 xValue = passageTableOrXSpeed;
                 xDestination = &gUnk_3003C46;
                 *xDestination = xValue;
@@ -653,7 +653,7 @@ int UpdateMapScreenPassageInput(void)
 
             fallingOrDestination = (u32)&gUnk_3003C48;
             {
-                register u8* transitionRead asm("r2");
+                register u8* transitionRead PIN("r2");
                 s32 denominator;
                 s32 numerator;
 
@@ -669,7 +669,7 @@ int UpdateMapScreenPassageInput(void)
                 u16* xDestination;
 
                 const s32* curveBase;
-                register u8* transitionRead asm("r2");
+                register u8* transitionRead PIN("r2");
                 curveBase = sUnk_8639500;
                 transitionRead = (u8*)transitionPointer;
                 transitionOffset = (*transitionRead) << 2;
@@ -692,7 +692,7 @@ int UpdateMapScreenPassageInput(void)
 }
 void UpdateMapScreenBackgroundsAndText(void)
 {
-    register s32 scroll asm("r1");
+    register s32 scroll PIN("r1");
     vu16* reg;
     vu16* hOffset;
     const u16* text;
@@ -886,7 +886,7 @@ void UpdateMapScreenIntroSequence(void)
 }
 void UpdateMapScreenBossUnlockSequence(void)
 {
-    register u32 phase asm("r3");
+    register u32 phase PIN("r3");
 
     switch (gStageEntrySequenceStep) {
         case 0:
@@ -963,8 +963,8 @@ void UpdateMapScreenBossUnlockSequence(void)
 
 void UpdateMapScreenFinalPassageSequence(void)
 {
-    register u32 phase asm("r3");
-    register s32 velocity asm("r2");
+    register u32 phase PIN("r3");
+    register s32 velocity PIN("r2");
 
     switch (gStageEntrySequenceStep) {
         case 0:
@@ -1023,7 +1023,7 @@ void UpdateMapScreenFinalPassageSequence(void)
                     gStageEntrySequenceStep++;
                     {
                         u16* velocityPtr;
-                        register s32 storedVelocity asm("r0");
+                        register s32 storedVelocity PIN("r0");
 
                         velocityPtr = &gUnk_3003C48;
                         velocity = 33;
@@ -1038,7 +1038,7 @@ void UpdateMapScreenFinalPassageSequence(void)
             break;
 
         case 3: {
-            register u32 yPosition asm("r1");
+            register u32 yPosition PIN("r1");
 
             gStageEntryMainSpriteState[5] += gUnk_3003C48;
             asm("" : "=r"(yPosition));
@@ -1093,7 +1093,7 @@ void AdvanceMapScreenWarioAnimation(void)
 {
     u16* state;
     const struct AnimationFrame* animation;
-    register u32 timer asm("r0");
+    register u32 timer PIN("r0");
     u32 frame;
 
     state = gStageEntryMainSpriteState;
@@ -1143,7 +1143,7 @@ void AdvanceMapScreenDoorAnimation(void)
 {
     u16* state;
     const struct AnimationFrame* animation;
-    register u32 timer asm("r0");
+    register u32 timer PIN("r0");
     u32 duration;
     u32 frame;
 
@@ -1171,7 +1171,7 @@ void AdvanceMapScreenDoorAnimation(void)
 void UpdateMapScreenPaletteCycle(void)
 {
     volatile u8* ptr;
-    register u32 index asm("r0");
+    register u32 index PIN("r0");
     vu32* dma;
     u32 temp;
 
@@ -1202,12 +1202,12 @@ void UpdateMapScreenPaletteCycle(void)
 void UpdateMapScreenTreasurePalettes(void)
 {
     u16* timerPtr;
-    register s32 phase asm("r3");
-    register u8* collection asm("r4");
+    register s32 phase PIN("r3");
+    register u8* collection PIN("r4");
     vu32* dma;
-    register u32 mask asm("r5");
+    register u32 mask PIN("r5");
     u32 test;
-    register u32 byte asm("r1");
+    register u32 byte PIN("r1");
 
     timerPtr = &gStageTransitionPaletteCycleTimer;
     test = *timerPtr;
@@ -1306,7 +1306,7 @@ void DrawMapScreenSprites(void)
     u16* copyRaw;
     OamData* screenDst;
     s32 drawn;
-    register s32 used asm("r6");
+    register s32 used PIN("r6");
     s32 count;
     u16* attr2Ptr;
     s32 remaining;
@@ -1321,12 +1321,12 @@ void DrawMapScreenSprites(void)
 
     drawn = 0;
     {
-        register u8* slotsRead asm("r4") = &gOamSlotsUsed;
+        register u8* slotsRead PIN("r4") = &gOamSlotsUsed;
         u32 oamByteOffset;
         used = *(volatile u8*)slotsRead;
         oamByteOffset = (u32)used << 3;
         {
-            register OamData* oamStart asm("r0") = gOamBuffer;
+            register OamData* oamStart PIN("r0") = gOamBuffer;
             copyRaw = (u16*)(oamByteOffset + (u32)oamStart);
         }
     }
@@ -1384,8 +1384,8 @@ void DrawMapScreenSprites(void)
                 *(copyRaw++) = attr2;
                 frame++;
                 {
-                    register u32 oldAttrByte asm("r1");
-                    register u32 maskedByte asm("r0");
+                    register u32 oldAttrByte PIN("r1");
+                    register u32 maskedByte PIN("r0");
                     oldAttrByte = ((u8*)(&screenDst->all.attr2))[1];
                     maskedByte = modeMask;
                     maskedByte &= oldAttrByte;
@@ -1434,8 +1434,8 @@ void DrawMapScreenSprites(void)
                     *(copyRaw++) = attr2;
                     frame++;
                     {
-                        register u32 attrByteLocal asm("r1");
-                        register u32 modeValue asm("r0");
+                        register u32 attrByteLocal PIN("r1");
+                        register u32 modeValue PIN("r0");
                         attrByteLocal = ((u8*)(&screenDst->all.attr2))[1];
                         modeValue = (u32)modeMask;
                         modeValue &= attrByteLocal;
@@ -1496,8 +1496,8 @@ void DrawMapScreenSprites(void)
                     *(copyRaw++) = attr2;
                     frame++;
                     {
-                        register u32 attrByteLocal asm("r1");
-                        register u32 modeValue asm("r0");
+                        register u32 attrByteLocal PIN("r1");
+                        register u32 modeValue PIN("r0");
                         attrByteLocal = ((u8*)(&screenDst->all.attr2))[1];
                         modeValue = (u32)modeMask;
                         modeValue &= attrByteLocal;
@@ -1539,10 +1539,10 @@ void DrawMapScreenSprites(void)
                         goto overflow;
                     }
                     if (drawn < used) {
-                        register s32 mask asm("r0");
-                        register u32 yValue asm("r8");
-                        register u32 xValue asm("r12");
-                        register u32 lowLocal asm("r1");
+                        register s32 mask PIN("r0");
+                        register u32 yValue PIN("r8");
+                        register u32 xValue PIN("r12");
+                        register u32 lowLocal PIN("r1");
                         {
                             const u32* yTable;
                             u32 tableOffset;
@@ -1551,7 +1551,7 @@ void DrawMapScreenSprites(void)
                             yValue = *(const u32*)((const u8*)yTable + tableOffset);
                             {
                                 u32 oamOffset;
-                                register OamData* oamBaseLocal asm("r2");
+                                register OamData* oamBaseLocal PIN("r2");
                                 oamOffset = drawn << 3;
                                 oamBaseLocal = gOamBuffer;
                                 screenDst = (OamData*)(oamOffset - -(int)oamBaseLocal);
@@ -1637,8 +1637,8 @@ void DrawMapScreenSprites(void)
                     *(copyRaw++) = attr1;
                     low = (attr1 + (spritePos[0] >> 4)) & xMask;
                     {
-                        register u16 oldAttr1Local asm("r2");
-                        register u32 mergedAttr1Local asm("r0");
+                        register u16 oldAttr1Local PIN("r2");
+                        register u32 mergedAttr1Local PIN("r0");
                         oldAttr1Local = screenDst->all.attr1;
                         mergedAttr1Local = highMask;
                         mergedAttr1Local &= oldAttr1Local;
@@ -1685,7 +1685,7 @@ void DrawMapScreenSprites(void)
                     *(copyRaw++) = attr1;
                     low = (attr1 + (((s16)mainStateZero[4]) >> 5)) & xMask;
                     {
-                        register u16 oldAttr1Zero asm("r2");
+                        register u16 oldAttr1Zero PIN("r2");
                         s32 mergedAttr1;
                         oldAttr1Zero = screenDst->all.attr1;
                         mergedAttr1 = (oldAttr1Zero & highMask) | low;
@@ -1704,12 +1704,12 @@ void DrawMapScreenSprites(void)
         } while (0);
     }
     {
-        register u8* stageSelectPtr asm("r2");
+        register u8* stageSelectPtr PIN("r2");
         stageSelectPtr = &gUnk_3003C60;
         if (*stageSelectPtr <= 2) {
             state = gUnk_3003C7C;
             {
-                register u16 nextTime asm("r1");
+                register u16 nextTime PIN("r1");
                 nextTime = state[0];
                 nextTime++;
                 state[0] = nextTime;
@@ -1732,9 +1732,9 @@ void DrawMapScreenSprites(void)
                 }
                 if (drawn < used) {
                     u8* stagePtrLocal;
-                    register const u32* xTableLocal asm("sl");
-                    register u32 xMask asm("r9");
-                    register u32 highMask asm("r12");
+                    register const u32* xTableLocal PIN("sl");
+                    register u32 xMask PIN("r9");
+                    register u32 highMask PIN("r12");
                     OamData* oamBaseLe;
                     s32 modeMask;
                     oamBaseLe = gOamBuffer;
@@ -1758,9 +1758,9 @@ void DrawMapScreenSprites(void)
                         *(copyRaw++) = attr1;
                         {
                             u8* stageReadX;
-                            register const u32* xEntry asm("r0");
+                            register const u32* xEntry PIN("r0");
                             u16 oldAttr1Local;
-                            register u32 merged asm("r0");
+                            register u32 merged PIN("r0");
                             stageReadX = stagePtrLocal;
                             xEntry = xTableLocal + *stageReadX;
                             low = attr1 + *xEntry;
@@ -1804,7 +1804,7 @@ void DrawMapScreenSprites(void)
                 }
                 if (drawn < used) {
                     OamData* oamBaseLate;
-                    register u32 highMask asm("sl");
+                    register u32 highMask PIN("sl");
                     s32 modeMask;
                     u8* stagePtrLate;
                     const u32* yTableLate;
@@ -1839,8 +1839,8 @@ void DrawMapScreenSprites(void)
                             low = lowLocal;
                         }
                         {
-                            register u16 oldAttr1Local asm("r2");
-                            register u32 mergedAttr1Local asm("r0");
+                            register u16 oldAttr1Local PIN("r2");
+                            register u32 mergedAttr1Local PIN("r0");
                             oldAttr1Local = screenDst->all.attr1;
                             mergedAttr1Local = highMask;
                             mergedAttr1Local &= oldAttr1Local;
@@ -1899,8 +1899,8 @@ void DrawMapScreenSprites(void)
                         *(copyRaw++) = attr1;
                         low = (attr1 + 120) & xMask;
                         {
-                            register u16 oldAttr1Local asm("r2");
-                            register u32 merged asm("r0");
+                            register u16 oldAttr1Local PIN("r2");
+                            register u32 merged PIN("r0");
                             oldAttr1Local = screenDst->all.attr1;
                             merged = highMask;
                             merged &= oldAttr1Local;
@@ -1973,7 +1973,7 @@ void DrawMapScreenSprites(void)
         } while (0);
     }
     {
-        register const struct AnimationFrame* finalAnimation asm("r0");
+        register const struct AnimationFrame* finalAnimation PIN("r0");
         finalAnimation = sUnk_863FF84;
         frame = finalAnimation[gUnk_3003C74[1]].oam;
     }

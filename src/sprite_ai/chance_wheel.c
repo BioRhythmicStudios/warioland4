@@ -9,7 +9,7 @@
 void ClearChanceWheelRewardSprites(void)
 {
     struct PrimarySpriteData* sprite;
-    register struct PrimarySpriteData* end asm("r4");
+    register struct PrimarySpriteData* end PIN("r4");
     u16 exists;
     s16 check;
     int id;
@@ -70,7 +70,7 @@ void TransformWarioFromChanceWheel(void)
 void PlayChanceWheelSpaceSound(void)
 {
     struct SecondarySprite* secondary;
-    register struct SecondarySprite* saved asm("r4");
+    register struct SecondarySprite* saved PIN("r4");
     struct SecondarySprite* previous;
     int space;
     int i;
@@ -110,10 +110,10 @@ void PlayChanceWheelSpaceSound(void)
 void ApplyChanceWheelReward(void)
 {
     struct SecondarySprite* secondary;
-    register struct SecondarySprite* saved asm("r4");
+    register struct SecondarySprite* saved PIN("r4");
     struct SecondarySprite* previous;
     int y;
-    register int x asm("r5");
+    register int x PIN("r5");
     int space;
     int i;
     u32 spawnY;
@@ -168,7 +168,7 @@ void ApplyChanceWheelReward(void)
             SpriteSpawnAsChild(PSPRITE_DICE, 0, 6, spawnY, x);
             SpriteSpawnAsChild(PSPRITE_DICE, 0, 6, y, x + 80);
             {
-                register int spawnX asm("r0");
+                register int spawnX PIN("r0");
 
                 spawnX = x;
                 spawnX -= 80;
@@ -229,7 +229,7 @@ void SetChanceWheelSecondaryResult(u8 value)
     struct SecondarySprite* secondary;
     int i;
     u8 work;
-    register u8 timer asm("r4");
+    register u8 timer PIN("r4");
     u16 check;
 
     work = value;

@@ -48,7 +48,7 @@ static inline s32 GetStageEntryWrappedScrollValue(const u16* horizontalScroll)
 
 void InitializeStageEntrySceneGraphics(void)
 {
-    register vu32* dma asm("r2");
+    register vu32* dma PIN("r2");
     const u32* stageIndexTable;
     const u8* const* passageGraphics;
     struct ItemCollection* collectionEntry;
@@ -67,7 +67,7 @@ void InitializeStageEntrySceneGraphics(void)
     u16* horizontalScroll;
     u32 graphicsDmaControl;
     u32 graphicsDestinationBase;
-    register u32 graphicsStep asm("r1");
+    register u32 graphicsStep PIN("r1");
     graphicsDestinationBase = 0x06005E80;
     InitializeVideoMemory();
     gStageEntryHorizontalScroll = sStageEntryNormalPassageScrollOffsets[gStageEntryStageVariant];
@@ -84,14 +84,14 @@ void InitializeStageEntrySceneGraphics(void)
         stageIndexTable = sStageEntryNormalStageGraphicIds;
     }
     {
-        register u8* stageNumberPtr asm("r3");
+        register u8* stageNumberPtr PIN("r3");
         stageNumberPtr = &gCurrentStageNumber;
         stageGraphic = stageIndexTable[*stageNumberPtr];
     }
     *stageGraphicIndex = stageGraphic;
     {
-        register u8* stageGraphicStore asm("r2");
-        register u8* stageGraphicMirrorReg asm("r6");
+        register u8* stageGraphicStore PIN("r2");
+        register u8* stageGraphicMirrorReg PIN("r6");
         stageGraphicStore = &gStageEntryStageGraphicMirror;
         *stageGraphicStore = stageGraphic;
         gStageEntryStageGraphicId = stageGraphic;
@@ -120,8 +120,8 @@ void InitializeStageEntrySceneGraphics(void)
     gStageEntryKeyzerFlightFinished = 0;
     horizontalScroll = (u16*)&gStageEntryHorizontalScroll;
     {
-        register u8* selectedStage asm("r4");
-        register u8* sequenceStore asm("r6");
+        register u8* selectedStage PIN("r4");
+        register u8* sequenceStore PIN("r6");
         stageVariant = &gStageEntryStageVariant;
         selectedStage = &gStageEntrySelectedStage;
         {
@@ -232,19 +232,19 @@ void InitializeStageEntrySceneGraphics(void)
         s32 graphicsIndexBound;
         vu32* graphicsDma;
         const u8* graphicsSource;
-        register u32 graphicsDestination asm("r12");
+        register u32 graphicsDestination PIN("r12");
         u32 graphicsControl;
-        register u32 graphicsBusyMask asm("r2");
+        register u32 graphicsBusyMask PIN("r2");
         graphicsIndexBound = 0;
         graphicsDma = (vu32*)0x040000D4;
         {
-            register u8* graphicsPassage asm("r0");
+            register u8* graphicsPassage PIN("r0");
             u32 graphicsPassageValue;
             graphicsPassage = &gCurrentPassage;
             graphicsPassageValue = *graphicsPassage;
             {
                 u32 graphicsPassageOffset;
-                register const u8* graphicsBase asm("r1");
+                register const u8* graphicsBase PIN("r1");
                 graphicsPassageOffset = graphicsPassageValue * 5;
                 graphicsPassageOffset <<= 10;
                 graphicsBase = sStageEntryCompletedKeyzerGraphics;
@@ -252,7 +252,7 @@ void InitializeStageEntrySceneGraphics(void)
             }
         }
         {
-            register u32 graphicsDestinationLoad asm("r6");
+            register u32 graphicsDestinationLoad PIN("r6");
             graphicsDestinationLoad = 0x06005E80;
             asm volatile("" : "=r"(graphicsDestination) : "0"(graphicsDestinationLoad));
         }
@@ -295,7 +295,7 @@ afterStageGraphics:
     if (*((u8*)dma) == 1) {
         dma = (vu32*)0x040000D4;
         {
-            register u8* keyzerStagePtr asm("r4");
+            register u8* keyzerStagePtr PIN("r4");
             dma[0] = (u32)sStageEntryStagePalettes[gCurrentPassage][*(keyzerStagePtr = &gCurrentStageNumber)];
             dma[1] = 0x05000140 + ((*keyzerStagePtr) << 5);
             asm volatile("" : : "r"(keyzerStagePtr));
@@ -1322,7 +1322,7 @@ void RenderStageEntrySprites(void)
     nextSlot = gOamSlotsUsed;
     {
         u32 oamOffset;
-        register OamData* oamBase asm("r0");
+        register OamData* oamBase PIN("r0");
         oamOffset = nextSlot << 3;
         oamBase = gOamBuffer;
         dest = (u16*)(oamOffset + ((u32)oamBase));
@@ -1353,14 +1353,14 @@ void RenderStageEntrySprites(void)
                             entryState->x = entryPosition[2] + 6;
                         }
                         {
-                            register const u16* entryPositionY asm("r2");
+                            register const u16* entryPositionY PIN("r2");
                             entryPositionY = entryPosition;
                             asm("" : "+r"(entryPositionY) : "r"(entryPosition));
                             entryState->y = entryPositionY[3];
                         }
                     }
                     {
-                        register u16 entryTimer asm("r1");
+                        register u16 entryTimer PIN("r1");
                         entryTimer = entryState->timer;
                         entryTimer++;
                         entryState->timer = entryTimer;
@@ -1399,14 +1399,14 @@ void RenderStageEntrySprites(void)
                             entryState->x = entryPosition[2] - 6;
                         }
                         {
-                            register const u16* entryPositionY asm("r2");
+                            register const u16* entryPositionY PIN("r2");
                             entryPositionY = entryPosition;
                             asm("" : "+r"(entryPositionY) : "r"(entryPosition));
                             entryState->y = entryPositionY[3];
                         }
                     }
                     {
-                        register u16 entryTimer asm("r1");
+                        register u16 entryTimer PIN("r1");
                         entryTimer = entryState->timer;
                         entryTimer++;
                         entryState->timer = entryTimer;
@@ -1557,7 +1557,7 @@ void RenderStageEntrySprites(void)
         }
     }
     {
-        register struct StageEntryAnimationState* statesLoad asm("r2");
+        register struct StageEntryAnimationState* statesLoad PIN("r2");
         statesLoad = (animationStatesBase = gStageEntrySparkleAnimStates);
         animationState = statesLoad;
     }
@@ -1568,7 +1568,7 @@ void RenderStageEntrySprites(void)
             activeFlag = (u32*)(((u8*)gStageEntrySparkleFlags) + i);
             if ((*activeFlag) != 0) {
                 {
-                    register u16 stateFrame asm("r0");
+                    register u16 stateFrame PIN("r0");
                     stateFrame = animationState->frame;
                     stateFrame++;
                     animationState->frame = stateFrame;
@@ -1584,23 +1584,23 @@ void RenderStageEntrySprites(void)
                 }
                 {
                     u32 stateFrameOffset;
-                    register const struct AnimationFrame* secondTable asm("r1");
+                    register const struct AnimationFrame* secondTable PIN("r1");
                     stateFrameOffset = animationState->timer << 3;
                     secondTable = sUnk_863E12C;
                     src = ((const struct AnimationFrame*)(stateFrameOffset + ((u32)secondTable)))->oam;
                 }
                 nextSlot += *(src++);
                 {
-                    register s32 stateSlotLimit asm("r2");
+                    register s32 stateSlotLimit PIN("r2");
                     stateSlotLimit = nextSlot;
                     if (stateSlotLimit > 128) {
                         return;
                     }
                     if (currentSlot < (stateSlotLimit + nextSlot - stateSlotLimit)) {
-                        register u32 objectY asm("r12");
+                        register u32 objectY PIN("r12");
                         u32 objectX;
                         OamData* oam;
-                        register OamData* oamBase asm("r1");
+                        register OamData* oamBase PIN("r1");
                         {
                             const u32* stateYBase;
                             s32 stateOffsetY;
@@ -1619,7 +1619,7 @@ void RenderStageEntrySprites(void)
                         }
                         {
                             const u32* stateXBase;
-                            register s32 stateOffsetX asm("r2");
+                            register s32 stateOffsetX PIN("r2");
                             stateXBase = sUnk_8639AC4;
                             stateOffsetX = i;
                             stateXBase = (const u32*)(stateOffsetX + (u32)stateXBase);
@@ -1640,7 +1640,7 @@ void RenderStageEntrySprites(void)
                             *(dest++) = attr;
                             {
                                 u32 stateX;
-                                register u32 stateMask asm("r0");
+                                register u32 stateMask PIN("r0");
                                 u32 stateAttr1;
                                 stateX = attr + objectX;
                                 stateMask = 0x1FF;
@@ -1667,8 +1667,8 @@ void RenderStageEntrySprites(void)
     } while (((s32)animationState) <= ((s32)(animationStatesBase + 5)));
     if ((gStageEntrySequenceStep != 0) && (gStageEntrySequenceMode == 5)) {
         OamData* affineOam;
-        register s32 modeMask asm("r0");
-        register s32 priorityBase asm("r12");
+        register s32 modeMask PIN("r0");
+        register s32 priorityBase PIN("r12");
         u32 modeByte;
         src = gStageEntryFlyingKeyzerAnimation[gStageEntryFlyingKeyzerState.frame].oam;
         nextSlot += *(src++);
@@ -1712,7 +1712,7 @@ void RenderStageEntrySprites(void)
                 dest++;
                 affineOam++;
                 {
-                    register u8 one asm("r0");
+                    register u8 one PIN("r0");
                     one = 1;
                     currentSlot += one;
                 }
@@ -1740,7 +1740,7 @@ void RenderStageEntrySprites(void)
         if (currentSlot < nextSlot) {
             u8* ce8State;
             u32 eight;
-            register s32 priorityBase asm("r12");
+            register s32 priorityBase PIN("r12");
             OamData* oam;
             {
                 OamData* oamBase;
@@ -1773,7 +1773,7 @@ void RenderStageEntrySprites(void)
                 }
                 {
                     u8 modeByte;
-                    register s32 signedMask asm("r0");
+                    register s32 signedMask PIN("r0");
                     modeByte = ((u8*)oam)[3];
                     signedMask = 15;
                     signedMask = -signedMask;
@@ -1783,8 +1783,8 @@ void RenderStageEntrySprites(void)
                 }
                 *(dest++) = *(src++);
                 {
-                    register u8 priorityByte asm("r1");
-                    register s32 priorityMask asm("r0");
+                    register u8 priorityByte PIN("r1");
+                    register s32 priorityMask PIN("r0");
                     priorityByte = ((u8*)oam)[5];
                     priorityMask = priorityBase;
                     priorityMask &= priorityByte;
@@ -1837,12 +1837,12 @@ void RenderStageEntrySprites(void)
         }
     }
     {
-        register struct StageEntryPositionedAnimationState* stateCheck asm("r1");
+        register struct StageEntryPositionedAnimationState* stateCheck PIN("r1");
         stateCheck = (struct StageEntryPositionedAnimationState*)gStageEntryKeyzerTargetState;
         if (stateCheck[1].timer > 64) {
             struct StageEntryPositionedAnimationState* lateState;
-            register s32 lateModeMask asm("r12");
-            register s32 latePriorityMask asm("r9");
+            register s32 lateModeMask PIN("r12");
+            register s32 latePriorityMask PIN("r9");
             src = sUnk_863ED00;
             nextSlot += *(src++);
             if (nextSlot > 128) {
@@ -1870,8 +1870,8 @@ void RenderStageEntrySprites(void)
                         lateOam->split.x = objectX;
                     }
                     {
-                        register u8 modeByte asm("r1");
-                        register s32 modeMask asm("r0");
+                        register u8 modeByte PIN("r1");
+                        register s32 modeMask PIN("r0");
                         modeByte = ((u8*)lateOam)[3];
                         modeMask = lateModeMask;
                         modeMask &= modeByte;
@@ -1880,8 +1880,8 @@ void RenderStageEntrySprites(void)
                     }
                     *(dest++) = *(src++);
                     {
-                        register u8 priorityByte asm("r1");
-                        register s32 priorityMask asm("r0");
+                        register u8 priorityByte PIN("r1");
+                        register s32 priorityMask PIN("r0");
                         priorityByte = ((u8*)lateOam)[5];
                         priorityMask = latePriorityMask;
                         priorityMask &= priorityByte;
@@ -1920,8 +1920,8 @@ void RenderStageEntrySprites(void)
                         lateOam->split.x = objectX;
                     }
                     {
-                        register u8 modeByte asm("r1");
-                        register s32 modeMask asm("r0");
+                        register u8 modeByte PIN("r1");
+                        register s32 modeMask PIN("r0");
                         modeByte = ((u8*)lateOam)[3];
                         modeMask = lateModeMask;
                         modeMask &= modeByte;
@@ -1930,8 +1930,8 @@ void RenderStageEntrySprites(void)
                     }
                     *(dest++) = *(src++);
                     {
-                        register u8 priorityByte asm("r1");
-                        register s32 priorityMask asm("r0");
+                        register u8 priorityByte PIN("r1");
+                        register s32 priorityMask PIN("r0");
                         priorityByte = ((u8*)lateOam)[5];
                         priorityMask = latePriorityMask;
                         priorityMask &= priorityByte;
@@ -1970,8 +1970,8 @@ void RenderStageEntrySprites(void)
                         lateOam->split.x = objectX;
                     }
                     {
-                        register u8 modeByte asm("r1");
-                        register s32 modeMask asm("r0");
+                        register u8 modeByte PIN("r1");
+                        register s32 modeMask PIN("r0");
                         modeByte = ((u8*)lateOam)[3];
                         modeMask = lateModeMask;
                         modeMask &= modeByte;
@@ -1980,8 +1980,8 @@ void RenderStageEntrySprites(void)
                     }
                     *(dest++) = *(src++);
                     {
-                        register u8 priorityByte asm("r1");
-                        register s32 priorityMask asm("r0");
+                        register u8 priorityByte PIN("r1");
+                        register s32 priorityMask PIN("r0");
                         priorityByte = ((u8*)lateOam)[5];
                         priorityMask = latePriorityMask;
                         priorityMask &= priorityByte;

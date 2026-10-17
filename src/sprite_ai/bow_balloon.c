@@ -178,8 +178,8 @@ void BowBalloonAttackInit(void)
 
 void BowBalloonAttack(void)
 {
-    register int shifted asm("r0");
-    register int timer asm("r1");
+    register int shifted PIN("r0");
+    register int timer PIN("r1");
     u8 *work0;
     struct PrimarySpriteData *sprite;
 

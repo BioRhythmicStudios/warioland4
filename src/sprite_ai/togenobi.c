@@ -48,12 +48,12 @@ void InitTogenobi(void)
 void InitTogenobiOuterPart(void)
 {
     struct PrimarySpriteData* current;
-    register int zero asm("r5");
+    register int zero PIN("r5");
     int zeroTimer;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     u16 oldStatus;
     struct PrimarySpriteData* sprites;
-    register u32 temp asm("r0");
+    register u32 temp PIN("r0");
     u32 index;
     u32 parentY;
     u32 parentX;
@@ -231,13 +231,13 @@ void FindTogenobiPartSlot(u8 id)
 void InitTogenobiInnerPart(void)
 {
     struct PrimarySpriteData* current;
-    register int zero asm("r6");
+    register int zero PIN("r6");
     u32 zeroTimer;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     u16 oldStatus;
     u8* work0;
     struct PrimarySpriteData* sprites;
-    register u32 temp asm("r0");
+    register u32 temp PIN("r0");
     u32 index;
     u32 parentY;
     u32 parentX;
@@ -324,8 +324,8 @@ void InitTogenobiInnerPart(void)
 
 void UpdateTogenobiInnerPartPosition(void)
 {
-    register struct PrimarySpriteData* current asm("r12");
-    register s32 value asm("r0");
+    register struct PrimarySpriteData* current PIN("r12");
+    register s32 value PIN("r0");
     s32 reg1;
     s32 reg2;
     s32 reg3;
@@ -493,11 +493,11 @@ void UpdateTogenobiInnerPartPosition(void)
 
 void InitTogenobiCenterPart(void)
 {
-    register struct PrimarySpriteData* sprite asm("r12");
-    register u16 status asm("r0");
+    register struct PrimarySpriteData* sprite PIN("r12");
+    register u16 status PIN("r0");
     u16 oldStatus;
     int zero;
-    register int zeroTimer asm("r3");
+    register int zeroTimer PIN("r3");
     u8* ptr;
     u8* hitbox;
 
@@ -539,7 +539,7 @@ void InitTogenobiCenterPart(void)
 
 void SpriteTogenobi(void)
 {
-    register s32 value asm("r4");
+    register s32 value PIN("r4");
     s32 scale;
 
     if (gCurrentSprite.pose == 0) {
@@ -566,7 +566,7 @@ void SpriteTogenobi(void)
 
 void SpriteTogenobiOuterPart(void)
 {
-    register s32 value asm("r4");
+    register s32 value PIN("r4");
     s32 scale;
 
     gCurrentSprite.disableWarioCollisionTimer = 1;
@@ -589,7 +589,7 @@ void SpriteTogenobiOuterPart(void)
 
 void SpriteTogenobiInnerPart(void)
 {
-    register s32 value asm("r4");
+    register s32 value PIN("r4");
     s32 scale;
 
     if (gCurrentSprite.pose == 0) {

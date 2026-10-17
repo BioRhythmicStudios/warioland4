@@ -22,7 +22,7 @@ void UpdateSkeletonBirdFacingAndProjectile(void)
 {
     struct PrimarySpriteData *currentSprite = &gCurrentSprite;
     u8 *actionTimer = &currentSprite->work1;
-    register u8 timer asm("r0") = *actionTimer;
+    register u8 timer PIN("r0") = *actionTimer;
     u16 initialTimer = timer;
     struct PrimarySpriteData *turnSprite;
     turnSprite = currentSprite;
@@ -165,7 +165,7 @@ void UpdateSkeletonBirdMoveLeft(void)
     if (!(gMainTimer & 1)) {
         struct PrimarySpriteData *currentSprite = &gCurrentSprite;
         u8 *distancePtr = &currentSprite->work2;
-        register u8 distance asm("r1") = *distancePtr;
+        register u8 distance PIN("r1") = *distancePtr;
         u32 zeroOrDistance = distance;
 
         if (zeroOrDistance != 0) {
@@ -241,7 +241,7 @@ void UpdateSkeletonBirdMoveRight(void)
         {
             struct PrimarySpriteData *currentSprite = &gCurrentSprite;
             u8 *distancePtr = &currentSprite->work2;
-            register u8 distance asm("r1") = *distancePtr;
+            register u8 distance PIN("r1") = *distancePtr;
 
             if (distance <= 159) {
                 distance = ++*distancePtr;
@@ -283,7 +283,7 @@ void UpdateSkeletonBirdAttackWindup(void)
     struct PrimarySpriteData *currentSprite = &gCurrentSprite;
     u8 *countdown;
     u32 timer;
-    register struct PrimarySpriteData *savedSprite asm("r12");
+    register struct PrimarySpriteData *savedSprite PIN("r12");
     u8 remaining;
 
     currentSprite->disableWarioCollisionTimer = 1;
@@ -304,7 +304,7 @@ void UpdateSkeletonBirdAttackWindup(void)
         asm("" : "+r"(zero) : "r"(savedSprite));
         savedSprite->animationTimer = remaining;
         {
-            register u16 status asm("r1") = savedSprite->status;
+            register u16 status PIN("r1") = savedSprite->status;
             u16 maskedStatus =
                 status & ~SPRITE_STATUS_IGNORE_SPRITE_COLLISION;
             u8 *extentPtr = (u8 *)savedSprite;
@@ -313,7 +313,7 @@ void UpdateSkeletonBirdAttackWindup(void)
             extentPtr += 35;
             *extentPtr = 56;
             {
-                register u8 *downPtr asm("r0") = (u8 *)savedSprite + 36;
+                register u8 *downPtr PIN("r0") = (u8 *)savedSprite + 36;
                 *downPtr = zero;
             }
             extentPtr += 2;
@@ -336,14 +336,14 @@ void UpdateSkeletonBirdAttackWindup(void)
             currentSprite->pose = 73;
         } else {
             u8 leftPose = 71;
-            register struct PrimarySpriteData *poseSprite asm("r4");
+            register struct PrimarySpriteData *poseSprite PIN("r4");
             poseSprite = savedSprite;
             poseSprite->pose = leftPose;
         }
 
         {
-            register struct PrimarySpriteData *spawnSprite asm("r5") = savedSprite;
-            register u16 spriteStatus asm("r1") = spawnSprite->status;
+            register struct PrimarySpriteData *spawnSprite PIN("r5") = savedSprite;
+            register u16 spriteStatus PIN("r1") = spawnSprite->status;
             u32 spawnStatus = SPRITE_STATUS_FACING_RIGHT;
             u32 statusMask = spawnStatus;
             u32 facingFlag;
@@ -355,10 +355,10 @@ void UpdateSkeletonBirdAttackWindup(void)
                              savedSprite->gfxSlot, savedSprite->yPosition,
                              savedSprite->xPosition, spawnStatus);
             } else {
-                register struct PrimarySpriteData *idSprite asm("r2") = savedSprite;
+                register struct PrimarySpriteData *idSprite PIN("r2") = savedSprite;
                 u8 roomSlot = idSprite->roomSlot;
                 u8 gfxSlot = idSprite->gfxSlot;
-                register struct PrimarySpriteData *positionSprite asm("r5") = savedSprite;
+                register struct PrimarySpriteData *positionSprite PIN("r5") = savedSprite;
                 SpawnPrimarySpriteWithStatus(PSPRITE_SKELETON_BIRD_DEBRIS, roomSlot, gfxSlot,
                              positionSprite->yPosition, positionSprite->xPosition,
                              facingFlag);

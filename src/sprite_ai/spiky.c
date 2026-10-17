@@ -496,8 +496,8 @@ void SpikyAirborneInit(void)
 
 void SpikyAirborne(void)
 {
-    register struct PrimarySpriteData *sprite asm("r1");
-    register u8 *timerPointer asm("r3");
+    register struct PrimarySpriteData *sprite PIN("r1");
+    register u8 *timerPointer PIN("r3");
     int timerCopy;
     u8 timer;
 

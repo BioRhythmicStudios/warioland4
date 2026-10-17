@@ -17,7 +17,7 @@ void InitToyBlockRound(void)
     u8* temp;
     u16 oldStatus;
     u32 status;
-    register u8 zero asm("r2");
+    register u8 zero PIN("r2");
     u16 zero16;
     const struct AnimationFrame* oam;
 
@@ -85,7 +85,7 @@ void StartToyBlockRoundFalling(void)
 
 void ToyBlockRoundFalling(void)
 {
-    register int previousIndex asm("r1");
+    register int previousIndex PIN("r1");
     struct PrimarySpriteData* sprite;
     u32 newY;
     u8 index;
@@ -100,7 +100,7 @@ void ToyBlockRoundFalling(void)
     }
 
     if (gSpriteCollisionResult != 0) {
-        register u8 zero asm("r2");
+        register u8 zero PIN("r2");
         u8* workPtr;
         u8* workPtr2;
 

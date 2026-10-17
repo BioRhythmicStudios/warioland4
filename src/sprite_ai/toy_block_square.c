@@ -44,7 +44,7 @@ void ToyBlockSquareCheckSpriteCollisions(void)
     for (; i < MAX_SPRITE_COUNT; i++)
     {
         u16 maskedStatus;
-        register u32 statusMask asm("r3");
+        register u32 statusMask PIN("r3");
 
         sprite = (struct PrimarySpriteData*)((u32)(i * sizeof(struct PrimarySpriteData)) + (u32)sprites);
         maskedStatus = sprite->status;
@@ -53,18 +53,18 @@ void ToyBlockSquareCheckSpriteCollisions(void)
 
         if (maskedStatus == 3 && sprite->globalID != PSPRITE_TOY_BLOCK_SQUARE)
         {
-            register u32 basePosition asm("r0");
-            register u32 ySum asm("r2");
+            register u32 basePosition PIN("r0");
+            register u32 ySum PIN("r2");
 
             {
-                register u32 baseSeed asm("r1");
+                register u32 baseSeed PIN("r1");
                 baseSeed = 0x1000;
                 asm("" : : "r"(baseSeed));
                 basePosition = baseSeed;
             }
 
             {
-                register u16 positionY asm("r3");
+                register u16 positionY PIN("r3");
                 positionY = sprite->yPosition;
                 ySum = basePosition + positionY;
                 spriteY = (u16)ySum;
@@ -165,7 +165,7 @@ void InitToyBlockSquare(void)
     struct PrimarySpriteData* temp;
     u8* drawPtr;
     u16 zero16;
-    register u8 zero asm("r2");
+    register u8 zero PIN("r2");
     u8 value;
     u16 status;
     u16 x;

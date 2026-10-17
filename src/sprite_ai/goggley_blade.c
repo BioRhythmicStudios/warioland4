@@ -120,7 +120,7 @@ void GoggleyBladeTurnDown(void)
     {
         const s16* table;
         int zero;
-        register u32 temp asm("r0");
+        register u32 temp PIN("r0");
         s32 auxiliary;
 
         table = sGoggleyBladeTurnVelocity;
@@ -144,7 +144,7 @@ void GoggleyBladeTurnDown(void)
     }
 
     {
-        register struct PrimarySpriteData* moveSprite asm("r4");
+        register struct PrimarySpriteData* moveSprite PIN("r4");
         moveSprite = sprite;
         func_8023BFC(moveSprite->yPosition + 56, moveSprite->xPosition);
         if ((gSpriteCollisionTileType & 15) == 0) {

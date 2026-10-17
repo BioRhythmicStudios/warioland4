@@ -19,7 +19,7 @@ extern void DrawRouletteScoreText(void);
 void DrawRoulette(void)
 {
     int slot;
-    register int total asm("r9");
+    register int total PIN("r9");
     u16 *rawDst;
     struct RouletteMainState *mainState;
     const u16 *src;

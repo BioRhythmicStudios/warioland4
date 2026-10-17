@@ -38,13 +38,13 @@ void UpdateCuckooCondorPendulumOrbit(void)
     u32 angle;
     int slot;
     u16 radius;
-    register u32 temp asm("r0");
+    register u32 temp PIN("r0");
     u32 adjustmentR1;
-    register u32 adjustmentR2 asm("r2");
-    register u32 adjustmentR4 asm("r4");
+    register u32 adjustmentR2 PIN("r2");
+    register u32 adjustmentR4 PIN("r4");
     struct PrimarySpriteData *parentBase;
     struct PrimarySpriteData *parent;
-    register u32 index asm("r1");
+    register u32 index PIN("r1");
     u16 baseY;
     register u16 savedY;
     u16 baseX;
@@ -52,14 +52,14 @@ void UpdateCuckooCondorPendulumOrbit(void)
     const s16 *tableSource;
     s32 value;
     s32 product;
-    register u32 work asm("r0");
+    register u32 work PIN("r0");
     s32 secondTrig;
-    register s32 result asm("r1");
+    register s32 result PIN("r1");
     struct PrimarySpriteData *current;
     s32 xResult;
     u32 angleShifted;
-    register s32 shifted asm("r1");
-    register s32 xOffset asm("r1");
+    register s32 shifted PIN("r1");
+    register s32 xOffset PIN("r1");
 
     sprite = &gCurrentSprite;
     work = sprite->work0;
@@ -121,7 +121,7 @@ radiusReady:
     angle = angleShifted;
 
     if (value < 0) {
-        register s32 trigAbs asm("r2");
+        register s32 trigAbs PIN("r2");
         trigAbs = -value;
         shifted = radius << 16;
         product = (shifted >> 16) * trigAbs;
@@ -218,12 +218,12 @@ void UpdateCuckooCondorPendulumHeight(void)
     u32 roomSlot;
     u32 currentY;
     u32 targetY;
-    register u32 speed asm("r2");
+    register u32 speed PIN("r2");
     u32 offset;
-    register struct PrimarySpriteData *sprites asm("r3");
+    register struct PrimarySpriteData *sprites PIN("r3");
     u32 temp;
-    register u32 base asm("r2");
-    register u32 distance asm("r0");
+    register u32 base PIN("r2");
+    register u32 distance PIN("r0");
 
     current = &gCurrentSprite;
     roomSlot = current->roomSlot;
@@ -296,11 +296,11 @@ void UpdateCuckooCondorCapturedWario(void)
     u32 zero;
     u32 address;
     s32 signedDelta;
-    register u8 *work3Ptr asm("r12");
+    register u8 *work3Ptr PIN("r12");
     u8 *flag;
     int slot;
     struct WarioData *wario;
-    register struct PrimarySpriteData *sprites asm("r1");
+    register struct PrimarySpriteData *sprites PIN("r1");
     struct PrimarySpriteData *other;
     u16 yPosition;
 
@@ -424,7 +424,7 @@ void CuckooCondorWaitForIntro(void)
         if (value != 0)
             return;
         {
-            register u8 *state asm("r1");
+            register u8 *state PIN("r1");
             state = &gCuckooCondorColorFadingState;
             value = 7;
             *state = value;
@@ -444,7 +444,7 @@ void CuckooCondorStartBattle(void)
     struct PrimarySpriteData *sprite;
     u8 *timer;
     u32 value;
-    register u32 zero asm("r4");
+    register u32 zero PIN("r4");
 
     sprite = &gCurrentSprite;
     timer = &sprite->work2;
@@ -480,7 +480,7 @@ void CuckooCondorEnterArena(void)
 {
     struct PrimarySpriteData *sprite;
     u32 spriteY;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 bgY;
     u32 zero;
     int slot;
@@ -589,7 +589,7 @@ trigger:
 
 void CuckooCondorMoveClock(void)
 {
-    register u32 temp asm("r0");
+    register u32 temp PIN("r0");
     u32 value;
     u32 flagPtr;
     struct PrimarySpriteData *sprite;
@@ -681,9 +681,9 @@ void CuckooCondorLowerPendulum(void)
     struct PrimarySpriteData *sprite;
     u8 *timer;
     u32 temp;
-    register u32 base asm("r1");
+    register u32 base PIN("r1");
     u32 slot;
-    register u32 base3 asm("r3");
+    register u32 base3 PIN("r3");
 
     if (gCuckooCondorHasCapturedWario != 0)
         goto setDone;
@@ -759,10 +759,10 @@ void CuckooCondorRaisePendulum(void)
     u32 zero;
     u32 timer;
     s32 slot;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 temp;
     u32 offset;
-    register struct PrimarySpriteData *other asm("r3");
+    register struct PrimarySpriteData *other PIN("r3");
     u8 *timerPtr;
     u8 *verticalOffset;
     struct PrimarySpriteData *sprite;
@@ -886,14 +886,14 @@ void CuckooCondorSinkAfterHit(void)
 
 void CuckooCondorHandleClockDamage(void)
 {
-    register u32 reg6 asm("r6");
+    register u32 reg6 PIN("r6");
     u32 timer;
     u32 zero;
     u32 pose41;
     u32 savedTimer;
-    register u8 *savedTimerPtr asm("r10");
+    register u8 *savedTimerPtr PIN("r10");
     u32 raw;
-    register u32 temp asm("r1");
+    register u32 temp PIN("r1");
     u32 mask;
     u8 *workPtr;
     u8 *laterPtr;
@@ -1068,15 +1068,15 @@ void CuckooCondorBreakClock(void)
 
 void CuckooCondorFlyAndBob(void)
 {
-    register u32 spriteBase asm("r2");
-    register u32 workPtr asm("r12");
+    register u32 spriteBase PIN("r2");
+    register u32 workPtr PIN("r12");
     u32 index;
     u32 table;
     u32 delta;
     u32 sprite;
     u32 temp;
     u32 value;
-    register u32 x asm("r2");
+    register u32 x PIN("r2");
 
     spriteBase = (u32)&gCurrentSprite;
     temp = 0x2A;
@@ -1219,13 +1219,13 @@ void CuckooCondorLayEgg(void)
 void CuckooCondorHandleCondorDamage(void)
 {
     struct PrimarySpriteData *sprite;
-    register u8 *timer asm("r12");
-    register u32 value asm("r0");
+    register u8 *timer PIN("r12");
+    register u32 value PIN("r0");
     u32 mask;
     u32 work;
     s32 other;
     s32 end;
-    register u32 one asm("r5");
+    register u32 one PIN("r5");
     u32 pose;
 
     sprite = &gCurrentSprite;
@@ -1311,7 +1311,7 @@ void CuckooCondorExplode(void)
     struct PrimarySpriteData *sprite;
     struct PrimarySpriteData *base;
     u8 *timer;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
 
     base = &gCurrentSprite;
     timer = &base->work2;
@@ -1455,10 +1455,10 @@ void CuckooCondorHandleShopItemHit(void)
 {
     u32 timerPtr;
     u32 temp;
-    register u32 value asm("r1");
+    register u32 value PIN("r1");
     u32 health;
-    register u32 sprite asm("r3");
-    register u32 healthCopy asm("r4");
+    register u32 sprite PIN("r3");
+    register u32 healthCopy PIN("r4");
 
     timerPtr = (u32)&gBossSequenceState;
     temp = *(u8 *)timerPtr;
@@ -1525,11 +1525,11 @@ void CuckooCondorHandleShopItemHit(void)
 
 void InitCuckooCondorClockPiece(void)
 {
-    register struct PrimarySpriteData *sprite asm("r12");
+    register struct PrimarySpriteData *sprite PIN("r12");
     struct PrimarySpriteData *ptr;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 status;
-    register u32 zeroByte asm("r2");
+    register u32 zeroByte PIN("r2");
     u32 zeroHalf;
     u8 *bytePtr;
     u8 *bytePtr2;
@@ -1723,10 +1723,10 @@ void CuckooCondorClockPieceSpinUp(void)
     struct PrimarySpriteData *baseSprite;
     struct PrimarySpriteData *sprite;
     u8 *timer;
-    register u32 value asm("r1");
-    register u32 newValue asm("r2");
+    register u32 value PIN("r1");
+    register u32 newValue PIN("r2");
     u8 *work0;
-    register u32 temp asm("r0");
+    register u32 temp PIN("r0");
     u32 y;
 
     baseSprite = &gCurrentSprite;
@@ -1784,8 +1784,8 @@ void CuckooCondorClockPieceFlash(void)
 {
     struct PrimarySpriteData *sprite;
     u16 status;
-    register u32 four asm("r4");
-    register u32 value asm("r0");
+    register u32 four PIN("r4");
+    register u32 value PIN("r0");
     u8 *timer;
 
     sprite = &gCurrentSprite;
@@ -1916,9 +1916,9 @@ void CuckooCondorClockPieceFallLeft(void)
 void InitCuckooCondorPendulumPart(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 status;
-    register u32 zero asm("r2");
+    register u32 zero PIN("r2");
     u8 *ptr;
 
     sprite = &gCurrentSprite;
@@ -2053,11 +2053,11 @@ void CuckooCondorPendulumStartClockwiseSwing(void)
     struct PrimarySpriteData *end;
     u32 zero;
     u32 one;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 status;
     u8 *ptr0;
-    register u16 *dst asm("r4");
-    register u32 ydiff asm("r2");
+    register u16 *dst PIN("r4");
+    register u32 ydiff PIN("r2");
 
     sprite = &gCurrentSprite;
     anim = sCuckooCondorClawIdleOam;
@@ -2150,11 +2150,11 @@ void CuckooCondorPendulumStartCounterclockwiseSwing(void)
     struct PrimarySpriteData *end;
     u32 zero;
     u32 one;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 status;
     u8 *ptr0;
-    register u16 *dst asm("r4");
-    register u32 ydiff asm("r2");
+    register u16 *dst PIN("r4");
+    register u32 ydiff PIN("r2");
 
     sprite = &gCurrentSprite;
     anim = sCuckooCondorClawIdleOam;
@@ -2299,14 +2299,14 @@ void CuckooCondorPendulumFallLeft(void)
 
 void InitCuckooCondorHead(void)
 {
-    register struct PrimarySpriteData *sprite asm("r12");
-    register u32 value asm("r0");
+    register struct PrimarySpriteData *sprite PIN("r12");
+    register u32 value PIN("r0");
     u32 status;
-    register u32 zeroByte asm("r2");
+    register u32 zeroByte PIN("r2");
     u32 zeroHalf;
     u8 *ptr;
     u8 *ptr2;
-    register u8 *hitbox asm("r4");
+    register u8 *hitbox PIN("r4");
 
     sprite = &gCurrentSprite;
     status = sprite->status;
@@ -2350,10 +2350,10 @@ void InitCuckooCondorHead(void)
 void UpdateCuckooCondorHead(void)
 {
     u32 temp;
-    register u32 value asm("r1");
+    register u32 value PIN("r1");
     u32 timerPtr;
-    register u32 oam asm("r3");
-    register struct PrimarySpriteData *sprite asm("r4");
+    register u32 oam PIN("r3");
+    register struct PrimarySpriteData *sprite PIN("r4");
 
     temp = (u32)&gInitialHealth;
     value = *(u8 *)temp;
@@ -2457,9 +2457,9 @@ void CuckooCondorHeadAttack(void)
     u32 value;
     u32 child;
     u32 zero;
-    register u32 base asm("r4");
-    register struct PrimarySpriteData *sprite asm("r5");
-    register u32 zeroByte asm("r6");
+    register u32 base PIN("r4");
+    register struct PrimarySpriteData *sprite PIN("r5");
+    register u32 zeroByte PIN("r6");
 
     value = (u32)&gCurrentSprite;
     temp = ((struct PrimarySpriteData *)value)->pose;
@@ -2566,11 +2566,11 @@ void CuckooCondorHeadAttack(void)
 void CuckooCondorHeadRecover(void)
 {
     struct PrimarySpriteData *sprite;
-    register struct PrimarySpriteData *body asm("r2");
-    register u8 *timer asm("r2");
+    register struct PrimarySpriteData *body PIN("r2");
+    register u8 *timer PIN("r2");
     u32 value;
     u32 status;
-    register u32 masked asm("r0");
+    register u32 masked PIN("r0");
 
     sprite = &gCurrentSprite;
     body = sprite;
@@ -2622,9 +2622,9 @@ void InitCuckooCondorClockBody(void)
     struct PrimarySpriteData *sprite;
     struct PrimarySpriteData *ptr;
     u16 status;
-    register u32 value asm("r0");
-    register u32 constant asm("r2");
-    register u32 zero asm("r2");
+    register u32 value PIN("r0");
+    register u32 constant PIN("r2");
+    register u32 zero PIN("r2");
     u32 timer;
     const struct AnimationFrame *oam;
 
@@ -2670,9 +2670,9 @@ void CuckooCondorClockBodyStartFall(void)
 void InitCuckooCondorSmallDebris(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 status;
-    register u32 zeroByte asm("r2");
+    register u32 zeroByte PIN("r2");
     u32 zeroHalf;
     u8 *ptr;
     u8 *ptr2;
@@ -2726,7 +2726,7 @@ void UpdateCuckooCondorSmallDebrisFall(void)
 {
     struct PrimarySpriteData *sprite;
     u32 newY;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u8 *work3Ptr;
     u32 index;
     const s16 *table;
@@ -2780,8 +2780,8 @@ void UpdateCuckooCondorSmallDebris(void)
     struct PrimarySpriteData *sprite;
     u8 *timer;
     u32 value;
-    register u32 mask asm("r1");
-    register u32 status asm("r1");
+    register u32 mask PIN("r1");
+    register u32 status PIN("r1");
     struct PrimarySpriteData *sprite2;
 
     sprite = &gCurrentSprite;
@@ -2815,9 +2815,9 @@ void UpdateCuckooCondorSmallDebris(void)
 void InitCuckooCondorLargeDebris(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u32 status;
-    register u32 zeroByte asm("r2");
+    register u32 zeroByte PIN("r2");
     u32 zeroHalf;
     u8 *ptr;
     u8 *ptr2;
@@ -2872,7 +2872,7 @@ void UpdateCuckooCondorLargeDebrisFall(void)
 {
     struct PrimarySpriteData *sprite;
     u32 newY;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
     u8 *work3Ptr;
     u32 index;
     const s16 *table;
@@ -2940,12 +2940,12 @@ void InitCuckooCondorEgg(void)
 {
     struct PrimarySpriteData *sprite;
     u32 status;
-    register u32 zero asm("r3");
+    register u32 zero PIN("r3");
     u32 eight;
     u32 zero16;
     struct PrimarySpriteData *sp2;
-    register u32 tmp asm("r0");
-    register u8 *ptr asm("r1");
+    register u32 tmp PIN("r0");
+    register u8 *ptr PIN("r1");
 
     sprite = &gCurrentSprite;
     tmp = sprite->status;
@@ -3005,9 +3005,9 @@ void CuckooCondorEggStartHatching(void)
 {
     struct PrimarySpriteData *sprite;
     u32 zeroHalf;
-    register u32 zeroByte asm("r3");
+    register u32 zeroByte PIN("r3");
     u32 value;
-    register u32 mask asm("r1");
+    register u32 mask PIN("r1");
 
     sprite = &gCurrentSprite;
     zeroHalf = 0;
@@ -3154,15 +3154,15 @@ void InitCuckooCondorChick(void)
     struct PrimarySpriteData *sprite;
     u32 statusRaw;
     u32 status;
-    register u32 zero asm("r4");
+    register u32 zero PIN("r4");
     u16 zero16;
-    register u8 *ptr asm("r1");
+    register u8 *ptr PIN("r1");
     u8 *ptr0;
     struct WarioData *wario;
     u16 spriteX;
     u16 warioX;
     u32 newStatus;
-    register u32 flag asm("r1");
+    register u32 flag PIN("r1");
 
     sprite = &gCurrentSprite;
     statusRaw = sprite->status;
@@ -3241,11 +3241,11 @@ void UpdateCuckooCondorChickWalk(void)
     {
         struct PrimarySpriteData *sprite;
         u8 *work0;
-        register u8 *work3 asm("r6");
+        register u8 *work3 PIN("r6");
         const s16 *table;
         u32 workValue;
-        register u32 base asm("r0");
-        register u8 *workPtr asm("r1");
+        register u32 base PIN("r0");
+        register u8 *workPtr PIN("r1");
         u32 index;
         s16 delta;
 
@@ -3366,12 +3366,12 @@ void CuckooCondorChickStartDashRight(void)
 
 void UpdateCuckooCondorChickDashRight(void)
 {
-    register struct PrimarySpriteData *sprite asm("r1");
+    register struct PrimarySpriteData *sprite PIN("r1");
     u8 *timer;
     struct PrimarySpriteData *current;
     u16 yPosition;
     u32 value;
-    register u32 zero asm("r1");
+    register u32 zero PIN("r1");
     u32 zero2;
 
     sprite = &gCurrentSprite;
@@ -3424,13 +3424,13 @@ void CuckooCondorChickStartDashLeft(void)
 
 void UpdateCuckooCondorChickDashLeft(void)
 {
-    register struct PrimarySpriteData *sprite asm("r1");
+    register struct PrimarySpriteData *sprite PIN("r1");
     u8 *timer;
     struct PrimarySpriteData *current;
     u16 yPosition;
     u32 value;
-    register u32 arg asm("r1");
-    register u32 zero asm("r2");
+    register u32 arg PIN("r1");
+    register u32 zero PIN("r2");
     u32 zero2;
 
     sprite = &gCurrentSprite;
@@ -3492,8 +3492,8 @@ void UpdateCuckooCondorChickChase(void)
     u32 status;
     u16 yPosition;
     struct PrimarySpriteData *sprite2;
-    register u8 *timer asm("r3");
-    register u32 zero asm("r4");
+    register u8 *timer PIN("r3");
+    register u32 zero PIN("r4");
 
     sprite = &gCurrentSprite;
     status = sprite->status;
@@ -3571,12 +3571,12 @@ done:
 
 void CuckooCondorChickStartExplosion(void)
 {
-    register struct PrimarySpriteData *sprite asm("r12");
+    register struct PrimarySpriteData *sprite PIN("r12");
     struct PrimarySpriteData *ptr;
     struct PrimarySpriteData *ptr2;
-    register u32 value asm("r0");
-    register u32 status asm("r1");
-    register u32 zeroByte asm("r2");
+    register u32 value PIN("r0");
+    register u32 status PIN("r1");
+    register u32 zeroByte PIN("r2");
     u32 zeroHalf;
 
     value = (u32)&gCurrentSprite;
@@ -3759,7 +3759,7 @@ void SpriteCuckooCondorClockPiece(void)
         case 0:
         {
             struct PrimarySpriteData *sprites;
-            register u32 index asm("r1");
+            register u32 index PIN("r1");
             u32 size;
 
             sprites = gSpriteData;
@@ -3775,7 +3775,7 @@ void SpriteCuckooCondorClockPiece(void)
         case 1:
         {
             struct PrimarySpriteData *sprites;
-            register u32 index asm("r1");
+            register u32 index PIN("r1");
             u32 size;
 
             sprites = gSpriteData;
@@ -3791,7 +3791,7 @@ void SpriteCuckooCondorClockPiece(void)
         case 2:
         {
             struct PrimarySpriteData *sprites;
-            register u32 index asm("r1");
+            register u32 index PIN("r1");
             u32 size;
 
             sprites = gSpriteData;
@@ -3807,7 +3807,7 @@ void SpriteCuckooCondorClockPiece(void)
         case 3:
         {
             struct PrimarySpriteData *sprites;
-            register u32 index asm("r1");
+            register u32 index PIN("r1");
             u32 size;
 
             sprites = gSpriteData;
@@ -3822,16 +3822,16 @@ void SpriteCuckooCondorClockPiece(void)
         }
         case 4:
         {
-            register u32 r5Value asm("r5");
+            register u32 r5Value PIN("r5");
             register u32 r6Value;
-            register u8 *workPtr asm("r8");
+            register u8 *workPtr PIN("r8");
             register s32 trig;
             u32 sinIndex;
             s32 inverse;
 
             {
                 struct PrimarySpriteData *sprites;
-                register u32 index asm("r1");
+                register u32 index PIN("r1");
                 u32 size;
 
                 sprites = gSpriteData;
@@ -3854,7 +3854,7 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex += r5Value;
                 trig = *(const s16 *)sinIndex;
                 {
-                    register u8 *scaleRead asm("r2");
+                    register u8 *scaleRead PIN("r2");
 
                     scaleRead = workPtr;
                     inverse = FixedInverse(*scaleRead);
@@ -3868,13 +3868,13 @@ void SpriteCuckooCondorClockPiece(void)
                     /* Keep r2 live across each C signed-halfword load so agbcc uses
                      * r1 for the zero offset. Both ASM constraints emit no instructions.
                      * All seven paired lifetimes are required for an exact object match. */
-                    register u32 r2Live asm("r2");
+                    register u32 r2Live PIN("r2");
                     asm("" : "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
                     asm("" : : "r"(r2Live));
                 }
                 {
-                    register u8 *scaleRead asm("r2");
+                    register u8 *scaleRead PIN("r2");
 
                     scaleRead = workPtr;
                     inverse = FixedInverse(*scaleRead);
@@ -3885,14 +3885,14 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r5Value;
                 {
-                    register u32 r2Live asm("r2");
+                    register u32 r2Live PIN("r2");
                     asm("" : "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
                     asm("" : : "r"(r2Live));
                     trig = -trig;
                 }
                 {
-                    register u8 *scaleRead asm("r2");
+                    register u8 *scaleRead PIN("r2");
 
                     scaleRead = workPtr;
                     inverse = FixedInverse(*scaleRead);
@@ -3904,13 +3904,13 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r5Value;
                 {
-                    register u32 r2Live asm("r2");
+                    register u32 r2Live PIN("r2");
                     asm("" : "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
                     asm("" : : "r"(r2Live));
                 }
                 {
-                    register u8 *scaleRead asm("r2");
+                    register u8 *scaleRead PIN("r2");
 
                     scaleRead = workPtr;
                     inverse = FixedInverse(*scaleRead);
@@ -3930,7 +3930,7 @@ void SpriteCuckooCondorClockPiece(void)
                     angleValue <<= 1;
                     angleValue += r6Value;
                     {
-                        register u32 r2Live asm("r2");
+                        register u32 r2Live PIN("r2");
                         asm("" : "=r"(r2Live));
                         trig = *(const s16 *)angleValue;
                         asm("" : : "r"(r2Live));
@@ -3941,7 +3941,7 @@ void SpriteCuckooCondorClockPiece(void)
                 sprite->affinePA = FixedMul(trig, inverse);
 
                 {
-                    register u8 *angleRead asm("r2");
+                    register u8 *angleRead PIN("r2");
 
                     angleRead = workPtr;
                     sinIndex = *angleRead;
@@ -3949,7 +3949,7 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r6Value;
                 {
-                    register u32 r2Live asm("r2");
+                    register u32 r2Live PIN("r2");
                     asm("" : "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
                     asm("" : : "r"(r2Live));
@@ -3958,7 +3958,7 @@ void SpriteCuckooCondorClockPiece(void)
                 sprite->affinePB = FixedMul(trig, inverse);
 
                 {
-                    register u8 *angleRead asm("r2");
+                    register u8 *angleRead PIN("r2");
 
                     angleRead = workPtr;
                     sinIndex = *angleRead;
@@ -3966,7 +3966,7 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r6Value;
                 {
-                    register u32 r2Live asm("r2");
+                    register u32 r2Live PIN("r2");
                     asm("" : "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
                     asm("" : : "r"(r2Live));
@@ -3976,7 +3976,7 @@ void SpriteCuckooCondorClockPiece(void)
                 sprite->affinePC = FixedMul(trig, inverse);
 
                 {
-                    register u8 *angleRead asm("r2");
+                    register u8 *angleRead PIN("r2");
 
                     angleRead = workPtr;
                     sinIndex = *angleRead;
@@ -3985,7 +3985,7 @@ void SpriteCuckooCondorClockPiece(void)
                 sinIndex <<= 1;
                 sinIndex += r6Value;
                 {
-                    register u32 r2Live asm("r2");
+                    register u32 r2Live PIN("r2");
                     asm("" : "=r"(r2Live));
                     trig = *(const s16 *)sinIndex;
                     asm("" : : "r"(r2Live));
@@ -4062,11 +4062,11 @@ void SpriteCuckooCondorHead(void)
     s32 pose;
     struct PrimarySpriteData *current;
     u32 slot;
-    register struct PrimarySpriteData *sprites asm("r3");
+    register struct PrimarySpriteData *sprites PIN("r3");
     u32 size;
-    register u32 base asm("r3");
-    register u32 out asm("r0");
-    register u32 yoff asm("r3");
+    register u32 base PIN("r3");
+    register u32 out PIN("r0");
+    register u32 yoff PIN("r3");
 
     sprite = &gCurrentSprite;
     sprite->disableWarioCollisionTimer = 1;
@@ -4190,7 +4190,7 @@ end:
 void SpriteCuckooCondorLargeDebris(void)
 {
     const s16 *table;
-    register s32 trig asm("r4");
+    register s32 trig PIN("r4");
     s32 scale;
     struct PrimarySpriteData *sprite;
     u8 *anglePtr;
@@ -4386,9 +4386,9 @@ void SpriteCuckooCondorChick(void)
     struct PrimarySpriteData *sprite;
     const s16 *table;
     u8 *anglePtr;
-    register s32 trig asm("r4");
+    register s32 trig PIN("r4");
     s32 scale;
-    register u32 sinIndex asm("r0");
+    register u32 sinIndex PIN("r0");
     s32 inverse;
     struct PrimarySpriteData *current;
     u8 *timer;

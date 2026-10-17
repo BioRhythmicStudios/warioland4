@@ -220,12 +220,12 @@ void InitializePauseScreen(void)
     s32 i;
     u32 dmaStatus;
 
-    register u32 dmaMask asm("r2");
+    register u32 dmaMask PIN("r2");
     u8* sideAddress;
-    register const u8* pausePaletteBase asm("r6");
-    register u8* pauseSidePtr asm("r8");
+    register const u8* pausePaletteBase PIN("r6");
+    register u8* pauseSidePtr PIN("r8");
 
-    register const u8* tilesBase asm("sl");
+    register const u8* tilesBase PIN("sl");
     const u8* early7038;
     const u8* early7038Plus;
     const u8* early4038;
@@ -274,7 +274,7 @@ void InitializePauseScreen(void)
     PAUSE_DMA_TRANSFER_R1(early7038Plus, (void*)0x05000300, 0x80000080);
     PAUSE_DMA_TRANSFER_R1(early4038, (void*)0x06000000, 0x80001800);
     {
-        register struct DmaRegisters* d7238Dma asm("r1");
+        register struct DmaRegisters* d7238Dma PIN("r1");
         d7238Dma = (struct DmaRegisters*)0x040000D4;
         dmaStatus = (u32)sUnk_86D7238;
         d7238Dma->src = dmaStatus;
@@ -303,7 +303,7 @@ void InitializePauseScreen(void)
     dmaStatus = languageDma->cnt;
     {
         struct DmaRegisters* languageWaitDma;
-        register u32 languageWaitMask asm("r1");
+        register u32 languageWaitMask PIN("r1");
         languageWaitDma = (struct DmaRegisters*)0x040000D4;
         dmaStatus = languageWaitDma->cnt;
         languageWaitMask = 0x80000000;
@@ -332,7 +332,7 @@ void InitializePauseScreen(void)
     }
 
     {
-        register u8* sideCheck1 asm("r4");
+        register u8* sideCheck1 PIN("r4");
         sideCheck1 = pauseSidePtr;
         if ((*sideCheck1) != 0) {
             sideDma = (struct DmaRegisters*)0x040000D4;
@@ -348,7 +348,7 @@ void InitializePauseScreen(void)
     dmaStatus = sideDma->cnt;
     {
         struct DmaRegisters* sideWaitDma;
-        register u32 sideWaitMask asm("r1");
+        register u32 sideWaitMask PIN("r1");
         sideWaitDma = (struct DmaRegisters*)0x040000D4;
         dmaStatus = sideWaitDma->cnt;
         sideWaitMask = 0x80000000;
@@ -360,7 +360,7 @@ void InitializePauseScreen(void)
     }
 
     {
-        register u8* sideCheck2 asm("r5");
+        register u8* sideCheck2 PIN("r5");
         sideCheck2 = pauseSidePtr;
         if ((*sideCheck2) == 0) {
             struct DmaRegisters* optionalDma;
@@ -390,7 +390,7 @@ void InitializePauseScreen(void)
     *(vu16*)0x0400000C = 0x1C02;
     {
         int soundTmp;
-        register u16 soundValue asm("r0");
+        register u16 soundValue PIN("r0");
         u16* soundPtr;
         soundTmp = 250;
         soundTmp <<= 2;
@@ -423,8 +423,8 @@ void InitializePauseScreen(void)
         u8* jewelStates;
         u8* nePtr;
         u8* sePtr;
-        register u8* swPtr asm("r12");
-        register u8* nwPtr asm("sl");
+        register u8* swPtr PIN("r12");
+        register u8* nwPtr PIN("sl");
         PauseAnimationState* cdPtr;
         PauseAnimationState* keyPtr;
 
@@ -465,7 +465,7 @@ void InitializePauseScreen(void)
         }
 
         {
-            register u8* swRead asm("r2");
+            register u8* swRead PIN("r2");
             swRead = swPtr;
             if ((u8)(*swRead - 1) <= 1) {
                 jewelStates[2] = 1;
@@ -475,7 +475,7 @@ void InitializePauseScreen(void)
         }
 
         {
-            register u8* nwRead asm("r6");
+            register u8* nwRead PIN("r6");
             nwRead = nwPtr;
             if ((u8)(*nwRead - 1) <= 1) {
                 jewelStates[3] = 1;
@@ -485,9 +485,9 @@ void InitializePauseScreen(void)
         }
 
         {
-            register u16 zero asm("r0");
-            register u16* sequenceTimer asm("r1");
-            register u8* seqStepPtr asm("r2");
+            register u16 zero PIN("r0");
+            register u16* sequenceTimer PIN("r1");
+            register u8* seqStepPtr PIN("r2");
 
             zero = 0;
             sequenceTimer = &gStageEntrySequenceTimer;
@@ -513,7 +513,7 @@ void InitializePauseScreen(void)
         UploadFiveDigitNumberTiles(gHighScoreTable[*passagePtr][*stagePtr], sUnk_86D6E78, 0x2A80);
         {
             struct DmaRegisters* waitDma;
-            register u32 waitMask asm("r1");
+            register u32 waitMask PIN("r1");
             u32 waitStatus;
             waitDma = (struct DmaRegisters*)0x040000D4;
             waitStatus = waitDma->cnt;

@@ -12,7 +12,7 @@
 
 void UpdateSecondarySprites(void)
 {
-    register struct SecondarySprite* spriteBase asm("r2");
+    register struct SecondarySprite* spriteBase PIN("r2");
     void (*const* aiTable)(void);
     u32 offset;
     s32 index;
@@ -22,7 +22,7 @@ void UpdateSecondarySprites(void)
     offset = index;
     do {
         struct SecondarySprite* sprite;
-        register u32 byteOffset asm("r1");
+        register u32 byteOffset PIN("r1");
         byteOffset = offset;
         asm("" : : "r"(byteOffset));
         sprite = (struct SecondarySprite*)(byteOffset + ((u32)spriteBase));
@@ -43,12 +43,12 @@ void UpdateSecondarySprites(void)
         index++;
     } while (index <= 7);
     {
-        register struct SecondarySprite* sprite asm("r9");
+        register struct SecondarySprite* sprite PIN("r9");
         void (*const* secondAiTable)(void);
         index = 0;
         {
             struct SecondarySprite* freshSpriteBase;
-            register void (*const* freshAiTable)(void) asm("r1");
+            register void (*const* freshAiTable)(void) PIN("r1");
             freshSpriteBase = gSecondarySpriteData;
             sprite = freshSpriteBase;
             asm("" : "=r"(freshAiTable) : "0"(sSecondarySpriteAITable) : "r8");
@@ -56,7 +56,7 @@ void UpdateSecondarySprites(void)
         }
         do {
             s32 active;
-            register struct SecondarySprite* activeSprite asm("r2");
+            register struct SecondarySprite* activeSprite PIN("r2");
             activeSprite = sprite;
             active = activeSprite->status & 5;
             if (active == 1) {
@@ -262,7 +262,7 @@ void UploadStageTimerDigitTiles(void)
 
 void UploadStageTimerColonTiles(void)
 {
-    register vu32* dma asm("r0");
+    register vu32* dma PIN("r0");
     const u8* lowerGfx;
     u32 dmaControl;
     u8 state;
@@ -421,7 +421,7 @@ void UpdateStageTimerAndScoreDrain(void)
     u32 frame;
     s32 updatedDigit;
     u8 timerDigitsState;
-    register u8 digit asm("r2");
+    register u8 digit PIN("r2");
 
     if (gSubGameMode != 2) {
         return;
@@ -695,7 +695,7 @@ void InitStageHudAndScore(void)
             if (id <= 73) {
                 sprite->status = 0;
             } else if (id == 75) {
-                register u32 status asm("r1");
+                register u32 status PIN("r1");
                 u32 one;
                 u32 test;
                 status = sprite->status;
@@ -902,11 +902,11 @@ void DrawCurrentSecondarySprite(u32 index)
     u16* destination;
     u32 count;
     u32 nextSlot;
-    register u32 yOffset asm("r9");
+    register u32 yOffset PIN("r9");
     u32 xOffset;
     u32 affine;
-    register u32 matrixBits asm("r10");
-    register u32 attr asm("r0");
+    register u32 matrixBits PIN("r10");
+    register u32 attr PIN("r0");
     volatile u32 stackWords[3];
     stackWords[0] = index;
     spriteAddress = &gCurrentSecondarySprite;
@@ -925,7 +925,7 @@ void DrawCurrentSecondarySprite(u32 index)
         }
         {
             u32 slotOffset;
-            register OamData* oamBase asm("r2");
+            register OamData* oamBase PIN("r2");
             slotOffset = currentSlot << 3;
             oamBase = gOamBuffer;
             destination = (u16*)(slotOffset + (u32)oamBase);
@@ -956,7 +956,7 @@ void DrawCurrentSecondarySprite(u32 index)
                 {
                     u32 adjustedX;
                     u32 xWork;
-                    register u32 mask asm("r0");
+                    register u32 mask PIN("r0");
                     xWork = xOffset;
                     adjustedX = attr + xWork;
                     mask = 0x1FF;
@@ -1016,7 +1016,7 @@ void DrawCurrentSecondarySprite(u32 index)
         }
         {
             u32 slotOffset;
-            register OamData* oamBase asm("r2");
+            register OamData* oamBase PIN("r2");
             slotOffset = currentSlot << 3;
             oamBase = gOamBuffer;
             destination = (u16*)(slotOffset + (u32)oamBase);
@@ -1026,8 +1026,8 @@ void DrawCurrentSecondarySprite(u32 index)
         if (count != 0) {
             OamData* oam;
             {
-                register u32 modeValue asm("r2");
-                register volatile u8* stackPointer asm("r1");
+                register u32 modeValue PIN("r2");
+                register volatile u8* stackPointer PIN("r1");
                 u32 priorityValue;
                 modeValue = 3;
                 stackPointer = (volatile u8*)stackWords;
@@ -1059,7 +1059,7 @@ void DrawCurrentSecondarySprite(u32 index)
                 {
                     u32 adjustedX;
                     u32 xWork;
-                    register u32 mask asm("r0");
+                    register u32 mask PIN("r0");
                     xWork = xOffset;
                     adjustedX = attr + xWork;
                     mask = 0x1FF;
@@ -1085,7 +1085,7 @@ void DrawCurrentSecondarySprite(u32 index)
                 }
                 if (affine != 0) {
                     u32 modeByte;
-                    register u32 modeBits asm("r2");
+                    register u32 modeBits PIN("r2");
                     modeByte = ((u8*)oam)[1];
                     modeBits = (u32)stackWords;
                     modeBits = *(volatile u8*)(modeBits + 4);
@@ -1125,11 +1125,11 @@ void DrawCurrentSecondarySprite(u32 index)
             return;
         }
         {
-            register u32 inputIndex asm("r0");
+            register u32 inputIndex PIN("r0");
             u32 indexOffset;
-            register u32 address asm("r0");
-            register OamData* paBase asm("r1");
-            register OamData* basePointer asm("r6");
+            register u32 address PIN("r0");
+            register OamData* paBase PIN("r1");
+            register OamData* basePointer PIN("r6");
             inputIndex = stackWords[0];
             indexOffset = inputIndex << 2;
             address = indexOffset;
@@ -1158,11 +1158,11 @@ void DrawCurrentSecondarySprite(u32 index)
         return;
     } else {
         u32 currentSlot;
-        register u16* backgroundPointer asm("r5");
+        register u16* backgroundPointer PIN("r5");
         backgroundPointer = &gBg1YPosition;
         if (spriteId <= SSPRITE_49) {
             u32 background;
-            register u32 lowerBound asm("r1");
+            register u32 lowerBound PIN("r1");
             u32 spriteY;
             u32 offset;
             u32 adjustedY;
@@ -1199,7 +1199,7 @@ void DrawCurrentSecondarySprite(u32 index)
         }
         {
             u32 slotOffset;
-            register OamData* oamBase asm("r2");
+            register OamData* oamBase PIN("r2");
             slotOffset = currentSlot << 3;
             oamBase = gOamBuffer;
             destination = (u16*)(slotOffset + (u32)oamBase);
@@ -1207,7 +1207,7 @@ void DrawCurrentSecondarySprite(u32 index)
         xOffset = (u16)((sprite->xPosition >> 2) - (gBg1XPosition >> 2));
         affine = sprite->status & 2;
         if (count != 0) {
-            register OamData* oam asm("r4");
+            register OamData* oam PIN("r4");
             {
                 u32 indexMask;
                 u32 indexValue;
@@ -1229,7 +1229,7 @@ void DrawCurrentSecondarySprite(u32 index)
                 {
                     u32 adjustedX;
                     u32 xWork;
-                    register u32 mask asm("r0");
+                    register u32 mask PIN("r0");
                     xWork = xOffset;
                     adjustedX = attr + xWork;
                     mask = 0x1FF;
@@ -1273,10 +1273,10 @@ void DrawCurrentSecondarySprite(u32 index)
         return;
     }
     {
-        register u32 inputIndex asm("r1");
-        register u32 indexOffset asm("r2");
-        register u32 address asm("r0");
-        register OamData* basePointer asm("r6");
+        register u32 inputIndex PIN("r1");
+        register u32 indexOffset PIN("r2");
+        register u32 address PIN("r0");
+        register OamData* basePointer PIN("r6");
         inputIndex = stackWords[0];
         indexOffset = inputIndex << 2;
         address = indexOffset;

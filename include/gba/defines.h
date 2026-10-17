@@ -13,6 +13,14 @@
 
 #define ALIGNED(n) __attribute__((aligned(n)))
 
+// Pins a local to a register so agbcc allocates it as the original did.
+// Portable builds drop the pin and let the compiler choose.
+#ifdef PORTABLE
+#define PIN(reg)
+#else
+#define PIN(reg) asm(reg)
+#endif
+
 #define SOUND_INFO_PTR (*(struct SoundInfo **)0x3007FF0)
 #define INTR_CHECK     (*(u16 *)0x3007FF8)
 #define INTR_VECTOR    (*(void **)0x3007FFC)

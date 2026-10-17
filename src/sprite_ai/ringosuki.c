@@ -37,9 +37,9 @@ void StartRingosukiIdle(void)
 void RingosukiIdle(void)
 {
     u32 nearby;
-    register u8 collision asm("r2");
+    register u8 collision PIN("r2");
     u8 extent;
-    register u8 *collisionPointer asm("r5");
+    register u8 *collisionPointer PIN("r5");
     register u8 *extentPointer;
     u16 xPosition;
     u16 maskedX;
@@ -223,8 +223,8 @@ void StartRingosukiThrowApple(void)
 void RingosukiThrowApple(void)
 {
     struct PrimarySpriteData *ringosuki;
-    register u32 oldTimer asm("r0");
-    register u32 newTimer asm("r1");
+    register u32 oldTimer PIN("r0");
+    register u32 newTimer PIN("r1");
     u32 shifted;
     u8 remainingTimer;
     register u8 *throwTimer;
@@ -507,7 +507,7 @@ void StartRingosukiTumbleLeft(void)
 void StartRingosukiDefeat(void)
 {
     register u8 *workPointer;
-    register struct PrimarySpriteData *sprite asm("r2");
+    register struct PrimarySpriteData *sprite PIN("r2");
     u8 collision;
 
     workPointer = (u8 *)&gCurrentSprite;

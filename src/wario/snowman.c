@@ -39,8 +39,8 @@ u8 SnowmanWarioFallingWithSnow(void)
 u8 SnowmanWarioWalking(void)
 {
     struct WarioData* wario;
-    register u32 held asm("r3");
-    register u32 direction asm("r2");
+    register u32 held PIN("r3");
+    register u32 direction PIN("r2");
     u32 common;
 
     wario = &gWarioData;
@@ -85,8 +85,8 @@ u8 SnowmanWarioWalking(void)
     }
 
     {
-        register struct WarioData* animationWario asm("r2");
-        register const struct WarioAnimationFrame* animation asm("r3");
+        register struct WarioData* animationWario PIN("r2");
+        register const struct WarioAnimationFrame* animation PIN("r3");
 
         animationWario = wario;
         animation = sSnowmanWarioWalkingAnimation;
@@ -133,9 +133,9 @@ u8 SnowmanWarioFalling(void)
 {
     const u16* heldPointer;
     struct WarioData* wario;
-    register u16 held asm("r2");
-    register u16 direction asm("r1");
-    register u16 common asm("r3");
+    register u16 held PIN("r2");
+    register u16 direction PIN("r1");
+    register u16 common PIN("r3");
 
     heldPointer = &gButtonsHeld;
     wario = &gWarioData;
@@ -388,7 +388,7 @@ void UpdateSnowmanWarioMovement(void)
     {
         struct WarioCollisionData* collision;
         const u8* properties;
-        register const u8* property asm("r1");
+        register const u8* property PIN("r1");
         u32 offset;
 
         collision = &gWarioCollisionData;
@@ -454,7 +454,7 @@ void ProcessSnowmanWarioCollision(void)
         struct WarioCollisionData* collision;
         const u8* properties;
         struct WarioData* wario;
-        register const u8* property asm("r1");
+        register const u8* property PIN("r1");
         u32 offset;
 
         collision = &gWarioCollisionData;

@@ -36,9 +36,9 @@ u8 BouncyWarioUnknown1(void)
 u8 BouncyWarioJumping(void)
 {
     struct WarioData* movementWario;
-    register u16 held asm("r2");
-    register u16 direction asm("r1");
-    register u16 common asm("r4");
+    register u16 held PIN("r2");
+    register u16 direction PIN("r1");
+    register u16 common PIN("r4");
 
     if (gWarioData.pose == WPOSE_BOUNCY_TRANSFORMING_2) {
         if (gWarioData.unk_0C > 299)
@@ -67,7 +67,7 @@ u8 BouncyWarioJumping(void)
         else
             movementWario->xVelocity = -32;
     } else {
-        register u32 temp asm("r0");
+        register u32 temp PIN("r0");
 
         direction ^= 0x30;
         temp = direction & held;
@@ -229,9 +229,9 @@ void UpdateBouncyWarioMovement(void)
     u16 xMovement;
 
     {
-        register struct WarioCollisionData* collision asm("r4");
+        register struct WarioCollisionData* collision PIN("r4");
         const u8* properties;
-        register const u8* property asm("r1");
+        register const u8* property PIN("r1");
         u32 offset;
 
         collision = &gWarioCollisionData;
@@ -268,7 +268,7 @@ void UpdateBouncyWarioMovement(void)
         }
     }
     {
-        register struct WarioData* wario2 asm("r2");
+        register struct WarioData* wario2 PIN("r2");
 
         wario2 = wario;
         if (wario2->yVelocity < -128)
@@ -288,7 +288,7 @@ void ProcessBouncyWarioCollision(void)
         struct WarioCollisionData* collision;
         const u8* properties;
         struct WarioData* wario;
-        register const u8* property asm("r1");
+        register const u8* property PIN("r1");
         u32 offset;
 
         collision = &gWarioCollisionData;
@@ -400,7 +400,7 @@ void UpdateBouncyWarioGraphics(u8 variant)
 
     CopyWarioPalette(palette, 0, 16);
     {
-        register const u16* secondPalette asm("r2");
+        register const u16* secondPalette PIN("r2");
 
         secondPalette = sBouncyWarioPalette;
         CopyWarioPalette(secondPalette, 16, 16);

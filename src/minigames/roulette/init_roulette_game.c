@@ -7,12 +7,12 @@ void InitRouletteGame(void)
   int i;
   u8 *firstTileBlock;
   u8 *secondTileBlock;
-  register u8 *thirdTileBlock asm("r9");
-  register u8 *postLoopTiles asm("r12");
+  register u8 *thirdTileBlock PIN("r9");
+  register u8 *postLoopTiles PIN("r12");
   u8 *nextPalette;
   u8 *mainTiles;
   u8 *objectTiles;
-  register u8 *loadTemp asm("r6");
+  register u8 *loadTemp PIN("r6");
   {
     volatile u32 *dmaRegs;
 
@@ -134,9 +134,9 @@ void InitRouletteGame(void)
   }
   ;
   {
-    register int dmaIndex asm("r5");
+    register int dmaIndex PIN("r5");
     int nextIndex;
-    register volatile u32 *dmaRegs asm("r2");
+    register volatile u32 *dmaRegs PIN("r2");
     u32 dmaControl;
     u32 dmaBusyMask;
     u32 tileOffset;
@@ -203,7 +203,7 @@ void InitRouletteGame(void)
   }
 
   {
-    register u8 *postSource asm("r6");
+    register u8 *postSource PIN("r6");
     volatile u32 *dmaRegs;
 
     dmaRegs = (volatile u32 *) 0x040000D4;
@@ -229,7 +229,7 @@ void InitRouletteGame(void)
   }
   ;
   {
-    register u8 *lateTiles asm("r0");
+    register u8 *lateTiles PIN("r0");
     volatile u32 *dmaRegs;
 
     dmaRegs = (volatile u32 *) 0x040000D4;
@@ -255,9 +255,9 @@ void InitRouletteGame(void)
   }
   ;
   {
-    register int zero asm("r4");
-    register u16 *roundOffset asm("r6");
-    register u8 *rouletteState asm("r0");
+    register int zero PIN("r4");
+    register u16 *roundOffset PIN("r6");
+    register u8 *rouletteState PIN("r0");
     volatile u16 *scroll;
     *((volatile u16 *) 0x04000008) = 0x1800;
     *((volatile u16 *) 0x0400000A) = 0x1A01;
@@ -289,12 +289,12 @@ void InitRouletteGame(void)
     gRouletteValueCount = 3;
     {
       int activeZero;
-      register int tileZero asm("r4");
+      register int tileZero PIN("r4");
       u16 angle;
       struct RouletteItem *item;
       int x;
       int y;
-      register int remaining asm("r5");
+      register int remaining PIN("r5");
 
       activeZero = 0;
       /* agbcc proves the cached r4 is already zero and removes this target write. */
@@ -377,25 +377,25 @@ void InitRouletteGame(void)
         *resultOffset = 0;
       }
       {
-        register u16 *clearPtr asm("r6");
+        register u16 *clearPtr PIN("r6");
         clearPtr = (u16 *)postLoopTiles;
         clearPtr[0] = 0;
         clearPtr[1] = 0;
       }
       {
-        register u16 *clearPtr asm("r0");
+        register u16 *clearPtr PIN("r0");
         clearPtr = (u16 *)firstTileBlock;
         clearPtr[0] = 0;
         clearPtr[1] = 0;
       }
       {
-        register u16 *clearPtr asm("r1");
+        register u16 *clearPtr PIN("r1");
         clearPtr = (u16 *)thirdTileBlock;
         clearPtr[0] = 0;
         clearPtr[1] = 0;
       }
       {
-        register u8 *effectFlag asm("r6");
+        register u8 *effectFlag PIN("r6");
         effectFlag = &gMinigameMedalHighlight;
         *effectFlag = 0;
       }
@@ -406,7 +406,7 @@ void InitRouletteGame(void)
       gMinigameState = 0;
       gMinigameSubstate = 0;
       {
-        register u8 *resultState asm("r6");
+        register u8 *resultState PIN("r6");
         resultState = &gMinigameSequenceState;
         *resultState = 0;
       }
@@ -424,7 +424,7 @@ void InitRouletteGame(void)
       *((volatile u16 *) 0x04000050) = 0x240;
       {
         volatile u16 *alphaRegister;
-        register s8 *fadePtr asm("r6");
+        register s8 *fadePtr PIN("r6");
         s32 fadeValue;
 
         alphaRegister = (volatile u16 *)0x04000052;

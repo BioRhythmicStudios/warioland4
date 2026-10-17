@@ -16,8 +16,8 @@ void func_803AB4C(void)
     u32 value;
     u32 oldValue;
     u32 zeroHalf;
-    register u32 zeroByte asm("r2");
-    register u8 *field asm("r1");
+    register u32 zeroByte PIN("r2");
+    register u8 *field PIN("r1");
     u8 *otherField;
 
     gUnk_3000A62 = 90;
@@ -416,8 +416,8 @@ void func_803B13C(void)
 
 void func_803B164(void)
 {
-    register struct PrimarySpriteData *current asm("r4");
-    register const struct AnimationFrame *oam asm("r5");
+    register struct PrimarySpriteData *current PIN("r4");
+    register const struct AnimationFrame *oam PIN("r5");
     struct PrimarySpriteData *sprite;
     u32 value;
     u32 other;
@@ -466,7 +466,7 @@ void func_803B164(void)
 
 void func_803B1F8(void)
 {
-    register struct PrimarySpriteData *sprite asm("r1");
+    register struct PrimarySpriteData *sprite PIN("r1");
     struct PrimarySpriteData *current;
     u8 *timer;
     u8 *finalTimer;

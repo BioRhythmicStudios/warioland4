@@ -7,9 +7,9 @@
 
 void InitBallLightningSpawner(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
+    register struct PrimarySpriteData* sprite PIN("ip");
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     u8 zero;
     u16 zero16;
     u8* ptr;
@@ -76,7 +76,7 @@ void InitBallLightningBolt(void)
 {
     struct PrimarySpriteData* sprite;
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     u8 zero;
     u16 zero16;
     u8* ptr;
@@ -180,7 +180,7 @@ void BallLightningBoltFall(void)
     if (gBackgroundCollisionData.waterType == 1)
     {
         u16 oldStatus;
-        register u16 status asm("r0");
+        register u16 status PIN("r0");
         u16 underwater;
 
         oldStatus = sprite->status;
@@ -209,7 +209,7 @@ void BallLightningBoltFall(void)
         const s16* table;
         u32 movement;
         s32 signedMovement;
-        register u32 value asm("r0");
+        register u32 value PIN("r0");
 
         /* Preserve the target's immediate-first construction of the work pointer. */
         workPtr = (u8 *)42;
@@ -281,13 +281,13 @@ void BallLightningBoltDisappearing(void)
 
 void InitBallLightningTrail(void)
 {
-    register struct PrimarySpriteData* sprite asm("ip");
+    register struct PrimarySpriteData* sprite PIN("ip");
     u16 oldStatus;
-    register u16 status asm("r0");
+    register u16 status PIN("r0");
     u8 zero;
     u16 zero16;
     u8* drawPtr;
-    register u8 value10 asm("r0");
+    register u8 value10 PIN("r0");
     u8* hitboxPtr;
     u8 value4;
     const struct AnimationFrame* oam;
@@ -335,7 +335,7 @@ void InitBallLightningTrail(void)
     }
     {
         u8 pose;
-        register struct PrimarySpriteData* finalSprite asm("r2");
+        register struct PrimarySpriteData* finalSprite PIN("r2");
         pose = 16;
         finalSprite = sprite;
         finalSprite->pose = pose;
@@ -349,7 +349,7 @@ void BallLightningTrailMove(void)
     struct PrimarySpriteData* initialSprite;
     struct PrimarySpriteData* sprite;
     u8* timerPtr;
-    register u32 value asm("r0");
+    register u32 value PIN("r0");
 
     initialSprite = &gCurrentSprite;
     timerPtr = &initialSprite->work0;
@@ -364,7 +364,7 @@ void BallLightningTrailMove(void)
         u8* savedWorkPtr;
         u32 index;
         const s16* table;
-        register u32 movement asm("r5");
+        register u32 movement PIN("r5");
         s32 signedMovement;
 
         /* Preserve the target's immediate-first construction of the work pointer. */

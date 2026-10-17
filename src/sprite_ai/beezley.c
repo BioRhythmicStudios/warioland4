@@ -35,7 +35,7 @@ s32 func_804012C(void)
 
         {
             struct PrimarySpriteData *sprites;
-            register u32 spriteOffset asm("r0");
+            register u32 spriteOffset PIN("r0");
 
             sprites = gSpriteData;
             spriteOffset = sizeof(*sprite);
@@ -107,7 +107,7 @@ void func_8040238(void)
 
         {
             struct PrimarySpriteData *sprites;
-            register u32 spriteOffset asm("r0");
+            register u32 spriteOffset PIN("r0");
 
             sprites = gSpriteData;
             spriteOffset = sizeof(*sprite);
@@ -369,7 +369,7 @@ void func_80406CC(void)
 void func_8040720(void)
 {
     struct PrimarySpriteData *sprite;
-    register u32 xPosition asm("r0");
+    register u32 xPosition PIN("r0");
 
     if (func_804012C()) {
         gCurrentSprite.pose = 23;
@@ -584,7 +584,7 @@ void func_8040A28(void)
     index = gCurrentSprite.work3;
     movement = sUnk_83C6616[index];
     if (movement == 0x7FFF) {
-        register u32 tableOffset asm("r1");
+        register u32 tableOffset PIN("r1");
         u32 yPosition;
 
         tableOffset = index - 1;
@@ -628,7 +628,7 @@ void func_8040ADC(void)
     index = gCurrentSprite.work3;
     movement = sUnk_83C6616[index];
     if (movement == 0x7FFF) {
-        register u32 tableOffset asm("r1");
+        register u32 tableOffset PIN("r1");
         u32 yPosition;
 
         tableOffset = index - 1;

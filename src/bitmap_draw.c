@@ -57,14 +57,14 @@ void DrawBgLine(s32 x0, s32 y0, s32 x1, s32 y1, s32 color)
     volatile s32 endMajorCoord;
     s32 r0;
     s32 r1;
-    register s32 startMajorCoord asm("r4");
+    register s32 startMajorCoord PIN("r4");
     s32 deltaMajor;
     s32 currentStep;
     s32 startMinorCoord;
-    register s32 maxStep asm("r8");
-    register s32 endMinorCoord asm("r9");
+    register s32 maxStep PIN("r8");
+    register s32 endMinorCoord PIN("r9");
     register s32 temp;
-    register s32 startCoord asm("sl");
+    register s32 startCoord PIN("sl");
 
     startMajorCoord = x0;
     currentStep = y0;
