@@ -8,3 +8,5 @@
 *.h text eol=lf
 # Committed upstream with CRLF; leave it as it is.
 src/wario/normal.c -text
+# lilDavid's MIT licence text, restored byte for byte from lilDavid/warioland4 (CRLF).
+LICENSE -text
