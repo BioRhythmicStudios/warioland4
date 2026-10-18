@@ -94,6 +94,22 @@ ROM) and overflows of the game stack. `port/src/rom.c` loads the ROM (default
 `baserom_us.gba`), checks its size and MD5, and makes it read-only. The game runs as a
 minicoro coroutine on the low stack (`port/src/game_thread.c`).
 
+The game sometimes reads through a pointer it has not set yet, as the GBA lets it: on the
+first frame of the passage map after leaving a stage, `DrawMapScreenSprites` reads animation
+tables from address 0, then a sprite count through the pointer it found there. The GBA reads
+its BIOS's open bus there, the last opcode the BIOS fetched (`0xE3A02004` after the SWI the
+game waits for VBlank with), then the open bus of an unused address. So does the port. Before
+the reporting handler, a second one redirects faults on 32-bit addresses as
+`port/src/gba_memory.c` says. Reads from the BIOS and unused addresses see `0xE3A02004`, and
+writes there are dropped. The mirrors of EWRAM, IWRAM, palette RAM, VRAM and OAM go to that
+memory. `port/src/x86_access.c` finds the register the faulting instruction takes its address
+from. The handler moves it by the difference, runs the instruction with the trap flag set,
+and moves it back. Only loads, stores, arithmetic and compares are redirected, and only when
+that register serves just as the address. Anything else, and faults on the cartridge (such as
+a write to the ROM), are reported as before. On the GBA an unused address returns the CPU's
+prefetch, an opcode near the reading instruction, which the port cannot know. In the one case
+seen, the count it gives is too large and the game draws nothing, as with mGBA's value.
+
 `port/src/bios.c` runs the BIOS calls the game makes:
 - `CPUSet` and `LZ77UnCompVram` follow the hardware, including LZ77's halfword writes,
   which read stale data for a back-reference at distance 1.
@@ -187,20 +203,21 @@ To compare a run with mGBA (0.10 or later, the Qt build):
 2. Make the same dump in mGBA. `port/tools/run_mgba_dump.ps1` does it unattended:
 
        powershell -ExecutionPolicy Bypass -File port/tools/run_mgba_dump.ps1 ^
-           -Mgba C:\path\to\mGBA.exe -Frames N -Out MGBA.bin [-Shots] [-InputScript FILE] [-FromStep S]
+           -Mgba C:\path\to\mGBA.exe -Frames N -Out MGBA.bin [-Shots] [-InputScript FILE] [-FromStep S] [-Save FILE]
 
    It copies the ROM into a new run directory under `%TEMP%` and starts mGBA. It loads
    `port/tools/mgba_dump.lua` through the Scripting window and closes mGBA once the dump is
    written. `-Shots` also saves a screenshot of every frame in the run directory
    (`wl4-N.png` goes with the N-th frame dumped, from 0). `-InputScript` presses keys as
-   `wl4 --input` does, and `-FromStep` starts the dump as `wl4 --from-step` does.
+   `wl4 --input` does, and `-FromStep` starts the dump as `wl4 --from-step` does. `-Save`
+   boots with a save file, for comparing with `wl4 --save` (give wl4 a copy: it writes it).
    `Get-Help port/tools/run_mgba_dump.ps1 -Full` has the details.
 
    To do it by hand, load the ROM and choose Tools > Scripting... > File > Load script...,
-   then pick `port/tools/mgba_dump.lua`. The script erases SRAM, resets the game and writes
-   the dump to `%WL4_DUMP%` (default `%TEMP%\wl4_mgba.bin`). `%WL4_FRAMES%` sets the frame
-   count, `WL4_SHOTS=1` turns the screenshots on, `%WL4_INPUT%` names an input script and
-   `%WL4_FROM_STEP%` sets the first step to dump. It writes `MGBA.bin.done` when finished.
+   then pick `port/tools/mgba_dump.lua`. The script erases SRAM (or loads `%WL4_SAVE%` into
+   it), resets the game and writes the dump to `%WL4_DUMP%` (default `%TEMP%\wl4_mgba.bin`).
+   `%WL4_FRAMES%` sets the frame count, `WL4_SHOTS=1` turns the screenshots on, `%WL4_INPUT%`
+   names an input script and `%WL4_FROM_STEP%` sets the first step to dump. It writes `MGBA.bin.done` when finished.
 3. Run `python port/tools/diff_frames.py PORT.bin MGBA.bin`.
 4. To compare the pictures, run wl4 with `--shots PORT.shots --mgba-colors` and mGBA with
    `-Shots`, then `python port/tools/diff_screens.py PORT.bin PORT.shots MGBA.bin RUN_DIR`.
@@ -225,7 +242,8 @@ out, to compare the rest.
 
 `--selftest` runs the coroutine through yields and 2 MiB of recursion. `--test-bios` runs
 the BIOS unit tests (`port/src/bios_test.c`). These include decoding every LZ77 stream the
-game passes to `LZ77UnCompVram`, and comparing the result with a plain byte decoder.
+game passes to `LZ77UnCompVram`, and comparing the result with a plain byte decoder, and
+reads and writes of the BIOS, unused addresses and mirrors by several kinds of instruction.
 `--test-io` tests the trapped registers on the game coroutine, and times the traps. It covers
 the sound registers too: their masks, a square wave's pitch, length counters, the wave RAM
 banks, and a FIFO fed by DMA. `--fault` and

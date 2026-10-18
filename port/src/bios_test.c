@@ -147,6 +147,35 @@ static void TestGameLz77Streams(void)
     printf("LZ77: %u game streams, %llu bytes decompressed\n", checked, (unsigned long long)total);
 }
 
+// Reads from the BIOS see its open bus (port/src/gba_memory.c), whatever the instruction.
+static void TestOpenBus(void)
+{
+    volatile uint8_t *volatile bios = 0;
+    uintptr_t p = 0, index = 1, out;
+    uint32_t sum = 1;
+
+    Check(bios[4] == 0x04 && bios[7] == 0xE3, "bytes read from the BIOS are its open bus");
+    Check(*(volatile uint16_t *)(bios + 2) == 0xE3A0, "a halfword read from the BIOS is its open bus");
+    Check(*(volatile uint32_t *)(bios + 0x3FFC) == 0xE3A02004, "a word read from the BIOS is its open bus");
+    bios[0x10] = 0;
+    Check(*(volatile uint32_t *)(bios + 0x10) == 0xE3A02004, "writes to the BIOS are dropped");
+    __asm__ volatile("movq (%0), %0" : "+r"(p));
+    Check(p == 0xE3A02004E3A02004ull, "a load into its own address register keeps the loaded value");
+    p = 0;
+    __asm__ volatile("movzbl 6(%1,%2,8), %k0" : "=&r"(out) : "r"(p), "r"(index));
+    Check(out == 0xA0 && p == 0 && index == 1, "a base and index address reads the open bus");
+    __asm__ volatile("addl 8(%1), %0" : "+r"(sum) : "r"(p));
+    Check(sum == 0xE3A02005 && p == 0, "arithmetic on the BIOS reads the open bus");
+
+    Check(*(volatile uint16_t *)(bios + 0xE3A02004) == 0x2004, "unused addresses read as the open bus");
+    *(volatile uint32_t *)(uintptr_t)0x03007FF0 = 0x12345678;
+    Check(*(volatile uint32_t *)(bios + 0x0300FFF0) == 0x12345678, "IWRAM repeats every 32 KiB");
+    *(volatile uint32_t *)(bios + 0x0207FFF0) = 0x9ABCDEF0;
+    Check(*(volatile uint32_t *)(uintptr_t)0x0203FFF0 == 0x9ABCDEF0, "EWRAM repeats every 256 KiB");
+    *(volatile uint32_t *)(uintptr_t)0x03007FF0 = 0;
+    *(volatile uint32_t *)(uintptr_t)0x0203FFF0 = 0;
+}
+
 static int sHaltsDone;
 
 static void HaltThreeTimes(void)
@@ -182,6 +211,7 @@ int PortBiosTest(void)
     TestHalt();
     TestCpuSet();
     TestRuntimeHelpers();
+    TestOpenBus();
     TestLz77Streams();
     TestGameLz77Streams();
     printf(sFailures ? "BIOS tests: %d failed\n" : "BIOS tests passed\n", sFailures);

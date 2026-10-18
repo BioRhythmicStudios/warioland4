@@ -1,5 +1,7 @@
 #include "port/os.h"
 
+#include "port/x86_access.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -163,6 +165,56 @@ int PortOsMapTrappedRegion(uintptr_t address, size_t reserve, size_t size, uint8
     // First in line: these faults are expected, and are resolved before anyone reports them.
     AddVectoredExceptionHandler(1, TrapHandler);
     return 0;
+}
+
+// --- Redirected faults ------------------------------------------------------------------------
+// The handler moves the instruction's address register to where redirect() says and sets the
+// trap flag; the single-step exception that follows moves the register back.
+
+static PortRedirectCallback sRedirect;
+static _Thread_local int sRedirectPending;
+static _Thread_local int sRedirectRegister;
+static _Thread_local int sRedirectReloads;
+static _Thread_local DWORD64 sRedirectDelta;
+
+__attribute__((no_sanitize("address"))) static LONG CALLBACK RedirectHandler(EXCEPTION_POINTERS *info)
+{
+    const EXCEPTION_RECORD *record = info->ExceptionRecord;
+    CONTEXT *context = info->ContextRecord;
+    DWORD64 *registers = &context->Rax;  // RAX, RCX, RDX, RBX, RSP, RBP, RSI, RDI, R8-R15
+
+    if (record->ExceptionCode == EXCEPTION_ACCESS_VIOLATION && record->NumberParameters >= 2) {
+        uintptr_t address = record->ExceptionInformation[1], host;
+        unsigned int scale;
+        int reg;
+
+        if (address > UINT32_MAX || sRedirectPending || sRedirect == NULL)
+            return EXCEPTION_CONTINUE_SEARCH;
+        reg = PortX86AddressRegister((const uint8_t *)context->Rip, &scale, &sRedirectReloads);
+        if (reg < 0 || (host = sRedirect(address)) == 0 || (host - address) % scale != 0)
+            return EXCEPTION_CONTINUE_SEARCH;
+        sRedirectRegister = reg;
+        sRedirectDelta = (DWORD64)(int64_t)((intptr_t)(host - address) / (intptr_t)scale);
+        registers[reg] += sRedirectDelta;
+        sRedirectPending = 1;
+        context->EFlags |= TRAP_FLAG;
+        return EXCEPTION_CONTINUE_EXECUTION;
+    }
+    if (record->ExceptionCode == EXCEPTION_SINGLE_STEP && sRedirectPending) {
+        sRedirectPending = 0;
+        context->EFlags &= ~TRAP_FLAG;
+        if (!sRedirectReloads)
+            registers[sRedirectRegister] -= sRedirectDelta;
+        return EXCEPTION_CONTINUE_EXECUTION;
+    }
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
+void PortOsRedirectFaults(PortRedirectCallback redirect)
+{
+    sRedirect = redirect;
+    // First in line, as the trapped region's handler: these faults are resolved here.
+    AddVectoredExceptionHandler(1, RedirectHandler);
 }
 
 static PortFaultCallback sFaultCallback;

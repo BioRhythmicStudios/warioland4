@@ -45,6 +45,15 @@ typedef void (*PortTrapCallback)(uintptr_t address, int isWrite, uintptr_t pc);
 int PortOsMapTrappedRegion(uintptr_t address, size_t reserve, size_t size, uint8_t **hostView,
                            PortTrapCallback before, PortTrapCallback after);
 
+// Accesses to 32-bit addresses that are not mapped, for the GBA addresses the port does not
+// map (the BIOS, which Windows cannot map, unused addresses and mirrors): redirect(address)
+// returns the host address the access goes to instead, or 0 to let it fault. The faulting
+// instruction runs again with the register its address comes from moved by the difference
+// (port/include/port/x86_access.h); one whose address cannot be moved so faults as before.
+// redirect runs in the exception handler: it must not be instrumented, nor call what is.
+typedef uintptr_t (*PortRedirectCallback)(uintptr_t address);
+void PortOsRedirectFaults(PortRedirectCallback redirect);
+
 // Writes a message to stderr without the C library, for use inside the fault handler. After
 // PortOsShowErrors(1) it also shows the message in a dialog and waits for it to be closed, for
 // windowed runs, which may have no console.

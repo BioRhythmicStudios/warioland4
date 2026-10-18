@@ -5,7 +5,8 @@
 -- VBlank for FRAMES frames, and says in the scripting console when it is done.
 --
 -- mGBA starts the game when it loads the ROM, so by now the game may have written its save.
--- The script erases SRAM before the reset, to boot as the port does: with no save.
+-- The script erases SRAM before the reset, to boot as the port does: with no save. With
+-- WL4_SAVE set to a save file (32 KiB, as wl4 --save writes), it loads that into SRAM instead.
 -- The output goes to %WL4_DUMP% if set, else to %TEMP%\wl4_mgba.bin.
 -- With WL4_SHOTS=1 the script also saves a screenshot of each frame before dumping it. mGBA
 -- saves them next to the ROM, numbered from 0: give it a fresh copy of the ROM in an empty
@@ -26,6 +27,10 @@ local path = os.getenv("WL4_DUMP") or ((os.getenv("TEMP") or ".") .. "\\wl4_mgba
 local shots = os.getenv("WL4_SHOTS") == "1"
 local inputPath = os.getenv("WL4_INPUT")
 local fromStep = tonumber(os.getenv("WL4_FROM_STEP") or "") or 0
+local savePath = os.getenv("WL4_SAVE")
+if savePath == "" then
+    savePath = nil
+end
 
 local MAIN_TIMER = 0x03000C41 -- gMainTimer
 local INTERRUPT_CHECK = 0x03000C42 -- gInterruptCheck
@@ -129,13 +134,14 @@ local function dump()
     end
 end
 
+local save = savePath and assert(io.open(savePath, "rb")):read("a") or ""
 for i = 0, 0x7FFF do
-    emu:write8(0x0E000000 + i, 0xFF)
+    emu:write8(0x0E000000 + i, i < #save and save:byte(i + 1) or 0xFF)
 end
 emu:reset()
 if input then
     emu:setKeys(keysFor(1))
 end
 callback = callbacks:add("frame", dump)
-console:log(string.format("wl4: dumping %d frames to %s%s", FRAMES, path,
-    input and (", with the keys from " .. inputPath) or ""))
+console:log(string.format("wl4: dumping %d frames to %s%s%s", FRAMES, path,
+    input and (", with the keys from " .. inputPath) or "", savePath and (", from the save " .. savePath) or ""))

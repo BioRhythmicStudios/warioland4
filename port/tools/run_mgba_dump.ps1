@@ -13,8 +13,8 @@ mGBA 0.10 has no command-line option to run a script, so this drives its window:
    time out while its modal dialog is open, so the menu item is invoked from another runspace.
 5. Waits until the script has written and closed the dump, then closes mGBA.
 
-The script itself (mgba_dump.lua) erases SRAM, resets the game and dumps memory at the
-start of each VBlank. With -Shots it also saves a screenshot each frame, which mGBA names
+The script itself (mgba_dump.lua) erases SRAM, or with -Save loads a save file into it,
+resets the game and dumps memory at the start of each VBlank. With -Shots it also saves a screenshot each frame, which mGBA names
 wl4-0.png, wl4-1.png, ... in the run directory: wl4-N.png goes with the N-th frame dumped,
 from 0. With -InputScript it presses the script's keys on the same main-loop steps as wl4
 --input does, and with -FromStep it dumps from that step on, as wl4 --from-step does.
@@ -40,6 +40,8 @@ param(
     # Start the dump and screenshots at the frame on which this main-loop step finishes, as
     # wl4 --from-step does. -Frames still counts from the start.
     [int]$FromStep = 0,
+    # A save file to boot with (32 KiB, as wl4 --save writes); without it SRAM is erased.
+    [string]$Save,
     # The US ROM. Defaults to baserom_us.gba in this worktree, else in the main worktree
     # (a worktree's copy may be a WSL symlink, which Windows programs cannot read).
     [string]$Rom,
@@ -178,6 +180,7 @@ $env:WL4_DUMP = $Out
 $env:WL4_SHOTS = if ($Shots) { '1' } else { '' }
 $env:WL4_INPUT = if ($InputScript) { (Resolve-Path -LiteralPath $InputScript).Path } else { '' }
 $env:WL4_FROM_STEP = if ($FromStep) { "$FromStep" } else { '' }
+$env:WL4_SAVE = if ($Save) { (Resolve-Path -LiteralPath $Save).Path } else { '' }
 $done = "$Out.done"
 Remove-Item -LiteralPath $done -ErrorAction SilentlyContinue
 $started = Get-Date

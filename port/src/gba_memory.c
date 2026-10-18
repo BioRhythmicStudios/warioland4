@@ -32,6 +32,59 @@ static const struct Region sRegions[] = {
 // The stack reservation runs from the inaccessible block at the bottom to a block above the top.
 #define STACK_RESERVE_SIZE (PORT_GAME_STACK_TOP + BLOCK - PORT_GAME_STACK_RESERVE_BASE)
 
+// --- Addresses the port does not map --------------------------------------------------------
+// The game reads them only by mistake, through a pointer it has not set yet; the GBA lets it,
+// so the port must too. os.h redirects the faulting accesses as Redirect() says.
+//
+// The BIOS cannot be read from outside it: a read returns the last opcode it fetched (GBATEK,
+// "BIOS Read Protection"). The game runs after the SWI it waits for VBlank with, which leaves
+// the opcode at 0x190 (0x188 + 8). Unused addresses return the CPU's last prefetch, an opcode
+// near the reading instruction, which the port cannot know: it returns the BIOS's opcode
+// there too. Writes to either go nowhere.
+#define OPEN_BUS 0xE3A02004u
+
+// Accesses go to the middle of this, at the address's offset in 16 bytes, and are at most 16
+// bytes long. Refilled before each, which drops what the last one wrote.
+static uint32_t sOpenBus[12];
+
+// Wraps to the start of the region every size bytes.
+#define MIRROR(base, size, address) ((base) + ((address) & ((size) - 1)))
+
+__attribute__((no_sanitize("address"))) static uintptr_t Redirect(uintptr_t address)
+{
+    unsigned int i;
+
+    switch (address >> 24) {
+    case 0x01:
+        if (address >= PORT_GAME_STACK_RESERVE_BASE && address < PORT_GAME_STACK_RESERVE_BASE + STACK_RESERVE_SIZE)
+            return 0;  // the game stack's own faults
+        break;
+    case 0x02:
+        return MIRROR(GBA_EWRAM_BASE, GBA_EWRAM_SIZE, address);
+    case 0x03:
+        return MIRROR(GBA_IWRAM_BASE, GBA_IWRAM_SIZE, address);
+    case 0x04:
+        if (address < GBA_IO_BASE + GBA_IO_SIZE)
+            return 0;  // trapped: a fault here is not the game's
+        break;
+    case 0x05:
+        return MIRROR(GBA_PLTT_BASE, GBA_PLTT_SIZE, address);
+    case 0x06:
+        // 96 KiB in each 128 KiB: the last 32 KiB repeat the 32 KiB before them.
+        address &= 0x1FFFF;
+        return GBA_VRAM_BASE + (address >= GBA_VRAM_SIZE ? address - 0x8000 : address);
+    case 0x07:
+        return MIRROR(GBA_OAM_BASE, GBA_OAM_SIZE, address);
+    case 0x08: case 0x09: case 0x0A: case 0x0B: case 0x0C: case 0x0D: case 0x0E: case 0x0F:
+        return 0;  // the cartridge: a write to the ROM, or a read past its end, is the port's fault
+    default:
+        break;
+    }
+    for (i = 0; i < sizeof(sOpenBus) / sizeof(sOpenBus[0]); i++)
+        ((volatile uint32_t *)sOpenBus)[i] = OPEN_BUS;
+    return (uintptr_t)sOpenBus + 16 + (address & 15);
+}
+
 static int Reserve(const char *name, uintptr_t base, size_t size)
 {
     char what[160];
@@ -74,6 +127,7 @@ int PortReserveGbaMemory(void)
         if (Reserve(r->name, r->base, r->reserve) || Protect(r->name, r->base, ROUND_UP(r->size, PAGE), PORT_READ_WRITE))
             return -1;
     }
+    PortOsRedirectFaults(Redirect);
     // A cartridge with no save yet: erased SRAM reads 0xFF, as in mGBA.
     memset((void *)(uintptr_t)GBA_SRAM_BASE, 0xFF, GBA_SRAM_SIZE);
     return 0;
