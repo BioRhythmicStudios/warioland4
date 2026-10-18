@@ -1,6 +1,6 @@
 # Wario Land 4 PC port plan
 
-Status: decided 2026-10-17. M0 steps 1–9 are done on the `port` branch (see [Where we are](#where-we-are-2026-10-18)). Targets: Windows first, then Linux, then Android.
+Status: decided 2026-10-17. M0 is done on the `port` branch (steps 1–10) (see [Where we are](#where-we-are-2026-10-18)). Targets: Windows first, then Linux, then Android.
 
 ## Summary
 
@@ -170,43 +170,49 @@ The invariant for every change to shared game code: a clean rebuild gives a ROM 
      - Read-only registers are restored after writes.
    - `wl4 --test-io` covers all of this. It passes with and without ASan.
    - A trapped access costs about 4.3 µs, so 1,000 accesses a frame would cost about 4 ms.
-10. **Frame loop and diff runner.** Headless frame loop on the game coroutine, per-frame memory dump, an mGBA Lua dumper, and a diff runner aligned on the game's frame counter that masks the stack. Exit criterion: identical memory through boot and the idle title screen.
+10. **Frame loop and diff runner.** Done (`bf33bab`, with the barrier fix `532af6f`). `wl4 --frames N --dump FILE` runs the game headless; `port/tools/mgba_dump.lua` makes the same dumps in mGBA; `port/tools/diff_frames.py` compares them on main-loop steps. Exit criterion met: memory matches mGBA through boot, the intro and the idle title screen (1,756 steps, port frames 1–1764).
 
 Steps 1–3 change shared code under the byte-identical invariant and can merge back to `decomp-wtf`. Steps 4–10 are port-only. The renderer, mixer, input and save workstreams run alongside. Step 4's source changes are on `decomp-wtf` too (`4d7db63`). Step 7's are byte-identical as well, but they only serve the PC build, so they stay on `port`.
 
 ### Where we are (2026-10-18)
 
-- **Done:** M0 steps 1–9, pushed to `myfork/port`. The game-source changes of steps 1–4 are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`).
-- **Half-finished:** nothing. Step 7 is complete as far as compiling can show, because no game code runs before step 10. The checks are:
-  - `gbaptr_rewrite.py --list` finds 0 targets.
-  - `gbaptr_derived.py --dry-run` finds 0 edits.
-  - `check_signatures.py` finds 0 mismatches.
-  - All layout asserts pass.
+- **Done:** M0 steps 1–10, pushed to `myfork/port`. The game-source changes of steps 1–4 are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`). The barrier fix (`532af6f`) is a game-source change too, byte-identical on the GBA, and is **not yet on `decomp-wtf`**.
+- **Step 10 results:**
+  - Memory matches mGBA, with the masks below, from the first main-loop step to port frame 1764: boot, the intro and the idle title screen (frames 853–1762).
+  - The run is deterministic: two port runs give identical dumps. 3,600 frames take about 0.3 s, with about 14 trapped I/O accesses per frame.
+  - The port's unit tests still pass (`--selftest --test-bios --test-io`).
+- **Bugs found by running the game:**
+  - **Asm barriers carried values.** `ASM_BARRIER(: "=r"(x) : "0"(y))` sets x to y, but portable builds dropped all 677 barriers. That left 33 variables uninitialized, and one sent a DMA to address 0. Portable builds now keep the empty asm statements, which are valid Clang. The 12 that name ARM registers (`"l"`, clobbers `"r0"`–`"r6"`) carry no value and use `ASM_BARRIER_ARM`, which portable builds drop.
+  - **Three barriers output what agbcc had left in a register:** `ASM_BARRIER(: "=r"(x))` with no input. Portable builds set them explicitly, from the GBA disassembly:
+    - `cutscenes.c` `elseOffset` = `gCutsceneBackgroundHorizontalOffset`
+    - `file_select.c` `modePointer` = `&gSubGameMode`
+    - `stage_entry.c` `normalSelectedStage` = `&gStageEntrySelectedStage`
+  - The other 27 output-only barriers just reserve registers; their values are never read. Any new `"=r"`-only barrier needs the same check.
+  - **Clang assumes 16-byte alignment for global arrays of 16 bytes or more.** GBA data at its own addresses isn't aligned like that, so aligned SSE loads fault. Game code is now built with `-mno-sse` (on x86-64).
+  - **Stores to a local that only a DMA reads were dropped or delayed** (`fill = 0; REG_DMA3SAD = (u32)&fill; ...`). Game code is now built with `-fms-volatile`, which gives volatile accesses acquire/release ordering. That's free on x86. On arm64 it costs `ldar`/`stlr`.
+  - The mGBA dump must start from erased SRAM: mGBA runs the game as soon as it loads the ROM. The Lua script erases SRAM before its reset.
+- **Diff masks** (`diff_frames.py`, each with its reason):
+  - the GBA stacks (IWRAM above `gMPlayInfo_7`)
+  - VCOUNT and the DISPSTAT status bits
+  - timer counters
+  - write-only registers (DMA addresses, sound FIFOs, unused BG scroll bits)
+  - mGBA's fixed-destination quirk for the sound FIFO DMA channels
+  - sound engine state: `gSoundInfo`, `gCgbChans`, `gMPlayInfo_*`, and the track arrays at `0x03001A08`–`0x03002C28`, which `linker.ld` leaves unnamed except for a misnamed `gUnk_3002B98`
+  - SOUNDCNT_X channel status
 - **Known gaps:**
-  - Sound is stubbed.
-    - `SoundMainRAM` is copied into IWRAM from the ROM image, so memory matches. The mixer code that runs from that copy belongs to the sound workstream.
-    - 10 asm functions are still weak stubs that stop when called: `SoundMain`, `MPlayMain`, `ply_endtie`, `ply_lfos`, `ply_mod`, `ply_note`, `TrackStop`, `MPlayJumpTableCopy`, `m4aSoundVSync` and `irq_handler`. `CPUSet`, `LZ77UnCompVram` and `umul3232H32` now have native definitions that replace their stubs. `gen_symbols.py` still lists all 13 as stubs, because it only sees the game library.
-    - BIOS call 0x2A (`GetJumpList`, from `MusicPlayerJumpTableCopy`) is not implemented.
-    - `MPlayJumpTableCopy` must write the BIOS's m4a function addresses into `gMPlayJumpTable`, and those addresses must dispatch to native versions.
-  - 300 compiler warnings remain, none involving a GBA pointer or changing the ABI (`check_signatures.py` covers calls):
-    - pointer-type mismatches between native types (`u8 *` vs `u16 *`, a missing `const`)
-    - `u8 **` vs `u16 **` function-pointer parameters
-    - unprototyped calls
-    - pointer signedness
-    - two `GP_SET`s of a GBA address held in an `s32`
-  - Two header pairs still conflict when included together: `save_reset.h`/`save_data_clear.h` and `stage_entry.h`/`boss_door_opening.h`. No source includes both, and the signature check covers their callers. `money_sunflower.h`/`score.h` and `matched_helpers.h`/`normal.h` now agree on the PC.
-  - The "179 static functions" turned out to be asm labels (the ROM header, m4a and libgcc branch targets). No static C function survives in the ELF, and `gen_symbols.py` now warns if one ever does.
-  - `StartLargeLipsKiss` passes its fifth spawn argument explicitly on the PC. The GBA reads it from a stack slot (`stackSlot`) that matching put there. Confirm it against mGBA once sprites run.
-- **Needs approval (skipped while unattended):** the main tree has a `build/verify-step4` directory from verifying step 4 on `decomp-wtf`, which can be deleted.
-  - I/O traps cost about 4.3 µs each. Step 10 will show how many accesses a frame makes. If there are too many, the fix is native fast paths for the hottest `REG_` accesses.
-  - Sound FIFO DMA (special timing) and timer counters have no effects yet; they belong to the sound workstream. The VCOUNT model (half a line per read) is deterministic but not cycle-accurate, so the diff runner must not compare VCOUNT/DISPSTAT.
-- **Next:** step 10, the frame loop and diff runner:
-  - A headless loop resumes the game once per frame and runs the VBlank interrupt (and HBlank DMA) around it.
-  - The loop dumps memory every frame.
-  - An mGBA Lua script makes the same dumps from the real ROM.
-  - A diff runner aligns the two on the game's frame counter and masks the stack.
-  - Exit criterion: identical memory through boot and the idle title screen.
-  - It needs the interrupt handler replaced (`irq_handler` is still an asm stub). It also needs mGBA with Lua scripting installed.
+  - **Game code takes no time.** The first divergence, at port frame 1765, is the title screen handing over to the next scene. A setup that spans several frames on the GBA finishes within one in the port, so frame alignment slips: `gInterruptCheck` differs, and VRAM differs while the setup is still running in mGBA. Next step: let the diff runner resynchronise on game state (e.g. align on `gSubGameMode` changes), or count trapped accesses and BIOS work as time. Interrupts raised while the game runs (by polling VCOUNT) are handled at its next Halt.
+  - **Sound engine.** `SoundMain` is a silent placeholder, so `MPlayMain` and the `ply_` routines never run. `MPlayJumpTableCopy`, `TrackStop`, `m4aSoundVSync`, `SoundMainBTM` and `RealClearChain` are native.
+    - The asm stubs left: `MPlayMain`, `ply_endtie`, `ply_lfos`, `ply_mod`, `ply_note`, `irq_handler`. `irq_handler` is never called; `frame.c` replaces it.
+    - BIOS 0x2A (`GetJumpList`) is still unimplemented and unused so far.
+  - DMA writes the port can't reach are skipped and reported once, with the game's pc. Expect none now.
+  - 295 compiler warnings remain, of the kinds listed before; `check_signatures.py` covers calls.
+  - Two header pairs still conflict: `save_reset.h`/`save_data_clear.h` and `stage_entry.h`/`boss_door_opening.h`. `StartLargeLipsKiss`'s fifth argument still needs confirming against mGBA once sprites run.
+- **Running the mGBA side unattended:** mGBA 0.10.5 has no `--script` option. A PowerShell script in the session scratchpad, `run_mgba_dump.ps1`, did it:
+  - It uses UI Automation to open Tools > Scripting... > File > Load script....
+  - It drives the modal file dialog with Win32 messages; UI Automation calls time out while that dialog is open.
+  - Copy it into `port/tools/` if it is wanted again.
+- **Needs approval:** the main tree has a `build/verify-step4` directory from verifying step 4 on `decomp-wtf`, which can be deleted. Cherry-picking `532af6f` onto `decomp-wtf` also needs approval.
+- **Next:** M1, a pixel-exact title screen on Windows: an SDL3 window, the renderer, input and pacing. Fix the frame-alignment gap first if later scenes need diffing.
 
 ## Later milestones
 
@@ -234,5 +240,6 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 - Fixed reservations failing on some machines (detected, with a clear error). Android is unverified.
 - The coroutine context switch interacting with Windows stack checks or ASan. Checked on Windows x64: stack overflow is reported, and ASan sees the coroutine stack. Linux and Android are still to verify.
 - WL4's m4a variant differing from sa2's mixer.
+- Portable builds keep the asm barriers. One (`score.c`) clobbers `"r8"`, valid on x86-64 but not arm64. `-mno-sse` is x86-only, and arm64 tolerates unaligned NEON loads.
 - The I/O traps depend on the OS. Windows and Linux x86-64 can single-step in-process (the trap flag). Android arm64 cannot, so it would need the faulting store emulated, or native fast paths for every register access.
 - The licence gap above.
