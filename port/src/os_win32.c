@@ -61,6 +61,17 @@ void PortOsWriteError(const char *message)
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), message, (DWORD)strlen(message), &written, NULL);
 }
 
+uintptr_t PortOsExecutableOffset(uintptr_t pc)
+{
+    HMODULE module;
+
+    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                            (LPCSTR)pc, &module)
+        || module != GetModuleHandleA(NULL))
+        return 0;
+    return pc - (uintptr_t)module;
+}
+
 // --- Trapped region ---------------------------------------------------------------------------
 // The game view stays PAGE_NOACCESS. An access faults; the handler calls before(), opens the
 // page, sets the trap flag and lets the instruction run. The single-step exception that
@@ -74,6 +85,7 @@ static PortTrapCallback sTrapBefore, sTrapAfter;
 static _Thread_local int sTrapPending;
 static _Thread_local uintptr_t sTrapAddress;
 static _Thread_local int sTrapWrite;
+static _Thread_local uintptr_t sTrapPc;
 
 // Not instrumented: AddressSanitizer commits its shadow memory from access violations too, and
 // this handler sees them first. An instrumented access here would fault again, endlessly.
@@ -89,7 +101,8 @@ __attribute__((no_sanitize("address"))) static LONG CALLBACK TrapHandler(EXCEPTI
             return EXCEPTION_CONTINUE_SEARCH;
         sTrapAddress = address;
         sTrapWrite = record->ExceptionInformation[0] == 1;
-        sTrapBefore(address, sTrapWrite);
+        sTrapPc = context->Rip;
+        sTrapBefore(address, sTrapWrite, sTrapPc);
         if (!VirtualProtect((void *)sTrapBase, sTrapSize, PAGE_READWRITE, &old))
             return EXCEPTION_CONTINUE_SEARCH;
         sTrapPending = 1;
@@ -100,7 +113,7 @@ __attribute__((no_sanitize("address"))) static LONG CALLBACK TrapHandler(EXCEPTI
         sTrapPending = 0;
         context->EFlags &= ~TRAP_FLAG;
         VirtualProtect((void *)sTrapBase, sTrapSize, PAGE_NOACCESS, &old);
-        sTrapAfter(sTrapAddress, sTrapWrite);
+        sTrapAfter(sTrapAddress, sTrapWrite, sTrapPc);
         return EXCEPTION_CONTINUE_EXECUTION;
     }
     return EXCEPTION_CONTINUE_SEARCH;

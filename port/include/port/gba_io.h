@@ -10,8 +10,8 @@
 //   once and clears the enable bit; VBlank and HBlank transfers run from PortIoVBlank() and
 //   PortIoHBlank(), and repeat if asked to. Sound FIFO (special) transfers are left alone.
 // - IF: writing 1 to a bit clears it.
-// - VCOUNT and DISPSTAT: each read by the game moves the display on by a scanline, so that
-//   loops waiting for a scanline end. The host sets the line with PortIoSetScanline().
+// - VCOUNT and DISPSTAT: each read by the game moves the display on by half a scanline, so
+//   that loops waiting for a scanline end. The host moves it on with PortIoAdvance().
 // - Writes to read-only registers (VCOUNT, DISPSTAT's status bits, KEYINPUT) are undone.
 // The host uses PortIoHost(), which never traps.
 
@@ -41,6 +41,16 @@ void PortIoSetScanline(unsigned int line);
 
 // Sets interrupt request bits in IF.
 void PortIoRaiseInterrupt(uint16_t flags);
+
+// Moves the display on to its next event: the HBlank of the current line, or the start of
+// the next line. Runs the HBlank and VBlank DMA transfers that are due and raises the
+// interrupts that DISPSTAT enables. Returns the events that happened.
+#define PORT_IO_HBLANK_STARTED 1u
+#define PORT_IO_VBLANK_STARTED 2u
+unsigned int PortIoAdvance(void);
+
+// The current scanline (0-227).
+unsigned int PortIoScanline(void);
 
 // Run the enabled DMA transfers timed to the start of VBlank, or to an HBlank.
 void PortIoVBlank(void);

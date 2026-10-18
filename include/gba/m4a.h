@@ -332,7 +332,7 @@ extern char gMaxLines[];
 
 u32 umul3232H32(u32 multiplier, u32 multiplicand);
 void SoundMain(void);
-void SoundMainBTM(void);
+void SoundMainBTM(void *x);
 void TrackStop(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track);
 void MPlayMain(void);
 void RealClearChain(void *x);

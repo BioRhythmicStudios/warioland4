@@ -17,8 +17,8 @@ void CPUSet(const void *src, void *dest, uint32_t control);
 // odd position reads the byte that was there before (GBATEK: "disp=0 is not supported").
 void LZ77UnCompVram(const uint32_t *src, void *dest);
 
-// SYSCALL(n) on the PC. Halt yields from the game coroutine: the host resumes it once per
-// frame, after running the VBlank interrupt. Other calls are reported and stop the game.
+// SYSCALL(n) on the PC. Halt yields from the game coroutine until the frame loop
+// (port/include/port/frame.h) requests an interrupt. Other calls are reported and stop the game.
 void PlatformSyscall(int num);
 
 // For --test-bios: the LZ77 streams the game passes to LZ77UnCompVram, by GBA address.

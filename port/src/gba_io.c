@@ -1,5 +1,6 @@
 #include "port/gba_io.h"
 
+#include <stdio.h>
 #include <string.h>
 
 #include "port/gba_memory.h"
@@ -10,6 +11,11 @@
 
 #define REG_DISPSTAT 0x004
 #define REG_VCOUNT 0x006
+#define REG_SOUND1CNT_X 0x064
+#define REG_SOUND2CNT_H 0x06C
+#define REG_SOUND3CNT_X 0x074
+#define REG_SOUND4CNT_H 0x07C
+#define REG_SOUNDCNT_H 0x082
 #define REG_DMA0SAD 0x0B0
 #define DMA_STRIDE 12
 #define REG_KEYINPUT 0x130
@@ -20,6 +26,13 @@
 #define DISPSTAT_HBLANK 0x0002
 #define DISPSTAT_VCOUNT 0x0004
 #define DISPSTAT_STATUS (DISPSTAT_VBLANK | DISPSTAT_HBLANK | DISPSTAT_VCOUNT)
+#define DISPSTAT_VBLANK_IRQ 0x0008
+#define DISPSTAT_HBLANK_IRQ 0x0010
+#define DISPSTAT_VCOUNT_IRQ 0x0020
+
+#define INTR_VBLANK 0x0001
+#define INTR_HBLANK 0x0002
+#define INTR_VCOUNT 0x0004
 
 #define DMA_DEST_MODE(c) (((c) >> 5) & 3)
 #define DMA_SRC_MODE(c) (((c) >> 7) & 3)
@@ -32,6 +45,7 @@
 #define DMA_AT_HBLANK 2
 
 #define LINES 228
+#define VISIBLE_LINES 160
 #define VBLANK_FIRST_LINE 160
 #define VBLANK_LAST_LINE 226  // DISPSTAT's VBlank flag is clear on the last line
 
@@ -40,6 +54,7 @@ static uint8_t sBefore[PORT_IO_SIZE];  // the registers before the trapped instr
 static unsigned int sLine;
 static int sInHBlank;
 static uint64_t sTraps;
+static uintptr_t sTrapPc;  // the game instruction being trapped
 
 struct DmaChannel {
     int active;
@@ -94,6 +109,41 @@ void PortIoRaiseInterrupt(uint16_t flags)
     PortIoWrite16(REG_IF, PortIoRead16(REG_IF) | flags);
 }
 
+static void DmaRunTimed(int timing);
+
+unsigned int PortIoAdvance(void)
+{
+    uint16_t status = PortIoRead16(REG_DISPSTAT);
+    unsigned int events = 0;
+
+    if (!sInHBlank) {
+        sInHBlank = 1;
+        if (sLine < VISIBLE_LINES)
+            DmaRunTimed(DMA_AT_HBLANK);
+        if (status & DISPSTAT_HBLANK_IRQ)
+            PortIoRaiseInterrupt(INTR_HBLANK);
+        events |= PORT_IO_HBLANK_STARTED;
+    } else {
+        sInHBlank = 0;
+        sLine = (sLine + 1) % LINES;
+        if (sLine == VBLANK_FIRST_LINE) {
+            DmaRunTimed(DMA_AT_VBLANK);
+            if (status & DISPSTAT_VBLANK_IRQ)
+                PortIoRaiseInterrupt(INTR_VBLANK);
+            events |= PORT_IO_VBLANK_STARTED;
+        }
+        if (sLine == (unsigned int)(status >> 8) && (status & DISPSTAT_VCOUNT_IRQ))
+            PortIoRaiseInterrupt(INTR_VCOUNT);
+    }
+    UpdateDisplayStatus();
+    return events;
+}
+
+unsigned int PortIoScanline(void)
+{
+    return sLine;
+}
+
 // --- DMA ------------------------------------------------------------------------------------
 
 // DMA reaches the registers through the host view; everything else is at its GBA address.
@@ -102,6 +152,41 @@ static uintptr_t DmaAddress(uint32_t address)
     if (address - GBA_IO_BASE < PORT_IO_SIZE)
         return (uintptr_t)sIo + (address - GBA_IO_BASE);
     return address;
+}
+
+// Whether DMA can reach an address: RAM, the registers and, for reading, the ROM. The port's
+// game stack stands in for the part of IWRAM that the GBA's stack uses.
+static int DmaReaches(uint32_t address, unsigned int unit, int isWrite)
+{
+    static const struct {
+        uint32_t base, size;
+    } kRam[] = {
+        { GBA_EWRAM_BASE, GBA_EWRAM_SIZE }, { GBA_IWRAM_BASE, GBA_IWRAM_SIZE }, { GBA_IO_BASE, PORT_IO_SIZE },
+        { GBA_PLTT_BASE, GBA_PLTT_SIZE },   { GBA_VRAM_BASE, GBA_VRAM_SIZE },   { GBA_OAM_BASE, GBA_OAM_SIZE },
+        { PORT_GAME_STACK_LIMIT, PORT_GAME_STACK_TOP - PORT_GAME_STACK_LIMIT },
+    };
+    unsigned int i;
+
+    for (i = 0; i < sizeof(kRam) / sizeof(kRam[0]); i++)
+        if (address - kRam[i].base <= kRam[i].size - unit)
+            return 1;
+    return !isWrite && address - GBA_ROM_BASE <= GBA_ROM_SIZE - unit;
+}
+
+// The hardware ignores writes to the BIOS and to unmapped addresses, and reads from them give
+// whatever was last on the bus. The port skips such units and reports the first one.
+static void DmaReportOutOfReach(const struct DmaChannel *d, uint32_t address, int isWrite)
+{
+    static int reported;
+
+    if (reported)
+        return;
+    reported = 1;
+    fprintf(stderr,
+            "DMA %s 0x%08X, which it cannot reach, is skipped (source 0x%08X, destination 0x%08X, control "
+            "0x%04X; started by the game at executable+0x%llX). This message is shown once.\n",
+            isWrite ? "write to" : "read from", address, d->src, d->dst, d->control,
+            (unsigned long long)PortOsExecutableOffset(sTrapPc));
 }
 
 static void DmaTransfer(struct DmaChannel *d)
@@ -113,7 +198,11 @@ static void DmaTransfer(struct DmaChannel *d)
     uint32_t i;
 
     for (i = 0; i < d->count; i++) {
-        if (unit == 4)
+        if (!DmaReaches(src, unit, 0))
+            DmaReportOutOfReach(d, src, 0);
+        else if (!DmaReaches(dst, unit, 1))
+            DmaReportOutOfReach(d, dst, 1);
+        else if (unit == 4)
             *(volatile uint32_t *)DmaAddress(dst) = *(const volatile uint32_t *)DmaAddress(src);
         else
             *(volatile uint16_t *)DmaAddress(dst) = *(const volatile uint16_t *)DmaAddress(src);
@@ -192,33 +281,40 @@ static int Touches(unsigned int offset, unsigned int reg, unsigned int size)
     return offset + 3 >= reg && offset < reg + size;
 }
 
-static void BeforeAccess(uintptr_t address, int isWrite)
+static void BeforeAccess(uintptr_t address, int isWrite, uintptr_t pc)
 {
     unsigned int offset = (unsigned int)(address - GBA_IO_BASE);
 
     sTraps++;
+    sTrapPc = pc;
     if (offset >= PORT_IO_SIZE)
         return;
     if (!isWrite && Touches(offset, REG_DISPSTAT, 4)) {
-        // The game is polling the display: move it on by half a scanline per read.
-        if (sInHBlank)
-            sLine = (sLine + 1) % LINES;
-        sInHBlank = !sInHBlank;
-        UpdateDisplayStatus();
+        // The game is polling the display: move it on by half a scanline per read. An
+        // interrupt this raises waits for the game's next Halt.
+        PortIoAdvance();
     }
     memcpy(sBefore, sIo, PORT_IO_SIZE);
 }
 
-static void AfterAccess(uintptr_t address, int isWrite)
+static void AfterAccess(uintptr_t address, int isWrite, uintptr_t pc)
 {
     unsigned int offset = (unsigned int)(address - GBA_IO_BASE);
     uint16_t value, written;
     int n;
 
+    (void)pc;
+
     if (offset >= PORT_IO_SIZE)
         return;
 
-    // Read-only registers and bits.
+    // Read-only registers and bits, and write-only bits, which read as 0: the sound channels'
+    // restart bits and the sound FIFO resets.
+    PortIoWrite16(REG_SOUND1CNT_X, PortIoRead16(REG_SOUND1CNT_X) & 0x7FFF);
+    PortIoWrite16(REG_SOUND2CNT_H, PortIoRead16(REG_SOUND2CNT_H) & 0x7FFF);
+    PortIoWrite16(REG_SOUND3CNT_X, PortIoRead16(REG_SOUND3CNT_X) & 0x7FFF);
+    PortIoWrite16(REG_SOUND4CNT_H, PortIoRead16(REG_SOUND4CNT_H) & 0x7FFF);
+    PortIoWrite16(REG_SOUNDCNT_H, PortIoRead16(REG_SOUNDCNT_H) & ~0x8800);
     PortIoWrite16(REG_VCOUNT, Before16(REG_VCOUNT));
     PortIoWrite16(REG_KEYINPUT, Before16(REG_KEYINPUT));
     value = PortIoRead16(REG_DISPSTAT);
@@ -255,7 +351,16 @@ int PortIoMap(void)
 {
     if (PortOsMapTrappedRegion(GBA_IO_BASE, TRAP_RESERVE, TRAP_PAGE, &sIo, BeforeAccess, AfterAccess))
         return -1;
+    // The state the BIOS leaves when it starts the game.
+    PortIoWrite16(0x000, 0x0080);  // DISPCNT: forced blank
+    PortIoWrite16(0x020, 0x0100);  // BG2PA and BG2PD: the identity transform
+    PortIoWrite16(0x026, 0x0100);
+    PortIoWrite16(0x030, 0x0100);  // BG3PA and BG3PD
+    PortIoWrite16(0x036, 0x0100);
+    PortIoWrite16(0x088, 0x0200);  // SOUNDBIAS
+    PortIoWrite16(0x134, 0x8000);  // RCNT
     PortIoWrite16(REG_KEYINPUT, 0x03FF);  // no buttons pressed
+    PortIoWrite16(0x300, 0x0001);  // POSTFLG: past the boot
     PortIoSetScanline(0);
     return 0;
 }

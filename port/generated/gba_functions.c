@@ -47,6 +47,8 @@ void func_800101C(void);
 void func_8001038(void);
 void umul3232H32(void);
 void SoundMain(void);
+void SoundMainBTM(void);
+void RealClearChain(void);
 void MPlayJumpTableCopy(void);
 void m4aSoundVSync(void);
 void MPlayMain(void);
@@ -4085,6 +4087,8 @@ const struct GbaFunction gGbaFunctions[] = {
     { 0x08001038, (PortFunc)func_8001038, "func_8001038" },
     { 0x08001060, (PortFunc)umul3232H32, "umul3232H32" },
     { 0x08001070, (PortFunc)SoundMain, "SoundMain" },
+    { 0x08001498, (PortFunc)SoundMainBTM, "SoundMainBTM" },
+    { 0x080014B0, (PortFunc)RealClearChain, "RealClearChain" },
     { 0x08001500, (PortFunc)MPlayJumpTableCopy, "MPlayJumpTableCopy" },
     { 0x080016C4, (PortFunc)m4aSoundVSync, "m4aSoundVSync" },
     { 0x08001710, (PortFunc)MPlayMain, "MPlayMain" },

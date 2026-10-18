@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "port/frame.h"
 #include "port/game_thread.h"
 
 #define SYSCALL_HALT 2
@@ -105,9 +106,8 @@ void LZ77UnCompVram(const uint32_t *src, void *dest)
 void PlatformSyscall(int num)
 {
     if (num == SYSCALL_HALT && PortOnGameThread()) {
-        // Halt sleeps until the next interrupt. The game halts in a loop until its VBlank
-        // handler has run, so one yield per halt is one frame.
-        PortGameThreadYield();
+        // Halt sleeps until an enabled interrupt is requested, and the handler runs.
+        PortFrameHalt();
         return;
     }
     fprintf(stderr, "BIOS call 0x%02X is not implemented%s\n", num,

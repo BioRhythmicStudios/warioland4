@@ -33,6 +33,16 @@ target_compile_options(wl4_game_flags INTERFACE
     -funsigned-char -fno-strict-aliasing -fwrapv -fno-delete-null-pointer-checks
     # GCC bitfield layout, as agbcc uses, instead of the Microsoft layout mingw defaults to.
     -mno-ms-bitfields
+    # The game's data sits at its GBA addresses, which are aligned to 4 bytes at most. Clang
+    # takes every global array of 16 bytes or more to be 16-byte aligned, and copies them
+    # with aligned SSE loads, which fault. No SSE in game code, then (it has no float maths
+    # beyond a few casts, which x87 does).
+    $<$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},x86_64>:-mno-sse>
+    # Game code starts DMA by writing the registers, often to copy a local variable it has just
+    # set: `fill = 0; REG_DMA3SAD = (u32)&fill; ... REG_DMA3CNT = ...;`. Clang would drop or
+    # delay the store to the local, which only the transfer reads. Acquire/release semantics
+    # for volatile accesses keep every store before the register write that starts a DMA.
+    -fms-volatile
     -Werror=return-type -Werror=implicit-function-declaration
     # Pointer type mismatches and int/pointer conversions are fixed by the GbaPtr conversion.
     -Wno-error=incompatible-pointer-types -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion
@@ -55,6 +65,11 @@ target_compile_options(wl4_layout_checks PRIVATE -w)
 
 add_library(wl4_platform_stub STATIC port/platform/stub/platform_stub.c)
 
+# Native replacements for game asm that need the game's headers. An object library, so that
+# its definitions are always linked and replace the weak stubs in port/generated/gba_stubs.c.
+add_library(wl4_game_native OBJECT port/src/m4a_native.c)
+target_link_libraries(wl4_game_native PRIVATE wl4_game_flags)
+
 # The port runtime and the executable. port/generated/gba_*.{c,s} come from
 # port/tools/gen_symbols.py: GBA addresses for the game's data, the function dispatch table,
 # and stubs for the functions that are still asm.
@@ -63,6 +78,7 @@ add_executable(wl4
     port/src/game_thread.c
     port/src/bios.c
     port/src/bios_test.c
+    port/src/frame.c
     port/src/gba_functions.c
     port/src/gba_io.c
     port/src/gba_memory.c
@@ -75,6 +91,7 @@ add_executable(wl4
     port/generated/gba_functions.c
     port/generated/gba_stubs.c
     port/generated/lz77_sources.c
+    $<TARGET_OBJECTS:wl4_game_native>
 )
 target_include_directories(wl4 PRIVATE port/include port/third_party/minicoro)
 # gba_functions.c declares every game function as void(void) to take its address.

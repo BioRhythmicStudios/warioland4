@@ -74,6 +74,8 @@ int PortReserveGbaMemory(void)
         if (Reserve(r->name, r->base, r->reserve) || Protect(r->name, r->base, ROUND_UP(r->size, PAGE), PORT_READ_WRITE))
             return -1;
     }
+    // A cartridge with no save yet: erased SRAM reads 0xFF, as in mGBA.
+    memset((void *)(uintptr_t)GBA_SRAM_BASE, 0xFF, GBA_SRAM_SIZE);
     return 0;
 }
 
@@ -106,17 +108,25 @@ const char *PortGbaRegionName(uintptr_t address)
     return NULL;
 }
 
-// Appends ", in or after <game function>+0x<offset> (GBA 0x<address>)" for a native pc.
+// Appends " (executable+0x<offset>), in or after <game function>+0x<offset> (GBA 0x<address>)"
+// for a native pc. The game function is the nearest one below the pc in the dispatch table;
+// llvm-symbolizer on the executable offset gives the exact function.
 static void AppendGameFunction(char *message, size_t size, uintptr_t pc)
 {
     const struct GbaFunction *f = PortGbaFunctionBelow(pc);
+    uintptr_t offset = PortOsExecutableOffset(pc);
     size_t len = strlen(message);
 
-    if (f == NULL || len == 0 || len >= size)
+    if (len == 0 || len >= size)
         return;
     len--;  // overwrite the newline
-    snprintf(message + len, size - len, ", in or after %s+0x%llX (GBA 0x%08X)\n", f->name,
-             (unsigned long long)(pc - (uintptr_t)f->func), f->gbaAddress);
+    if (offset != 0 && len < size)
+        len += snprintf(message + len, size - len, " (executable+0x%llX)", (unsigned long long)offset);
+    if (f != NULL && len < size)
+        len += snprintf(message + len, size - len, ", in or after %s+0x%llX (GBA 0x%08X)", f->name,
+                        (unsigned long long)(pc - (uintptr_t)f->func), f->gbaAddress);
+    if (len < size)
+        snprintf(message + len, size - len, "\n");
 }
 
 static void ReportFault(enum PortFaultKind kind, uintptr_t address, uintptr_t pc, uintptr_t sp)
@@ -138,6 +148,9 @@ static void ReportFault(enum PortFaultKind kind, uintptr_t address, uintptr_t pc
                  kind == PORT_FAULT_WRITE && address >= GBA_ROM_BASE && address < GBA_ROM_BASE + GBA_ROM_SIZE
                      ? ", read-only"
                      : "",
+                 (void *)pc);
+    } else if (PortGbaFunctionBelow(pc) != NULL) {
+        snprintf(message, sizeof(message), "Memory fault: %s %p at pc %p\n", kAccess[kind], (void *)address,
                  (void *)pc);
     } else {
         return;

@@ -67,7 +67,7 @@ because it needs agbcc and libclang (`pip install libclang`).
 
 ## Runtime
 
-`wl4.exe [ROM] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+`wl4.exe [ROM] [--frames N [--dump FILE]] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
 
 At startup, `port/src/gba_memory.c` reserves the GBA regions at their real addresses
 (`port/include/port/gba_memory.h`). It also reserves the game stack at `0x01020000`â€“`0x01810000`,
@@ -80,11 +80,12 @@ minicoro coroutine on the low stack (`port/src/game_thread.c`).
 `port/src/bios.c` runs the BIOS calls the game makes:
 - `CPUSet` and `LZ77UnCompVram` follow the hardware, including LZ77's halfword writes,
   which read stale data for a back-reference at distance 1.
-- `Halt` yields from the game coroutine. The game halts in a loop until its VBlank handler
-  has run, so the host resumes it once per frame.
+- `Halt` yields from the game coroutine until the frame loop requests an interrupt.
 - Any other call is reported and stops the game.
 
 `port/src/gba_runtime.c` has the libgcc division helpers and m4a's `umul3232H32`.
+`port/src/m4a_native.c` has the small m4a asm routines the game calls directly. `SoundMain` is a
+silent placeholder, so music players never advance.
 
 The game reaches the I/O registers through the `REG_` macros, structs, and addresses it
 computes at run time. So instead of changing the game code, the port traps every access
@@ -101,8 +102,29 @@ to the register page:
   - **IF.** Writing 1 to a bit clears it.
   - **VCOUNT and DISPSTAT.** These advance by half a line per read, so loops that wait for
     a scanline end. The host sets the line with `PortIoSetScanline()`.
-  - **Read-only registers.** Writes to them are undone.
+  - **Read-only registers.** Writes to them are undone. Write-only bits read as 0.
 - A trapped access costs about 4 µs.
+
+`--frames N` runs the game headless for N frames (`port/src/frame.c`):
+- The game runs until it halts, as it does once a frame while it waits for VBlank.
+- While it is halted, the host moves the display on one HBlank or line at a time: it runs
+  timed DMA and raises the interrupts that DISPSTAT enables.
+- When IE enables a requested interrupt, the game resumes. Halt then runs a native copy of
+  `irq_handler`, which calls the game's callbacks.
+- Game code takes no time. A scene setup that takes the GBA several frames finishes in one.
+
+`--dump FILE` writes GBA memory (EWRAM, IWRAM, I/O, palette, VRAM, OAM, SRAM) at the start of
+every VBlank.
+
+To compare a run with mGBA (0.10 or later):
+1. Load the ROM in mGBA. Choose Tools > Scripting... > File > Load script... and pick
+   `port/tools/mgba_dump.lua`. The script erases SRAM, resets the game and writes the same
+   format to `%WL4_DUMP%` (default `%TEMP%\wl4_mgba.bin`). `%WL4_FRAMES%` sets the frame count.
+2. Run `python port/tools/diff_frames.py PORT.bin MGBA.bin`.
+
+The diff runner compares only the frames on which the game's main loop ran (`gMainTimer`
+changed), so boot time does not matter. It masks state the port does not model, each mask with
+its reason: stacks, VCOUNT/DISPSTAT status, timers, write-only registers and sound engine state.
 
 `--selftest` runs the coroutine through yields and 2 MiB of recursion. `--test-bios` runs
 the BIOS unit tests (`port/src/bios_test.c`). These include decoding every LZ77 stream the

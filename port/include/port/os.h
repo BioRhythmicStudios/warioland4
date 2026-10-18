@@ -40,11 +40,15 @@ void PortOsInstallFaultHandler(PortFaultCallback callback);
 // traps). Each access by any thread first calls before(), then runs the instruction with the
 // page open, then calls after(). The host reads and writes the same memory freely through
 // *hostView. Returns 0 on success.
-typedef void (*PortTrapCallback)(uintptr_t address, int isWrite);
+// pc is the address of the trapped instruction.
+typedef void (*PortTrapCallback)(uintptr_t address, int isWrite, uintptr_t pc);
 int PortOsMapTrappedRegion(uintptr_t address, size_t reserve, size_t size, uint8_t **hostView,
                            PortTrapCallback before, PortTrapCallback after);
 
 // Writes a message to stderr without the C library, for use inside the fault handler.
 void PortOsWriteError(const char *message);
+
+// The offset of a code address in the executable, for llvm-symbolizer; 0 if it is elsewhere.
+uintptr_t PortOsExecutableOffset(uintptr_t pc);
 
 #endif  // GUARD_PORT_OS_H

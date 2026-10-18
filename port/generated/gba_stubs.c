@@ -7,7 +7,9 @@ __attribute__((weak)) void CPUSet(void) { PortMissingFunction("CPUSet", 0x080032
 __attribute__((weak)) void LZ77UnCompVram(void) { PortMissingFunction("LZ77UnCompVram", 0x08003224); }
 __attribute__((weak)) void MPlayJumpTableCopy(void) { PortMissingFunction("MPlayJumpTableCopy", 0x08001500); }
 __attribute__((weak)) void MPlayMain(void) { PortMissingFunction("MPlayMain", 0x08001710); }
+__attribute__((weak)) void RealClearChain(void) { PortMissingFunction("RealClearChain", 0x080014B0); }
 __attribute__((weak)) void SoundMain(void) { PortMissingFunction("SoundMain", 0x08001070); }
+__attribute__((weak)) void SoundMainBTM(void) { PortMissingFunction("SoundMainBTM", 0x08001498); }
 __attribute__((weak)) void TrackStop(void) { PortMissingFunction("TrackStop", 0x08001978); }
 __attribute__((weak)) void irq_handler(void) { PortMissingFunction("irq_handler", 0x080000FC); }
 __attribute__((weak)) void m4aSoundVSync(void) { PortMissingFunction("m4aSoundVSync", 0x080016C4); }

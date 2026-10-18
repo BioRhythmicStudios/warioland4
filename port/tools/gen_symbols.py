@@ -28,6 +28,9 @@ import sys
 OUT = pathlib.Path('port/generated')
 # GBA functions that game code declares as data, so they get absolute symbols too.
 FUNCTIONS_USED_AS_DATA = {'SoundMainRAM'}
+# Asm functions that no game code names, but that ROM data points to (m4a's
+# sMPlayJumpTableTemplate). They need dispatch entries, so they get stubs too.
+REACHED_THROUGH_ROM_DATA = {'SoundMainBTM', 'RealClearChain'}
 # GBA library functions that the PC runtime supplies.
 NATIVE_RUNTIME = {'memcpy', 'memset', '__divsi3', '__modsi3', '__udivsi3', '__umodsi3'}
 VALID_NAME = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*$')
@@ -112,8 +115,8 @@ def main():
     # Functions: native ones go in the dispatch table, missing ones get stubs.
     functions = sorted((addr, name) for name, (addr, kind) in ((n, s) for n, s in elf.items() if s)
                        if is_function(kind) and defined.get(name) == 'T')
-    stubs = sorted(n for n in unresolved if n in elf and elf[n] and is_function(elf[n][1])
-                   and n not in NATIVE_RUNTIME and n not in FUNCTIONS_USED_AS_DATA)
+    stubs = sorted((set(unresolved) | REACHED_THROUGH_ROM_DATA) - set(defined) - NATIVE_RUNTIME - FUNCTIONS_USED_AS_DATA)
+    stubs = [n for n in stubs if n in elf and elf[n] and is_function(elf[n][1])]
     # The stubs dispatch too: game code stores pointers to asm functions in GBA memory.
     functions = sorted(functions + [(elf[n][0], n) for n in stubs])
     missing = sorted(n for n in unresolved if n not in elf and n not in NATIVE_RUNTIME)

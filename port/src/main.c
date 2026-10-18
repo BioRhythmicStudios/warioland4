@@ -1,8 +1,11 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "port/bios.h"
+#include "port/frame.h"
 #include "port/game_thread.h"
 #include "port/gba_io.h"
 #include "port/gba_functions.h"
@@ -12,8 +15,10 @@
 static void Usage(void)
 {
     fprintf(stderr,
-            "usage: wl4 [ROM] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
-            "  ROM defaults to baserom_us.gba in the current directory.\n");
+            "usage: wl4 [ROM] [--frames N [--dump FILE]] [--selftest] [--test-bios] [--test-io]\n"
+            "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
+            "  ROM defaults to baserom_us.gba in the current directory.\n"
+            "  --frames N runs the game headless for N frames; --dump writes GBA memory after each.\n");
 }
 
 // --- Self-test of the game coroutine -------------------------------------------------------
@@ -108,9 +113,59 @@ static void AsanProbeEntry(void)
     buffer[index] = 1;  // one past the end: AddressSanitizer must report this on the game stack
 }
 
+// --- Running the game -----------------------------------------------------------------------
+
+void AgbMain(void);
+void irq_handler(void);
+
+// What crt0's _start does after setting up the stacks: it points the interrupt vector at
+// irq_handler in the ROM, calls AgbMain, and starts again if AgbMain returns.
+static void GameEntry(void)
+{
+    for (;;) {
+        *(volatile uint32_t *)(uintptr_t)0x03007FFC = PortNativeFunctionToGba(irq_handler) & ~1u;
+        AgbMain();
+    }
+}
+
+static int RunGame(unsigned int frames, const char *dumpPath)
+{
+    FILE *dump = NULL;
+    clock_t start = clock();
+    double seconds;
+
+    if (dumpPath != NULL && (dump = fopen(dumpPath, "wb")) == NULL) {
+        perror(dumpPath);
+        return 1;
+    }
+    if (PortFrameStart(GameEntry))
+        return 1;
+    while (PortFrameCount() < frames) {
+        if (!PortFrameRun()) {
+            printf("The game stopped after %u frames\n", PortFrameCount());
+            break;
+        }
+        if (dump != NULL && PortFrameDump(dump)) {
+            perror(dumpPath);
+            return 1;
+        }
+    }
+    if (dump != NULL && fclose(dump) != 0) {
+        perror(dumpPath);
+        return 1;
+    }
+    seconds = (double)(clock() - start) / CLOCKS_PER_SEC;
+    printf("%u frames in %.2f s (%.0f fps); %.0f trapped I/O accesses per frame\n", PortFrameCount(), seconds,
+           seconds > 0 ? PortFrameCount() / seconds : 0.0,
+           PortFrameCount() ? (double)PortIoTrapCount() / PortFrameCount() : 0.0);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     const char *romPath = "baserom_us.gba";
+    const char *dumpPath = NULL;
+    unsigned int frames = 0;
     int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
     int i;
 
@@ -128,6 +183,10 @@ int main(int argc, char **argv)
             ioTest = 1;
         else if (strcmp(argv[i], "--asan-probe") == 0)
             asanProbe = 1;
+        else if (strcmp(argv[i], "--frames") == 0 && i + 1 < argc)
+            frames = (unsigned int)strtoul(argv[++i], NULL, 10);
+        else if (strcmp(argv[i], "--dump") == 0 && i + 1 < argc)
+            dumpPath = argv[++i];
         else if (strcmp(argv[i], "--fault") == 0 && i + 1 < argc)
             sFault = argv[++i];
         else if (argv[i][0] == '-') {
@@ -158,5 +217,7 @@ int main(int argc, char **argv)
         printf("no fault happened\n");
         return 1;
     }
+    if (frames)
+        return RunGame(frames, dumpPath);
     return 0;
 }
