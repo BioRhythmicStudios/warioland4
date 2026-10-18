@@ -1,0 +1,48 @@
+# New game, Normal: extend the Hall baseline through the platforms into room 11.
+500 START   # skip the intro
+501 -
+700 START   # at the title
+701 -
+1100 A      # file A
+1101 -
+1200 A      # Normal
+1201 -
+4400 A      # Entry Passage
+4401 -
+4700 A      # Hall of Hieroglyphs
+4701 -
+5300 RIGHT
+5400 RIGHT+A
+5420 RIGHT
+5500 -
+5520 LEFT
+5600 LEFT+A
+5620 LEFT
+5700 -
+5720 RIGHT+B
+5760 RIGHT
+5900 DOWN
+5930 -
+6000 RIGHT+A
+6030 RIGHT
+6300 LEFT+A
+6330 LEFT
+6500 -
+
+# Walk to the platforms at the east end of room 0.
+6800 RIGHT
+7200 RIGHT+A
+7230 RIGHT
+7600 -
+# Jump up the platforms, then cross into room 11 at finished step 8094.
+7800 A
+7825 -
+7880 A
+7905 -
+7960 A
+7985 -
+8040 RIGHT+A
+8065 RIGHT
+8300 -
+# Compare native 8500 frames against mGBA 8600 frames, both from step 7800.
+# All 690 native steps match memory (--mask-sound) and pictures (--mgba-colors).
