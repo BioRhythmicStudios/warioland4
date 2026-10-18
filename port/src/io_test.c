@@ -5,6 +5,8 @@
 #include <string.h>
 
 #include "port/audio.h"
+#include "port/frame.h"
+#include "port/gba_functions.h"
 #include "port/game_thread.h"
 #include "port/x86_access.h"
 
@@ -297,6 +299,64 @@ static void IoTestEntry(void)
     TestSpeed();
 }
 
+// Frog Switch regression: an IRQ reads VCOUNT as a snapshot, not as a scanline wait.
+extern uint32_t gHBlankCallback, gVBlankCallback;
+extern uint16_t gHBlankCallbackTrampoline[];
+extern volatile uint16_t gInterruptCheck;
+static unsigned int sHBlankCalls;
+
+static void ReadDisplayInHBlank(void)
+{
+    unsigned int line = PortIoScanline();
+    uint16_t count = IO16(0x06);
+    uint16_t status = IO16(0x04);
+    Check(count == line && PortIoScanline() == line && (status & 2),
+          "HBlank VCOUNT/DISPSTAT reads preserve the current display event");
+    // Keep the regression finite even when display reads erroneously generate more IRQs.
+    if (++sHBlankCalls > 1000) {
+        PortIoWrite16(0x200, 1);
+        PortIoWrite16(0x04, 8);
+    }
+}
+
+static void DisplayInterruptEntry(void)
+{
+    *(uint32_t *)(uintptr_t)0x03007FFC = 0x080000FC;
+    PortSetRamFunction((uint32_t)(uintptr_t)gHBlankCallbackTrampoline, ReadDisplayInHBlank);
+    gHBlankCallback = (uint32_t)(uintptr_t)gHBlankCallbackTrampoline | 1;
+    gVBlankCallback = 0;
+    PortIoWrite16(0x202, 0);
+    PortIoWrite16(0x200, 3);
+    PortIoWrite16(0x208, 1);
+    PortIoWrite16(0x04, 0x18);
+    for (;;) {
+        PortFrameHalt();
+    }
+}
+
+static void TestDisplayInterrupts(void)
+{
+    unsigned int i;
+    sHBlankCalls = 0;
+    PortIoSetScanline(0);
+    if (PortFrameStart(DisplayInterruptEntry)) {
+        Check(0, "create display IRQ regression coroutine");
+        return;
+    }
+    for (i = 0; i < 3; i++) {
+        Check(PortFrameRun(), "frame loop continues with HBlank display reads");
+        Check(PortIoScanline() == 160, "host observes VBlank despite HBlank display reads");
+        if (i) {
+            Check(gInterruptCheck == 1, "VBlank wakes the game after HBlank display reads");
+        }
+    }
+    Check(sHBlankCalls == 616, "one HBlank callback per line through three VBlanks");
+    PortIoWrite16(0x200, 0);
+    PortIoWrite16(0x208, 0);
+    PortIoWrite16(0x04, 0);
+    gHBlankCallback = 0;
+}
+
 int PortIoTest(void)
 {
     sFailures = 0;
@@ -304,6 +364,7 @@ int PortIoTest(void)
         return 1;
     while (PortGameThreadResume())
         ;
+    TestDisplayInterrupts();
     printf(sFailures ? "I/O tests: %d failed\n" : "I/O tests passed\n", sFailures);
     return sFailures != 0;
 }

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "port/audio.h"
+#include "port/frame.h"
 #include "port/gba_memory.h"
 #include "port/os.h"
 #include "port/x86_access.h"
@@ -405,9 +406,10 @@ static void BeforeAccess(uintptr_t address, int isWrite, uintptr_t pc)
     sTrapPc = pc;
     if (offset >= PORT_IO_SIZE)
         return;
-    if (!isWrite && Touches(offset, REG_DISPSTAT, 4)) {
-        // The game is polling the display: move it on by half a scanline per read. An
-        // interrupt this raises waits for the game's next Halt.
+    if (!isWrite && Touches(offset, REG_DISPSTAT, 4) && !PortFrameInInterrupt()) {
+        // Advance ordinary display polls so scanline waits finish. IRQ callbacks instead
+        // read the event being handled. Advancing there can consume VBlank inside an HBlank
+        // callback, whose IF acknowledgement then clears it before the main loop wakes.
         PortIoAdvance();
     }
     memcpy(sBefore, sIo, PORT_IO_SIZE);

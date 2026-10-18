@@ -31,6 +31,9 @@ unsigned int PortFrameSteps(void);
 // BIOS Halt, on the game coroutine.
 void PortFrameHalt(void);
 
+// Interrupt callbacks observe the current display event; their register reads are not polls.
+int PortFrameInInterrupt(void);
+
 // Appends GBA memory to a frame dump: a struct PortFrameDumpHeader, then EWRAM, IWRAM, the
 // I/O registers, palette RAM, VRAM, OAM and SRAM. port/tools/mgba_dump.lua writes the same
 // format from mGBA, for port/tools/diff_frames.py. Returns nonzero on a write error.

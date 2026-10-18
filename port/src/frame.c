@@ -43,6 +43,7 @@ static void (*const kInterruptTable[])(void) = {
     InterruptCallbackEmpty,       // keypad
 };
 
+static int sInInterrupt;
 static int sStarted;
 static int sWake;  // an enabled interrupt is requested: the halted game should resume
 static unsigned int sFrames;
@@ -84,8 +85,15 @@ static void HandleInterrupts(void)
             ;
         flag = n < 12 ? (uint16_t)(1u << n) : requested & INTR_KEYPAD;
         PortIoWrite16(REG_IF, PortIoRead16(REG_IF) & ~flag);  // strh to IF: writing 1 clears
+        sInInterrupt = 1;
         kInterruptTable[n]();
+        sInInterrupt = 0;
     }
+}
+
+int PortFrameInInterrupt(void)
+{
+    return sInInterrupt;
 }
 
 void PortFrameHalt(void)
