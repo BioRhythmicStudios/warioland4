@@ -1,6 +1,6 @@
 # Wario Land 4 PC port plan
 
-Status: decided 2026-10-17. M0 steps 1–6 are done on the `port` branch (see [Where we are](#where-we-are-2026-10-17)). Targets: Windows first, then Linux, then Android.
+Status: decided 2026-10-17. M0 steps 1–7 are done on the `port` branch (see [Where we are](#where-we-are-2026-10-18)). Targets: Windows first, then Linux, then Android.
 
 ## Summary
 
@@ -37,7 +37,7 @@ Lesson: the hard part of a 64-bit port is ROM data that stores 4-byte pointers. 
 
 - **Block.** The GBA regions are reserved at their real addresses: EWRAM `0x02000000`, IWRAM `0x03000000`, I/O, palette, VRAM, OAM, ROM `0x08000000` and SRAM `0x0E000000`. That's about 8.5 MB committed, with unmapped gaps that fault so stray addresses are caught. The ROM pages are read-only. If a reservation fails, the port stops with a clear error.
 - **Translation.** It is always written as `base + addr`, through `GBA_PTR()`/`GBA_ADDR()` accessors and the hardware-address macros, with `base = 0`.
-- **Pointers in game memory.** These use `typedef struct { u32 a; } GbaPtr;`. A distinct type means every missed use is a compile error. Function pointers in game memory keep their original Thumb address and are called through a table generated from the ELF symbols (GBA address → native function).
+- **Pointers in game memory.** These are `GBA_PTR(T *)` and `GBA_FUNC_PTR(F)` (`include/gba/gba_ptr.h`). On the PC each is a packed 4-byte union `{ u32 a; T t_[0]; }` that keeps the pointee type, read with `GP()`/`GF()` and written with `GP_SET()`/`GF_SET()`. On the GBA they expand to the original types and expressions. A distinct type means every missed use is a compile error. Function pointers in game memory keep their original Thumb address and are called through a table generated from the ELF symbols (GBA address → native function).
 - **Every data object lives at its GBA address.** RAM globals, linker-placed globals, blob labels, and all C-defined ROM data (including the tables in `src/data/` and the game sources) resolve to their GBA address in the block or ROM image, through absolute symbols generated from the ELF (`port/generated/gba_symbols.s`). The executable defines no game data. The only exception is native function-pointer tables, which are code, not assets. This also keeps pointer equality consistent between data read from the ROM image and symbols referenced directly.
 - **Casts are left alone.** The ~6,200 pointer↔integer casts and ~1,100 constant hardware-address casts are lossless while `base = 0` and every native address the game touches stays below `0x80000000` (some loops compare addresses as `s32`). If a platform ever forces a different base, those sites need fixing. That's the known cost of this route, not a surprise.
 - **Rejected: a 32-bit scaffold.** Android has no x86-32 build, the migration would be the same edits later, and about 1–2 weeks of 32-bit-only work would be thrown away.
@@ -128,7 +128,7 @@ The invariant for every change to shared game code: a clean rebuild gives a ROM 
    - Missing includes and prototypes.
    - `RETURN_NO_VALUE()` for 7 non-void functions that return nothing.
 
-   The layout asserts check 73 pointer-free records against agbcc now. 42 records with pointers wait for GbaPtr (`PORT_CHECK_POINTER_LAYOUTS`). The PC build needs no extracted assets.
+   The layout asserts check 73 pointer-free records against agbcc now. 42 records with pointers waited for GbaPtr. Since step 7, all of them are checked except the unused `FlashSetupInfo`. The PC build needs no extracted assets.
 5. **Symbol generator.** Done (`50b45d8`). `port/tools/gen_symbols.py` turns the playtest ELF into three things:
    - 8,649 absolute data symbols, including the linker constants.
    - A dispatch table of 4,022 functions.
@@ -141,28 +141,50 @@ The invariant for every change to shared game code: a clean rebuild gives a ROM 
    - Put the game coroutine on the low stack.
 
    The coroutine passes its self-test with and without ASan (including fake stacks).
-7. **GbaPtr conversion.** 119 fields and 92 tables (about 1.9k sites), plus the `m4a.c` and `sram.c` function-address paths replaced under `PORTABLE`.
+7. **GbaPtr conversion.** Done (`2d5f8f2` to `06431ec`). Every commit was verified byte-identical for the GBA.
+   - `GBA_PTR`/`GBA_FUNC_PTR` with the `GP`/`GP_SET`/`GF`/`GF_SET` accessors, plus `GBA_TYPEOF`/`GBA_AS` to name the union types on the PC (`include/gba/gba_ptr.h`).
+   - Struct pointer fields, globals and pointer tables in game memory (`port/tools/gbaptr_rewrite.py`, now 0 targets left). Locals and casts that walk pointer tables (`port/tools/gbaptr_derived.py`, now 0 edits left).
+   - Hand fixes:
+     - `SOUND_INFO_PTR` and `INTR_VECTOR`.
+     - `irq_handler`'s IWRAM copy, taken from the ROM image.
+     - `gMPlayJumpTable`, now in IWRAM.
+     - `SoundInfo.plynote`.
+     - `sram.c`'s code-on-stack calls, which the PC build makes directly.
+     - The colour-blend table, which spans two arrays.
+     - `sSecondarySpriteAITable`.
+   - Calls through mismatched signatures. `port/tools/check_signatures.py` compares every declaration and direct call, including calls through cast function types, with the definition in LLVM IR, and ignores bits that the callee or caller masks off. It found 19 functions. They are fixed under `PORTABLE` (`GBA_CALL_AS` for the casts), and none are left. `snowman.c`'s `CheckWarioPointCollision(u8, u16, void *)` is harmless, because the definition masks the arguments.
+   - Layout asserts cover 147 records, including 33 structs defined in game sources (`port/generated/layout_checks/`, compiled but never linked).
+   - The dispatch table now includes the asm stubs and every function's name. Fault reports name the nearest game function.
 8. **BIOS.** `CpuSet` and `LZ77UnCompVram` (unit-tested on every compressed blob). `Halt` becomes `Platform_WaitVBlank()`, which yields from the game coroutine.
 9. **DMA and I/O.** DMA macros become immediate copies, and DMA register writes made through structs trigger the transfer. HBlank/VBlank-timed transfers are queued. VCOUNT and DISPSTAT are maintained.
 10. **Frame loop and diff runner.** Headless frame loop on the game coroutine, per-frame memory dump, an mGBA Lua dumper, and a diff runner aligned on the game's frame counter that masks the stack. Exit criterion: identical memory through boot and the idle title screen.
 
-Steps 1–3 change shared code under the byte-identical invariant and can merge back to `decomp-wtf`. Steps 4–10 are port-only. The renderer, mixer, input and save workstreams run alongside. Step 4's source changes are byte-identical too, but so far they are only on `port`.
+Steps 1–3 change shared code under the byte-identical invariant and can merge back to `decomp-wtf`. Steps 4–10 are port-only. The renderer, mixer, input and save workstreams run alongside. Step 4's source changes are on `decomp-wtf` too (`4d7db63`). Step 7's are byte-identical as well, but they only serve the PC build, so they stay on `port`.
 
-### Where we are (2026-10-17)
+### Where we are (2026-10-18)
 
-- **Done:** M0 steps 1–6, pushed to `myfork/port`. Steps 1–3 are also on `myfork/decomp-wtf`.
-- **Half-finished:** nothing in progress. Known gaps, all for step 7 or later:
-  - 179 `static` GBA functions have no native symbol, so a ROM function pointer to one cannot be dispatched yet.
-  - Structs defined inside `.c` files (23 files) have no layout asserts.
-  - The fault handler prints a native pc, not a game function name.
-- **Next:** step 7, the GbaPtr conversion. It must also cover what steps 4–5 turned up:
-  - `sColorBlendFunctionTable` in `color_fading.c` is indexed with a 4-byte stride through `(u32)table`, across two separately defined arrays.
-  - Some declarations differ from their definitions, and on x86-64 the difference matters:
-    - `wario/matched_helpers.h` declares the u8 `ResolveWario*Collision` functions as returning `s32`.
-    - `snowman.c` declares `CheckWarioPointCollision(u8, u16, void *)`.
-    - Four header pairs conflict with each other: `save_reset.h`/`save_data_clear.h`, `money_sunflower.h`/`score.h`, `stage_entry.h`/`boss_door_opening.h`, and `matched_helpers.h`/`normal.h`.
-  - `irq_handler` is copied as data by `InitHelpers`, and `SoundMainRAM` is copied to RAM. Both paths need platform replacements.
-  - 302 compiler warnings remain (pointer-type mismatches and int↔pointer conversions). The 7k cast warnings are hidden unless `WL4_CAST_WARNINGS=ON`.
+- **Done:** M0 steps 1–7, pushed to `myfork/port`. The game-source changes of steps 1–4 are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`).
+- **Half-finished:** nothing. Step 7 is complete as far as compiling can show, because no game code runs before steps 8–10. The checks are:
+  - `gbaptr_rewrite.py --list` finds 0 targets.
+  - `gbaptr_derived.py --dry-run` finds 0 edits.
+  - `check_signatures.py` finds 0 mismatches.
+  - All layout asserts pass.
+- **Known gaps:**
+  - Sound is stubbed.
+    - `SoundMainRAM` is copied into IWRAM from the ROM image, so memory matches. The mixer code that runs from that copy belongs to the sound workstream.
+    - The 13 asm functions are weak stubs that stop when called: `SoundMain`, `MPlayMain`, `ply_*`, `TrackStop`, `MPlayJumpTableCopy`, `m4aSoundVSync`, `umul3232H32`, `irq_handler`, `CPUSet` and `LZ77UnCompVram`.
+    - `MPlayJumpTableCopy` must write the BIOS's m4a function addresses into `gMPlayJumpTable`, and those addresses must dispatch to native versions.
+  - 300 compiler warnings remain, none involving a GBA pointer or changing the ABI (`check_signatures.py` covers calls):
+    - pointer-type mismatches between native types (`u8 *` vs `u16 *`, a missing `const`)
+    - `u8 **` vs `u16 **` function-pointer parameters
+    - unprototyped calls
+    - pointer signedness
+    - two `GP_SET`s of a GBA address held in an `s32`
+  - Two header pairs still conflict when included together: `save_reset.h`/`save_data_clear.h` and `stage_entry.h`/`boss_door_opening.h`. No source includes both, and the signature check covers their callers. `money_sunflower.h`/`score.h` and `matched_helpers.h`/`normal.h` now agree on the PC.
+  - The "179 static functions" turned out to be asm labels (the ROM header, m4a and libgcc branch targets). No static C function survives in the ELF, and `gen_symbols.py` now warns if one ever does.
+  - `StartLargeLipsKiss` passes its fifth spawn argument explicitly on the PC. The GBA reads it from a stack slot (`stackSlot`) that matching put there. Confirm it against mGBA once sprites run.
+- **Needs approval (skipped while unattended):** the main tree has a `build/verify-step4` directory from verifying step 4 on `decomp-wtf`, which can be deleted.
+- **Next:** step 8, the BIOS. Implement `CpuSet` and `LZ77UnCompVram` with unit tests over every compressed blob, and make `Halt` into `Platform_WaitVBlank()`, which yields from the game coroutine.
 
 ## Later milestones
 
