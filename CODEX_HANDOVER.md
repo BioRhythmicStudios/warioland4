@@ -4,6 +4,60 @@ The working rules are in `AGENTS.md`, so read that first. The full plan and its 
 in `docs/PC_PORT_PLAN.md`; its "Where we are" section is the most detailed status. Each
 runtime piece is documented in `port/README.md`.
 
+## M3 paused by the user (2026-10-18; read this before the older M2 notes)
+
+- **Do not resume playtesting until the user asks.** All test processes were finished when paused. No new long run or rebuild was started for the pause. Latest implementation commit: `6a0a186`, following `feb6eb4`. The pause documentation is a separate commit.
+- **Completed fix:** `src/wario/swimming.c`, two `PORTABLE` pointer additions in `ResolveWarioWaterSurfaceCollision`. The old unsigned-negation pointer subtraction produced `FFFFFFFF082DEB70` instead of `082DEB70` on x86-64. Both original GBA expressions remain in `#else` branches. Normal and ASan reproduced the fault before the fix and pass afterward. Generated symbols were regenerated and have no content changes.
+- **GBA identity:** fresh `build/v7-21`, `v7-22` and `v7-23` all printed `ROM-SAME` and `OBJ-SAME`, MD5 `940b597bef3be3f4041021b47a2f4096`. `v7-23` is the latest, after diagnostic removal. The next fresh directory is `build/v7-24`. As before, `make check` itself fails the base-ROM checksum because unmatched functions remain.
+- **`src/block.c`:** only our temporary stdio include and conditional `printf` were removed, by exact edits. The file now has **no Git diff**. No backup was restored over it. `block-probe.log` and `block-before-probe.c` remain under the ignored artifact directory; do not copy the backup over future work.
+
+### Routes and exact pause positions
+
+- `port/tools/inputs/hall_room11.keys` and `hall_of_hieroglyphs.keys` are unchanged.
+- **Committed continuation:** `port/tools/inputs/hall_room6_entry.keys`, exactly the tested `build/m3-hall-exit/route-room5.keys` inputs with comments added. It preserves every room-11 input and reaches room 6, `(184, 463.75)`, standing, after 25,200 native frames. Two jewel pieces (NE and SE) have been collected. Frog Switch and level exit have **not** been reached.
+- **Preferred native checkpoint, not committed:** `build/m3-hall-exit/hall_room6_middle.keys`. This freezes the successful route through the rock throw, ladder and middle platform. At 31,000 native frames: room 6, `(312, 319.75)`, normal reaction, standing (pose 2), carrying nothing. Its capture is `climb6.bin` / `climb6.shots`, screenshot `climb6-31000.png`. It drops the rock at step 30,400, jumps with A+Up at 30,420 and climbs to the platform; the ladder ends there. A second rock is at `(408, 320)`; the lower rock is at `(281.25, 432)`. This climb is native-verified; its mGBA comparison remains pending.
+- **Farthest native probe, not committed:** `build/m3-hall-exit/hall_room6_upper_probe.keys` (frozen copy of `route-climb.keys`). At 33,400 frames: room 6, `(343.5, 191.75)`, crouching (pose 5), carrying nothing, stopped against brown blocks in the low upper passage. Capture: `climb10.bin` / `.shots`, screenshot `climb10-33400.png`. The right platforms can be climbed after dropping the heavy rock. No new collision code bug has been established here.
+- **Next movement to investigate:** use the preferred middle checkpoint, inspect/pick up the second rock, and investigate an upward-left throw toward the brown upper-passage blocks near `(304..320, 176)`. This is a route hypothesis, **not verified**. Carrying a rock prevents ladder grabs and reduces jump height; charged throws can bounce off solid ceiling. Earlier probes repeatedly confused those normal behaviors with input failures. Continue toward the other jewel pieces, CD, Keyzer, Frog Switch and exit only after the gate is solved.
+- `route-carry-stairs.keys` is an unsuccessful alternative: the heavy rock prevented a higher jump and that probe returned to room 5. Do not use it as the preferred checkpoint.
+
+### Verification and limitations
+
+All comparisons below use finished main-loop steps and existing masks; memory comparisons add `--mask-sound`, pictures use `--mgba-colors`. No masks or renderer behavior changed.
+
+| Existing capture | Native / mGBA frames; first step | Memory result | Pictures |
+|---|---|---|---|
+| `a3.bin`, `a3-mgba.bin` | 10700 / 10900; 8500 | 2190 steps identical | Three score-digit timing frames, 6-8 pixels each |
+| `c6-full-native.bin`, `c6-mgba.bin` | 15600 / 15800; 10700 | 4890 identical | All identical |
+| `e2-fixed.bin`, `e2-mgba.bin` | 19000 / 19200; 18100 | 890 identical, through former crash | All identical |
+| `normal-full.bin`, `normal-mgba.bin` | 21100 / 21300; 19000 | 2090 identical, unsuccessful passage probe | All identical |
+| `next-full.bin`, `next-mgba.bin` | 21900 / 22100; 19000 | 2890 identical, successful room-5 crossing | All identical |
+| `room5-full.bin`, `room5-mgba.bin` | 25200 / 25400; 21900 | 3290 identical, through room-6 entry | Two score-digit timing frames |
+| `throw7.bin`, tail of `throw-mgba.bin` | 27300 / 27500; native 26700, mGBA 25200 | Last 590 native steps identical (skip first 1500 reference steps), absolute 26700-27289 | Not compared yet |
+
+- **Last matching absolute gameplay step:** 27,289 in the rock-throw window, using existing dumps only during pause. Native-only exploration extends to step 33,389. These are separate windows, **not a continuous full-playthrough verification**. Gaps between capture windows have not been claimed as matching. Both diff tools zip streams and stop at the shorter side; always report counts and allow extra mGBA frames.
+- The known vortex remains separate: native frame 4994 / mGBA 5046, top lines 0-68. It was documented before this continuation.
+- New score-digit picture timing: `a3` local steps 526, 532, 552 (native frames 9036, 9042, 9062); `room5` local steps 519 and 1919 (native 22429, 23829), affecting 11 and 41 pixels there. Every differing mGBA pixel matches the previous native frame's pixel. `UploadStageScoreDigitTiles` performs immediate DMA during a game step. This supports a mid-render upload timing explanation; these differences were not hidden with new masks. Diagnostic scripts: `hud_check.py`, `hud_room5_check.py`.
+- **Collision conclusion:** the later room-4 block/ceiling behavior matches mGBA, not a second pointer defect. The apparent map mismatch compared two different route states: a dash had already destroyed the blue block in one. Standing jump/dash, low ceiling, carrying and input-facing rules account for the failed probes. The genuine pointer defect was the earlier water-surface crash and is fixed.
+- Normal and ASan coroutine, BIOS and I/O tests pass. Both run 21,100 frames of `route-normal.keys` without faults. `normal-test.wav` and `asan-test.wav` are byte-identical (SHA256 `c2c66e77c6b2c9a1d818daf19e15fb963d752c9b379da96bb63f49e1ce70a2de`). Their 32 KiB saves match each other and final mGBA SRAM (SHA256 `2476ee2e3f5e7fcb2f1d20ead2cdb18a6868d27cf791029da1e5ac0ae9bf50ee`). A saved-boot rerun and sound-state lag replay were not added this session.
+
+### Preserved artifacts and resume commands (PowerShell)
+
+Everything is under ignored `build/m3-hall-exit/`; nothing was deleted. `ARTIFACTS.txt` inventories files. Keep the original scripts, all PNGs, `.bin` memory dumps, `.shots`, WAVs, saves, before-fix crash dumps, `block-probe.log`, `playtest.log`, inspection/sweep helpers and frozen checkpoints. `c6-diffs/` and `bc-diffs/` came from incorrectly paired exploratory diagnostics; their apparent differences are **invalid**, superseded by the continuous aligned captures above. The scripts and assets in this directory are local artifacts, not Git content. Prior-session artifacts remain in `build/m3-handover-20261018/`.
+
+After the user explicitly resumes, reproduce the preferred checkpoint into **new** output files:
+
+```powershell
+$rom = 'C:/Users/Benny/Decomp/warioland4-2/baserom_us.gba'
+$mgba = 'C:/Users/Benny/Downloads/mGBA-0.10.5-win32/mGBA-0.10.5-win32/mGBA.exe'
+& build_pc/wl4.exe $rom --frames 31000 --input build/m3-hall-exit/hall_room6_middle.keys --from-step 30400 --dump build/m3-hall-exit/resume-middle-port.bin --shots build/m3-hall-exit/resume-middle-port.shots --mgba-colors
+powershell -ExecutionPolicy Bypass -File port/tools/run_mgba_dump.ps1 -Mgba $mgba -Rom $rom -Frames 31300 -FromStep 30400 -InputScript build/m3-hall-exit/hall_room6_middle.keys -Out build/m3-hall-exit/resume-middle-mgba.bin -Shots -RunRoot C:/Users/Benny/Decomp/warioland4-port/build/m3-hall-exit
+python port/tools/diff_frames.py build/m3-hall-exit/resume-middle-port.bin build/m3-hall-exit/resume-middle-mgba.bin --mask-sound
+# Use the actual run directory printed by the mGBA command:
+python port/tools/diff_screens.py build/m3-hall-exit/resume-middle-port.bin build/m3-hall-exit/resume-middle-port.shots build/m3-hall-exit/resume-middle-mgba.bin PRINTED_RUN_DIRECTORY --list
+```
+
+Expected native checkpoint coverage is 590 steps, absolute 30400-30989. After comparing it, copy the checkpoint to a **new** input script and append movement after step 31000. Replaying it from SRAM alone will not restore a mid-level position: these scripts boot and replay the whole route. If testing `--save`, always use fresh copies; the native run writes the save. Existing build/toolchain commands below remain valid. The next fresh GBA verification, when authorized to resume, is `BUILD=build/v7-24` using the documented identity command.
+
 ## Current state
 
 - **Milestones.** M0 (headless boot), M1 (renderer and SDL3 window, pixel-exact with mGBA to
