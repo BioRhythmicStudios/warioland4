@@ -18,14 +18,14 @@
 static void Usage(void)
 {
     fprintf(stderr,
-            "usage: wl4 [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--input FILE]] [--mgba-colors]\n"
+            "usage: wl4 [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE]] [--input FILE] [--mgba-colors]\n"
             "           [--selftest] [--test-bios] [--test-io]\n"
             "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
             "  ROM defaults to baserom_us.gba in the current directory.\n"
             "  With no --frames or tests, the game runs in a window, --scale times 240x160 (default 3).\n"
             "  --frames N runs the game headless for N frames; --dump writes GBA memory after each,\n"
-            "  --shots the picture, and --input reads the keys from a script (port/include/port/input_script.h).\n"
-            "  --mgba-colors blends colours as mGBA does, to compare with it.\n");
+            "  --shots the picture. --input presses keys from a script (port/include/port/input_script.h),\n"
+            "  in the window as well. --mgba-colors blends colours as mGBA does, to compare with it.\n");
 }
 
 // --- Self-test of the game coroutine -------------------------------------------------------
@@ -260,8 +260,10 @@ int main(int argc, char **argv)
     if (selfTest || biosTest || ioTest)
         return 0;
 #ifdef WL4_HAVE_SDL
+    if (inputPath != NULL && PortInputScriptLoad(inputPath))
+        return 1;
     PortPpuReset(colors);
-    return PortSdlRun(GameEntry, scale ? scale : 1);
+    return PortSdlRun(GameEntry, scale ? scale : 1, inputPath != NULL);
 #else
     fprintf(stderr, "This build has no window (it was built without SDL3); use --frames to run headless.\n");
     return 2;

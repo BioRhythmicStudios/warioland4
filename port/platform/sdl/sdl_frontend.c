@@ -10,6 +10,7 @@
 
 #include "port/frame.h"
 #include "port/gba_io.h"
+#include "port/input_script.h"
 #include "port/ppu.h"
 
 #define REG_KEYINPUT 0x130
@@ -103,7 +104,7 @@ static void OpenFirstGamepad(void)
     SDL_free(ids);
 }
 
-int PortSdlRun(void (*entry)(void), unsigned int scale)
+int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted)
 {
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
@@ -138,6 +139,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale)
     while (running) {
         SDL_Event event;
         Uint64 now;
+        uint16_t keys;
 
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -172,7 +174,10 @@ int PortSdlRun(void (*entry)(void), unsigned int scale)
         }
 
         // The game reads the buttons after VBlank, when the frame below resumes it.
-        PortIoWrite16(REG_KEYINPUT, (uint16_t)(~PressedKeys() & KEYS_ALL));
+        keys = PressedKeys();
+        if (scripted)
+            keys |= PortInputScriptKeys(PortFrameSteps() + 1);
+        PortIoWrite16(REG_KEYINPUT, (uint16_t)(~keys & KEYS_ALL));
         if (!PortFrameRun()) {
             fprintf(stderr, "The game stopped after %u frames\n", PortFrameCount());
             break;

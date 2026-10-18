@@ -74,7 +74,7 @@ because it needs agbcc and libclang (`pip install libclang`).
 
 ## Runtime
 
-`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--input FILE]] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE]] [--input FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
 
 With no `--frames` or tests, the game runs in a window (`port/platform/sdl/sdl_frontend.c`), at
 `--scale` times 240x160 (default 3). The window scales in whole steps. The keys are mGBA's
@@ -144,7 +144,8 @@ exactly.
 `--dump FILE` writes GBA memory (EWRAM, IWRAM, I/O, palette, VRAM, OAM, SRAM) at the start of
 every VBlank. `--shots FILE` writes the picture then, as 240x160 RGB bytes after a header.
 `--input FILE` presses keys from a script, by steps of the game's main loop rather than by
-frames, so that mGBA can press the same keys on the same steps. Each line is `STEP KEYS`: from
+frames, so that mGBA can press the same keys on the same steps. In the window, they add to the
+keys you press. Each line is `STEP KEYS`: from
 that step on, the game reads those keys (`START`, `A+RIGHT`, or `-` for none). The format is
 in `port/include/port/input_script.h`. This one goes from the title to file select
 (`port/tools/inputs/file_select.keys` also moves the cursor there):
