@@ -1,6 +1,6 @@
 # Wario Land 4 PC port plan
 
-Status: decided 2026-10-17. M0 steps 1–8 are done on the `port` branch (see [Where we are](#where-we-are-2026-10-18)). Targets: Windows first, then Linux, then Android.
+Status: decided 2026-10-17. M0 steps 1–9 are done on the `port` branch (see [Where we are](#where-we-are-2026-10-18)). Targets: Windows first, then Linux, then Android.
 
 ## Summary
 
@@ -161,15 +161,23 @@ The invariant for every change to shared game code: a clean rebuild gives a ROM 
    - `Halt` yields from the game coroutine, one resume per frame.
    - m4a's `umul3232H32` is in `gba_runtime.c`.
    - `wl4 --test-bios` checks all of these. It also decodes all 50 LZ77 streams the game passes to `LZ77UnCompVram` (630 KB) and compares them with a plain byte decoder. It passes with and without ASan. None of the game's streams hits the distance-1 quirk.
-9. **DMA and I/O.** DMA macros become immediate copies, and DMA register writes made through structs trigger the transfer. HBlank/VBlank-timed transfers are queued. VCOUNT and DISPSTAT are maintained.
+9. **DMA and I/O.** Done (`3933d98`). The game writes the registers through the `REG_` macros, through structs and through about 400 addresses it computes at run time. So instead of changing that code, the port traps every access to the register page:
+   - The page is a section with two views. The game's view at `0x04000000` has no access rights; each access faults, and the handler single-steps the instruction with the page open. The host's view never traps.
+   - `port/src/gba_io.c` gives the registers their effects:
+     - DMA: immediate transfers run at once; VBlank/HBlank transfers are queued for `PortIoVBlank()`/`PortIoHBlank()`, with repeat and destination reload.
+     - IF write-1-to-clear, including `REG_IF |= flag`.
+     - VCOUNT/DISPSTAT advance by half a line per game read, so scanline waits end.
+     - Read-only registers are restored after writes.
+   - `wl4 --test-io` covers all of this. It passes with and without ASan.
+   - A trapped access costs about 4.3 µs, so 1,000 accesses a frame would cost about 4 ms.
 10. **Frame loop and diff runner.** Headless frame loop on the game coroutine, per-frame memory dump, an mGBA Lua dumper, and a diff runner aligned on the game's frame counter that masks the stack. Exit criterion: identical memory through boot and the idle title screen.
 
 Steps 1–3 change shared code under the byte-identical invariant and can merge back to `decomp-wtf`. Steps 4–10 are port-only. The renderer, mixer, input and save workstreams run alongside. Step 4's source changes are on `decomp-wtf` too (`4d7db63`). Step 7's are byte-identical as well, but they only serve the PC build, so they stay on `port`.
 
 ### Where we are (2026-10-18)
 
-- **Done:** M0 steps 1–8, pushed to `myfork/port`. The game-source changes of steps 1–4 are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`).
-- **Half-finished:** nothing. Step 7 is complete as far as compiling can show, because no game code runs before steps 9–10. The checks are:
+- **Done:** M0 steps 1–9, pushed to `myfork/port`. The game-source changes of steps 1–4 are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`).
+- **Half-finished:** nothing. Step 7 is complete as far as compiling can show, because no game code runs before step 10. The checks are:
   - `gbaptr_rewrite.py --list` finds 0 targets.
   - `gbaptr_derived.py --dry-run` finds 0 edits.
   - `check_signatures.py` finds 0 mismatches.
@@ -190,7 +198,15 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
   - The "179 static functions" turned out to be asm labels (the ROM header, m4a and libgcc branch targets). No static C function survives in the ELF, and `gen_symbols.py` now warns if one ever does.
   - `StartLargeLipsKiss` passes its fifth spawn argument explicitly on the PC. The GBA reads it from a stack slot (`stackSlot`) that matching put there. Confirm it against mGBA once sprites run.
 - **Needs approval (skipped while unattended):** the main tree has a `build/verify-step4` directory from verifying step 4 on `decomp-wtf`, which can be deleted.
-- **Next:** step 9, DMA and I/O. The DMA macros become immediate copies, and DMA register writes made through structs trigger the transfer. HBlank- and VBlank-timed transfers are queued. VCOUNT and DISPSTAT are kept up to date.
+  - I/O traps cost about 4.3 µs each. Step 10 will show how many accesses a frame makes. If there are too many, the fix is native fast paths for the hottest `REG_` accesses.
+  - Sound FIFO DMA (special timing) and timer counters have no effects yet; they belong to the sound workstream. The VCOUNT model (half a line per read) is deterministic but not cycle-accurate, so the diff runner must not compare VCOUNT/DISPSTAT.
+- **Next:** step 10, the frame loop and diff runner:
+  - A headless loop resumes the game once per frame and runs the VBlank interrupt (and HBlank DMA) around it.
+  - The loop dumps memory every frame.
+  - An mGBA Lua script makes the same dumps from the real ROM.
+  - A diff runner aligns the two on the game's frame counter and masks the stack.
+  - Exit criterion: identical memory through boot and the idle title screen.
+  - It needs the interrupt handler replaced (`irq_handler` is still an asm stub). It also needs mGBA with Lua scripting installed.
 
 ## Later milestones
 
@@ -218,4 +234,5 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 - Fixed reservations failing on some machines (detected, with a clear error). Android is unverified.
 - The coroutine context switch interacting with Windows stack checks or ASan. Checked on Windows x64: stack overflow is reported, and ASan sees the coroutine stack. Linux and Android are still to verify.
 - WL4's m4a variant differing from sa2's mixer.
+- The I/O traps depend on the OS. Windows and Linux x86-64 can single-step in-process (the trap flag). Android arm64 cannot, so it would need the faulting store emulated, or native fast paths for every register access.
 - The licence gap above.
