@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 """Compare the port's GBA memory with mGBA's, frame by frame.
 
-usage: python port/tools/diff_frames.py PORT.bin MGBA.bin [--align step|frame] [--show N]
+usage: python port/tools/diff_frames.py PORT.bin MGBA.bin [--align idle|step|frame] [--show N]
                                         [--from STEP] [--list] [--no-mask]
 
 PORT.bin comes from wl4 --frames N --dump PORT.bin, MGBA.bin from port/tools/mgba_dump.lua.
 Both hold memory at the start of each VBlank.
 
 Alignment: the two need not reach the game's main loop on the same frame (the port runs
-the boot code in no time). With --align step (the default) only the frames on which the
-game's main loop has run again are compared, n-th with n-th: gMainTimer counts the loops.
+the boot code in no time), and on the GBA one step of the main loop can take more than a
+frame, where the port's take none. With --align idle (the default) the frames compared,
+n-th with n-th, are those on which a step has finished: gMainTimer, which counts the steps,
+has changed, and the loop waits for VBlank (it has cleared bit 0 of gInterruptCheck).
+wl4's PortFrameSteps() counts the same steps. --align step compares the first frame of each
+step instead, finished or not, and --align frame every frame.
 
 Masked by default, because they are not the game's state or the port does not model them:
 - IWRAM above the game's variables: the GBA's stacks. The port's game stack is elsewhere.
 - VCOUNT, DISPSTAT's status bits and the timer counters, which depend on CPU timing.
-- The sound engine's working state and the sound channel status: SoundMain is a silent
+- The sound engine's working state and the sound registers it writes: SoundMain is a silent
   placeholder in the port.
 - Write-only DMA registers, which the game cannot read back.
 
@@ -30,6 +34,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import frame_dump  # noqa: E402
 
 MAIN_TIMER = 0x03000C41  # gMainTimer, a u8 the main loop counts up
+INTERRUPT_CHECK = 0x03000C42  # gInterruptCheck: bit 0 clear while the main loop waits for VBlank
 
 # (start, end, bit mask of the bits to ignore in each byte, reason)
 MASKS = [
@@ -63,6 +68,8 @@ SOUND_MASKS = [
 # inside it), and the sound channel status bits.
 SOUND_RANGES = [
     (0x03001A08, 0x03002C28, 0xFF, 'sound engine state (music player tracks)'),
+    (0x04000060, 0x04000082, 0xFF, 'PSG sound channel registers, which the sound engine writes'),
+    (0x04000090, 0x040000A0, 0xFF, 'wave RAM, which the sound engine writes'),
     (0x04000084, 0x04000085, 0x0F, 'SOUNDCNT_X channel status'),
 ]
 
@@ -90,10 +97,15 @@ def apply_masks(frame, masks):
 
 
 def steps(path, align):
-    """Yields the frames to compare: all of them, or those on which the main loop ran again."""
+    """Yields the frames to compare: all of them, or one for each step of the main loop."""
     previous = 0  # gMainTimer before the first loop
     for frame in frame_dump.frames(path):
         timer = frame.read(MAIN_TIMER, 1)
+        if align == 'idle':
+            if timer != previous and not frame.read(INTERRUPT_CHECK, 1) & 1:
+                yield frame
+                previous = timer
+            continue
         if align == 'frame' or timer != previous:
             yield frame
         previous = timer
@@ -151,7 +163,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     ap.add_argument('port')
     ap.add_argument('mgba')
-    ap.add_argument('--align', choices=['step', 'frame'], default='step')
+    ap.add_argument('--align', choices=['idle', 'step', 'frame'], default='idle')
     ap.add_argument('--show', type=int, default=40, help='differences to print for the first differing frame')
     ap.add_argument('--list', action='store_true', help='summarise every differing frame, not just the first')
     ap.add_argument('--from', dest='start', type=int, default=1, help='first step to compare')

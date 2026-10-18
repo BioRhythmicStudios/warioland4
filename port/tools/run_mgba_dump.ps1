@@ -7,7 +7,7 @@ port/tools/mgba_dump.lua and waits for the dump to finish.
 mGBA 0.10 has no command-line option to run a script, so this drives its window:
 1. Copies the ROM into a new run directory (by default under %TEMP%), so that mGBA
    finds no old save next to it and writes its screenshots there.
-2. Starts mGBA with WL4_FRAMES, WL4_DUMP and WL4_SHOTS set for the script.
+2. Starts mGBA with WL4_FRAMES, WL4_DUMP, WL4_SHOTS and WL4_INPUT set for the script.
 3. Opens Tools > Scripting... and File > Load script... through UI Automation.
 4. Fills in and confirms the file dialog with Win32 messages: UI Automation calls into mGBA
    time out while its modal dialog is open, so the menu item is invoked from another runspace.
@@ -15,7 +15,8 @@ mGBA 0.10 has no command-line option to run a script, so this drives its window:
 
 The script itself (mgba_dump.lua) erases SRAM, resets the game and dumps memory at the
 start of each VBlank. With -Shots it also saves a screenshot each frame, which mGBA names
-wl4-0.png, wl4-1.png, ... in the run directory: wl4-N.png is frame N+1.
+wl4-0.png, wl4-1.png, ... in the run directory: wl4-N.png is frame N+1. With -InputScript
+it presses the script's keys on the same main-loop steps as wl4 --input does.
 
 Tested with mGBA 0.10.5 (Qt, win32) on Windows 11. The mGBA window may be in the
 background; nothing needs the keyboard or mouse.
@@ -33,6 +34,8 @@ param(
     [Parameter(Mandatory = $true)][string]$Out,
     # Also save a screenshot of every frame in the run directory.
     [switch]$Shots,
+    # An input script for the keys, as for wl4 --input (port/include/port/input_script.h).
+    [string]$InputScript,
     # The US ROM. Defaults to baserom_us.gba in this worktree, else in the main worktree
     # (a worktree's copy may be a WSL symlink, which Windows programs cannot read).
     [string]$Rom,
@@ -169,6 +172,7 @@ Write-Host "Run directory: $runDir"
 $env:WL4_FRAMES = "$Frames"
 $env:WL4_DUMP = $Out
 $env:WL4_SHOTS = if ($Shots) { '1' } else { '' }
+$env:WL4_INPUT = if ($InputScript) { (Resolve-Path -LiteralPath $InputScript).Path } else { '' }
 $started = Get-Date
 $mgbaProcess = Start-Process -FilePath $Mgba -ArgumentList ('"' + (Join-Path $runDir 'wl4.gba') + '"') -PassThru
 $runspace = $null

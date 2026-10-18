@@ -74,7 +74,7 @@ because it needs agbcc and libclang (`pip install libclang`).
 
 ## Runtime
 
-`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE]] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--input FILE]] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
 
 With no `--frames` or tests, the game runs in a window (`port/platform/sdl/sdl_frontend.c`), at
 `--scale` times 240x160 (default 3). The window scales in whole steps. The keys are mGBA's
@@ -143,32 +143,46 @@ exactly.
 
 `--dump FILE` writes GBA memory (EWRAM, IWRAM, I/O, palette, VRAM, OAM, SRAM) at the start of
 every VBlank. `--shots FILE` writes the picture then, as 240x160 RGB bytes after a header.
+`--input FILE` presses keys from a script, by steps of the game's main loop rather than by
+frames, so that mGBA can press the same keys on the same steps. Each line is `STEP KEYS`: from
+that step on, the game reads those keys (`START`, `A+RIGHT`, or `-` for none). The format is
+in `port/include/port/input_script.h`. This one goes from the title to file select
+(`port/tools/inputs/file_select.keys` also moves the cursor there):
+
+    500 START   # skip the intro
+    501 -
+    700 START   # at the title
+    701 -
 
 To compare a run with mGBA (0.10 or later, the Qt build):
 1. Run `wl4 --frames N --dump PORT.bin`.
 2. Make the same dump in mGBA. `port/tools/run_mgba_dump.ps1` does it unattended:
 
        powershell -ExecutionPolicy Bypass -File port/tools/run_mgba_dump.ps1 ^
-           -Mgba C:\path\to\mGBA.exe -Frames N -Out MGBA.bin [-Shots]
+           -Mgba C:\path\to\mGBA.exe -Frames N -Out MGBA.bin [-Shots] [-InputScript FILE]
 
    It copies the ROM into a new run directory under `%TEMP%` and starts mGBA. It loads
    `port/tools/mgba_dump.lua` through the Scripting window and closes mGBA once the dump is
    written. `-Shots` also saves a screenshot of every frame in the run directory
-   (`wl4-N.png` is frame N+1). `Get-Help port/tools/run_mgba_dump.ps1 -Full` has the details.
+   (`wl4-N.png` is frame N+1). `-InputScript` presses keys as `wl4 --input` does.
+   `Get-Help port/tools/run_mgba_dump.ps1 -Full` has the details.
 
    To do it by hand, load the ROM and choose Tools > Scripting... > File > Load script...,
    then pick `port/tools/mgba_dump.lua`. The script erases SRAM, resets the game and writes
    the dump to `%WL4_DUMP%` (default `%TEMP%\wl4_mgba.bin`). `%WL4_FRAMES%` sets the frame
-   count, and `WL4_SHOTS=1` turns the screenshots on.
+   count, `WL4_SHOTS=1` turns the screenshots on and `%WL4_INPUT%` names an input script.
 3. Run `python port/tools/diff_frames.py PORT.bin MGBA.bin`.
 4. To compare the pictures, run wl4 with `--shots PORT.shots --mgba-colors` and mGBA with
    `-Shots`, then `python port/tools/diff_screens.py PORT.bin PORT.shots MGBA.bin RUN_DIR`.
    `RUN_DIR` is the run directory that the mGBA script prints. `--save DIR` writes the
    differing frames side by side as PNGs.
 
-The diff runner compares only the frames on which the game's main loop ran (`gMainTimer`
-changed), so boot time does not matter. It masks state the port does not model, each mask with
-its reason: stacks, VCOUNT/DISPSTAT status, timers, write-only registers and sound engine state.
+The diff runners compare one frame for each step of the game's main loop: the first on which
+the step has finished (`gMainTimer` changed, and the loop waits for VBlank with bit 0 of
+`gInterruptCheck` clear). Boot time does not matter, nor do the frames on which mGBA is still
+running a step that takes the port no time. The input scripts count steps the same way. The
+memory diff masks state the port does not model, each mask with its reason: stacks,
+VCOUNT/DISPSTAT status, timers, write-only registers, and the sound engine's state and registers.
 
 `--selftest` runs the coroutine through yields and 2 MiB of recursion. `--test-bios` runs
 the BIOS unit tests (`port/src/bios_test.c`). These include decoding every LZ77 stream the

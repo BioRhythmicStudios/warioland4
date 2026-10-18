@@ -1,0 +1,14 @@
+# From boot to the file select screen, then the cursor down twice and up twice.
+# Matches mGBA (memory and pictures) on every step: run wl4 and mGBA for 1400 frames.
+500 START   # skip the intro
+501 -
+700 START   # at the title
+701 -
+1100 DOWN
+1101 -
+1150 DOWN
+1151 -
+1200 UP
+1201 -
+1250 UP
+1251 -

@@ -47,6 +47,13 @@ static int sStarted;
 static int sWake;  // an enabled interrupt is requested: the halted game should resume
 static unsigned int sFrames;
 
+// The main loop counts its steps in gMainTimer, and at the end of each one clears bit 0 of
+// gInterruptCheck and halts until the VBlank handler sets it again.
+extern volatile uint8_t gMainTimer;
+extern volatile uint16_t gInterruptCheck;
+static unsigned int sSteps;
+static uint8_t sLastStepTimer;
+
 static uint16_t Requested(void)
 {
     return PortIoRead16(REG_IE) & PortIoRead16(REG_IF) & INTR_MASK;
@@ -93,8 +100,15 @@ int PortFrameStart(void (*entry)(void))
         return -1;
     sStarted = 0;
     sFrames = 0;
+    sSteps = 0;
+    sLastStepTimer = 0;
     PortIoSetHBlankHandler(PortPpuHBlank);
     return 0;
+}
+
+unsigned int PortFrameSteps(void)
+{
+    return sSteps;
 }
 
 int PortFrameRun(void)
@@ -114,6 +128,10 @@ int PortFrameRun(void)
         sWake = Requested() != 0;
         if (events & PORT_IO_VBLANK_STARTED) {
             sFrames++;
+            if (!(gInterruptCheck & 1) && gMainTimer != sLastStepTimer) {
+                sSteps++;
+                sLastStepTimer = gMainTimer;
+            }
             return 1;
         }
     }

@@ -10,6 +10,7 @@
 #include "port/gba_io.h"
 #include "port/gba_functions.h"
 #include "port/gba_memory.h"
+#include "port/input_script.h"
 #include "port/ppu.h"
 #include "port/rom.h"
 #include "port/sdl_frontend.h"
@@ -17,13 +18,14 @@
 static void Usage(void)
 {
     fprintf(stderr,
-            "usage: wl4 [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE]] [--mgba-colors]\n"
+            "usage: wl4 [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--input FILE]] [--mgba-colors]\n"
             "           [--selftest] [--test-bios] [--test-io]\n"
             "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
             "  ROM defaults to baserom_us.gba in the current directory.\n"
             "  With no --frames or tests, the game runs in a window, --scale times 240x160 (default 3).\n"
             "  --frames N runs the game headless for N frames; --dump writes GBA memory after each,\n"
-            "  --shots the picture. --mgba-colors blends colours as mGBA does, to compare with it.\n");
+            "  --shots the picture, and --input reads the keys from a script (port/include/port/input_script.h).\n"
+            "  --mgba-colors blends colours as mGBA does, to compare with it.\n");
 }
 
 // --- Self-test of the game coroutine -------------------------------------------------------
@@ -133,7 +135,10 @@ static void GameEntry(void)
     }
 }
 
-static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsPath)
+#define REG_KEYINPUT 0x130
+#define KEYS_ALL 0x3FF
+
+static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsPath, const char *inputPath)
 {
     FILE *dump = NULL, *shots = NULL;
     clock_t start = clock();
@@ -147,9 +152,14 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
         perror(shotsPath);
         return 1;
     }
+    if (inputPath != NULL && PortInputScriptLoad(inputPath))
+        return 1;
     if (PortFrameStart(GameEntry))
         return 1;
     while (PortFrameCount() < frames) {
+        // The keys for the step the main loop runs next, which reads them when it starts.
+        if (inputPath != NULL)
+            PortIoWrite16(REG_KEYINPUT, (uint16_t)(~PortInputScriptKeys(PortFrameSteps() + 1) & KEYS_ALL));
         if (!PortFrameRun()) {
             printf("The game stopped after %u frames\n", PortFrameCount());
             break;
@@ -181,7 +191,7 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
 int main(int argc, char **argv)
 {
     const char *romPath = "baserom_us.gba";
-    const char *dumpPath = NULL, *shotsPath = NULL;
+    const char *dumpPath = NULL, *shotsPath = NULL, *inputPath = NULL;
     enum PortPpuColors colors = PORT_PPU_COLORS_GBA;
     unsigned int frames = 0, scale = 3;
     int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
@@ -207,6 +217,8 @@ int main(int argc, char **argv)
             dumpPath = argv[++i];
         else if (strcmp(argv[i], "--shots") == 0 && i + 1 < argc)
             shotsPath = argv[++i];
+        else if (strcmp(argv[i], "--input") == 0 && i + 1 < argc)
+            inputPath = argv[++i];
         else if (strcmp(argv[i], "--mgba-colors") == 0)
             colors = PORT_PPU_COLORS_MGBA;
         else if (strcmp(argv[i], "--scale") == 0 && i + 1 < argc)
@@ -243,7 +255,7 @@ int main(int argc, char **argv)
     }
     if (frames) {
         PortPpuReset(colors);
-        return RunGame(frames, dumpPath, shotsPath);
+        return RunGame(frames, dumpPath, shotsPath, inputPath);
     }
     if (selfTest || biosTest || ioTest)
         return 0;

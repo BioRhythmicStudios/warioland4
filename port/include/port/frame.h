@@ -22,6 +22,12 @@ int PortFrameRun(void);
 // How many frames PortFrameRun() has completed.
 unsigned int PortFrameCount(void);
 
+// How many steps of the game's main loop have finished, as seen at the start of each VBlank:
+// gMainTimer has changed and the loop waits for VBlank (bit 0 of gInterruptCheck is clear).
+// On the GBA a step can take several frames; counted this way, the port and mGBA agree.
+// port/tools/diff_frames.py and port/tools/mgba_dump.lua count them the same way.
+unsigned int PortFrameSteps(void);
+
 // BIOS Halt, on the game coroutine.
 void PortFrameHalt(void);
 

@@ -7,8 +7,8 @@ usage: python port/tools/diff_screens.py PORT.bin PORT.shots MGBA.bin MGBA_RUN_D
 
 PORT.bin and PORT.shots come from wl4 --frames N --dump PORT.bin --shots PORT.shots, MGBA.bin
 and MGBA_RUN_DIR from port/tools/run_mgba_dump.ps1 -Shots (the run directory it prints).
-The frames are paired as diff_frames.py pairs them: on the steps where the game's main loop
-ran, n-th with n-th, so boot time does not matter.
+The frames are paired as diff_frames.py pairs them: on the steps of the game's main loop, when
+each has finished, n-th with n-th, so boot time and lag frames do not matter.
 
 Run wl4 with --mgba-colors to compare exactly. Without it the port blends colours as the
 GBA does, on 5-bit channels, and mGBA's blended colours can be a step off either way (its
@@ -200,7 +200,7 @@ def main():
 
     compared = differing = 0
     first = None
-    pairs = zip(diff_frames.steps(args.port_dump, 'step'), diff_frames.steps(args.mgba_dump, 'step'))
+    pairs = zip(diff_frames.steps(args.port_dump, 'idle'), diff_frames.steps(args.mgba_dump, 'idle'))
     for n, (a, b) in enumerate(pairs, 1):
         if n < args.start:
             continue
