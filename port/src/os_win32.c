@@ -96,6 +96,64 @@ uintptr_t PortOsExecutableOffset(uintptr_t pc)
     return pc - (uintptr_t)module;
 }
 
+// --- Files ------------------------------------------------------------------------------------
+
+// A path as UTF-16: from UTF-8 if it is valid UTF-8, else from the ANSI code page.
+static int WidePath(const char *path, const char *suffix, wchar_t *wide, int capacity)
+{
+    char joined[MAX_PATH * 3];
+    int n;
+
+    if (snprintf(joined, sizeof(joined), "%s%s", path, suffix) >= (int)sizeof(joined))
+        return 0;
+    n = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, joined, -1, wide, capacity);
+    if (n == 0)
+        n = MultiByteToWideChar(CP_ACP, 0, joined, -1, wide, capacity);
+    return n != 0;
+}
+
+long PortOsReadFile(const char *path, void *buffer, size_t size, int *missing)
+{
+    wchar_t wide[MAX_PATH * 2];
+    HANDLE file;
+    DWORD read = 0;
+    BOOL ok;
+
+    *missing = 0;
+    if (!WidePath(path, "", wide, MAX_PATH * 2))
+        return -1;
+    file = CreateFileW(wide, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        DWORD error = GetLastError();
+        *missing = error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND;
+        return -1;
+    }
+    ok = ReadFile(file, buffer, (DWORD)size, &read, NULL);
+    CloseHandle(file);
+    return ok ? (long)read : -1;
+}
+
+int PortOsWriteFileAtomic(const char *path, const void *data, size_t size)
+{
+    wchar_t wide[MAX_PATH * 2], temporary[MAX_PATH * 2];
+    HANDLE file;
+    DWORD written = 0;
+    BOOL ok;
+
+    if (!WidePath(path, "", wide, MAX_PATH * 2) || !WidePath(path, ".tmp", temporary, MAX_PATH * 2))
+        return -1;
+    file = CreateFileW(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE)
+        return -1;
+    ok = WriteFile(file, data, (DWORD)size, &written, NULL) && written == size && FlushFileBuffers(file);
+    CloseHandle(file);
+    if (!ok || !MoveFileExW(temporary, wide, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileW(temporary);
+        return -1;
+    }
+    return 0;
+}
+
 // --- Trapped region ---------------------------------------------------------------------------
 // The game view stays PAGE_NOACCESS. An access faults; the handler calls before(), opens the
 // page, sets the trap flag and lets the instruction run. The single-step exception that

@@ -15,13 +15,14 @@
 #include "port/os.h"
 #include "port/ppu.h"
 #include "port/rom.h"
+#include "port/save.h"
 #include "port/sdl_frontend.h"
 
 static void Usage(void)
 {
     fprintf(stderr,
             "usage: wl4 [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--wav FILE] [--from-step S]]\n"
-            "           [--input FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io]\n"
+            "           [--input FILE] [--save FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io]\n"
             "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
             "  ROM defaults to baserom_us.gba in the current directory.\n"
             "  With no --frames or tests, the game runs in a window, --scale times 240x160 (default 3).\n"
@@ -29,7 +30,9 @@ static void Usage(void)
             "  --shots the picture and --wav the sound, from the frame on which main-loop step S\n"
             "  finishes with --from-step.\n"
             "  --input presses keys from a script (port/include/port/input_script.h),\n"
-            "  in the window as well. --mgba-colors blends colours as mGBA does, to compare with it.\n");
+            "  in the window as well. --mgba-colors blends colours as mGBA does, to compare with it.\n"
+            "  --save keeps SRAM in FILE (an mGBA .sav). The window defaults to wl4.sav in the\n"
+            "  user's application data (%%APPDATA%%\\wl4); headless runs save only with --save.\n");
 }
 
 // --- Self-test of the game coroutine -------------------------------------------------------
@@ -197,7 +200,7 @@ static int WriteWavFrames(FILE *file, uint32_t *frames)
 }
 
 static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsPath, const char *wavPath,
-                   unsigned int fromStep, const char *inputPath)
+                   unsigned int fromStep, const char *inputPath, const char *savePath)
 {
     FILE *dump = NULL, *shots = NULL, *wav = NULL;
     uint32_t wavFrames = 0;
@@ -218,6 +221,8 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
     }
     if (inputPath != NULL && PortInputScriptLoad(inputPath))
         return 1;
+    if (savePath != NULL && PortSaveOpen(savePath))
+        return 1;
     if (PortFrameStart(GameEntry))
         return 1;
     while (PortFrameCount() < frames) {
@@ -228,6 +233,7 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
             printf("The game stopped after %u frames\n", PortFrameCount());
             break;
         }
+        PortSaveFrame();
         if (WriteWavFrames(PortFrameSteps() < fromStep ? NULL : wav, &wavFrames)) {
             perror(wavPath);
             return 1;
@@ -255,6 +261,7 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
         perror(wavPath);
         return 1;
     }
+    PortSaveClose();
     seconds = (double)(clock() - start) / CLOCKS_PER_SEC;
     printf("%u frames in %.2f s (%.0f fps); %.0f trapped I/O accesses per frame\n", PortFrameCount(), seconds,
            seconds > 0 ? PortFrameCount() / seconds : 0.0,
@@ -266,6 +273,7 @@ int main(int argc, char **argv)
 {
     const char *romPath = "baserom_us.gba";
     const char *dumpPath = NULL, *shotsPath = NULL, *wavPath = NULL, *inputPath = NULL;
+    const char *savePath = NULL;
     enum PortPpuColors colors = PORT_PPU_COLORS_GBA;
     unsigned int frames = 0, scale = 3, fromStep = 0;
     int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
@@ -297,6 +305,8 @@ int main(int argc, char **argv)
             fromStep = (unsigned int)strtoul(argv[++i], NULL, 10);
         else if (strcmp(argv[i], "--input") == 0 && i + 1 < argc)
             inputPath = argv[++i];
+        else if (strcmp(argv[i], "--save") == 0 && i + 1 < argc)
+            savePath = argv[++i];
         else if (strcmp(argv[i], "--mgba-colors") == 0)
             colors = PORT_PPU_COLORS_MGBA;
         else if (strcmp(argv[i], "--scale") == 0 && i + 1 < argc)
@@ -333,7 +343,7 @@ int main(int argc, char **argv)
     }
     if (frames) {
         PortPpuReset(colors);
-        return RunGame(frames, dumpPath, shotsPath, wavPath, fromStep, inputPath);
+        return RunGame(frames, dumpPath, shotsPath, wavPath, fromStep, inputPath, savePath);
     }
     if (selfTest || biosTest || ioTest)
         return 0;
@@ -342,7 +352,7 @@ int main(int argc, char **argv)
         return 1;
     PortPpuReset(colors);
     PortOsShowErrors(1);
-    return PortSdlRun(GameEntry, scale ? scale : 1, inputPath != NULL);
+    return PortSdlRun(GameEntry, scale ? scale : 1, inputPath != NULL, savePath);
 #else
     fprintf(stderr, "This build has no window (it was built without SDL3); use --frames to run headless.\n");
     return 2;

@@ -1,5 +1,5 @@
-// The SDL3 frontend: a window showing the display, keyboard and gamepad input, sound, and
-// frame pacing at the GBA's rate.
+// The SDL3 frontend: a window showing the display, keyboard and gamepad input, sound, saves,
+// and frame pacing at the GBA's rate.
 
 #include "port/sdl_frontend.h"
 
@@ -13,6 +13,7 @@
 #include "port/gba_io.h"
 #include "port/input_script.h"
 #include "port/ppu.h"
+#include "port/save.h"
 
 #define REG_KEYINPUT 0x130
 
@@ -154,7 +155,26 @@ static void QueueAudio(int fastForward)
     SDL_SetAudioStreamFrequencyRatio(sAudio, 1 + AUDIO_MAX_ADJUST * error);
 }
 
-int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted)
+// Loads the save from savePath, or from wl4.sav in the user's preference directory.
+static int OpenSave(const char *savePath)
+{
+    char path[1024];
+    char *directory;
+    int result;
+
+    if (savePath != NULL)
+        return PortSaveOpen(savePath);
+    directory = SDL_GetPrefPath(NULL, "wl4");
+    if (directory == NULL) {
+        fprintf(stderr, "No folder for the save file: %s\n", SDL_GetError());
+        return -1;
+    }
+    result = snprintf(path, sizeof(path), "%swl4.sav", directory) < (int)sizeof(path) ? PortSaveOpen(path) : -1;
+    SDL_free(directory);
+    return result;
+}
+
+int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char *savePath)
 {
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
@@ -184,7 +204,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted)
     OpenFirstGamepad();
     OpenAudio();
 
-    if (PortFrameStart(entry))
+    if (OpenSave(savePath) || PortFrameStart(entry))
         goto done;
     next = SDL_GetTicksNS();
     while (running) {
@@ -233,6 +253,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted)
             fprintf(stderr, "The game stopped after %u frames\n", PortFrameCount());
             break;
         }
+        PortSaveFrame();
 
         QueueAudio(fastForward);
         SDL_UpdateTexture(texture, NULL, PortPpuFrame(), PORT_SCREEN_WIDTH * 4);
@@ -253,6 +274,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted)
     result = 0;
 
 done:
+    PortSaveClose();
     SDL_DestroyAudioStream(sAudio);
     sAudio = NULL;
     if (sGamepad != NULL)

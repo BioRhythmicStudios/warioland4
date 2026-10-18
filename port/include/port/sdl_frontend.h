@@ -8,6 +8,8 @@
 // Select. Tab fast-forwards while held, F11 toggles fullscreen, Escape quits. The first
 // gamepad works too, by button position (bottom = A, right = B). With scripted set, the game
 // also gets the keys of the input script that has been loaded (port/include/port/input_script.h).
-int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted);
+// SRAM is kept in savePath, or with NULL in wl4.sav in SDL's preference directory for the
+// user (on Windows %APPDATA%\wl4).
+int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char *savePath);
 
 #endif  // GUARD_PORT_SDL_FRONTEND_H

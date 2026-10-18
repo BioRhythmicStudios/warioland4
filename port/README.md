@@ -74,7 +74,7 @@ because it needs agbcc and libclang (`pip install libclang`).
 
 ## Runtime
 
-`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--wav FILE] [--from-step S]] [--input FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--wav FILE] [--from-step S]] [--input FILE] [--save FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
 
 With no `--frames` or tests, the game runs in a window (`port/platform/sdl/sdl_frontend.c`), at
 `--scale` times 240x160 (default 3). The window scales in whole steps. The keys are mGBA's
@@ -83,8 +83,16 @@ fast-forwards while held, F11 toggles fullscreen and Escape quits. The first gam
 button position (bottom = A, right = B). Frames are paced at the GBA's rate, 2^24 Hz / 280896
 cycles (about 59.73 a second). Sound plays on the default device. The system clock that paces
 the frames drifts from the device's, so the sound stream plays up to 0.5% faster or slower to
-keep about 4 frames queued. Fast forward drops the sound. There is no saving yet. If the game
-faults, the report goes to stderr and, in the window, to a dialog as well.
+keep about 4 frames queued. Fast forward drops the sound. If the game faults, the report goes
+to stderr and, in the window, to a dialog as well.
+
+`port/src/save.c` keeps the cartridge's 32 KiB of SRAM in a file, as mGBA's `.sav` files do,
+so saves move between the two either way. The window uses `wl4.sav` in the user's application
+data (`%APPDATA%\wl4`), or `--save FILE`; headless runs save only with `--save`. The file is
+loaded before the game starts. Once the game has written SRAM and left it alone for half a
+second, the file is replaced in one step (written beside it, flushed, then renamed over it),
+so a crash leaves the old save or the new one. Quitting writes it too. A save file that exists
+but cannot be read stops the port, rather than let the game start with none and overwrite it.
 
 At startup, `port/src/gba_memory.c` reserves the GBA regions at their real addresses
 (`port/include/port/gba_memory.h`). It also reserves the game stack at `0x01020000`–`0x01810000`,

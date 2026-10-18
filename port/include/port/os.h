@@ -63,4 +63,12 @@ void PortOsShowErrors(int show);
 // The offset of a code address in the executable, for llvm-symbolizer; 0 if it is elsewhere.
 uintptr_t PortOsExecutableOffset(uintptr_t pc);
 
+// Files, by path in UTF-8 (or in the ANSI code page, as the command line has them).
+// Reads up to size bytes from the start of a file. Returns how many, or -1 if the file cannot
+// be read; *missing is then 1 if it does not exist.
+long PortOsReadFile(const char *path, void *buffer, size_t size, int *missing);
+// Replaces a file in one step: writes the data to path.tmp, flushes it to the disk and renames
+// it over path, so a crash leaves the old file or the new one. Returns 0 on success.
+int PortOsWriteFileAtomic(const char *path, const void *data, size_t size);
+
 #endif  // GUARD_PORT_OS_H
