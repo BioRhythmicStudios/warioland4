@@ -3147,7 +3147,7 @@ void UpdateStageExitVortexSecondarySprite(void)
         newStatus = 6;
         unusedZero = 0;
         /* Preserve the original agbcc low-register pressure and scheduling. */
-        ASM_BARRIER_VOLATILE(: "+l"(unusedZero) : "r"(oldStatus), "r"(newStatus), "r"(current) : "r3", "r4", "r5", "r6");
+        ASM_BARRIER_ARM_VOLATILE(: "+l"(unusedZero) : "r"(oldStatus), "r"(newStatus), "r"(current) : "r3", "r4", "r5", "r6");
         newStatus |= oldStatus;
         current->status = newStatus;
     }

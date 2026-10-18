@@ -1585,7 +1585,7 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                 { register u32 xTemp PIN("r0"); xTemp = wario->xPosition + point; xTemp <<= 16; xTemp >>= 16; x = xTemp; }
                 y = wario->yPosition;
                 ASM_BARRIER_VOLATILE(: "+r"(collisionData), "+r"(wario) : "r"(y));
-                ASM_BARRIER_VOLATILE(: : : "r0", "r1", "r2", "r5");
+                ASM_BARRIER_ARM_VOLATILE(: : : "r0", "r1", "r2", "r5");
                 result = ((u32 (*)(u32, u32, u16 *, u16 *, u16 *))CheckWarioTileCollision)(x, y, &newX, &newY, &collision);
                 if (collision != 0)
                 {

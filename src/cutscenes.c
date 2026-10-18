@@ -1091,6 +1091,9 @@ void UpdateLayeredBackgroundTransition(s32 inputFrame)
             } else {
                 s32 elseOffset;
                 ASM_BARRIER(: "=r"(elseOffset));
+#ifdef PORTABLE
+                elseOffset = gCutsceneBackgroundHorizontalOffset;  // still in r2 on the GBA
+#endif
                 destination = AppendCutsceneOamTemplate((u16*)oam, destination, (-elseOffset) + 128, wave + 64);
             }
             FinalizeCutsceneOamBuffer(destination);

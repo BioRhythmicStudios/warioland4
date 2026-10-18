@@ -1016,14 +1016,14 @@ void func_803FB28(void)
         u32 adjusted;
         adjusted = (u16)(xPosition + 0x1000);
         spriteX = adjusted;
-        ASM_BARRIER(: : : "r0");
+        ASM_BARRIER_ARM(: : : "r0");
         saved[0] = spriteX;
     }
     {
         u32 adjusted;
         adjusted = (u16)(gWarioData.xPosition + 0x1000);
         warioX = adjusted;
-        ASM_BARRIER(: : : "r1");
+        ASM_BARRIER_ARM(: : : "r1");
         saved[1] = warioX;
     }
     status = sprite->status;

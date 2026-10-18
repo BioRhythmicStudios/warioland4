@@ -29,15 +29,18 @@
 #define RETURN_NO_VALUE(value) return
 #endif
 
-// Empty asm statements that only steer agbcc's register allocation and scheduling.
-// The operands follow the template, e.g. ASM_BARRIER(: "+r"(x)).
-// Portable builds drop them.
-#ifdef PORTABLE
-#define ASM_BARRIER(...)
-#define ASM_BARRIER_VOLATILE(...)
-#else
+// Empty asm statements that steer agbcc's register allocation and scheduling. The operands
+// follow the template, e.g. ASM_BARRIER(: "+r"(x)). Portable builds keep them, because some
+// carry a value: ASM_BARRIER(: "=r"(x) : "0"(y)) sets x to y. ASM_BARRIER_ARM is for the
+// ones that name ARM registers and carry no value; portable builds drop those.
 #define ASM_BARRIER(...) asm("" __VA_ARGS__)
 #define ASM_BARRIER_VOLATILE(...) asm volatile("" __VA_ARGS__)
+#ifdef PORTABLE
+#define ASM_BARRIER_ARM(...)
+#define ASM_BARRIER_ARM_VOLATILE(...)
+#else
+#define ASM_BARRIER_ARM(...) asm("" __VA_ARGS__)
+#define ASM_BARRIER_ARM_VOLATILE(...) asm volatile("" __VA_ARGS__)
 #endif
 
 #define SOUND_INFO_PTR (*(struct SoundInfo **)0x3007FF0)

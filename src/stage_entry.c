@@ -274,6 +274,9 @@ void InitializeStageEntrySceneGraphics(void)
 copyNormalStageGraphics: {
     u8* normalSelectedStage;
     ASM_BARRIER_VOLATILE(: "=r"(normalSelectedStage));
+#ifdef PORTABLE
+    normalSelectedStage = &gStageEntrySelectedStage;  // r4 holds selectedStage on the GBA
+#endif
     dma = (vu32*)0x040000D4;
     dma[0] = (u32)sStageEntryStagePalettes[gCurrentPassage][(*normalSelectedStage) - 1];
     {

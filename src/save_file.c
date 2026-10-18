@@ -869,7 +869,7 @@ void SerializeGameStateToTemporarySave(void)
     }
     destination += 2;
     source7 = (u8*)&gBg3XPosition;
-    ASM_BARRIER(: "+r"(source7) : : "r0", "r1", "r2", "r3", "r5", "r6");
+    ASM_BARRIER_ARM(: "+r"(source7) : : "r0", "r1", "r2", "r3", "r5", "r6");
     *((u16*)destination) = *((u16*)source7);
     destination += 2;
     {

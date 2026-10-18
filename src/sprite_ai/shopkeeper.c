@@ -5084,7 +5084,7 @@ void StartLargeLipsKiss(void)
         value = s->xPosition;
         value -= 64;
         stackSlot = value;
-        ASM_BARRIER(::: "r1");
+        ASM_BARRIER_ARM(::: "r1");
         ((void (*)(u32, u32, u32, u32))SpawnHighPriorityPrimarySprite)(201, 0, 0, z);
         func_8026E78();
         m4aSongNumStart(513);

@@ -1429,6 +1429,9 @@ u32 FileSelectSubroutine(void)
             initResult = InitializeFileSelect();
             /* Preserve the original agbcc allocation/lifetime; emits no instructions. */
             ASM_BARRIER(: "=r"(modePointer));
+#ifdef PORTABLE
+            modePointer = &gSubGameMode;  // r4 holds it from the switch on the GBA
+#endif
             nextMode = 1;
             if (initResult != 0) {
                 nextMode = 8;
