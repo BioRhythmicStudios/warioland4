@@ -2,7 +2,7 @@
 """Compare the port's GBA memory with mGBA's, frame by frame.
 
 usage: python port/tools/diff_frames.py PORT.bin MGBA.bin [--align idle|step|frame] [--show N]
-                                        [--from STEP] [--list] [--no-mask]
+                                        [--from STEP] [--list] [--no-mask] [--mask-sound]
 
 PORT.bin comes from wl4 --frames N --dump PORT.bin, MGBA.bin from port/tools/mgba_dump.lua.
 Both hold memory at the start of each VBlank.
@@ -18,9 +18,10 @@ step instead, finished or not, and --align frame every frame.
 Masked by default, because they are not the game's state or the port does not model them:
 - IWRAM above the game's variables: the GBA's stacks. The port's game stack is elsewhere.
 - VCOUNT, DISPSTAT's status bits and the timer counters, which depend on CPU timing.
-- The sound engine's working state and the sound registers it writes: SoundMain is a silent
-  placeholder in the port.
+- SOUNDCNT_X's channel status bits, which the PSG sets as it plays.
 - Write-only DMA registers, which the game cannot read back.
+
+--mask-sound also masks the sound engine's working state and the sound registers it writes.
 
 Prints the first frame that differs, with each difference by symbol, and exits with 1;
 or reports that every compared frame matched.
@@ -57,9 +58,10 @@ MASKS = [
     # mGBA stores the sound FIFO channels' destination as fixed, whatever the game wrote.
     (0x040000C6, 0x040000C7, 0x60, 'DMA 1 destination mode'),
     (0x040000D2, 0x040000D3, 0x60, 'DMA 2 destination mode'),
+    (0x04000084, 0x04000085, 0x0F, 'SOUNDCNT_X channel status'),
 ]
 # Sound engine state, by symbol and size: what SoundMain, MPlayMain and the ply_ routines
-# change. The port's SoundMain does nothing yet.
+# change.
 SOUND_MASKS = [
     ('gSoundInfo', 0xFB0),
     ('gCgbChans', 0x100),
@@ -71,7 +73,6 @@ SOUND_RANGES = [
     (0x03001A08, 0x03002C28, 0xFF, 'sound engine state (music player tracks)'),
     (0x04000060, 0x04000082, 0xFF, 'PSG sound channel registers, which the sound engine writes'),
     (0x04000090, 0x040000A0, 0xFF, 'wave RAM, which the sound engine writes'),
-    (0x04000084, 0x04000085, 0x0F, 'SOUNDCNT_X channel status'),
 ]
 
 
@@ -181,12 +182,13 @@ def main():
     ap.add_argument('--list', action='store_true', help='summarise every differing frame, not just the first')
     ap.add_argument('--from', dest='start', type=int, default=1, help='first step to compare')
     ap.add_argument('--no-mask', action='store_true', help='compare everything, sound and stacks included')
+    ap.add_argument('--mask-sound', action='store_true', help="leave out the sound engine's state")
     ap.add_argument('--symbols', default='port/generated/gba_symbols.s')
     args = ap.parse_args()
 
     symbols = frame_dump.gba_symbols(args.symbols)
     symbolize = Symbolizer(symbols)
-    masks = [] if args.no_mask else build_masks(symbols, sound=True)
+    masks = [] if args.no_mask else build_masks(symbols, sound=args.mask_sound)
 
     compared = differing = 0
     first = None

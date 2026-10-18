@@ -502,7 +502,11 @@ void MPlayOpen(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track
         soundInfo->func = 0;
     }
     soundInfo->intp = (u32)mplayInfo;
+#ifdef PORTABLE
+    soundInfo->func = PortNativeFunctionToGba((void (*)(void))MPlayMain);
+#else
     soundInfo->func = (u32)MPlayMain;
+#endif
     soundInfo->ident = ID_NUMBER;
     mplayInfo->ident = ID_NUMBER;
 }

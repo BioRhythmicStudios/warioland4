@@ -30,7 +30,11 @@ OUT = pathlib.Path('port/generated')
 FUNCTIONS_USED_AS_DATA = {'SoundMainRAM'}
 # Asm functions that no game code names, but that ROM data points to (m4a's
 # sMPlayJumpTableTemplate). They need dispatch entries, so they get stubs too.
-REACHED_THROUGH_ROM_DATA = {'SoundMainBTM', 'RealClearChain'}
+REACHED_THROUGH_ROM_DATA = {
+    'SoundMainBTM', 'RealClearChain', 'ply_fine', 'ply_goto', 'ply_patt', 'ply_pend', 'ply_rept',
+    'ply_prio', 'ply_tempo', 'ply_keysh', 'ply_voice', 'ply_vol', 'ply_pan', 'ply_bend',
+    'ply_bendr', 'ply_lfodl', 'ply_modt', 'ply_tune', 'ply_port',
+}
 # GBA library functions that the PC runtime supplies.
 NATIVE_RUNTIME = {'memcpy', 'memset', '__divsi3', '__modsi3', '__udivsi3', '__umodsi3'}
 VALID_NAME = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*$')

@@ -152,7 +152,12 @@ typedef void (*CgbSoundFunc)(void);
 typedef void (*CgbOscOffFunc)(u8);
 typedef u32 (*MidiKeyToCgbFreqFunc)(u8, u8, u8);
 struct MusicPlayerInfo;
+#ifdef PORTABLE
+// MPlayMain passes the note's command, counted from 0xCF, first.
+typedef void (*PlyNoteFunc)(u32, struct MusicPlayerInfo *, struct MusicPlayerTrack *);
+#else
 typedef void (*PlyNoteFunc)(struct MusicPlayerInfo *, struct MusicPlayerTrack *);
+#endif
 
 struct AGB_ALIGN SoundInfo {
     // This field is normally equal to ID_NUMBER but it is set to other
@@ -334,7 +339,11 @@ u32 umul3232H32(u32 multiplier, u32 multiplicand);
 void SoundMain(void);
 void SoundMainBTM(void *x);
 void TrackStop(struct MusicPlayerInfo *mplayInfo, struct MusicPlayerTrack *track);
+#ifdef PORTABLE
+void MPlayMain(struct MusicPlayerInfo *mplayInfo);
+#else
 void MPlayMain(void);
+#endif
 void RealClearChain(void *x);
 
 void MPlayContinue(struct MusicPlayerInfo *mplayInfo);
@@ -398,7 +407,11 @@ void ply_tune(struct MusicPlayerInfo *, struct MusicPlayerTrack *);
 void ply_port(struct MusicPlayerInfo *, struct MusicPlayerTrack *);
 void ply_xcmd(struct MusicPlayerInfo *, struct MusicPlayerTrack *);
 void ply_endtie(struct MusicPlayerInfo *, struct MusicPlayerTrack *);
+#ifdef PORTABLE
+void ply_note(u32, struct MusicPlayerInfo *, struct MusicPlayerTrack *);
+#else
 void ply_note(struct MusicPlayerInfo *, struct MusicPlayerTrack *);
+#endif
 
 // extended sound command handler functions
 void ply_xxx(struct MusicPlayerInfo *, struct MusicPlayerTrack *);

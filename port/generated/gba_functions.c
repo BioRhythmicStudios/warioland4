@@ -49,7 +49,24 @@ void umul3232H32(void);
 void SoundMain(void);
 void SoundMainBTM(void);
 void RealClearChain(void);
+void ply_fine(void);
 void MPlayJumpTableCopy(void);
+void ply_goto(void);
+void ply_patt(void);
+void ply_pend(void);
+void ply_rept(void);
+void ply_prio(void);
+void ply_tempo(void);
+void ply_keysh(void);
+void ply_voice(void);
+void ply_vol(void);
+void ply_pan(void);
+void ply_bend(void);
+void ply_bendr(void);
+void ply_lfodl(void);
+void ply_modt(void);
+void ply_tune(void);
+void ply_port(void);
 void m4aSoundVSync(void);
 void MPlayMain(void);
 void TrackStop(void);
@@ -4089,7 +4106,24 @@ const struct GbaFunction gGbaFunctions[] = {
     { 0x08001070, (PortFunc)SoundMain, "SoundMain" },
     { 0x08001498, (PortFunc)SoundMainBTM, "SoundMainBTM" },
     { 0x080014B0, (PortFunc)RealClearChain, "RealClearChain" },
+    { 0x080014D0, (PortFunc)ply_fine, "ply_fine" },
     { 0x08001500, (PortFunc)MPlayJumpTableCopy, "MPlayJumpTableCopy" },
+    { 0x08001540, (PortFunc)ply_goto, "ply_goto" },
+    { 0x08001560, (PortFunc)ply_patt, "ply_patt" },
+    { 0x0800157C, (PortFunc)ply_pend, "ply_pend" },
+    { 0x08001590, (PortFunc)ply_rept, "ply_rept" },
+    { 0x080015C0, (PortFunc)ply_prio, "ply_prio" },
+    { 0x080015CC, (PortFunc)ply_tempo, "ply_tempo" },
+    { 0x080015E0, (PortFunc)ply_keysh, "ply_keysh" },
+    { 0x080015F4, (PortFunc)ply_voice, "ply_voice" },
+    { 0x08001624, (PortFunc)ply_vol, "ply_vol" },
+    { 0x08001638, (PortFunc)ply_pan, "ply_pan" },
+    { 0x0800164C, (PortFunc)ply_bend, "ply_bend" },
+    { 0x08001660, (PortFunc)ply_bendr, "ply_bendr" },
+    { 0x08001674, (PortFunc)ply_lfodl, "ply_lfodl" },
+    { 0x08001680, (PortFunc)ply_modt, "ply_modt" },
+    { 0x08001698, (PortFunc)ply_tune, "ply_tune" },
+    { 0x080016AC, (PortFunc)ply_port, "ply_port" },
     { 0x080016C4, (PortFunc)m4aSoundVSync, "m4aSoundVSync" },
     { 0x08001710, (PortFunc)MPlayMain, "MPlayMain" },
     { 0x08001978, (PortFunc)TrackStop, "TrackStop" },
