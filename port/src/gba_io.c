@@ -9,8 +9,15 @@
 #define TRAP_RESERVE 0x10000u  // a whole Windows allocation block
 #define TRAP_PAGE 0x1000u      // the page that holds the registers
 
+#define REG_DISPCNT 0x000
 #define REG_DISPSTAT 0x004
 #define REG_VCOUNT 0x006
+#define REG_BG0CNT 0x008
+#define REG_BG1CNT 0x00A
+#define REG_WININ 0x048
+#define REG_WINOUT 0x04A
+#define REG_BLDCNT 0x050
+#define REG_BLDALPHA 0x052
 #define REG_SOUND1CNT_X 0x064
 #define REG_SOUND2CNT_H 0x06C
 #define REG_SOUND3CNT_X 0x074
@@ -174,6 +181,26 @@ static void NoteAffineWrite(unsigned int offset)
             sAffineWrites |= 1u << i;
 }
 
+// Bits the registers do not keep, which read as 0: write-only bits (the sound channels'
+// restart bits and the sound FIFO resets) and unused ones, as mGBA keeps them. BG0CNT and
+// BG1CNT have no display area overflow bit, which only the affine backgrounds use, and DISPCNT's
+// CGB mode bit can only be set by the BIOS.
+static void ClearUnusedBits(void)
+{
+    static const struct {
+        uint16_t offset, keep;
+    } kKeep[] = {
+        { REG_DISPCNT, 0xFFF7 },     { REG_BG0CNT, 0xDFFF },      { REG_BG1CNT, 0xDFFF },
+        { REG_WININ, 0x3F3F },       { REG_WINOUT, 0x3F3F },      { REG_BLDCNT, 0x3FFF },
+        { REG_BLDALPHA, 0x1F1F },    { REG_SOUND1CNT_X, 0x7FFF }, { REG_SOUND2CNT_H, 0x7FFF },
+        { REG_SOUND3CNT_X, 0x7FFF }, { REG_SOUND4CNT_H, 0x7FFF }, { REG_SOUNDCNT_H, 0x77FF },
+    };
+    unsigned int i;
+
+    for (i = 0; i < sizeof(kKeep) / sizeof(kKeep[0]); i++)
+        PortIoWrite16(kKeep[i].offset, PortIoRead16(kKeep[i].offset) & kKeep[i].keep);
+}
+
 // --- DMA ------------------------------------------------------------------------------------
 
 // DMA reaches the registers through the host view; everything else is at its GBA address.
@@ -226,6 +253,7 @@ static void DmaTransfer(struct DmaChannel *d)
     int32_t dstStep = DMA_DEST_MODE(d->control) == 1 ? -(int32_t)unit : DMA_DEST_MODE(d->control) == 2 ? 0 : (int32_t)unit;
     uint32_t src = d->src & ~(unit - 1), dst = d->dst & ~(unit - 1);
     uint32_t i;
+    int wroteIo = 0;
 
     for (i = 0; i < d->count; i++) {
         if (!DmaReaches(src, unit, 0))
@@ -237,12 +265,16 @@ static void DmaTransfer(struct DmaChannel *d)
                 *(volatile uint32_t *)DmaAddress(dst) = *(const volatile uint32_t *)DmaAddress(src);
             else
                 *(volatile uint16_t *)DmaAddress(dst) = *(const volatile uint16_t *)DmaAddress(src);
-            if (dst - GBA_IO_BASE < PORT_IO_SIZE)
+            if (dst - GBA_IO_BASE < PORT_IO_SIZE) {
                 NoteAffineWrite(dst - GBA_IO_BASE);
+                wroteIo = 1;
+            }
         }
         src += srcStep;
         dst += dstStep;
     }
+    if (wroteIo)
+        ClearUnusedBits();
     // The internal registers carry on from where the transfer stopped.
     d->src = src;
     d->dst = dst;
@@ -352,13 +384,8 @@ static void AfterAccess(uintptr_t address, int isWrite, uintptr_t pc)
                 sAffineWrites |= 1u << i;
     }
 
-    // Read-only registers and bits, and write-only bits, which read as 0: the sound channels'
-    // restart bits and the sound FIFO resets.
-    PortIoWrite16(REG_SOUND1CNT_X, PortIoRead16(REG_SOUND1CNT_X) & 0x7FFF);
-    PortIoWrite16(REG_SOUND2CNT_H, PortIoRead16(REG_SOUND2CNT_H) & 0x7FFF);
-    PortIoWrite16(REG_SOUND3CNT_X, PortIoRead16(REG_SOUND3CNT_X) & 0x7FFF);
-    PortIoWrite16(REG_SOUND4CNT_H, PortIoRead16(REG_SOUND4CNT_H) & 0x7FFF);
-    PortIoWrite16(REG_SOUNDCNT_H, PortIoRead16(REG_SOUNDCNT_H) & ~0x8800);
+    // Read-only registers and bits.
+    ClearUnusedBits();
     PortIoWrite16(REG_VCOUNT, Before16(REG_VCOUNT));
     PortIoWrite16(REG_KEYINPUT, Before16(REG_KEYINPUT));
     value = PortIoRead16(REG_DISPSTAT);

@@ -13,6 +13,7 @@
 // - VCOUNT and DISPSTAT: each read by the game moves the display on by half a scanline, so
 //   that loops waiting for a scanline end. The host moves it on with PortIoAdvance().
 // - Writes to read-only registers (VCOUNT, DISPSTAT's status bits, KEYINPUT) are undone.
+// - Unused and write-only bits read as 0, as mGBA keeps them (BG0CNT's bit 13, say).
 // The host uses PortIoHost(), which never traps.
 
 #define PORT_IO_SIZE 0x400u
