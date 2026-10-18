@@ -1456,6 +1456,15 @@ void RenderStageEntrySprites(void)
             }
         }
     }
+#ifdef PORTABLE
+    // Entering a level, StageSelect's sub-mode 36 switches to 13 and DrawStageSelectSprites()
+    // draws in the same step, before case 13 has given the main sprite an animation. The GBA
+    // then reads the animation's frames from address 0, in the BIOS, and gets open bus: a
+    // sprite count over 128, so it returns below. The PC cannot read the bottom 64 KiB.
+    if (GP(gStageEntryMainAnimation) == NULL) {
+        return;
+    }
+#endif
     if (gStageEntryBlinkVisible == 0) {
         src = GP(GP(gStageEntryMainAnimation)[((struct StageEntryPositionedAnimationState*)gStageEntryMainSpriteState)->frame]
                   .oam);
