@@ -1480,7 +1480,12 @@ u8 ResolveWarioWaterSurfaceCollision(void)
         tableIndex += index;
         tableOffset = tableIndex << 1;
         entry = offsetData + 4;
+#ifdef PORTABLE
+        /* Keep the GBA's address addition from becoming a 64-bit pointer subtraction. */
+        entry += tableOffset;
+#else
         entry = ((const u8 *) tableOffset) - (-((u32) entry));
+#endif
         offset = *((const u16 *) entry);
         result = ((int (*)(u8, u16, u8))CheckWarioVerticalCollision)(status, offset, 0);
         if (0 == collisionData->unk_0F)
@@ -1511,7 +1516,11 @@ u8 ResolveWarioWaterSurfaceCollision(void)
                     u32 xPosition;
                     wario = &gWarioData;
                     probe = offsetData + 2;
+#ifdef PORTABLE
+                    probe += tableOffset;
+#else
                     probe = ((const u8 *)tableOffset) - (-((u32)probe));
+#endif
                     probeOffset = *((const u16 *) probe);
                     xPosition = wario->xPosition;
                     sum = probeOffset + xPosition;
