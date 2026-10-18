@@ -7,9 +7,14 @@
 -- mGBA starts the game when it loads the ROM, so by now the game may have written its save.
 -- The script erases SRAM before the reset, to boot as the port does: with no save.
 -- The output goes to %WL4_DUMP% if set, else to %TEMP%\wl4_mgba.bin.
+-- With WL4_SHOTS=1 the script also saves a screenshot of each frame before dumping it. mGBA
+-- saves them next to the ROM, numbered from 0: give it a fresh copy of the ROM in an empty
+-- directory, and screenshot N is frame N+1. port/tools/run_mgba_dump.ps1 does all this
+-- without anyone at the keyboard.
 
 local FRAMES = tonumber(os.getenv("WL4_FRAMES") or "") or 1200
 local path = os.getenv("WL4_DUMP") or ((os.getenv("TEMP") or ".") .. "\\wl4_mgba.bin")
+local shots = os.getenv("WL4_SHOTS") == "1"
 
 -- mGBA memory domains, in the order of port/tools/frame_dump.py's REGIONS.
 local REGIONS = {
@@ -31,6 +36,9 @@ local callback
 -- has taken the VBlank interrupt. wl4 --dump writes at the same point.
 local function dump()
     count = count + 1
+    if shots then
+        emu:screenshot()
+    end
     file:write(string.pack("<I4I4", MAGIC, count))
     for _, region in ipairs(REGIONS) do
         file:write(emu.memory[region[1]]:readRange(0, region[2]))

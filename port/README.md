@@ -18,7 +18,9 @@ your own ROM at run time.
 
 ## How game code builds for PC
 
-- `PIN()`, `ASM_BARRIER()` and the `COMPILER_BARRIER*()` macros only steer agbcc, and are empty.
+- `PIN()` and the `COMPILER_BARRIER*()` macros only steer agbcc, and are empty. `ASM_BARRIER()`
+  stays an empty asm statement, because some barriers carry a value: `ASM_BARRIER(: "=r"(x) : "0"(y))`
+  sets x to y. `ASM_BARRIER_ARM()`, for the ones that name ARM registers, is empty.
 - `SYSCALL()` calls `PlatformSyscall()` instead of the BIOS (`port/src/bios.c`).
 - Data defined in `src/` sits in `#ifndef PORTABLE` blocks with `extern` declarations in
   the `#else` branch. The port places each symbol at its GBA address. Only tables of
@@ -103,7 +105,7 @@ to the register page:
   - **VCOUNT and DISPSTAT.** These advance by half a line per read, so loops that wait for
     a scanline end. The host sets the line with `PortIoSetScanline()`.
   - **Read-only registers.** Writes to them are undone. Write-only bits read as 0.
-- A trapped access costs about 4 µs.
+- A trapped access costs about 4 Âµs.
 
 `--frames N` runs the game headless for N frames (`port/src/frame.c`):
 - The game runs until it halts, as it does once a frame while it waits for VBlank.
@@ -116,11 +118,23 @@ to the register page:
 `--dump FILE` writes GBA memory (EWRAM, IWRAM, I/O, palette, VRAM, OAM, SRAM) at the start of
 every VBlank.
 
-To compare a run with mGBA (0.10 or later):
-1. Load the ROM in mGBA. Choose Tools > Scripting... > File > Load script... and pick
-   `port/tools/mgba_dump.lua`. The script erases SRAM, resets the game and writes the same
-   format to `%WL4_DUMP%` (default `%TEMP%\wl4_mgba.bin`). `%WL4_FRAMES%` sets the frame count.
-2. Run `python port/tools/diff_frames.py PORT.bin MGBA.bin`.
+To compare a run with mGBA (0.10 or later, the Qt build):
+1. Run `wl4 --frames N --dump PORT.bin`.
+2. Make the same dump in mGBA. `port/tools/run_mgba_dump.ps1` does it unattended:
+
+       powershell -ExecutionPolicy Bypass -File port/tools/run_mgba_dump.ps1 ^
+           -Mgba C:\path\to\mGBA.exe -Frames N -Out MGBA.bin [-Shots]
+
+   It copies the ROM into a new run directory under `%TEMP%` and starts mGBA. It loads
+   `port/tools/mgba_dump.lua` through the Scripting window and closes mGBA once the dump is
+   written. `-Shots` also saves a screenshot of every frame in the run directory
+   (`wl4-N.png` is frame N+1). `Get-Help port/tools/run_mgba_dump.ps1 -Full` has the details.
+
+   To do it by hand, load the ROM and choose Tools > Scripting... > File > Load script...,
+   then pick `port/tools/mgba_dump.lua`. The script erases SRAM, resets the game and writes
+   the dump to `%WL4_DUMP%` (default `%TEMP%\wl4_mgba.bin`). `%WL4_FRAMES%` sets the frame
+   count, and `WL4_SHOTS=1` turns the screenshots on.
+3. Run `python port/tools/diff_frames.py PORT.bin MGBA.bin`.
 
 The diff runner compares only the frames on which the game's main loop ran (`gMainTimer`
 changed), so boot time does not matter. It masks state the port does not model, each mask with
