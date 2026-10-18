@@ -74,6 +74,15 @@ static void TestImmediateDma(void)
         Check(dst[3] == 0x7777 && dst[1] == 0x7777 && dst[0] == 0 && dst[4] == 0,
               "DMA through a computed address, decrementing");
     }
+
+    // A source DMA cannot read (the BIOS) gives the last value any DMA moved, 16-bit
+    // values in both halves.
+    memset((void *)dst32, 0, 16);
+    IO32(0xD4) = 0x00000100;
+    IO32(0xD8) = 0x02000300;
+    IO32(0xDC) = (0x8000 | 0x0400) << 16 | 2;  // enable, 32-bit
+    Check(dst32[0] == 0x77777777 && dst32[1] == 0x77777777 && dst32[2] == 0,
+          "DMA from the BIOS writes the last value moved");
 }
 
 static void TestTimedDma(void)

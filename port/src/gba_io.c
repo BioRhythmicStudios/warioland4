@@ -74,6 +74,8 @@ struct DmaChannel {
     uint16_t control;
 };
 static struct DmaChannel sDma[4];
+// The last value a DMA moved, which a DMA with no valid source writes instead (open bus).
+static uint32_t sDmaLatch;
 
 uint8_t *PortIoHost(void)
 {
@@ -246,6 +248,9 @@ static void DmaReportOutOfReach(const struct DmaChannel *d, uint32_t address, in
             (unsigned long long)PortOsExecutableOffset(sTrapPc));
 }
 
+// A source of 0 stands for one the DMA cannot read (DmaEnable): it reads nothing, stays where
+// it is, and the transfer writes the latch. That is what mGBA does; the hardware's open bus
+// works this way for these sources.
 static void DmaTransfer(struct DmaChannel *d)
 {
     unsigned int unit = d->control & DMA_32BIT ? 4 : 2;
@@ -255,16 +260,27 @@ static void DmaTransfer(struct DmaChannel *d)
     uint32_t i;
     int wroteIo = 0;
 
+    // A source in the cartridge always counts up.
+    if (src - GBA_ROM_BASE < 0x06000000u)
+        srcStep = (int32_t)unit;
+    if (src == 0)
+        srcStep = 0;
     for (i = 0; i < d->count; i++) {
-        if (!DmaReaches(src, unit, 0))
+        if (src != 0 && !DmaReaches(src, unit, 0))
             DmaReportOutOfReach(d, src, 0);
         else if (!DmaReaches(dst, unit, 1))
             DmaReportOutOfReach(d, dst, 1);
         else {
+            if (src != 0 && unit == 4) {
+                sDmaLatch = *(const volatile uint32_t *)DmaAddress(src);
+            } else if (src != 0) {
+                sDmaLatch = *(const volatile uint16_t *)DmaAddress(src);
+                sDmaLatch |= sDmaLatch << 16;
+            }
             if (unit == 4)
-                *(volatile uint32_t *)DmaAddress(dst) = *(const volatile uint32_t *)DmaAddress(src);
+                *(volatile uint32_t *)DmaAddress(dst) = sDmaLatch;
             else
-                *(volatile uint16_t *)DmaAddress(dst) = *(const volatile uint16_t *)DmaAddress(src);
+                *(volatile uint16_t *)DmaAddress(dst) = (uint16_t)sDmaLatch;
             if (dst - GBA_IO_BASE < PORT_IO_SIZE) {
                 NoteAffineWrite(dst - GBA_IO_BASE);
                 wroteIo = 1;
@@ -300,7 +316,13 @@ static void DmaEnable(int n)
     struct DmaChannel *d = &sDma[n];
 
     d->control = PortIoRead16(base + 10);
-    d->src = Read32(base) & (n == 0 ? 0x07FFFFFF : 0x0FFFFFFF);
+    // DMA cannot read the BIOS or below RAM, and DMA 0 cannot read the cartridge: as mGBA does,
+    // such a source becomes 0, which DmaTransfer() takes as open bus. The port's game stack,
+    // which stands in for the GBA's in IWRAM, is below RAM but readable.
+    d->src = Read32(base) & 0x0FFFFFFE;
+    if ((d->src < GBA_EWRAM_BASE && !(d->src >= PORT_GAME_STACK_LIMIT && d->src < PORT_GAME_STACK_TOP))
+        || (n == 0 && d->src - GBA_ROM_BASE < 0x06000000u))
+        d->src = 0;
     d->dst = Read32(base + 4) & (n == 3 ? 0x0FFFFFFF : 0x07FFFFFF);
     d->count = DmaCount(n);
     d->active = 1;
