@@ -176,47 +176,36 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
-- **Done:** M0 steps 1–10, pushed to `myfork/port`. The game-source changes of steps 1–4 are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`). The barrier fix (`532af6f`) is a game-source change too, byte-identical on the GBA, and is **not yet on `decomp-wtf`**.
-- **Step 10 results:**
-  - Memory matches mGBA, with the masks below, from the first main-loop step to port frame 1764: boot, the intro and the idle title screen (frames 853–1762).
-  - The run is deterministic: two port runs give identical dumps. 3,600 frames take about 0.3 s, with about 14 trapped I/O accesses per frame.
-  - The port's unit tests still pass (`--selftest --test-bios --test-io`).
-- **Bugs found by running the game:**
-  - **Asm barriers carried values.** `ASM_BARRIER(: "=r"(x) : "0"(y))` sets x to y, but portable builds dropped all 677 barriers. That left 33 variables uninitialized, and one sent a DMA to address 0. Portable builds now keep the empty asm statements, which are valid Clang. The 12 that name ARM registers (`"l"`, clobbers `"r0"`–`"r6"`) carry no value and use `ASM_BARRIER_ARM`, which portable builds drop.
-  - **Three barriers output what agbcc had left in a register:** `ASM_BARRIER(: "=r"(x))` with no input. Portable builds set them explicitly, from the GBA disassembly:
-    - `cutscenes.c` `elseOffset` = `gCutsceneBackgroundHorizontalOffset`
-    - `file_select.c` `modePointer` = `&gSubGameMode`
-    - `stage_entry.c` `normalSelectedStage` = `&gStageEntrySelectedStage`
-  - The other 27 output-only barriers just reserve registers; their values are never read. Any new `"=r"`-only barrier needs the same check.
-  - **Clang assumes 16-byte alignment for global arrays of 16 bytes or more.** GBA data at its own addresses isn't aligned like that, so aligned SSE loads fault. Game code is now built with `-mno-sse` (on x86-64).
-  - **Stores to a local that only a DMA reads were dropped or delayed** (`fill = 0; REG_DMA3SAD = (u32)&fill; ...`). Game code is now built with `-fms-volatile`, which gives volatile accesses acquire/release ordering. That's free on x86. On arm64 it costs `ldar`/`stlr`.
-  - The mGBA dump must start from erased SRAM: mGBA runs the game as soon as it loads the ROM. The Lua script erases SRAM before its reset.
-- **Diff masks** (`diff_frames.py`, each with its reason):
-  - the GBA stacks (IWRAM above `gMPlayInfo_7`)
-  - VCOUNT and the DISPSTAT status bits
-  - timer counters
-  - write-only registers (DMA addresses, sound FIFOs, unused BG scroll bits)
-  - mGBA's fixed-destination quirk for the sound FIFO DMA channels
-  - sound engine state: `gSoundInfo`, `gCgbChans`, `gMPlayInfo_*`, and the track arrays at `0x03001A08`–`0x03002C28`, which `linker.ld` leaves unnamed except for a misnamed `gUnk_3002B98`
-  - SOUNDCNT_X channel status
+- **Done:** M0 (steps 1–10) and M1, pushed to `myfork/port`. The game-source changes of steps 1–4 and the barrier fix are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`; barrier fix cherry-picked as `0c2f07a`, byte-identical). The main tree's `build/verify-step4` is deleted.
+- **M1 results (exit criteria met):**
+  - **Renderer** (`port/src/ppu.c`, `12a5095`): draws each line at HBlank start, before HBlank DMA, from the registers, VRAM, palette and OAM as the game left them. Modes 0–5, text/affine/bitmap BGs, regular and affine sprites, all windows, blending, brightness, mosaic. Where hardware behaviour is unclear it copies mGBA 0.10.5's software renderer: BG enable delay, sprite cycle budget, the OBJ priority quirk, semi-transparent sprites with brightness, affine reference points that advance only while the BG is drawn.
+  - **Colours:** blended on 5-bit channels as on the GBA by default. mGBA blends 8-bit channels at their bit positions, so its darken rounds up and its results can be a step off. `--mgba-colors` copies mGBA's maths for exact comparison.
+  - **Pixel-exact with mGBA** (`--mgba-colors`) on every main-loop step from boot through the intro, the title and the file select screen (1,394 steps with `port/tools/inputs/file_select.keys`; 1,864 steps idling without input). GBA colours are within one 5-bit step of mGBA.
+  - **Memory matches mGBA** on all those steps, with the masks below.
+  - **SDL3 window** (`port/platform/sdl/sdl_frontend.c`, `2d2744e`): integer scaling, mGBA's default keys, the first gamepad, pacing at 59.73 Hz, Tab fast-forward, F11 fullscreen. Start reaches file select.
+  - **Sanitizers:** the ASan build matches the normal build (pictures, and memory apart from masked sound state). In the window it reaches file select with no reports, and the unit tests pass. UBSan has not been tried.
+  - Headless speed: about 1,000–1,200 frames a second with rendering.
+- **Diff tooling** (all in `port/tools/`, documented in `port/README.md`):
+  - `run_mgba_dump.ps1` (`17a21d4`) drives mGBA 0.10.5 unattended through UI Automation and Win32 messages: Scripting window, Load script, waits for the dump, closes. `-Shots` saves a screenshot per frame; `-InputScript` presses keys.
+  - `mgba_dump.lua` erases SRAM, resets, dumps memory at each VBlank start, and optionally takes screenshots and plays an input script.
+  - `diff_frames.py` (memory) and `diff_screens.py` (pictures) pair one frame per **finished** main-loop step: `gMainTimer` changed and bit 0 of `gInterruptCheck` is clear (the loop waits for VBlank). This fixed the old "step 1757" divergence, which was a lag frame in mGBA, where one step of the title-to-intro handover took more than a frame.
+  - `wl4 --input FILE` and the Lua script read the same input scripts (`port/include/port/input_script.h`): `STEP KEYS` lines keyed by finished steps (`PortFrameSteps()`), so both sides press the same keys on the same steps despite lag frames. It works in the window too.
+- **Bugs found and fixed in M1:**
+  - Unused register bits now read as 0, as on hardware and in mGBA (`8a301ac`): BG0CNT/BG1CNT bit 13, DISPCNT bit 3, WININ/WINOUT, BLDCNT and BLDALPHA. The file select screen sets BG0CNT bit 13.
+  - Affine reference points must reload on every write, even with an unchanged value. The I/O traps report writes (`PortIoTakeAffineWrites()`), including wider stores and DMA.
+- **Earlier bugs (M0), for reference:** value-carrying asm barriers (portable builds keep the empty asm; `ASM_BARRIER_ARM` for the 12 ARM ones; three output-only barriers set explicitly in `cutscenes.c`, `file_select.c`, `stage_entry.c`); `-mno-sse` against Clang's 16-byte alignment assumption; `-fms-volatile` so stores to a local that only DMA reads are kept; the mGBA dump starts from erased SRAM.
+- **Diff masks** (`diff_frames.py`, each with its reason): the GBA stacks; VCOUNT and DISPSTAT status; timer counters; write-only registers (DMA addresses, sound FIFOs, unused BG scroll bits); mGBA's fixed-destination quirk for the sound FIFO DMA channels; sound engine state (`gSoundInfo`, `gCgbChans`, `gMPlayInfo_*`, the track arrays at `0x03001A08`–`0x03002C28`); the PSG sound registers `0x04000060`–`0x04000081` and wave RAM, which the sound engine writes; SOUNDCNT_X channel status.
 - **Known gaps:**
-  - **Game code takes no time.** The first divergence, at port frame 1765, is the title screen handing over to the next scene. A setup that spans several frames on the GBA finishes within one in the port, so frame alignment slips: `gInterruptCheck` differs, and VRAM differs while the setup is still running in mGBA. Next step: let the diff runner resynchronise on game state (e.g. align on `gSubGameMode` changes), or count trapped accesses and BIOS work as time. Interrupts raised while the game runs (by polling VCOUNT) are handled at its next Halt.
-  - **Sound engine.** `SoundMain` is a silent placeholder, so `MPlayMain` and the `ply_` routines never run. `MPlayJumpTableCopy`, `TrackStop`, `m4aSoundVSync`, `SoundMainBTM` and `RealClearChain` are native.
-    - The asm stubs left: `MPlayMain`, `ply_endtie`, `ply_lfos`, `ply_mod`, `ply_note`, `irq_handler`. `irq_handler` is never called; `frame.c` replaces it.
-    - BIOS 0x2A (`GetJumpList`) is still unimplemented and unused so far.
-  - DMA writes the port can't reach are skipped and reported once, with the game's pc. Expect none now.
-  - 295 compiler warnings remain, of the kinds listed before; `check_signatures.py` covers calls.
-  - Two header pairs still conflict: `save_reset.h`/`save_data_clear.h` and `stage_entry.h`/`boss_door_opening.h`. `StartLargeLipsKiss`'s fifth argument still needs confirming against mGBA once sprites run.
-- **Running the mGBA side unattended:** mGBA 0.10.5 has no `--script` option. A PowerShell script in the session scratchpad, `run_mgba_dump.ps1`, did it:
-  - It uses UI Automation to open Tools > Scripting... > File > Load script....
-  - It drives the modal file dialog with Win32 messages; UI Automation calls time out while that dialog is open.
-  - Copy it into `port/tools/` if it is wanted again.
-- **Needs approval:** the main tree has a `build/verify-step4` directory from verifying step 4 on `decomp-wtf`, which can be deleted. Cherry-picking `532af6f` onto `decomp-wtf` also needs approval.
-- **Next:** M1, a pixel-exact title screen on Windows: an SDL3 window, the renderer, input and pacing. Fix the frame-alignment gap first if later scenes need diffing.
+  - **Game code takes no time.** The step alignment handles it for diffs, but timing-dependent behaviour (raster effects that poll VCOUNT mid-step) is still approximate. Interrupts raised while the game runs are handled at its next Halt.
+  - **Sound engine (M2).** `SoundMain` is a silent placeholder, so `MPlayMain` and the `ply_` routines never run. The asm stubs left are `MPlayMain`, `ply_endtie`, `ply_lfos`, `ply_mod`, `ply_note` and `irq_handler` (never called; `frame.c` replaces it). `MPlayOpen` stores `soundInfo->func = (u32)MPlayMain`, a native pointer cut to 32 bits, which changes from run to run with ASLR. Nothing calls it yet, but the native `SoundMain` must convert it (`PortNativeFunctionToGba`/`PortGbaFunctionToNative`). BIOS 0x2A (`GetJumpList`) is still unimplemented.
+  - No saves yet (SRAM is not persisted).
+  - 295 compiler warnings remain, of the kinds listed before; `check_signatures.py` covers calls. Two header pairs still conflict: `save_reset.h`/`save_data_clear.h` and `stage_entry.h`/`boss_door_opening.h`. `StartLargeLipsKiss`'s fifth argument still needs confirming against mGBA.
+- **Housekeeping:** the main tree's `build/` still holds `verify-step4.log`, `verify-step4.objcheck`, `barrier-base` and `barrier-after` from verifying the cherry-pick; delete them when convenient. GBA byte identity was last verified as `build/v7-13` (MD5 `940b597b…`, objects identical).
+- **Next:** M2. First, input scripts that go into a level (from file select into the first passage), diffed with memory and pictures, to catch the first HBlank/affine effects in play. Then the sound engine (native `SoundMain` mixer against mGBA's m4a state, SDL3 audio stream) and SRAM saves. Optionally try UBSan on the window run.
 
 ## Later milestones
 
-- **M1 (first visible milestone), pixel-exact title screen on Windows.** SDL3 window, renderer, input and pacing. Exit criteria: the framebuffer matches mGBA, Start reaches file select, and the sanitizers are clean.
+- **M1 (first visible milestone), pixel-exact title screen on Windows.** SDL3 window, renderer, input and pacing. Exit criteria: the framebuffer matches mGBA, Start reaches file select, and the sanitizers are clean. **Done 2026-10-18** (see "Where we are").
 - **M2.** Audio, saves, and the first passage with HBlank effects and affine.
 - **M3.** Full playthrough under the diff harness, using TAS input movies (expect some lag-frame desyncs).
 - **M4.** Linux x64.
