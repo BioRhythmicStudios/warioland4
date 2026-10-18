@@ -75,6 +75,7 @@ target_link_libraries(wl4_game_native PRIVATE wl4_game_flags)
 # and stubs for the functions that are still asm.
 add_executable(wl4
     port/src/main.c
+    port/src/audio.c
     port/src/game_thread.c
     port/src/bios.c
     port/src/bios_test.c
@@ -89,6 +90,7 @@ add_executable(wl4
     port/src/os_win32.c
     port/src/ppu.c
     port/src/rom.c
+    port/src/x86_access.c
     port/generated/gba_symbols.s
     port/generated/gba_functions.c
     port/generated/gba_stubs.c

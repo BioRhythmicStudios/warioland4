@@ -1,5 +1,5 @@
-// The SDL3 frontend: a window showing the display, keyboard and gamepad input, and frame
-// pacing at the GBA's rate. Sound and saves come later (M2).
+// The SDL3 frontend: a window showing the display, keyboard and gamepad input, sound, and
+// frame pacing at the GBA's rate.
 
 #include "port/sdl_frontend.h"
 
@@ -8,6 +8,7 @@
 
 #include <SDL3/SDL.h>
 
+#include "port/audio.h"
 #include "port/frame.h"
 #include "port/gba_io.h"
 #include "port/input_script.h"
@@ -31,6 +32,11 @@
 // A GBA frame: 228 lines of 1232 cycles at 2^24 Hz, about 59.73 frames a second.
 #define FRAME_NS (280896ull * 1000000000ull / 16777216ull)
 #define STICK_THRESHOLD 16384
+
+// The sound kept queued for the device: about 4 frames.
+#define AUDIO_TARGET_FRAMES (PORT_AUDIO_RATE / 15)
+// How far the stream's speed may move from 1 to keep that much queued.
+#define AUDIO_MAX_ADJUST 0.005f
 
 // mGBA's default keyboard layout.
 static const struct {
@@ -57,6 +63,7 @@ static const struct {
 };
 
 static SDL_Gamepad *sGamepad;
+static SDL_AudioStream *sAudio;
 
 static uint16_t PressedKeys(void)
 {
@@ -104,6 +111,49 @@ static void OpenFirstGamepad(void)
     SDL_free(ids);
 }
 
+static void OpenAudio(void)
+{
+    const SDL_AudioSpec spec = { SDL_AUDIO_S16, 2, PORT_AUDIO_RATE };
+
+    if (!SDL_InitSubSystem(SDL_INIT_AUDIO)
+        || (sAudio = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL)) == NULL) {
+        fprintf(stderr, "No sound: %s\n", SDL_GetError());
+        return;
+    }
+    SDL_ResumeAudioStreamDevice(sAudio);
+}
+
+// Queues the sound of the frame just run. The frames are paced by the system clock, which
+// drifts from the sound device's, so the stream plays a little faster or slower to keep about
+// AUDIO_TARGET_FRAMES queued. After a stall it starts again from silence; fast forward drops
+// the sound.
+static void QueueAudio(int fastForward)
+{
+    int16_t frames[2048 * 2];
+    size_t n;
+    int queued;
+    float error;
+
+    while ((n = PortAudioTake(frames, 2048)) != 0)
+        if (sAudio != NULL && !fastForward)
+            SDL_PutAudioStreamData(sAudio, frames, (int)(n * sizeof(int16_t) * 2));
+    if (sAudio == NULL)
+        return;
+    queued = SDL_GetAudioStreamQueued(sAudio) / (int)(sizeof(int16_t) * 2);
+    if (queued > 4 * AUDIO_TARGET_FRAMES) {
+        SDL_ClearAudioStream(sAudio);
+        queued = 0;
+    }
+    if (queued < AUDIO_TARGET_FRAMES / 2) {
+        static const int16_t kSilence[AUDIO_TARGET_FRAMES * 2];
+        SDL_PutAudioStreamData(sAudio, kSilence, (AUDIO_TARGET_FRAMES - queued) * (int)(sizeof(int16_t) * 2));
+        queued = AUDIO_TARGET_FRAMES;
+    }
+    error = (float)(queued - AUDIO_TARGET_FRAMES) / AUDIO_TARGET_FRAMES;
+    error = error > 1 ? 1 : error < -1 ? -1 : error;
+    SDL_SetAudioStreamFrequencyRatio(sAudio, 1 + AUDIO_MAX_ADJUST * error);
+}
+
 int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted)
 {
     SDL_Window *window = NULL;
@@ -132,6 +182,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted)
     }
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     OpenFirstGamepad();
+    OpenAudio();
 
     if (PortFrameStart(entry))
         goto done;
@@ -183,6 +234,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted)
             break;
         }
 
+        QueueAudio(fastForward);
         SDL_UpdateTexture(texture, NULL, PortPpuFrame(), PORT_SCREEN_WIDTH * 4);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
@@ -201,6 +253,8 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted)
     result = 0;
 
 done:
+    SDL_DestroyAudioStream(sAudio);
+    sAudio = NULL;
     if (sGamepad != NULL)
         SDL_CloseGamepad(sGamepad);
     SDL_DestroyTexture(texture);

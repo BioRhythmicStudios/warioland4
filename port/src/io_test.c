@@ -4,11 +4,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "port/audio.h"
 #include "port/game_thread.h"
+#include "port/x86_access.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#define IO8(offset) (*(volatile uint8_t *)(uintptr_t)(0x04000000u + (offset)))
 #define IO16(offset) (*(volatile uint16_t *)(uintptr_t)(0x04000000u + (offset)))
 #define IO32(offset) (*(volatile uint32_t *)(uintptr_t)(0x04000000u + (offset)))
 #define EWRAM16(offset) ((volatile uint16_t *)(uintptr_t)(0x02000000u + (offset)))
@@ -148,6 +151,123 @@ static void TestDisplayStatus(void)
     Check(PortIoRead16(0x130) == 0x03FF, "KEYINPUT ignores writes");
 }
 
+static void TestAccessSize(void)
+{
+    static const struct {
+        uint8_t code[8];
+        unsigned int size;
+    } kCases[] = {
+        { { 0x88, 0x07 }, 1 },                    // mov [rdi], al
+        { { 0x66, 0x89, 0x07 }, 2 },              // mov [rdi], ax
+        { { 0x89, 0x07 }, 4 },                    // mov [rdi], eax
+        { { 0x48, 0x89, 0x07 }, 8 },              // mov [rdi], rax
+        { { 0x66, 0xC7, 0x07, 0x34, 0x12 }, 2 },  // mov word [rdi], 0x1234
+        { { 0xC6, 0x07, 0x80 }, 1 },              // mov byte [rdi], 0x80
+        { { 0x80, 0x0F, 0x80 }, 1 },              // or byte [rdi], 0x80
+        { { 0x0F, 0x11, 0x07 }, 16 },             // movups [rdi], xmm0
+        { { 0xF3, 0x0F, 0x11, 0x07 }, 4 },        // movss [rdi], xmm0
+        { { 0xC5, 0xF8, 0x11, 0x07 }, 0 },        // vmovups: not recognised
+    };
+    unsigned int i;
+
+    for (i = 0; i < sizeof(kCases) / sizeof(kCases[0]); i++)
+        Check(PortX86AccessSize(kCases[i].code) == kCases[i].size, "x86 store sizes");
+}
+
+static void DrainAudio(void)
+{
+    int16_t frames[1024 * 2];
+
+    while (PortAudioTake(frames, 1024) != 0)
+        ;
+}
+
+// Runs the sound hardware for a number of samples and counts the left channel's rising edges.
+static unsigned int RisingEdges(unsigned int samples)
+{
+    int16_t frames[1024 * 2];
+    unsigned int edges = 0, n, i;
+    int last = 0;
+
+    DrainAudio();
+    while (samples != 0) {
+        n = samples < 1024 ? samples : 1024;
+        PortAudioRun(n * PORT_AUDIO_CYCLES_PER_SAMPLE);
+        n = (unsigned int)PortAudioTake(frames, n);
+        for (i = 0; i < n; i++) {
+            if (frames[i * 2] > 0 && last <= 0)
+                edges++;
+            last = frames[i * 2];
+        }
+        samples -= n;
+    }
+    return edges;
+}
+
+static void TestSound(void)
+{
+    IO16(0x84) = 0x0080;  // sound on
+    IO16(0x80) = 0xFF77;  // PSG full volume, every channel both sides
+    IO16(0x82) = 0x0002;  // PSG 100%, Direct Sound off
+
+    // Write-only bits read as 0, as on the GBA; the PSG still gets them.
+    IO16(0x60) = 0x00FF;
+    Check(IO16(0x60) == 0x007F, "SOUND1CNT_L keeps its 7 bits");
+    IO16(0x60) = 0;
+    IO16(0x62) = 0xF080;  // duty 50%, length 64, envelope 15, constant
+    IO16(0x64) = 0x0400;  // frequency 1024 (128 Hz): a 16-bit store, high byte 4
+    Check(IO16(0x64) == 0, "SOUND1CNT_X's frequency reads as 0");
+    IO8(0x65) = 0x84;  // restart, frequency high bits written again
+    Check((IO16(0x84) & 1) != 0, "SOUNDCNT_X shows square 1 playing");
+    // 128 Hz for a quarter of a second.
+    {
+        unsigned int edges = RisingEdges(PORT_AUDIO_RATE / 4);
+        Check(edges >= 31 && edges <= 33, "square 1 plays at its frequency");
+    }
+
+    // Length: 1/256 s with length 63, then square 1 stops.
+    IO16(0x62) = 0xF03F;
+    IO16(0x64) = 0xC400;  // restart, length on
+    Check((IO16(0x84) & 1) != 0, "square 1 restarts");
+    RisingEdges(PORT_AUDIO_RATE / 100);
+    Check((IO16(0x84) & 1) == 0, "square 1 stops when its length runs out");
+
+    // Wave RAM: the CPU reaches the bank that is not playing.
+    IO16(0x70) = 0x0040;  // bank 1 plays
+    IO16(0x90) = 0x1234;  // into bank 0
+    IO16(0x70) = 0x0000;  // bank 0 plays: the CPU sees bank 1
+    Check(IO16(0x90) != 0x1234, "wave RAM switches banks");
+    IO16(0x70) = 0x0040;
+    Check(IO16(0x90) == 0x1234, "wave RAM keeps each bank");
+
+    // Direct Sound: DMA 1 feeds FIFO A from EWRAM on timer 0.
+    {
+        volatile uint8_t *pcm = (volatile uint8_t *)(uintptr_t)0x02000800;
+        unsigned int i;
+
+        for (i = 0; i < 64; i++)
+            pcm[i] = 0x60;
+        IO16(0x80) = 0;
+        IO16(0x82) = 0x0B0E;  // A full volume, both sides, timer 0, FIFO reset
+        IO16(0x100) = (uint16_t)(0x10000 - 1254);  // 13379 Hz
+        IO16(0x102) = 0x0080;
+        IO32(0xBC) = 0x02000800;
+        IO32(0xC0) = 0x040000A0;
+        IO16(0xC6) = 0xB600;  // enable, special timing, 32-bit, repeat
+        DrainAudio();
+        PortAudioRun(PORT_AUDIO_CYCLES_PER_SAMPLE * 64);
+        {
+            int16_t frames[64 * 2];
+            size_t n = PortAudioTake(frames, 64);
+            Check(n == 64 && frames[63 * 2] > 0 && frames[63 * 2 + 1] > 0, "FIFO A plays what DMA 1 feeds it");
+        }
+        IO16(0xC6) = 0;
+        IO16(0x102) = 0;
+    }
+    IO16(0x84) = 0;  // sound off: the PSG registers clear
+    Check(IO16(0x62) == 0 && IO16(0x80) == 0, "turning the sound off clears the PSG registers");
+}
+
 static void TestSpeed(void)
 {
     LARGE_INTEGER frequency, start, end;
@@ -172,6 +292,8 @@ static void IoTestEntry(void)
     TestTimedDma();
     TestInterruptFlags();
     TestDisplayStatus();
+    TestAccessSize();
+    TestSound();
     TestSpeed();
 }
 

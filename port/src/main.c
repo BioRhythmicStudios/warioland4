@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "port/audio.h"
 #include "port/bios.h"
 #include "port/frame.h"
 #include "port/game_thread.h"
@@ -19,13 +20,14 @@
 static void Usage(void)
 {
     fprintf(stderr,
-            "usage: wl4 [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--from-step S]] [--input FILE]\n"
-            "           [--mgba-colors] [--selftest] [--test-bios] [--test-io]\n"
+            "usage: wl4 [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--wav FILE] [--from-step S]]\n"
+            "           [--input FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io]\n"
             "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
             "  ROM defaults to baserom_us.gba in the current directory.\n"
             "  With no --frames or tests, the game runs in a window, --scale times 240x160 (default 3).\n"
             "  --frames N runs the game headless for N frames; --dump writes GBA memory after each,\n"
-            "  --shots the picture, from the frame on which main-loop step S finishes with --from-step.\n"
+            "  --shots the picture and --wav the sound, from the frame on which main-loop step S\n"
+            "  finishes with --from-step.\n"
             "  --input presses keys from a script (port/include/port/input_script.h),\n"
             "  in the window as well. --mgba-colors blends colours as mGBA does, to compare with it.\n");
 }
@@ -140,10 +142,65 @@ static void GameEntry(void)
 #define REG_KEYINPUT 0x130
 #define KEYS_ALL 0x3FF
 
-static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsPath, unsigned int fromStep,
-                   const char *inputPath)
+// --- WAV output ---------------------------------------------------------------------------
+
+static void Put16(uint8_t *p, unsigned int v)
 {
-    FILE *dump = NULL, *shots = NULL;
+    p[0] = (uint8_t)v;
+    p[1] = (uint8_t)(v >> 8);
+}
+
+static void Put32(uint8_t *p, uint32_t v)
+{
+    Put16(p, v & 0xFFFF);
+    Put16(p + 2, v >> 16);
+}
+
+// A 16-bit stereo WAV header for a number of frames.
+static int WriteWavHeader(FILE *file, uint32_t frames)
+{
+    uint8_t h[44];
+
+    memcpy(h, "RIFF", 4);
+    Put32(h + 4, 36 + frames * 4);
+    memcpy(h + 8, "WAVEfmt ", 8);
+    Put32(h + 16, 16);
+    Put16(h + 20, 1);  // PCM
+    Put16(h + 22, 2);
+    Put32(h + 24, PORT_AUDIO_RATE);
+    Put32(h + 28, PORT_AUDIO_RATE * 4);
+    Put16(h + 32, 4);
+    Put16(h + 34, 16);
+    memcpy(h + 36, "data", 4);
+    Put32(h + 40, frames * 4);
+    return fseek(file, 0, SEEK_SET) != 0 || fwrite(h, sizeof(h), 1, file) != 1 ? -1 : 0;
+}
+
+// Appends the sound produced since the last call, or drops it when file is NULL; *frames
+// counts what the file holds.
+static int WriteWavFrames(FILE *file, uint32_t *frames)
+{
+    int16_t buffer[4096 * 2];
+    uint8_t bytes[sizeof(buffer)];
+    size_t n, i;
+
+    while ((n = PortAudioTake(buffer, 4096)) != 0) {
+        if (file == NULL)
+            continue;
+        for (i = 0; i < n * 2; i++)
+            Put16(bytes + i * 2, (uint16_t)buffer[i]);
+        if (fseek(file, 0, SEEK_END) != 0 || fwrite(bytes, 4, n, file) != n)
+            return -1;
+        *frames += (uint32_t)n;
+    }
+    return 0;
+}
+
+static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsPath, const char *wavPath,
+                   unsigned int fromStep, const char *inputPath)
+{
+    FILE *dump = NULL, *shots = NULL, *wav = NULL;
+    uint32_t wavFrames = 0;
     clock_t start = clock();
     double seconds;
 
@@ -153,6 +210,10 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
     }
     if (shotsPath != NULL && (shots = fopen(shotsPath, "wb")) == NULL) {
         perror(shotsPath);
+        return 1;
+    }
+    if (wavPath != NULL && ((wav = fopen(wavPath, "wb")) == NULL || WriteWavHeader(wav, 0))) {
+        perror(wavPath);
         return 1;
     }
     if (inputPath != NULL && PortInputScriptLoad(inputPath))
@@ -166,6 +227,10 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
         if (!PortFrameRun()) {
             printf("The game stopped after %u frames\n", PortFrameCount());
             break;
+        }
+        if (WriteWavFrames(PortFrameSteps() < fromStep ? NULL : wav, &wavFrames)) {
+            perror(wavPath);
+            return 1;
         }
         if (PortFrameSteps() < fromStep)
             continue;
@@ -186,6 +251,10 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
         perror(shotsPath);
         return 1;
     }
+    if (wav != NULL && (WriteWavHeader(wav, wavFrames) || fclose(wav) != 0)) {
+        perror(wavPath);
+        return 1;
+    }
     seconds = (double)(clock() - start) / CLOCKS_PER_SEC;
     printf("%u frames in %.2f s (%.0f fps); %.0f trapped I/O accesses per frame\n", PortFrameCount(), seconds,
            seconds > 0 ? PortFrameCount() / seconds : 0.0,
@@ -196,7 +265,7 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
 int main(int argc, char **argv)
 {
     const char *romPath = "baserom_us.gba";
-    const char *dumpPath = NULL, *shotsPath = NULL, *inputPath = NULL;
+    const char *dumpPath = NULL, *shotsPath = NULL, *wavPath = NULL, *inputPath = NULL;
     enum PortPpuColors colors = PORT_PPU_COLORS_GBA;
     unsigned int frames = 0, scale = 3, fromStep = 0;
     int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
@@ -222,6 +291,8 @@ int main(int argc, char **argv)
             dumpPath = argv[++i];
         else if (strcmp(argv[i], "--shots") == 0 && i + 1 < argc)
             shotsPath = argv[++i];
+        else if (strcmp(argv[i], "--wav") == 0 && i + 1 < argc)
+            wavPath = argv[++i];
         else if (strcmp(argv[i], "--from-step") == 0 && i + 1 < argc)
             fromStep = (unsigned int)strtoul(argv[++i], NULL, 10);
         else if (strcmp(argv[i], "--input") == 0 && i + 1 < argc)
@@ -262,7 +333,7 @@ int main(int argc, char **argv)
     }
     if (frames) {
         PortPpuReset(colors);
-        return RunGame(frames, dumpPath, shotsPath, fromStep, inputPath);
+        return RunGame(frames, dumpPath, shotsPath, wavPath, fromStep, inputPath);
     }
     if (selfTest || biosTest || ioTest)
         return 0;

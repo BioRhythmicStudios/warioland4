@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "port/audio.h"
 #include "port/gba_memory.h"
 #include "port/os.h"
+#include "port/x86_access.h"
 
 #define TRAP_RESERVE 0x10000u  // a whole Windows allocation block
 #define TRAP_PAGE 0x1000u      // the page that holds the registers
@@ -18,11 +20,10 @@
 #define REG_WINOUT 0x04A
 #define REG_BLDCNT 0x050
 #define REG_BLDALPHA 0x052
-#define REG_SOUND1CNT_X 0x064
-#define REG_SOUND2CNT_H 0x06C
-#define REG_SOUND3CNT_X 0x074
-#define REG_SOUND4CNT_H 0x07C
-#define REG_SOUNDCNT_H 0x082
+#define REG_SOUND_FIRST 0x060  // the sound registers, wave RAM and FIFOs (port/src/audio.c)
+#define REG_SOUND_END 0x0A8
+#define REG_FIFO_A 0x0A0
+#define REG_FIFO_B 0x0A4
 #define REG_DMA0SAD 0x0B0
 #define DMA_STRIDE 12
 #define REG_KEYINPUT 0x130
@@ -50,8 +51,11 @@
 #define DMA_IMMEDIATE 0
 #define DMA_AT_VBLANK 1
 #define DMA_AT_HBLANK 2
+#define DMA_SPECIAL 3  // for DMA 1 and 2, sound FIFO requests
 
 #define LINES 228
+#define LINE_CYCLES 1232
+#define HBLANK_START_CYCLES 960
 #define VISIBLE_LINES 160
 #define VBLANK_FIRST_LINE 160
 #define VBLANK_LAST_LINE 226  // DISPSTAT's VBlank flag is clear on the last line
@@ -72,6 +76,7 @@ struct DmaChannel {
     int active;
     uint32_t src, dst, count;
     uint16_t control;
+    int fifo;  // the sound FIFO it was started for, or -1
 };
 static struct DmaChannel sDma[4];
 // The last value a DMA moved, which a DMA with no valid source writes instead (open bus).
@@ -134,6 +139,7 @@ unsigned int PortIoAdvance(void)
         sInHBlank = 1;
         if (sHBlankHandler != NULL)
             sHBlankHandler(sLine);
+        PortAudioRun(HBLANK_START_CYCLES);
         if (sLine < VISIBLE_LINES)
             DmaRunTimed(DMA_AT_HBLANK);
         if (status & DISPSTAT_HBLANK_IRQ)
@@ -141,6 +147,7 @@ unsigned int PortIoAdvance(void)
         events |= PORT_IO_HBLANK_STARTED;
     } else {
         sInHBlank = 0;
+        PortAudioRun(LINE_CYCLES - HBLANK_START_CYCLES);
         sLine = (sLine + 1) % LINES;
         if (sLine == VBLANK_FIRST_LINE) {
             DmaRunTimed(DMA_AT_VBLANK);
@@ -183,10 +190,9 @@ static void NoteAffineWrite(unsigned int offset)
             sAffineWrites |= 1u << i;
 }
 
-// Bits the registers do not keep, which read as 0: write-only bits (the sound channels'
-// restart bits and the sound FIFO resets) and unused ones, as mGBA keeps them. BG0CNT and
-// BG1CNT have no display area overflow bit, which only the affine backgrounds use, and DISPCNT's
-// CGB mode bit can only be set by the BIOS.
+// Bits the registers do not keep, which read as 0, as mGBA keeps them. BG0CNT and BG1CNT have
+// no display area overflow bit, which only the affine backgrounds use, and DISPCNT's CGB mode
+// bit can only be set by the BIOS. The sound registers are port/src/audio.c's.
 static void ClearUnusedBits(void)
 {
     static const struct {
@@ -194,8 +200,7 @@ static void ClearUnusedBits(void)
     } kKeep[] = {
         { REG_DISPCNT, 0xFFF7 },     { REG_BG0CNT, 0xDFFF },      { REG_BG1CNT, 0xDFFF },
         { REG_WININ, 0x3F3F },       { REG_WINOUT, 0x3F3F },      { REG_BLDCNT, 0x3FFF },
-        { REG_BLDALPHA, 0x1F1F },    { REG_SOUND1CNT_X, 0x7FFF }, { REG_SOUND2CNT_H, 0x7FFF },
-        { REG_SOUND3CNT_X, 0x7FFF }, { REG_SOUND4CNT_H, 0x7FFF }, { REG_SOUNDCNT_H, 0x77FF },
+        { REG_BLDALPHA, 0x1F1F },
     };
     unsigned int i;
 
@@ -282,7 +287,11 @@ static void DmaTransfer(struct DmaChannel *d)
             else
                 *(volatile uint16_t *)DmaAddress(dst) = (uint16_t)sDmaLatch;
             if (dst - GBA_IO_BASE < PORT_IO_SIZE) {
-                NoteAffineWrite(dst - GBA_IO_BASE);
+                unsigned int offset = dst - GBA_IO_BASE, k;
+                NoteAffineWrite(offset);
+                for (k = 0; k < unit; k++)
+                    if (offset + k >= REG_SOUND_FIRST && offset + k < REG_SOUND_END)
+                        PortAudioWrite(offset + k, sIo[offset + k]);
                 wroteIo = 1;
             }
         }
@@ -302,10 +311,25 @@ static uint32_t DmaCount(int n)
     return count ? count : n == 3 ? 0x10000 : 0x4000;
 }
 
+// The sound FIFO a channel feeds on its special timing, or -1.
+static int DmaFifo(const struct DmaChannel *d, int n)
+{
+    if ((n != 1 && n != 2) || DMA_TIMING(d->control) != DMA_SPECIAL)
+        return -1;
+    return d->dst == GBA_IO_BASE + REG_FIFO_A ? 0 : d->dst == GBA_IO_BASE + REG_FIFO_B ? 1 : -1;
+}
+
+static void DmaStop(int n)
+{
+    if (sDma[n].active && sDma[n].fifo >= 0)
+        PortAudioSetFifoDma(sDma[n].fifo, 0);
+    sDma[n].active = 0;
+}
+
 static void DmaDisable(int n)
 {
     unsigned int cnt = REG_DMA0SAD + n * DMA_STRIDE + 10;
-    sDma[n].active = 0;
+    DmaStop(n);
     PortIoWrite16(cnt, PortIoRead16(cnt) & ~DMA_ENABLE);
 }
 
@@ -326,6 +350,10 @@ static void DmaEnable(int n)
     d->dst = Read32(base + 4) & (n == 3 ? 0x0FFFFFFF : 0x07FFFFFF);
     d->count = DmaCount(n);
     d->active = 1;
+    // Sound FIFO transfers are the sound hardware's: it asks for 4 words as it plays.
+    d->fifo = DmaFifo(d, n);
+    if (d->fifo >= 0)
+        PortAudioSetFifoDma(d->fifo, d->src);
     if (DMA_TIMING(d->control) == DMA_IMMEDIATE) {
         DmaTransfer(d);
         DmaDisable(n);
@@ -385,6 +413,20 @@ static void BeforeAccess(uintptr_t address, int isWrite, uintptr_t pc)
     memcpy(sBefore, sIo, PORT_IO_SIZE);
 }
 
+// Passes the bytes a store wrote to the sound registers on to the sound hardware, in order.
+// The instruction tells how many it wrote; for one PortX86AccessSize() does not know, they are
+// the first and any that changed.
+static void PassSoundWrites(unsigned int offset)
+{
+    unsigned int size = PortX86AccessSize((const uint8_t *)sTrapPc), i;
+
+    for (i = REG_SOUND_FIRST; i < REG_SOUND_END; i++) {
+        int written = size ? i >= offset && i < offset + size : i == offset || sIo[i] != sBefore[i];
+        if (written)
+            PortAudioWrite(i, sIo[i]);
+    }
+}
+
 static void AfterAccess(uintptr_t address, int isWrite, uintptr_t pc)
 {
     unsigned int offset = (unsigned int)(address - GBA_IO_BASE);
@@ -405,6 +447,9 @@ static void AfterAccess(uintptr_t address, int isWrite, uintptr_t pc)
             if (memcmp(sBefore + kAffineReferences[i], sIo + kAffineReferences[i], 4) != 0)
                 sAffineWrites |= 1u << i;
     }
+
+    if (isWrite && offset < REG_SOUND_END && offset + 16 > REG_SOUND_FIRST)
+        PassSoundWrites(offset);
 
     // Read-only registers and bits.
     ClearUnusedBits();
@@ -434,7 +479,7 @@ static void AfterAccess(uintptr_t address, int isWrite, uintptr_t pc)
         if (!(before & DMA_ENABLE) && (now & DMA_ENABLE))
             DmaEnable(n);
         else if ((before & DMA_ENABLE) && !(now & DMA_ENABLE))
-            sDma[n].active = 0;
+            DmaStop(n);
         else if (now & DMA_ENABLE)
             sDma[n].control = now;  // a running channel takes new control bits
     }
@@ -456,5 +501,6 @@ int PortIoMap(void)
     PortIoWrite16(0x300, 0x0001);  // POSTFLG: past the boot
     sAffineWrites = 0xF;
     PortIoSetScanline(0);
+    PortAudioReset();
     return 0;
 }

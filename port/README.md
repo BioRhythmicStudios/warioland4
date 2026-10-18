@@ -74,15 +74,17 @@ because it needs agbcc and libclang (`pip install libclang`).
 
 ## Runtime
 
-`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--from-step S]] [--input FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--wav FILE] [--from-step S]] [--input FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
 
 With no `--frames` or tests, the game runs in a window (`port/platform/sdl/sdl_frontend.c`), at
 `--scale` times 240x160 (default 3). The window scales in whole steps. The keys are mGBA's
 defaults: arrows, X = A, Z = B, A = L, S = R, Enter = Start, Backspace = Select. Tab
 fast-forwards while held, F11 toggles fullscreen and Escape quits. The first gamepad works by
 button position (bottom = A, right = B). Frames are paced at the GBA's rate, 2^24 Hz / 280896
-cycles (about 59.73 a second). There is no sound and no saving yet. If the game faults, the
-report goes to stderr and, in the window, to a dialog as well.
+cycles (about 59.73 a second). Sound plays on the default device. The system clock that paces
+the frames drifts from the device's, so the sound stream plays up to 0.5% faster or slower to
+keep about 4 frames queued. Fast forward drops the sound. There is no saving yet. If the game
+faults, the report goes to stderr and, in the window, to a dialog as well.
 
 At startup, `port/src/gba_memory.c` reserves the GBA regions at their real addresses
 (`port/include/port/gba_memory.h`). It also reserves the game stack at `0x01020000`–`0x01810000`,
@@ -99,8 +101,23 @@ minicoro coroutine on the low stack (`port/src/game_thread.c`).
 - Any other call is reported and stops the game.
 
 `port/src/gba_runtime.c` has the libgcc division helpers and m4a's `umul3232H32`.
-`port/src/m4a_native.c` has the small m4a asm routines the game calls directly. `SoundMain` is a
-silent placeholder, so music players never advance.
+`port/src/m4a_native.c` is the m4a sound engine's asm (`asm/m4a_asm.s`) in C: `SoundMain` and its
+mixer, `MPlayMain`, `ply_note` and the other `ply_` commands. Each routine follows the asm step
+by step, quirks included, so the channels, tracks and PCM buffer in GBA RAM come out as on the
+GBA. The engine reads song data through a guard that makes BIOS addresses read as 0; the port
+checks first, since it cannot read there at all. `MPlayMain` and `ply_note` take the arguments
+the asm passes them, so `include/gba/m4a.h` declares them that way for the PC.
+
+`port/src/audio.c` is the sound hardware, written from GBATEK's description:
+- **PSG.** The two square channels (the first with its sweep), the wave channel with its two
+  banks of wave RAM, and the noise channel. Each has its length counter and envelope, clocked
+  by a 512 Hz frame sequencer.
+- **Direct Sound.** FIFOs A and B play a byte on each overflow of their timer, and ask DMA 1
+  or 2 for 4 more words when 4 or fewer are left. The DMA reads the PCM buffer that
+  `SoundMain` mixes.
+- **Mixing.** As SOUNDCNT and SOUNDBIAS set it, into the 10-bit DAC around the bias level.
+  The PSG's balance against Direct Sound is mGBA's. The output is 65536 Hz, SOUNDBIAS's
+  8-bit rate, which the game sets, and a filter blocks DC as the GBA's output capacitor does.
 
 The game reaches the I/O registers through the `REG_` macros, structs, and addresses it
 computes at run time. So instead of changing the game code, the port traps every access
@@ -118,6 +135,12 @@ to the register page:
   - **VCOUNT and DISPSTAT.** These advance by half a line per read, so loops that wait for
     a scanline end. The host sets the line with `PortIoSetScanline()`.
   - **Read-only registers.** Writes to them are undone. Write-only bits read as 0.
+  - **Sound.** The bytes a store wrote to the sound registers, wave RAM or FIFOs go to
+    `port/src/audio.c`, in order. `port/src/x86_access.c` reads the store's size from the
+    instruction, because a write-only bit may be written with the 0 it reads as. The
+    registers then read as mGBA keeps them: write-only bits as 0, SOUNDCNT_X with the
+    channels that are playing, and wave RAM with the bank that is not playing. As the
+    display moves on, so does the sound hardware, a scanline at a time.
 - A trapped access costs about 4 µs.
 
 `--frames N` runs the game headless for N frames (`port/src/frame.c`):
@@ -144,7 +167,8 @@ exactly.
 
 `--dump FILE` writes GBA memory (EWRAM, IWRAM, I/O, palette, VRAM, OAM, SRAM) at the start of
 every VBlank. `--shots FILE` writes the picture then, as 240x160 RGB bytes after a header.
-`--from-step S` starts both at the frame on which main-loop step S finishes, to look at a
+`--wav FILE` writes the sound, 16-bit stereo at 65536 Hz.
+`--from-step S` starts all three at the frame on which main-loop step S finishes, to look at a
 late scene without gigabytes of dump (each frame is 419 KiB).
 `--input FILE` presses keys from a script, by steps of the game's main loop rather than by
 frames, so that mGBA can press the same keys on the same steps. In the window, they add to the
@@ -188,14 +212,23 @@ the step has finished (`gMainTimer` changed, and the loop waits for VBlank with 
 `gInterruptCheck` clear). Boot time does not matter, nor do the frames on which mGBA is still
 running a step that takes the port no time. The input scripts count steps the same way. The
 memory diff masks state the port does not model, each mask with its reason: stacks,
-VCOUNT/DISPSTAT status, timers, write-only registers, the sound engine's state and registers,
-and the open bus that rooms without a raster effect copy as their HBlank callback (the last
-value any DMA moved, on mGBA usually sound data).
+VCOUNT/DISPSTAT status, timers, write-only DMA and FIFO registers, and the open bus that rooms
+without a raster effect copy as their HBlank callback (the last value any DMA moved, on mGBA
+usually sound data).
+
+The sound engine's state is compared too, and matches until the first frame mGBA lags: a step
+that takes the GBA more than a frame. Where the game runs `SoundMain` from its VBlank callback
+(the intro, the title, file select, the level transitions), a lag frame is an extra music tick
+and moves `pcmDmaCounter` on; the port, whose steps take no time, has neither. From there the
+music runs ahead on mGBA. `--mask-sound` leaves the sound engine's state and the sound registers
+out, to compare the rest.
 
 `--selftest` runs the coroutine through yields and 2 MiB of recursion. `--test-bios` runs
 the BIOS unit tests (`port/src/bios_test.c`). These include decoding every LZ77 stream the
 game passes to `LZ77UnCompVram`, and comparing the result with a plain byte decoder.
-`--test-io` tests the trapped registers on the game coroutine, and times the traps. `--fault` and
+`--test-io` tests the trapped registers on the game coroutine, and times the traps. It covers
+the sound registers too: their masks, a square wave's pitch, length counters, the wave RAM
+banks, and a FIFO fed by DMA. `--fault` and
 `--asan-probe` trigger the fault reports and an AddressSanitizer report on the game stack.
 To build with AddressSanitizer, configure with `-DWL4_ASAN=ON`. Then put
 `llvm-mingw/x86_64-w64-mingw32/bin` on `PATH` for `libclang_rt.asan_dynamic-x86_64.dll`.
