@@ -4,6 +4,25 @@ The working rules are in `AGENTS.md`, so read that first. The full plan and its 
 in `docs/PC_PORT_PLAN.md`; its "Where we are" section is the most detailed status. Each
 runtime piece is documented in `port/README.md`.
 
+## Priority Frog Switch bug follow-up (2026-10-18)
+
+The user authorized this focused bug task; general playthrough extension remains paused.
+Implementation `c25cc4d` follows `ff28d49`. See `docs/M3_FROG_SWITCH.md` for the full
+LLDB evidence and verification. HBlank VCOUNT reads were advancing display time,
+consuming VBlank inside the callback and starving the main-loop wakeup. IRQ display
+reads now observe the current event; ordinary polling still advances. Game sources,
+generated symbols and existing route scripts are unchanged.
+
+Normal and ASan unit tests (including the new HBlank regression), the unchanged
+25,200-frame room-6 route and positioned activation/countdown/movement/exit fixtures
+pass. Both exit fixtures return to stage select. They position Wario above the
+switch and later in the vortex using process RAM, so an uninterrupted input-only
+switch-to-exit traversal is not claimed. All old work is preserved; new artifacts
+are in `build/frog-freeze-20261018/`. All diagnostic processes finished or were closed.
+Final byte-identical GBA check: **build/v7-25**, MD5
+`940b597bef3be3f4041021b47a2f4096`, ROM-SAME and OBJ-SAME. Next: **v7-26**.
+Next useful check is manual switch-to-exit traversal with rebuilt normal/ASan binaries.
+
 ## M3 paused by the user (2026-10-18; read this before the older M2 notes)
 
 - **Do not resume playtesting until the user asks.** All test processes were finished when paused. No new long run or rebuild was started for the pause. Latest implementation commit: `6a0a186`, following `feb6eb4`. The pause documentation is a separate commit.

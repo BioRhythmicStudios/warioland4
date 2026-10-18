@@ -176,6 +176,11 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
+- **Priority Frog Switch fix (2026-10-18):** implementation `c25cc4d`, following `ff28d49`. LLDB captured VBlank starvation after activation: the HBlank callback's VCOUNT read advanced the display, consumed the host's VBlank event and allowed IF acknowledgement to clear the wakeup. IRQ display reads now stay on the current event; ordinary polling still advances. No game source or generated symbols changed.
+  - Normal and ASan coroutine, BIOS and I/O tests pass, including a regression covering HBlank display reads and three VBlanks. Both replay the unchanged room-6 route for 25,200 frames and complete positioned switch/countdown/movement/vortex-exit fixtures, returning to stage select. RAM positions the test character above the switch and later at the vortex: an uninterrupted walk through the barrier is **not** claimed.
+  - Final fresh GBA verification is **build/v7-25**, ROM MD5 `940b597bef3be3f4041021b47a2f4096`, ROM-SAME and every object OBJ-SAME; next is v7-26. Earlier v7-18/v7-23 statements below are historical.
+  - All prior recordings and unfinished M3 artifacts remain intact. New debugger transcripts, original executable, probes and captures are in ignored `build/frog-freeze-20261018/`. See `docs/M3_FROG_SWITCH.md` for evidence, reproduction commands and precise limitations. Next: manual switch-to-exit traversal with the rebuilt executable; general route extension remains paused outside this bug request.
+
 - **Done:** M0 (steps 1–10), M1 and M2, pushed to `myfork/port` (last commit `abd1e87`). The game-source changes of steps 1–4 and the barrier fix are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`; barrier fix cherry-picked as `0c2f07a`, byte-identical). GBA byte identity was last verified as `build/v7-18` (MD5 `940b597b…`, objects identical).
 - **M1 results:**
   - **Renderer** (`port/src/ppu.c`): draws each line at HBlank start, before HBlank DMA. Modes 0–5, text/affine/bitmap BGs, regular and affine sprites, windows, blending, brightness, mosaic. Where hardware behaviour is unclear it copies mGBA 0.10.5's software renderer.
