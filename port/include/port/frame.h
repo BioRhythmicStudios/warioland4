@@ -11,7 +11,8 @@
 // The game's code takes no time: it runs where it halted, and an interrupt raised while it
 // runs (by polling VCOUNT, say) is handled at its next Halt.
 
-// Sets the game's entry point (AgbMain). Returns nonzero on failure.
+// Sets the game's entry point (AgbMain) and has port/src/ppu.c draw each line. Returns
+// nonzero on failure.
 int PortFrameStart(void (*entry)(void));
 
 // Runs the game up to the start of the next VBlank, before the VBlank interrupt is handled.
@@ -33,5 +34,10 @@ struct PortFrameDumpHeader {
     unsigned int frame;
 };
 int PortFrameDump(FILE *file);
+
+// Appends the picture to a screenshot file: a header as above, with its own magic, then
+// 240x160 pixels, each red, green and blue bytes, row by row, for port/tools/diff_screens.py.
+#define PORT_FRAME_SHOT_MAGIC 0x53344C57u  // "WL4S"
+int PortFrameShot(FILE *file);
 
 #endif  // GUARD_PORT_FRAME_H

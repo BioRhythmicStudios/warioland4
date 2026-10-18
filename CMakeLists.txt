@@ -86,6 +86,7 @@ add_executable(wl4
     port/src/io_test.c
     port/src/md5.c
     port/src/os_win32.c
+    port/src/ppu.c
     port/src/rom.c
     port/generated/gba_symbols.s
     port/generated/gba_functions.c

@@ -52,6 +52,15 @@ unsigned int PortIoAdvance(void);
 // The current scanline (0-227).
 unsigned int PortIoScanline(void);
 
+// Sets a function to call at the start of each line's HBlank (0-227), before the HBlank DMA
+// transfers: the display draws the line then. NULL for none.
+void PortIoSetHBlankHandler(void (*handler)(unsigned int line));
+
+// Which affine reference point registers have been written since the last call, by the game
+// or by DMA, even with the value they had: bit 0 for BG2X, 1 for BG2Y, 2 for BG3X, 3 for BG3Y.
+// Each write restarts the display's internal reference point.
+unsigned int PortIoTakeAffineWrites(void);
+
 // Run the enabled DMA transfers timed to the start of VBlank, or to an HBlank.
 void PortIoVBlank(void);
 void PortIoHBlank(void);

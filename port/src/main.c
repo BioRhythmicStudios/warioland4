@@ -10,15 +10,18 @@
 #include "port/gba_io.h"
 #include "port/gba_functions.h"
 #include "port/gba_memory.h"
+#include "port/ppu.h"
 #include "port/rom.h"
 
 static void Usage(void)
 {
     fprintf(stderr,
-            "usage: wl4 [ROM] [--frames N [--dump FILE]] [--selftest] [--test-bios] [--test-io]\n"
+            "usage: wl4 [ROM] [--frames N [--dump FILE] [--shots FILE] [--mgba-colors]]\n"
+            "           [--selftest] [--test-bios] [--test-io]\n"
             "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
             "  ROM defaults to baserom_us.gba in the current directory.\n"
-            "  --frames N runs the game headless for N frames; --dump writes GBA memory after each.\n");
+            "  --frames N runs the game headless for N frames; --dump writes GBA memory after each,\n"
+            "  --shots the picture. --mgba-colors blends colours as mGBA does, to compare with it.\n");
 }
 
 // --- Self-test of the game coroutine -------------------------------------------------------
@@ -128,14 +131,18 @@ static void GameEntry(void)
     }
 }
 
-static int RunGame(unsigned int frames, const char *dumpPath)
+static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsPath)
 {
-    FILE *dump = NULL;
+    FILE *dump = NULL, *shots = NULL;
     clock_t start = clock();
     double seconds;
 
     if (dumpPath != NULL && (dump = fopen(dumpPath, "wb")) == NULL) {
         perror(dumpPath);
+        return 1;
+    }
+    if (shotsPath != NULL && (shots = fopen(shotsPath, "wb")) == NULL) {
+        perror(shotsPath);
         return 1;
     }
     if (PortFrameStart(GameEntry))
@@ -149,9 +156,17 @@ static int RunGame(unsigned int frames, const char *dumpPath)
             perror(dumpPath);
             return 1;
         }
+        if (shots != NULL && PortFrameShot(shots)) {
+            perror(shotsPath);
+            return 1;
+        }
     }
     if (dump != NULL && fclose(dump) != 0) {
         perror(dumpPath);
+        return 1;
+    }
+    if (shots != NULL && fclose(shots) != 0) {
+        perror(shotsPath);
         return 1;
     }
     seconds = (double)(clock() - start) / CLOCKS_PER_SEC;
@@ -164,7 +179,8 @@ static int RunGame(unsigned int frames, const char *dumpPath)
 int main(int argc, char **argv)
 {
     const char *romPath = "baserom_us.gba";
-    const char *dumpPath = NULL;
+    const char *dumpPath = NULL, *shotsPath = NULL;
+    enum PortPpuColors colors = PORT_PPU_COLORS_GBA;
     unsigned int frames = 0;
     int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
     int i;
@@ -187,6 +203,10 @@ int main(int argc, char **argv)
             frames = (unsigned int)strtoul(argv[++i], NULL, 10);
         else if (strcmp(argv[i], "--dump") == 0 && i + 1 < argc)
             dumpPath = argv[++i];
+        else if (strcmp(argv[i], "--shots") == 0 && i + 1 < argc)
+            shotsPath = argv[++i];
+        else if (strcmp(argv[i], "--mgba-colors") == 0)
+            colors = PORT_PPU_COLORS_MGBA;
         else if (strcmp(argv[i], "--fault") == 0 && i + 1 < argc)
             sFault = argv[++i];
         else if (argv[i][0] == '-') {
@@ -217,7 +237,9 @@ int main(int argc, char **argv)
         printf("no fault happened\n");
         return 1;
     }
-    if (frames)
-        return RunGame(frames, dumpPath);
+    if (frames) {
+        PortPpuReset(colors);
+        return RunGame(frames, dumpPath, shotsPath);
+    }
     return 0;
 }

@@ -6,6 +6,7 @@
 #include "port/game_thread.h"
 #include "port/gba_io.h"
 #include "port/gba_memory.h"
+#include "port/ppu.h"
 
 #define REG_IE 0x200
 #define REG_IF 0x202
@@ -92,6 +93,7 @@ int PortFrameStart(void (*entry)(void))
         return -1;
     sStarted = 0;
     sFrames = 0;
+    PortIoSetHBlankHandler(PortPpuHBlank);
     return 0;
 }
 
@@ -144,6 +146,28 @@ int PortFrameDump(FILE *file)
     for (i = 0; i < sizeof(kRegions) / sizeof(kRegions[0]); i++) {
         const void *p = kRegions[i].base ? (const void *)kRegions[i].base : PortIoHost();
         if (fwrite(p, 1, kRegions[i].size, file) != kRegions[i].size)
+            return -1;
+    }
+    return 0;
+}
+
+int PortFrameShot(FILE *file)
+{
+    struct PortFrameDumpHeader header = { PORT_FRAME_SHOT_MAGIC, sFrames };
+    const uint32_t *frame = PortPpuFrame();
+    uint8_t rgb[PORT_SCREEN_WIDTH * 3];
+    unsigned int x, y;
+
+    if (fwrite(&header, sizeof(header), 1, file) != 1)
+        return -1;
+    for (y = 0; y < PORT_SCREEN_HEIGHT; y++) {
+        for (x = 0; x < PORT_SCREEN_WIDTH; x++) {
+            uint32_t pixel = frame[y * PORT_SCREEN_WIDTH + x];
+            rgb[x * 3] = (uint8_t)pixel;
+            rgb[x * 3 + 1] = (uint8_t)(pixel >> 8);
+            rgb[x * 3 + 2] = (uint8_t)(pixel >> 16);
+        }
+        if (fwrite(rgb, 1, sizeof(rgb), file) != sizeof(rgb))
             return -1;
     }
     return 0;

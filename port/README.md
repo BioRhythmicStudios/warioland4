@@ -69,7 +69,7 @@ because it needs agbcc and libclang (`pip install libclang`).
 
 ## Runtime
 
-`wl4.exe [ROM] [--frames N [--dump FILE]] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+`wl4.exe [ROM] [--frames N [--dump FILE] [--shots FILE] [--mgba-colors]] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
 
 At startup, `port/src/gba_memory.c` reserves the GBA regions at their real addresses
 (`port/include/port/gba_memory.h`). It also reserves the game stack at `0x01020000`–`0x01810000`,
@@ -115,8 +115,22 @@ to the register page:
   `irq_handler`, which calls the game's callbacks.
 - Game code takes no time. A scene setup that takes the GBA several frames finishes in one.
 
+`port/src/ppu.c` draws each visible line at the start of its HBlank, before the HBlank DMA
+transfers, as the hardware does. It reads the registers, VRAM, palette RAM and OAM where
+the game left them. It covers modes 0-5, text, affine and bitmap backgrounds, regular and
+affine sprites, the windows (including the OBJ window), blending, brightness and mosaic.
+Where the hardware is unclear, it does what mGBA 0.10.5's software renderer does: the delay
+before a background turned on mid-frame appears, the sprite cycle budget, the OBJ priority
+quirk, and how semi-transparent sprites and brightness combine. The I/O traps report
+writes to the affine reference points (`PortIoTakeAffineWrites()`), even with the same
+value, because each write restarts the display's internal reference point.
+
+Colours are blended on 5-bit channels, as on the GBA. mGBA blends 8-bit channels and rounds
+differently. `--mgba-colors` blends as mGBA does, so its screenshots can be compared
+exactly.
+
 `--dump FILE` writes GBA memory (EWRAM, IWRAM, I/O, palette, VRAM, OAM, SRAM) at the start of
-every VBlank.
+every VBlank. `--shots FILE` writes the picture then, as 240x160 RGB bytes after a header.
 
 To compare a run with mGBA (0.10 or later, the Qt build):
 1. Run `wl4 --frames N --dump PORT.bin`.
@@ -135,6 +149,10 @@ To compare a run with mGBA (0.10 or later, the Qt build):
    the dump to `%WL4_DUMP%` (default `%TEMP%\wl4_mgba.bin`). `%WL4_FRAMES%` sets the frame
    count, and `WL4_SHOTS=1` turns the screenshots on.
 3. Run `python port/tools/diff_frames.py PORT.bin MGBA.bin`.
+4. To compare the pictures, run wl4 with `--shots PORT.shots --mgba-colors` and mGBA with
+   `-Shots`, then `python port/tools/diff_screens.py PORT.bin PORT.shots MGBA.bin RUN_DIR`.
+   `RUN_DIR` is the run directory that the mGBA script prints. `--save DIR` writes the
+   differing frames side by side as PNGs.
 
 The diff runner compares only the frames on which the game's main loop ran (`gMainTimer`
 changed), so boot time does not matter. It masks state the port does not model, each mask with

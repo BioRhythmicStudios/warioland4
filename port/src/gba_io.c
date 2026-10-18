@@ -55,6 +55,11 @@ static unsigned int sLine;
 static int sInHBlank;
 static uint64_t sTraps;
 static uintptr_t sTrapPc;  // the game instruction being trapped
+static void (*sHBlankHandler)(unsigned int line);
+
+// The affine reference point registers: BG2X, BG2Y, BG3X and BG3Y, 32 bits each.
+static const unsigned int kAffineReferences[4] = { 0x028, 0x02C, 0x038, 0x03C };
+static unsigned int sAffineWrites;
 
 struct DmaChannel {
     int active;
@@ -118,6 +123,8 @@ unsigned int PortIoAdvance(void)
 
     if (!sInHBlank) {
         sInHBlank = 1;
+        if (sHBlankHandler != NULL)
+            sHBlankHandler(sLine);
         if (sLine < VISIBLE_LINES)
             DmaRunTimed(DMA_AT_HBLANK);
         if (status & DISPSTAT_HBLANK_IRQ)
@@ -142,6 +149,29 @@ unsigned int PortIoAdvance(void)
 unsigned int PortIoScanline(void)
 {
     return sLine;
+}
+
+void PortIoSetHBlankHandler(void (*handler)(unsigned int line))
+{
+    sHBlankHandler = handler;
+}
+
+unsigned int PortIoTakeAffineWrites(void)
+{
+    unsigned int writes = sAffineWrites;
+
+    sAffineWrites = 0;
+    return writes;
+}
+
+// A write that starts inside a reference point register writes it.
+static void NoteAffineWrite(unsigned int offset)
+{
+    unsigned int i;
+
+    for (i = 0; i < 4; i++)
+        if (offset - kAffineReferences[i] < 4)
+            sAffineWrites |= 1u << i;
 }
 
 // --- DMA ------------------------------------------------------------------------------------
@@ -202,10 +232,14 @@ static void DmaTransfer(struct DmaChannel *d)
             DmaReportOutOfReach(d, src, 0);
         else if (!DmaReaches(dst, unit, 1))
             DmaReportOutOfReach(d, dst, 1);
-        else if (unit == 4)
-            *(volatile uint32_t *)DmaAddress(dst) = *(const volatile uint32_t *)DmaAddress(src);
-        else
-            *(volatile uint16_t *)DmaAddress(dst) = *(const volatile uint16_t *)DmaAddress(src);
+        else {
+            if (unit == 4)
+                *(volatile uint32_t *)DmaAddress(dst) = *(const volatile uint32_t *)DmaAddress(src);
+            else
+                *(volatile uint16_t *)DmaAddress(dst) = *(const volatile uint16_t *)DmaAddress(src);
+            if (dst - GBA_IO_BASE < PORT_IO_SIZE)
+                NoteAffineWrite(dst - GBA_IO_BASE);
+        }
         src += srcStep;
         dst += dstStep;
     }
@@ -308,6 +342,16 @@ static void AfterAccess(uintptr_t address, int isWrite, uintptr_t pc)
     if (offset >= PORT_IO_SIZE)
         return;
 
+    // The affine reference points: a write that starts in one, or one that changed it (a
+    // wider store from just before).
+    if (isWrite) {
+        unsigned int i;
+        NoteAffineWrite(offset);
+        for (i = 0; i < 4; i++)
+            if (memcmp(sBefore + kAffineReferences[i], sIo + kAffineReferences[i], 4) != 0)
+                sAffineWrites |= 1u << i;
+    }
+
     // Read-only registers and bits, and write-only bits, which read as 0: the sound channels'
     // restart bits and the sound FIFO resets.
     PortIoWrite16(REG_SOUND1CNT_X, PortIoRead16(REG_SOUND1CNT_X) & 0x7FFF);
@@ -361,6 +405,7 @@ int PortIoMap(void)
     PortIoWrite16(0x134, 0x8000);  // RCNT
     PortIoWrite16(REG_KEYINPUT, 0x03FF);  // no buttons pressed
     PortIoWrite16(0x300, 0x0001);  // POSTFLG: past the boot
+    sAffineWrites = 0xF;
     PortIoSetScanline(0);
     return 0;
 }
