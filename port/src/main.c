@@ -12,14 +12,16 @@
 #include "port/gba_memory.h"
 #include "port/ppu.h"
 #include "port/rom.h"
+#include "port/sdl_frontend.h"
 
 static void Usage(void)
 {
     fprintf(stderr,
-            "usage: wl4 [ROM] [--frames N [--dump FILE] [--shots FILE] [--mgba-colors]]\n"
+            "usage: wl4 [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE]] [--mgba-colors]\n"
             "           [--selftest] [--test-bios] [--test-io]\n"
             "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
             "  ROM defaults to baserom_us.gba in the current directory.\n"
+            "  With no --frames or tests, the game runs in a window, --scale times 240x160 (default 3).\n"
             "  --frames N runs the game headless for N frames; --dump writes GBA memory after each,\n"
             "  --shots the picture. --mgba-colors blends colours as mGBA does, to compare with it.\n");
 }
@@ -181,7 +183,7 @@ int main(int argc, char **argv)
     const char *romPath = "baserom_us.gba";
     const char *dumpPath = NULL, *shotsPath = NULL;
     enum PortPpuColors colors = PORT_PPU_COLORS_GBA;
-    unsigned int frames = 0;
+    unsigned int frames = 0, scale = 3;
     int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
     int i;
 
@@ -207,6 +209,8 @@ int main(int argc, char **argv)
             shotsPath = argv[++i];
         else if (strcmp(argv[i], "--mgba-colors") == 0)
             colors = PORT_PPU_COLORS_MGBA;
+        else if (strcmp(argv[i], "--scale") == 0 && i + 1 < argc)
+            scale = (unsigned int)strtoul(argv[++i], NULL, 10);
         else if (strcmp(argv[i], "--fault") == 0 && i + 1 < argc)
             sFault = argv[++i];
         else if (argv[i][0] == '-') {
@@ -241,5 +245,13 @@ int main(int argc, char **argv)
         PortPpuReset(colors);
         return RunGame(frames, dumpPath, shotsPath);
     }
-    return 0;
+    if (selfTest || biosTest || ioTest)
+        return 0;
+#ifdef WL4_HAVE_SDL
+    PortPpuReset(colors);
+    return PortSdlRun(GameEntry, scale ? scale : 1);
+#else
+    fprintf(stderr, "This build has no window (it was built without SDL3); use --frames to run headless.\n");
+    return 2;
+#endif
 }

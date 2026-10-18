@@ -95,6 +95,22 @@ add_executable(wl4
     $<TARGET_OBJECTS:wl4_game_native>
 )
 target_include_directories(wl4 PRIVATE port/include port/third_party/minicoro)
+
+# The SDL3 frontend (a window, input and pacing). Without SDL3, wl4 only runs headless. Point
+# SDL3_DIR at the SDL3 development package's lib/cmake/SDL3 directory, e.g. for the mingw
+# release: SDL3-<version>/x86_64-w64-mingw32/lib/cmake/SDL3.
+find_package(SDL3 CONFIG)
+if(SDL3_FOUND)
+    target_sources(wl4 PRIVATE port/platform/sdl/sdl_frontend.c)
+    target_compile_definitions(wl4 PRIVATE $<$<COMPILE_LANGUAGE:C>:WL4_HAVE_SDL>)
+    target_link_libraries(wl4 PRIVATE SDL3::SDL3)
+    if(WIN32)
+        add_custom_command(TARGET wl4 POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SDL3::SDL3> $<TARGET_FILE_DIR:wl4>)
+    endif()
+else()
+    message(STATUS "SDL3 not found: wl4 is built without its window (set SDL3_DIR)")
+endif()
 # gba_functions.c declares every game function as void(void) to take its address.
 set_source_files_properties(port/generated/gba_functions.c PROPERTIES COMPILE_OPTIONS -Wno-incompatible-library-redeclaration)
 target_link_libraries(wl4 PRIVATE wl4_game wl4_platform_stub)

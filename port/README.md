@@ -8,10 +8,15 @@ by rebuilding the ROM and comparing it and all objects with the previous build.
 ## Building (Windows)
 
 You need [llvm-mingw](https://github.com/mstorsjo/llvm-mingw) (UCRT, x86_64), CMake 3.20+ and Ninja.
+For the window you also need SDL3: unpack the `SDL3-devel-<version>-mingw` release from
+[libsdl-org/SDL](https://github.com/libsdl-org/SDL/releases) (3.4.18 is tested).
 
     cmake -S . -B build_pc -G Ninja --toolchain port/cmake/llvm-mingw-x86_64.cmake ^
-          -DLLVM_MINGW=C:/path/to/llvm-mingw -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DLLVM_MINGW=C:/path/to/llvm-mingw -DCMAKE_BUILD_TYPE=RelWithDebInfo ^
+          -DSDL3_DIR=C:/path/to/SDL3-3.4.18/x86_64-w64-mingw32/lib/cmake/SDL3
     cmake --build build_pc
+
+Without SDL3, `wl4` only runs headless. With it, the build copies `SDL3.dll` next to `wl4.exe`.
 
 The PC build does not need the extracted assets (`make extract`): game data is read from
 your own ROM at run time.
@@ -69,7 +74,14 @@ because it needs agbcc and libclang (`pip install libclang`).
 
 ## Runtime
 
-`wl4.exe [ROM] [--frames N [--dump FILE] [--shots FILE] [--mgba-colors]] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE]] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+
+With no `--frames` or tests, the game runs in a window (`port/platform/sdl/sdl_frontend.c`), at
+`--scale` times 240x160 (default 3). The window scales in whole steps. The keys are mGBA's
+defaults: arrows, X = A, Z = B, A = L, S = R, Enter = Start, Backspace = Select. Tab
+fast-forwards while held, F11 toggles fullscreen and Escape quits. The first gamepad works by
+button position (bottom = A, right = B). Frames are paced at the GBA's rate, 2^24 Hz / 280896
+cycles (about 59.73 a second). There is no sound and no saving yet.
 
 At startup, `port/src/gba_memory.c` reserves the GBA regions at their real addresses
 (`port/include/port/gba_memory.h`). It also reserves the game stack at `0x01020000`–`0x01810000`,
