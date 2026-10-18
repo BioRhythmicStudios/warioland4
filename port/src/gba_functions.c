@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "port/os.h"
+
 PortFunc PortLookupGbaFunction(unsigned int gbaAddress)
 {
     unsigned int lo = 0, hi = gGbaFunctionCount;
@@ -46,6 +48,50 @@ void PortMissingFunction(const char *name, unsigned int gbaAddress)
 
 static struct GbaFunction *sByNative;
 
+#define MAX_RAM_FUNCTIONS 8
+
+static struct {
+    unsigned int gbaAddress;  // without the Thumb bit
+    PortFunc func;
+} sRamFunctions[MAX_RAM_FUNCTIONS];
+static unsigned int sRamFunctionCount;
+
+static int IsGbaRam(uintptr_t address)
+{
+    return address - 0x02000000u < 0x02000000u;  // EWRAM or IWRAM
+}
+
+void PortSetRamFunction(unsigned int gbaAddress, PortFunc func)
+{
+    unsigned int i;
+
+    gbaAddress &= ~1u;
+    for (i = 0; i < sRamFunctionCount && sRamFunctions[i].gbaAddress != gbaAddress; i++)
+        ;
+    if (i == MAX_RAM_FUNCTIONS) {
+        fprintf(stderr, "More than %d functions copied to RAM\n", MAX_RAM_FUNCTIONS);
+        fflush(stderr);
+        abort();
+    }
+    if (i == sRamFunctionCount)
+        sRamFunctionCount++;
+    sRamFunctions[i].gbaAddress = gbaAddress;
+    sRamFunctions[i].func = func;
+}
+
+// The entry for code copied to a RAM address, or -1. Its function is NULL when what was copied
+// is not a function (open bus, say).
+static int RamFunction(unsigned int gbaAddress)
+{
+    unsigned int i;
+
+    gbaAddress &= ~1u;
+    for (i = 0; i < sRamFunctionCount; i++)
+        if (sRamFunctions[i].gbaAddress == gbaAddress)
+            return (int)i;
+    return -1;
+}
+
 static int CompareNative(const void *a, const void *b)
 {
     uintptr_t x = (uintptr_t)((const struct GbaFunction *)a)->func;
@@ -59,7 +105,12 @@ PortFunc PortGbaFunctionToNative(unsigned int gbaAddress)
 
     if (gbaAddress == 0)
         return NULL;
-    func = PortLookupGbaFunction(gbaAddress);
+    if (IsGbaRam(gbaAddress)) {
+        int i = RamFunction(gbaAddress);
+        func = i >= 0 ? sRamFunctions[i].func : NULL;
+    } else {
+        func = PortLookupGbaFunction(gbaAddress);
+    }
     if (func == NULL) {
         fprintf(stderr, "No native function for the GBA function pointer 0x%08X\n", gbaAddress);
         fflush(stderr);
@@ -74,6 +125,8 @@ unsigned int PortNativeFunctionToGba(PortFunc func)
 
     if (func == NULL)
         return 0;
+    if (IsGbaRam((uintptr_t)func) && RamFunction((unsigned int)(uintptr_t)func) >= 0)
+        return (unsigned int)(uintptr_t)func;  // already a GBA address: code copied to RAM
     if (sByNative == NULL) {
         sByNative = malloc(gGbaFunctionCount * sizeof(*sByNative));
         if (sByNative == NULL)
@@ -97,7 +150,20 @@ unsigned int PortNativeFunctionToGba(PortFunc func)
 
 void PortBadGbaPointer(unsigned long long address)
 {
-    fprintf(stderr, "Native address 0x%llX stored in GBA memory does not fit 32 bits\n", address);
-    fflush(stderr);
+    uintptr_t pc = (uintptr_t)__builtin_return_address(0);
+    const struct GbaFunction *target = PortGbaFunctionBelow((uintptr_t)address);
+    const struct GbaFunction *caller = PortGbaFunctionBelow(pc);
+    char message[384];
+
+    // A game function stored as a data pointer (GP_SET) instead of with GF_SET, say.
+    if (target != NULL && (uintptr_t)target->func != (uintptr_t)address)
+        target = NULL;
+    snprintf(message, sizeof(message),
+             "Native address 0x%llX%s%s stored in GBA memory does not fit 32 bits, by the code at "
+             "executable+0x%llX, in or after %s (GBA 0x%08X)\n",
+             address, target != NULL ? ", the game function " : "", target != NULL ? target->name : "",
+             (unsigned long long)PortOsExecutableOffset(pc), caller != NULL ? caller->name : "?",
+             caller != NULL ? caller->gbaAddress : 0);
+    PortOsWriteError(message);
     abort();
 }

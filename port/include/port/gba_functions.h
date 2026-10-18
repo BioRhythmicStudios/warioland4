@@ -34,6 +34,14 @@ __attribute__((noreturn)) void PortMissingFunction(const char *name, unsigned in
 PortFunc PortGbaFunctionToNative(unsigned int gbaAddress);
 unsigned int PortNativeFunctionToGba(PortFunc func);
 
+// Code the game copies into RAM to run there, such as the HBlank callbacks: the native function
+// to run for the copy at a RAM address. PortGbaFunctionToNative() maps the RAM address to it,
+// and PortNativeFunctionToGba() keeps the RAM address, which game code casts to a function
+// pointer, as it is. A new function at the same address replaces the old one. func may be NULL
+// when what the game copied is not a function: the address is then a valid pointer value, but
+// calling it stops with an error.
+void PortSetRamFunction(unsigned int gbaAddress, PortFunc func);
+
 // Reports a native address stored in GBA memory that does not fit 32 bits, and stops.
 __attribute__((noreturn)) void PortBadGbaPointer(unsigned long long address);
 

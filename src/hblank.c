@@ -267,6 +267,11 @@ void SetHBlankMode(u32 arg0)
         gHBlankMode = mode;
     }
     enableInterrupts = 0;
+#ifdef PORTABLE
+    // Mode 0 (a room without a raster effect) takes none of the cases below and leaves callback
+    // as the register the caller left: 0, from InitRoomHBlank. The GBA then copies open bus.
+    callback = NULL;
+#endif
     switchValue = gHBlankMode - 1;
     switch (switchValue) {
         case 0:
@@ -334,7 +339,14 @@ void SetHBlankMode(u32 arg0)
             break;
     }
 
+#ifdef PORTABLE
+    // The GBA copies the callback's code into IWRAM and runs the copy. The port copies the same
+    // bytes from the ROM, so that memory matches, and runs the native callback for the copy.
+    ((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->src.a = PortNativeFunctionToGba(callback);
+    PortSetRamFunction((u32)&gHBlankCallbackTrampoline, callback);
+#else
     GP_SET(((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->src, callback);
+#endif
     GP_SET(((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->dst, &gHBlankCallbackTrampoline);
     ((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->control = 0x80000100;
     ((volatile struct Dma3Regs_HBlankCallbackCopy*)0x040000D4)->control;

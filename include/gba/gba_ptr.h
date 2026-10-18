@@ -27,6 +27,9 @@
 // The port's native and GBA function addresses (port/src/gba_functions.c).
 void (*PortGbaFunctionToNative(u32 gbaAddress))(void);
 u32 PortNativeFunctionToGba(void (*func)(void));
+// Code the game copies into RAM and runs there: the native function to run for the copy at a
+// RAM address. A function pointer holding that address (with the Thumb bit) then calls it.
+void PortSetRamFunction(u32 gbaAddress, void (*func)(void));
 // Reports a native address that does not fit a GBA pointer, and stops.
 __attribute__((noreturn)) void PortBadGbaPointer(unsigned long long address);
 
