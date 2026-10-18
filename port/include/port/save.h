@@ -1,19 +1,25 @@
 #ifndef GUARD_PORT_SAVE_H
 #define GUARD_PORT_SAVE_H
 
-// The cartridge's battery-backed SRAM, kept in a file: its 32 KiB as they are, the format of
-// mGBA's .sav files too.
-
-// Loads the file into SRAM before the game starts; with no file yet, SRAM stays erased. The
-// file is then written whenever the game has saved. Returns 0 on success, or -1 if the file
-// exists but cannot be read, so that a save is never overwritten by mistake.
+// Cartridge SRAM: 32 KiB in mGBA-compatible .sav format. No game-state layout changes.
+// Missing files start erased. Unreadable or incorrectly sized saves are rejected visibly
+// without opening a writable session. Do not open another file over pending progress.
 int PortSaveOpen(const char *path);
 
-// Once a frame: writes the file when SRAM has changed and then stayed the same for half a
-// second, so a save the game writes over several frames goes to the file whole.
+// Once per game frame: wait for 30 stable frames, then persist changes. Failed writes keep
+// the latest SRAM and retry after at least 300 frames, once SRAM has settled again.
 void PortSaveFrame(void);
 
-// Writes the file if SRAM has changed since, and stops.
-void PortSaveClose(void);
+// NULL when no write failure is pending; otherwise a player-readable message including the
+// destination. The window shows a nonmodal warning; callers may show details on request.
+const char *PortSaveError(void);
+const char *PortSavePath(void);
+
+// Write current SRAM immediately. Returns -1 on failure, leaving the session open and SRAM
+// pending; the caller must offer retry/continue or explicitly confirm discarding on exit.
+int PortSaveClose(void);
+
+// Developer test: creates its own disposable child directory; never uses the default save.
+int PortSaveTest(const char *directory);
 
 #endif  // GUARD_PORT_SAVE_H

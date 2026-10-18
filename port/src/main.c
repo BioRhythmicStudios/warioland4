@@ -23,7 +23,7 @@ static void Usage(void)
     fprintf(stderr,
             "usage: wl4 [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--wav FILE] [--from-step S]]\n"
             "           [--input FILE] [--save FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io]\n"
-            "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
+            "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe] [--test-save DIRECTORY]\n"
             "  ROM defaults to baserom_us.gba in the current directory.\n"
             "  With no --frames or tests, the game runs in a window, --scale times 240x160 (default 3).\n"
             "  --frames N runs the game headless for N frames; --dump writes GBA memory after each,\n"
@@ -261,7 +261,10 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
         perror(wavPath);
         return 1;
     }
-    PortSaveClose();
+    if (PortSaveClose()) {
+        fprintf(stderr, "Final save failed; exiting with unsaved progress.\n");
+        return 1;
+    }
     seconds = (double)(clock() - start) / CLOCKS_PER_SEC;
     printf("%u frames in %.2f s (%.0f fps); %.0f trapped I/O accesses per frame\n", PortFrameCount(), seconds,
            seconds > 0 ? PortFrameCount() / seconds : 0.0,
@@ -276,6 +279,7 @@ int main(int argc, char **argv)
     const char *savePath = NULL;
     enum PortPpuColors colors = PORT_PPU_COLORS_GBA;
     unsigned int frames = 0, scale = 3, fromStep = 0;
+    const char *saveTest = NULL;
     int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
     int i;
 
@@ -291,6 +295,8 @@ int main(int argc, char **argv)
             biosTest = 1;
         else if (strcmp(argv[i], "--test-io") == 0)
             ioTest = 1;
+        else if (strcmp(argv[i], "--test-save") == 0 && i + 1 < argc)
+            saveTest = argv[++i];
         else if (strcmp(argv[i], "--asan-probe") == 0)
             asanProbe = 1;
         else if (strcmp(argv[i], "--frames") == 0 && i + 1 < argc)
@@ -333,6 +339,8 @@ int main(int argc, char **argv)
         return 1;
     if (ioTest && PortIoTest())
         return 1;
+    if (saveTest && PortSaveTest(saveTest))
+        return 1;
     if (sFault || asanProbe) {
         if (PortGameThreadCreate(sFault ? FaultEntry : AsanProbeEntry))
             return 1;
@@ -345,7 +353,7 @@ int main(int argc, char **argv)
         PortPpuReset(colors);
         return RunGame(frames, dumpPath, shotsPath, wavPath, fromStep, inputPath, savePath);
     }
-    if (selfTest || biosTest || ioTest)
+    if (selfTest || biosTest || ioTest || saveTest)
         return 0;
 #ifdef WL4_HAVE_SDL
     if (inputPath != NULL && PortInputScriptLoad(inputPath))

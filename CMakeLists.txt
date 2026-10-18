@@ -91,6 +91,7 @@ add_executable(wl4
     port/src/ppu.c
     port/src/rom.c
     port/src/save.c
+    port/src/save_test.c
     port/src/x86_access.c
     port/generated/gba_symbols.s
     port/generated/gba_functions.c

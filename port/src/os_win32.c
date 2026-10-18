@@ -133,25 +133,70 @@ long PortOsReadFile(const char *path, void *buffer, size_t size, int *missing)
     return ok ? (long)read : -1;
 }
 
-int PortOsWriteFileAtomic(const char *path, const void *data, size_t size)
+int PortOsWriteFileAtomic(const char *path, const void *data, size_t size, char *error, size_t errorSize)
 {
+    static unsigned int sequence;
     wchar_t wide[MAX_PATH * 2], temporary[MAX_PATH * 2];
-    HANDLE file;
-    DWORD written = 0;
+    char suffix[64];
+    HANDLE file = INVALID_HANDLE_VALUE;
+    DWORD written = 0, failure = ERROR_FILENAME_EXCED_RANGE;
+    unsigned int attempt;
     BOOL ok;
+    int created = 0;
 
-    if (!WidePath(path, "", wide, MAX_PATH * 2) || !WidePath(path, ".tmp", temporary, MAX_PATH * 2))
-        return -1;
-    file = CreateFileW(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (!WidePath(path, "", wide, MAX_PATH * 2))
+        goto failed;
+    // Never truncate an existing .tmp or another process's in-progress save.
+    for (attempt = 0; attempt < 16; attempt++) {
+        snprintf(suffix, sizeof(suffix), ".tmp.%lu.%u", (unsigned long)GetCurrentProcessId(), ++sequence);
+        if (!WidePath(path, suffix, temporary, MAX_PATH * 2))
+            goto failed;
+        file = CreateFileW(temporary, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (file != INVALID_HANDLE_VALUE)
+            break;
+        failure = GetLastError();
+        if (failure != ERROR_FILE_EXISTS && failure != ERROR_ALREADY_EXISTS)
+            goto failed;
+    }
     if (file == INVALID_HANDLE_VALUE)
-        return -1;
-    ok = WriteFile(file, data, (DWORD)size, &written, NULL) && written == size && FlushFileBuffers(file);
-    CloseHandle(file);
-    if (!ok || !MoveFileExW(temporary, wide, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-        DeleteFileW(temporary);
-        return -1;
+        goto failed;
+    created = 1;
+    ok = WriteFile(file, data, (DWORD)size, &written, NULL);
+    failure = ok ? ERROR_WRITE_FAULT : GetLastError();
+    if (ok && written == size) {
+        ok = FlushFileBuffers(file);
+        if (!ok)
+            failure = GetLastError();
+    } else {
+        ok = FALSE;
+    }
+    if (!CloseHandle(file)) {
+        if (ok)
+            failure = GetLastError();
+        ok = FALSE;
+    }
+    if (!ok)
+        goto failed;
+    if (!MoveFileExW(temporary, wide, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        failure = GetLastError();
+        goto failed;
     }
     return 0;
+
+failed:
+    if (created)
+        DeleteFileW(temporary);  // only the temporary file this call exclusively created
+    if (errorSize) {
+        wchar_t detail[256];
+        char utf8[768];
+        if (FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
+                           failure, 0, detail, 256, NULL)
+            && WideCharToMultiByte(CP_UTF8, 0, detail, -1, utf8, sizeof(utf8), NULL, NULL))
+            snprintf(error, errorSize, "Windows error %lu: %s", (unsigned long)failure, utf8);
+        else
+            snprintf(error, errorSize, "Windows error %lu.", (unsigned long)failure);
+    }
+    return -1;
 }
 
 // --- Trapped region ---------------------------------------------------------------------------

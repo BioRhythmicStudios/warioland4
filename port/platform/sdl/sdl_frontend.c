@@ -12,6 +12,7 @@
 #include "port/frame.h"
 #include "port/gba_io.h"
 #include "port/input_script.h"
+#include "port/os.h"
 #include "port/ppu.h"
 #include "port/save.h"
 
@@ -166,12 +167,72 @@ static int OpenSave(const char *savePath)
         return PortSaveOpen(savePath);
     directory = SDL_GetPrefPath(NULL, "wl4");
     if (directory == NULL) {
-        fprintf(stderr, "No folder for the save file: %s\n", SDL_GetError());
+        char message[512];
+        snprintf(message, sizeof(message), "Cannot locate the save folder: %s\n", SDL_GetError());
+        PortOsWriteError(message);
         return -1;
     }
-    result = snprintf(path, sizeof(path), "%swl4.sav", directory) < (int)sizeof(path) ? PortSaveOpen(path) : -1;
+    if (snprintf(path, sizeof(path), "%swl4.sav", directory) >= (int)sizeof(path)) {
+        PortOsWriteError("Cannot open the save: the preference-directory path is too long.\n");
+        result = -1;
+    } else {
+        result = PortSaveOpen(path);
+    }
     SDL_free(directory);
     return result;
+}
+
+// Normal save failures must not open dialogs every frame or stop the game. The banner
+// remains visible in fullscreen too; F8 and the quit prompt provide the full path/reason.
+static void DrawSaveWarning(SDL_Window *window, SDL_Renderer *renderer, int *wasFailed)
+{
+    int failed = PortSaveError() != NULL;
+    if (failed != *wasFailed) {
+        char title[1152];
+        if (failed)
+            snprintf(title, sizeof(title), "Wario Land 4 - UNSAVED: %s", PortSavePath());
+        else
+            snprintf(title, sizeof(title), "Wario Land 4");
+        SDL_SetWindowTitle(window, title);
+        *wasFailed = failed;
+    }
+    if (failed) {
+        const SDL_FRect banner = { 0, PORT_SCREEN_HEIGHT - 24, PORT_SCREEN_WIDTH, 24 };
+        SDL_SetRenderDrawColor(renderer, 128, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &banner);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderDebugText(renderer, 0, banner.y, "SAVE FAILED - retrying");
+        SDL_RenderDebugText(renderer, 0, banner.y + 8, "Progress remains in memory");
+        SDL_RenderDebugText(renderer, 0, banner.y + 16, "F8: details");
+    }
+}
+
+// 1: saved, 0: return to game (also the safe default if the dialog fails), -1: explicitly
+// quit without saving. A failed close keeps the save session/SRAM open for another attempt.
+static int FinishSave(SDL_Window *window)
+{
+    static const SDL_MessageBoxButtonData buttons[] = {
+        { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT | SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Return to game" },
+        { 0, 1, "Retry saving" },
+        { 0, 2, "Quit without saving" },
+    };
+    while (PortSaveClose()) {
+        char message[2048];
+        int choice = 0;
+        SDL_MessageBoxData box = { SDL_MESSAGEBOX_WARNING, window, "Progress has not been saved",
+                                   message, 3, buttons, NULL };
+        snprintf(message, sizeof(message), "%s\n\nRetry saving, return to the game, or quit and lose unsaved progress.",
+                 PortSaveError());
+        if (!SDL_ShowMessageBox(&box, &choice)) {
+            PortOsWriteError(message);
+            return 0;
+        }
+        if (choice == 2)
+            return -1;
+        if (choice != 1)
+            return 0;
+    }
+    return 1;
 }
 
 int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char *savePath)
@@ -181,6 +242,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     SDL_Texture *texture = NULL;
     Uint64 next;
     int result = 1, running = 1, fastForward = 0;
+    int wasSaveFailed = 0, saveHandled = 0;
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
@@ -220,6 +282,8 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
             case SDL_EVENT_KEY_DOWN:
                 if (event.key.scancode == SDL_SCANCODE_ESCAPE)
                     running = 0;
+                else if (event.key.scancode == SDL_SCANCODE_F8 && !event.key.repeat && PortSaveError())
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Progress has not been saved", PortSaveError(), window);
                 else if (event.key.scancode == SDL_SCANCODE_F11)
                     SDL_SetWindowFullscreen(window, !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN));
                 else if (event.key.scancode == SDL_SCANCODE_TAB)
@@ -244,6 +308,17 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
             }
         }
 
+        if (!running) {
+            int saved = FinishSave(window);
+            if (saved) {
+                saveHandled = 1;
+                result = saved > 0 ? 0 : 1;
+                goto done;
+            }
+            running = 1;
+            next = SDL_GetTicksNS();
+        }
+
         // The game reads the buttons after VBlank, when the frame below resumes it.
         keys = PressedKeys();
         if (scripted)
@@ -251,7 +326,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         PortIoWrite16(REG_KEYINPUT, (uint16_t)(~keys & KEYS_ALL));
         if (!PortFrameRun()) {
             fprintf(stderr, "The game stopped after %u frames\n", PortFrameCount());
-            break;
+            goto done;
         }
         PortSaveFrame();
 
@@ -260,6 +335,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
         SDL_RenderTexture(renderer, texture, NULL, NULL);
+        DrawSaveWarning(window, renderer, &wasSaveFailed);
         SDL_RenderPresent(renderer);
 
         // Pace to the GBA's frame rate. After a stall (a dragged window, a breakpoint) start
@@ -274,7 +350,10 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     result = 0;
 
 done:
-    PortSaveClose();
+    if (!saveHandled && PortSaveClose()) {
+        PortOsWriteError(PortSaveError());
+        result = 1;
+    }
     SDL_DestroyAudioStream(sAudio);
     sAudio = NULL;
     if (sGamepad != NULL)
