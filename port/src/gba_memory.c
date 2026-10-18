@@ -1,7 +1,9 @@
 #include "port/gba_memory.h"
 
 #include <stdio.h>
+#include <string.h>
 
+#include "port/gba_functions.h"
 #include "port/os.h"
 
 #define BLOCK 0x10000u  // Windows allocation granularity
@@ -95,10 +97,23 @@ const char *PortGbaRegionName(uintptr_t address)
     return NULL;
 }
 
+// Appends ", in or after <game function>+0x<offset> (GBA 0x<address>)" for a native pc.
+static void AppendGameFunction(char *message, size_t size, uintptr_t pc)
+{
+    const struct GbaFunction *f = PortGbaFunctionBelow(pc);
+    size_t len = strlen(message);
+
+    if (f == NULL || len == 0 || len >= size)
+        return;
+    len--;  // overwrite the newline
+    snprintf(message + len, size - len, ", in or after %s+0x%llX (GBA 0x%08X)\n", f->name,
+             (unsigned long long)(pc - (uintptr_t)f->func), f->gbaAddress);
+}
+
 static void ReportFault(enum PortFaultKind kind, uintptr_t address, uintptr_t pc, uintptr_t sp)
 {
     // Static, so that a report from an overflowed stack fits in the headroom.
-    static char message[256];
+    static char message[384];
     static const char *const kAccess[] = { "read from", "write to", "execute at" };
     const char *region = PortGbaRegionName(address);
 
@@ -118,6 +133,7 @@ static void ReportFault(enum PortFaultKind kind, uintptr_t address, uintptr_t pc
     } else {
         return;
     }
+    AppendGameFunction(message, sizeof(message), pc);
     PortOsWriteError(message);
 }
 

@@ -135,7 +135,7 @@ def main():
     lines += ['void %s(void);\n' % name for _, name in functions]
     lines.append('\n// Sorted by address for PortLookupGbaFunction().\n')
     lines.append('const struct GbaFunction gGbaFunctions[] = {\n')
-    lines += ['    { 0x%08X, (PortFunc)%s },\n' % (addr & ~1, name) for addr, name in functions]
+    lines += ['    { 0x%08X, (PortFunc)%s, "%s" },\n' % (addr & ~1, name, name) for addr, name in functions]
     lines.append('};\n\nconst unsigned int gGbaFunctionCount = sizeof(gGbaFunctions) / sizeof(gGbaFunctions[0]);\n')
     (OUT / 'gba_functions.c').write_bytes(''.join(lines).encode())
 

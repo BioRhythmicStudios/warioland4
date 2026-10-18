@@ -22,6 +22,19 @@ PortFunc PortLookupGbaFunction(unsigned int gbaAddress)
     return NULL;
 }
 
+const struct GbaFunction *PortGbaFunctionBelow(uintptr_t pc)
+{
+    const struct GbaFunction *best = NULL;
+    unsigned int i;
+
+    for (i = 0; i < gGbaFunctionCount; i++) {
+        uintptr_t start = (uintptr_t)gGbaFunctions[i].func;
+        if (start <= pc && (best == NULL || start > (uintptr_t)best->func))
+            best = &gGbaFunctions[i];
+    }
+    return best;
+}
+
 void PortMissingFunction(const char *name, unsigned int gbaAddress)
 {
     fprintf(stderr, "GBA function %s (0x%08X) has no native version yet\n", name, gbaAddress);
