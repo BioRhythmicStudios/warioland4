@@ -188,7 +188,9 @@ the step has finished (`gMainTimer` changed, and the loop waits for VBlank with 
 `gInterruptCheck` clear). Boot time does not matter, nor do the frames on which mGBA is still
 running a step that takes the port no time. The input scripts count steps the same way. The
 memory diff masks state the port does not model, each mask with its reason: stacks,
-VCOUNT/DISPSTAT status, timers, write-only registers, and the sound engine's state and registers.
+VCOUNT/DISPSTAT status, timers, write-only registers, the sound engine's state and registers,
+and the open bus that rooms without a raster effect copy as their HBlank callback (the last
+value any DMA moved, on mGBA usually sound data).
 
 `--selftest` runs the coroutine through yields and 2 MiB of recursion. `--test-bios` runs
 the BIOS unit tests (`port/src/bios_test.c`). These include decoding every LZ77 stream the

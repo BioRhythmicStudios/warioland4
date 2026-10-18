@@ -63,6 +63,7 @@ MASKS = [
 SOUND_MASKS = [
     ('gSoundInfo', 0xFB0),
     ('gCgbChans', 0x100),
+    ('gMPlayMemAccArea', 0x10),  # what the songs' memacc commands write
 ] + [('gMPlayInfo_%d' % i, 0x40) for i in range(8)]
 # The music players' tracks, in IWRAM the linker script leaves unnamed (gUnk_3002B98 is
 # inside it), and the sound channel status bits.
@@ -81,6 +82,18 @@ def build_masks(symbols, sound):
         for name, size in SOUND_MASKS:
             if name in symbols:
                 masks.append((symbols[name], symbols[name] + size, 0xFF, 'sound engine state (%s)' % name))
+    return masks
+
+
+def state_masks(symbols, a, b):
+    """Masks that apply only in some game states, judged on both frames."""
+    masks = []
+    # In a room without a raster effect (gHBlankMode 0), SetHBlankMode copies its HBlank
+    # callback from address 0, which DMA cannot read: it writes the last value any DMA moved,
+    # on mGBA mostly sound FIFO data, which the port does not transfer. The copy never runs.
+    mode, trampoline = symbols.get('gHBlankMode'), symbols.get('gHBlankCallbackTrampoline')
+    if mode is not None and trampoline is not None and (a.read(mode, 1) == 0 or b.read(mode, 1) == 0):
+        masks.append((trampoline, trampoline + 0x200, 0xFF, 'open bus copied as the HBlank callback'))
     return masks
 
 
@@ -181,7 +194,8 @@ def main():
         if n < args.start:
             continue
         compared += 1
-        da, db = apply_masks(a, masks), apply_masks(b, masks)
+        pair_masks = masks if args.no_mask else masks + state_masks(symbols, a, b)
+        da, db = apply_masks(a, pair_masks), apply_masks(b, pair_masks)
         if da == db:
             continue
         differing += 1
