@@ -26,3 +26,9 @@ unsigned int __umodsi3(unsigned int a, unsigned int b)
 {
     return b == 0 ? 0 : a % b;
 }
+
+// m4a's asm helper (asm/m4a_asm.s, an ARM umull): the high 32 bits of an unsigned product.
+unsigned int umul3232H32(unsigned int multiplier, unsigned int multiplicand)
+{
+    return (unsigned int)(((unsigned long long)multiplier * multiplicand) >> 32);
+}
