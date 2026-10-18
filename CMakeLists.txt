@@ -22,10 +22,11 @@ list(APPEND WL4_GAME_SOURCES
 
 file(GLOB WL4_LAYOUT_ASSERTS CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/port/generated/layout_asserts_*.c)
 
-add_library(wl4_game STATIC ${WL4_GAME_SOURCES} ${WL4_LAYOUT_ASSERTS})
-target_include_directories(wl4_game PRIVATE include port/include)
-target_compile_definitions(wl4_game PRIVATE PORTABLE VERSION_US)
-target_compile_options(wl4_game PRIVATE
+# How game code is compiled, shared by the game library and the layout checks.
+add_library(wl4_game_flags INTERFACE)
+target_include_directories(wl4_game_flags INTERFACE include port/include)
+target_compile_definitions(wl4_game_flags INTERFACE PORTABLE VERSION_US)
+target_compile_options(wl4_game_flags INTERFACE
     -std=gnu89
     # agbcc's semantics: unsigned char, no type-based aliasing, wrapping signed overflow,
     # and null pointers that may be dereferenced (GBA address 0 is the BIOS).
@@ -37,9 +38,20 @@ target_compile_options(wl4_game PRIVATE
     -Wno-error=incompatible-pointer-types -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion
 )
 if(NOT WL4_CAST_WARNINGS)
-    target_compile_options(wl4_game PRIVATE
+    target_compile_options(wl4_game_flags INTERFACE
         -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-void-pointer-to-int-cast -Wno-int-to-void-pointer-cast)
 endif()
+
+add_library(wl4_game STATIC ${WL4_GAME_SOURCES} ${WL4_LAYOUT_ASSERTS})
+target_link_libraries(wl4_game PRIVATE wl4_game_flags)
+
+# Layout checks for the structs that game sources define themselves. Each one includes its
+# source file, so these objects are compiled but never linked.
+file(GLOB WL4_LAYOUT_CHECKS CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/port/generated/layout_checks/*.c)
+add_library(wl4_layout_checks OBJECT ${WL4_LAYOUT_CHECKS})
+target_link_libraries(wl4_layout_checks PRIVATE wl4_game_flags)
+# The game library already reports these sources' warnings.
+target_compile_options(wl4_layout_checks PRIVATE -w)
 
 add_library(wl4_platform_stub STATIC port/platform/stub/platform_stub.c)
 
