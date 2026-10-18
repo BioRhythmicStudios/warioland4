@@ -176,7 +176,7 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
-- **Done:** M0 (steps 1–10), M1 and M2, pushed to `myfork/port` (last commit `abd1e87`). The game-source changes of steps 1–4 and the barrier fix are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`; barrier fix cherry-picked as `0c2f07a`, byte-identical). GBA byte identity was last verified as `build/v7-17` (MD5 `940b597b…`, objects identical).
+- **Done:** M0 (steps 1–10), M1 and M2, pushed to `myfork/port` (last commit `abd1e87`). The game-source changes of steps 1–4 and the barrier fix are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`; barrier fix cherry-picked as `0c2f07a`, byte-identical). GBA byte identity was last verified as `build/v7-18` (MD5 `940b597b…`, objects identical).
 - **M1 results:**
   - **Renderer** (`port/src/ppu.c`): draws each line at HBlank start, before HBlank DMA. Modes 0–5, text/affine/bitmap BGs, regular and affine sprites, windows, blending, brightness, mosaic. Where hardware behaviour is unclear it copies mGBA 0.10.5's software renderer.
   - **Colours:** blended on 5-bit channels as on the GBA by default. `--mgba-colors` copies mGBA's 8-bit maths for exact comparison.
@@ -205,7 +205,7 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
   - **Sound paths not yet compared with mGBA**, because the lag drift starts first: the fixed-frequency mixer, echo, reverb and the CGB channels driven by the engine. A lag-frame replay (running `SoundMain` an extra time where mGBA lagged) would cover them.
   - Open bus at unused addresses is approximate (see above). BIOS 0x2A (`GetJumpList`) is unimplemented. UBSan has not been tried.
   - 295 compiler warnings remain; two header pairs still conflict (`save_reset.h`/`save_data_clear.h`, `stage_entry.h`/`boss_door_opening.h`). `StartLargeLipsKiss`'s fifth argument still needs confirming against mGBA.
-- **Housekeeping:** the main tree's `build/` still holds `verify-step4.log`, `verify-step4.objcheck`, `barrier-base` and `barrier-after` from verifying the cherry-pick. Delete them when convenient.
+- **Housekeeping:** the main tree's verify-step4 and barrier leftovers were deleted (2026-10-18); `barrier-base.log`, `barrier-after.log` and `barrier-after.objcheck` remain there. Work is handed over to Codex: see `CODEX_HANDOVER.md` and `AGENTS.md`.
 - **Next:** M3, a full playthrough under the diff harness. Longer input scripts per passage, run with and without saves. A lag-frame replay would keep the sound comparable. Optionally, UBSan on the window run.
 
 ## Later milestones
