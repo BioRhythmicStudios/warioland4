@@ -45,8 +45,11 @@ typedef void (*PortTrapCallback)(uintptr_t address, int isWrite, uintptr_t pc);
 int PortOsMapTrappedRegion(uintptr_t address, size_t reserve, size_t size, uint8_t **hostView,
                            PortTrapCallback before, PortTrapCallback after);
 
-// Writes a message to stderr without the C library, for use inside the fault handler.
+// Writes a message to stderr without the C library, for use inside the fault handler. After
+// PortOsShowErrors(1) it also shows the message in a dialog and waits for it to be closed, for
+// windowed runs, which may have no console.
 void PortOsWriteError(const char *message);
+void PortOsShowErrors(int show);
 
 // The offset of a code address in the executable, for llvm-symbolizer; 0 if it is elsewhere.
 uintptr_t PortOsExecutableOffset(uintptr_t pc);

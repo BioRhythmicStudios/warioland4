@@ -74,14 +74,15 @@ because it needs agbcc and libclang (`pip install libclang`).
 
 ## Runtime
 
-`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE]] [--input FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+`wl4.exe [ROM] [--scale N] [--frames N [--dump FILE] [--shots FILE] [--from-step S]] [--input FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
 
 With no `--frames` or tests, the game runs in a window (`port/platform/sdl/sdl_frontend.c`), at
 `--scale` times 240x160 (default 3). The window scales in whole steps. The keys are mGBA's
 defaults: arrows, X = A, Z = B, A = L, S = R, Enter = Start, Backspace = Select. Tab
 fast-forwards while held, F11 toggles fullscreen and Escape quits. The first gamepad works by
 button position (bottom = A, right = B). Frames are paced at the GBA's rate, 2^24 Hz / 280896
-cycles (about 59.73 a second). There is no sound and no saving yet.
+cycles (about 59.73 a second). There is no sound and no saving yet. If the game faults, the
+report goes to stderr and, in the window, to a dialog as well.
 
 At startup, `port/src/gba_memory.c` reserves the GBA regions at their real addresses
 (`port/include/port/gba_memory.h`). It also reserves the game stack at `0x01020000`–`0x01810000`,
@@ -143,6 +144,8 @@ exactly.
 
 `--dump FILE` writes GBA memory (EWRAM, IWRAM, I/O, palette, VRAM, OAM, SRAM) at the start of
 every VBlank. `--shots FILE` writes the picture then, as 240x160 RGB bytes after a header.
+`--from-step S` starts both at the frame on which main-loop step S finishes, to look at a
+late scene without gigabytes of dump (each frame is 419 KiB).
 `--input FILE` presses keys from a script, by steps of the game's main loop rather than by
 frames, so that mGBA can press the same keys on the same steps. In the window, they add to the
 keys you press. Each line is `STEP KEYS`: from
@@ -160,18 +163,20 @@ To compare a run with mGBA (0.10 or later, the Qt build):
 2. Make the same dump in mGBA. `port/tools/run_mgba_dump.ps1` does it unattended:
 
        powershell -ExecutionPolicy Bypass -File port/tools/run_mgba_dump.ps1 ^
-           -Mgba C:\path\to\mGBA.exe -Frames N -Out MGBA.bin [-Shots] [-InputScript FILE]
+           -Mgba C:\path\to\mGBA.exe -Frames N -Out MGBA.bin [-Shots] [-InputScript FILE] [-FromStep S]
 
    It copies the ROM into a new run directory under `%TEMP%` and starts mGBA. It loads
    `port/tools/mgba_dump.lua` through the Scripting window and closes mGBA once the dump is
    written. `-Shots` also saves a screenshot of every frame in the run directory
-   (`wl4-N.png` is frame N+1). `-InputScript` presses keys as `wl4 --input` does.
+   (`wl4-N.png` goes with the N-th frame dumped, from 0). `-InputScript` presses keys as
+   `wl4 --input` does, and `-FromStep` starts the dump as `wl4 --from-step` does.
    `Get-Help port/tools/run_mgba_dump.ps1 -Full` has the details.
 
    To do it by hand, load the ROM and choose Tools > Scripting... > File > Load script...,
    then pick `port/tools/mgba_dump.lua`. The script erases SRAM, resets the game and writes
    the dump to `%WL4_DUMP%` (default `%TEMP%\wl4_mgba.bin`). `%WL4_FRAMES%` sets the frame
-   count, `WL4_SHOTS=1` turns the screenshots on and `%WL4_INPUT%` names an input script.
+   count, `WL4_SHOTS=1` turns the screenshots on, `%WL4_INPUT%` names an input script and
+   `%WL4_FROM_STEP%` sets the first step to dump. It writes `MGBA.bin.done` when finished.
 3. Run `python port/tools/diff_frames.py PORT.bin MGBA.bin`.
 4. To compare the pictures, run wl4 with `--shots PORT.shots --mgba-colors` and mGBA with
    `-Shots`, then `python port/tools/diff_screens.py PORT.bin PORT.shots MGBA.bin RUN_DIR`.

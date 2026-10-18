@@ -16,11 +16,16 @@
 -- game's main loop as wl4 does. It counts the steps as wl4 does (PortFrameSteps()): at the
 -- start of each VBlank, a step has finished if gMainTimer has changed and the main loop waits
 -- for VBlank, with bit 0 of gInterruptCheck clear.
+-- WL4_FRAMES is how many frames to run. With WL4_FROM_STEP set, the dump and screenshots start
+-- at the frame on which that main-loop step finishes, as with wl4 --from-step.
+-- When the dump is complete the script writes an empty file beside it, named as the dump
+-- plus ".done", for run_mgba_dump.ps1.
 
 local FRAMES = tonumber(os.getenv("WL4_FRAMES") or "") or 1200
 local path = os.getenv("WL4_DUMP") or ((os.getenv("TEMP") or ".") .. "\\wl4_mgba.bin")
 local shots = os.getenv("WL4_SHOTS") == "1"
 local inputPath = os.getenv("WL4_INPUT")
+local fromStep = tonumber(os.getenv("WL4_FROM_STEP") or "") or 0
 
 local MAIN_TIMER = 0x03000C41 -- gMainTimer
 local INTERRUPT_CHECK = 0x03000C42 -- gInterruptCheck
@@ -88,33 +93,39 @@ local REGIONS = {
 local MAGIC = 0x46344C57 -- "WL4F"
 
 local file = assert(io.open(path, "wb"))
+os.remove(path .. ".done")
 local count = 0
+local written = 0
 local callback
 
 -- The "frame" callback runs when mGBA ends a frame: at the start of VBlank, before the CPU
 -- has taken the VBlank interrupt. wl4 --dump writes at the same point.
 local function dump()
     count = count + 1
-    if shots then
-        emu:screenshot()
+    local timer = emu:read8(MAIN_TIMER)
+    if (emu:read16(INTERRUPT_CHECK) & 1) == 0 and timer ~= lastStepTimer then
+        steps = steps + 1
+        lastStepTimer = timer
     end
-    file:write(string.pack("<I4I4", MAGIC, count))
-    for _, region in ipairs(REGIONS) do
-        file:write(emu.memory[region[1]]:readRange(0, region[2]))
+    if steps >= fromStep then
+        if shots then
+            emu:screenshot()
+        end
+        file:write(string.pack("<I4I4", MAGIC, count))
+        for _, region in ipairs(REGIONS) do
+            file:write(emu.memory[region[1]]:readRange(0, region[2]))
+        end
+        written = written + 1
     end
     if input then
-        local timer = emu:read8(MAIN_TIMER)
-        if (emu:read16(INTERRUPT_CHECK) & 1) == 0 and timer ~= lastStepTimer then
-            steps = steps + 1
-            lastStepTimer = timer
-        end
         -- The keys for the step the main loop runs next, which reads them when it starts.
         emu:setKeys(keysFor(steps + 1))
     end
     if count >= FRAMES then
         file:close()
+        assert(io.open(path .. ".done", "wb")):close()
         callbacks:remove(callback)
-        console:log(string.format("wl4: %d frames written to %s", count, path))
+        console:log(string.format("wl4: %d frames run, %d written to %s", count, written, path))
     end
 end
 

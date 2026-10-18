@@ -24,9 +24,10 @@ FRAME_SIZE = HEADER.size + sum(size for _, _, size in REGIONS)
 
 
 class Frame:
-    def __init__(self, number, data):
+    def __init__(self, number, data, index=0):
         self.number = number
         self.data = data  # the memory, without the header
+        self.index = index  # the position in the dump file, from 0
 
     def offset(self, address):
         """The offset of a GBA address in self.data, or None."""
@@ -53,6 +54,7 @@ class Frame:
 def frames(path):
     """Yields the frames of a dump file."""
     with open(path, 'rb') as f:
+        index = 0
         while True:
             chunk = f.read(FRAME_SIZE)
             if not chunk:
@@ -63,7 +65,8 @@ def frames(path):
             magic, number = HEADER.unpack_from(chunk)
             if magic != MAGIC:
                 raise ValueError('%s: bad frame header' % path)
-            yield Frame(number, memoryview(chunk)[HEADER.size:])
+            yield Frame(number, memoryview(chunk)[HEADER.size:], index)
+            index += 1
 
 
 def gba_symbols(path='port/generated/gba_symbols.s'):

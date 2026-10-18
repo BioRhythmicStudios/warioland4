@@ -15,8 +15,9 @@ mGBA 0.10 has no command-line option to run a script, so this drives its window:
 
 The script itself (mgba_dump.lua) erases SRAM, resets the game and dumps memory at the
 start of each VBlank. With -Shots it also saves a screenshot each frame, which mGBA names
-wl4-0.png, wl4-1.png, ... in the run directory: wl4-N.png is frame N+1. With -InputScript
-it presses the script's keys on the same main-loop steps as wl4 --input does.
+wl4-0.png, wl4-1.png, ... in the run directory: wl4-N.png goes with the N-th frame dumped,
+from 0. With -InputScript it presses the script's keys on the same main-loop steps as wl4
+--input does, and with -FromStep it dumps from that step on, as wl4 --from-step does.
 
 Tested with mGBA 0.10.5 (Qt, win32) on Windows 11. The mGBA window may be in the
 background; nothing needs the keyboard or mouse.
@@ -36,6 +37,9 @@ param(
     [switch]$Shots,
     # An input script for the keys, as for wl4 --input (port/include/port/input_script.h).
     [string]$InputScript,
+    # Start the dump and screenshots at the frame on which this main-loop step finishes, as
+    # wl4 --from-step does. -Frames still counts from the start.
+    [int]$FromStep = 0,
     # The US ROM. Defaults to baserom_us.gba in this worktree, else in the main worktree
     # (a worktree's copy may be a WSL symlink, which Windows programs cannot read).
     [string]$Rom,
@@ -173,6 +177,9 @@ $env:WL4_FRAMES = "$Frames"
 $env:WL4_DUMP = $Out
 $env:WL4_SHOTS = if ($Shots) { '1' } else { '' }
 $env:WL4_INPUT = if ($InputScript) { (Resolve-Path -LiteralPath $InputScript).Path } else { '' }
+$env:WL4_FROM_STEP = if ($FromStep) { "$FromStep" } else { '' }
+$done = "$Out.done"
+Remove-Item -LiteralPath $done -ErrorAction SilentlyContinue
 $started = Get-Date
 $mgbaProcess = Start-Process -FilePath $Mgba -ArgumentList ('"' + (Join-Path $runDir 'wl4.gba') + '"') -PassThru
 $runspace = $null
@@ -208,24 +215,19 @@ try {
     if (-not [Wl4Win32]::OpenFile($dialog, $Script)) { throw 'mGBA: the file dialog has no name box or Open button' }
     Write-Host "Loaded $Script; dumping $Frames frames to $Out"
 
-    # The script holds the dump open until it has written every frame.
+    # The script closes the dump after the last frame, then writes the .done file.
     $deadline = $started.AddSeconds($TimeoutSeconds)
-    while ($true) {
+    while (-not (Test-Path -LiteralPath $done)) {
         if ($mgbaProcess.HasExited) { throw 'mGBA exited before the dump was finished' }
         if ((Get-Date) -gt $deadline) { throw "The dump was not finished within $TimeoutSeconds s" }
-        $item = Get-Item -LiteralPath $Out -ErrorAction SilentlyContinue
-        if ($item -and $item.LastWriteTime -ge $started -and $item.Length -eq [int64]$Frames * $frameSize) {
-            try {
-                [System.IO.File]::Open($Out, 'Open', 'Read', 'None').Dispose()
-                break
-            } catch [System.IO.IOException] { }
-        }
         Start-Sleep -Seconds 1
     }
-    Write-Host ("Done: {0} frames in {1:N0} s" -f $Frames, ((Get-Date) - $started).TotalSeconds)
+    Remove-Item -LiteralPath $done
+    $written = (Get-Item -LiteralPath $Out).Length / $frameSize
+    Write-Host ("Done: {0} frames run, {1} written, in {2:N0} s" -f $Frames, $written, ((Get-Date) - $started).TotalSeconds)
     if ($Shots) {
         $count = @(Get-ChildItem -LiteralPath $runDir -Filter 'wl4-*.png').Count
-        Write-Host "$count screenshots in $runDir (wl4-N.png is frame N+1)"
+        Write-Host "$count screenshots in $runDir (wl4-N.png goes with the N-th frame dumped, from 0)"
     }
 } finally {
     if (-not $mgbaProcess.HasExited) {

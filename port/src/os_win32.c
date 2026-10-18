@@ -54,11 +54,33 @@ void PortOsDescribeAddress(uintptr_t address, char *buffer, size_t size)
              module, info.State == MEM_RESERVE ? ", reserved" : "");
 }
 
+static int sShowErrors;
+
+void PortOsShowErrors(int show)
+{
+    sShowErrors = show;
+}
+
+static DWORD WINAPI ErrorDialogThread(LPVOID message)
+{
+    MessageBoxA(NULL, (const char *)message, "Wario Land 4", MB_OK | MB_ICONERROR | MB_SETFOREGROUND);
+    return 0;
+}
+
 void PortOsWriteError(const char *message)
 {
     DWORD written;
 
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), message, (DWORD)strlen(message), &written, NULL);
+    if (sShowErrors) {
+        // From a thread of its own: a dialog on this thread would run the game window's
+        // message handling while the game is stopped in a fault.
+        HANDLE thread = CreateThread(NULL, 0, ErrorDialogThread, (LPVOID)message, 0, NULL);
+        if (thread != NULL) {
+            WaitForSingleObject(thread, INFINITE);
+            CloseHandle(thread);
+        }
+    }
 }
 
 uintptr_t PortOsExecutableOffset(uintptr_t pc)

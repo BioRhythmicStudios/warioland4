@@ -102,7 +102,8 @@ def write_png(path, rgb, width, height):
 # --- Inputs ---------------------------------------------------------------------------------
 
 class MgbaScreens:
-    """mGBA's screenshots: wl4-N.png in the run directory is frame N+1."""
+    """mGBA's screenshots: wl4-N.png in the run directory goes with the N-th frame of the dump,
+    from 0 (frame N+1 when the dump starts at the first frame)."""
 
     def __init__(self, run_dir):
         self.run_dir = run_dir
@@ -124,10 +125,10 @@ class MgbaScreens:
         self.count = count
         self.file = open(self.cache, 'rb')
 
-    def frame(self, number):
-        if not 1 <= number <= self.count:
+    def frame(self, dump_frame):
+        if not 0 <= dump_frame.index < self.count:
             return None
-        self.file.seek((number - 1) * FRAME_BYTES)
+        self.file.seek(dump_frame.index * FRAME_BYTES)
         return self.file.read(FRAME_BYTES)
 
 
@@ -136,13 +137,14 @@ class PortScreens:
         self.file = open(path, 'rb')
         self.count = os.path.getsize(path) // (SHOT_HEADER.size + FRAME_BYTES)
 
-    def frame(self, number):
-        if not 1 <= number <= self.count:
+    def frame(self, dump_frame):
+        """The picture that goes with a frame of the dump: wl4 writes them side by side."""
+        if not 0 <= dump_frame.index < self.count:
             return None
-        self.file.seek((number - 1) * (SHOT_HEADER.size + FRAME_BYTES))
+        self.file.seek(dump_frame.index * (SHOT_HEADER.size + FRAME_BYTES))
         magic, frame = SHOT_HEADER.unpack(self.file.read(SHOT_HEADER.size))
-        if magic != SHOT_MAGIC or frame != number:
-            raise SystemExit('bad screenshot header for frame %d' % number)
+        if magic != SHOT_MAGIC or frame != dump_frame.number:
+            raise SystemExit('bad screenshot header for frame %d' % dump_frame.number)
         return self.file.read(FRAME_BYTES)
 
 
@@ -206,7 +208,7 @@ def main():
             continue
         if args.end is not None and n > args.end:
             break
-        port, mgba = port_screens.frame(a.number), mgba_screens.frame(b.number)
+        port, mgba = port_screens.frame(a), mgba_screens.frame(b)
         if port is None or mgba is None:
             break
         compared += 1
