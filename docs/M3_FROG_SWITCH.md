@@ -1,5 +1,16 @@
 # Hall of Hieroglyphs Frog Switch freeze (2026-10-18)
 
+## Later manual gameplay confirmation (reported 2026-10-18)
+
+The user has now manually confirmed that the Windows port's Frog Switch no longer
+freezes, the escape timer works, and Hall of Hieroglyphs was completed. This closes
+the prior request for manual gameplay follow-up. It is user-reported gameplay,
+not a new ASan run, an input recording or a continuous automated mGBA proof.
+The earlier RAM-positioned fixture limitations below still apply to that automated
+evidence only. Broader manual results and private-alpha gaps are recorded in
+`docs/M3_ALPHA_READINESS.md`; M3 remains incomplete. No fix code changed here.
+
+
 Implementation: `c25cc4d` (parent `ff28d49`). The change is entirely in the native
 runtime and its tests; no game source, generated symbols, route recordings or ROM
 assets changed. The user explicitly prioritized this bug over extending M3.

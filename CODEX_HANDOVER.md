@@ -4,6 +4,32 @@ The working rules are in `AGENTS.md`, so read that first. The full plan and its 
 in `docs/PC_PORT_PLAN.md`; its "Where we are" section is the most detailed status. Each
 runtime piece is documented in `port/README.md`.
 
+## Latest: manual M3 results and private-alpha review (2026-10-18)
+
+Read `docs/M3_ALPHA_READINESS.md` first for current coverage and readiness. User
+manual results now confirm Hall completion (Frog Switch and escape), Spoiled Rotten
+victory/return to the Golden Pyramid, two Wario Hop rounds through Game Over,
+zombie transformation/platform fall-through, bat transformation/flight and save
+progress restored after closing/reopening. These are manual observations, not new
+sanitizer runs or full automated equivalence. Exact build/device details were not
+supplied. The older request for manual Hall completion is now satisfied; the old
+fixture and automated-route limits remain unchanged.
+
+Reviewed HEAD `f3d22a5` preserves the README/screenshot work merged since `38c49ef`;
+Frog Switch implementation remains `c25cc4d`. Documentation review only: no runtime
+changes or package/release. Guided private testing is reasonable; an unattended
+alpha package still needs save-error visibility, startup/dependency UX, durable
+failure evidence and clean-PC/controller acceptance. First proposed implementation:
+visible save-write failure with rate-limited pending-data retry. Await the user's
+approval before that milestone task. Do not extend the full playthrough implicitly.
+
+Fresh GBA verification for this documentation update: `build/v7-26`, ROM MD5
+`940b597bef3be3f4041021b47a2f4096`, ROM-SAME and OBJ-SAME. Next fresh build: v7-27.
+Older build numbers below are historical. All prior recordings and artifacts remain
+intact; this review's small negative-ROM/import-check artifacts are under ignored
+`build/m3-alpha-review-20261018/`.
+
+
 ## Priority Frog Switch bug follow-up (2026-10-18)
 
 The user authorized this focused bug task; general playthrough extension remains paused.
