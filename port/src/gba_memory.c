@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "port/gba_functions.h"
+#include "port/gba_io.h"
 #include "port/os.h"
 
 #define BLOCK 0x10000u  // Windows allocation granularity
@@ -62,6 +63,14 @@ int PortReserveGbaMemory(void)
         return -1;
     for (i = 0; i < sizeof(sRegions) / sizeof(sRegions[0]); i++) {
         const struct Region *r = &sRegions[i];
+        if (r->base == GBA_IO_BASE) {
+            // Every access to the registers is trapped, to give them their hardware effects.
+            if (PortIoMap()) {
+                fprintf(stderr, "Cannot map the I/O registers at 0x%08X\n", GBA_IO_BASE);
+                return -1;
+            }
+            continue;
+        }
         if (Reserve(r->name, r->base, r->reserve) || Protect(r->name, r->base, ROUND_UP(r->size, PAGE), PORT_READ_WRITE))
             return -1;
     }

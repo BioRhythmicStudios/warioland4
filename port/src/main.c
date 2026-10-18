@@ -4,6 +4,7 @@
 
 #include "port/bios.h"
 #include "port/game_thread.h"
+#include "port/gba_io.h"
 #include "port/gba_functions.h"
 #include "port/gba_memory.h"
 #include "port/rom.h"
@@ -11,7 +12,7 @@
 static void Usage(void)
 {
     fprintf(stderr,
-            "usage: wl4 [ROM] [--selftest] [--test-bios] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
+            "usage: wl4 [ROM] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]\n"
             "  ROM defaults to baserom_us.gba in the current directory.\n");
 }
 
@@ -110,7 +111,7 @@ static void AsanProbeEntry(void)
 int main(int argc, char **argv)
 {
     const char *romPath = "baserom_us.gba";
-    int selfTest = 0, biosTest = 0, asanProbe = 0;
+    int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
     int i;
 
     // Reserve the GBA address space before anything else can take it.
@@ -123,6 +124,8 @@ int main(int argc, char **argv)
             selfTest = 1;
         else if (strcmp(argv[i], "--test-bios") == 0)
             biosTest = 1;
+        else if (strcmp(argv[i], "--test-io") == 0)
+            ioTest = 1;
         else if (strcmp(argv[i], "--asan-probe") == 0)
             asanProbe = 1;
         else if (strcmp(argv[i], "--fault") == 0 && i + 1 < argc)
@@ -144,6 +147,8 @@ int main(int argc, char **argv)
     if (selfTest && SelfTest())
         return 1;
     if (biosTest && PortBiosTest())
+        return 1;
+    if (ioTest && PortIoTest())
         return 1;
     if (sFault || asanProbe) {
         if (PortGameThreadCreate(sFault ? FaultEntry : AsanProbeEntry))

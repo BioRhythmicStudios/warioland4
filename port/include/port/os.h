@@ -35,6 +35,15 @@ enum PortFaultKind {
 typedef void (*PortFaultCallback)(enum PortFaultKind kind, uintptr_t address, uintptr_t pc, uintptr_t sp);
 void PortOsInstallFaultHandler(PortFaultCallback callback);
 
+// A region whose game view traps every access, for the GBA's I/O registers. The game view is
+// mapped at `address` (`reserve` bytes, of which the first `size` are accessible through
+// traps). Each access by any thread first calls before(), then runs the instruction with the
+// page open, then calls after(). The host reads and writes the same memory freely through
+// *hostView. Returns 0 on success.
+typedef void (*PortTrapCallback)(uintptr_t address, int isWrite);
+int PortOsMapTrappedRegion(uintptr_t address, size_t reserve, size_t size, uint8_t **hostView,
+                           PortTrapCallback before, PortTrapCallback after);
+
 // Writes a message to stderr without the C library, for use inside the fault handler.
 void PortOsWriteError(const char *message);
 

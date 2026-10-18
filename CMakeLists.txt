@@ -64,8 +64,10 @@ add_executable(wl4
     port/src/bios.c
     port/src/bios_test.c
     port/src/gba_functions.c
+    port/src/gba_io.c
     port/src/gba_memory.c
     port/src/gba_runtime.c
+    port/src/io_test.c
     port/src/md5.c
     port/src/os_win32.c
     port/src/rom.c

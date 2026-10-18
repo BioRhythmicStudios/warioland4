@@ -67,7 +67,7 @@ because it needs agbcc and libclang (`pip install libclang`).
 
 ## Runtime
 
-`wl4.exe [ROM] [--selftest] [--test-bios] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
+`wl4.exe [ROM] [--selftest] [--test-bios] [--test-io] [--fault rom-write|unmapped|stack-overflow] [--asan-probe]`
 
 At startup, `port/src/gba_memory.c` reserves the GBA regions at their real addresses
 (`port/include/port/gba_memory.h`). It also reserves the game stack at `0x01020000`â€“`0x01810000`,
@@ -86,9 +86,28 @@ minicoro coroutine on the low stack (`port/src/game_thread.c`).
 
 `port/src/gba_runtime.c` has the libgcc division helpers and m4a's `umul3232H32`.
 
+The game reaches the I/O registers through the `REG_` macros, structs, and addresses it
+computes at run time. So instead of changing the game code, the port traps every access
+to the register page:
+- The page is a section with two views. The game's view at `0x04000000` has no access rights.
+  The host reads and writes the other view (`PortIoHost()`) freely.
+- A fault there calls `port/src/gba_io.c` before the access. The page is then opened, and the
+  one instruction runs with the trap flag set. The single-step exception that follows applies
+  the register's effects and closes the page.
+- The effects:
+  - **DMA.** A write that sets a channel's enable bit latches its registers. Immediate
+    transfers run at once and clear the bit. VBlank and HBlank transfers run from
+    `PortIoVBlank()`/`PortIoHBlank()`, with repeat and destination reload.
+  - **IF.** Writing 1 to a bit clears it.
+  - **VCOUNT and DISPSTAT.** These advance by half a line per read, so loops that wait for
+    a scanline end. The host sets the line with `PortIoSetScanline()`.
+  - **Read-only registers.** Writes to them are undone.
+- A trapped access costs about 4 µs.
+
 `--selftest` runs the coroutine through yields and 2 MiB of recursion. `--test-bios` runs
 the BIOS unit tests (`port/src/bios_test.c`). These include decoding every LZ77 stream the
-game passes to `LZ77UnCompVram`, and comparing the result with a plain byte decoder. `--fault` and
+game passes to `LZ77UnCompVram`, and comparing the result with a plain byte decoder.
+`--test-io` tests the trapped registers on the game coroutine, and times the traps. `--fault` and
 `--asan-probe` trigger the fault reports and an AddressSanitizer report on the game stack.
 To build with AddressSanitizer, configure with `-DWL4_ASAN=ON`. Then put
 `llvm-mingw/x86_64-w64-mingw32/bin` on `PATH` for `libclang_rt.asan_dynamic-x86_64.dll`.

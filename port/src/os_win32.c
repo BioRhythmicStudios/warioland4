@@ -61,6 +61,75 @@ void PortOsWriteError(const char *message)
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), message, (DWORD)strlen(message), &written, NULL);
 }
 
+// --- Trapped region ---------------------------------------------------------------------------
+// The game view stays PAGE_NOACCESS. An access faults; the handler calls before(), opens the
+// page, sets the trap flag and lets the instruction run. The single-step exception that
+// follows calls after() and closes the page again.
+
+#define TRAP_FLAG 0x100
+
+static uintptr_t sTrapBase;
+static size_t sTrapSize;
+static PortTrapCallback sTrapBefore, sTrapAfter;
+static _Thread_local int sTrapPending;
+static _Thread_local uintptr_t sTrapAddress;
+static _Thread_local int sTrapWrite;
+
+// Not instrumented: AddressSanitizer commits its shadow memory from access violations too, and
+// this handler sees them first. An instrumented access here would fault again, endlessly.
+__attribute__((no_sanitize("address"))) static LONG CALLBACK TrapHandler(EXCEPTION_POINTERS *info)
+{
+    const EXCEPTION_RECORD *record = info->ExceptionRecord;
+    CONTEXT *context = info->ContextRecord;
+    DWORD old;
+
+    if (record->ExceptionCode == EXCEPTION_ACCESS_VIOLATION && record->NumberParameters >= 2) {
+        uintptr_t address = record->ExceptionInformation[1];
+        if (address - sTrapBase >= sTrapSize || sTrapPending)
+            return EXCEPTION_CONTINUE_SEARCH;
+        sTrapAddress = address;
+        sTrapWrite = record->ExceptionInformation[0] == 1;
+        sTrapBefore(address, sTrapWrite);
+        if (!VirtualProtect((void *)sTrapBase, sTrapSize, PAGE_READWRITE, &old))
+            return EXCEPTION_CONTINUE_SEARCH;
+        sTrapPending = 1;
+        context->EFlags |= TRAP_FLAG;
+        return EXCEPTION_CONTINUE_EXECUTION;
+    }
+    if (record->ExceptionCode == EXCEPTION_SINGLE_STEP && sTrapPending) {
+        sTrapPending = 0;
+        context->EFlags &= ~TRAP_FLAG;
+        VirtualProtect((void *)sTrapBase, sTrapSize, PAGE_NOACCESS, &old);
+        sTrapAfter(sTrapAddress, sTrapWrite);
+        return EXCEPTION_CONTINUE_EXECUTION;
+    }
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
+int PortOsMapTrappedRegion(uintptr_t address, size_t reserve, size_t size, uint8_t **hostView,
+                           PortTrapCallback before, PortTrapCallback after)
+{
+    HANDLE section = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, (DWORD)reserve, NULL);
+    void *game, *host;
+    DWORD old;
+
+    if (section == NULL)
+        return -1;
+    game = MapViewOfFileEx(section, FILE_MAP_ALL_ACCESS, 0, 0, reserve, (void *)address);
+    host = MapViewOfFile(section, FILE_MAP_ALL_ACCESS, 0, 0, reserve);
+    CloseHandle(section);  // the views keep the section alive
+    if (game != (void *)address || host == NULL || !VirtualProtect(game, reserve, PAGE_NOACCESS, &old))
+        return -1;
+    sTrapBase = address;
+    sTrapSize = size;
+    sTrapBefore = before;
+    sTrapAfter = after;
+    *hostView = host;
+    // First in line: these faults are expected, and are resolved before anyone reports them.
+    AddVectoredExceptionHandler(1, TrapHandler);
+    return 0;
+}
+
 static PortFaultCallback sFaultCallback;
 
 static LONG CALLBACK VectoredHandler(EXCEPTION_POINTERS *info)
