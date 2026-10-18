@@ -1,6 +1,6 @@
 # Wario Land 4 PC port plan
 
-Status: decided 2026-10-17. M0 steps 1–7 are done on the `port` branch (see [Where we are](#where-we-are-2026-10-18)). Targets: Windows first, then Linux, then Android.
+Status: decided 2026-10-17. M0 steps 1–8 are done on the `port` branch (see [Where we are](#where-we-are-2026-10-18)). Targets: Windows first, then Linux, then Android.
 
 ## Summary
 
@@ -155,7 +155,12 @@ The invariant for every change to shared game code: a clean rebuild gives a ROM 
    - Calls through mismatched signatures. `port/tools/check_signatures.py` compares every declaration and direct call, including calls through cast function types, with the definition in LLVM IR, and ignores bits that the callee or caller masks off. It found 19 functions. They are fixed under `PORTABLE` (`GBA_CALL_AS` for the casts), and none are left. `snowman.c`'s `CheckWarioPointCollision(u8, u16, void *)` is harmless, because the definition masks the arguments.
    - Layout asserts cover 147 records, including 33 structs defined in game sources (`port/generated/layout_checks/`, compiled but never linked).
    - The dispatch table now includes the asm stubs and every function's name. Fault reports name the nearest game function.
-8. **BIOS.** `CpuSet` and `LZ77UnCompVram` (unit-tested on every compressed blob). `Halt` becomes `Platform_WaitVBlank()`, which yields from the game coroutine.
+8. **BIOS.** Done (`0a30e0e`). The BIOS calls run in `port/src/bios.c`:
+   - `CPUSet` follows the hardware.
+   - `LZ77UnCompVram` writes halfwords and reads earlier output back from VRAM, so the distance-1 quirk behaves as on the GBA.
+   - `Halt` yields from the game coroutine, one resume per frame.
+   - m4a's `umul3232H32` is in `gba_runtime.c`.
+   - `wl4 --test-bios` checks all of these. It also decodes all 50 LZ77 streams the game passes to `LZ77UnCompVram` (630 KB) and compares them with a plain byte decoder. It passes with and without ASan. None of the game's streams hits the distance-1 quirk.
 9. **DMA and I/O.** DMA macros become immediate copies, and DMA register writes made through structs trigger the transfer. HBlank/VBlank-timed transfers are queued. VCOUNT and DISPSTAT are maintained.
 10. **Frame loop and diff runner.** Headless frame loop on the game coroutine, per-frame memory dump, an mGBA Lua dumper, and a diff runner aligned on the game's frame counter that masks the stack. Exit criterion: identical memory through boot and the idle title screen.
 
@@ -163,8 +168,8 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
-- **Done:** M0 steps 1–7, pushed to `myfork/port`. The game-source changes of steps 1–4 are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`).
-- **Half-finished:** nothing. Step 7 is complete as far as compiling can show, because no game code runs before steps 8–10. The checks are:
+- **Done:** M0 steps 1–8, pushed to `myfork/port`. The game-source changes of steps 1–4 are also on `myfork/decomp-wtf` (`ba49d50`, `d602a7b`, `4d7db63`).
+- **Half-finished:** nothing. Step 7 is complete as far as compiling can show, because no game code runs before steps 9–10. The checks are:
   - `gbaptr_rewrite.py --list` finds 0 targets.
   - `gbaptr_derived.py --dry-run` finds 0 edits.
   - `check_signatures.py` finds 0 mismatches.
@@ -172,7 +177,8 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 - **Known gaps:**
   - Sound is stubbed.
     - `SoundMainRAM` is copied into IWRAM from the ROM image, so memory matches. The mixer code that runs from that copy belongs to the sound workstream.
-    - The 13 asm functions are weak stubs that stop when called: `SoundMain`, `MPlayMain`, `ply_*`, `TrackStop`, `MPlayJumpTableCopy`, `m4aSoundVSync`, `umul3232H32`, `irq_handler`, `CPUSet` and `LZ77UnCompVram`.
+    - 10 asm functions are still weak stubs that stop when called: `SoundMain`, `MPlayMain`, `ply_endtie`, `ply_lfos`, `ply_mod`, `ply_note`, `TrackStop`, `MPlayJumpTableCopy`, `m4aSoundVSync` and `irq_handler`. `CPUSet`, `LZ77UnCompVram` and `umul3232H32` now have native definitions that replace their stubs. `gen_symbols.py` still lists all 13 as stubs, because it only sees the game library.
+    - BIOS call 0x2A (`GetJumpList`, from `MusicPlayerJumpTableCopy`) is not implemented.
     - `MPlayJumpTableCopy` must write the BIOS's m4a function addresses into `gMPlayJumpTable`, and those addresses must dispatch to native versions.
   - 300 compiler warnings remain, none involving a GBA pointer or changing the ABI (`check_signatures.py` covers calls):
     - pointer-type mismatches between native types (`u8 *` vs `u16 *`, a missing `const`)
@@ -184,7 +190,7 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
   - The "179 static functions" turned out to be asm labels (the ROM header, m4a and libgcc branch targets). No static C function survives in the ELF, and `gen_symbols.py` now warns if one ever does.
   - `StartLargeLipsKiss` passes its fifth spawn argument explicitly on the PC. The GBA reads it from a stack slot (`stackSlot`) that matching put there. Confirm it against mGBA once sprites run.
 - **Needs approval (skipped while unattended):** the main tree has a `build/verify-step4` directory from verifying step 4 on `decomp-wtf`, which can be deleted.
-- **Next:** step 8, the BIOS. Implement `CpuSet` and `LZ77UnCompVram` with unit tests over every compressed blob, and make `Halt` into `Platform_WaitVBlank()`, which yields from the game coroutine.
+- **Next:** step 9, DMA and I/O. The DMA macros become immediate copies, and DMA register writes made through structs trigger the transfer. HBlank- and VBlank-timed transfers are queued. VCOUNT and DISPSTAT are kept up to date.
 
 ## Later milestones
 
