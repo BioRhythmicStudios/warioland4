@@ -5084,7 +5084,7 @@ void StartLargeLipsKiss(void)
         value = s->xPosition;
         value -= 64;
         stackSlot = value;
-        ASM_BARRIER(::: "r1");
+        ASM_BARRIER_ARM(::: "r1");
 #ifdef PORTABLE
         SpawnHighPriorityPrimarySprite(201, 0, 0, z, stackSlot);
 #else

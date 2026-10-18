@@ -288,19 +288,19 @@ void InitializeItemShop(void)
         backgroundControl = (vu16*)(((u32)dma) - 0xCC);
         {
             u32 bgValue;
-            ASM_BARRIER(: : "l"(0x1800));
+            ASM_BARRIER_ARM(: : "l"(0x1800));
             bgValue = 0x1800;
             *backgroundControl = bgValue;
             backgroundControl++;
-            ASM_BARRIER(: : "l"(0x1A01));
+            ASM_BARRIER_ARM(: : "l"(0x1A01));
             bgValue = 0x1A01;
             *backgroundControl = bgValue;
             backgroundControl++;
-            ASM_BARRIER(: : "l"(0x1C02), "r"(bgValue));
+            ASM_BARRIER_ARM(: : "l"(0x1C02), "r"(bgValue));
             bgValue = 0x1C02;
             *backgroundControl = bgValue;
             backgroundControl++;
-            ASM_BARRIER(: : "l"(0x1E03));
+            ASM_BARRIER_ARM(: : "l"(0x1E03));
             bgValue = 0x1E03;
             *backgroundControl = bgValue;
         }

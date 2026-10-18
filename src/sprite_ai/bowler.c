@@ -696,7 +696,7 @@ void SpriteBowlerBall(void)
             sprite->work1 -= 5;
         table = sSinCosTable;
         /* Keep the sprite base live while invalidating the prior temporary work pointer. */
-        ASM_BARRIER(: "+r"(sprite) : : "r1");
+        ASM_BARRIER_ARM(: "+r"(sprite) : : "r1");
         anglePointer = (u8*)sprite;
         anglePointer += 40;
         index = *anglePointer;
