@@ -4,6 +4,29 @@ The working rules are in `AGENTS.md`, so read that first. The full plan and its 
 in `docs/PC_PORT_PLAN.md`; its "Where we are" section is the most detailed status. Each
 runtime piece is documented in `port/README.md`.
 
+## Latest: reliable save errors and recovery (2026-10-18)
+
+User-approved implementation `771dcc2` follows `7ba5638`. See
+`docs/M3_SAVE_RECOVERY.md` for the failure inventory, behavior, tests and limits.
+Native-only changes: nonmodal warning/F8 details, 300-frame retry after failure,
+retained latest SRAM and a failed-close Retry/Return/explicit-Discard prompt;
+headless final failures now exit 1. Exclusive temporary siblings preserve the old
+file on failure. Invalid-size/unreadable saves are rejected without a writable
+session. Ordinary 32 KiB save format and 30-stable-frame debounce remain unchanged.
+
+Normal/ASan runtime and disposable-file tests pass. Window tests cover F8, continued
+play, automatic recovery and all three close choices. Both builds save the Hall
+8500-frame route and reload recognized file A in a fresh process; save hashes match
+the prior Hall reference. All tests used explicit new build paths: the real AppData
+save was not accessed. Evidence: `build/m3-save-recovery-20261018/`; no prior evidence
+was deleted and no test processes remain active. No release/package was created.
+Final GBA verification **build/v7-29** prints ROM-SAME and OBJ-SAME with MD5
+`940b597bef3be3f4041021b47a2f4096`; next fresh directory **v7-30**.
+Next proposed task: first-launch ROM/dependency UX, awaiting milestone approval.
+Multi-instance save conflicts, power-loss recovery of pending RAM and rotating
+backups remain outside this focused change. Earlier statuses below are historical.
+
+
 ## Latest: manual M3 results and private-alpha review (2026-10-18)
 
 Read `docs/M3_ALPHA_READINESS.md` first for current coverage and readiness. User

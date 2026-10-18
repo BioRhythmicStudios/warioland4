@@ -1,5 +1,18 @@
 # M3 manual coverage and private Windows alpha review
 
+## Follow-up: first priority implemented (2026-10-18)
+
+The user approved save-failure reporting/recovery; implementation `771dcc2` is now
+verified. See `M3_SAVE_RECOVERY.md`: nonmodal warning/F8 details, pending-SRAM retry,
+explicit failed-close choices, exclusive atomic temporary files and safer rejection
+of invalid input sizes. Normal/ASan filesystem, UI and fresh-process reload checks
+pass; final byte-identical GBA build is v7-29. The real AppData save was not accessed.
+First-launch ROM/dependency UX is the next proposed task, not yet implemented.
+Other readiness gaps remain. The audit tables/priorities below are the historical
+pre-implementation assessment; their save-failure findings are superseded by this
+follow-up. No release package was created.
+
+
 Review recorded 2026-10-18. Reviewed HEAD: `f3d22a5`; runtime fix: `c25cc4d`;
 fixture documentation: `38c49ef`. Later README/screenshot commits and the merge
 are preserved. This review changes documentation only. No alpha archive or release

@@ -86,13 +86,21 @@ the frames drifts from the device's, so the sound stream plays up to 0.5% faster
 keep about 4 frames queued. Fast forward drops the sound. If the game faults, the report goes
 to stderr and, in the window, to a dialog as well.
 
-`port/src/save.c` keeps the cartridge's 32 KiB of SRAM in a file, as mGBA's `.sav` files do,
-so saves move between the two either way. The window uses `wl4.sav` in the user's application
-data (`%APPDATA%\wl4`), or `--save FILE`; headless runs save only with `--save`. The file is
-loaded before the game starts. Once the game has written SRAM and left it alone for half a
-second, the file is replaced in one step (written beside it, flushed, then renamed over it),
-so a crash leaves the old save or the new one. Quitting writes it too. A save file that exists
-but cannot be read stops the port, rather than let the game start with none and overwrite it.
+`port/src/save.c` keeps the cartridge's 32 KiB of SRAM in mGBA-compatible `.sav` format.
+The window uses `%APPDATA%\wl4\wl4.sav`, or `--save FILE`; headless runs save only with
+`--save`. Give tests disposable copies. After 30 stable frames the port writes an exclusive
+temporary sibling, flushes/closes it and atomically replaces the destination. Failed writes
+keep the last good file and latest SRAM in memory, then retry after at least 300 game frames
+once SRAM is stable. A nonmodal warning remains visible until recovery; F8 shows the full
+save destination and Windows error. Failed shutdown saves offer Retry saving, Return to game
+or explicit Quit without saving. Headless final-save failure exits 1. Unreadable saves and
+files not exactly 32768 bytes are rejected without opening a writable session. Independent
+concurrent writers are not coordinated. See [the save-recovery report](../docs/M3_SAVE_RECOVERY.md)
+for verification and limits.
+
+`--test-save DIRECTORY` runs disposable filesystem failure/recovery tests in a new child of
+the specified existing directory. Use a directory under `build/`; test files remain as evidence.
+The test never uses the default AppData save.
 
 At startup, `port/src/gba_memory.c` reserves the GBA regions at their real addresses
 (`port/include/port/gba_memory.h`). It also reserves the game stack at `0x01020000`–`0x01810000`,
