@@ -1635,7 +1635,12 @@ repeat: {
             table = gTileCoordinateHandlers;
             mode = stack[3];
             offset = mode << 2;
+#ifdef PORTABLE
+            // The port builds this table natively, of 8-byte pointers in the executable.
+            entry = &table[mode];
+#else
             entry = (TileCoordinateHandler*)(offset + (u32)table);
+#endif
             x <<= 16;
             do {
                 u32 arg0;
@@ -1678,7 +1683,12 @@ repeat: {
                 table = gTileCoordinateHandlers;
                 mode = stack[3];
                 offset = mode << 2;
+#ifdef PORTABLE
+                // The port builds this table natively, of 8-byte pointers in the executable.
+                entry = &table[mode];
+#else
                 entry = (TileCoordinateHandler*)(offset + (u32)table);
+#endif
                 {
                     register u32 yShift PIN("r4");
                     yShift = y;
