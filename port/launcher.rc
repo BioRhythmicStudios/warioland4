@@ -1,4 +1,3 @@
 #include <windows.h>
-1 ICON "assets/launchericon.ico"
-101 RCDATA "assets/vampirewariosprite.png"
+1 ICON "assets/neutral-placeholder.ico"
 102 RCDATA "assets/fonts/wl4-pixel.ttf"

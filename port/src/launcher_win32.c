@@ -1,8 +1,5 @@
 // Native Windows launcher. Keep game startup and save ownership in wl4.exe.
-#define COBJMACROS
 #include <windows.h>
-#include <wincodec.h>
-#include <shlwapi.h>
 #include <dwmapi.h>
 #include <commdlg.h>
 #include <stdio.h>
@@ -22,74 +19,8 @@ static HICON largeIcon, smallIcon;
 static HANDLE game;
 static PortSettings settings;
 static HBRUSH backgroundBrush, fieldBrush;
-static HBITMAP sprite;
 static const COLORREF purple = RGB(40, 17, 66), panel = RGB(61, 28, 91);
 static const COLORREF gold = RGB(255, 204, 64), cream = RGB(249, 235, 255);
-#define SPRITE_SCALE 4
-#define SPRITE_WIDTH (46 * SPRITE_SCALE)
-#define SPRITE_HEIGHT (36 * SPRITE_SCALE)
-
-// Decode the embedded original PNG with Windows WIC, then replicate each pixel.
-// AlphaBlend receives an already enlarged premultiplied bitmap: no filtering.
-static int LoadSprite(void)
-{
-    IWICImagingFactory *factory = NULL;
-    IWICBitmapDecoder *decoder = NULL;
-    IWICBitmapFrameDecode *frame = NULL;
-    IWICFormatConverter *converter = NULL;
-    IStream *stream = NULL;
-    HRSRC resource = FindResourceW(NULL, MAKEINTRESOURCEW(101), RT_RCDATA);
-    HGLOBAL loaded = resource ? LoadResource(NULL, resource) : NULL;
-    BYTE *source = NULL, *pixels = NULL;
-    UINT width = 0, height = 0;
-    HRESULT result = E_FAIL;
-    if (!loaded) goto done;
-    stream = SHCreateMemStream(LockResource(loaded), SizeofResource(NULL, resource));
-    if (!stream) goto done;
-    result = CoCreateInstance(&CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER,
-                              &IID_IWICImagingFactory, (void **)&factory);
-    if (FAILED(result)) goto done;
-    result = IWICImagingFactory_CreateDecoderFromStream(factory, stream, NULL,
-                                                        WICDecodeMetadataCacheOnLoad, &decoder);
-    if (FAILED(result)) goto done;
-    result = IWICBitmapDecoder_GetFrame(decoder, 0, &frame);
-    if (FAILED(result)) goto done;
-    result = IWICBitmapFrameDecode_GetSize(frame, &width, &height);
-    if (FAILED(result) || width != 46 || height != 36) { result = E_FAIL; goto done; }
-    result = IWICImagingFactory_CreateFormatConverter(factory, &converter);
-    if (FAILED(result)) goto done;
-    result = IWICFormatConverter_Initialize(converter, (IWICBitmapSource *)frame,
-                                            &GUID_WICPixelFormat32bppPBGRA,
-                                            WICBitmapDitherTypeNone, NULL, 0,
-                                            WICBitmapPaletteTypeCustom);
-    if (FAILED(result)) goto done;
-    source = malloc(width * height * 4);
-    if (!source) { result = E_OUTOFMEMORY; goto done; }
-    result = IWICFormatConverter_CopyPixels(converter, NULL, width * 4, width * height * 4, source);
-    if (FAILED(result)) goto done;
-    BITMAPINFO info = {0};
-    info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    info.bmiHeader.biWidth = SPRITE_WIDTH;
-    info.bmiHeader.biHeight = -SPRITE_HEIGHT;
-    info.bmiHeader.biPlanes = 1;
-    info.bmiHeader.biBitCount = 32;
-    info.bmiHeader.biCompression = BI_RGB;
-    sprite = CreateDIBSection(NULL, &info, DIB_RGB_COLORS, (void **)&pixels, NULL, 0);
-    if (!sprite) { result = E_OUTOFMEMORY; goto done; }
-    for (UINT y = 0; y < SPRITE_HEIGHT; ++y)
-        for (UINT x = 0; x < SPRITE_WIDTH; ++x)
-            memcpy(pixels + (y * SPRITE_WIDTH + x) * 4,
-                   source + ((y / SPRITE_SCALE) * width + x / SPRITE_SCALE) * 4, 4);
-done:
-    free(source);
-    if (converter) IWICFormatConverter_Release(converter);
-    if (frame) IWICBitmapFrameDecode_Release(frame);
-    if (decoder) IWICBitmapDecoder_Release(decoder);
-    if (factory) IWICImagingFactory_Release(factory);
-    if (stream) IStream_Release(stream);
-    return SUCCEEDED(result) && sprite != NULL;
-}
-
 static void RoundWindow(HWND window)
 {
     // The preference and caption colors are supported on Windows 11. Older
@@ -471,10 +402,9 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
             ShowText(window, L"CREDITS\n\n"
                         L"PC port and launcher: BioRhythmicStudios\n"
                         L"Original Wario Land 4 decompilation contributors\n\n"
-                        L"Vampire Wario sprite: MisteryGX\n"
-                        L"Displayed from the original transparent PNG at crisp 4x pixel scale.\n\n"
-                        L"Pixel glyphs: SDL debug font / public-domain VGA font.\n"
-                        L"Launcher icon: YoshiKong (The Spriters Resource).\n\n"
+                        L"Neutral geometric icon: original project artwork.\n"
+                        L"Pixel glyphs: Marcel Sondaar / IBM public-domain VGA font,\n"
+                        L"via SDL debug font; altered TrueType packaging.\n\n"
                         L"Wario and Wario Land 4 belong to Nintendo.", title, MB_OK);
             return 0;
         case 16:
@@ -523,14 +453,6 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         RoundRect(dc, 16, 12, 884, 158, 22, 22);
         SelectObject(dc, oldBrush); SelectObject(dc, oldPen);
         RECT divider = {28, 308, 872, 309}; FillRect(dc, &divider, fieldBrush);
-        if (sprite) {
-            HDC source = CreateCompatibleDC(dc);
-            HGDIOBJ old = SelectObject(source, sprite);
-            BLENDFUNCTION blend = {AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-            AlphaBlend(dc, 688, 14, SPRITE_WIDTH, SPRITE_HEIGHT,
-                       source, 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, blend);
-            SelectObject(source, old); DeleteDC(source);
-        }
         EndPaint(window, &paint); return 0;
     }
     case WM_TIMER:
@@ -570,12 +492,6 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE previous, PWSTR command, int s
     DWORD count = 0;
     if (fontBytes) privateFont = AddFontMemResourceEx(LockResource(fontBytes), SizeofResource(NULL, fontResource), NULL, &count);
     if (!privateFont || !count) { Error(NULL, L"Cannot load the embedded pixel font."); return 1; }
-    HRESULT com = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-    if (FAILED(com) || !LoadSprite()) {
-        Error(NULL, L"Cannot load the embedded launcher artwork with Windows Imaging Component.");
-        if (SUCCEEDED(com)) CoUninitialize();
-        return 1;
-    }
     WNDCLASSW cls = {0};
     cls.lpfnWndProc = WindowProc; cls.hInstance = instance;
     cls.lpszClassName = L"WL4Launcher"; cls.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -599,8 +515,6 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE previous, PWSTR command, int s
             TranslateMessage(&msg); DispatchMessageW(&msg);
         }
     }
-    DeleteObject(sprite);
     RemoveFontMemResourceEx(privateFont);
-    CoUninitialize();
     return result < 0 ? 1 : 0;
 }

@@ -1,3 +1,14 @@
+# Current text-only launcher
+
+The current launcher ships no Vampire Wario sprite or YoshiKong game icon.
+`neutral-placeholder.ico` is original project geometry generated entirely by
+`port/tools/make_neutral_icon.py`, under the project MIT terms. No external
+artwork inputs are used. The private pixel font remains: see fonts/README.md
+and fonts/SDL-LICENSE.txt for the public-domain glyph provenance and SDL notice.
+
+The older files below remain in the repository as historical assets; they are
+not linked into the current launcher or included in the text-only beta package.
+
 # Launcher artwork
 
 `vampirewariosprite.png`: sprite by **MisteryGX**, supplied by the user for this
