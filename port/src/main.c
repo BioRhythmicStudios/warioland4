@@ -25,7 +25,7 @@ static void Usage(void)
             "           [--input FILE] [--save FILE] [--mgba-colors] [--selftest] [--test-bios] [--test-io]\n"
             "           [--fault rom-write|unmapped|stack-overflow] [--asan-probe] [--test-save DIRECTORY]\n"
             "  ROM defaults to baserom_us.gba in the current directory.\n"
-            "  With no --frames or tests, the game runs in a window, --scale times 240x160 (default 3).\n"
+            "  With no --frames or tests, the game runs in a window, --scale times 240x160 (saved scale, or default 3).\n"
             "  --frames N runs the game headless for N frames; --dump writes GBA memory after each,\n"
             "  --shots the picture and --wav the sound, from the frame on which main-loop step S\n"
             "  finishes with --from-step.\n"
@@ -278,7 +278,7 @@ int main(int argc, char **argv)
     const char *dumpPath = NULL, *shotsPath = NULL, *wavPath = NULL, *inputPath = NULL;
     const char *savePath = NULL;
     enum PortPpuColors colors = PORT_PPU_COLORS_GBA;
-    unsigned int frames = 0, scale = 3, fromStep = 0;
+    unsigned int frames = 0, scale = 0, fromStep = 0;
     const char *saveTest = NULL;
     int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
     int i;
@@ -315,8 +315,10 @@ int main(int argc, char **argv)
             savePath = argv[++i];
         else if (strcmp(argv[i], "--mgba-colors") == 0)
             colors = PORT_PPU_COLORS_MGBA;
-        else if (strcmp(argv[i], "--scale") == 0 && i + 1 < argc)
+        else if (strcmp(argv[i], "--scale") == 0 && i + 1 < argc) {
             scale = (unsigned int)strtoul(argv[++i], NULL, 10);
+            if (scale < 1) scale = 1;
+        }
         else if (strcmp(argv[i], "--fault") == 0 && i + 1 < argc)
             sFault = argv[++i];
         else if (argv[i][0] == '-') {
@@ -360,7 +362,7 @@ int main(int argc, char **argv)
         return 1;
     PortPpuReset(colors);
     PortOsShowErrors(1);
-    return PortSdlRun(GameEntry, scale ? scale : 1, inputPath != NULL, savePath);
+    return PortSdlRun(GameEntry, scale, inputPath != NULL, savePath);
 #else
     fprintf(stderr, "This build has no window (it was built without SDL3); use --frames to run headless.\n");
     return 2;

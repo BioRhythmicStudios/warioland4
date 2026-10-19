@@ -15,103 +15,21 @@
 #include "port/os.h"
 #include "port/ppu.h"
 #include "port/save.h"
+#include "port/controls.h"
 
 #define REG_KEYINPUT 0x130
 
-// KEYINPUT bits; a pressed button reads as 0.
-#define KEY_A 0x001
-#define KEY_B 0x002
-#define KEY_SELECT 0x004
-#define KEY_START 0x008
-#define KEY_RIGHT 0x010
-#define KEY_LEFT 0x020
-#define KEY_UP 0x040
-#define KEY_DOWN 0x080
-#define KEY_R 0x100
-#define KEY_L 0x200
 #define KEYS_ALL 0x3FF
 
 // A GBA frame: 228 lines of 1232 cycles at 2^24 Hz, about 59.73 frames a second.
 #define FRAME_NS (280896ull * 1000000000ull / 16777216ull)
-#define STICK_THRESHOLD 16384
 
 // The sound kept queued for the device: about 4 frames.
 #define AUDIO_TARGET_FRAMES (PORT_AUDIO_RATE / 15)
 // How far the stream's speed may move from 1 to keep that much queued.
 #define AUDIO_MAX_ADJUST 0.005f
 
-// mGBA's default keyboard layout.
-static const struct {
-    SDL_Scancode scancode;
-    uint16_t key;
-} kKeyboard[] = {
-    { SDL_SCANCODE_X, KEY_A },          { SDL_SCANCODE_Z, KEY_B },
-    { SDL_SCANCODE_BACKSPACE, KEY_SELECT }, { SDL_SCANCODE_RETURN, KEY_START },
-    { SDL_SCANCODE_RIGHT, KEY_RIGHT },  { SDL_SCANCODE_LEFT, KEY_LEFT },
-    { SDL_SCANCODE_UP, KEY_UP },        { SDL_SCANCODE_DOWN, KEY_DOWN },
-    { SDL_SCANCODE_S, KEY_R },          { SDL_SCANCODE_A, KEY_L },
-};
-
-// Gamepad buttons by position: the bottom face button is A, as on mGBA with an Xbox layout.
-static const struct {
-    SDL_GamepadButton button;
-    uint16_t key;
-} kGamepad[] = {
-    { SDL_GAMEPAD_BUTTON_SOUTH, KEY_A },          { SDL_GAMEPAD_BUTTON_EAST, KEY_B },
-    { SDL_GAMEPAD_BUTTON_BACK, KEY_SELECT },      { SDL_GAMEPAD_BUTTON_START, KEY_START },
-    { SDL_GAMEPAD_BUTTON_DPAD_RIGHT, KEY_RIGHT }, { SDL_GAMEPAD_BUTTON_DPAD_LEFT, KEY_LEFT },
-    { SDL_GAMEPAD_BUTTON_DPAD_UP, KEY_UP },       { SDL_GAMEPAD_BUTTON_DPAD_DOWN, KEY_DOWN },
-    { SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, KEY_R }, { SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, KEY_L },
-};
-
-static SDL_Gamepad *sGamepad;
 static SDL_AudioStream *sAudio;
-
-static uint16_t PressedKeys(void)
-{
-    const bool *keyboard = SDL_GetKeyboardState(NULL);
-    uint16_t keys = 0;
-    unsigned int i;
-
-    for (i = 0; i < SDL_arraysize(kKeyboard); i++)
-        if (keyboard[kKeyboard[i].scancode])
-            keys |= kKeyboard[i].key;
-    if (sGamepad != NULL) {
-        Sint16 x = SDL_GetGamepadAxis(sGamepad, SDL_GAMEPAD_AXIS_LEFTX);
-        Sint16 y = SDL_GetGamepadAxis(sGamepad, SDL_GAMEPAD_AXIS_LEFTY);
-
-        for (i = 0; i < SDL_arraysize(kGamepad); i++)
-            if (SDL_GetGamepadButton(sGamepad, kGamepad[i].button))
-                keys |= kGamepad[i].key;
-        if (x > STICK_THRESHOLD)
-            keys |= KEY_RIGHT;
-        else if (x < -STICK_THRESHOLD)
-            keys |= KEY_LEFT;
-        if (y > STICK_THRESHOLD)
-            keys |= KEY_DOWN;
-        else if (y < -STICK_THRESHOLD)
-            keys |= KEY_UP;
-    }
-    // The D-pad cannot press opposite directions at once.
-    if ((keys & (KEY_LEFT | KEY_RIGHT)) == (KEY_LEFT | KEY_RIGHT))
-        keys &= ~(KEY_LEFT | KEY_RIGHT);
-    if ((keys & (KEY_UP | KEY_DOWN)) == (KEY_UP | KEY_DOWN))
-        keys &= ~(KEY_UP | KEY_DOWN);
-    return keys;
-}
-
-static void OpenFirstGamepad(void)
-{
-    SDL_JoystickID *ids;
-    int count;
-
-    if (sGamepad != NULL)
-        return;
-    ids = SDL_GetGamepads(&count);
-    if (ids != NULL && count > 0)
-        sGamepad = SDL_OpenGamepad(ids[0]);
-    SDL_free(ids);
-}
 
 static void OpenAudio(void)
 {
@@ -243,13 +161,26 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     Uint64 next;
     int result = 1, running = 1, fastForward = 0;
     int wasSaveFailed = 0, saveHandled = 0;
+    PortSettings settings;
+    PortControls controls = {0};
+    char settingsError[256];
+    int loaded = PortSettingsLoad(&settings, settingsError, sizeof(settingsError));
+    if (scale) settings.scale = (int)scale;
+    char settingsPath[4096];
+    if (!PortSettingsPath(settingsPath, sizeof(settingsPath)))
+        printf("Settings: %s (A=%s, scale=%d, fullscreen=%d)\n", settingsPath,
+               SDL_GetScancodeName((SDL_Scancode)settings.keys[0]), settings.scale, settings.fullscreen);
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         return 1;
     }
-    if (!SDL_CreateWindowAndRenderer("Wario Land 4", (int)(PORT_SCREEN_WIDTH * scale), (int)(PORT_SCREEN_HEIGHT * scale),
-                                     SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+    if (loaded < 0) {
+        fprintf(stderr, "%s\n", settingsError);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Settings reset to defaults", settingsError, NULL);
+    }
+    if (!SDL_CreateWindowAndRenderer("Wario Land 4", (int)(PORT_SCREEN_WIDTH * settings.scale), (int)(PORT_SCREEN_HEIGHT * settings.scale),
+                                     SDL_WINDOW_RESIZABLE | (settings.fullscreen ? SDL_WINDOW_FULLSCREEN : 0), &window, &renderer)) {
         fprintf(stderr, "SDL_CreateWindowAndRenderer: %s\n", SDL_GetError());
         goto done;
     }
@@ -263,7 +194,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         goto done;
     }
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-    OpenFirstGamepad();
+    PortControlsOpen(&controls, &settings);
     OpenAudio();
 
     if (OpenSave(savePath) || PortFrameStart(entry))
@@ -275,6 +206,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         uint16_t keys;
 
         while (SDL_PollEvent(&event)) {
+            PortControlsEvent(&controls, &event);
             switch (event.type) {
             case SDL_EVENT_QUIT:
                 running = 0;
@@ -284,7 +216,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
                     running = 0;
                 else if (event.key.scancode == SDL_SCANCODE_F8 && !event.key.repeat && PortSaveError())
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Progress has not been saved", PortSaveError(), window);
-                else if (event.key.scancode == SDL_SCANCODE_F11)
+                else if (event.key.scancode == SDL_SCANCODE_F11 && !event.key.repeat)
                     SDL_SetWindowFullscreen(window, !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN));
                 else if (event.key.scancode == SDL_SCANCODE_TAB)
                     fastForward = 1;
@@ -293,15 +225,8 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
                 if (event.key.scancode == SDL_SCANCODE_TAB)
                     fastForward = 0;
                 break;
-            case SDL_EVENT_GAMEPAD_ADDED:
-                OpenFirstGamepad();
-                break;
-            case SDL_EVENT_GAMEPAD_REMOVED:
-                if (sGamepad != NULL && event.gdevice.which == SDL_GetGamepadID(sGamepad)) {
-                    SDL_CloseGamepad(sGamepad);
-                    sGamepad = NULL;
-                    OpenFirstGamepad();
-                }
+            case SDL_EVENT_WINDOW_FOCUS_LOST:
+                fastForward = 0;
                 break;
             default:
                 break;
@@ -320,7 +245,8 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         }
 
         // The game reads the buttons after VBlank, when the frame below resumes it.
-        keys = PressedKeys();
+        keys = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)
+                   ? PortControlsPressed(&controls, SDL_GetKeyboardState(NULL)) : 0;
         if (scripted)
             keys |= PortInputScriptKeys(PortFrameSteps() + 1);
         PortIoWrite16(REG_KEYINPUT, (uint16_t)(~keys & KEYS_ALL));
@@ -356,8 +282,7 @@ done:
     }
     SDL_DestroyAudioStream(sAudio);
     sAudio = NULL;
-    if (sGamepad != NULL)
-        SDL_CloseGamepad(sGamepad);
+    PortControlsClose(&controls);
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

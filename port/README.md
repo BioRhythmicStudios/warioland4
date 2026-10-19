@@ -29,7 +29,7 @@ Choose **Browse...**, select your own legally obtained ROM, then **Launch Game**
 The purple-and-gold launcher includes rounded gold buttons and rounded window
 corners (native Windows 11 rounding, with a region fallback on older Windows).
 **About** describes the project, **CREDITS** lists contributors and the artwork
-credit, and **README** opens a built-in quick-start guide.
+credit, and **README** opens a built-in quick-start guide; **Settings** customizes controls and display.
 
 The transparent Vampire Wario sprite is by **MisteryGX**. Its original 46x36 PNG
 is embedded unchanged from `port/assets/vampirewariosprite.png` and displayed at
@@ -45,7 +45,7 @@ No ROM is included, copied, downloaded or installed by the launcher.
 Window scale (1x-6x) uses the game's existing `--scale` option; press F11 in the
 game to toggle fullscreen. About credits BioRhythmicStudios and the original
 decompilation contributors. The ROM path and scale are remembered per Windows
-user under `HKCU\Software\BioRhythmicStudios\WL4Launcher`. A successfully browsed
+user (ROM path in `HKCU\Software\BioRhythmicStudios\WL4Launcher`, scale in the shared settings file). A successfully browsed
 ROM is remembered immediately; scale changes are remembered when launching.
 The ROM is checked again on every launch. Errors explain invalid/missing ROMs,
 missing game/runtime files and unsuccessful child-process exits.
@@ -63,6 +63,51 @@ The game's current narrow-character file API limits supported path characters to
 those representable by the Windows active code page; the launcher reports a
 clear error on lossy paths. UTF-8 Windows code pages are supported. See
 [launcher verification](../docs/WINDOWS_LAUNCHER_V1.md) for results and limits.
+
+## Settings and customizable controls
+
+Click **Settings** in the launcher to open Keyboard, Controller and Display tabs.
+Changes are drafts until **Save**; **Cancel** discards them. **Defaults** restores
+only the current section. Saved changes take effect when the game next starts.
+
+- **Keyboard:** click an action's binding and press the next physical key.
+  Escape cancels capture. Duplicate bindings are rejected without losing the
+  previous mapping. Escape (quit), Tab (fast-forward), F8 (save details) and F11
+  (fullscreen) remain reserved. All ten GBA actions can be rebound.
+- **Controller:** SDL3 supports Xbox/XInput-compatible gamepads. Connected names
+  update while devices are connected or disconnected; additional names cycle on
+  the second line. The game uses the first available supported controller and
+  reopens an available controller after disconnect. Click a binding to choose a
+  face button, shoulder, D-pad, stick click, supported extra button or LT/RT.
+  The chooser also offers **Press input** to capture a controller button/trigger.
+  Bindings can be edited without any controller present. Duplicate controller
+  bindings are rejected. Keyboard and gamepad work together.
+- **Movement:** D-pad bindings work independently of the optional left analog
+  stick. Stick movement can be disabled; its dead zone is adjustable from 10% to
+  80% (default 50%). Triggers activate past half travel.
+- **Display:** choose a window scale from 1x to 6x and startup fullscreen. F11
+  still toggles fullscreen in-game. The main launcher's scale control stays in
+  sync. Direct `wl4.exe` launches read the same configuration; an explicit
+  `--scale N` overrides the saved scale for that run.
+
+Configuration lives in the Windows user's application configuration directory:
+`%APPDATA%\wl4\settings.cfg` on a standard installation, resolved by SDL's
+preference-folder API. It is separate from the 32 KB `wl4.sav`; save paths and
+save handling are unchanged. The launcher keeps its existing registry ROM-path
+persistence and imports its old scale when no settings file exists. Settings are
+written by **Save** or **Launch Game**, using an exclusive temporary sibling and
+atomic replacement. Missing files use defaults; invalid/truncated/outdated files
+show a warning and load defaults without rewriting the file during load.
+
+The launcher now also uses the adjacent SDL3.dll for the Settings window and
+controller support. Its Vampire Wario artwork and MisteryGX attribution remain.
+See [settings implementation and verification](../docs/WINDOWS_SETTINGS.md).
+
+Developer tests may explicitly set `WL4_SETTINGS_FILE` to a disposable config path.
+For example, run `wl4-input-test.exe --isolated` with that variable naming a **new**
+file under `build/`. Never rely on changing APPDATA to isolate SDL saves: Windows
+SDL resolves the known preference folder independently. Every automated game test
+must pass an explicit disposable `--save` path.
 
 ## How game code builds for PC
 

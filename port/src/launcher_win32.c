@@ -10,6 +10,7 @@
 #include <wchar.h>
 #include "port/gba_memory.h"
 #include "port/rom_validate.h"
+#include "port/settings.h"
 
 #define CAP 32768
 #define SETTINGS L"Software\\BioRhythmicStudios\\WL4Launcher"
@@ -17,6 +18,7 @@ static HWND pathBox, scaleBox, launchButton;
 static wchar_t directory[CAP], romPath[CAP];
 static HFONT font, heading;
 static HANDLE game;
+static PortSettings settings;
 static HBRUSH backgroundBrush, fieldBrush;
 static HBITMAP sprite;
 static const COLORREF purple = RGB(40, 17, 66), panel = RGB(61, 28, 91);
@@ -245,6 +247,13 @@ static void Launch(HWND window)
     // Windows paths cannot contain quotes; a file path cannot end with a backslash.
     swprintf(command, CAP * 2 + 80, L"\"%ls\" \"%ls\" --scale %ld", exe, romPath,
              (long)SendMessageW(scaleBox, CB_GETCURSEL, 0, 0) + 1);
+    settings.scale = (int)SendMessageW(scaleBox, CB_GETCURSEL, 0, 0) + 1;
+    char settingsError[256];
+    if (PortSettingsSave(&settings, settingsError, sizeof(settingsError))) {
+        wchar_t message[512];
+        MultiByteToWideChar(CP_UTF8, 0, settingsError, -1, message, 512);
+        Error(window, message); return;
+    }
     Remember(window);
     if (!CreateProcessW(exe, command, NULL, NULL, FALSE, CREATE_NO_WINDOW,
                         NULL, directory, &startup, &process)) {
@@ -298,13 +307,22 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         Control(window, L"BUTTON", L"About", WS_TABSTOP, 28, 330, 88, 34, 14);
         Control(window, L"BUTTON", L"CREDITS", WS_TABSTOP, 128, 330, 96, 34, 15);
         Control(window, L"BUTTON", L"README", WS_TABSTOP, 236, 330, 96, 34, 16);
+        Control(window, L"BUTTON", L"Settings", WS_TABSTOP, 344, 330, 112, 34, 17);
         if (RegOpenKeyExW(HKEY_CURRENT_USER, SETTINGS, 0, KEY_QUERY_VALUE, &key) == ERROR_SUCCESS) {
             if (RegGetValueW(key, NULL, L"RomPath", RRF_RT_REG_SZ, NULL, romPath, &size) != ERROR_SUCCESS)
                 romPath[0] = 0;
             RegGetValueW(key, NULL, L"Scale", RRF_RT_REG_DWORD, NULL, &scale, &scaleSize);
             RegCloseKey(key);
         }
-        SendMessageW(scaleBox, CB_SETCURSEL, scale >= 1 && scale <= 6 ? scale - 1 : 2, 0);
+        char warning[256];
+        int loaded = PortSettingsLoad(&settings, warning, sizeof(warning));
+        if (loaded == 1 && scale >= 1 && scale <= 6) settings.scale = (int)scale;
+        if (loaded < 0) {
+            wchar_t message[512];
+            MultiByteToWideChar(CP_UTF8, 0, warning, -1, message, 512);
+            MessageBoxW(window, message, L"Settings reset to defaults", MB_OK | MB_ICONWARNING);
+        }
+        SendMessageW(scaleBox, CB_SETCURSEL, settings.scale - 1, 0);
         SetWindowTextW(pathBox, romPath);
         return 0;
     }
@@ -329,6 +347,20 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
             return 0;
         }
         case 13: Launch(window); return 0;
+        case 17: {
+            // Carry any unsaved main-window scale choice into the settings draft.
+            settings.scale = (int)SendMessageW(scaleBox, CB_GETCURSEL, 0, 0) + 1;
+            EnableWindow(window, FALSE);
+            int saved = PortSettingsShow(&settings);
+            EnableWindow(window, TRUE); SetForegroundWindow(window);
+            if (saved < 0) {
+                Error(window, L"Cannot open Settings. Check that SDL3.dll is available and video can initialize.");
+            } else if (saved) {
+                SendMessageW(scaleBox, CB_SETCURSEL, settings.scale - 1, 0);
+                Remember(window);
+            }
+            return 0;
+        }
         case 15:
             MessageBoxW(window, L"CREDITS\n\n"
                         L"PC port and launcher: BioRhythmicStudios\n"
@@ -342,8 +374,9 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
                         L"1. Browse to your own legally obtained, unmodified US ROM (AWAE).\n"
                         L"2. Choose a window scale, then click Launch Game.\n"
                         L"3. Press F11 in the game for fullscreen.\n\n"
-                        L"Controls: arrows move, X = A, Z = B, Enter = Start.\n"
-                        L"A / S = L / R, Backspace = Select, Escape = quit.\n\n"
+                        L"Default controls: arrows move, X = A, Z = B, Enter = Start.\n"
+                        L"A / S = L / R, Backspace = Select, Escape = quit.\n"
+                        L"Settings customizes physical keys, controller inputs and display.\n\n"
                         L"Your ROM path is remembered. Saves stay in the game's usual AppData location.\n"
                         L"Keep wl4.exe and its matching SDL3.dll beside this launcher.\n"
                         L"Full build and usage instructions: port/README.md in the source tree.", title, MB_OK);

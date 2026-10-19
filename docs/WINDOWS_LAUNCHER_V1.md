@@ -1,5 +1,13 @@
 # Windows launcher v1 verification (2026-10-19)
 
+**Save-isolation correction (2026-10-19):** the older launcher/theme GUI tests
+below attempted isolation by overriding APPDATA. Inspection during the settings
+milestone showed that SDL still opened the normal known-folder save path. Their
+claims that the real save was never accessed are withdrawn; see
+[settings verification](WINDOWS_SETTINGS.md) for the correction and explicit-path
+testing now used. No old player save should be restored over current progress.
+
+
 A separate Win32 C executable uses standard controls, GetOpenFileNameW,
 CreateProcessW, and HKCU settings. CMake builds it alongside the SDL3 game with
 LLVM-MinGW; it has no SDL or large GUI dependency itself. The game's ROM loader
