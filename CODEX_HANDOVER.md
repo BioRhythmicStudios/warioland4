@@ -6,16 +6,17 @@ runtime piece is documented in `port/README.md`.
 
 ## Latest: launcher settings and customizable controls (2026-10-19)
 
-Settings milestone follows launcher/theme commits `bf9734f`, `fc143c3`, `1fd013f`.
+Settings milestone `617c6d8` follows launcher/theme commits `bf9734f`, `fc143c3`, `1fd013f`.
 Read `docs/WINDOWS_SETTINGS.md` and the newest Where we are entries first.
 Keyboard/Controller/Display settings are shared by launcher and game in SDL's
 user preference folder, separate from SRAM. Physical key capture, collision checks,
 button/trigger remapping, hotplug, analog/dead zone and startup display preferences
 are implemented. Normal/ASan automated checks pass. User manually confirms keyboard
 remaps, Xbox-compatible controller operation, reconnect and keyboard fallback.
-Latest GBA identity: **v7-35**, ROM-SAME, OBJ-SAME, MD5
-`940b597bef3be3f4041021b47a2f4096`; next fresh directory **v7-36**.
-No push/release. Further milestone work needs approval; M3 route extension is paused.
+Latest GBA identity: **v7-36**, ROM-SAME, OBJ-SAME, MD5
+`940b597bef3be3f4041021b47a2f4096`; next fresh directory **v7-37**.
+User approved a normal push to `myfork/port`; the pre-push fetch found no remote-only commits.
+No release is authorized. Further milestone work needs approval; M3 route extension is paused.
 
 Important test correction: changing APPDATA does NOT isolate SDL_GetPrefPath on
 this Windows build. Older launcher/theme GUI logs show the normal save was opened;
