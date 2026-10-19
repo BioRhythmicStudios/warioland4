@@ -89,6 +89,7 @@ add_executable(wl4
     port/src/md5.c
     port/src/os_win32.c
     port/src/ppu.c
+    port/src/rom_validate.c
     port/src/rom.c
     port/src/save.c
     port/src/save_test.c
@@ -119,3 +120,14 @@ endif()
 # gba_functions.c declares every game function as void(void) to take its address.
 set_source_files_properties(port/generated/gba_functions.c PROPERTIES COMPILE_OPTIONS -Wno-incompatible-library-redeclaration)
 target_link_libraries(wl4 PRIVATE wl4_game wl4_platform_stub)
+
+# A separate Windows GUI; no ROM assets or game library are linked into it.
+if(WIN32 AND SDL3_FOUND)
+    add_executable(wl4-launcher WIN32 port/src/launcher_win32.c port/src/rom_validate.c port/src/md5.c)
+    target_include_directories(wl4-launcher PRIVATE port/include)
+    target_compile_definitions(wl4-launcher PRIVATE UNICODE _UNICODE)
+    target_compile_options(wl4-launcher PRIVATE -Wall -Wextra)
+    target_link_options(wl4-launcher PRIVATE -municode)
+    target_link_libraries(wl4-launcher PRIVATE comdlg32 advapi32 gdi32)
+    add_dependencies(wl4-launcher wl4)
+endif()

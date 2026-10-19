@@ -5,16 +5,14 @@
 #include <string.h>
 
 #include "port/gba_memory.h"
-#include "port/md5.h"
+#include "port/rom_validate.h"
 
 int PortLoadRom(const char *path)
 {
     FILE *f = fopen(path, "rb");
     unsigned char *rom;
     long size;
-    uint8_t digest[16];
-    char hex[33];
-    int i;
+    char error[256];
 
     if (f == NULL) {
         fprintf(stderr, "Cannot open the ROM %s\n", path);
@@ -37,15 +35,8 @@ int PortLoadRom(const char *path)
     }
     fclose(f);
 
-    PortMd5(rom, GBA_ROM_SIZE, digest);
-    for (i = 0; i < 16; i++)
-        sprintf(hex + i * 2, "%02x", digest[i]);
-    if (strcmp(hex, PORT_ROM_MD5) != 0) {
-        fprintf(stderr,
-                "%s is not the supported ROM.\n"
-                "  its MD5:   %s\n"
-                "  supported: %s (Wario Land 4, game code AWAE, unmodified)\n",
-                path, hex, PORT_ROM_MD5);
+    if (PortValidateRom(rom, GBA_ROM_SIZE, error, sizeof(error))) {
+        fprintf(stderr, "%s: %s\n", path, error);
         memset(rom, 0, GBA_ROM_SIZE);
         return -1;
     }

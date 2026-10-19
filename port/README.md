@@ -21,6 +21,37 @@ Without SDL3, `wl4` only runs headless. With it, the build copies `SDL3.dll` nex
 The PC build does not need the extracted assets (`make extract`): game data is read from
 your own ROM at run time.
 
+## Windows launcher
+
+After building with SDL3, double-click `wl4-launcher.exe` in `build_pc`.
+Keep it beside `wl4.exe` and the matching x64 `SDL3.dll` (the build copies SDL3).
+Choose **Browse...**, select your own legally obtained ROM, then **Launch Game**.
+The launcher accepts only the unmodified 8 MiB US release (game code AWAE), with
+MD5 `5fe47355a33e3fabec2a1607af88a404`, using the same validator as the game.
+No ROM is included, copied, downloaded or installed by the launcher.
+
+Window scale (1x-6x) uses the game's existing `--scale` option; press F11 in the
+game to toggle fullscreen. About credits BioRhythmicStudios and the original
+decompilation contributors. The ROM path and scale are remembered per Windows
+user under `HKCU\Software\BioRhythmicStudios\WL4Launcher`. A successfully browsed
+ROM is remembered immediately; scale changes are remembered when launching.
+The ROM is checked again on every launch. Errors explain invalid/missing ROMs,
+missing game/runtime files and unsuccessful child-process exits.
+
+The launcher starts the adjacent `wl4.exe`, quotes the absolute ROM path and uses
+the executable's directory as the working directory. It passes no save override:
+the game's existing `%APPDATA%\wl4\wl4.sav` location and save recovery remain in
+charge. Closing the launcher leaves an already running game open. The launch
+button is disabled while its child game runs; this does not prevent separately
+started instances. Direct command-line usage remains available:
+
+    build_pc\wl4.exe "C:\path with spaces\baserom_us.gba" --scale 3
+
+The game's current narrow-character file API limits supported path characters to
+those representable by the Windows active code page; the launcher reports a
+clear error on lossy paths. UTF-8 Windows code pages are supported. See
+[launcher verification](../docs/WINDOWS_LAUNCHER_V1.md) for results and limits.
+
 ## How game code builds for PC
 
 - `PIN()` and the `COMPILER_BARRIER*()` macros only steer agbcc, and are empty. `ASM_BARRIER()`
