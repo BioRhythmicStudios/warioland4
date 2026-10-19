@@ -26,6 +26,18 @@ your own ROM at run time.
 After building with SDL3, double-click `wl4-launcher.exe` in `build_pc`.
 Keep it beside `wl4.exe` and the matching x64 `SDL3.dll` (the build copies SDL3).
 Choose **Browse...**, select your own legally obtained ROM, then **Launch Game**.
+The purple-and-gold launcher includes rounded gold buttons and rounded window
+corners (native Windows 11 rounding, with a region fallback on older Windows).
+**About** describes the project, **CREDITS** lists contributors and the artwork
+credit, and **README** opens a built-in quick-start guide.
+
+The transparent Vampire Wario sprite is by **MisteryGX**. Its original 46x36 PNG
+is embedded unchanged from `port/assets/vampirewariosprite.png` and displayed at
+exactly 4x (184x144) with nearest-neighbour pixel replication and alpha blending.
+There is no dependency on a Downloads folder or external image at run time.
+Windows Imaging Component decodes the PNG; no additional GUI library is needed.
+See [artwork credits](assets/CREDITS.md).
+
 The launcher accepts only the unmodified 8 MiB US release (game code AWAE), with
 MD5 `5fe47355a33e3fabec2a1607af88a404`, using the same validator as the game.
 No ROM is included, copied, downloaded or installed by the launcher.

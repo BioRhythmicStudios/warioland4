@@ -1,5 +1,9 @@
 // Native Windows launcher. Keep game startup and save ownership in wl4.exe.
+#define COBJMACROS
 #include <windows.h>
+#include <wincodec.h>
+#include <shlwapi.h>
+#include <dwmapi.h>
 #include <commdlg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +17,113 @@ static HWND pathBox, scaleBox, launchButton;
 static wchar_t directory[CAP], romPath[CAP];
 static HFONT font, heading;
 static HANDLE game;
+static HBRUSH backgroundBrush, fieldBrush;
+static HBITMAP sprite;
+static const COLORREF purple = RGB(40, 17, 66), panel = RGB(61, 28, 91);
+static const COLORREF gold = RGB(255, 204, 64), cream = RGB(249, 235, 255);
+#define SPRITE_SCALE 4
+#define SPRITE_WIDTH (46 * SPRITE_SCALE)
+#define SPRITE_HEIGHT (36 * SPRITE_SCALE)
+
+// Decode the embedded original PNG with Windows WIC, then replicate each pixel.
+// AlphaBlend receives an already enlarged premultiplied bitmap: no filtering.
+static int LoadSprite(void)
+{
+    IWICImagingFactory *factory = NULL;
+    IWICBitmapDecoder *decoder = NULL;
+    IWICBitmapFrameDecode *frame = NULL;
+    IWICFormatConverter *converter = NULL;
+    IStream *stream = NULL;
+    HRSRC resource = FindResourceW(NULL, MAKEINTRESOURCEW(101), RT_RCDATA);
+    HGLOBAL loaded = resource ? LoadResource(NULL, resource) : NULL;
+    BYTE *source = NULL, *pixels = NULL;
+    UINT width = 0, height = 0;
+    HRESULT result = E_FAIL;
+    if (!loaded) goto done;
+    stream = SHCreateMemStream(LockResource(loaded), SizeofResource(NULL, resource));
+    if (!stream) goto done;
+    result = CoCreateInstance(&CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER,
+                              &IID_IWICImagingFactory, (void **)&factory);
+    if (FAILED(result)) goto done;
+    result = IWICImagingFactory_CreateDecoderFromStream(factory, stream, NULL,
+                                                        WICDecodeMetadataCacheOnLoad, &decoder);
+    if (FAILED(result)) goto done;
+    result = IWICBitmapDecoder_GetFrame(decoder, 0, &frame);
+    if (FAILED(result)) goto done;
+    result = IWICBitmapFrameDecode_GetSize(frame, &width, &height);
+    if (FAILED(result) || width != 46 || height != 36) { result = E_FAIL; goto done; }
+    result = IWICImagingFactory_CreateFormatConverter(factory, &converter);
+    if (FAILED(result)) goto done;
+    result = IWICFormatConverter_Initialize(converter, (IWICBitmapSource *)frame,
+                                            &GUID_WICPixelFormat32bppPBGRA,
+                                            WICBitmapDitherTypeNone, NULL, 0,
+                                            WICBitmapPaletteTypeCustom);
+    if (FAILED(result)) goto done;
+    source = malloc(width * height * 4);
+    if (!source) { result = E_OUTOFMEMORY; goto done; }
+    result = IWICFormatConverter_CopyPixels(converter, NULL, width * 4, width * height * 4, source);
+    if (FAILED(result)) goto done;
+    BITMAPINFO info = {0};
+    info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    info.bmiHeader.biWidth = SPRITE_WIDTH;
+    info.bmiHeader.biHeight = -SPRITE_HEIGHT;
+    info.bmiHeader.biPlanes = 1;
+    info.bmiHeader.biBitCount = 32;
+    info.bmiHeader.biCompression = BI_RGB;
+    sprite = CreateDIBSection(NULL, &info, DIB_RGB_COLORS, (void **)&pixels, NULL, 0);
+    if (!sprite) { result = E_OUTOFMEMORY; goto done; }
+    for (UINT y = 0; y < SPRITE_HEIGHT; ++y)
+        for (UINT x = 0; x < SPRITE_WIDTH; ++x)
+            memcpy(pixels + (y * SPRITE_WIDTH + x) * 4,
+                   source + ((y / SPRITE_SCALE) * width + x / SPRITE_SCALE) * 4, 4);
+done:
+    free(source);
+    if (converter) IWICFormatConverter_Release(converter);
+    if (frame) IWICBitmapFrameDecode_Release(frame);
+    if (decoder) IWICBitmapDecoder_Release(decoder);
+    if (factory) IWICImagingFactory_Release(factory);
+    if (stream) IStream_Release(stream);
+    return SUCCEEDED(result) && sprite != NULL;
+}
+
+static void RoundWindow(HWND window)
+{
+    // The preference and caption colors are supported on Windows 11. Older
+    // versions reject these attributes and use a rounded region instead.
+    DWORD preference = 2;
+    if (FAILED(DwmSetWindowAttribute(window, 33, &preference, sizeof(preference)))) {
+        RECT bounds;
+        GetWindowRect(window, &bounds);
+        HRGN region = CreateRoundRectRgn(0, 0, bounds.right - bounds.left + 1,
+                                         bounds.bottom - bounds.top + 1, 24, 24);
+        if (region && !SetWindowRgn(window, region, TRUE)) DeleteObject(region);
+    }
+    DwmSetWindowAttribute(window, 35, &purple, sizeof(purple));
+    DwmSetWindowAttribute(window, 36, &gold, sizeof(gold));
+}
+
+static void DrawButton(const DRAWITEMSTRUCT *item)
+{
+    HDC dc = item->hDC;
+    RECT rect = item->rcItem;
+    int saved = SaveDC(dc);
+    FillRect(dc, &rect, backgroundBrush);
+    COLORREF fill = item->itemState & ODS_DISABLED ? RGB(154, 131, 92)
+                    : item->itemState & ODS_SELECTED ? RGB(220, 160, 35) : gold;
+    HBRUSH brush = CreateSolidBrush(fill);
+    HPEN pen = CreatePen(PS_SOLID, 1, RGB(255, 226, 125));
+    SelectObject(dc, brush); SelectObject(dc, pen);
+    RoundRect(dc, rect.left + 1, rect.top + 1, rect.right - 1, rect.bottom - 1, 14, 14);
+    SetBkMode(dc, TRANSPARENT); SetTextColor(dc, purple); SelectObject(dc, font);
+    wchar_t text[80]; GetWindowTextW(item->hwndItem, text, 80);
+    if (item->itemState & ODS_SELECTED) OffsetRect(&rect, 1, 1);
+    DrawTextW(dc, text, -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    if (item->itemState & ODS_FOCUS) {
+        InflateRect(&rect, -5, -5); DrawFocusRect(dc, &rect);
+    }
+    RestoreDC(dc, saved); DeleteObject(brush); DeleteObject(pen);
+}
+
 static const wchar_t *title = L"Wario Land 4 \x2014 Native PC Port";
 
 static void Error(HWND window, const wchar_t *message)
@@ -150,6 +261,8 @@ static void Launch(HWND window)
 static HWND Control(HWND parent, const wchar_t *type, const wchar_t *text,
                     DWORD style, int x, int y, int width, int height, int id)
 {
+    if (wcscmp(type, L"BUTTON") == 0)
+        style = (style & ~BS_TYPEMASK) | BS_OWNERDRAW;
     HWND child = CreateWindowExW(0, type, text, WS_CHILD | WS_VISIBLE | style,
                                  x, y, width, height, parent, (HMENU)(INT_PTR)id, NULL, NULL);
     SendMessageW(child, WM_SETFONT, (WPARAM)font, TRUE);
@@ -164,22 +277,27 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         DWORD size = sizeof(romPath), scale = 3, scaleSize = sizeof(scale);
         font = CreateFontW(-16, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
         heading = CreateFontW(-27, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
-        HWND label = Control(window, L"STATIC", L"WARIO LAND 4", 0, 24, 20, 540, 38, 0);
+        backgroundBrush = CreateSolidBrush(purple);
+        fieldBrush = CreateSolidBrush(panel);
+        HWND label = Control(window, L"STATIC", L"WARIO LAND 4", 0, 32, 28, 480, 38, 0);
         SendMessageW(label, WM_SETFONT, (WPARAM)heading, TRUE);
-        Control(window, L"STATIC", L"Native PC Port  /  BioRhythmicStudios", 0, 26, 61, 540, 26, 0);
-        Control(window, L"STATIC", L"Select your own legally obtained, unmodified US ROM (AWAE).", 0, 26, 103, 550, 25, 0);
-        pathBox = Control(window, L"EDIT", L"", WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 26, 137, 440, 28, 10);
+        Control(window, L"STATIC", L"NATIVE PC PORT", 0, 34, 74, 460, 24, 0);
+        Control(window, L"STATIC", L"BioRhythmicStudios", 0, 34, 107, 460, 24, 0);
+        Control(window, L"STATIC", L"YOUR ROM  /  Unmodified US release (AWAE)", 0, 28, 166, 700, 24, 0);
+        pathBox = Control(window, L"EDIT", L"", WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 28, 197, 562, 30, 10);
         SendMessageW(pathBox, EM_SETLIMITTEXT, CAP - 1, 0);
-        Control(window, L"BUTTON", L"Browse...", WS_TABSTOP, 478, 136, 98, 30, 11);
-        Control(window, L"STATIC", L"Window scale", 0, 26, 194, 115, 24, 0);
-        scaleBox = Control(window, L"COMBOBOX", L"", WS_TABSTOP | CBS_DROPDOWNLIST, 148, 190, 98, 180, 12);
+        Control(window, L"BUTTON", L"Browse...", WS_TABSTOP, 604, 194, 128, 36, 11);
+        Control(window, L"STATIC", L"Window scale", 0, 28, 253, 115, 24, 0);
+        scaleBox = Control(window, L"COMBOBOX", L"", WS_TABSTOP | CBS_DROPDOWNLIST, 148, 249, 98, 180, 12);
         for (int i = 1; i <= 6; ++i) {
             wchar_t item[16]; swprintf(item, 16, L"%dx", i);
             SendMessageW(scaleBox, CB_ADDSTRING, 0, (LPARAM)item);
         }
-        Control(window, L"STATIC", L"F11 toggles fullscreen in the game.", 0, 265, 194, 310, 26, 0);
-        launchButton = Control(window, L"BUTTON", L"Launch Game", WS_TABSTOP | BS_DEFPUSHBUTTON, 390, 246, 186, 42, 13);
-        Control(window, L"BUTTON", L"About", WS_TABSTOP, 26, 251, 98, 32, 14);
+        Control(window, L"STATIC", L"F11 toggles fullscreen in the game.", 0, 274, 253, 440, 26, 0);
+        launchButton = Control(window, L"BUTTON", L"Launch Game", WS_TABSTOP, 528, 322, 204, 48, 13);
+        Control(window, L"BUTTON", L"About", WS_TABSTOP, 28, 330, 88, 34, 14);
+        Control(window, L"BUTTON", L"CREDITS", WS_TABSTOP, 128, 330, 96, 34, 15);
+        Control(window, L"BUTTON", L"README", WS_TABSTOP, 236, 330, 96, 34, 16);
         if (RegOpenKeyExW(HKEY_CURRENT_USER, SETTINGS, 0, KEY_QUERY_VALUE, &key) == ERROR_SUCCESS) {
             if (RegGetValueW(key, NULL, L"RomPath", RRF_RT_REG_SZ, NULL, romPath, &size) != ERROR_SUCCESS)
                 romPath[0] = 0;
@@ -211,6 +329,25 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
             return 0;
         }
         case 13: Launch(window); return 0;
+        case 15:
+            MessageBoxW(window, L"CREDITS\n\n"
+                        L"PC port and launcher: BioRhythmicStudios\n"
+                        L"Original Wario Land 4 decompilation contributors\n\n"
+                        L"Vampire Wario sprite: MisteryGX\n"
+                        L"Displayed from the original transparent PNG at crisp 4x pixel scale.\n\n"
+                        L"Wario and Wario Land 4 belong to Nintendo.", title, MB_OK);
+            return 0;
+        case 16:
+            MessageBoxW(window, L"README / QUICK START\n\n"
+                        L"1. Browse to your own legally obtained, unmodified US ROM (AWAE).\n"
+                        L"2. Choose a window scale, then click Launch Game.\n"
+                        L"3. Press F11 in the game for fullscreen.\n\n"
+                        L"Controls: arrows move, X = A, Z = B, Enter = Start.\n"
+                        L"A / S = L / R, Backspace = Select, Escape = quit.\n\n"
+                        L"Your ROM path is remembered. Saves stay in the game's usual AppData location.\n"
+                        L"Keep wl4.exe and its matching SDL3.dll beside this launcher.\n"
+                        L"Full build and usage instructions: port/README.md in the source tree.", title, MB_OK);
+            return 0;
         case 14:
             MessageBoxW(window, L"Wario Land 4 Native PC Port\n\n"
                         L"PC port and launcher: BioRhythmicStudios\n"
@@ -220,6 +357,41 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
             return 0;
         }
         break;
+    case WM_CTLCOLORSTATIC: {
+        HDC dc = (HDC)wParam;
+        SetTextColor(dc, (HWND)lParam == GetDlgItem(window, 0) ? gold : cream);
+        SetBkMode(dc, TRANSPARENT);
+        RECT bounds; GetWindowRect((HWND)lParam, &bounds);
+        MapWindowPoints(NULL, window, (POINT *)&bounds, 2);
+        return (LRESULT)(bounds.top < 150 ? fieldBrush : backgroundBrush);
+    }
+    case WM_CTLCOLOREDIT:
+    case WM_CTLCOLORLISTBOX:
+        SetTextColor((HDC)wParam, cream); SetBkColor((HDC)wParam, panel);
+        return (LRESULT)fieldBrush;
+    case WM_DRAWITEM:
+        if (((DRAWITEMSTRUCT *)lParam)->CtlType == ODT_BUTTON) {
+            DrawButton((DRAWITEMSTRUCT *)lParam); return TRUE;
+        }
+        break;
+    case WM_PAINT: {
+        PAINTSTRUCT paint;
+        HDC dc = BeginPaint(window, &paint);
+        RECT client; GetClientRect(window, &client); FillRect(dc, &client, backgroundBrush);
+        HGDIOBJ oldBrush = SelectObject(dc, fieldBrush), oldPen = SelectObject(dc, GetStockObject(NULL_PEN));
+        RoundRect(dc, 16, 12, 744, 158, 22, 22);
+        SelectObject(dc, oldBrush); SelectObject(dc, oldPen);
+        RECT divider = {28, 299, 732, 300}; FillRect(dc, &divider, fieldBrush);
+        if (sprite) {
+            HDC source = CreateCompatibleDC(dc);
+            HGDIOBJ old = SelectObject(source, sprite);
+            BLENDFUNCTION blend = {AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
+            AlphaBlend(dc, 548, 14, SPRITE_WIDTH, SPRITE_HEIGHT,
+                       source, 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, blend);
+            SelectObject(source, old); DeleteDC(source);
+        }
+        EndPaint(window, &paint); return 0;
+    }
     case WM_TIMER:
         if (game && WaitForSingleObject(game, 0) == WAIT_OBJECT_0) {
             DWORD code; GetExitCodeProcess(game, &code);
@@ -237,7 +409,9 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         return 0;
     case WM_DESTROY:
         if (game) CloseHandle(game); // Closing the launcher never terminates the game.
-        DeleteObject(font); DeleteObject(heading); PostQuitMessage(0); return 0;
+        DeleteObject(font); DeleteObject(heading);
+        DeleteObject(backgroundBrush); DeleteObject(fieldBrush);
+        PostQuitMessage(0); return 0;
     }
     return DefWindowProcW(window, message, wParam, lParam);
 }
@@ -248,15 +422,25 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE previous, PWSTR command, int s
     DWORD length = GetModuleFileNameW(NULL, directory, CAP);
     if (!length || length >= CAP || !wcsrchr(directory, L'\\')) return 1;
     *wcsrchr(directory, L'\\') = 0;
+    HRESULT com = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    if (FAILED(com) || !LoadSprite()) {
+        Error(NULL, L"Cannot load the embedded launcher artwork with Windows Imaging Component.");
+        if (SUCCEEDED(com)) CoUninitialize();
+        return 1;
+    }
     WNDCLASSW cls = {0};
     cls.lpfnWndProc = WindowProc; cls.hInstance = instance;
     cls.lpszClassName = L"WL4Launcher"; cls.hCursor = LoadCursor(NULL, IDC_ARROW);
-    cls.hIcon = LoadIcon(NULL, IDI_APPLICATION); cls.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    cls.hIcon = LoadIcon(NULL, IDI_APPLICATION); cls.hbrBackground = NULL;
     if (!RegisterClassW(&cls)) return 1;
+    RECT bounds = {0, 0, 760, 400};
+    DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+    AdjustWindowRectEx(&bounds, style, FALSE, 0);
     HWND window = CreateWindowExW(0, cls.lpszClassName, title,
-                                  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-                                  CW_USEDEFAULT, CW_USEDEFAULT, 620, 350, NULL, NULL, instance, NULL);
+                                  style, CW_USEDEFAULT, CW_USEDEFAULT,
+                                  bounds.right - bounds.left, bounds.bottom - bounds.top, NULL, NULL, instance, NULL);
     if (!window) return 1;
+    RoundWindow(window);
     ShowWindow(window, show);
     MSG msg;
     int result;
@@ -265,5 +449,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE previous, PWSTR command, int s
             TranslateMessage(&msg); DispatchMessageW(&msg);
         }
     }
+    DeleteObject(sprite);
+    CoUninitialize();
     return result < 0 ? 1 : 0;
 }

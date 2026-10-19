@@ -61,3 +61,34 @@ high-DPI accessibility review, and multi-instance save conflicts are not claimed
 The launcher does not offer a startup fullscreen flag because the game currently
 supports only the F11 toggle. No level/room selector, package, push or release was
 created. Further milestone work requires user approval.
+
+## Purple-and-gold theme (2026-10-19)
+
+User-requested follow-up to launcher v1: deep-purple window and header panel,
+rounded gold owner-drawn buttons, gold Windows 11 caption text, native rounded
+Windows 11 corners with a rounded-region fallback, and separate About, CREDITS
+and built-in README buttons. The original transparent Vampire Wario PNG is
+credited to MisteryGX in the UI and `port/assets/CREDITS.md`.
+
+The original 933-byte 46x36 PNG is embedded as a Windows resource, decoded with
+Windows Imaging Component, converted to premultiplied BGRA, enlarged by exact
+4x pixel replication, and alpha-blended at 184x144 without further scaling.
+Original and repository PNG SHA256:
+`72970117978d9d7a1a7becaec363ec025601110e0dee63a20c9211e695ed8fb9`.
+A captured launcher window was visually reviewed. All 1036 opaque source pixels
+match every pixel of their displayed 4x4 blocks; 620 source pixels are transparent.
+
+Normal and ASan builds pass without launcher warnings. Sequential controlled GUI
+checks pass for rendering, native ROM browsing, spaced-path validation, remembered
+path after reopening, game launch/close, and all three information buttons. Existing
+coroutine/BIOS/I/O/disposable-save tests and direct 60-frame runs pass in both builds.
+The ASan launcher stderr is empty. Test APPDATA stays under the new evidence root;
+the prior launcher ROM path/scale are restored afterward. No owned test processes
+remain. The game executable, ROM validator and save logic are unchanged.
+
+Evidence is under `build/launcher-theme-20261019/`: `theme-preview.png`,
+`pixel-results.txt`, `gui-results.txt`, runtime and launcher logs, child command
+lines, `theme-controlled.ps1` and `regression-controlled.ps1`. No old evidence was
+removed. Fresh GBA **v7-33** reports ROM-SAME and OBJ-SAME with MD5
+`940b597bef3be3f4041021b47a2f4096`. Windows 10 fallback rounding and clean-PC/high-DPI
+acceptance remain unverified. No push or public release was made.
