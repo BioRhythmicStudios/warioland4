@@ -21,8 +21,9 @@ No GBA sources, generated files or save implementation changed.
   incompatible dummy SDL3.dll without starting a game.
 - Normal and ASan coroutine, BIOS, trapped I/O and disposable-file save tests pass.
   Direct command-line game runs also pass for 60 frames through the spaced path.
-- Fresh GBA build v7-31: MD5 940b597bef3be3f4041021b47a2f4096,
-  ROM-SAME and OBJ-SAME. The earlier implementation check was v7-30.
+  Independent normal/ASan game windows start and close with exit code 0.
+- Final fresh GBA build v7-32: MD5 940b597bef3be3f4041021b47a2f4096,
+  ROM-SAME and OBJ-SAME. Earlier implementation checks were v7-30 and v7-31.
 
 All new local evidence and controlled scripts are under ignored
 `build/launcher-v1-20261019/`: `gui-results.txt`, `negative-results.txt`,
