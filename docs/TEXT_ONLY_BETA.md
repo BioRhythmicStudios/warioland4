@@ -1,6 +1,6 @@
 # Text-only local Beta 1 — 2026-10-19
 
-Fresh build from HEAD `a9c82e7` plus the uncommitted launcher-only changes in
+Fresh build from HEAD `ecf5771` plus the uncommitted launcher-only changes in
 this worktree. No tag, push or publication. Prior beta archives remain intact.
 Existing upstream audit documents/work are preserved.
 

@@ -4,7 +4,7 @@
 
 The user reports the original portable beta works on their second Windows
 laptop without development tools. They subsequently tested the updated launcher
-and game containing VSync commit `e260529` on that separate laptop, with Intel
+and game containing VSync commit `5cef1d7` on that separate laptop, with Intel
 integrated graphics and a 60 Hz OLED panel, and explicitly confirmed:
 
 - VSync Off: visible screen tearing.
@@ -45,8 +45,8 @@ acceptance on the separate laptop is still pending.
 
 ## Build and payload
 
-Source revision `452b3e3`, following local font/icon `6d241cf` and published base
-`b1474c4`. A fresh `native-release` CMake/Ninja directory uses LLVM-MinGW
+Source revision `67609ea`, following local font/icon `c3d4eef` and published base
+`0c2a4a5`. A fresh `native-release` CMake/Ninja directory uses LLVM-MinGW
 20261006, Clang 23.1.3, Release `-O2 -DNDEBUG`, ASan OFF, and SDL 3.4.18. It does
 not change the existing normal/ASan builds. The dedicated input-test executable
 is built only for verification and is excluded from the ZIP.

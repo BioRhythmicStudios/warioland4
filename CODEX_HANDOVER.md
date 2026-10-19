@@ -9,7 +9,7 @@ runtime piece is documented in `port/README.md`.
 User manually confirms Intel integrated-graphics/60 Hz OLED laptop operation:
 VSync Off visibly tears; On does not. Other unreported hardware/audio details
 are not inferred. See docs/WINDOWS_BETA1_RC.md and docs/LAUNCHER_ASSET_RIGHTS.md.
-Runtime **3866b24** (YoshiKong credit + asset audit) follows VSync **e260529**.
+Runtime **7dd76cb** (YoshiKong credit + asset audit) follows VSync **5cef1d7**.
 Fresh Release RC2 ZIP under build/beta1-rc2-20261019, exact 20-file audit,
 dependency closure, external clean extraction/Windows-only PATH and visible
 game/VSync/F11/launcher smoke pass. Release/normal/ASan checks pass; real SRAM
@@ -29,7 +29,7 @@ No main-tree/tools/agbcc/save changes; preexisting symlink entries preserved.
 ## Latest: optional VSync (2026-10-19)
 
 User confirms beta works on the second laptop, with Intel/60 Hz OLED tearing.
-Local implementation commit e260529. Read docs/WINDOWS_VSYNC.md. Display VSync On/Off uses SDL_Renderer APIs, checked
+Local implementation commit 5cef1d7. Read docs/WINDOWS_VSYNC.md. Display VSync On/Off uses SDL_Renderer APIs, checked
 fallback, fullscreen/display reapply; GBA clock stays ~59.73 Hz independently of
 blocking presents. v2 configs default On; v1 preserves values and former Off.
 Normal/ASan builds and config/input/runtime/pacing/UI regressions pass. Local
@@ -47,7 +47,7 @@ Prior uncommitted private-beta plan/handover/report work preserved.
 
 ## Latest: private USB Windows beta (2026-10-19)
 
-Source 452b3e3 packaged as Release x64 under build/private-beta1-20261019.
+Source 67609ea packaged as Release x64 under build/private-beta1-20261019.
 Read docs/PRIVATE_WINDOWS_BETA.md for ZIP/hash, notices and test boundaries.
 No ROM/save/config/extracted assets included. Extracted launcher/settings UI and
 separate disposable-save game startup pass with Windows-only PATH outside repo.
@@ -59,7 +59,7 @@ Fresh GBA **v7-41** ROM-SAME, OBJ-SAME, MD5
 
 ## Latest: clear selected-ROM filename (2026-10-19)
 
-User-approved launcher presentation follow-up to `6d241cf`: gold filename label
+User-approved launcher presentation follow-up to `c3d4eef`: gold filename label
 beneath the untouched full-path edit field. Live edits, Browse and remembered
 paths update the label. Validation, Remember and Launch source routines unchanged.
 Normal/ASan builds and UI-text tests (including spaces and a 32,657-character path)
@@ -71,7 +71,7 @@ No push/release for this follow-up. Further milestone work needs approval.
 
 ## Latest: launcher pixel font and supplied icon (2026-10-19)
 
-User-approved follow-up to published `b1474c4`: same SDL Settings glyphs packaged
+User-approved follow-up to published `0c2a4a5`: same SDL Settings glyphs packaged
 as a private Windows TTF for launcher labels, controls, information/error windows;
 new supplied launchericon PNG embedded as seven-size ICO for executable and windows.
 Original PNG and Vampire Wario sprite preserved. See docs/LAUNCHER_FONT_ICON.md.
@@ -84,7 +84,7 @@ No push/release for this follow-up. Further milestone work needs approval.
 
 ## Latest: launcher settings and customizable controls (2026-10-19)
 
-Settings milestone `617c6d8` follows launcher/theme commits `bf9734f`, `fc143c3`, `1fd013f`.
+Settings milestone `38e8d4f` follows launcher/theme commits `bf9734f`, `fc143c3`, `2b6ea67`.
 Read `docs/WINDOWS_SETTINGS.md` and the newest Where we are entries first.
 Keyboard/Controller/Display settings are shared by launcher and game in SDL's
 user preference folder, separate from SRAM. Physical key capture, collision checks,

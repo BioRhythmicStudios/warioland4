@@ -1,6 +1,6 @@
 # Launcher pixel font and icon (2026-10-19)
 
-User-approved follow-up to published HEAD `b1474c4`. The main Win32 launcher now
+User-approved follow-up to published HEAD `0c2a4a5`. The main Win32 launcher now
 uses a private TrueType conversion of the exact SDL debug font seen in Settings.
 Labels, native edit/combo controls and gold buttons use 2x 8x8 glyphs; the title
 uses 4x. About, CREDITS, README and ordinary error messages use owned themed

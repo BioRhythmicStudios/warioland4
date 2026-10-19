@@ -16,8 +16,8 @@ Adjacent `.zip.sha256` and internal `SHA256SUMS.txt` provide archive/payload has
 This is a held local candidate, not an approved public release asset. The earlier
 RC1 and original private beta archives/evidence remain untouched.
 
-Native source: **3866b2462b0589400110d1caae1cc157107e3f0b**, branch `port`, adding
-the requested YoshiKong credit and asset audit atop VSync **e260529**. All runtime
+Native source: **7dd76cbc08ccd524d67a9167a464cc0c0803673a**, branch `port`, adding
+the requested YoshiKong credit and asset audit atop VSync **5cef1d7**. All runtime
 code was committed before the fresh RC2 build. Later changes are audit/testing
 documentation only. The source remote target remains `myfork`, never `origin`.
 No tag was created or overwritten and there is no release URL.
