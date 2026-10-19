@@ -4,6 +4,18 @@ The working rules are in `AGENTS.md`, so read that first. The full plan and its 
 in `docs/PC_PORT_PLAN.md`; its "Where we are" section is the most detailed status. Each
 runtime piece is documented in `port/README.md`.
 
+## Latest: clear selected-ROM filename (2026-10-19)
+
+User-approved launcher presentation follow-up to `6d241cf`: gold filename label
+beneath the untouched full-path edit field. Live edits, Browse and remembered
+paths update the label. Validation, Remember and Launch source routines unchanged.
+Normal/ASan builds and UI-text tests (including spaces and a 32,657-character path)
+pass. No game/ROM/SRAM opened by these tests; all owned test processes closed.
+Evidence build/launcher-rom-name-20261019 is preserved.
+Fresh GBA **v7-40**: ROM-SAME, OBJ-SAME, MD5
+`940b597bef3be3f4041021b47a2f4096`; next fresh directory **v7-41**.
+No push/release for this follow-up. Further milestone work needs approval.
+
 ## Latest: launcher pixel font and supplied icon (2026-10-19)
 
 User-approved follow-up to published `b1474c4`: same SDL Settings glyphs packaged

@@ -14,7 +14,7 @@
 
 #define CAP 32768
 #define SETTINGS L"Software\\BioRhythmicStudios\\WL4Launcher"
-static HWND pathBox, scaleBox, launchButton;
+static HWND pathBox, scaleBox, launchButton, romNameLabel;
 static wchar_t directory[CAP], romPath[CAP];
 static HFONT font, heading;
 static HANDLE privateFont;
@@ -362,6 +362,22 @@ static HWND Control(HWND parent, const wchar_t *type, const wchar_t *text,
     return child;
 }
 
+// Presentation only: do not shorten or rewrite the path used by validation/launch.
+static void UpdateRomName(void)
+{
+    static wchar_t path[CAP], display[CAP + 32];
+    if (!romNameLabel) return;
+    GetWindowTextW(pathBox, path, CAP);
+    const wchar_t *name = path;
+    for (const wchar_t *cursor = path; *cursor; ++cursor)
+        if (*cursor == L'\\' || *cursor == L'/') name = cursor + 1;
+    if (!path[0])
+        wcscpy(display, L"No ROM selected");
+    else
+        swprintf(display, CAP + 32, L"Selected ROM: %ls", *name ? name : L"(choose a file)");
+    SetWindowTextW(romNameLabel, display);
+}
+
 static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
@@ -379,14 +395,16 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         Control(window, L"STATIC", L"YOUR ROM  /  Unmodified US release (AWAE)", 0, 28, 166, 844, 24, 0);
         pathBox = Control(window, L"EDIT", L"", WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 28, 197, 684, 30, 10);
         SendMessageW(pathBox, EM_SETLIMITTEXT, CAP - 1, 0);
+        romNameLabel = Control(window, L"STATIC", L"No ROM selected", SS_ENDELLIPSIS | SS_NOPREFIX,
+                               28, 235, 844, 20, 18);
         Control(window, L"BUTTON", L"Browse...", WS_TABSTOP, 728, 194, 144, 36, 11);
-        Control(window, L"STATIC", L"Window scale", 0, 28, 253, 200, 24, 0);
-        scaleBox = Control(window, L"COMBOBOX", L"", WS_TABSTOP | CBS_DROPDOWNLIST, 244, 249, 88, 180, 12);
+        Control(window, L"STATIC", L"Window scale", 0, 28, 270, 200, 24, 0);
+        scaleBox = Control(window, L"COMBOBOX", L"", WS_TABSTOP | CBS_DROPDOWNLIST, 244, 266, 88, 180, 12);
         for (int i = 1; i <= 6; ++i) {
             wchar_t item[16]; swprintf(item, 16, L"%dx", i);
             SendMessageW(scaleBox, CB_ADDSTRING, 0, (LPARAM)item);
         }
-        Control(window, L"STATIC", L"F11: fullscreen in game", 0, 352, 253, 520, 26, 0);
+        Control(window, L"STATIC", L"F11: fullscreen in game", 0, 352, 270, 520, 26, 0);
         launchButton = Control(window, L"BUTTON", L"Launch Game", WS_TABSTOP, 652, 322, 220, 48, 13);
         Control(window, L"BUTTON", L"About", WS_TABSTOP, 28, 330, 96, 34, 14);
         Control(window, L"BUTTON", L"CREDITS", WS_TABSTOP, 136, 330, 128, 34, 15);
@@ -408,10 +426,14 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         }
         SendMessageW(scaleBox, CB_SETCURSEL, settings.scale - 1, 0);
         SetWindowTextW(pathBox, romPath);
+        UpdateRomName();
         return 0;
     }
     case WM_COMMAND:
         switch (LOWORD(wParam)) {
+        case 10:
+            if (HIWORD(wParam) == EN_CHANGE) UpdateRomName();
+            return 0;
         case 11: {
             // The Windows dialog pumps nested window callbacks: keep long paths off the stack.
             static wchar_t selected[CAP];
@@ -478,7 +500,7 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         break;
     case WM_CTLCOLORSTATIC: {
         HDC dc = (HDC)wParam;
-        SetTextColor(dc, (HWND)lParam == GetDlgItem(window, 0) ? gold : cream);
+        SetTextColor(dc, ((HWND)lParam == romNameLabel || (HWND)lParam == GetDlgItem(window, 0)) ? gold : cream);
         SetBkMode(dc, TRANSPARENT);
         RECT bounds; GetWindowRect((HWND)lParam, &bounds);
         MapWindowPoints(NULL, window, (POINT *)&bounds, 2);
@@ -500,7 +522,7 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         HGDIOBJ oldBrush = SelectObject(dc, fieldBrush), oldPen = SelectObject(dc, GetStockObject(NULL_PEN));
         RoundRect(dc, 16, 12, 884, 158, 22, 22);
         SelectObject(dc, oldBrush); SelectObject(dc, oldPen);
-        RECT divider = {28, 299, 872, 300}; FillRect(dc, &divider, fieldBrush);
+        RECT divider = {28, 308, 872, 309}; FillRect(dc, &divider, fieldBrush);
         if (sprite) {
             HDC source = CreateCompatibleDC(dc);
             HGDIOBJ old = SelectObject(source, sprite);

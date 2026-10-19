@@ -26,6 +26,12 @@ your own ROM at run time.
 After building with SDL3, double-click `wl4-launcher.exe` in `build_pc`.
 Keep it beside `wl4.exe` and the matching x64 `SDL3.dll` (the build copies SDL3).
 Choose **Browse...**, select your own legally obtained ROM, then **Launch Game**.
+The gold **Selected ROM** line shows the filename clearly beneath the full,
+editable path. It updates when browsing, editing or restoring the remembered
+selection. Long filenames may be visually ellipsized; the full path remains in
+the horizontally scrolling edit field, with its existing length limit. Paths with
+spaces are kept intact. This display does not change validation or game launch.
+
 The purple-and-gold launcher includes rounded gold buttons and rounded window
 corners (native Windows 11 rounding, with a region fallback on older Windows).
 **About** describes the project, **CREDITS** lists contributors and the artwork
