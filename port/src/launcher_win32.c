@@ -474,7 +474,7 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
                         L"Vampire Wario sprite: MisteryGX\n"
                         L"Displayed from the original transparent PNG at crisp 4x pixel scale.\n\n"
                         L"Pixel glyphs: SDL debug font / public-domain VGA font.\n"
-                        L"Launcher icon: supplied by the user.\n\n"
+                        L"Launcher icon: YoshiKong (The Spriters Resource).\n\n"
                         L"Wario and Wario Land 4 belong to Nintendo.", title, MB_OK);
             return 0;
         case 16:
