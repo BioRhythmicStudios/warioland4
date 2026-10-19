@@ -4,6 +4,19 @@ The working rules are in `AGENTS.md`, so read that first. The full plan and its 
 in `docs/PC_PORT_PLAN.md`; its "Where we are" section is the most detailed status. Each
 runtime piece is documented in `port/README.md`.
 
+## Latest: launcher pixel font and supplied icon (2026-10-19)
+
+User-approved follow-up to published `b1474c4`: same SDL Settings glyphs packaged
+as a private Windows TTF for launcher labels, controls, information/error windows;
+new supplied launchericon PNG embedded as seven-size ICO for executable and windows.
+Original PNG and Vampire Wario sprite preserved. See docs/LAUNCHER_FONT_ICON.md.
+Normal/ASan builds/UI checks pass; all 191 glyphs match SDL exactly at 2x, all icon
+sizes load. No game, config or save logic changes; these UI tests open no ROM/SRAM.
+Final GBA **v7-39**: ROM-SAME, OBJ-SAME, MD5
+`940b597bef3be3f4041021b47a2f4096`; next fresh directory **v7-40**.
+Evidence build/launcher-font-20261019 is preserved; owned test processes closed.
+No push/release for this follow-up. Further milestone work needs approval.
+
 ## Latest: launcher settings and customizable controls (2026-10-19)
 
 Settings milestone `617c6d8` follows launcher/theme commits `bf9734f`, `fc143c3`, `1fd013f`.

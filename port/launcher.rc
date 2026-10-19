@@ -1,2 +1,4 @@
 #include <windows.h>
+1 ICON "assets/launchericon.ico"
 101 RCDATA "assets/vampirewariosprite.png"
+102 RCDATA "assets/fonts/wl4-pixel.ttf"

@@ -3,6 +3,10 @@
 #include "port/controls.h"
 #include <stdio.h>
 #include <string.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 static void Text(SDL_Renderer *r, float x, float y, const char *text)
 {
@@ -33,6 +37,11 @@ int PortSettingsShow(PortSettings *settings)
     if (!SDL_CreateWindowAndRenderer("Wario Land 4 - Settings", 900, 800, 0, &window, &renderer)) {
         SDL_Quit(); return -1;
     }
+#ifdef _WIN32
+    HWND hwnd = SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+    SendMessageW(hwnd, WM_SETICON, ICON_BIG, (LPARAM)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(1), IMAGE_ICON, 32, 32, LR_SHARED));
+    SendMessageW(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(1), IMAGE_ICON, 16, 16, LR_SHARED));
+#endif
     SDL_SetRenderScale(renderer, 2, 2);
     SDL_SetRenderVSync(renderer, 1);
     PortControlsOpen(&controls, &draft);

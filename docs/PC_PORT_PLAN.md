@@ -176,6 +176,11 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
+- **Launcher font/icon (2026-10-19):** user approved matching Settings' pixel font across the main launcher and owned information/error windows, plus the supplied launchericon PNG as executable/window/Settings/shortcut icon. Private embedded TTF preserves SDL's exact 8x8 glyphs; multi-size ICO preserves source aspect ratio with nearest-neighbour scaling. No system font install, settings/config or save-code changes. This follows published `b1474c4` (settings `617c6d8`, theme `1fd013f`).
+- **Font/icon verification:** normal/ASan builds and sequential main/info/error/Settings UI checks pass. All 191 glyphs match SDL at 2x (48,896 pixels, zero differences). All seven embedded icon sizes load. Original icon PNG is byte-identical; sprite/MisteryGX attribution retained. Tests used explicit disposable config paths and did not launch a game or open SRAM. Evidence `build/launcher-font-20261019/`; details `docs/LAUNCHER_FONT_ICON.md`.
+- **Latest GBA check:** final **build/v7-39**, ROM-SAME, OBJ-SAME, MD5 `940b597bef3be3f4041021b47a2f4096`; next fresh directory **v7-40**. Earlier font/icon checks were v7-37/v7-38. All owned UI test processes closed. No push or release for this follow-up; further milestones require approval. Older entries below are historical.
+
+
 - **Verified branch publication (2026-10-19):** settings implementation `617c6d8` and theme `1fd013f` are committed. The user approved a normal push to `myfork/port`; the pre-push fetch found no remote-only commits. Reviewed outgoing paths contain only the intended launcher/settings code, tests, documentation and credited sprite; no SRAM saves, ROMs or generated data. Existing untracked `data`, `expected` and `include/data` entries remain untouched. This status-only follow-up uses fresh **build/v7-36** for the final GBA identity check; next fresh directory **v7-37**. No release is authorized; further milestone work still needs approval.
 
 

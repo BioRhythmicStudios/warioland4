@@ -17,6 +17,8 @@
 static HWND pathBox, scaleBox, launchButton;
 static wchar_t directory[CAP], romPath[CAP];
 static HFONT font, heading;
+static HANDLE privateFont;
+static HICON largeIcon, smallIcon;
 static HANDLE game;
 static PortSettings settings;
 static HBRUSH backgroundBrush, fieldBrush;
@@ -128,9 +130,91 @@ static void DrawButton(const DRAWITEMSTRUCT *item)
 
 static const wchar_t *title = L"Wario Land 4 \x2014 Native PC Port";
 
+static LRESULT CALLBACK InfoProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message) {
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) { DestroyWindow(window); return 0; }
+        break;
+    case WM_CLOSE: DestroyWindow(window); return 0;
+    case WM_CTLCOLORSTATIC:
+    case WM_CTLCOLOREDIT:
+        SetTextColor((HDC)wParam, cream); SetBkColor((HDC)wParam, purple);
+        return (LRESULT)backgroundBrush;
+    case WM_DRAWITEM:
+        if (((DRAWITEMSTRUCT *)lParam)->CtlType == ODT_BUTTON) {
+            DrawButton((DRAWITEMSTRUCT *)lParam); return TRUE;
+        }
+        break;
+    }
+    return DefWindowProcW(window, message, wParam, lParam);
+}
+
+// Use our private pixel font in launcher-owned information and error windows too.
+// Native file-selection dialogs retain Windows' normal text and accessibility.
+static void ShowText(HWND owner, const wchar_t *message, const wchar_t *caption, UINT flags)
+{
+    if (!font || !backgroundBrush) {
+        MessageBoxW(owner, message, caption, flags); return;
+    }
+    WNDCLASSW cls = {0};
+    cls.lpfnWndProc = InfoProc; cls.hInstance = GetModuleHandleW(NULL);
+    cls.lpszClassName = L"WL4LauncherInfo"; cls.hCursor = LoadCursor(NULL, IDC_ARROW);
+    cls.hIcon = largeIcon; cls.hbrBackground = backgroundBrush;
+    RegisterClassW(&cls);
+    HDC dc = GetDC(owner);
+    HGDIOBJ old = SelectObject(dc, font);
+    RECT textBounds = {0, 0, 816, 0};
+    DrawTextW(dc, message, -1, &textBounds, DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX);
+    SelectObject(dc, old); ReleaseDC(owner, dc);
+    RECT work; SystemParametersInfoW(SPI_GETWORKAREA, 0, &work, 0);
+    int bodyHeight = textBounds.bottom + 16;
+    if (bodyHeight > work.bottom - work.top - 150) bodyHeight = work.bottom - work.top - 150;
+    if (bodyHeight < 100) bodyHeight = 100;
+    RECT bounds = {0, 0, 864, bodyHeight + 100};
+    DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+    AdjustWindowRectEx(&bounds, style, FALSE, WS_EX_DLGMODALFRAME);
+    int width = bounds.right - bounds.left, height = bounds.bottom - bounds.top;
+    HWND window = CreateWindowExW(WS_EX_DLGMODALFRAME, cls.lpszClassName, caption, style,
+        work.left + (work.right - work.left - width) / 2,
+        work.top + (work.bottom - work.top - height) / 2,
+        width, height, owner, NULL, cls.hInstance, NULL);
+    if (!window) { MessageBoxW(owner, message, caption, flags); return; }
+    // Native multiline edits require CRLF; our messages use portable LF strings.
+    size_t length = wcslen(message), used = 0;
+    wchar_t *formatted = malloc((length * 2 + 1) * sizeof(wchar_t));
+    if (!formatted) { DestroyWindow(window); MessageBoxW(owner, message, caption, flags); return; }
+    for (size_t i = 0; i < length; ++i) {
+        if (message[i] == L'\n' && (i == 0 || message[i - 1] != L'\r')) formatted[used++] = L'\r';
+        formatted[used++] = message[i];
+    }
+    formatted[used] = 0;
+    HWND body = CreateWindowExW(0, L"EDIT", formatted,
+        WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL | WS_VSCROLL,
+        24, 20, 816, bodyHeight, window, (HMENU)21, NULL, NULL);
+    free(formatted);
+    SendMessageW(body, WM_SETFONT, (WPARAM)font, TRUE);
+    HWND button = CreateWindowExW(0, L"BUTTON", L"OK",
+        WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_OWNERDRAW,
+        720, bodyHeight + 42, 120, 36, window, (HMENU)IDOK, NULL, NULL);
+    SendMessageW(button, WM_SETFONT, (WPARAM)font, TRUE);
+    SendMessageW(window, WM_SETICON, ICON_BIG, (LPARAM)largeIcon);
+    SendMessageW(window, WM_SETICON, ICON_SMALL, (LPARAM)smallIcon);
+    RoundWindow(window);
+    if (owner) EnableWindow(owner, FALSE);
+    ShowWindow(window, SW_SHOW); SetFocus(button);
+    MSG msg;
+    int result = 1;
+    while (IsWindow(window) && (result = GetMessageW(&msg, NULL, 0, 0)) > 0)
+        if (!IsDialogMessageW(window, &msg)) { TranslateMessage(&msg); DispatchMessageW(&msg); }
+    if (IsWindow(window)) DestroyWindow(window);
+    if (owner) { EnableWindow(owner, TRUE); SetForegroundWindow(owner); }
+    if (result == 0) PostQuitMessage((int)msg.wParam);
+}
+
 static void Error(HWND window, const wchar_t *message)
 {
-    MessageBoxW(window, message, title, MB_OK | MB_ICONERROR);
+    ShowText(window, message, title, MB_OK | MB_ICONERROR);
 }
 
 static void SystemError(HWND window, const wchar_t *context)
@@ -284,30 +368,30 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
     case WM_CREATE: {
         HKEY key;
         DWORD size = sizeof(romPath), scale = 3, scaleSize = sizeof(scale);
-        font = CreateFontW(-16, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
-        heading = CreateFontW(-27, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, 0, 0, 0, 0, L"Segoe UI");
+        font = CreateFontW(-16, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, OUT_TT_PRECIS, 0, NONANTIALIASED_QUALITY, FIXED_PITCH, L"WL4 Pixel");
+        heading = CreateFontW(-32, 0, 0, 0, FW_NORMAL, 0, 0, 0, DEFAULT_CHARSET, OUT_TT_PRECIS, 0, NONANTIALIASED_QUALITY, FIXED_PITCH, L"WL4 Pixel");
         backgroundBrush = CreateSolidBrush(purple);
         fieldBrush = CreateSolidBrush(panel);
-        HWND label = Control(window, L"STATIC", L"WARIO LAND 4", 0, 32, 28, 480, 38, 0);
+        HWND label = Control(window, L"STATIC", L"WARIO LAND 4", 0, 32, 28, 620, 38, 0);
         SendMessageW(label, WM_SETFONT, (WPARAM)heading, TRUE);
         Control(window, L"STATIC", L"NATIVE PC PORT", 0, 34, 74, 460, 24, 0);
         Control(window, L"STATIC", L"BioRhythmicStudios", 0, 34, 107, 460, 24, 0);
-        Control(window, L"STATIC", L"YOUR ROM  /  Unmodified US release (AWAE)", 0, 28, 166, 700, 24, 0);
-        pathBox = Control(window, L"EDIT", L"", WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 28, 197, 562, 30, 10);
+        Control(window, L"STATIC", L"YOUR ROM  /  Unmodified US release (AWAE)", 0, 28, 166, 844, 24, 0);
+        pathBox = Control(window, L"EDIT", L"", WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 28, 197, 684, 30, 10);
         SendMessageW(pathBox, EM_SETLIMITTEXT, CAP - 1, 0);
-        Control(window, L"BUTTON", L"Browse...", WS_TABSTOP, 604, 194, 128, 36, 11);
-        Control(window, L"STATIC", L"Window scale", 0, 28, 253, 115, 24, 0);
-        scaleBox = Control(window, L"COMBOBOX", L"", WS_TABSTOP | CBS_DROPDOWNLIST, 148, 249, 98, 180, 12);
+        Control(window, L"BUTTON", L"Browse...", WS_TABSTOP, 728, 194, 144, 36, 11);
+        Control(window, L"STATIC", L"Window scale", 0, 28, 253, 200, 24, 0);
+        scaleBox = Control(window, L"COMBOBOX", L"", WS_TABSTOP | CBS_DROPDOWNLIST, 244, 249, 88, 180, 12);
         for (int i = 1; i <= 6; ++i) {
             wchar_t item[16]; swprintf(item, 16, L"%dx", i);
             SendMessageW(scaleBox, CB_ADDSTRING, 0, (LPARAM)item);
         }
-        Control(window, L"STATIC", L"F11 toggles fullscreen in the game.", 0, 274, 253, 440, 26, 0);
-        launchButton = Control(window, L"BUTTON", L"Launch Game", WS_TABSTOP, 528, 322, 204, 48, 13);
-        Control(window, L"BUTTON", L"About", WS_TABSTOP, 28, 330, 88, 34, 14);
-        Control(window, L"BUTTON", L"CREDITS", WS_TABSTOP, 128, 330, 96, 34, 15);
-        Control(window, L"BUTTON", L"README", WS_TABSTOP, 236, 330, 96, 34, 16);
-        Control(window, L"BUTTON", L"Settings", WS_TABSTOP, 344, 330, 112, 34, 17);
+        Control(window, L"STATIC", L"F11: fullscreen in game", 0, 352, 253, 520, 26, 0);
+        launchButton = Control(window, L"BUTTON", L"Launch Game", WS_TABSTOP, 652, 322, 220, 48, 13);
+        Control(window, L"BUTTON", L"About", WS_TABSTOP, 28, 330, 96, 34, 14);
+        Control(window, L"BUTTON", L"CREDITS", WS_TABSTOP, 136, 330, 128, 34, 15);
+        Control(window, L"BUTTON", L"README", WS_TABSTOP, 276, 330, 112, 34, 16);
+        Control(window, L"BUTTON", L"Settings", WS_TABSTOP, 400, 330, 144, 34, 17);
         if (RegOpenKeyExW(HKEY_CURRENT_USER, SETTINGS, 0, KEY_QUERY_VALUE, &key) == ERROR_SUCCESS) {
             if (RegGetValueW(key, NULL, L"RomPath", RRF_RT_REG_SZ, NULL, romPath, &size) != ERROR_SUCCESS)
                 romPath[0] = 0;
@@ -320,7 +404,7 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         if (loaded < 0) {
             wchar_t message[512];
             MultiByteToWideChar(CP_UTF8, 0, warning, -1, message, 512);
-            MessageBoxW(window, message, L"Settings reset to defaults", MB_OK | MB_ICONWARNING);
+            ShowText(window, message, L"Settings reset to defaults", MB_OK | MB_ICONWARNING);
         }
         SendMessageW(scaleBox, CB_SETCURSEL, settings.scale - 1, 0);
         SetWindowTextW(pathBox, romPath);
@@ -362,15 +446,17 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
             return 0;
         }
         case 15:
-            MessageBoxW(window, L"CREDITS\n\n"
+            ShowText(window, L"CREDITS\n\n"
                         L"PC port and launcher: BioRhythmicStudios\n"
                         L"Original Wario Land 4 decompilation contributors\n\n"
                         L"Vampire Wario sprite: MisteryGX\n"
                         L"Displayed from the original transparent PNG at crisp 4x pixel scale.\n\n"
+                        L"Pixel glyphs: SDL debug font / public-domain VGA font.\n"
+                        L"Launcher icon: supplied by the user.\n\n"
                         L"Wario and Wario Land 4 belong to Nintendo.", title, MB_OK);
             return 0;
         case 16:
-            MessageBoxW(window, L"README / QUICK START\n\n"
+            ShowText(window, L"README / QUICK START\n\n"
                         L"1. Browse to your own legally obtained, unmodified US ROM (AWAE).\n"
                         L"2. Choose a window scale, then click Launch Game.\n"
                         L"3. Press F11 in the game for fullscreen.\n\n"
@@ -382,7 +468,7 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
                         L"Full build and usage instructions: port/README.md in the source tree.", title, MB_OK);
             return 0;
         case 14:
-            MessageBoxW(window, L"Wario Land 4 Native PC Port\n\n"
+            ShowText(window, L"Wario Land 4 Native PC Port\n\n"
                         L"PC port and launcher: BioRhythmicStudios\n"
                         L"Built on the work of the original Wario Land 4 decompilation contributors.\n\n"
                         L"Wario Land 4 is a Nintendo game. This unofficial port includes no ROM.\n"
@@ -412,14 +498,14 @@ static LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPA
         HDC dc = BeginPaint(window, &paint);
         RECT client; GetClientRect(window, &client); FillRect(dc, &client, backgroundBrush);
         HGDIOBJ oldBrush = SelectObject(dc, fieldBrush), oldPen = SelectObject(dc, GetStockObject(NULL_PEN));
-        RoundRect(dc, 16, 12, 744, 158, 22, 22);
+        RoundRect(dc, 16, 12, 884, 158, 22, 22);
         SelectObject(dc, oldBrush); SelectObject(dc, oldPen);
-        RECT divider = {28, 299, 732, 300}; FillRect(dc, &divider, fieldBrush);
+        RECT divider = {28, 299, 872, 300}; FillRect(dc, &divider, fieldBrush);
         if (sprite) {
             HDC source = CreateCompatibleDC(dc);
             HGDIOBJ old = SelectObject(source, sprite);
             BLENDFUNCTION blend = {AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-            AlphaBlend(dc, 548, 14, SPRITE_WIDTH, SPRITE_HEIGHT,
+            AlphaBlend(dc, 688, 14, SPRITE_WIDTH, SPRITE_HEIGHT,
                        source, 0, 0, SPRITE_WIDTH, SPRITE_HEIGHT, blend);
             SelectObject(source, old); DeleteDC(source);
         }
@@ -455,6 +541,13 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE previous, PWSTR command, int s
     DWORD length = GetModuleFileNameW(NULL, directory, CAP);
     if (!length || length >= CAP || !wcsrchr(directory, L'\\')) return 1;
     *wcsrchr(directory, L'\\') = 0;
+    largeIcon = LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(1), IMAGE_ICON, 32, 32, LR_SHARED);
+    smallIcon = LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(1), IMAGE_ICON, 16, 16, LR_SHARED);
+    HRSRC fontResource = FindResourceW(NULL, MAKEINTRESOURCEW(102), RT_RCDATA);
+    HGLOBAL fontBytes = fontResource ? LoadResource(NULL, fontResource) : NULL;
+    DWORD count = 0;
+    if (fontBytes) privateFont = AddFontMemResourceEx(LockResource(fontBytes), SizeofResource(NULL, fontResource), NULL, &count);
+    if (!privateFont || !count) { Error(NULL, L"Cannot load the embedded pixel font."); return 1; }
     HRESULT com = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     if (FAILED(com) || !LoadSprite()) {
         Error(NULL, L"Cannot load the embedded launcher artwork with Windows Imaging Component.");
@@ -464,15 +557,17 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE previous, PWSTR command, int s
     WNDCLASSW cls = {0};
     cls.lpfnWndProc = WindowProc; cls.hInstance = instance;
     cls.lpszClassName = L"WL4Launcher"; cls.hCursor = LoadCursor(NULL, IDC_ARROW);
-    cls.hIcon = LoadIcon(NULL, IDI_APPLICATION); cls.hbrBackground = NULL;
+    cls.hIcon = largeIcon; cls.hbrBackground = NULL;
     if (!RegisterClassW(&cls)) return 1;
-    RECT bounds = {0, 0, 760, 400};
+    RECT bounds = {0, 0, 900, 400};
     DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
     AdjustWindowRectEx(&bounds, style, FALSE, 0);
     HWND window = CreateWindowExW(0, cls.lpszClassName, title,
                                   style, CW_USEDEFAULT, CW_USEDEFAULT,
                                   bounds.right - bounds.left, bounds.bottom - bounds.top, NULL, NULL, instance, NULL);
     if (!window) return 1;
+    SendMessageW(window, WM_SETICON, ICON_BIG, (LPARAM)largeIcon);
+    SendMessageW(window, WM_SETICON, ICON_SMALL, (LPARAM)smallIcon);
     RoundWindow(window);
     ShowWindow(window, show);
     MSG msg;
@@ -483,6 +578,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE previous, PWSTR command, int s
         }
     }
     DeleteObject(sprite);
+    RemoveFontMemResourceEx(privateFont);
     CoUninitialize();
     return result < 0 ? 1 : 0;
 }

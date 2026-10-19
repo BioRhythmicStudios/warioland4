@@ -38,6 +38,21 @@ There is no dependency on a Downloads folder or external image at run time.
 Windows Imaging Component decodes the PNG; no additional GUI library is needed.
 See [artwork credits](assets/CREDITS.md).
 
+The launcher uses the same crisp pixel font as Settings, embedded privately for
+its labels, buttons, ROM-path field and About/CREDITS/README/error windows. No
+system font installation is needed. Windows title bars and the standard Browse
+dialog retain their operating-system font. The window is slightly wider to fit
+the square glyphs.
+
+The supplied `launchericon.png` is embedded as a multi-size Windows icon for the
+executable, taskbar, window, Settings and information windows. Desktop shortcuts
+that use this executable's default icon inherit it; no shortcut is created or
+changed by the launcher. The original PNG is retained unchanged, and the ICO uses
+16/24/32/48/64/128/256-pixel nearest-neighbour variants with preserved aspect ratio.
+To regenerate it, run `port/tools/make_launcher_icon.ps1 -Source INPUT.png -Output
+OUTPUT.ico`. See [font provenance](assets/fonts/README.md) for font regeneration.
+
+
 The launcher accepts only the unmodified 8 MiB US release (game code AWAE), with
 MD5 `5fe47355a33e3fabec2a1607af88a404`, using the same validator as the game.
 No ROM is included, copied, downloaded or installed by the launcher.
