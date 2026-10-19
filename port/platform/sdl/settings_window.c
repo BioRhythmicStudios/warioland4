@@ -43,7 +43,8 @@ int PortSettingsShow(PortSettings *settings)
     SendMessageW(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(1), IMAGE_ICON, 16, 16, LR_SHARED));
 #endif
     SDL_SetRenderScale(renderer, 2, 2);
-    SDL_SetRenderVSync(renderer, 1);
+    if (!SDL_SetRenderVSync(renderer, 1))
+        fprintf(stderr, "Settings window VSync unavailable: %s\n", SDL_GetError());
     PortControlsOpen(&controls, &draft);
     while (running) {
         SDL_Event event;
@@ -99,7 +100,7 @@ int PortSettingsShow(PortSettings *settings)
                 else if (tab == 1) {
                     memcpy(draft.buttons, defaults.buttons, sizeof(draft.buttons));
                     draft.analog = defaults.analog; draft.deadzone = defaults.deadzone;
-                } else { draft.scale = defaults.scale; draft.fullscreen = defaults.fullscreen; }
+                } else { draft.scale = defaults.scale; draft.fullscreen = defaults.fullscreen; draft.vsync = defaults.vsync; }
                 Status(status, "Section defaults restored in draft. Save to keep.");
             }
             if (Hit(x, y, 228, 367, 90, 24)) running = 0;
@@ -121,6 +122,7 @@ int PortSettingsShow(PortSettings *settings)
                 if (Hit(x, y, 180, 110, 38, 24) && draft.scale > 1) --draft.scale;
                 if (Hit(x, y, 226, 110, 38, 24) && draft.scale < 6) ++draft.scale;
                 if (Hit(x, y, 12, 160, 330, 24)) draft.fullscreen = !draft.fullscreen;
+                if (Hit(x, y, 12, 198, 330, 24)) draft.vsync = !draft.vsync;
             }
         }
         SDL_SetRenderDrawColor(renderer, 40, 17, 66, 255); SDL_RenderClear(renderer);
@@ -170,9 +172,11 @@ int PortSettingsShow(PortSettings *settings)
             Button(renderer, 180, 110, 38, 24, "-"); Button(renderer, 226, 110, 38, 24, "+");
             snprintf(label, sizeof(label), "Start fullscreen: %s", draft.fullscreen ? "ON" : "OFF");
             Button(renderer, 12, 160, 330, 24, label);
-            Text(renderer, 12, 210, "F11 still toggles fullscreen while playing.");
-            Text(renderer, 12, 231, "Explicit --scale overrides the saved window scale.");
-            Text(renderer, 12, 270, "Settings are separate from your SRAM save.");
+            snprintf(label, sizeof(label), "VSync: %s", draft.vsync ? "ON" : "OFF");
+            Button(renderer, 12, 198, 330, 24, label);
+            Text(renderer, 12, 238, "VSync reduces tearing when supported.");
+            Text(renderer, 12, 258, "F11 toggles fullscreen. --scale overrides scale.");
+            Text(renderer, 12, 286, "Settings are separate from your SRAM save.");
         }
         if (chooser < 0) {
             char line[54]; snprintf(line, sizeof(line), "%.53s", status); Text(renderer, 12, 338, line);

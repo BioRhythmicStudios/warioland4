@@ -7,7 +7,7 @@
 #define PORT_PAD_CHOICES (SDL_GAMEPAD_BUTTON_COUNT + 2)
 typedef struct PortSettings {
     int keys[PORT_ACTIONS], buttons[PORT_ACTIONS];
-    int scale, fullscreen, analog, deadzone;
+    int scale, fullscreen, analog, deadzone, vsync;
 } PortSettings;
 extern const char *const PortActionNames[PORT_ACTIONS];
 extern const Uint16 PortActionBits[PORT_ACTIONS];

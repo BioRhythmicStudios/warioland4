@@ -42,13 +42,19 @@ subsequently takes precedence; launcher scale changes are persisted on launch.
 Direct game launch loads the same bindings/display preferences. Explicit --scale
 still overrides the saved scale; no new fullscreen CLI option is required.
 
-The strict text format starts with `WL4_SETTINGS 1`, followed by four integers
-(scale, fullscreen, analog enabled, deadzone percent), ten scancode integers and
+The current text format starts with `WL4_SETTINGS 2`, followed by five integers
+(scale, fullscreen, analog enabled, deadzone percent, VSync 0/1), ten scancode integers and
 ten gamepad integers in GBA bit order. Button codes are SDL_GamepadButton; 26 and
 27 represent LT and RT for the tested SDL 3.4.18 build. Missing files use defaults.
 Unreadable, incomplete, oversized, wrong-version, malformed, duplicate and invalid
 settings fall back as a whole with a warning. Loading never overwrites a bad file.
 An explicit Settings Save or Launch Game writes the selected valid configuration.
+
+Version-1 files remain supported, preserving bindings/display values and their
+former VSync-Off behaviour without rewriting on load. New/default configurations
+use VSync On where supported. Display has an On/Off control; both launch paths
+apply it to the game renderer at startup. See [VSync timing, compatibility and
+verification](WINDOWS_VSYNC.md). Older binaries cannot read version 2.
 
 Writes create an exclusive temporary sibling, flush/close it and atomically
 replace the destination. Failure reports an error; a failed temporary is retained

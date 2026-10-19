@@ -1,6 +1,8 @@
 // Disposable settings tests plus SDL virtual-gamepad tests, never SRAM.
 #include "port/settings.h"
 #include "port/controls.h"
+#include "port/frame_pacer.h"
+#include "port/render_vsync.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -13,6 +15,31 @@ static void Pump(PortControls *controls)
     while (SDL_PollEvent(&event)) PortControlsEvent(controls, &event);
 }
 
+static void TestPacing(void)
+{
+    // Fake present completion times: monitor refresh must not set game speed.
+    const unsigned int rates[] = {30, 60, 120, 144};
+    for (size_t i = 0; i < SDL_arraysize(rates); ++i) {
+        PortFramePacer p = {0};
+        unsigned int frames = 0, most = 0;
+        uint64_t now = 0;
+        for (unsigned int refresh = 0; refresh <= rates[i] * 100; ++refresh) {
+            now = (uint64_t)refresh * 1000000000ull / rates[i];
+            unsigned int n = PortFramePacerDue(&p, now, 0);
+            frames += n; if (n > most) most = n;
+        }
+        CHECK(frames == now / PORT_FRAME_NS + 1 && !p.resets, "GBA clock independent of synthetic monitor/present rate");
+        CHECK(most <= 2, "no unbounded catch-up or doubled speed");
+    }
+    PortFramePacer p = {0};
+    CHECK(PortFramePacerDue(&p, 0, 0) == 1, "first simulation frame");
+    CHECK(PortFramePacerDue(&p, PORT_FRAME_NS - 1, 0) == 0, "early present does not advance simulation");
+    CHECK(PortFramePacerDue(&p, 3 * PORT_FRAME_NS, 0) == 3, "short blocking present preserves due simulation frames");
+    CHECK(PortFramePacerDue(&p, 100 * PORT_FRAME_NS, 0) == 1 && p.resets == 1, "long stall resets bounded backlog");
+    CHECK(PortFramePacerDue(&p, 100 * PORT_FRAME_NS, 1) == 1, "fast forward bypasses clock");
+    CHECK(PortFramePacerDue(&p, 100 * PORT_FRAME_NS, 0) == 0, "fast-forward release resumes clock without burst");
+}
+
 int main(int argc, char **argv)
 {
     const char *override = SDL_getenv("WL4_SETTINGS_FILE");
@@ -23,13 +50,17 @@ int main(int argc, char **argv)
     if (SDL_GetPathInfo(override, &info)) {fprintf(stderr, "Refusing an existing test destination.\n"); return 2;}
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
     if (!SDL_Init(SDL_INIT_GAMEPAD)) return 1;
+    TestPacing();
+    // Invalid-renderer fixture exercises API failure handling without a GUI.
+    // This is not a claim that an unsupported physical display driver was tested.
+    CHECK(!PortApplyRenderVSync(NULL, 1) && !PortApplyRenderVSync(NULL, 0), "VSync API failures are non-fatal");
     int count = 0; SDL_JoystickID *real = SDL_GetGamepads(&count);
     printf("Connected hardware before virtual tests: %d\n", count);
     for (int i = 0; i < count; ++i) printf("  %s\n", SDL_GetGamepadNameForID(real[i]));
     SDL_free(real);
     PortSettings s, loaded; char error[256];
     CHECK(PortSettingsLoad(&s, error, sizeof(error)) == 1, "missing config uses defaults");
-    CHECK(s.keys[0] == SDL_SCANCODE_X && s.scale == 3 && s.analog && s.deadzone == 50, "defaults");
+    CHECK(s.keys[0] == SDL_SCANCODE_X && s.scale == 3 && s.analog && s.deadzone == 50 && s.vsync == 1, "defaults include VSync On");
     CHECK(PortSettingsBind(&s, 0, 0, SDL_SCANCODE_Z, error, sizeof(error)) < 0 && s.keys[0] == SDL_SCANCODE_X,
           "keyboard collision rejected without mutation");
     CHECK(PortSettingsBind(&s, 0, 0, SDL_SCANCODE_ESCAPE, error, sizeof(error)) < 0, "Escape is reserved");
@@ -40,7 +71,23 @@ int main(int argc, char **argv)
     s.scale = 2; s.fullscreen = 1; s.deadzone = 30;
     CHECK(!PortSettingsSave(&s, error, sizeof(error)), "atomic settings save");
     CHECK(!PortSettingsLoad(&loaded, error, sizeof(error)) && !memcmp(&s, &loaded, sizeof(s)), "restart/roundtrip all settings");
-    const char *bad[] = {"WL4_SETTINGS 99\n", "garbage", "WL4_SETTINGS 1\n2 1 1 30\n6", "WL4_SETTINGS 0\n"};
+    s.vsync = 0;
+    CHECK(!PortSettingsSave(&s, error, sizeof(error)) && !PortSettingsLoad(&loaded, error, sizeof(error))
+          && !memcmp(&s, &loaded, sizeof(s)), "explicit VSync Off survives restart");
+    char legacy[1024];
+    int used = snprintf(legacy, sizeof(legacy), "WL4_SETTINGS 1\n%d %d %d %d\n", s.scale, s.fullscreen, s.analog, s.deadzone);
+    for (int device = 0; device < 2; ++device)
+        for (int i = 0; i < PORT_ACTIONS; ++i)
+            used += snprintf(legacy + used, sizeof(legacy) - used, "%d%c", device ? s.buttons[i] : s.keys[i], i == PORT_ACTIONS - 1 ? '\n' : ' ');
+    CHECK(SDL_SaveFile(override, legacy, used), "write v1 fixture");
+    CHECK(!PortSettingsLoad(&loaded, error, sizeof(error)) && !memcmp(&s, &loaded, sizeof(s)), "v1 preserves all settings and former VSync Off behaviour");
+    size_t unchangedSize = 0;
+    char *unchanged = SDL_LoadFile(override, &unchangedSize);
+    CHECK(unchanged && unchangedSize == (size_t)used && !memcmp(unchanged, legacy, used), "legacy load never rewrites file");
+    SDL_free(unchanged);
+    CHECK(!PortSettingsSave(&loaded, error, sizeof(error)), "explicit save upgrades v1");
+    const char *bad[] = {"WL4_SETTINGS 99\n", "garbage", "WL4_SETTINGS 1\n2 1 1 30\n6", "WL4_SETTINGS 0\n",
+                         "WL4_SETTINGS 2\n2 1 1 30\n", "WL4_SETTINGS 2\n2 1 1 30 2\n"};
     for (size_t i = 0; i < SDL_arraysize(bad); ++i) {
         CHECK(SDL_SaveFile(override, bad[i], strlen(bad[i])), "write deliberate corrupt fixture");
         CHECK(PortSettingsLoad(&loaded, error, sizeof(error)) < 0 && loaded.keys[0] == SDL_SCANCODE_X,
@@ -55,6 +102,8 @@ int main(int argc, char **argv)
     invalid = s; invalid.deadzone = 99;
     CHECK(PortSettingsSave(&invalid, error, sizeof(error)) < 0, "out-of-range config cannot overwrite valid settings");
     CHECK(!PortSettingsLoad(&loaded, error, sizeof(error)) && !memcmp(&loaded, &s, sizeof(s)), "failed validation preserves previous config");
+    invalid = s; invalid.vsync = 2;
+    CHECK(PortSettingsSave(&invalid, error, sizeof(error)) < 0, "invalid VSync rejected");
 
     PortControls controls; PortControlsOpen(&controls, &s);
     PortControlsClose(&controls); // Keyboard-only assertions must not sample a user-held physical pad.

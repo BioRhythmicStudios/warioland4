@@ -20,7 +20,7 @@ void PortSettingsDefaults(PortSettings *s)
         SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER};
     memset(s, 0, sizeof(*s));
     memcpy(s->keys, keys, sizeof(keys)); memcpy(s->buttons, buttons, sizeof(buttons));
-    s->scale = 3; s->analog = 1; s->deadzone = 50;
+    s->scale = 3; s->analog = 1; s->deadzone = 50; s->vsync = 1;
 }
 
 static int AllowedKey(int key)
@@ -51,7 +51,8 @@ int PortSettingsValid(const PortSettings *s, char *error, size_t size)
 {
     PortSettings draft = *s;
     if (s->scale < 1 || s->scale > 6 || s->fullscreen < 0 || s->fullscreen > 1
-        || s->analog < 0 || s->analog > 1 || s->deadzone < 10 || s->deadzone > 80) {
+        || s->analog < 0 || s->analog > 1 || s->deadzone < 10 || s->deadzone > 80
+        || s->vsync < 0 || s->vsync > 1) {
         snprintf(error, size, "Display or stick settings are outside their supported range.");
         return -1;
     }
@@ -113,23 +114,32 @@ int PortSettingsLoad(PortSettings *s, char *error, size_t size)
     data[count] = 0;
     // Strict bounded integer tokens; reject truncation, extra data, unknown versions,
     // duplicate bindings and reserved keys as a whole. Never rewrite a bad file on load.
-    int values[1 + 4 + PORT_ACTIONS * 2];
+    int values[1 + 5 + PORT_ACTIONS * 2];
+    size_t tokens = SDL_arraysize(values);
     char *cursor = data, *end;
     if (strncmp(cursor, "WL4_SETTINGS ", 13)) goto invalid;
     cursor += 13;
-    for (size_t i = 0; i < SDL_arraysize(values); ++i) {
+    for (size_t i = 0; i < tokens; ++i) {
         while (*cursor == ' ' || *cursor == '\r' || *cursor == '\n') ++cursor;
         if (*cursor < '0' || *cursor > '9') goto invalid;
         unsigned long value = strtoul(cursor, &end, 10);
         if (end == cursor || value > INT_MAX || (*end && *end != ' ' && *end != '\r' && *end != '\n')) goto invalid;
         values[i] = (int)value; cursor = end;
+        if (i == 0) {
+            if (values[0] != 1 && values[0] != 2) goto invalid;
+            if (values[0] == 1) --tokens;
+        }
     }
     while (*cursor == ' ' || *cursor == '\r' || *cursor == '\n') ++cursor;
-    if (*cursor || cursor != data + count || values[0] != 1) goto invalid;
+    if (*cursor || cursor != data + count) goto invalid;
     PortSettings draft;
     draft.scale = values[1]; draft.fullscreen = values[2]; draft.analog = values[3]; draft.deadzone = values[4];
-    memcpy(draft.keys, values + 5, sizeof(draft.keys));
-    memcpy(draft.buttons, values + 5 + PORT_ACTIONS, sizeof(draft.buttons));
+    // v1 had no VSync control: preserve its Off behaviour and all other values.
+    // Loading never rewrites an old file; the next explicit Save upgrades it.
+    draft.vsync = values[0] == 2 ? values[5] : 0;
+    int bindings = values[0] == 2 ? 6 : 5;
+    memcpy(draft.keys, values + bindings, sizeof(draft.keys));
+    memcpy(draft.buttons, values + bindings + PORT_ACTIONS, sizeof(draft.buttons));
     if (PortSettingsValid(&draft, error, size)) goto invalid;
     *s = draft;
     return 0;
@@ -144,7 +154,7 @@ int PortSettingsSave(const PortSettings *s, char *error, size_t size)
     wchar_t wide[4096], temporary[4200];
     if (PortSettingsValid(s, error, size)) return -1;
     if (PortSettingsPath(path, sizeof(path)) || !Wide(path, wide, 4096)) goto failed;
-    int used = snprintf(data, sizeof(data), "WL4_SETTINGS 1\n%d %d %d %d\n", s->scale, s->fullscreen, s->analog, s->deadzone);
+    int used = snprintf(data, sizeof(data), "WL4_SETTINGS 2\n%d %d %d %d %d\n", s->scale, s->fullscreen, s->analog, s->deadzone, s->vsync);
     for (int device = 0; device < 2; ++device)
         for (int i = 0; i < PORT_ACTIONS; ++i)
             used += snprintf(data + used, sizeof(data) - used, "%d%c", device ? s->buttons[i] : s->keys[i], i == PORT_ACTIONS - 1 ? '\n' : ' ');

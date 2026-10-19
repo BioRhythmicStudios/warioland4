@@ -23,6 +23,11 @@ your own ROM at run time.
 
 ## Windows launcher
 
+Display settings include VSync On/Off. Save, then start a new game to apply it.
+New configurations default to On where supported; older profiles retain Off
+until changed. Gameplay stays at the GBA's original rate independently of display
+refresh. See [VSync implementation and test limits](../docs/WINDOWS_VSYNC.md).
+
 After building with SDL3, double-click `wl4-launcher.exe` in `build_pc`.
 Keep it beside `wl4.exe` and the matching x64 `SDL3.dll` (the build copies SDL3).
 Choose **Browse...**, select your own legally obtained ROM, then **Launch Game**.

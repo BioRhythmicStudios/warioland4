@@ -16,13 +16,12 @@
 #include "port/ppu.h"
 #include "port/save.h"
 #include "port/controls.h"
+#include "port/frame_pacer.h"
+#include "port/render_vsync.h"
 
 #define REG_KEYINPUT 0x130
 
 #define KEYS_ALL 0x3FF
-
-// A GBA frame: 228 lines of 1232 cycles at 2^24 Hz, about 59.73 frames a second.
-#define FRAME_NS (280896ull * 1000000000ull / 16777216ull)
 
 // The sound kept queued for the device: about 4 frames.
 #define AUDIO_TARGET_FRAMES (PORT_AUDIO_RATE / 15)
@@ -30,6 +29,7 @@
 #define AUDIO_MAX_ADJUST 0.005f
 
 static SDL_AudioStream *sAudio;
+static unsigned int sAudioRefills, sAudioDrops;
 
 static void OpenAudio(void)
 {
@@ -61,10 +61,12 @@ static void QueueAudio(int fastForward)
         return;
     queued = SDL_GetAudioStreamQueued(sAudio) / (int)(sizeof(int16_t) * 2);
     if (queued > 4 * AUDIO_TARGET_FRAMES) {
+        ++sAudioDrops;
         SDL_ClearAudioStream(sAudio);
         queued = 0;
     }
     if (queued < AUDIO_TARGET_FRAMES / 2) {
+        ++sAudioRefills;
         static const int16_t kSilence[AUDIO_TARGET_FRAMES * 2];
         SDL_PutAudioStreamData(sAudio, kSilence, (AUDIO_TARGET_FRAMES - queued) * (int)(sizeof(int16_t) * 2));
         queued = AUDIO_TARGET_FRAMES;
@@ -158,7 +160,10 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     SDL_Texture *texture = NULL;
-    Uint64 next;
+    PortFramePacer pacer = {0};
+    Uint64 started = 0, presents = 0, repeats = 0, maxPresent = 0;
+    int timingStats = SDL_getenv("WL4_TIMING_STATS") != NULL;
+    int requestedVSync = -1, reapplyVSync = 1;
     int result = 1, running = 1, fastForward = 0;
     int wasSaveFailed = 0, saveHandled = 0;
     PortSettings settings;
@@ -168,8 +173,8 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     if (scale) settings.scale = (int)scale;
     char settingsPath[4096];
     if (!PortSettingsPath(settingsPath, sizeof(settingsPath)))
-        printf("Settings: %s (A=%s, scale=%d, fullscreen=%d)\n", settingsPath,
-               SDL_GetScancodeName((SDL_Scancode)settings.keys[0]), settings.scale, settings.fullscreen);
+        printf("Settings: %s (A=%s, scale=%d, fullscreen=%d, vsync=%d)\n", settingsPath,
+               SDL_GetScancodeName((SDL_Scancode)settings.keys[0]), settings.scale, settings.fullscreen, settings.vsync);
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
@@ -194,12 +199,13 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         goto done;
     }
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+    sAudioRefills = sAudioDrops = 0;
     PortControlsOpen(&controls, &settings);
     OpenAudio();
 
     if (OpenSave(savePath) || PortFrameStart(entry))
         goto done;
-    next = SDL_GetTicksNS();
+    pacer.next = started = SDL_GetTicksNS();
     while (running) {
         SDL_Event event;
         Uint64 now;
@@ -216,8 +222,10 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
                     running = 0;
                 else if (event.key.scancode == SDL_SCANCODE_F8 && !event.key.repeat && PortSaveError())
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Progress has not been saved", PortSaveError(), window);
-                else if (event.key.scancode == SDL_SCANCODE_F11 && !event.key.repeat)
-                    SDL_SetWindowFullscreen(window, !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN));
+                else if (event.key.scancode == SDL_SCANCODE_F11 && !event.key.repeat) {
+                    if (!SDL_SetWindowFullscreen(window, !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)))
+                        fprintf(stderr, "Cannot toggle fullscreen: %s\n", SDL_GetError());
+                }
                 else if (event.key.scancode == SDL_SCANCODE_TAB)
                     fastForward = 1;
                 break;
@@ -227,6 +235,12 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
                 break;
             case SDL_EVENT_WINDOW_FOCUS_LOST:
                 fastForward = 0;
+                break;
+            case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
+            case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
+            case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
+                reapplyVSync = 1;
+                printf("Display: fullscreen=%d\n", !!(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN));
                 break;
             default:
                 break;
@@ -241,41 +255,68 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
                 goto done;
             }
             running = 1;
-            next = SDL_GetTicksNS();
+            pacer.next = SDL_GetTicksNS();
         }
 
-        // The game reads the buttons after VBlank, when the frame below resumes it.
-        keys = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)
-                   ? PortControlsPressed(&controls, SDL_GetKeyboardState(NULL)) : 0;
-        if (scripted)
-            keys |= PortInputScriptKeys(PortFrameSteps() + 1);
-        PortIoWrite16(REG_KEYINPUT, (uint16_t)(~keys & KEYS_ALL));
-        if (!PortFrameRun()) {
-            fprintf(stderr, "The game stopped after %u frames\n", PortFrameCount());
-            goto done;
+        int wantedVSync = settings.vsync && !fastForward;
+        if (reapplyVSync || wantedVSync != requestedVSync) {
+            PortApplyRenderVSync(renderer, wantedVSync);
+            requestedVSync = wantedVSync;
+            reapplyVSync = 0;
         }
-        PortSaveFrame();
+        unsigned int frames = PortFramePacerDue(&pacer, SDL_GetTicksNS(), fastForward);
+        if (!frames) {
+            now = SDL_GetTicksNS();
+            if (pacer.next > now) SDL_DelayPrecise(pacer.next - now);
+            continue;
+        }
+        for (unsigned int frame = 0; frame < frames; ++frame) {
+            // The game reads the buttons after VBlank, when the frame below resumes it.
+            keys = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)
+                       ? PortControlsPressed(&controls, SDL_GetKeyboardState(NULL)) : 0;
+            if (scripted)
+                keys |= PortInputScriptKeys(PortFrameSteps() + 1);
+            PortIoWrite16(REG_KEYINPUT, (uint16_t)(~keys & KEYS_ALL));
+            if (!PortFrameRun()) {
+                fprintf(stderr, "The game stopped after %u frames\n", PortFrameCount());
+                goto done;
+            }
+            PortSaveFrame();
 
-        QueueAudio(fastForward);
+            QueueAudio(fastForward);
+        }
+        // Present only a newly simulated framebuffer, once after any catch-up.
+        // The display/compositor retains it between GBA frames; no redundant
+        // upload/present loop is needed at higher refresh rates.
         SDL_UpdateTexture(texture, NULL, PortPpuFrame(), PORT_SCREEN_WIDTH * 4);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
         SDL_RenderTexture(renderer, texture, NULL, NULL);
         DrawSaveWarning(window, renderer, &wasSaveFailed);
-        SDL_RenderPresent(renderer);
-
-        // Pace to the GBA's frame rate. After a stall (a dragged window, a breakpoint) start
-        // again from now rather than rushing to catch up.
-        next += FRAME_NS;
+        Uint64 beforePresent = SDL_GetTicksNS();
+        if (!SDL_RenderPresent(renderer)) {
+            fprintf(stderr, "SDL_RenderPresent: %s\n", SDL_GetError());
+            goto done;
+        }
         now = SDL_GetTicksNS();
-        if (fastForward || now > next + 4 * FRAME_NS)
-            next = now;
-        else if (next > now)
-            SDL_DelayPrecise(next - now);
+        if (timingStats) {
+            ++presents;
+            if (!frames) ++repeats;
+            if (now - beforePresent > maxPresent) maxPresent = now - beforePresent;
+        }
+        // Wait only for the unelapsed absolute GBA deadline, never a full period
+        // added to present time. If present blocked past it, the next loop catches
+        // up simulation/audio on the same clock, independently of monitor Hz.
+        if (!fastForward && pacer.next > now) SDL_DelayPrecise(pacer.next - now);
     }
     result = 0;
 
 done:
+    if (timingStats && started) {
+        printf("Timing: seconds=%.3f frames=%u presents=%llu repeats=%llu max_present_ms=%.3f clock_resets=%u audio_refills=%u audio_drops=%u\n",
+               (SDL_GetTicksNS() - started) / 1e9, PortFrameCount(), (unsigned long long)presents,
+               (unsigned long long)repeats, maxPresent / 1e6, pacer.resets, sAudioRefills, sAudioDrops);
+    }
     if (!saveHandled && PortSaveClose()) {
         PortOsWriteError(PortSaveError());
         result = 1;
