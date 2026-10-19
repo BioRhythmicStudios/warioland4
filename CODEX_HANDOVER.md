@@ -4,6 +4,59 @@ The working rules are in `AGENTS.md`, so read that first. The full plan and its 
 in `docs/PC_PORT_PLAN.md`; its "Where we are" section is the most detailed status. Each
 runtime piece is documented in `port/README.md`.
 
+## Latest: Beta 1 local candidate / public rights hold (2026-10-19)
+
+User manually confirms Intel integrated-graphics/60 Hz OLED laptop operation:
+VSync Off visibly tears; On does not. Other unreported hardware/audio details
+are not inferred. See docs/WINDOWS_BETA1_RC.md and docs/LAUNCHER_ASSET_RIGHTS.md.
+Runtime **3866b24** (YoshiKong credit + asset audit) follows VSync **e260529**.
+Fresh Release RC2 ZIP under build/beta1-rc2-20261019, exact 20-file audit,
+dependency closure, external clean extraction/Windows-only PATH and visible
+game/VSync/F11/launcher smoke pass. Release/normal/ASan checks pass; real SRAM
+and config hashes unchanged; own test windows closed. Older evidence preserved.
+ZIP SHA256 3cc3d702109e401e23d5b8c1144c4563eaa2ea72c8de5cc300700401796de65a.
+Public push/tag/release STOPPED: sprite credit condition verified but broader
+Nintendo/redistribution scope not established; icon source is YoshiKong's Level
+Icons collection (apparently game graphics, footer access blocked); font terms
+verified. Separate upstream imported-code licence coverage remains unresolved.
+Missing current MIT notice does not revoke earlier grants; clarify provenance.
+No public upload performed, proposed v0.1.0-beta.1 not created locally. Next is
+rights resolution/permitted replacements, then fresh remote-divergence checks.
+Final GBA **v7-46** (also v7-45): ROM-SAME, OBJ-SAME, MD5
+940b597bef3be3f4041021b47a2f4096; next fresh **v7-47**.
+No main-tree/tools/agbcc/save changes; preexisting symlink entries preserved.
+
+## Latest: optional VSync (2026-10-19)
+
+User confirms beta works on the second laptop, with Intel/60 Hz OLED tearing.
+Local implementation commit e260529. Read docs/WINDOWS_VSYNC.md. Display VSync On/Off uses SDL_Renderer APIs, checked
+fallback, fullscreen/display reapply; GBA clock stays ~59.73 Hz independently of
+blocking presents. v2 configs default On; v1 preserves values and former Off.
+Normal/ASan builds and config/input/runtime/pacing/UI regressions pass. Local
+explicitly visible window/fullscreen/F11 tests: 59.724-59.730 simulation Hz, zero clock resets,
+no post-startup audio refill/overflow. Tab bypass/restoration passes. Owned test
+processes closed; real SRAM/config hashes unchanged; evidence build/vsync-20261019.
+Initial ~240/sec results included redundant empty-frame presents and a hidden
+SDL test window (native visibility verified; simulated VSync possible). Removed
+empty-frame upload/present; SDL status now labelled reported, not physical sync.
+Final GUI tests explicitly show/assert owned windows. Intel laptop scanout/audio
+validation remains required; prior mixed-GPU explanation was unproven. Existing private beta ZIP/hash untouched; no repackage/push/publication.
+Final GBA **v7-44** (earlier v7-42/v7-43): ROM-SAME, OBJ-SAME,
+MD5 `940b597bef3be3f4041021b47a2f4096`; next fresh **v7-45**.
+Prior uncommitted private-beta plan/handover/report work preserved.
+
+## Latest: private USB Windows beta (2026-10-19)
+
+Source 452b3e3 packaged as Release x64 under build/private-beta1-20261019.
+Read docs/PRIVATE_WINDOWS_BETA.md for ZIP/hash, notices and test boundaries.
+No ROM/save/config/extracted assets included. Extracted launcher/settings UI and
+separate disposable-save game startup pass with Windows-only PATH outside repo.
+Release/ASan regressions pass; real SRAM hash unchanged; own processes closed.
+No game/launcher source edits, push or public release. Artwork redistribution
+grants undocumented; separate laptop Browse/Launch/save/restart acceptance next.
+Fresh GBA **v7-41** ROM-SAME, OBJ-SAME, MD5
+940b597bef3be3f4041021b47a2f4096; next fresh **v7-42**.
+
 ## Latest: clear selected-ROM filename (2026-10-19)
 
 User-approved launcher presentation follow-up to `6d241cf`: gold filename label

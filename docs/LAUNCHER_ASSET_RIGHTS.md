@@ -29,7 +29,10 @@ release-critical rights check.
   requested no-extracted-game-assets distribution rule. The sheet does not put
   the sprite under MIT, nor establish that its submitter can license Nintendo's
   underlying material. A broader public source/binary redistribution clearance
-  must not be inferred beyond the stated attributed-use condition.
+  must not be inferred beyond the stated attributed-use condition. The sheet
+  supports intended reuse with credit, but does not expressly specify public
+  downloadable-build or source-file redistribution. Full public-build clearance
+  is therefore not established under the requested audit standard.
 
 The user's initial reference to a friend's permission was clarified to mean the
 download page and sheet condition above; no separate private written grant was
@@ -65,6 +68,11 @@ provided. We do not describe the author's credit condition as absent.
 
 Calling this a "custom launcher icon" describes its use in our application;
 it is not evidence that the original drawing was custom-created by YoshiKong.
+The available catalogue and the supplied image's level-portrait appearance
+suggest extracted game graphics, not newly drawn original fan artwork. This is
+an inference: a direct public-image request also returned HTTP 403, so no
+independent sheet-footer reading or pixel-for-pixel source match was completed.
+It is not appropriate to claim YoshiKong owns the original Nintendo drawing.
 
 ## Pixel font: no additional asset permission gap identified
 
@@ -92,11 +100,19 @@ removing loose files would not remove the embedded assets or their rights issues
 contributions. The restored lilDavid MIT notice is preserved, but does not by
 itself document permission for those other contributions. Local commit `a8f2557`
 contains TsilaAllaoui source/header contributions used by the port.
+Examples present in that imported snapshot are `src/cutscenes.c`,
+`src/wario/normal.c` and `include/cutscenes.h`; CMake compiles the C sources and
+uses the headers. The snapshot author does not establish authorship of every
+line, and this is not a claim that all of `src/` and `include/` are unlicensed.
 
 A live GitHub API check during this audit reports upstream's licence as null and
 its current root listing contains README but no LICENSE. A cached raw-file web
 result returned an older MIT notice; that inconsistent cached result was not
 used to override the live metadata and existing unresolved record.
+The recursive upstream tree exposes `tools/gbafix/COPYING`, but that build-tool
+licence does not license the game's source or headers. No alternative grant was
+found in the inspected local source/header notices. Vendored runtime notices
+(SDL, minicoro/LuaCoco, LLVM/MinGW) are separate and are retained in the package.
 
 https://api.github.com/repos/TsilaAllaoui/warioland4
 
@@ -104,3 +120,9 @@ This code question is independent of the sprite/icon credits. It needs a
 documented grant covering the relevant contributions or another reviewed basis
 before the requested release-clearance check can pass. This record does not
 assert that public availability proves permission or that infringement is proven.
+Deleting a licence file does not itself revoke earlier grants. A revision-level
+provenance check could establish that particular contributions were already
+covered by MIT; absence of a current root LICENSE is not proof to the contrary.
+The missing result is a documented basis covering the imported revision as a
+whole, not another copy of lilDavid's notice. Obtain that evidence or a relevant
+contributor grant before representing the release-wide code licence as cleared.

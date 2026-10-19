@@ -173,6 +173,14 @@ physical scanout is inferred solely from these counters.
 
 ## Intel laptop acceptance
 
+**User-confirmed physical result:** the updated launcher and game work on the
+separate Intel integrated-graphics laptop with its 60 Hz OLED display. VSync Off
+shows visible tearing; VSync On shows no visible tearing. This is manual hardware
+validation reported by the user after testing the updated executables, not an
+inference from API status or an automated visual claim. Exact Intel model/driver,
+Windows version, VRR state, tested window/fullscreen modes and audible quality
+were not specified. The remaining checklist below is not implicitly signed off.
+
 Use the updated matching normal EXEs when a new test copy is explicitly prepared;
 the existing beta ZIP still contains the pre-VSync build. In Display, enable
 VSync and Save, then launch a new game. Existing v1 profiles start Off deliberately.
