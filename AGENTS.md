@@ -24,6 +24,13 @@ Read `CODEX_HANDOVER.md` first, then `docs/PC_PORT_PLAN.md` and `port/README.md`
 6. **Update "Where we are" in `docs/PC_PORT_PLAN.md` before stopping.** Cover what changed,
    the latest commits, the last verified `build/v7-NN`, and the next step.
 
+7. **Push only one explicitly named branch or tag, and only to `myfork`.** Never run
+   `git push --all` or `git push --mirror`, and never push to `origin` (the upstream
+   repository). Never push `LOCAL-ONLY-old-history-DO-NOT-PUSH` or any ref whose
+   reachable history contains the purged images `port/assets/vampirewariosprite.png`,
+   `port/assets/launchericon.ico` or `port/assets/launchericon.png`. Verify the intended
+   ref is free of those images before pushing.
+
 ## Practical notes
 
 - **Don't run `make clean` in this worktree.** It runs `rm -rf include/data`, and
