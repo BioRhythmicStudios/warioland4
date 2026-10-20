@@ -61,6 +61,7 @@ int main(int argc, char **argv)
     PortSettings s, loaded; char error[256];
     CHECK(PortSettingsLoad(&s, error, sizeof(error)) == 1, "missing config uses defaults");
     CHECK(s.keys[0] == SDL_SCANCODE_X && s.scale == 3 && s.analog && s.deadzone == 50 && s.vsync == 1, "defaults include VSync On");
+    CHECK(s.crtPreset == 0 && s.crtScanlines == 20 && s.crtGlow == 10 && s.crtMask == 1, "CRT defaults Off with mild strengths");
     CHECK(PortSettingsBind(&s, 0, 0, SDL_SCANCODE_Z, error, sizeof(error)) < 0 && s.keys[0] == SDL_SCANCODE_X,
           "keyboard collision rejected without mutation");
     CHECK(PortSettingsBind(&s, 0, 0, SDL_SCANCODE_ESCAPE, error, sizeof(error)) < 0, "Escape is reserved");
@@ -74,6 +75,17 @@ int main(int argc, char **argv)
     s.vsync = 0;
     CHECK(!PortSettingsSave(&s, error, sizeof(error)) && !PortSettingsLoad(&loaded, error, sizeof(error))
           && !memcmp(&s, &loaded, sizeof(s)), "explicit VSync Off survives restart");
+    char version2[1024];
+    int v2used = snprintf(version2, sizeof(version2), "WL4_SETTINGS 2\n%d %d %d %d 1\n", s.scale, s.fullscreen, s.analog, s.deadzone);
+    for (int device = 0; device < 2; ++device)
+        for (int i = 0; i < PORT_ACTIONS; ++i)
+            v2used += snprintf(version2 + v2used, sizeof(version2) - v2used, "%d%c", device ? s.buttons[i] : s.keys[i], i == PORT_ACTIONS - 1 ? '\n' : ' ');
+    CHECK(SDL_SaveFile(override, version2, v2used), "write v2 fixture with VSync On");
+    s.vsync = 1;
+    CHECK(!PortSettingsLoad(&loaded, error, sizeof(error)) && !memcmp(&s, &loaded, sizeof(s)), "v2 preserves VSync On and bindings; CRT stays Off");
+    size_t v2size = 0; char *v2bytes = SDL_LoadFile(override, &v2size);
+    CHECK(v2bytes && v2size == (size_t)v2used && !memcmp(v2bytes, version2, v2used), "v2 migration does not rewrite config");
+    SDL_free(v2bytes); s.vsync = 0;
     char legacy[1024];
     int used = snprintf(legacy, sizeof(legacy), "WL4_SETTINGS 1\n%d %d %d %d\n", s.scale, s.fullscreen, s.analog, s.deadzone);
     for (int device = 0; device < 2; ++device)
@@ -105,6 +117,20 @@ int main(int argc, char **argv)
     invalid = s; invalid.vsync = 2;
     CHECK(PortSettingsSave(&invalid, error, sizeof(error)) < 0, "invalid VSync rejected");
 
+    for (int preset = 0; preset < 3; ++preset) {
+        s.crtPreset = preset; s.crtScanlines = preset * 25; s.crtGlow = preset * 15; s.crtMask = preset % 2;
+        CHECK(!PortSettingsSave(&s, error, sizeof(error)) && !PortSettingsLoad(&loaded, error, sizeof(error))
+              && !memcmp(&s, &loaded, sizeof(s)), "all CRT presets and strength endpoints survive restart");
+    }
+    invalid = s; invalid.crtPreset = 3;
+    CHECK(PortSettingsSave(&invalid, error, sizeof(error)) < 0, "invalid CRT preset rejected");
+    invalid = s; invalid.crtScanlines = 51;
+    CHECK(PortSettingsSave(&invalid, error, sizeof(error)) < 0, "excessive scanline darkness rejected");
+    invalid = s; invalid.crtGlow = -1;
+    CHECK(PortSettingsSave(&invalid, error, sizeof(error)) < 0, "negative glow rejected");
+    invalid = s; invalid.crtMask = 2;
+    CHECK(PortSettingsSave(&invalid, error, sizeof(error)) < 0, "invalid mask rejected");
+    CHECK(!PortSettingsLoad(&loaded, error, sizeof(error)) && !memcmp(&s, &loaded, sizeof(s)), "invalid CRT edits preserve prior file");
     PortControls controls; PortControlsOpen(&controls, &s);
     PortControlsClose(&controls); // Keyboard-only assertions must not sample a user-held physical pad.
     bool keyboard[SDL_SCANCODE_COUNT] = {0};

@@ -8,6 +8,7 @@
 typedef struct PortSettings {
     int keys[PORT_ACTIONS], buttons[PORT_ACTIONS];
     int scale, fullscreen, analog, deadzone, vsync;
+    int crtPreset, crtScanlines, crtGlow, crtMask;
 } PortSettings;
 extern const char *const PortActionNames[PORT_ACTIONS];
 extern const Uint16 PortActionBits[PORT_ACTIONS];

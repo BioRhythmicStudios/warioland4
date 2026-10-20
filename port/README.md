@@ -21,6 +21,21 @@ Without SDL3, `wl4` only runs headless. With it, the build copies `SDL3.dll` nex
 The PC build does not need the extracted assets (`make extract`): game data is read from
 your own ROM at run time.
 
+## Optional CRT display filters (v0.2.0-beta)
+
+Settings -> Display offers Original (Off), CRT Lite and CRT Enhanced. Click the
+filter selector to cycle presets. Original is the default, including when loading
+older settings. Lite adds adjustable scanlines (0-50%). Enhanced adds mild glow
+(0-30%) and an optional phosphor mask. Save and restart the game to apply changes.
+
+These are lightweight SDL rendering filters, without a programmable-shader backend
+or additional runtime DLLs. They affect only the final displayed image; the software
+PPU, headless screenshots, simulation, audio and VSync scheduling are unchanged.
+Scanlines follow integer-scaled GBA rows and are suppressed at 1x; the RGB mask
+needs at least 3x. Glow can be disabled independently. Unsupported filter resources
+fall back to Original for the session with a diagnostic. Save warnings stay clear
+above the filter. See [implementation and tests](../docs/WINDOWS_CRT.md).
+
 ## Windows launcher
 
 Display settings include VSync On/Off. Save, then start a new game to apply it.

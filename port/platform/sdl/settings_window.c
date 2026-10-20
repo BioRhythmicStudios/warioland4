@@ -1,5 +1,6 @@
 // A small SDL settings editor. SDL events capture physical keys and gamepad inputs.
 #include "port/settings.h"
+#include "port/crt.h"
 #include "port/controls.h"
 #include <stdio.h>
 #include <string.h>
@@ -100,7 +101,9 @@ int PortSettingsShow(PortSettings *settings)
                 else if (tab == 1) {
                     memcpy(draft.buttons, defaults.buttons, sizeof(draft.buttons));
                     draft.analog = defaults.analog; draft.deadzone = defaults.deadzone;
-                } else { draft.scale = defaults.scale; draft.fullscreen = defaults.fullscreen; draft.vsync = defaults.vsync; }
+                } else { draft.scale = defaults.scale; draft.fullscreen = defaults.fullscreen; draft.vsync = defaults.vsync;
+                    draft.crtPreset = defaults.crtPreset; draft.crtScanlines = defaults.crtScanlines;
+                    draft.crtGlow = defaults.crtGlow; draft.crtMask = defaults.crtMask; }
                 Status(status, "Section defaults restored in draft. Save to keep.");
             }
             if (Hit(x, y, 228, 367, 90, 24)) running = 0;
@@ -119,10 +122,20 @@ int PortSettingsShow(PortSettings *settings)
                 if (Hit(x, y, 310, 310, 38, 20) && draft.deadzone < 80) draft.deadzone = SDL_min(80, draft.deadzone + 5);
             }
             if (tab == 2) {
-                if (Hit(x, y, 180, 110, 38, 24) && draft.scale > 1) --draft.scale;
-                if (Hit(x, y, 226, 110, 38, 24) && draft.scale < 6) ++draft.scale;
-                if (Hit(x, y, 12, 160, 330, 24)) draft.fullscreen = !draft.fullscreen;
-                if (Hit(x, y, 12, 198, 330, 24)) draft.vsync = !draft.vsync;
+                if (Hit(x, y, 180, 76, 38, 24) && draft.scale > 1) --draft.scale;
+                if (Hit(x, y, 226, 76, 38, 24) && draft.scale < 6) ++draft.scale;
+                if (Hit(x, y, 12, 108, 426, 24)) draft.fullscreen = !draft.fullscreen;
+                if (Hit(x, y, 12, 140, 426, 24)) draft.vsync = !draft.vsync;
+                if (Hit(x, y, 12, 172, 426, 24)) draft.crtPreset = (draft.crtPreset + 1) % 3;
+                if (draft.crtPreset) {
+                    if (Hit(x, y, 302, 204, 38, 24)) draft.crtScanlines = SDL_max(0, draft.crtScanlines - 5);
+                    if (Hit(x, y, 346, 204, 38, 24)) draft.crtScanlines = SDL_min(50, draft.crtScanlines + 5);
+                }
+                if (draft.crtPreset == 2) {
+                    if (Hit(x, y, 302, 236, 38, 24)) draft.crtGlow = SDL_max(0, draft.crtGlow - 5);
+                    if (Hit(x, y, 346, 236, 38, 24)) draft.crtGlow = SDL_min(30, draft.crtGlow + 5);
+                    if (Hit(x, y, 12, 268, 426, 24)) draft.crtMask = !draft.crtMask;
+                }
             }
         }
         SDL_SetRenderDrawColor(renderer, 40, 17, 66, 255); SDL_RenderClear(renderer);
@@ -168,15 +181,26 @@ int PortSettingsShow(PortSettings *settings)
                 Button(renderer, 264, 310, 38, 20, "-"); Button(renderer, 310, 310, 38, 20, "+");
             } else Text(renderer, 12, 295, "Physical key positions stay stable across layouts.");
         } else {
-            snprintf(label, sizeof(label), "Window scale: %dx", draft.scale); Text(renderer, 12, 119, label);
-            Button(renderer, 180, 110, 38, 24, "-"); Button(renderer, 226, 110, 38, 24, "+");
+            snprintf(label, sizeof(label), "Window scale: %dx", draft.scale); Text(renderer, 12, 84, label);
+            Button(renderer, 180, 76, 38, 24, "-"); Button(renderer, 226, 76, 38, 24, "+");
             snprintf(label, sizeof(label), "Start fullscreen: %s", draft.fullscreen ? "ON" : "OFF");
-            Button(renderer, 12, 160, 330, 24, label);
+            Button(renderer, 12, 108, 426, 24, label);
             snprintf(label, sizeof(label), "VSync: %s", draft.vsync ? "ON" : "OFF");
-            Button(renderer, 12, 198, 330, 24, label);
-            Text(renderer, 12, 238, "VSync reduces tearing when supported.");
-            Text(renderer, 12, 258, "F11 toggles fullscreen. --scale overrides scale.");
-            Text(renderer, 12, 286, "Settings are separate from your SRAM save.");
+            Button(renderer, 12, 140, 426, 24, label);
+            snprintf(label, sizeof(label), "Filter: %s (click to cycle)", PortCrtName(draft.crtPreset));
+            Button(renderer, 12, 172, 426, 24, label);
+            if (draft.crtPreset) {
+                snprintf(label, sizeof(label), "Scanline strength: %d%%", draft.crtScanlines); Text(renderer, 12, 212, label);
+                Button(renderer, 302, 204, 38, 24, "-"); Button(renderer, 346, 204, 38, 24, "+");
+            }
+            if (draft.crtPreset == 2) {
+                snprintf(label, sizeof(label), "Glow: %d%%", draft.crtGlow); Text(renderer, 12, 244, label);
+                Button(renderer, 302, 236, 38, 24, "-"); Button(renderer, 346, 236, 38, 24, "+");
+                snprintf(label, sizeof(label), "Phosphor mask: %s", draft.crtMask ? "ON" : "OFF");
+                Button(renderer, 12, 268, 426, 24, label);
+            }
+            Text(renderer, 12, 304, "Scanlines need 2x; mask needs 3x or larger.");
+            Text(renderer, 12, 320, "Save, then restart the game to apply changes.");
         }
         if (chooser < 0) {
             char line[54]; snprintf(line, sizeof(line), "%.53s", status); Text(renderer, 12, 338, line);

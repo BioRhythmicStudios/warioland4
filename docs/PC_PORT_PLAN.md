@@ -176,6 +176,22 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
+Windows v0.2.0-beta release preparation (2026-10-20), The CRT Update.
+The user confirms CRT Lite and Enhanced (including glow/phosphor effects) on
+both the Windows development PC and Intel integrated-graphics/60 Hz OLED laptop,
+and authorizes publishing the prerelease. See docs/WINDOWS_CRT.md and
+docs/WINDOWS_BETA2_RELEASE.md. Original remains Off by default; v1/v2 settings
+migrate without load-time writes; v3 CRT controls apply after a game restart.
+Fresh normal/ASan, display and GBA verification are recorded under
+build/release-v0.2.0-beta-20261020; latest GBA v7-51 is ROM-SAME and all 202
+objects OBJ-SAME, MD5 940b597bef3be3f4041021b47a2f4096; next v7-52.
+CRT work is based on cleaned commit 831151f following 909d998. Beta 1 tag
+v0.1.0-beta remains at 909d998 and its published ZIP is preserved. Unrelated
+local cleanup/provenance notes remain outside this release commit.
+Next: clean committed-source Windows x64 build, external ZIP extraction and
+launcher/game acceptance, then normal myfork/port push and annotated
+v0.2.0-beta tag/GitHub prerelease if all checks pass.
+
 - **Beta 1 candidate and rights hold (2026-10-19):** user manually confirms the portable launcher/game work on the Intel integrated-graphics/60 Hz OLED laptop; VSync Off tears visibly and On does not. Recorded without inferring unreported audio/driver/VRR/mode coverage. Runtime commit **7dd76cb** adds YoshiKong to Credits atop **5cef1d7** VSync. See `docs/WINDOWS_BETA1_RC.md` and `docs/LAUNCHER_ASSET_RIGHTS.md`.
 - **Latest local candidate:** `build/beta1-rc2-20261019/WarioLand4-Native-PC-Port-v0.1.0-beta.1-Windows-x64.zip`, SHA-256 `3cc3d702109e401e23d5b8c1144c4563eaa2ea72c8de5cc300700401796de65a`. Fresh optimized Release, exact 20-file allowlist/manifest/import audit, Windows-only-PATH extraction outside repo, visible game/VSync/F11 and launcher info/Settings smoke pass. Release/normal/ASan relevant regressions and Credits checks pass; SRAM/config hashes unchanged; own processes closed. Older archives/evidence preserved.
 - **Public release stopped:** MFGG's sheet verifies the MisteryGX/RamenNoodleSprites + Nintendo credit condition; do not call that absent, or a blanket MIT/Nintendo/public-redistribution grant. YoshiKong is the icon sheet uploader, distinct from MisteryGX; source cataloguing suggests game level-icon graphics, while direct image access is blocked. Its creator/underlying rights are not cleared by credit alone. Font public-domain glyph provenance and SDL notice verified. Separate upstream imported-code licence coverage remains unresolved; existing MIT grants are not revoked merely by missing current notices. No public push, tag or release performed; proposed v0.1.0-beta.1 is not created locally. Next: scoped asset/code permission evidence or permitted replacements, then fresh remote checks before any push.

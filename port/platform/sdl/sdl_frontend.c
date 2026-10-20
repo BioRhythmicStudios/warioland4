@@ -18,6 +18,7 @@
 #include "port/controls.h"
 #include "port/frame_pacer.h"
 #include "port/render_vsync.h"
+#include "port/crt.h"
 
 #define REG_KEYINPUT 0x130
 
@@ -161,6 +162,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     SDL_Renderer *renderer = NULL;
     SDL_Texture *texture = NULL;
     PortFramePacer pacer = {0};
+    PortCrt crt = {0};
     Uint64 started = 0, presents = 0, repeats = 0, maxPresent = 0;
     int timingStats = SDL_getenv("WL4_TIMING_STATS") != NULL;
     int requestedVSync = -1, reapplyVSync = 1;
@@ -180,6 +182,8 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         return 1;
     }
+    printf("Display filter: %s; scanlines=%d%% glow=%d%% mask=%d\n", PortCrtName(settings.crtPreset),
+           settings.crtScanlines, settings.crtGlow, settings.crtMask);
     if (loaded < 0) {
         fprintf(stderr, "%s\n", settingsError);
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Settings reset to defaults", settingsError, NULL);
@@ -235,6 +239,10 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
                 break;
             case SDL_EVENT_WINDOW_FOCUS_LOST:
                 fastForward = 0;
+                break;
+            case SDL_EVENT_RENDER_DEVICE_RESET:
+            case SDL_EVENT_RENDER_TARGETS_RESET:
+                PortCrtDestroy(&crt);
                 break;
             case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
             case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
@@ -292,6 +300,11 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
         SDL_RenderTexture(renderer, texture, NULL, NULL);
+        if (settings.crtPreset && !PortCrtDraw(&crt, renderer, PortPpuFrame(), &settings)) {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+            SDL_RenderClear(renderer);
+            SDL_RenderTexture(renderer, texture, NULL, NULL);
+        }
         DrawSaveWarning(window, renderer, &wasSaveFailed);
         Uint64 beforePresent = SDL_GetTicksNS();
         if (!SDL_RenderPresent(renderer)) {
@@ -324,6 +337,7 @@ done:
     SDL_DestroyAudioStream(sAudio);
     sAudio = NULL;
     PortControlsClose(&controls);
+    PortCrtDestroy(&crt);
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
