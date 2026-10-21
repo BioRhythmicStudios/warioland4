@@ -12,8 +12,24 @@ void PortControlsOpen(PortControls *c, const PortSettings *settings)
 {
     c->settings = *settings; c->gamepad = NULL; OpenFirst(c);
 }
+void PortControlsStopRumble(PortControls *c)
+{
+    if (c->gamepad) SDL_RumbleGamepad(c->gamepad, 0, 0, 0);
+}
+bool PortControlsRumble(PortControls *c, unsigned low, unsigned high, Uint32 milliseconds)
+{
+    if (!c->settings.rumble || !c->settings.rumbleStrength) {
+        PortControlsStopRumble(c); return false;
+    }
+    if (!c->gamepad || !SDL_GetBooleanProperty(SDL_GetGamepadProperties(c->gamepad),
+            SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false)) return false;
+    return SDL_RumbleGamepad(c->gamepad,
+        (Uint16)(SDL_min(low, 65535u) * c->settings.rumbleStrength / 100),
+        (Uint16)(SDL_min(high, 65535u) * c->settings.rumbleStrength / 100), milliseconds);
+}
 void PortControlsClose(PortControls *c)
 {
+    PortControlsStopRumble(c);
     if (c->gamepad) SDL_CloseGamepad(c->gamepad);
     c->gamepad = NULL;
 }

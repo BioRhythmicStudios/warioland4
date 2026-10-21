@@ -14,6 +14,7 @@
 #ifdef PORTABLE
 // agbcc calls func_8023BFC without a prototype here; with one, it narrows the arguments.
 #include "sprite_util.h"
+#include "port/rumble_snapshot.h"
 #endif
 
 extern const struct AnimationFrame sCuckooCondorClawOpenOam[];
@@ -958,6 +959,9 @@ void SpriteCollisionProcess(void)
                 gSpriteCollisionFlags |= SPRITE_COLLISION_RIGHT;
             }
 
+#ifdef PORTABLE
+            PortRumbleContactBegin(slot);
+#endif
             warioDirection = collisionWario->horizontalDirection;
             if (collisionWario->unk_1A != 3) {
                 switch (gSpriteData[slot].warioCollision) {
@@ -1531,6 +1535,9 @@ void SpriteCollisionProcess(void)
                 gIgnoreSpriteCollision = 1;
             }
 
+#ifdef PORTABLE
+            PortRumbleContactEnd(slot);
+#endif
             if (gIgnoreSpriteCollision) {
                 break;
             }

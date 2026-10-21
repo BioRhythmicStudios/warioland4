@@ -3,6 +3,9 @@
 #include "sprite_ai/chance_wheel.h"
 #include "tile_effect.h"
 #include "wario.h"
+#ifdef PORTABLE
+#include "port/rumble_snapshot.h"
+#endif
 
 extern const u8 sBossLife20Gfx[];
 extern const u8 sBossLife19Gfx[];
@@ -463,6 +466,9 @@ void UpdateBossHealthGauge(void)
     u8 health;
 
     health = gCurrentSprite.health;
+#ifdef PORTABLE
+    PortRumbleBossHealth();
+#endif
     DmaCopy16(3, GP(sBossLifeMeterGfx[health]), 0x6012C00, 10 * TILE_SIZE_4BPP);
 }
 

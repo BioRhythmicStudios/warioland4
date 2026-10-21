@@ -35,7 +35,7 @@ int PortSettingsShow(PortSettings *settings)
     int tab = 0, capture = -1, chooser = -1, running = 1, saved = 0;
     char status[180] = "Changes apply after restarting the game.";
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) return -1;
-    if (!SDL_CreateWindowAndRenderer("Wario Land 4 - Settings", 900, 800, 0, &window, &renderer)) {
+    if (!SDL_CreateWindowAndRenderer("Wario Land 4 - Settings", 900, 880, 0, &window, &renderer)) {
         SDL_Quit(); return -1;
     }
 #ifdef _WIN32
@@ -95,19 +95,21 @@ int PortSettingsShow(PortSettings *settings)
                 for (int i = 0; i < 3; ++i) if (Hit(x, y, 12 + i * 144, 34, 138, 22)) tab = i;
                 Status(status, "Changes apply after restarting the game.");
             }
-            if (Hit(x, y, 12, 367, 105, 24)) {
+            if (Hit(x, y, 12, 407, 105, 24)) {
                 PortSettings defaults; PortSettingsDefaults(&defaults);
                 if (tab == 0) memcpy(draft.keys, defaults.keys, sizeof(draft.keys));
                 else if (tab == 1) {
                     memcpy(draft.buttons, defaults.buttons, sizeof(draft.buttons));
+                    draft.rumble = defaults.rumble; draft.rumbleStrength = defaults.rumbleStrength;
+                    PortControlsStopRumble(&controls);
                     draft.analog = defaults.analog; draft.deadzone = defaults.deadzone;
                 } else { draft.scale = defaults.scale; draft.fullscreen = defaults.fullscreen; draft.vsync = defaults.vsync;
                     draft.crtPreset = defaults.crtPreset; draft.crtScanlines = defaults.crtScanlines;
                     draft.crtGlow = defaults.crtGlow; draft.crtMask = defaults.crtMask; }
                 Status(status, "Section defaults restored in draft. Save to keep.");
             }
-            if (Hit(x, y, 228, 367, 90, 24)) running = 0;
-            if (Hit(x, y, 332, 367, 106, 24) && !PortSettingsSave(&draft, status, sizeof(status))) {
+            if (Hit(x, y, 228, 407, 90, 24)) running = 0;
+            if (Hit(x, y, 332, 407, 106, 24) && !PortSettingsSave(&draft, status, sizeof(status))) {
                 *settings = draft; saved = 1; running = 0;
             }
             if (tab < 2 && x >= 130 && x < 438 && y >= 98 && y < 278) {
@@ -117,6 +119,18 @@ int PortSettingsShow(PortSettings *settings)
                 } else chooser = action;
             }
             if (tab == 1) {
+                if (Hit(x, y, 12, 336, 140, 20)) {
+                    draft.rumble = !draft.rumble;
+                    if (!draft.rumble) PortControlsStopRumble(&controls);
+                }
+                if (Hit(x, y, 264, 336, 38, 20)) draft.rumbleStrength = SDL_max(0, draft.rumbleStrength - 10);
+                if (Hit(x, y, 310, 336, 38, 20)) draft.rumbleStrength = SDL_min(100, draft.rumbleStrength + 10);
+                if (!draft.rumbleStrength) PortControlsStopRumble(&controls);
+                if (Hit(x, y, 12, 360, 140, 16)) {
+                    controls.settings = draft;
+                    Status(status, PortControlsRumble(&controls, 36000, 18000, 180)
+                        ? "Test pulse sent. Save to keep settings." : "Rumble Off, zero strength, or unavailable.");
+                }
                 if (Hit(x, y, 12, 286, 282, 20)) draft.analog = !draft.analog;
                 if (Hit(x, y, 264, 310, 38, 20) && draft.deadzone > 10) draft.deadzone = SDL_max(10, draft.deadzone - 5);
                 if (Hit(x, y, 310, 310, 38, 20) && draft.deadzone < 80) draft.deadzone = SDL_min(80, draft.deadzone + 5);
@@ -179,6 +193,11 @@ int PortSettingsShow(PortSettings *settings)
                 Button(renderer, 12, 286, 282, 20, label);
                 snprintf(label, sizeof(label), "Dead zone: %d%%", draft.deadzone); Text(renderer, 12, 316, label);
                 Button(renderer, 264, 310, 38, 20, "-"); Button(renderer, 310, 310, 38, 20, "+");
+                snprintf(label, sizeof(label), "Rumble: %s", draft.rumble ? "ON" : "OFF");
+                Button(renderer, 12, 336, 140, 20, label);
+                snprintf(label, sizeof(label), "%d%%", draft.rumbleStrength); Text(renderer, 180, 342, label);
+                Button(renderer, 264, 336, 38, 20, "-"); Button(renderer, 310, 336, 38, 20, "+");
+                Button(renderer, 12, 360, 140, 16, "Test Rumble");
             } else Text(renderer, 12, 295, "Physical key positions stay stable across layouts.");
         } else {
             snprintf(label, sizeof(label), "Window scale: %dx", draft.scale); Text(renderer, 12, 84, label);
@@ -203,10 +222,10 @@ int PortSettingsShow(PortSettings *settings)
             Text(renderer, 12, 320, "Save, then restart the game to apply changes.");
         }
         if (chooser < 0) {
-            char line[54]; snprintf(line, sizeof(line), "%.53s", status); Text(renderer, 12, 338, line);
-            if (strlen(status) > 53) {snprintf(line, sizeof(line), "%.53s", status + 53); Text(renderer, 12, 350, line);}
-            Button(renderer, 12, 367, 105, 24, "Defaults");
-            Button(renderer, 228, 367, 90, 24, "Cancel"); Button(renderer, 332, 367, 106, 24, "Save");
+            char line[54]; snprintf(line, sizeof(line), "%.53s", status); Text(renderer, 12, 378, line);
+            if (strlen(status) > 53) {snprintf(line, sizeof(line), "%.53s", status + 53); Text(renderer, 12, 390, line);}
+            Button(renderer, 12, 407, 105, 24, "Defaults");
+            Button(renderer, 228, 407, 90, 24, "Cancel"); Button(renderer, 332, 407, 106, 24, "Save");
         }
         SDL_RenderPresent(renderer); SDL_Delay(10);
     }

@@ -9,6 +9,9 @@
 #include "sound.h"
 #include "sprite.h"
 #include "wario.h"
+#ifdef PORTABLE
+#include "port/rumble_snapshot.h"
+#endif
 
 void SpawnTileDebris(struct TileInteractionContext* ctx);
 void SpawnTileDebrisSprite(struct TileInteractionContext* ctx);
@@ -215,6 +218,12 @@ u32 ProcessPointTileInteraction(u32 y, u32 x)
     ctx.soundIndex = zero;
     ctx.collisionMode = gWarioCollisionData.unk_0D;
     ctx.direction = 4;
+#ifdef PORTABLE
+    if (gWarioData.reaction == REACTION_NORMAL && gWarioData.yVelocity > 0 &&
+        ((ctx.attribute >= 11 && ctx.attribute <= 42) || ctx.attribute == 52 || ctx.attribute == 53 ||
+         (ctx.attribute >= 89 && ctx.attribute <= 93)))
+        PortRumbleImpact(PORT_RUMBLE_HEAD);
+#endif
     result = ProcessTileInteractionAttribute(&ctx);
     if (result == 1) {
         return 1;
@@ -775,6 +784,9 @@ void BreakTrackedAdjacentTiles(struct TileInteractionContext* ctx)
 
 void SpawnTileDebris(struct TileInteractionContext* ctx)
 {
+#ifdef PORTABLE
+    PortRumbleTileBroken();
+#endif
     u16 yTile;
     u16 y;
     u16 xTile;
@@ -1022,6 +1034,9 @@ processSwitch: {
     value = 2;
     value |= state;
     *switchState = value;
+#ifdef PORTABLE
+    PortRumbleImpact(PORT_RUMBLE_SWITCH);
+#endif
     state = 1;
     value &= state;
     state = 215;

@@ -1,11 +1,18 @@
 // Disposable settings tests plus SDL virtual-gamepad tests, never SRAM.
 #include "port/settings.h"
 #include "port/controls.h"
+#include "port/rumble.h"
 #include "port/frame_pacer.h"
 #include "port/render_vsync.h"
 #include <stdio.h>
 #include <string.h>
 
+static int rumbleCalls;
+static Uint16 rumbleLow, rumbleHigh;
+static bool SDLCALL Rumble(void *userdata, Uint16 low, Uint16 high)
+{
+    (void)userdata; ++rumbleCalls; rumbleLow = low; rumbleHigh = high; return true;
+}
 static int failures;
 #define CHECK(test, label) do { if (!(test)) { fprintf(stderr, "FAIL: %s (%s)\n", label, SDL_GetError()); ++failures; } } while (0)
 static void Pump(PortControls *controls)
@@ -69,12 +76,36 @@ int main(int argc, char **argv)
     CHECK(!PortSettingsBind(&s, 0, 0, SDL_SCANCODE_C, error, sizeof(error)), "physical key remap");
     CHECK(!PortSettingsBind(&s, 1, 0, PORT_PAD_RIGHT_TRIGGER, error, sizeof(error)), "trigger remap");
     CHECK(PortSettingsBind(&s, 1, 1, PORT_PAD_RIGHT_TRIGGER, error, sizeof(error)) < 0, "controller collision rejected");
+    CHECK(!s.rumble && s.rumbleStrength == 50, "rumble defaults Off");
+    s.rumble = 1; s.rumbleStrength = 70;
+    CHECK(!PortSettingsSave(&s, error, sizeof(error)) && !PortSettingsLoad(&loaded, error, sizeof(error))
+          && loaded.rumble == 1 && loaded.rumbleStrength == 70, "rumble persistence");
+    PortSettingsDefaults(&loaded); s.rumble = loaded.rumble; s.rumbleStrength = loaded.rumbleStrength;
     s.scale = 2; s.fullscreen = 1; s.deadzone = 30;
     CHECK(!PortSettingsSave(&s, error, sizeof(error)), "atomic settings save");
     CHECK(!PortSettingsLoad(&loaded, error, sizeof(error)) && !memcmp(&s, &loaded, sizeof(s)), "restart/roundtrip all settings");
     s.vsync = 0;
     CHECK(!PortSettingsSave(&s, error, sizeof(error)) && !PortSettingsLoad(&loaded, error, sizeof(error))
           && !memcmp(&s, &loaded, sizeof(s)), "explicit VSync Off survives restart");
+    char version3[1024];
+    int v3used = snprintf(version3, sizeof(version3), "WL4_SETTINGS 3\n%d %d %d %d %d 2 35 15 1\n",
+        s.scale, s.fullscreen, s.analog, s.deadzone, s.vsync);
+    for (int device = 0; device < 2; ++device)
+        for (int i = 0; i < PORT_ACTIONS; ++i)
+            v3used += snprintf(version3 + v3used, sizeof(version3) - v3used, "%d%c",
+                device ? s.buttons[i] : s.keys[i], i == PORT_ACTIONS - 1 ? '\n' : ' ');
+    CHECK(SDL_SaveFile(override, version3, v3used), "write published v3 fixture");
+    CHECK(!PortSettingsLoad(&loaded, error, sizeof(error)) && !loaded.rumble && loaded.rumbleStrength == 50
+        && loaded.crtPreset == 2 && loaded.crtScanlines == 35 && loaded.crtGlow == 15 && loaded.crtMask == 1
+        && !memcmp(s.keys, loaded.keys, sizeof(s.keys)) && !memcmp(s.buttons, loaded.buttons, sizeof(s.buttons)),
+        "published v3 preserves CRT and bindings with rumble Off");
+    size_t v3size; char *v3bytes = SDL_LoadFile(override, &v3size);
+    CHECK(v3bytes && v3size == (size_t)v3used && !memcmp(v3bytes, version3, v3used), "v3 load never rewrites file");
+    SDL_free(v3bytes);
+    PortSettings invalidRumble = s; invalidRumble.rumbleStrength = 101;
+    CHECK(PortSettingsValid(&invalidRumble, error, sizeof(error)) < 0, "excess rumble strength rejected");
+    invalidRumble = s; invalidRumble.rumble = 2;
+    CHECK(PortSettingsValid(&invalidRumble, error, sizeof(error)) < 0, "invalid rumble switch rejected");
     char version2[1024];
     int v2used = snprintf(version2, sizeof(version2), "WL4_SETTINGS 2\n%d %d %d %d 1\n", s.scale, s.fullscreen, s.analog, s.deadzone);
     for (int device = 0; device < 2; ++device)
@@ -178,15 +209,135 @@ int main(int argc, char **argv)
         controls.settings.analog = 0;
         CHECK(!(PortControlsPressed(&controls, keyboard) & 0x30), "optional stick disabled");
     }
+    CHECK(!PortControlsRumble(&controls, 40000, 20000, 100), "disabled rumble produces no effect");
+    controls.settings.rumble = 1;
+    CHECK(!PortControlsRumble(&controls, 40000, 20000, 100), "unsupported rumble is nonfatal");
     SDL_CloseJoystick(joystick);
     CHECK(SDL_DetachVirtualJoystick(id), "disconnect virtual controller"); Pump(&controls);
     CHECK(!controls.gamepad || SDL_GetGamepadID(controls.gamepad) != id, "removed device released without stuck state");
     keyboard[SDL_SCANCODE_C] = true;
     CHECK(PortControlsPressed(&controls, keyboard) & 1, "keyboard survives disconnect");
+    description.Rumble = Rumble;
     id = SDL_AttachVirtualJoystick(&description); Pump(&controls);
     CHECK(controls.gamepad != NULL, "reconnect opens an available gamepad");
     if (count == 0) CHECK(SDL_GetGamepadID(controls.gamepad) == id, "reconnected virtual controller selected");
-    PortControlsClose(&controls); SDL_DetachVirtualJoystick(id);
+    PortControlsClose(&controls); controls.gamepad = SDL_OpenGamepad(id);
+    controls.settings.rumble = 1; controls.settings.rumbleStrength = 50;
+    PortRumbleObserver observer = {0};
+    PortRumbleObserve(&observer, &controls, 1, 8, 0, 0, 0, 0, 0, 1000);
+    rumbleCalls = 0;
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 1010);
+    CHECK(rumbleCalls == 1 && rumbleLow == 13000 && rumbleHigh == 24000, "damage edge scales original pulse");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 1300);
+    CHECK(rumbleCalls == 1, "persistent damage state does not retrigger");
+    PortRumbleObserve(&observer, &controls, 1, 7, 48, 0, 0, 0, 0, 1400);
+    CHECK(rumbleLow == 22000 && rumbleHigh == 8000, "impact pulse");
+    PortRumbleObserve(&observer, &controls, 1, 7, 47, 0, 0, 0, 0, 1700);
+    CHECK(rumbleCalls == 2, "shake countdown does not retrigger");
+    PortRumbleObserve(&observer, &controls, 0, 7, 47, 0, 0, 0, 0, 1800);
+    CHECK(!rumbleLow && !rumbleHigh, "leaving gameplay stops vibration");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 1900);
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 1, 0, 0, 2000);
+    CHECK(rumbleLow == 19000 && rumbleHigh == 12000, "successful shoulder-bash debris pulse");
+    PortControlsRumble(&controls, 40000, 20000, 100);
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 1, 0, 2400);
+    CHECK(rumbleLow == 21000 && rumbleHigh == 17000, "boss health loss pulse including shop damage");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_CONTACT, 2700);
+    CHECK(rumbleLow == 22000 && rumbleHigh == 13000, "accepted enemy attack contact");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_HEAD, 3000);
+    CHECK(rumbleLow == 15000 && rumbleHigh == 13000, "headbutt pulse");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_SWITCH, 3300);
+    CHECK(rumbleLow == 22000 && rumbleHigh == 13000, "switch activation pulse");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_FROG, 3310);
+    CHECK(observer.frogUntil == 8310 && rumbleLow == 14000 && rumbleHigh == 6000, "frog effect lasts five host seconds despite cooldown");
+    int frogCalls = rumbleCalls;
+    PortRumbleObserve(&observer, &controls, 1, 7, 80, 0, 1, 1, PORT_RUMBLE_CONTACT, 5000);
+    CHECK(rumbleCalls == frogCalls && observer.frogUntil == 8310, "incidental impacts do not restart or shorten frog rumble");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_HEAD, 8310);
+    CHECK(rumbleLow == 15000 && rumbleHigh == 13000, "normal feedback resumes at frog deadline");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_FROG, 8500);
+    controls.settings.rumble = 0;
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 8510);
+    CHECK(!observer.frogUntil && !rumbleLow && !rumbleHigh, "disable interrupts frog effect");
+    CHECK(!PortControlsRumble(&controls, 40000, 20000, 100) && !rumbleLow && !rumbleHigh, "disable stops vibration");
+    controls.settings.rumble = 1;
+    PortControlsRumble(&controls, 40000, 20000, 100);
+    // Real SDL host-time expiry on the selected virtual device, never a physical pad.
+    Uint64 sent = SDL_GetTicks();
+    CHECK(PortControlsRumble(&controls, 28000, 12000, 5000), "SDL accepts five-second virtual effect");
+    CHECK(SDL_GetTicks() - sent < 100, "five-second effect submission does not wait for its duration");
+    while (SDL_GetTicks() - sent < 5300 && (rumbleLow || rumbleHigh)) {
+        SDL_UpdateJoysticks(); SDL_Delay(10);
+    }
+    CHECK(!rumbleLow && !rumbleHigh && SDL_GetTicks() - sent >= 4900,
+        "SDL expires continuous effect near five seconds while events keep pumping");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_FROG, 10000);
+    PortRumbleObserve(&observer, &controls, 0, 7, 0, 0, 0, 0, 0, 10001);
+    CHECK(!observer.frogUntil && !rumbleLow && !rumbleHigh, "inactive gameplay interrupts long effect");
+    controls.settings.rumbleStrength = 0;
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_FROG, 11000);
+    CHECK(!observer.frogUntil && !rumbleLow && !rumbleHigh, "zero strength never starts a long effect");
+    controls.settings.rumbleStrength = 50;
+    PortControlsStopRumble(&controls);
+    memset(&observer, 0, sizeof(observer));
+    PortRumbleObserve(&observer, &controls, 1, 8, 0, 0, 0, 0, 0, 20000);
+    rumbleCalls = 0;
+    PortRumbleObserve(&observer, &controls, 1, 7, 48, 0, 0, 0, PORT_RUMBLE_TRANSFORM, 20010);
+    CHECK(rumbleCalls == 1 && rumbleLow == 9000 && rumbleHigh == 7000,
+        "activation replaces simultaneous damage and shake with one subtle cue");
+    PortRumbleObserve(&observer, &controls, 1, 7, 47, 0, 0, 0, 0, 20030);
+    CHECK(rumbleCalls == 1, "same activation segment never submits every frame");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 20075);
+    CHECK(!rumbleLow && !rumbleHigh, "activation has a quiet gap");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 20130);
+    CHECK(rumbleLow == 12000 && rumbleHigh == 5000, "activation second pulse follows host clock");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_RECOVER, 20140);
+    CHECK(!observer.sequence.pattern && rumbleLow == 4500 && rumbleHigh == 7000,
+        "recovery preempts activation with a single light pulse");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_FIRE, 21000);
+    CHECK(observer.sequence.pattern == PORT_PATTERN_FIRE && rumbleLow == 7000 && rumbleHigh == 9000, "fire starts brief pulse train");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 21120);
+    CHECK(rumbleLow == 8000 && rumbleHigh == 10000, "fire second pulse");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 21240);
+    CHECK(rumbleLow == 9000 && rumbleHigh == 11000, "fire third pulse");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 22000);
+    CHECK(!observer.sequence.pattern && !rumbleLow && !rumbleHigh, "stall skips expired segments instead of replaying them");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_ASH, 23000);
+    CHECK(rumbleLow == 6000 && rumbleHigh == 12000, "ash recovery distinct first pulse");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 23180);
+    CHECK(rumbleLow == 10000 && rumbleHigh == 3000, "ash recovery shifts to low motor");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_SNOW, 24000);
+    CHECK(observer.sequence.pattern == PORT_PATTERN_SNOW && rumbleLow == 9000 && rumbleHigh == 4000, "snowball starts one sustained effect");
+    int snowCalls = rumbleCalls;
+    PortRumbleObserve(&observer, &controls, 1, 7, 48, 0, 0, 0, 0, 25000);
+    CHECK(rumbleCalls == snowCalls, "snowball effect not restarted by frames or shakes");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_SNOW_END, 25010);
+    CHECK(!observer.sequence.pattern && !rumbleLow && !rumbleHigh, "snowball effect stops when rolling ends");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_TRANSFORM, 26000);
+    controls.settings.rumble = 0;
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 26020);
+    CHECK(!observer.sequence.pattern && !rumbleLow && !rumbleHigh, "disabled setting cancels remaining sequence segments");
+    controls.settings.rumble = 1;
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 26130);
+    CHECK(!observer.sequence.pattern && !rumbleLow && !rumbleHigh, "enabling never replays a consumed transformation");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_TRANSFORM, 26500);
+    PortRumbleObserve(&observer, &controls, 1, 7, 48, 0, 0, 0, PORT_RUMBLE_FORM_IMPACT, 26520);
+    CHECK(!observer.sequence.pattern && rumbleLow == 10000 && rumbleHigh == 6000,
+        "real transformation impact preempts activation with a distinct subtle pulse");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_FIRE, 27000);
+    PortControlsStopRumble(&controls);
+    { PortControls missing = controls; missing.gamepad = NULL;
+      PortRumbleObserve(&observer, &missing, 1, 7, 0, 0, 0, 0, 0, 27020);
+      CHECK(!observer.sequence.pattern, "disconnect discards the scheduled tail"); }
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, 0, 27120);
+    CHECK(!observer.sequence.pattern && !rumbleLow && !rumbleHigh, "reconnect cannot replay scheduled fire pulses");
+    PortRumbleObserve(&observer, &controls, 1, 7, 0, 0, 0, 0, PORT_RUMBLE_SNOW, 28000);
+    PortRumbleObserve(&observer, &controls, 0, 7, 0, 0, 0, 0, 0, 28020);
+    CHECK(!observer.sequence.pattern && !rumbleLow && !rumbleHigh, "inactive gameplay cancels sustained snowball feedback");
+    PortControlsRumble(&controls, 28000, 12000, 5000);
+    PortControlsClose(&controls);
+    CHECK(!rumbleLow && !rumbleHigh, "close stops vibration");
+    SDL_DetachVirtualJoystick(id);
     SDL_Quit();
     printf("Settings/keyboard/virtual-gamepad checks: %s\n", failures ? "FAILED" : "PASS");
     return failures ? 1 : 0;

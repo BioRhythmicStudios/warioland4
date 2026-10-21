@@ -67,8 +67,11 @@ add_library(wl4_platform_stub STATIC port/platform/stub/platform_stub.c)
 
 # Native replacements for game asm that need the game's headers. An object library, so that
 # its definitions are always linked and replace the weak stubs in port/generated/gba_stubs.c.
-add_library(wl4_game_native OBJECT port/src/m4a_native.c)
+add_library(wl4_game_native OBJECT port/src/m4a_native.c port/src/rumble_snapshot.c)
 target_link_libraries(wl4_game_native PRIVATE wl4_game_flags)
+
+add_executable(wl4-rumble-event-test port/src/rumble_event_test.c port/src/rumble_snapshot.c)
+target_link_libraries(wl4-rumble-event-test PRIVATE wl4_game_flags)
 
 # The port runtime and the executable. port/generated/gba_*.{c,s} come from
 # port/tools/gen_symbols.py: GBA addresses for the game's data, the function dispatch table,

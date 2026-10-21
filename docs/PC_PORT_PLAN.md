@@ -176,6 +176,30 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
+Native rumble verified milestone (2026-10-21), user-authorized local commit:
+this commit adds optional SDL3 gamepad rumble on feature/native-rumble, based on
+published Beta 2 source d777f81 (after 831151f and 909d998). Rumble defaults Off;
+Controller settings include strength and Test Rumble. Gameplay effects cover
+Wario damage, impacts, accepted enemy attacks, rocks/switches, Frog Switch,
+boss/shop-item damage and transformation activation/recovery, with finite Fire
+pulse trains and a bounded snowball roll. Host-time sequences cancel on inactive
+play/disconnect and do not replay; settings v1-v3 load without rewriting.
+Final normal/ASan builds and native-event, virtual-controller/settings and
+coroutine/BIOS/I/O/disposable-save regressions pass. Fresh GBA build/v7-66
+(also v7-65): ROM-SAME and all 202 objects OBJ-SAME, MD5
+940b597bef3be3f4041021b47a2f4096; next fresh build/v7-67.
+Current personal SRAM/settings, prior test saves/configs, original ROM and local
+Beta 2 artifacts match before/after hashes (85 protected files). Published Beta 2
+tag still targets d777f81; all three public assets match the retained release.
+GitHub currently reports prerelease=false, unlike the historical handover;
+read-only verification changed no public metadata or assets. port and release
+tags remain unchanged. No push, merge into port, tag or release is authorized.
+Unrelated handover/provenance and previous local plan notes remain unstaged.
+See docs/WINDOWS_RUMBLE.md for detailed effects, evidence and manual-coverage
+limits. Next: further user gameplay feedback/acceptance; keep this milestone
+local until the user explicitly authorizes a named-branch push.
+
+
 Windows v0.2.0-beta release preparation (2026-10-20), The CRT Update.
 The user confirms CRT Lite and Enhanced (including glow/phosphor effects) on
 both the Windows development PC and Intel integrated-graphics/60 Hz OLED laptop,

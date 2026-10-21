@@ -6,6 +6,9 @@
 #include "sprite_util.h"
 #include "voice_set.h"
 #include "wario.h"
+#ifdef PORTABLE
+#include "port/rumble_snapshot.h"
+#endif
 
 void SwitchSetCommonProperties(void)
 {
@@ -150,6 +153,9 @@ void EscapeSwitchActivate(void)
     sprite->animationTimer = zero;
     sprite->pose = 18;
     sprite->work0 = 13;
+#ifdef PORTABLE
+    PortRumbleImpact(PORT_RUMBLE_FROG);
+#endif
     gSwitchPressed = 1;
     gEscapeHBlankEffectState = 1;
     gSwitchStates[SWITCH_ESCAPE] = SWITCH_STATE_SWITCHING_ON;

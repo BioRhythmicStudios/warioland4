@@ -19,6 +19,8 @@
 #include "port/frame_pacer.h"
 #include "port/render_vsync.h"
 #include "port/crt.h"
+#include "port/rumble.h"
+#include "port/rumble_snapshot.h"
 
 #define REG_KEYINPUT 0x130
 
@@ -163,6 +165,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     SDL_Texture *texture = NULL;
     PortFramePacer pacer = {0};
     PortCrt crt = {0};
+    PortRumbleObserver rumble = {0};
     Uint64 started = 0, presents = 0, repeats = 0, maxPresent = 0;
     int timingStats = SDL_getenv("WL4_TIMING_STATS") != NULL;
     int requestedVSync = -1, reapplyVSync = 1;
@@ -256,6 +259,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         }
 
         if (!running) {
+            PortControlsStopRumble(&controls);
             int saved = FinishSave(window);
             if (saved) {
                 saveHandled = 1;
@@ -290,6 +294,11 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
                 goto done;
             }
             PortSaveFrame();
+            PortRumbleSnapshot snapshot;
+            PortRumbleRead(&snapshot);
+            PortRumbleObserve(&rumble, &controls, snapshot.active
+                    && !fastForward && (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS),
+                snapshot.health, snapshot.shakeX, snapshot.shakeY, snapshot.rock, snapshot.boss, snapshot.events, SDL_GetTicks());
 
             QueueAudio(fastForward);
         }
@@ -325,6 +334,7 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     result = 0;
 
 done:
+    PortControlsStopRumble(&controls);
     if (timingStats && started) {
         printf("Timing: seconds=%.3f frames=%u presents=%llu repeats=%llu max_present_ms=%.3f clock_resets=%u audio_refills=%u audio_drops=%u\n",
                (SDL_GetTicksNS() - started) / 1e9, PortFrameCount(), (unsigned long long)presents,
