@@ -232,6 +232,22 @@ is in the package. Next: user tests the private archive on a physical Deck,
 especially controls, audio, VSync/CRT, saves, and rumble; collect its SteamOS
 version and loader check. No Linux graphical launcher yet.
 
+The real Deck log used the earlier provisional archive that bundled Ubuntu
+glibc/loader, and showed no default audio device. The user's Deck also has no
+audio device in system settings. Start exit status and backtrace were absent.
+The revised private deckfix archive uses host glibc/loader, includes SDL3
+with dynamic PipeWire/PulseAudio/ALSA backends, and adds a graphical diagnostic
+launcher with disposable save/settings and actual game exit-code logging.
+WSL2 700-frame two-Start comparisons match across old and host-glibc builds;
+WSLg extracted gameplay survived 825 visible OpenGL frames with reported
+VSync and zero audio drops. Normal/ASan and input/rumble-event tests pass.
+Fresh GBA v7-78 is ROM-SAME, all 202 objects OBJ-SAME, MD5
+940b597bef3be3f4041021b47a2f4096. Next: retest this exact new package on
+a physical Deck, return its one diagnostic log, then investigate any
+Deck-specific Start fault. Deck diagnostic implementation commit ae62f34 is local; the latest
+handover documentation will be committed separately. Nothing is pushed or
+published.
+
 
 Windows v0.3.0-beta release preparation (2026-10-21), The Rumble Update:
 user manually confirms completed native rumble gameplay and authorizes verified

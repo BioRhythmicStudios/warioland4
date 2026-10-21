@@ -200,5 +200,48 @@ three CRT presets with VSync on/off at about 59.7 fps. An X11 synthetic key
 reached GBA A after focus retries; WSLg focus makes that probe intermittent.
 PulseAudio monitor capture contained nonzero game samples. Under monitor
 capture both the bundled SDL and the original host SDL recorded 9 audio queue
-drops in about 6.8 seconds; ordinary six-second runs recorded zero. A physical
-Steam Deck has not yet been tested for graphics, keyboard, gamepad, or rumble.
+drops in about 6.8 seconds; ordinary six-second runs recorded zero. This compatibility archive has not yet been tested on a physical Steam Deck
+for graphics, keyboard, gamepad, or rumble.
+
+## Deck Start-transition investigation and revised package (2026-10-21)
+
+The transferred Deck log was inspected read-only. Its archive name was
+wl4-steamdeck-private-20261021.tar.gz, the earlier provisional bundle with
+Ubuntu libc.so.6 and ld-linux-x86-64.so.2 in lib/. This explains its bundled
+glibc resolution; the later host-glibc compatibility package was not used in
+that test. The ROM was valid, 4,054 functions linked, OpenGL and reported VSync
+initialized, and the title screen appeared. SDL reported no default audio
+device. The user has also observed no audio device in Deck system settings,
+which supports a host audio configuration issue but does not establish the
+cause of the Start exit. The old shell recording reported its own exit code
+zero, not the game exit code; no backtrace or fault PC was captured.
+
+Both the old and host-glibc package complete a 700-frame two-Start script
+under WSL2 with the same frame dump SHA-256:
+59d99f17fc538428d2ae269491616015bc896aea2c782abd1066027812ff6b15.
+The first script-caused difference from no input occurs at frame 364.
+The revised deckfix package uses host glibc/ELF loader and bundles only SDL3.
+SDL3 now has dynamic PipeWire, PulseAudio and ALSA backends; build-time
+PipeWire headers and libraries are extracted into ignored build/ only. Its
+maximum required glibc symbol is 2.38. The graphical Desktop Entry invokes
+diagnose.sh, which uses a new disposable save/settings directory, logs SDL
+audio probe and dependencies, captures game stdout/stderr and actual exit
+status, and adds core information/backtrace if host tools permit. The Linux
+fatal-signal handler prints fault PC/SP for signal logs without a debugger.
+
+The deckfix archive was extracted under /tmp. Headless Start-route output
+matches the previous host-glibc package byte-for-byte; the WSLg audio probe
+opens a default PulseAudio device and lists PipeWire and PulseAudio backends.
+An extracted visible WSLg run with scripted Start input survived 14 seconds,
+reported OpenGL, VSync on, 825 frames, zero clock resets/audio drops and one
+audio refill. The Desktop Entry command and automatic ROM selection were
+tested with a disposable HOME; a simulated SIGSEGV yielded launcher exit 139
+and logged signal 11. Normal and ASan BIOS/I/O/save tests and native
+input/rumble-event tests pass. Fresh v7-78 GBA build remains ROM-SAME and all
+202 objects OBJ-SAME, MD5 940b597bef3be3f4041021b47a2f4096.
+
+The revised archive still needs physical Deck testing. A Deck exit after
+Start could involve a host-specific SDL, GPU, audio or gameplay interaction;
+the old log cannot discriminate these causes. The next Deck action is to
+double-click Diagnose-Wario-Land-4.desktop and return its one selected log.
+No system audio settings or personal saves are changed by the diagnostic.
