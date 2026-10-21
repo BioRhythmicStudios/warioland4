@@ -8,12 +8,13 @@ import json
 import os
 from pathlib import Path
 import re
+import shlex
 import shutil
 import subprocess
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_NAME = "wl4-steamdeck-private-20261021-compat"
+DEFAULT_NAME = "wl4-steamdeck-private-20261021-deckfix"
 GLIBC_PATTERN = re.compile(r"GLIBC_(\d+)\.(\d+)")
 
 
@@ -51,18 +52,29 @@ def main() -> None:
         raise RuntimeError(f"SDL3 glibc floor {sdl_floor} exceeds 2.38")
     if "libSDL3.so.0" not in output("readelf", "-d", str(executable)):
         raise RuntimeError("Game executable does not require SDL3")
+    probe_source = ROOT / "port/steamdeck/audio_probe.c"
+    probe = package_parent / "audio-probe"
+    cflags = shlex.split(output("pkg-config", "--cflags", "sdl3"))
+    libs = shlex.split(output("pkg-config", "--libs", "sdl3"))
+    subprocess.run(["cc", "-O2", "-g", "-fno-omit-frame-pointer", *cflags,
+                    str(probe_source), "-o", str(probe), *libs], check=True)
+    if tuple(map(int, symbol_floor(probe).split("."))) > (2, 38):
+        raise RuntimeError("Audio probe exceeds GLIBC 2.38")
     stage.mkdir(parents=True)
     (stage / "bin").mkdir()
     (stage / "lib").mkdir()
     (stage / "licenses").mkdir()
     (stage / "userdata").mkdir()
+    (stage / "diagnostics").mkdir()
     shutil.copy2(executable, stage / "bin/wl4")
+    shutil.copy2(probe, stage / "bin/audio-probe")
     shutil.copy2(sdl_source, stage / "lib/libSDL3.so.0")
     shutil.copy2(ROOT / "LICENSE", stage / "licenses/wl4-LICENSE")
     shutil.copy2(source_license, stage / "licenses/SDL3-LICENSE")
     manifest = {
         "source_commit": output("git", "-C", str(ROOT), "rev-parse", "HEAD").strip(),
         "game_glibc_floor": symbol_floor(executable),
+        "audio_probe_glibc_floor": symbol_floor(probe),
         "sdl3_glibc_floor": symbol_floor(sdl_source),
         "glibc": "host-provided; no glibc or ELF loader bundled",
         "sdl3_source": "https://github.com/libsdl-org/SDL/releases/download/release-3.4.2/SDL3-3.4.2.tar.gz",
@@ -70,14 +82,18 @@ def main() -> None:
         "linker_libm_source": "Debian 13 libc6 2.41-12+deb13u4; linked only, not bundled",
         "linker_libm_package_sha256": "967aa62605721081c3eb2a17650611a792aa802d76a6511d1840242623d204c9",
         "sdl3_sha256": hashlib.sha256(sdl_source.read_bytes()).hexdigest(),
+        "audio_backends": "PipeWire, PulseAudio, and ALSA dynamically loaded from host",
+        "pipewire_build_headers": "Ubuntu 26.04 libpipewire/spa 1.6.2 extracted at build time; not bundled",
     }
     resolved = output("ldd", str(executable), env={**os.environ,
                       "LD_LIBRARY_PATH": str(stage / "lib")})
     if "not found" in resolved or str(stage / "lib/libSDL3.so.0") not in resolved:
         raise RuntimeError("Bundled SDL3 did not resolve correctly")
-    for name in ("play.sh", "configure.sh"):
+    for name in ("play.sh", "configure.sh", "diagnose.sh"):
         shutil.copy2(ROOT / "port/steamdeck" / name, stage / name)
         (stage / name).chmod(0o755)
+    shutil.copy2(ROOT / "port/steamdeck/Diagnose-Wario-Land-4.desktop", stage / "Diagnose-Wario-Land-4.desktop")
+    (stage / "Diagnose-Wario-Land-4.desktop").chmod(0o755)
     shutil.copy2(ROOT / "port/steamdeck/settings.template", stage / "settings.template")
     shutil.copy2(ROOT / "port/steamdeck/README.md", stage / "README.md")
     (stage / "DEPENDENCIES.json").write_text(json.dumps(manifest, indent=2) + "\n")

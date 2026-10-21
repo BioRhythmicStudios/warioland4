@@ -5,16 +5,34 @@ contain a ROM, game artwork, saved progress, or a Windows/Wine executable. Suppl
 your own unmodified US ROM (8 MiB; MD5 5fe47355a33e3fabec2a1607af88a404).
 The executable reads the ROM; it does not modify it.
 
-## Install and start in Steam Deck Desktop Mode
+## Graphical Deck diagnostic test
+
+In Desktop Mode, open Downloads in Dolphin and extract the archive to a new
+folder. Open the extracted wl4-steamdeck-private-20261021-deckfix folder
+and double-click Diagnose-Wario-Land-4.desktop. If Dolphin asks whether to
+execute the launcher, choose Execute. The launcher finds
+~/Downloads/baserom_us.gba automatically; otherwise it opens a file picker.
+Press Start in the game and let it exit or fail. Dolphin then selects one new
+wl4-deck-diagnostic-*.log file in the diagnostics folder. Copy that single
+log back to the developer. No terminal commands are needed.
+
+Every diagnostic run uses a new disposable save and settings folder inside
+diagnostics/run-*. It never reads or writes the normal userdata save/settings.
+The log records the game's own exit status, dependency paths, audio backends
+and devices, and available core details. A full backtrace depends on SteamOS
+providing coredumpctl and gdb; the game also reports a fault PC for unhandled
+Linux memory faults, which can be symbolized from this exact ELF.
+
+## Optional terminal launch
 
 Copy the .tar.gz package and its .sha256 file to the Deck's Downloads folder,
 then open Konsole. Use your actual ROM location in the final command:
 
     cd ~/Downloads
-    sha256sum -c wl4-steamdeck-private-20261021-compat.tar.gz.sha256
+    sha256sum -c wl4-steamdeck-private-20261021-deckfix.tar.gz.sha256
     mkdir -p ~/Games/wl4
-    tar -xzf wl4-steamdeck-private-20261021-compat.tar.gz -C ~/Games/wl4
-    cd ~/Games/wl4/wl4-steamdeck-private-20261021-compat
+    tar -xzf wl4-steamdeck-private-20261021-deckfix.tar.gz -C ~/Games/wl4
+    cd ~/Games/wl4/wl4-steamdeck-private-20261021-deckfix
     ./play.sh --check
     ./play.sh "/absolute/path/to/your/baserom_us.gba"
 
@@ -50,12 +68,16 @@ Test VSync by moving through a scrolling scene with it on and off. Test all
 three CRT presets at fullscreen or at least 3x size; scanlines are suppressed
 at 1x and the mask needs 3x. Check sound, pause/resume, a save followed by a
 reload, and Deck buttons/rumble. Please report your SteamOS version, whether
-Desktop Mode uses Wayland or X11, and any error text shown in Konsole.
+Desktop Mode uses Wayland or X11, and any diagnostic log from the graphical
+launcher. If the Deck has no audio device in system settings, note that too;
+the game cannot produce sound until the system exposes a playback device.
 
 For diagnosis, run ./play.sh --check; this prints library
 resolution. This package includes SDL3 3.4.2 built with a glibc 2.38 symbol
-floor, with notices in licenses/ and hashes in DEPENDENCIES.json. It uses the
-SteamOS glibc, ELF loader, GPU drivers, window server, and audio server. It was tested after extraction on WSL2/WSLg, not yet on a Deck.
+floor and dynamic PipeWire, PulseAudio and ALSA audio backends, with notices in licenses/ and hashes in DEPENDENCIES.json. It uses the
+SteamOS glibc, ELF loader, GPU drivers, window server, and audio server.
+This revised package was tested after extraction on WSL2/WSLg; its physical
+Deck retest is pending.
 Some host driver combinations may need a build against Valve's Steam Linux
 Runtime. This is a private test package, not a general Linux release.
 

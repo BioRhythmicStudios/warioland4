@@ -2,7 +2,7 @@
 set -eu
 root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 game="$root/bin/wl4"
-export LD_LIBRARY_PATH="$root/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="$root/lib"
 if [ "${1:-}" = "--check" ]; then
     exec ldd "$game"
 fi

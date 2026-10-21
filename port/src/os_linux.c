@@ -129,6 +129,13 @@ static void SignalHandler(int sig, siginfo_t *info, void *context)
         if (previous->sa_flags & SA_SIGINFO) previous->sa_sigaction(sig, info, context);
         else previous->sa_handler(sig);
     } else {
+        // A real fault is about to terminate the process. Leave its PC in the
+        // diagnostic log even when the host has no core-dump debugger.
+        char report[192];
+        snprintf(report, sizeof(report),
+                 "Fatal Linux signal %d (code %d): address=%p pc=%p sp=%p\n",
+                 sig, info->si_code, info->si_addr, (void *)pc, (void *)r[REG_RSP]);
+        PortOsWriteError(report);
         struct sigaction action = {.sa_handler = SIG_DFL};
         sigemptyset(&action.sa_mask);
         sigaction(sig, &action, NULL);
