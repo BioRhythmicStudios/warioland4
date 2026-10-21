@@ -1,5 +1,18 @@
 # Wario Land 4 — Native PC Port
 
+## Windows v0.3.0-beta - The Rumble Update
+
+[Download the Windows x64 release](https://github.com/BioRhythmicStudios/warioland4/releases/tag/v0.3.0-beta).
+Extract the complete ZIP, open `wl4-launcher.exe`, select your own supported
+unmodified US ROM and launch. No ROM is included.
+
+Optional native SDL3 vibration is under Settings -> Controller, with On/Off,
+strength and Test Rumble. It defaults Off; existing bindings, VSync and CRT
+preferences migrate from older settings. Explicit Save writes v4 settings,
+which older releases cannot read. SRAM remains compatible. Controller remapping,
+CRT Lite/Enhanced, VSync, fullscreen and scaling remain available. The colour
+restoration mod is not included. See [release details](docs/WINDOWS_BETA3_RELEASE.md).
+
 ## Screenshots
 
 ### Native Windows gameplay
@@ -29,13 +42,14 @@ loading after restart. This is an unofficial fan project, unaffiliated with Nint
 | --- | --- |
 | Implemented on Windows x64 | Boot, intro, title, file select, passage select and gameplay in Hall of Hieroglyphs |
 | Implemented | SDL3 window, integer scaling from the original 240×160 resolution, fullscreen and fast forward |
-| Implemented | Keyboard input and basic support for the first connected gamepad |
+| Implemented | Customizable keyboard/gamepad bindings, hotplug and optional native rumble |
+| Implemented | CRT Lite/Enhanced filters and optional VSync |
 | Implemented | Music and sound effects through a native m4a engine and modeled GBA sound hardware |
 | Implemented | Persistent 32 KiB SRAM saves compatible with mGBA `.sav` files |
 | Implemented developer tools | Headless execution, scripted input, memory/framebuffer capture, WAV output and mGBA comparison tools |
 | Manually verified on Windows | Hall of Hieroglyphs completion, Spoiled Rotten victory and return to the Golden Pyramid, two Wario Hop rounds through Game Over, and save persistence after restart |
 | Experimental / incomplete | Gameplay beyond the tested coverage, full-game automated validation, timing-sensitive raster effects and audio equivalence across lag frames |
-| Planned | Full-playthrough validation, Linux x64, Android arm64, configuration options, filters, Japanese ROM support and widescreen experiments |
+| Planned | Full-playthrough validation, Linux x64, Android arm64, Japanese ROM support and widescreen experiments |
 
 The project records mark milestones M0 (headless boot), M1 (renderer and window)
 and M2 (initial level gameplay, sound and saves) complete. M3, full-playthrough

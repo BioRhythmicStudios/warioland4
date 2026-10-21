@@ -176,6 +176,25 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
+Windows v0.3.0-beta release preparation (2026-10-21), The Rumble Update:
+user manually confirms completed native rumble gameplay and authorizes verified
+integration/publication. Rumble commit 20fc6e4 follows cleaned Beta 2 d777f81.
+Fetched myfork/port has no remote-only commits; integrate by fast-forward without
+losing local notes. Original SDL3 effects, remapping, CRT and VSync are preserved;
+colour restoration mod is excluded. No new hardware coverage is inferred.
+Normal/ASan event/settings/runtime and CRT checks pass; bounded 8,500-frame Hall
+normal/ASan/Beta2 save and late picture/audio outputs match. GBA v7-68 (also
+v7-67) must remain ROM-SAME and all 202 objects OBJ-SAME, MD5
+940b597bef3be3f4041021b47a2f4096; next fresh v7-69.
+Package from a clean checkout of this final commit and gate public push/tag/
+prerelease on external portable-package acceptance. Preserve current saves,
+settings, previous releases, all worktrees and unrelated local notes. See
+docs/WINDOWS_BETA3_RELEASE.md and build/release-v0.3.0-beta-20261021 evidence.
+Next after successful Windows publication: report release hashes/status and
+propose Linux work on a separate branch/worktree. Do not create it or implement
+Linux code yet.
+
+
 Native rumble verified milestone (2026-10-21), user-authorized local commit:
 this commit adds optional SDL3 gamepad rumble on feature/native-rumble, based on
 published Beta 2 source d777f81 (after 831151f and 909d998). Rumble defaults Off;

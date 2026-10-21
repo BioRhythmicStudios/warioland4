@@ -1,9 +1,19 @@
-# Native rumble prototype (2026-10-21)
+# Native controller rumble (v0.3.0-beta)
 
 Local branch: `feature/native-rumble`, based on release commit `d777f81`.
 This milestone is committed locally; no push, tag, package or publication is made.
 Earlier development entries below describe their status at the time.
 `port` and annotated `v0.2.0-beta` remain unchanged at the release commit.
+
+## Beta 3 release acceptance (2026-10-21)
+
+The user confirms that the completed native rumble system works well in gameplay
+and authorizes v0.3.0-beta publication after verification. This supersedes the
+publication hold and pending manual status in the historical development entries
+below. No additional controller model, driver, level-by-level, Linux or full-game
+coverage is inferred. The rumble milestone is 20fc6e4; release documentation and
+packaging checks are recorded in [WINDOWS_BETA3_RELEASE.md](WINDOWS_BETA3_RELEASE.md).
+The colour restoration mod is excluded pending its creator's permission.
 
 ## Verified local milestone (2026-10-21)
 
