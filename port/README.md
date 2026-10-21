@@ -5,6 +5,38 @@ The GBA ROM is still built with `make`. The PC build compiles the same `src/` wi
 `PORTABLE` defined, and must not change the ROM: every change to shared code is checked
 by rebuilding the ROM and comparing it and all objects with the previous build.
 
+## Building (Linux x86-64)
+
+The first Linux build is tested on Ubuntu 26.04.1 under WSL2/WSLg with Clang
+21.1.8 and SDL3 3.4.2. It is a native ELF executable. See
+[Linux implementation and verification](../docs/LINUX_FIRST_BUILD.md) for
+sanitizer instructions, test limits and the initial WSLg audio observations.
+
+Install `clang cmake ninja-build pkg-config libsdl3-dev` using your package
+manager. Clang is currently required for the existing DMA volatile ordering.
+The executable loads your separately supplied, unmodified supported ROM.
+No extraction step, ROM data, Windows launcher or Wine is required.
+
+```sh
+cmake -S . -B build/linux -G Ninja -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake --build build/linux -j4
+mkdir -p build/play
+SDL_VIDEODRIVER=x11 WL4_SETTINGS_FILE="$PWD/build/play/settings.cfg" \
+    ./build/linux/wl4 /path/to/your/baserom_us.gba \
+    --save "$PWD/build/play/wl4.sav"
+```
+
+The explicit X11 selection is the backend tested through WSLg; direct Wayland
+and physical Linux desktops have not yet been accepted. This launch example
+uses separate Linux save/settings files under `build/play`. Keep those files
+if you play there; do not clean that directory. Ordinary launches without
+these overrides use SDL's Linux preference directory, separate from Windows.
+Default keys: arrows, X/Z for A/B, A/S for L/R, Enter for Start and Backspace
+for Select. F11 toggles fullscreen, Tab fast-forwards and Escape closes/saves.
+The existing binding, VSync, CRT and rumble settings format is retained, but
+there is no Linux launcher or graphical settings editor in this milestone.
+
 ## Building (Windows)
 
 You need [llvm-mingw](https://github.com/mstorsjo/llvm-mingw) (UCRT, x86_64), CMake 3.20+ and Ninja.

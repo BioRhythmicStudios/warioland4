@@ -3,8 +3,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#else
+#include "port/os.h"
+#endif
 
 const char *const PortActionNames[PORT_ACTIONS] = {"A", "B", "Select", "Start", "Right", "Left", "Up", "Down", "R", "L"};
 const Uint16 PortActionBits[PORT_ACTIONS] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512};
@@ -93,18 +97,28 @@ int PortSettingsPath(char *path, size_t size)
     return n < 0 || (size_t)n >= size ? -1 : 0;
 }
 
+#ifdef _WIN32
 static int Wide(const char *path, wchar_t *wide, int capacity)
 {
     return MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, path, -1, wide, capacity) != 0;
 }
 
+#endif
+
 int PortSettingsLoad(PortSettings *s, char *error, size_t size)
 {
     char path[4096], data[1024];
+#ifdef _WIN32
     wchar_t wide[4096];
     DWORD count;
+#else
+    long count;
+    int missing;
+#endif
     PortSettingsDefaults(s); error[0] = 0;
-    if (PortSettingsPath(path, sizeof(path)) || !Wide(path, wide, 4096)) goto invalid;
+    if (PortSettingsPath(path, sizeof(path))) goto invalid;
+#ifdef _WIN32
+    if (!Wide(path, wide, 4096)) goto invalid;
     HANDLE file = CreateFileW(wide, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0, NULL);
     if (file == INVALID_HANDLE_VALUE) {
         DWORD reason = GetLastError();
@@ -116,6 +130,11 @@ int PortSettingsLoad(PortSettings *s, char *error, size_t size)
         && ReadFile(file, data, sizeof(data) - 1, &count, NULL) && count == length.QuadPart;
     CloseHandle(file);
     if (!ok) goto invalid;
+#else
+    count = PortOsReadFile(path, data, sizeof(data), &missing);
+    if (count < 0 && missing) return 1;
+    if (count <= 0 || count >= (long)sizeof(data)) goto invalid;
+#endif
     data[count] = 0;
     // Strict bounded integer tokens; reject truncation, extra data, unknown versions,
     // duplicate bindings and reserved keys as a whole. Never rewrite a bad file on load.
@@ -163,15 +182,21 @@ invalid:
 int PortSettingsSave(const PortSettings *s, char *error, size_t size)
 {
     char path[4096], data[1024];
+#ifdef _WIN32
     wchar_t wide[4096], temporary[4200];
+#endif
     if (PortSettingsValid(s, error, size)) return -1;
-    if (PortSettingsPath(path, sizeof(path)) || !Wide(path, wide, 4096)) goto failed;
+    if (PortSettingsPath(path, sizeof(path))) goto failed;
+#ifdef _WIN32
+    if (!Wide(path, wide, 4096)) goto failed;
+#endif
     int used = snprintf(data, sizeof(data), "WL4_SETTINGS 4\n%d %d %d %d %d %d %d %d %d %d %d\n",
                         s->scale, s->fullscreen, s->analog, s->deadzone, s->vsync,
                         s->crtPreset, s->crtScanlines, s->crtGlow, s->crtMask, s->rumble, s->rumbleStrength);
     for (int device = 0; device < 2; ++device)
         for (int i = 0; i < PORT_ACTIONS; ++i)
             used += snprintf(data + used, sizeof(data) - used, "%d%c", device ? s->buttons[i] : s->keys[i], i == PORT_ACTIONS - 1 ? '\n' : ' ');
+#ifdef _WIN32
     swprintf(temporary, 4200, L"%ls.%lu.%llu.tmp", wide, GetCurrentProcessId(), (unsigned long long)GetTickCount64());
     HANDLE file = CreateFileW(temporary, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) goto failed;
@@ -183,9 +208,16 @@ int PortSettingsSave(const PortSettings *s, char *error, size_t size)
         // Retain the exclusively created temporary file for diagnosis; do not touch saves.
         goto failed;
     }
+#else
+    if (PortOsWriteFileAtomic(path, data, (size_t)used, error, size)) return -1;
+#endif
     error[0] = 0;
     return 0;
 failed:
+#ifdef _WIN32
     snprintf(error, size, "Cannot save settings in your application configuration folder (Windows error %lu).", GetLastError());
+#else
+    snprintf(error, size, "Cannot resolve the application configuration path.");
+#endif
     return -1;
 }

@@ -21,6 +21,16 @@ static void GameMain(mco_coro *co)
 
 int PortGameThreadCreate(void (*entry)(void))
 {
+    // Tests and soft restarts can create another coroutine in the same process.
+    // Release its host allocation before replacing the global owner.
+    if (sGame != NULL) {
+        mco_result old = mco_destroy(sGame);
+        if (old != MCO_SUCCESS) {
+            fprintf(stderr, "Cannot destroy the previous game coroutine: %s\n", mco_result_description(old));
+            return -1;
+        }
+        sGame = NULL;
+    }
     mco_desc desc = mco_desc_init_with_stack(GameMain, (void *)(uintptr_t)PORT_GAME_STACK_LIMIT,
                                              PORT_GAME_STACK_TOP - PORT_GAME_STACK_LIMIT);
     mco_result res = mco_create(&sGame, &desc);

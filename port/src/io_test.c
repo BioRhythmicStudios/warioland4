@@ -10,8 +10,12 @@
 #include "port/game_thread.h"
 #include "port/x86_access.h"
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#else
+#include <time.h>
+#endif
 
 #define IO8(offset) (*(volatile uint8_t *)(uintptr_t)(0x04000000u + (offset)))
 #define IO16(offset) (*(volatile uint16_t *)(uintptr_t)(0x04000000u + (offset)))
@@ -272,17 +276,30 @@ static void TestSound(void)
 
 static void TestSpeed(void)
 {
+#ifdef _WIN32
     LARGE_INTEGER frequency, start, end;
+#else
+    struct timespec start, end;
+#endif
     uint64_t traps = PortIoTrapCount();
     int i;
     double us;
 
+#ifdef _WIN32
     QueryPerformanceFrequency(&frequency);
     QueryPerformanceCounter(&start);
+#else
+    clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
     for (i = 0; i < 20000; i++)
         IO16(0x10) = (uint16_t)i;
+#ifdef _WIN32
     QueryPerformanceCounter(&end);
     us = (double)(end.QuadPart - start.QuadPart) * 1e6 / (double)frequency.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    us = (end.tv_sec - start.tv_sec) * 1e6 + (end.tv_nsec - start.tv_nsec) / 1e3;
+#endif
     printf("I/O: %llu trapped accesses, %.2f us each\n", (unsigned long long)(PortIoTrapCount() - traps), us / 20000);
 }
 

@@ -10,6 +10,32 @@ if(WL4_ASAN)
     add_link_options(-fsanitize=address)
 endif()
 
+if(WIN32)
+    set(WL4_OS_SOURCE port/src/os_win32.c)
+    set(WL4_SAVE_TEST_SOURCE port/src/save_test.c)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+    if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+        message(FATAL_ERROR "The Linux port currently requires Clang for -fms-volatile DMA ordering")
+    endif()
+    add_library(wl4_posix_files STATIC port/src/os_file_posix.c)
+    target_include_directories(wl4_posix_files PUBLIC port/include)
+    set(WL4_OS_SOURCE port/src/os_linux.c)
+    set(WL4_SAVE_TEST_SOURCE port/src/save_test_linux.c)
+    # Absolute GBA symbols require ET_EXEC. Place code and the randomized brk heap
+    # above all GBA mappings so startup allocations cannot collide with the ROM.
+    add_compile_options(-fno-pie)
+    if(WL4_ASAN)
+        # Linux ASan otherwise moves address-taken locals to a high fake stack,
+        # which cannot be stored in the game's 32-bit DMA addresses.
+        add_compile_options(-fsanitize-address-use-after-return=never)
+    endif()
+    add_link_options(-no-pie -Wl,-z,noexecstack -Wl,-Ttext-segment=0x40000000)
+else()
+    message(FATAL_ERROR "Supported targets are Windows and Linux x86-64")
+endif()
+
+
+
 # Game code: everything in src/ except the ROM data in src/data/, which the port reads from
 # the user's ROM. The function pointer tables there hold native addresses, so they are built.
 file(GLOB_RECURSE WL4_GAME_SOURCES CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/src/*.c)
@@ -76,6 +102,7 @@ target_link_libraries(wl4-rumble-event-test PRIVATE wl4_game_flags)
 # The port runtime and the executable. port/generated/gba_*.{c,s} come from
 # port/tools/gen_symbols.py: GBA addresses for the game's data, the function dispatch table,
 # and stubs for the functions that are still asm.
+
 add_executable(wl4
     port/src/main.c
     port/src/audio.c
@@ -90,12 +117,12 @@ add_executable(wl4
     port/src/input_script.c
     port/src/io_test.c
     port/src/md5.c
-    port/src/os_win32.c
+    ${WL4_OS_SOURCE}
     port/src/ppu.c
     port/src/rom_validate.c
     port/src/rom.c
     port/src/save.c
-    port/src/save_test.c
+    ${WL4_SAVE_TEST_SOURCE}
     port/src/x86_access.c
     port/generated/gba_symbols.s
     port/generated/gba_functions.c
@@ -104,6 +131,9 @@ add_executable(wl4
     $<TARGET_OBJECTS:wl4_game_native>
 )
 target_include_directories(wl4 PRIVATE port/include port/third_party/minicoro)
+if(TARGET wl4_posix_files)
+    target_link_libraries(wl4 PRIVATE wl4_posix_files)
+endif()
 
 # The SDL3 frontend (a window, input and pacing). Without SDL3, wl4 only runs headless. Point
 # SDL3_DIR at the SDL3 development package's lib/cmake/SDL3 directory, e.g. for the mingw
@@ -117,6 +147,9 @@ if(SDL3_FOUND)
     target_compile_options(wl4_crt PRIVATE -Wall -Wextra)
     target_include_directories(wl4_settings PUBLIC port/include)
     target_link_libraries(wl4_settings PUBLIC SDL3::SDL3)
+    if(TARGET wl4_posix_files)
+        target_link_libraries(wl4_settings PRIVATE wl4_posix_files)
+    endif()
     target_compile_options(wl4_settings PRIVATE -Wall -Wextra)
     target_sources(wl4 PRIVATE port/platform/sdl/sdl_frontend.c)
     target_link_libraries(wl4 PRIVATE wl4_settings wl4_crt)

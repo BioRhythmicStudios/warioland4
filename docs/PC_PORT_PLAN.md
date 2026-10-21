@@ -176,6 +176,50 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
+Linux first playable build (2026-10-21), local and unpublished:
+linux-port starts at verified Windows v0.3.0-beta commit
+970cdd91580a4cbb7d0a80517df251b2aa0af5b0. Worktree:
+/home/benny/Decomp/warioland4-linux (locked against accidental pruning).
+No new commit, tag, push or release. Windows port remains at Beta 3; its
+runtime sources, release binaries and existing local notes are preserved.
+See docs/LINUX_FIRST_BUILD.md in the Linux worktree for commands and evidence.
+Ubuntu 26.04.1 / WSL2 x86-64 now has Clang 21.1.8, CMake 4.2.3,
+Ninja 1.13.2 and SDL3 3.4.2. The approved apt installation used
+--no-install-recommends; no additional sanitizer package was installed.
+Native ELF: build/linux/wl4. Linux fixed mmap/mprotect, shared I/O aliases,
+SIGSEGV/SIGTRAP redirection, alternate signal stack and POSIX file operations
+are implemented. The ET_EXEC image starts at 0x40000000 to keep the randomized
+brk heap clear of GBA memory; 24 repeated startups pass. Shared game sources
+and generated symbols are unchanged. A shared coroutine-owner leak was fixed.
+Normal and Linux ASan BIOS/I/O/coroutine/save/input/event tests pass. The
+8500-frame Hall route matches retained Windows Beta 3 SRAM, late pictures and
+audio exactly; 40 captured late memory steps match with existing masks.
+ASan uses installed GCC libasan with Clang instrumentation. High fake stacks
+are disabled to preserve 32-bit DMA addresses; intentional open-bus unit
+probes are uninstrumented. Default shadow protection remains enabled, and
+the deliberate stack-buffer overflow is detected. No whole-game claim.
+Visible WSLg X11/OpenGL gameplay reaches Hall room 11: 8528 frames in
+142.782 seconds, 8507 main-loop steps, zero clock resets, zero audio drops,
+two audio refills total. PulseAudio monitor contains nonzero game audio.
+Keyboard A press/release and F11 fullscreen toggles pass. Software/OpenGL
+CRT checks pass. Earlier transient WSLg audio stalls remain documented;
+physical controller/rumble and real Linux desktop/Steam Deck tests are pending.
+Separate Windows normal/ASan builds (including launcher) and runtime/input/
+event tests pass. All automated game tests use explicit disposable save and
+settings paths. The supplied ROM is read-only and retains its supported MD5.
+GBA checks v7-72 through final v7-75: ROM-SAME, all 202 objects OBJ-SAME,
+MD5 940b597bef3be3f4041021b47a2f4096. These builds use the Windows worktree's
+unchanged GBA inputs (equal after newline normalization). Final checkpoint v7-76 outputs live in the Linux worktree: ROM-SAME and all
+202 objects OBJ-SAME; next fresh: v7-77. The legacy make-check checksum target
+uses hardcoded build/us; explicit baseline comparisons passed.
+Normal and ASan checks also pass new partial-write, failed-rename and UTF-8
+save tests. See build/evidence/checkpoint. Implementation is committed locally
+on linux-port; no push or publication. Broader CRT/VSync live matrix and
+longer gameplay/reload comparisons deferred at the user's usage-budget request.
+Next: user playtest with the documented isolated launch command, then native
+Linux desktop/audio/controller acceptance. No Linux graphical launcher yet.
+
+
 Windows v0.3.0-beta release preparation (2026-10-21), The Rumble Update:
 user manually confirms completed native rumble gameplay and authorizes verified
 integration/publication. Rumble commit 20fc6e4 follows cleaned Beta 2 d777f81.

@@ -148,6 +148,11 @@ static void TestGameLz77Streams(void)
 }
 
 // Reads from the BIOS see its open bus (port/src/gba_memory.c), whatever the instruction.
+#ifdef __linux__
+// These intentional hardware probes include Linux ASan's shadow gap. Let the
+// faulting instructions reach our GBA handler; the rest of the tests stay checked.
+__attribute__((noinline, no_sanitize("address")))
+#endif
 static void TestOpenBus(void)
 {
     volatile uint8_t *volatile bios = 0;
