@@ -2,7 +2,7 @@
 
 Date: 2026-10-21. Status: playable locally under WSL2/WSLg; unpublished.
 Branch `linux-port`, based on `970cdd91580a4cbb7d0a80517df251b2aa0af5b0`
-(the verified Windows `v0.3.0-beta` commit). The implementation and verification notes are committed locally on `linux-port`; no publication is authorized.
+(the verified Windows `v0.3.0-beta` commit). Implementation commit: `7906092`, committed locally on `linux-port`; no publication is authorized.
 
 ## Workspace and environment
 

@@ -180,7 +180,8 @@ Linux first playable build (2026-10-21), local and unpublished:
 linux-port starts at verified Windows v0.3.0-beta commit
 970cdd91580a4cbb7d0a80517df251b2aa0af5b0. Worktree:
 /home/benny/Decomp/warioland4-linux (locked against accidental pruning).
-No new commit, tag, push or release. Windows port remains at Beta 3; its
+Implementation commit: 7906092 (first native Linux x86-64 port).
+No tag, push or release. Windows port remains at Beta 3; its
 runtime sources, release binaries and existing local notes are preserved.
 See docs/LINUX_FIRST_BUILD.md in the Linux worktree for commands and evidence.
 Ubuntu 26.04.1 / WSL2 x86-64 now has Clang 21.1.8, CMake 4.2.3,
