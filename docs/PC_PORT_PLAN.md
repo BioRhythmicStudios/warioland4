@@ -1,6 +1,6 @@
 # Wario Land 4 PC port plan
 
-Status: decided 2026-10-17. M0, M1 and M2 are done on the `port` branch (see [Where we are](#where-we-are-2026-10-18)). Targets: Windows first, then Linux, then Android.
+Status: decided 2026-10-17. M0, M1 and M2 are done on the `port` branch (see [Where we are](#where-we-are-2026-10-21)). Targets: Windows first, then Linux, then Android.
 
 ## Summary
 
@@ -174,7 +174,7 @@ The invariant for every change to shared game code: a clean rebuild gives a ROM 
 
 Steps 1–3 change shared code under the byte-identical invariant and can merge back to `decomp-wtf`. Steps 4–10 are port-only. The renderer, mixer, input and save workstreams run alongside. Step 4's source changes are on `decomp-wtf` too (`4d7db63`). Step 7's are byte-identical as well, but they only serve the PC build, so they stay on `port`.
 
-### Where we are (2026-10-18)
+### Where we are (2026-10-21)
 
 Linux first playable build (2026-10-21), local and unpublished:
 linux-port starts at verified Windows v0.3.0-beta commit
@@ -214,11 +214,23 @@ unchanged GBA inputs (equal after newline normalization). Final checkpoint v7-76
 202 objects OBJ-SAME; next fresh: v7-77. The legacy make-check checksum target
 uses hardcoded build/us; explicit baseline comparisons passed.
 Normal and ASan checks also pass new partial-write, failed-rename and UTF-8
-save tests. See build/evidence/checkpoint. Implementation is committed locally
-on linux-port; no push or publication. Broader CRT/VSync live matrix and
-longer gameplay/reload comparisons deferred at the user's usage-budget request.
-Next: user playtest with the documented isolated launch command, then native
-Linux desktop/audio/controller acceptance. No Linux graphical launcher yet.
+save tests. See build/evidence/checkpoint. Implementation commit 7906092 and
+handover commit 094f2c1 remain local; no push or publication.
+
+Private Steam Deck Desktop Mode test package (2026-10-21): packaging commit
+21d2c5f adds a reproducible SDL3 3.4.2 compatibility build, a portable Linux
+ELF bundle, launcher, settings helper, licenses, and exact Deck instructions.
+The package includes SDL3 but uses host glibc and the host ELF loader. Game
+and SDL3 require GLIBC 2.34 and 2.38 respectively. WSLg extracted-package
+checks passed 400+50 headless frames, save reload, all six CRT/VSync variants
+at about 59.7 Hz, and measured nonzero PulseAudio samples. Synthetic X11
+keyboard input reached GBA A after focus retries; WSLg focus makes this probe
+intermittent. A real Steam Deck has not yet been tested. Final fresh GBA check
+v7-77: ROM-SAME, all 202 objects OBJ-SAME, MD5
+940b597bef3be3f4041021b47a2f4096. No ROM, save, or extracted artwork
+is in the package. Next: user tests the private archive on a physical Deck,
+especially controls, audio, VSync/CRT, saves, and rumble; collect its SteamOS
+version and loader check. No Linux graphical launcher yet.
 
 
 Windows v0.3.0-beta release preparation (2026-10-21), The Rumble Update:
