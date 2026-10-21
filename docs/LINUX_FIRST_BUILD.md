@@ -183,3 +183,22 @@ then real Linux desktop and controller/audio testing. The Windows Beta 3
 branch, release tags, binaries, ROMs, personal saves/settings and protected
 `tools/agbcc` were not replaced. No push, tag, publication or history rewrite
 was performed. Linux changes remain available for review in `linux-port`.
+
+## Private Steam Deck package candidate (2026-10-21)
+
+port/tools/build_steamdeck_sdl.sh downloads and checksum-verifies upstream
+SDL3 3.4.2 and Debian 13 libc6 2.41, then builds SDL3 with the older libm
+only as a link-time baseline. The package bundles SDL3 and uses the host
+glibc/ELF loader; it does not bundle glibc. The native game needs GLIBC 2.34,
+and the rebuilt SDL3 needs GLIBC 2.38. The package builder is
+port/tools/package_linux.py, with launcher and Deck instructions in
+port/steamdeck/README.md.
+
+The compatibility archive was extracted under /tmp outside the development
+tree. Its 400+50 headless frames and 32 KiB save passed. WSLg OpenGL ran all
+three CRT presets with VSync on/off at about 59.7 fps. An X11 synthetic key
+reached GBA A after focus retries; WSLg focus makes that probe intermittent.
+PulseAudio monitor capture contained nonzero game samples. Under monitor
+capture both the bundled SDL and the original host SDL recorded 9 audio queue
+drops in about 6.8 seconds; ordinary six-second runs recorded zero. A physical
+Steam Deck has not yet been tested for graphics, keyboard, gamepad, or rumble.
