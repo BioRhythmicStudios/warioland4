@@ -187,9 +187,12 @@ details, and uses a fresh disposable save and settings on every run. A normal
 graphical launcher is also available. WSLg accepted X, Return and F11, and
 Escape exited intentionally with status 0; the Deck-only closure was not
 reproduced. Normal and ASan headless regressions and input/rumble tests pass.
-Fresh GBA build/v7-81: ROM MD5 940b597bef3be3f4041021b47a2f4096; all
-202 objects match the original main-tree baseline byte for byte. Next: test
-the extracted private inputtrace2 archive on real Deck hardware and inspect
+The accepted Windows Toy Block Tower address-wrap fix is now applied to
+Linux, with its focused regression passing normally and under ASan. This
+does not replace a full manual level playtest on Linux. Fresh GBA build/v7-82:
+ROM MD5 940b597bef3be3f4041021b47a2f4096; all 202 objects match the
+original main-tree baseline byte for byte. Next: test the extracted private
+inputtrace3-toyfix archive on real Deck and Steam Machine hardware and inspect
 its single diagnostic log before choosing an input fix or publishing Linux.
 
 Linux first playable build (2026-10-21), local and unpublished:

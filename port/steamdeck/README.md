@@ -8,7 +8,7 @@ The executable reads the ROM; it does not modify it.
 ## Graphical Steam Deck test
 
 In Desktop Mode, open Downloads in Dolphin and extract the archive to a new
-folder. Open the extracted wl4-steamdeck-private-20261022-inputtrace2 folder.
+folder. Open the extracted wl4-steamdeck-private-20261022-inputtrace3-toyfix folder.
 Double-click Play-Wario-Land-4.desktop for ordinary play, or
 Diagnose-Wario-Land-4.desktop to investigate the input-triggered Desktop Mode
 window closure. If Dolphin asks whether to execute a launcher, choose Execute.
@@ -41,10 +41,10 @@ Copy the .tar.gz package and its .sha256 file to the Deck's Downloads folder,
 then open Konsole. Use your actual ROM location in the final command:
 
     cd ~/Downloads
-    sha256sum -c wl4-steamdeck-private-20261022-inputtrace2.tar.gz.sha256
+    sha256sum -c wl4-steamdeck-private-20261022-inputtrace3-toyfix.tar.gz.sha256
     mkdir -p ~/Games/wl4
-    tar -xzf wl4-steamdeck-private-20261022-inputtrace2.tar.gz -C ~/Games/wl4
-    cd ~/Games/wl4/wl4-steamdeck-private-20261022-inputtrace2
+    tar -xzf wl4-steamdeck-private-20261022-inputtrace3-toyfix.tar.gz -C ~/Games/wl4
+    cd ~/Games/wl4/wl4-steamdeck-private-20261022-inputtrace3-toyfix
     ./play.sh --check
     ./play.sh "/absolute/path/to/your/baserom_us.gba"
 

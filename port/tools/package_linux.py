@@ -14,7 +14,7 @@ import subprocess
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_NAME = "wl4-steamdeck-private-20261022-inputtrace2"
+DEFAULT_NAME = "wl4-steamdeck-private-20261022-inputtrace3-toyfix"
 GLIBC_PATTERN = re.compile(r"GLIBC_(\d+)\.(\d+)")
 
 

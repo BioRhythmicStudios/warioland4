@@ -18,6 +18,8 @@
 #include "port/save.h"
 #include "port/sdl_frontend.h"
 
+extern int PortTileWrapTest(void);
+
 static void Usage(void)
 {
     fprintf(stderr,
@@ -280,7 +282,7 @@ int main(int argc, char **argv)
     enum PortPpuColors colors = PORT_PPU_COLORS_GBA;
     unsigned int frames = 0, scale = 0, fromStep = 0;
     const char *saveTest = NULL;
-    int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0;
+    int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0, tileWrapTest = 0;
     int i;
 
     // Reserve the GBA address space before anything else can take it.
@@ -299,6 +301,8 @@ int main(int argc, char **argv)
             saveTest = argv[++i];
         else if (strcmp(argv[i], "--asan-probe") == 0)
             asanProbe = 1;
+        else if (strcmp(argv[i], "--test-tile-wrap") == 0)
+            tileWrapTest = 1;
         else if (strcmp(argv[i], "--frames") == 0 && i + 1 < argc)
             frames = (unsigned int)strtoul(argv[++i], NULL, 10);
         else if (strcmp(argv[i], "--dump") == 0 && i + 1 < argc)
@@ -343,6 +347,8 @@ int main(int argc, char **argv)
         return 1;
     if (saveTest && PortSaveTest(saveTest))
         return 1;
+    if (tileWrapTest)
+        return PortTileWrapTest();
     if (sFault || asanProbe) {
         if (PortGameThreadCreate(sFault ? FaultEntry : AsanProbeEntry))
             return 1;
