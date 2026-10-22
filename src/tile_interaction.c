@@ -2198,7 +2198,17 @@ void UpdateWarioEnvironmentalTiles(void)
             value = yTile * background->bg0Width;
             value += *xEntry;
             COMPILER_BARRIER_MEMORY(value);
+#ifdef PORTABLE
+            // Transition-edge coordinates can yield a negative tile index. The GBA
+            // wraps the byte address at 32 bits; native pointer indexing does not.
+            {
+                u32 mapAddress = (u32)GP(background->pBg0Data);
+                mapAddress += value << 1;
+                value = *(u16*)mapAddress;
+            }
+#else
             value = GP(background->pBg0Data)[value];
+#endif
             value = attributes[value];
         } else {
             value = 0;
