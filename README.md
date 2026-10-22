@@ -1,19 +1,42 @@
 # Wario Land 4 — Native PC Port
 
-## Windows v0.3.0-beta - The Rumble Update
+Play Wario Land 4 with native x86-64 builds for Windows and Linux. The port
+compiles the decompiled game C code and uses SDL3 for graphics, audio and input;
+it does not run through Wine or Proton. **You must provide your own supported,
+unmodified US ROM.** No ROM or extracted game assets are included.
 
-[Download the Windows x64 release](https://github.com/BioRhythmicStudios/warioland4/releases/tag/v0.3.0-beta).
-Extract the complete ZIP, open `wl4-launcher.exe`, select your own supported
-unmodified US ROM and launch. No ROM is included.
+## Latest beta downloads
 
-Optional native SDL3 vibration is under Settings -> Controller, with On/Off,
-strength and Test Rumble. It defaults Off; existing bindings, VSync and CRT
-preferences migrate from older settings. Explicit Save writes v4 settings,
-which older releases cannot read. SRAM remains compatible. Controller remapping,
-CRT Lite/Enhanced, VSync, fullscreen and scaling remain available. The colour
-restoration mod is not included. See [release details](docs/WINDOWS_BETA3_RELEASE.md).
+| Platform | Release | What to download |
+| --- | --- | --- |
+| Windows x64 | [v0.3.2-beta](https://github.com/BioRhythmicStudios/warioland4/releases/tag/v0.3.2-beta) | `WarioLand4-Native-PC-Port-v0.3.2-beta-Windows-x64.zip` |
+| Linux x86-64 / Steam Deck | [v0.1.0-beta](https://github.com/BioRhythmicStudios/warioland4/releases/tag/linux-v0.1.0-beta) | `Wario_Land_4-v0.1.0-beta-x86_64.AppImage` |
+
+On Windows, extract the ZIP and open `wl4-launcher.exe`. On Linux, mark the
+AppImage executable and open it; its graphical launcher lets you browse for your
+ROM and configure controls, fullscreen, VSync, CRT effects and rumble. The Linux
+release needs glibc 2.38 or newer and stores saves and settings in persistent XDG
+user directories. See the [Linux installation and save guide](https://github.com/BioRhythmicStudios/warioland4/blob/linux-port/port/appimage/README_APPIMAGE.md).
+
+In Steam Deck Desktop Mode, select **Gamepad Mode** for the built-in controls.
+The default Desktop Layout maps B to Escape, which intentionally quits the game.
+You can also add the AppImage to Steam as a Non-Steam Game without enabling Proton.
+Steam Machine hardware testing is still pending.
+
+These releases include the Toy Block Tower post-Keyzer red-pipe crash fix, the
+Golden Diva ending/credits hang fix, and the passage boss-door transition fix.
+The environmental-tile address fix also covers the exact fault address reported
+in the Doodle Woods bonus-room screenshot; that particular room has not yet had
+a separate gameplay retest.
 
 ## Screenshots
+
+### Native Linux gameplay on Steam Deck
+
+![Wario Land 4 running natively on a Steam Deck](screenshots/steam-deck.webp)
+
+*Steam Deck photo supplied by the maintainer. The native Linux AppImage was
+tested through every boss, Golden Diva, the ending and the full credits.*
 
 ### Native Windows gameplay
 
@@ -21,40 +44,28 @@ restoration mod is not included. See [release details](docs/WINDOWS_BETA3_RELEAS
 
 *Wario Land 4 running natively on Windows using the BioRhythmicStudios PC port.*
 
-A work-in-progress native Windows port by **BioRhythmicStudios**, built on the
-**[Wario Land 4 decompilation by TsilaAllaoui and contributors](https://github.com/TsilaAllaoui/warioland4)**,
+This is an unofficial fan project by **BioRhythmicStudios**, built on the
+[Wario Land 4 decompilation by TsilaAllaoui and contributors](https://github.com/TsilaAllaoui/warioland4),
 which derives from [lilDavid's original project](https://github.com/lilDavid/warioland4).
-Their reverse engineering and decompilation work provides the foundation for this port.
-
-The port compiles the decompiled game C code for x86-64 and supplies a native runtime
-for graphics, sound, input and saves. Game assets are read from a user-supplied ROM
-at runtime; the PC executable does not embed the game's ROM assets.
-
-**Development preview:** Windows x64 is the implemented platform. A complete
-full-game playthrough has not been verified. Manual Windows testing confirms
-Hall of Hieroglyphs completion through the Frog Switch and escape, victory over
-Spoiled Rotten, two rounds of Wario Hop through Game Over, and saved progress
-loading after restart. This is an unofficial fan project, unaffiliated with Nintendo.
+Their reverse engineering and decompilation work provides the foundation for
+this port. It is unaffiliated with Nintendo.
 
 ## Status and features
 
 | Status | Capabilities |
 | --- | --- |
-| Implemented on Windows x64 | Boot, intro, title, file select, passage select and gameplay in Hall of Hieroglyphs |
-| Implemented | SDL3 window, integer scaling from the original 240×160 resolution, fullscreen and fast forward |
-| Implemented | Customizable keyboard/gamepad bindings, hotplug and optional native rumble |
-| Implemented | CRT Lite/Enhanced filters and optional VSync |
-| Implemented | Music and sound effects through a native m4a engine and modeled GBA sound hardware |
+| Available on Windows x64 and Linux x86-64 | Native game and graphical ROM/settings launchers |
+| Implemented | SDL3 graphics and audio, scaling, fullscreen, fast forward, VSync and CRT Lite/Enhanced filters |
+| Implemented | Customizable keyboard/gamepad bindings, hotplug and optional controller rumble |
 | Implemented | Persistent 32 KiB SRAM saves compatible with mGBA `.sav` files |
-| Implemented developer tools | Headless execution, scripted input, memory/framebuffer capture, WAV output and mGBA comparison tools |
-| Manually verified on Windows | Hall of Hieroglyphs completion, Spoiled Rotten victory and return to the Golden Pyramid, two Wario Hop rounds through Game Over, and save persistence after restart |
-| Experimental / incomplete | Gameplay beyond the tested coverage, full-game automated validation, timing-sensitive raster effects and audio equivalence across lag frames |
-| Planned | Full-playthrough validation, Linux x64, Android arm64, Japanese ROM support and widescreen experiments |
+| Tested on real Steam Deck hardware | Boss-door entry, every boss, Golden Diva, complete ending and credits |
+| Automated regression coverage | Headless boss-door, credits, Toy Block Tower tile-wrap, BIOS, I/O and disposable-save checks |
+| Still being validated | Continuous full-game coverage on Windows and Steam Machine hardware |
 
-The project records mark milestones M0 (headless boot), M1 (renderer and window)
-and M2 (initial level gameplay, sound and saves) complete. M3, full-playthrough
-validation, remains incomplete. Planned platforms and enhancements are not current
-build or compatibility promises.
+The original GBA build remains byte-identical to this repository's baseline:
+fresh `build/v7-84` produced MD5 `940b597bef3be3f4041021b47a2f4096`, with
+all 202 object files unchanged. This is the decompilation build's checksum,
+**not** the checksum of the supported input ROM.
 
 ## Bring your own ROM
 
@@ -125,8 +136,8 @@ The default window scale is 3×. Use `--scale N` to choose another integer scale
 | F11 | Toggle fullscreen |
 | Escape | Quit |
 
-The first gamepad uses positional buttons: bottom face button = A, right face
-button = B. Configurable bindings are planned.
+The default gamepad mapping uses positional buttons: bottom face button = A,
+right face button = B. The graphical launcher can customize bindings.
 
 Windowed play stores saves at `%APPDATA%\wl4\wl4.sav` by default. To choose a
 save file:
@@ -142,71 +153,36 @@ only when `--save FILE` is supplied and can overwrite that file.
 
 ## Known bugs and limitations
 
-- **Incomplete gameplay coverage:** manual testing confirms Hall of Hieroglyphs
-  completion, Spoiled Rotten, Wario Hop and save persistence as detailed below.
-  Automated comparisons cover selected routes in Hall of Hieroglyphs. Other stages
-  and bosses and a complete full-game playthrough remain unverified; these results
-  do not establish that the game is bug-free.
-- **Timing differences:** native game code does not consume modeled GBA CPU time.
-  GBA lag frames therefore have no direct native equivalent, which can change music
-  progression, interrupt timing and effects that poll the scanline mid-step.
-- **Visible comparison differences:** a vortex transition differs on the top scanlines
-  for one captured frame. Later captures also show small score-digit update timing
-  differences. Pixel-perfect equivalence is not established for all gameplay.
-- **Audio validation gaps:** fixed-frequency mixing, echo, reverb and engine-driven
-  CGB sound paths still need comparison beyond the first lag-frame divergence.
-- **Runtime approximations:** unused-address open bus is approximate, and BIOS call
-  `0x2A` (`GetJumpList`) is unimplemented. Fixed low-address memory reservations may
-  fail on some systems, in which case startup stops with an error.
-- Compiler warnings and some declaration/signature questions remain documented in
-  the plan. UBSan has not been tried. Linux and Android are not validated targets.
+- Continuous end-to-end gameplay coverage remains incomplete. The Steam Deck
+  ending/credits route passed on real hardware, but this does not establish that
+  every stage and transition is bug-free. The Doodle Woods bonus room still
+  awaits a focused manual retest after its matching address fault was fixed.
+- Native code does not consume modeled GBA CPU time, so lag frames may differ.
+  Pixel-perfect and audio equivalence have not been established for every scene.
+- Only the supported unmodified US ROM is accepted. Japanese ROMs and ROM hacks
+  are not supported by the native runtime.
+- Some graphics, audio and controller behavior depends on host drivers. Steam
+  Machine hardware compatibility has not yet been tested.
+
+See [the port plan](docs/PC_PORT_PLAN.md) and the
+[Linux guide](https://github.com/BioRhythmicStudios/warioland4/blob/linux-port/port/appimage/README_APPIMAGE.md)
+for detailed implementation notes, save locations and remaining limitations.
 
 ## Recorded test status
 
-These are existing results from [CODEX_HANDOVER.md](CODEX_HANDOVER.md) and
-[the port plan](docs/PC_PORT_PLAN.md), dated **18 October 2026**, supplemented by
-the maintainer's fix update and personal manual testing of the current native
-Windows port. No new builds or automated tests were run for this README update.
+The Windows v0.3.2-beta and Linux v0.1.0-beta release builds passed focused
+boss-door and full-credits regressions using disposable copies of the reported
+save; the credits completed at frame 15263. BIOS, I/O and Toy Block Tower
+tile-wrap checks passed on both platforms. The Windows package passed a
+disposable-save test and both graphical launchers passed startup checks. The
+Linux AppImage game executable is byte-identical to the private build used in
+the maintainer's successful real Steam Deck boss/ending/credits playthrough.
+The released artifacts contain no ROMs or personal saves.
 
-### Manual gameplay verification
-
-The maintainer personally confirmed:
-
-- **Hall of Hieroglyphs:** the Frog Switch no longer froze, the escape timer
-  started, play continued, and the level was completed successfully.
-- **Spoiled Rotten:** the boss was defeated and Wario returned to the Golden
-  Pyramid successfully.
-- **Wario Hop:** two rounds were played and the Game Over screen was reached.
-- **Saving:** after closing and reopening the port, the save loaded correctly
-  and retained progress in Sapphire Passage.
-
-These are manual gameplay results, not sanitizer runs or automated comparisons
-against mGBA. Full-game automated validation remains incomplete.
-
-### Isolated tests and automated comparisons
-
-- Frog Switch timing fix `c25cc4d` is committed and pushed. Its isolated normal
-  and AddressSanitizer tests passed; GBA ROM and object byte identity was preserved.
-- Normal and AddressSanitizer builds passed the coroutine, BIOS and I/O tests.
-  Both completed a recorded 21,100-frame route without reported faults; their WAV
-  files and saves matched each other, and the saves matched final mGBA SRAM.
-- Boot through file select matched mGBA on 1,394 main-loop steps for memory with
-  sound masked and for pictures with `--mgba-colors`.
-- Later Hall of Hieroglyphs comparisons matched memory in separate captured windows,
-  reaching absolute gameplay step 27,289. These windows have gaps and do not establish
-  continuous verification through that point. Some later exploration is native-only.
-- A water-surface pointer arithmetic crash was fixed under `PORTABLE`; the repaired
-  890-step window matched mGBA for memory and pictures.
-- The earlier byte-identity check recorded in the linked documentation is
-  `build/v7-23`: ROM MD5 `940b597bef3be3f4041021b47a2f4096`, with every object identical
-  to `build/us/obj`. This is the current decompilation build's checksum, **not** the
-  supported input ROM checksum. Remaining unmatched functions mean the decompilation
-  build does not yet match the original ROM.
-
-The comparison harness aligns finished main-loop steps rather than raw frame numbers.
-Memory comparisons mask documented hardware/native differences; later gameplay results
-use `--mask-sound`. Screenshot comparisons use `--mgba-colors` to reproduce mGBA's
-color arithmetic. Only paired steps count as compared coverage.
+Earlier Hall of Hieroglyphs memory and picture comparisons against mGBA are
+documented in [CODEX_HANDOVER.md](CODEX_HANDOVER.md) and the
+[port plan](docs/PC_PORT_PLAN.md). They cover selected windows, not a complete
+frame-by-frame comparison of the whole game.
 
 ## Technical architecture
 
@@ -220,8 +196,8 @@ color arithmetic. Only paired steps count as compared coverage.
 - **Function dispatch and stack:** generated tables translate GBA function addresses
   into native calls. A patched minicoro runs the game on a guarded low-address native
   stack and yields to the host at frame boundaries.
-- **Hardware services:** Windows exception handlers trap and single-step GBA I/O
-  accesses, applying register effects, DMA and interrupts. A software scanline renderer
+- **Hardware services:** Windows exception and Linux signal handlers trap and
+  single-step GBA I/O accesses, applying register effects, DMA and interrupts. A software scanline renderer
   implements GBA backgrounds, sprites, windows, blending, brightness and mosaic.
 - **Audio and presentation:** a C translation of the game's m4a assembly works with
   modeled PSG, Direct Sound FIFOs, timers and mixing. SDL3 supplies the window,
