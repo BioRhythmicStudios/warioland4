@@ -168,6 +168,10 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     PortRumbleObserver rumble = {0};
     Uint64 started = 0, presents = 0, repeats = 0, maxPresent = 0;
     int timingStats = SDL_getenv("WL4_TIMING_STATS") != NULL;
+    int traceInput = SDL_getenv("WL4_DIAG_EVENTS") != NULL;
+    uint16_t lastKeys = 0;
+    unsigned eventSequence = 0;
+    unsigned traceFrames = 0;
     int requestedVSync = -1, reapplyVSync = 1;
     int result = 1, running = 1, fastForward = 0;
     int wasSaveFailed = 0, saveHandled = 0;
@@ -185,6 +189,9 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         return 1;
     }
+    if (traceInput)
+        fprintf(stderr, "SDL video backend: %s; Steam environment: %s\n",
+                SDL_GetCurrentVideoDriver(), SDL_getenv("SteamAppId") ? "present" : "absent");
     printf("Display filter: %s; scanlines=%d%% glow=%d%% mask=%d\n", PortCrtName(settings.crtPreset),
            settings.crtScanlines, settings.crtGlow, settings.crtMask);
     if (loaded < 0) {
@@ -208,6 +215,8 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     sAudioRefills = sAudioDrops = 0;
     PortControlsOpen(&controls, &settings);
+    if (traceInput)
+        fprintf(stderr, "SDL gamepad at startup: %s\n", controls.gamepad ? "present" : "none");
     OpenAudio();
 
     if (OpenSave(savePath) || PortFrameStart(entry))
@@ -219,14 +228,73 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         uint16_t keys;
 
         while (SDL_PollEvent(&event)) {
+            if (traceInput) {
+                ++eventSequence;
+                switch (event.type) {
+                case SDL_EVENT_KEY_DOWN:
+                case SDL_EVENT_KEY_UP:
+                    fprintf(stderr, "SDL event #%u frame=%u keyboard type=0x%x scancode=%d (%s) repeat=%d\n",
+                            eventSequence, PortFrameCount(), (unsigned)event.type,
+                            event.key.scancode, SDL_GetScancodeName(event.key.scancode), event.key.repeat);
+                    traceFrames = 120;
+                    break;
+                case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+                case SDL_EVENT_GAMEPAD_BUTTON_UP:
+                    fprintf(stderr, "SDL event #%u frame=%u gamepad type=0x%x button=%u\n",
+                            eventSequence, PortFrameCount(), (unsigned)event.type, event.gbutton.button);
+                    traceFrames = 120;
+                    break;
+                case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
+                case SDL_EVENT_JOYSTICK_BUTTON_UP:
+                    fprintf(stderr, "SDL event #%u frame=%u joystick type=0x%x button=%u\n",
+                            eventSequence, PortFrameCount(), (unsigned)event.type, event.jbutton.button);
+                    traceFrames = 120;
+                    break;
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                case SDL_EVENT_MOUSE_BUTTON_UP:
+                    fprintf(stderr, "SDL event #%u frame=%u mouse type=0x%x button=%u\n",
+                            eventSequence, PortFrameCount(), (unsigned)event.type, event.button.button);
+                    traceFrames = 120;
+                    break;
+                case SDL_EVENT_FINGER_DOWN:
+                case SDL_EVENT_FINGER_UP:
+                    fprintf(stderr, "SDL event #%u frame=%u touch type=0x%x\n",
+                            eventSequence, PortFrameCount(), (unsigned)event.type);
+                    traceFrames = 120;
+                    break;
+                case SDL_EVENT_GAMEPAD_ADDED:
+                case SDL_EVENT_GAMEPAD_REMOVED:
+                case SDL_EVENT_GAMEPAD_REMAPPED:
+                    fprintf(stderr, "SDL event #%u frame=%u gamepad-device type=0x%x\n",
+                            eventSequence, PortFrameCount(), (unsigned)event.type);
+                    break;
+                case SDL_EVENT_QUIT:
+                case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+                case SDL_EVENT_WINDOW_FOCUS_LOST:
+                case SDL_EVENT_TERMINATING:
+                    fprintf(stderr, "SDL event #%u frame=%u lifecycle type=0x%x\n",
+                            eventSequence, PortFrameCount(), (unsigned)event.type);
+                    break;
+                default:
+                    break;
+                }
+                fflush(stderr);
+            }
             PortControlsEvent(&controls, &event);
             switch (event.type) {
             case SDL_EVENT_QUIT:
+                if (traceInput)
+                    fprintf(stderr, "SDL exit reason: SDL_EVENT_QUIT at frame %u\n",
+                            PortFrameCount());
                 running = 0;
                 break;
             case SDL_EVENT_KEY_DOWN:
-                if (event.key.scancode == SDL_SCANCODE_ESCAPE)
+                if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+                    if (traceInput)
+                        fprintf(stderr, "SDL exit reason: Escape keydown at frame %u\n",
+                                PortFrameCount());
                     running = 0;
+                }
                 else if (event.key.scancode == SDL_SCANCODE_F8 && !event.key.repeat && PortSaveError())
                     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Progress has not been saved", PortSaveError(), window);
                 else if (event.key.scancode == SDL_SCANCODE_F11 && !event.key.repeat) {
@@ -284,14 +352,29 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
         }
         for (unsigned int frame = 0; frame < frames; ++frame) {
             // The game reads the buttons after VBlank, when the frame below resumes it.
+            if (traceInput && traceFrames)
+                fprintf(stderr, "SDL controls poll begin frame=%u gamepad=%s\n",
+                        PortFrameCount(), controls.gamepad ? "present" : "none");
             keys = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)
                        ? PortControlsPressed(&controls, SDL_GetKeyboardState(NULL)) : 0;
             if (scripted)
                 keys |= PortInputScriptKeys(PortFrameSteps() + 1);
+            if (traceInput && keys != lastKeys) {
+                fprintf(stderr, "SDL input frame=%u GBA keys=0x%03x\n",
+                        PortFrameCount(), keys);
+                lastKeys = keys;
+            }
+            if (traceInput && traceFrames)
+                fprintf(stderr, "SDL controls poll end frame=%u keys=0x%03x; game frame begin\n",
+                        PortFrameCount(), keys);
             PortIoWrite16(REG_KEYINPUT, (uint16_t)(~keys & KEYS_ALL));
             if (!PortFrameRun()) {
                 fprintf(stderr, "The game stopped after %u frames\n", PortFrameCount());
                 goto done;
+            }
+            if (traceInput && traceFrames) {
+                fprintf(stderr, "SDL game frame end frame=%u\n", PortFrameCount());
+                --traceFrames;
             }
             PortSaveFrame();
             PortRumbleSnapshot snapshot;
@@ -334,6 +417,8 @@ int PortSdlRun(void (*entry)(void), unsigned int scale, int scripted, const char
     result = 0;
 
 done:
+    if (traceInput)
+        fprintf(stderr, "SDL shutdown: result=%d frame=%u\n", result, PortFrameCount());
     PortControlsStopRumble(&controls);
     if (timingStats && started) {
         printf("Timing: seconds=%.3f frames=%u presents=%llu repeats=%llu max_present_ms=%.3f clock_resets=%u audio_refills=%u audio_drops=%u\n",

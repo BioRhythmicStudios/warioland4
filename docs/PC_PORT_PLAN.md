@@ -176,6 +176,22 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-21)
 
+Steam Deck standalone Desktop Mode input investigation (2026-10-22): the
+Deck game window opens, then closes on a button press when launched outside
+Steam. Steam-launched Gaming Mode reaches gameplay and Steam-launched Desktop
+Mode reaches save selection. The exact button/event and exit mode are not yet
+known; audio returned after a SteamOS reboot. An opt-in SDL event trace now
+records keyboard/gamepad/quit/lifecycle events and nearby frame stages. The
+graphical diagnostic launcher captures actual process status, optional core
+details, and uses a fresh disposable save and settings on every run. A normal
+graphical launcher is also available. WSLg accepted X, Return and F11, and
+Escape exited intentionally with status 0; the Deck-only closure was not
+reproduced. Normal and ASan headless regressions and input/rumble tests pass.
+Fresh GBA build/v7-81: ROM MD5 940b597bef3be3f4041021b47a2f4096; all
+202 objects match the original main-tree baseline byte for byte. Next: test
+the extracted private inputtrace2 archive on real Deck hardware and inspect
+its single diagnostic log before choosing an input fix or publishing Linux.
+
 Linux first playable build (2026-10-21), local and unpublished:
 linux-port starts at verified Windows v0.3.0-beta commit
 970cdd91580a4cbb7d0a80517df251b2aa0af5b0. Worktree:

@@ -14,7 +14,7 @@ import subprocess
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_NAME = "wl4-steamdeck-private-20261021-deckfix"
+DEFAULT_NAME = "wl4-steamdeck-private-20261022-inputtrace2"
 GLIBC_PATTERN = re.compile(r"GLIBC_(\d+)\.(\d+)")
 
 
@@ -89,11 +89,12 @@ def main() -> None:
                       "LD_LIBRARY_PATH": str(stage / "lib")})
     if "not found" in resolved or str(stage / "lib/libSDL3.so.0") not in resolved:
         raise RuntimeError("Bundled SDL3 did not resolve correctly")
-    for name in ("play.sh", "configure.sh", "diagnose.sh"):
+    for name in ("play.sh", "play_gui.sh", "configure.sh", "diagnose.sh"):
         shutil.copy2(ROOT / "port/steamdeck" / name, stage / name)
         (stage / name).chmod(0o755)
-    shutil.copy2(ROOT / "port/steamdeck/Diagnose-Wario-Land-4.desktop", stage / "Diagnose-Wario-Land-4.desktop")
-    (stage / "Diagnose-Wario-Land-4.desktop").chmod(0o755)
+    for name in ("Play-Wario-Land-4.desktop", "Diagnose-Wario-Land-4.desktop"):
+        shutil.copy2(ROOT / "port/steamdeck" / name, stage / name)
+        (stage / name).chmod(0o755)
     shutil.copy2(ROOT / "port/steamdeck/settings.template", stage / "settings.template")
     shutil.copy2(ROOT / "port/steamdeck/README.md", stage / "README.md")
     (stage / "DEPENDENCIES.json").write_text(json.dumps(manifest, indent=2) + "\n")

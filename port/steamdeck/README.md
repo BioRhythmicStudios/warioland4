@@ -5,23 +5,35 @@ contain a ROM, game artwork, saved progress, or a Windows/Wine executable. Suppl
 your own unmodified US ROM (8 MiB; MD5 5fe47355a33e3fabec2a1607af88a404).
 The executable reads the ROM; it does not modify it.
 
-## Graphical Deck diagnostic test
+## Graphical Steam Deck test
 
 In Desktop Mode, open Downloads in Dolphin and extract the archive to a new
-folder. Open the extracted wl4-steamdeck-private-20261021-deckfix folder
-and double-click Diagnose-Wario-Land-4.desktop. If Dolphin asks whether to
-execute the launcher, choose Execute. The launcher finds
+folder. Open the extracted wl4-steamdeck-private-20261022-inputtrace2 folder.
+Double-click Play-Wario-Land-4.desktop for ordinary play, or
+Diagnose-Wario-Land-4.desktop to investigate the input-triggered Desktop Mode
+window closure. If Dolphin asks whether to execute a launcher, choose Execute.
+Both launchers find
 ~/Downloads/baserom_us.gba automatically; otherwise it opens a file picker.
-Press Start in the game and let it exit or fail. Dolphin then selects one new
+With the diagnostic launcher, press one Deck button that previously closed the
+window. Please note which physical button you pressed. If it stays open, try
+the on-screen keyboard and then Start. Dolphin selects one new
 wl4-deck-diagnostic-*.log file in the diagnostics folder. Copy that single
-log back to the developer. No terminal commands are needed.
+log back to the developer. You do not need Konsole.
 
 Every diagnostic run uses a new disposable save and settings folder inside
 diagnostics/run-*. It never reads or writes the normal userdata save/settings.
 The log records the game's own exit status, dependency paths, audio backends
-and devices, and available core details. A full backtrace depends on SteamOS
+and devices, SDL keyboard/gamepad/quit events, frame timing, and available
+core details. A full backtrace depends on SteamOS
 providing coredumpctl and gdb; the game also reports a fault PC for unhandled
 Linux memory faults, which can be symbolized from this exact ELF.
+
+The direct Desktop Mode game is known to open before a button press closes its
+window. Steam-launched gameplay has worked. This package records the input
+event immediately before that closure and the game's real exit status; it does
+not assume a startup, audio or glibc failure. SteamOS audio was restored after
+a Deck restart. The exact closing event remains to be identified from a real
+Deck diagnostic log.
 
 ## Optional terminal launch
 
@@ -29,10 +41,10 @@ Copy the .tar.gz package and its .sha256 file to the Deck's Downloads folder,
 then open Konsole. Use your actual ROM location in the final command:
 
     cd ~/Downloads
-    sha256sum -c wl4-steamdeck-private-20261021-deckfix.tar.gz.sha256
+    sha256sum -c wl4-steamdeck-private-20261022-inputtrace2.tar.gz.sha256
     mkdir -p ~/Games/wl4
-    tar -xzf wl4-steamdeck-private-20261021-deckfix.tar.gz -C ~/Games/wl4
-    cd ~/Games/wl4/wl4-steamdeck-private-20261021-deckfix
+    tar -xzf wl4-steamdeck-private-20261022-inputtrace2.tar.gz -C ~/Games/wl4
+    cd ~/Games/wl4/wl4-steamdeck-private-20261022-inputtrace2
     ./play.sh --check
     ./play.sh "/absolute/path/to/your/baserom_us.gba"
 

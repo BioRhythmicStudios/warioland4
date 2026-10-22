@@ -24,17 +24,24 @@ ui() {
     echo "WL4 private Steam Deck diagnostic"
     echo "Started: $(date -Is)"
     echo "Package: $(basename "$root")"
-    echo "Game: $root/bin/wl4"
-    echo "Save/settings: disposable $session"
-    uname -a
+    echo "Game: bin/wl4"
+    echo "Save/settings: fresh disposable diagnostic session"
+    uname -srm
     if [ -r /etc/os-release ]; then
         grep -E '^(NAME|VERSION|VERSION_ID)=' /etc/os-release
     fi
     getconf GNU_LIBC_VERSION 2>&1 || :
     echo "Relevant environment:"
-    for name in XDG_SESSION_TYPE XDG_RUNTIME_DIR DISPLAY WAYLAND_DISPLAY PULSE_SERVER PIPEWIRE_REMOTE SDL_AUDIODRIVER; do
+    for name in XDG_SESSION_TYPE DISPLAY WAYLAND_DISPLAY SDL_VIDEODRIVER SDL_AUDIODRIVER; do
         value=$(printenv "$name" 2>/dev/null || :)
         printf '%s=%s\n' "$name" "$value"
+    done
+    for name in SteamAppId SteamGameId SDL_GAMECONTROLLERCONFIG; do
+        if printenv "$name" >/dev/null 2>&1; then
+            printf '%s=present\n' "$name"
+        else
+            printf '%s=absent\n' "$name"
+        fi
     done
     for socket in "${XDG_RUNTIME_DIR:-/nonexistent}/pulse/native" "${XDG_RUNTIME_DIR:-/nonexistent}/pipewire-0"; do
         if [ -S "$socket" ]; then echo "Audio socket present: $socket"; else echo "Audio socket absent: $socket"; fi
@@ -46,14 +53,6 @@ ui() {
 export LD_LIBRARY_PATH="$root/lib"
 ldd "$root/bin/wl4" >> "$log" 2>&1 || :
 {
-    if command -v pactl >/dev/null 2>&1; then
-        echo "pactl info:"
-        pactl info || :
-    else echo "pactl unavailable"; fi
-    if command -v wpctl >/dev/null 2>&1; then
-        echo "wpctl status:"
-        wpctl status || :
-    else echo "wpctl unavailable"; fi
     echo "SDL audio probe:"
     "$root/bin/audio-probe" || :
 } >> "$log" 2>&1
@@ -75,7 +74,9 @@ if [ ! -r "$rom" ]; then
 fi
 cp "$root/settings.template" "$session/settings.cfg" || exit 2
 export WL4_SETTINGS_FILE="$session/settings.cfg"
-echo "ROM: $rom (read-only)" >> "$log"
+export WL4_DIAG_EVENTS=1
+export WL4_TIMING_STATS=1
+echo "ROM: selected supported file (read-only; path omitted)" >> "$log"
 echo "Game starting: $(date -Is)" >> "$log"
 ulimit -c unlimited 2>/dev/null || :
 if command -v stdbuf >/dev/null 2>&1; then
