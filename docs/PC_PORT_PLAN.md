@@ -176,24 +176,22 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-21)
 
-Steam Deck standalone Desktop Mode input investigation (2026-10-22): the
-Deck game window opens, then closes on a button press when launched outside
-Steam. Steam-launched Gaming Mode reaches gameplay and Steam-launched Desktop
-Mode reaches save selection. The exact button/event and exit mode are not yet
-known; audio returned after a SteamOS reboot. An opt-in SDL event trace now
-records keyboard/gamepad/quit/lifecycle events and nearby frame stages. The
-graphical diagnostic launcher captures actual process status, optional core
-details, and uses a fresh disposable save and settings on every run. A normal
-graphical launcher is also available. WSLg accepted X, Return and F11, and
-Escape exited intentionally with status 0; the Deck-only closure was not
-reproduced. Normal and ASan headless regressions and input/rumble tests pass.
-The accepted Windows Toy Block Tower address-wrap fix is now applied to
-Linux, with its focused regression passing normally and under ASan. This
-does not replace a full manual level playtest on Linux. Fresh GBA build/v7-82:
-ROM MD5 940b597bef3be3f4041021b47a2f4096; all 202 objects match the
-original main-tree baseline byte for byte. Next: test the extracted private
-inputtrace3-toyfix archive on real Deck and Steam Machine hardware and inspect
-its single diagnostic log before choosing an input fix or publishing Linux.
+Steam Deck standalone Desktop Mode input cause confirmed by user (2026-10-22):
+the Deck's default Desktop Layout mapped physical B to keyboard Escape, which
+the game intentionally treats as Quit. Switching Desktop Mode controls to
+Gamepad Mode made direct standalone A and B work without closing the window.
+Steam-launched Desktop and Gaming Mode also work. Preserve Escape-to-quit and
+existing gamepad behavior; no input-code change is needed. The private Linux
+package now leads with a normal graphical player launcher, documents the
+Gamepad Mode setting, and retains an opt-in disposable-save diagnostic
+launcher. Steam Machine acceptance of the new archive remains pending.
+The Toy Block Tower address-wrap fix from Windows is present in Linux commit
+7a3cabe; focused normal and ASan regressions passed. Input diagnostics were
+committed in a3c2a59. Fresh GBA build/v7-82 matched ROM MD5
+940b597bef3be3f4041021b47a2f4096 and all 202 original objects. Next:
+verify the newly extracted player package, then await Steam Deck and
+Steam Machine acceptance. Fresh build/v7-83 passed ROM and object identity. Do not push,
+tag or publish Linux yet.
 
 Linux first playable build (2026-10-21), local and unpublished:
 linux-port starts at verified Windows v0.3.0-beta commit

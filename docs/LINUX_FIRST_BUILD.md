@@ -245,3 +245,19 @@ Start could involve a host-specific SDL, GPU, audio or gameplay interaction;
 the old log cannot discriminate these causes. The next Deck action is to
 double-click Diagnose-Wario-Land-4.desktop and return its one selected log.
 No system audio settings or personal saves are changed by the diagnostic.
+
+## Steam Deck Desktop Mode input resolution (2026-10-22)
+
++The user's direct standalone Deck test established that the default Desktop
++Layout mapped physical B to keyboard Escape. The game intentionally exits on
++Escape, which explains why the window opened but closed after B was pressed.
++Changing the Deck's Desktop Mode controls to Gamepad Mode made direct A and B
++work and left the window running. Steam-launched Desktop and Gaming Mode also
++worked. No SDL event-handler or gamepad behavior change was required. The
++earlier suspected glibc, audio, and Start-transition causes were not confirmed
++for this input-triggered closure; Deck audio returned after a system reboot.
++The player-facing package README now gives the Gamepad Mode setup and retains
++the optional disposable-save diagnostic launcher. The Toy Block Tower 32-bit
++address-wrap fix is included in Linux commit 7a3cabe. Steam Machine testing
++of the new private package remains pending.
++

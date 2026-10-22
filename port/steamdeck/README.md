@@ -1,39 +1,36 @@
-# Wario Land 4 — private Steam Deck Linux test
+# Wario Land 4 — private Linux x86-64 test
 
 This folder is a native Linux x86-64 test build, for Desktop Mode. It does not
 contain a ROM, game artwork, saved progress, or a Windows/Wine executable. Supply
 your own unmodified US ROM (8 MiB; MD5 5fe47355a33e3fabec2a1607af88a404).
 The executable reads the ROM; it does not modify it.
 
-## Graphical Steam Deck test
+## Graphical Steam Deck and Steam Machine play
 
-In Desktop Mode, open Downloads in Dolphin and extract the archive to a new
-folder. Open the extracted wl4-steamdeck-private-20261022-inputtrace3-toyfix folder.
-Double-click Play-Wario-Land-4.desktop for ordinary play, or
-Diagnose-Wario-Land-4.desktop to investigate the input-triggered Desktop Mode
-window closure. If Dolphin asks whether to execute a launcher, choose Execute.
-Both launchers find
-~/Downloads/baserom_us.gba automatically; otherwise it opens a file picker.
-With the diagnostic launcher, press one Deck button that previously closed the
-window. Please note which physical button you pressed. If it stays open, try
-the on-screen keyboard and then Start. Dolphin selects one new
-wl4-deck-diagnostic-*.log file in the diagnostics folder. Copy that single
-log back to the developer. You do not need Konsole.
+In Desktop Mode, extract the archive with Dolphin and open the extracted
+folder. Double-click Play-Wario-Land-4.desktop. If Dolphin asks whether to
+execute the launcher, choose Execute. It finds
+~/Downloads/baserom_us.gba automatically or opens a ROM file picker. This
+ordinary launcher keeps test saves and settings in the extracted folder's
+userdata/ directory. Keep that folder if you want to keep your progress.
 
-Every diagnostic run uses a new disposable save and settings folder inside
-diagnostics/run-*. It never reads or writes the normal userdata save/settings.
-The log records the game's own exit status, dependency paths, audio backends
-and devices, SDL keyboard/gamepad/quit events, frame timing, and available
-core details. A full backtrace depends on SteamOS
-providing coredumpctl and gdb; the game also reports a fault PC for unhandled
-Linux memory faults, which can be symbolized from this exact ELF.
+**Steam Deck Desktop Mode controls:** set the Deck's Desktop Mode controller
+layout to **Gamepad Mode** before playing directly outside Steam. The default
+**Desktop Layout** maps the physical B button to the keyboard Escape key.
+Escape intentionally quits the game, so that layout made the window close
+when B was pressed. With Gamepad Mode selected, the user confirmed direct
+standalone play stays open and both A and B work. The game does not need an
+input-code workaround. Steam-launched Desktop and Gaming Mode were also
+reported working. For a Steam Machine, use a gamepad layout that sends
+gamepad buttons rather than desktop keyboard shortcuts.
 
-The direct Desktop Mode game is known to open before a button press closes its
-window. Steam-launched gameplay has worked. This package records the input
-event immediately before that closure and the game's real exit status; it does
-not assume a startup, audio or glibc failure. SteamOS audio was restored after
-a Deck restart. The exact closing event remains to be identified from a real
-Deck diagnostic log.
+If an unexpected closure returns, double-click
+Diagnose-Wario-Land-4.desktop. It opens the game with a fresh disposable
+save and settings in diagnostics/run-*, captures the game's actual exit
+status and recent SDL events, then selects one
+diagnostics/wl4-deck-diagnostic-*.log file in Dolphin. Copy that one log to
+the developer. This diagnostic launcher does not touch userdata/ progress
+and needs no Konsole commands. Please note the physical control you used.
 
 ## Optional terminal launch
 
@@ -41,10 +38,10 @@ Copy the .tar.gz package and its .sha256 file to the Deck's Downloads folder,
 then open Konsole. Use your actual ROM location in the final command:
 
     cd ~/Downloads
-    sha256sum -c wl4-steamdeck-private-20261022-inputtrace3-toyfix.tar.gz.sha256
+    sha256sum -c wl4-linux-private-20261022-gamepad-toyfix.tar.gz.sha256
     mkdir -p ~/Games/wl4
-    tar -xzf wl4-steamdeck-private-20261022-inputtrace3-toyfix.tar.gz -C ~/Games/wl4
-    cd ~/Games/wl4/wl4-steamdeck-private-20261022-inputtrace3-toyfix
+    tar -xzf wl4-linux-private-20261022-gamepad-toyfix.tar.gz -C ~/Games/wl4
+    cd ~/Games/wl4/wl4-linux-private-20261022-gamepad-toyfix
     ./play.sh --check
     ./play.sh "/absolute/path/to/your/baserom_us.gba"
 
@@ -56,9 +53,9 @@ files, so copy userdata/ somewhere safe before updating.
 
 Default keyboard: arrows to move; X/Z for A/B; A/S for L/R; Enter to start;
 Backspace to select; Escape to exit and save; F11 fullscreen; Tab fast-forward.
-The Deck controls should appear as an SDL gamepad in Desktop Mode. If they do
-not, check the Desktop Mode Steam Input layout or use a keyboard. Physical Deck
-controls and rumble still need acceptance testing.
+The Deck controls work in Desktop Mode when its layout is set to Gamepad
+Mode. Escape remains an intentional keyboard quit command. Controller rumble
+and broader physical hardware coverage still need acceptance testing.
 
 ## Display, sound and controls
 
@@ -86,14 +83,17 @@ the game cannot produce sound until the system exposes a playback device.
 
 For diagnosis, run ./play.sh --check; this prints library
 resolution. This package includes SDL3 3.4.2 built with a glibc 2.38 symbol
-floor and dynamic PipeWire, PulseAudio and ALSA audio backends, with notices in licenses/ and hashes in DEPENDENCIES.json. It uses the
+floor and dynamic PipeWire, PulseAudio and ALSA audio backends, with
+notices in licenses/ and hashes in DEPENDENCIES.json. It uses the
 SteamOS glibc, ELF loader, GPU drivers, window server, and audio server.
-This revised package was tested after extraction on WSL2/WSLg; its physical
-Deck retest is pending.
+This revised package was tested after extraction on WSL2/WSLg. The user
+confirmed standalone Deck A/B input with Gamepad Mode; this newly packaged
+archive and Steam Machine hardware still need separate acceptance testing.
 Some host driver combinations may need a build against Valve's Steam Linux
 Runtime. This is a private test package, not a general Linux release.
 
 The game needs glibc 2.38 or newer. Check ldd --version on the Deck if the
-loader reports a missing GLIBC version. Library availability and input on a
-physical Deck have not yet been tested. WSLg synthetic X11 keys sometimes
-need the window raised and focused more than once; this is a WSLg test issue.
+loader reports a missing GLIBC version. The SteamOS library check for this
+newly packaged archive remains to be confirmed on Deck hardware. WSLg
+synthetic X11 keys sometimes need the window raised and focused more than
+once; this is a WSLg test issue.
