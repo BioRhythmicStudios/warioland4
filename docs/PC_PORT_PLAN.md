@@ -176,6 +176,18 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-21)
 
+Boss-door transition native hotfix (2026-10-22):
+A disposable copy of CM30's post-ending save reproduced SIGFPE in
+FixedInverse on the first boss-door frame. The native renderer drew mode
+41 before its scale was initialized; the GBA division helper returns 0
+for this zero divisor. A PORTABLE-only zero case now preserves that
+behavior. Windows, WSL2 Linux and extracted private AppImage boss-door
+runs completed 2700 frames; Linux ASan passed. Windows credits, BIOS,
+I/O and Toy Block Tower tests passed. Fresh Windows build/v7-83 matched
+the original ROM MD5 and all 202 objects. See
+docs/BOSS_DOOR_ZERO_SCALE_HOTFIX.md. The updated private AppImage awaits
+real Deck retesting; next, confirm boss entry and continue the ending.
+
 Golden Diva credits native-port hotfix (2026-10-22):
 Local fix commits: Windows port 8c07329; Linux port 509c45c.
 The VCount callback HBlank wait deadlocked in native IRQ emulation.
