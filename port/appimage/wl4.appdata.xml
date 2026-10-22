@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.biorhythmicstudios.warioland4</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>Wario Land 4 PC Port</name>
+  <summary>Native Linux gameplay with a user-supplied ROM</summary>
+  <description>
+    <p>A native Linux x86-64 port with an SDL3 graphical launcher, configurable controls, CRT display options, VSync and controller rumble. A separately supplied supported US ROM is required.</p>
+  </description>
+  <launchable type="desktop-id">io.github.biorhythmicstudios.warioland4.desktop</launchable>
+  <url type="homepage">https://github.com/BioRhythmicStudios/warioland4</url>
+</component>

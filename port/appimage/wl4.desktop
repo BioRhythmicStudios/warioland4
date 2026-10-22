@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Wario Land 4 PC Port
+Comment=Native Linux gameplay with a user-supplied ROM
+Exec=wl4-appimage-launcher
+Icon=wl4
+Terminal=false
+StartupNotify=true
+Categories=Game;
+X-AppImage-Name=Wario Land 4 PC Port
+X-AppImage-Version=0.1.0-beta

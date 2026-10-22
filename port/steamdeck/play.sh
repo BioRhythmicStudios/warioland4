@@ -20,7 +20,8 @@ if [ ! -f "$rom" ] || [ ! -r "$rom" ]; then
     printf 'ROM is missing or unreadable: %s\n' "$rom" >&2
     exit 2
 fi
-mkdir -p -- "$root/userdata"
-export WL4_SETTINGS_FILE="$root/userdata/settings.cfg"
+data_dir=${WL4_USERDATA_DIR:-"$root/userdata"}
+mkdir -p -- "$data_dir"
+export WL4_SETTINGS_FILE=${WL4_SETTINGS_FILE:-"$data_dir/settings.cfg"}
 exec "$game" "$rom" \
-    --save "$root/userdata/wl4.sav" "$@"
+    --save "$data_dir/wl4.sav" "$@"

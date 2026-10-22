@@ -31,6 +31,13 @@ static void status(const char *value) { SDL_strlcpy(message, value, sizeof(messa
 static void path_for(char *out, size_t size, const char *suffix)
 { snprintf(out, size, "%s/%s", root, suffix); }
 
+static void data_path_for(char *out, size_t size, const char *name)
+{
+    const char *dir = getenv("WL4_USERDATA_DIR");
+    if (dir && *dir) snprintf(out, size, "%s/%s", dir, name);
+    else snprintf(out, size, "%s/userdata/%s", root, name);
+}
+
 static int validate_rom(const char *path)
 {
     unsigned char *bytes;
@@ -54,7 +61,7 @@ static int validate_rom(const char *path)
 static void remember_rom(void)
 {
     char path[PATH_MAX];
-    path_for(path, sizeof(path), "userdata/launcher_rom.txt");
+    data_path_for(path, sizeof(path), "launcher_rom.txt");
     FILE *file = fopen(path, "w");
     if (file) { fprintf(file, "%s\n", rom); fclose(file); }
 }
@@ -197,7 +204,7 @@ int main(int argc, char **argv)
     SDL_strlcpy(root, argv[1], sizeof(root));
     if (PortSettingsLoad(&settings, warning, sizeof(warning)) < 0)
         fprintf(stderr, "Settings reset: %s\n", warning);
-    path_for(path, sizeof(path), "userdata/launcher_rom.txt");
+    data_path_for(path, sizeof(path), "launcher_rom.txt");
     file = fopen(path, "r");
     if (file) {
         if (fgets(rom, sizeof(rom), file)) rom[strcspn(rom, "\r\n")] = 0;

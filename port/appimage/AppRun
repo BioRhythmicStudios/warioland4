@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+appdir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+root="$appdir/usr"
+
+if [ -n "${XDG_DATA_HOME:-}" ]; then
+    data_home=$XDG_DATA_HOME
+else
+    data_home=${HOME:?HOME is required}/.local/share
+fi
+if [ -n "${XDG_CONFIG_HOME:-}" ]; then
+    config_home=$XDG_CONFIG_HOME
+else
+    config_home=${HOME:?HOME is required}/.config
+fi
+case "$data_home" in /*) ;; *) echo 'XDG_DATA_HOME must be absolute' >&2; exit 2 ;; esac
+case "$config_home" in /*) ;; *) echo 'XDG_CONFIG_HOME must be absolute' >&2; exit 2 ;; esac
+
+data_dir="$data_home/biorhythmicstudios/warioland4"
+config_dir="$config_home/biorhythmicstudios/warioland4"
+mkdir -p -- "$data_dir" "$config_dir"
+
+export WL4_USERDATA_DIR="$data_dir"
+export WL4_SETTINGS_FILE="$config_dir/settings.cfg"
+export LD_LIBRARY_PATH="$root/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec "$root/bin/wl4-launcher" "$root" "$@"

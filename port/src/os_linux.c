@@ -64,7 +64,7 @@ static size_t sTrapSize;
 static PortTrapCallback sBefore, sAfter;
 static PortRedirectCallback sRedirect;
 static PortFaultCallback sFault;
-static struct sigaction sPreviousSegv, sPreviousTrap;
+static struct sigaction sPreviousSegv, sPreviousTrap, sPreviousFpe;
 static int sInstalled;
 static _Thread_local int sTrapPending, sTrapWrite, sRedirectPending, sRedirectRegister, sReloads;
 static _Thread_local uintptr_t sTrapAddress, sTrapPc, sDelta;
@@ -124,7 +124,7 @@ static void SignalHandler(int sig, siginfo_t *info, void *context)
         sFault(kind, address, pc, r[REG_RSP]);
     }
     // Preserve sanitizer/debugger handlers for faults we do not own.
-    struct sigaction *previous = sig == SIGSEGV ? &sPreviousSegv : &sPreviousTrap;
+    struct sigaction *previous = sig == SIGSEGV ? &sPreviousSegv : sig == SIGFPE ? &sPreviousFpe : &sPreviousTrap;
     if (previous->sa_handler != SIG_DFL && previous->sa_handler != SIG_IGN) {
         if (previous->sa_flags & SA_SIGINFO) previous->sa_sigaction(sig, info, context);
         else previous->sa_handler(sig);
@@ -157,7 +157,8 @@ static void InstallHandlers(void)
     }
     struct sigaction action = {.sa_sigaction = SignalHandler, .sa_flags = SA_SIGINFO | SA_ONSTACK};
     sigemptyset(&action.sa_mask);
-    if (sigaction(SIGSEGV, &action, &sPreviousSegv) || sigaction(SIGTRAP, &action, &sPreviousTrap)) {
+    if (sigaction(SIGSEGV, &action, &sPreviousSegv) || sigaction(SIGTRAP, &action, &sPreviousTrap) ||
+        sigaction(SIGFPE, &action, &sPreviousFpe)) {
         perror("sigaction"); exit(1);
     }
     sInstalled = 1;
