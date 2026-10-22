@@ -357,6 +357,42 @@ static void TestDisplayInterrupts(void)
     gHBlankCallback = 0;
 }
 
+// The ending's VCount callback waits for HBlank at line 126. This must finish
+// inside an IRQ without consuming a VBlank or trapping the host in that wait.
+extern void CreditsVCountUpdateBgOffset(void);
+extern void InterruptCallbackSetVCount(void (*callback)(void));
+extern uint32_t gVCountCallback;
+static void CreditsInterruptEntry(void)
+{
+    *(uint32_t *)(uintptr_t)0x03007FFC = 0x080000FC;
+    InterruptCallbackSetVCount(CreditsVCountUpdateBgOffset);
+    PortIoWrite16(0x202, 0);
+    PortIoWrite16(0x200, 5);
+    PortIoWrite16(0x208, 1);
+    PortIoWrite16(0x04, 0x7E28);
+    for (;;) {
+        PortFrameHalt();
+    }
+}
+
+static void TestCreditsVCountInterrupt(void)
+{
+    unsigned int i;
+    PortIoSetScanline(0);
+    if (PortFrameStart(CreditsInterruptEntry)) {
+        Check(0, "create credits IRQ regression coroutine");
+        return;
+    }
+    for (i = 0; i < 3; i++) {
+        Check(PortFrameRun(), "credits VCount wait reaches VBlank");
+    }
+    Check(PortIoScanline() == 160, "credits VCount callback returns before VBlank");
+    PortIoWrite16(0x200, 0);
+    PortIoWrite16(0x208, 0);
+    PortIoWrite16(0x04, 0);
+    gVCountCallback = 0;
+}
+
 int PortIoTest(void)
 {
     sFailures = 0;
@@ -365,6 +401,7 @@ int PortIoTest(void)
     while (PortGameThreadResume())
         ;
     TestDisplayInterrupts();
+    TestCreditsVCountInterrupt();
     printf(sFailures ? "I/O tests: %d failed\n" : "I/O tests passed\n", sFailures);
     return sFailures != 0;
 }

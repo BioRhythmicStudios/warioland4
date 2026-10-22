@@ -133,6 +133,8 @@ static void AsanProbeEntry(void)
 
 void AgbMain(void);
 void irq_handler(void);
+extern int16_t gMainGameMode;
+extern char gCreditsMainState;
 
 // What crt0's _start does after setting up the stacks: it points the interrupt vector at
 // irq_handler in the ROM, calls AgbMain, and starts again if AgbMain returns.
@@ -202,10 +204,11 @@ static int WriteWavFrames(FILE *file, uint32_t *frames)
 }
 
 static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsPath, const char *wavPath,
-                   unsigned int fromStep, const char *inputPath, const char *savePath)
+                   unsigned int fromStep, const char *inputPath, const char *savePath, int creditsTest)
 {
     FILE *dump = NULL, *shots = NULL, *wav = NULL;
     uint32_t wavFrames = 0;
+    int creditsDone = 0;
     clock_t start = clock();
     double seconds;
 
@@ -233,6 +236,15 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
             PortIoWrite16(REG_KEYINPUT, (uint16_t)(~PortInputScriptKeys(PortFrameSteps() + 1) & KEYS_ALL));
         if (!PortFrameRun()) {
             printf("The game stopped after %u frames\n", PortFrameCount());
+            break;
+        }
+        if (creditsTest && PortFrameCount() == 1150) {
+            gCreditsMainState = 0;
+            gMainGameMode = 12;
+            printf("Credits regression: entering credits from disposable save at frame %u\n", PortFrameCount());
+        } else if (creditsTest && PortFrameCount() > 1151 && gMainGameMode != 12) {
+            printf("Credits regression: completed at frame %u, next mode %d\n", PortFrameCount(), gMainGameMode);
+            creditsDone = 1;
             break;
         }
         PortSaveFrame();
@@ -271,6 +283,10 @@ static int RunGame(unsigned int frames, const char *dumpPath, const char *shotsP
     printf("%u frames in %.2f s (%.0f fps); %.0f trapped I/O accesses per frame\n", PortFrameCount(), seconds,
            seconds > 0 ? PortFrameCount() / seconds : 0.0,
            PortFrameCount() ? (double)PortIoTrapCount() / PortFrameCount() : 0.0);
+    if (creditsTest && !creditsDone) {
+        fprintf(stderr, "Credits regression: did not finish within %u frames\n", frames);
+        return 1;
+    }
     return 0;
 }
 
@@ -282,7 +298,7 @@ int main(int argc, char **argv)
     enum PortPpuColors colors = PORT_PPU_COLORS_GBA;
     unsigned int frames = 0, scale = 0, fromStep = 0;
     const char *saveTest = NULL;
-    int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0, tileWrapTest = 0;
+    int selfTest = 0, biosTest = 0, ioTest = 0, asanProbe = 0, tileWrapTest = 0, creditsTest = 0;
     int i;
 
     // Reserve the GBA address space before anything else can take it.
@@ -303,6 +319,8 @@ int main(int argc, char **argv)
             asanProbe = 1;
         else if (strcmp(argv[i], "--test-tile-wrap") == 0)
             tileWrapTest = 1;
+        else if (strcmp(argv[i], "--test-credits") == 0)
+            creditsTest = 1;
         else if (strcmp(argv[i], "--frames") == 0 && i + 1 < argc)
             frames = (unsigned int)strtoul(argv[++i], NULL, 10);
         else if (strcmp(argv[i], "--dump") == 0 && i + 1 < argc)
@@ -359,7 +377,7 @@ int main(int argc, char **argv)
     }
     if (frames) {
         PortPpuReset(colors);
-        return RunGame(frames, dumpPath, shotsPath, wavPath, fromStep, inputPath, savePath);
+        return RunGame(frames, dumpPath, shotsPath, wavPath, fromStep, inputPath, savePath, creditsTest);
     }
     if (selfTest || biosTest || ioTest || saveTest)
         return 0;
