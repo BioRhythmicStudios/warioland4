@@ -7,6 +7,9 @@
 #include "interrupt_callbacks.h"
 #include "main.h"
 #include "score.h"
+#ifdef PORTABLE
+#include "port/gba_io.h"
+#endif
 
 extern const struct AnimationFrame sCreditsBackgroundStripAnimation[];
 extern const struct AnimationFrame sCreditsBannerAnimation[];
@@ -193,6 +196,11 @@ void CreditsVBlankTreasureDma(void)
 void CreditsVCountUpdateBgOffset(void)
 {
     while ((*(vu16*)0x04000004 & 2) == 0) {
+#ifdef PORTABLE
+        // The GBA display keeps scanning while this IRQ waits for HBlank.
+        // Native I/O advances on explicit events, so advance this wait here.
+        PortIoAdvance();
+#endif
     }
     *(vu16*)0x04000014 = gBg0XPosition;
 }

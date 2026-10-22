@@ -176,6 +176,19 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-21)
 
+Golden Diva credits native-port hotfix (2026-10-22):
+The VCount callback HBlank wait deadlocked in native IRQ emulation.
+Windows and Linux now advance that one native-only wait. Full credits
+from the verified issue-save copy completed at frame 15263 on both;
+Linux ASan and the extracted private AppImage candidate passed.
+Windows fresh build/v7-82 matched the ROM and all 202 objects; Linux
+build/v7-86 could not run because the protected agbcc symlink target is
+unavailable. Do not change tools/agbcc.
+Fix and tests: docs/CREDITS_ENDING_HOTFIX.md. AppImage candidate is
+private, unpublished and still needs real Deck ending playtest.
+Next: CM30/user retests actual Golden Diva-to-credits transition;
+then resume AppImage release readiness and final artifact review.
+
 Linux shortcut correction (2026-10-22): the Steam Deck Dolphin error was
 caused by the Desktop Entry parser treating the literal percent in
 `${0%/*}` as a field-code marker. Both play and diagnostic shortcuts
