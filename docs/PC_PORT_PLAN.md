@@ -177,6 +177,7 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 ### Where we are (2026-10-21)
 
 Golden Diva credits native-port hotfix (2026-10-22):
+Local fix commits: Windows port 8c07329; Linux port 509c45c.
 The VCount callback HBlank wait deadlocked in native IRQ emulation.
 Windows and Linux now advance that one native-only wait. Full credits
 from the verified issue-save copy completed at frame 15263 on both;
