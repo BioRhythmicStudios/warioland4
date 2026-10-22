@@ -177,6 +177,7 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 ### Where we are (2026-10-21)
 
 Boss-door transition native hotfix (2026-10-22):
+Local fix commits: Windows port 97be0bc; Linux port bd88af0.
 A disposable copy of CM30's post-ending save reproduced SIGFPE in
 FixedInverse on the first boss-door frame. The native renderer drew mode
 41 before its scale was initialized; the GBA division helper returns 0
