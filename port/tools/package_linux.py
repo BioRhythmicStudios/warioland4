@@ -14,7 +14,7 @@ import subprocess
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_NAME = "wl4-linux-private-20261022-gamepad-toyfix"
+DEFAULT_NAME = "wl4-linux-private-20261022-launcher-preview"
 GLIBC_PATTERN = re.compile(r"GLIBC_(\d+)\.(\d+)")
 
 
@@ -66,14 +66,22 @@ def main() -> None:
     (stage / "licenses").mkdir()
     (stage / "userdata").mkdir()
     (stage / "diagnostics").mkdir()
+    launcher = ROOT / "build/linux/wl4-launcher"
+    if not launcher.is_file() or "ELF 64-bit" not in output("file", str(launcher)):
+        raise RuntimeError("Native Linux graphical launcher build is missing")
     shutil.copy2(executable, stage / "bin/wl4")
+    shutil.copy2(launcher, stage / "bin/wl4-launcher")
     shutil.copy2(probe, stage / "bin/audio-probe")
     shutil.copy2(sdl_source, stage / "lib/libSDL3.so.0")
     shutil.copy2(ROOT / "LICENSE", stage / "licenses/wl4-LICENSE")
     shutil.copy2(source_license, stage / "licenses/SDL3-LICENSE")
+    launcher_floor = tuple(map(int, symbol_floor(launcher).split(".")))
+    if launcher_floor > (2, 38):
+        raise RuntimeError(f"Launcher glibc floor {launcher_floor} exceeds 2.38")
     manifest = {
         "source_commit": output("git", "-C", str(ROOT), "rev-parse", "HEAD").strip(),
         "game_glibc_floor": symbol_floor(executable),
+        "launcher_glibc_floor": symbol_floor(launcher),
         "audio_probe_glibc_floor": symbol_floor(probe),
         "sdl3_glibc_floor": symbol_floor(sdl_source),
         "glibc": "host-provided; no glibc or ELF loader bundled",
@@ -89,6 +97,10 @@ def main() -> None:
                       "LD_LIBRARY_PATH": str(stage / "lib")})
     if "not found" in resolved or str(stage / "lib/libSDL3.so.0") not in resolved:
         raise RuntimeError("Bundled SDL3 did not resolve correctly")
+    launcher_resolved = output("ldd", str(launcher), env={**os.environ,
+                               "LD_LIBRARY_PATH": str(stage / "lib")})
+    if "not found" in launcher_resolved or str(stage / "lib/libSDL3.so.0") not in launcher_resolved:
+        raise RuntimeError("Launcher did not resolve bundled SDL3 correctly")
     for name in ("play.sh", "play_gui.sh", "configure.sh", "diagnose.sh"):
         shutil.copy2(ROOT / "port/steamdeck" / name, stage / name)
         (stage / name).chmod(0o755)

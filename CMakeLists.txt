@@ -170,6 +170,16 @@ endif()
 set_source_files_properties(port/generated/gba_functions.c PROPERTIES COMPILE_OPTIONS -Wno-incompatible-library-redeclaration)
 target_link_libraries(wl4 PRIVATE wl4_game wl4_platform_stub)
 
+# Linux SDL3 launcher reuses the shared settings editor and platform ROM validator.
+# It starts the installed game through play.sh; no ROM data is linked into it.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND SDL3_FOUND)
+    add_executable(wl4-launcher port/src/launcher_linux.c port/src/rom_validate.c
+        port/src/md5.c port/platform/sdl/settings_window.c)
+    target_include_directories(wl4-launcher PRIVATE port/include)
+    target_compile_options(wl4-launcher PRIVATE -Wall -Wextra)
+    target_link_libraries(wl4-launcher PRIVATE wl4_settings wl4_crt SDL3::SDL3)
+endif()
+
 # A separate Windows GUI; no ROM assets or game library are linked into it.
 if(WIN32 AND SDL3_FOUND)
     enable_language(RC)

@@ -34,8 +34,18 @@ int PortSettingsShow(PortSettings *settings)
     PortControls controls;
     int tab = 0, capture = -1, chooser = -1, running = 1, saved = 0;
     char status[180] = "Changes apply after restarting the game.";
+    float uiScale = 2.0f;
+    int width = 900, height = 880;
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) return -1;
-    if (!SDL_CreateWindowAndRenderer("Wario Land 4 - Settings", 900, 880, 0, &window, &renderer)) {
+#ifndef _WIN32
+    SDL_Rect desktop;
+    if (SDL_GetDisplayUsableBounds(SDL_GetPrimaryDisplay(), &desktop) && desktop.h < 920) {
+        height = SDL_clamp(desktop.h - 40, 520, 880);
+        uiScale = height / 440.0f;
+        width = (int)(450 * uiScale);
+    }
+#endif
+    if (!SDL_CreateWindowAndRenderer("Wario Land 4 - Settings", width, height, 0, &window, &renderer)) {
         SDL_Quit(); return -1;
     }
 #ifdef _WIN32
@@ -43,7 +53,7 @@ int PortSettingsShow(PortSettings *settings)
     SendMessageW(hwnd, WM_SETICON, ICON_BIG, (LPARAM)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(1), IMAGE_ICON, 32, 32, LR_SHARED));
     SendMessageW(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(1), IMAGE_ICON, 16, 16, LR_SHARED));
 #endif
-    SDL_SetRenderScale(renderer, 2, 2);
+    SDL_SetRenderScale(renderer, uiScale, uiScale);
     if (!SDL_SetRenderVSync(renderer, 1))
         fprintf(stderr, "Settings window VSync unavailable: %s\n", SDL_GetError());
     PortControlsOpen(&controls, &draft);
@@ -75,7 +85,7 @@ int PortSettingsShow(PortSettings *settings)
                 continue;
             }
             if (event.type != SDL_EVENT_MOUSE_BUTTON_DOWN || event.button.button != SDL_BUTTON_LEFT) continue;
-            float x = event.button.x / 2, y = event.button.y / 2;
+            float x = event.button.x / uiScale, y = event.button.y / uiScale;
             if (chooser >= 0) {
                 if (Hit(x, y, 12, 60, 426, 24)) {
                     capture = chooser; chooser = -1;
