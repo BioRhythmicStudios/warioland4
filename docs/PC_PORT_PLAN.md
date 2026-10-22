@@ -176,22 +176,29 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-21)
 
-Steam Deck standalone Desktop Mode input cause confirmed by user (2026-10-22):
-the Deck's default Desktop Layout mapped physical B to keyboard Escape, which
-the game intentionally treats as Quit. Switching Desktop Mode controls to
-Gamepad Mode made direct standalone A and B work without closing the window.
-Steam-launched Desktop and Gaming Mode also work. Preserve Escape-to-quit and
-existing gamepad behavior; no input-code change is needed. The private Linux
-package now leads with a normal graphical player launcher, documents the
-Gamepad Mode setting, and retains an opt-in disposable-save diagnostic
-launcher. Steam Machine acceptance of the new archive remains pending.
-The Toy Block Tower address-wrap fix from Windows is present in Linux commit
-7a3cabe; focused normal and ASan regressions passed. Input diagnostics were
-committed in a3c2a59. Fresh GBA build/v7-82 matched ROM MD5
-940b597bef3be3f4041021b47a2f4096 and all 202 original objects. Next:
-verify the newly extracted player package, then await Steam Deck and
-Steam Machine acceptance. Fresh build/v7-83 passed ROM and object identity. Do not push,
-tag or publish Linux yet.
+Linux graphical launcher preview (2026-10-22): the Deck standalone B-button
+closure was confirmed as Desktop Layout mapping B to Escape; Gamepad Mode fixed
+it without changing game input code. A native SDL3 Linux front window now
+reuses the Windows purple/gold pixel style and the existing shared Settings
+editor. It validates/recalls the user's US ROM, edits bindings, scale,
+fullscreen startup, VSync, CRT and rumble, and starts the packaged game with
+package-local userdata. The Linux Settings window scales to fit Deck-height
+displays. The diagnostic launcher remains available with disposable saves.
+Prior local commits: a3c2a59 diagnostics, 7a3cabe Toy Block Tower fix,
+c239a3a Gamepad Mode documentation/package, and a45b30b native Linux
+launcher. Windows v0.3.1-beta is untouched.
+Normal and ASan headless BIOS/I/O/save/Toy Block Tower tests pass; input,
+rumble and software/OpenGL CRT tests pass. Extracted WSLg UI automation
+opened the launcher and ROM, saved Settings, launched gameplay, sent keyboard
+input, and returned to the launcher after Escape. Hardware Deck testing of
+the launcher and save/load/CRT/fullscreen/rumble remains pending; Steam
+Machine testing is deferred by the user. Fresh build/v7-84 matched the
+original ROM MD5 and all 202 objects byte for byte. The committed
+launcher-preview archive was extracted outside the worktree and passed native
+ELF/library and WSLg launcher/settings/game checks; the verified archive and
+SHA-256 are in the user's Windows Downloads folder. Next: obtain real Deck
+save/load, CRT, fullscreen and physical rumble feedback, then prepare a clean
+v0.1.0-beta candidate. No Linux release is published or pushed.
 
 Linux first playable build (2026-10-21), local and unpublished:
 linux-port starts at verified Windows v0.3.0-beta commit
