@@ -33,3 +33,9 @@ The private test build in Downloads has an isolated-save launcher. Its first
 run copies the existing save and settings into `test-data`, and subsequent runs
 use only those copies. It contains no ROM or Nintendo assets. The manual test
 should enter and exit the pipe during the post-Keyzer escape, then repeat.
+
+User acceptance (2026-10-22): using that test build, the user played through
+Toy Block Tower, collected Keyzer, entered the large red pipe, completed the
+escape and returned to the pyramid ready for the next level. The reported
+crash did not recur on this route. Other rooms and repeated pipe entries were
+not separately reported as tested.
