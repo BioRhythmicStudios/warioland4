@@ -9,7 +9,10 @@ The executable reads the ROM; it does not modify it.
 
 In Desktop Mode, extract the archive with Dolphin into a new folder. Open it
 and double-click **Play-Wario-Land-4.desktop**. Choose Execute if Dolphin
-asks. The native Linux launcher uses the Windows port's purple, gold and
+asks. This shortcut works from any writable extraction folder, including
+folders with spaces. If Dolphin cannot run the shortcut, double-click
+**play_gui.sh** in the same folder and choose Execute. The native Linux
+launcher uses the Windows port's purple, gold and
 pixel-font style. It automatically validates ~/Downloads/baserom_us.gba, or
 use Browse to select your own unmodified US ROM. The selected path is kept in
 userdata/launcher_rom.txt inside this test folder. Click Settings to edit
@@ -61,10 +64,10 @@ Copy the .tar.gz package and its .sha256 file to the Deck's Downloads folder,
 then open Konsole. Use your actual ROM location in the final command:
 
     cd ~/Downloads
-    sha256sum -c wl4-linux-private-20261022-launcher-preview.tar.gz.sha256
+    sha256sum -c wl4-linux-private-20261022-launcher-shortcut-fix.tar.gz.sha256
     mkdir -p ~/Games/wl4
-    tar -xzf wl4-linux-private-20261022-launcher-preview.tar.gz -C ~/Games/wl4
-    cd ~/Games/wl4/wl4-linux-private-20261022-launcher-preview
+    tar -xzf wl4-linux-private-20261022-launcher-shortcut-fix.tar.gz -C ~/Games/wl4
+    cd ~/Games/wl4/wl4-linux-private-20261022-launcher-shortcut-fix
     ./play.sh --check
     ./play.sh "/absolute/path/to/your/baserom_us.gba"
 
@@ -110,7 +113,7 @@ notices in licenses/ and hashes in DEPENDENCIES.json. It uses the
 SteamOS glibc, ELF loader, GPU drivers, window server, and audio server.
 The native launcher and game were tested after extraction under WSL2/WSLg.
 The user confirmed standalone Deck A/B input with Gamepad Mode in the earlier
-package. This launcher preview needs physical Deck acceptance, especially
+package. This corrected shortcut needs physical Deck acceptance, especially
 save/load, CRT, fullscreen and rumble; Steam Machine testing is later.
 Some host driver combinations may need a build against Valve's Steam Linux
 Runtime. This is a private test package, not a general Linux release.

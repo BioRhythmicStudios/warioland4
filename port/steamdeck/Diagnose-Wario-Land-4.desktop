@@ -2,7 +2,7 @@
 Type=Application
 Name=Diagnose Wario Land 4
 Comment=Launch with disposable save and create one Steam Deck log
-Exec=/bin/sh -c "exec \"$(dirname \"$0\")/diagnose.sh\"" %k
+Exec=/bin/sh -c "cd -- \\"\\${0%%/*}\\" && exec ./diagnose.sh" %k
 Icon=applications-games
 Terminal=false
 StartupNotify=true

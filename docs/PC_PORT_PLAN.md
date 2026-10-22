@@ -176,6 +176,17 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-21)
 
+Linux shortcut correction (2026-10-22): the Steam Deck Dolphin error was
+caused by the Desktop Entry parser treating the literal percent in
+`${0%/*}` as a field-code marker. Both play and diagnostic shortcuts
+now escape it as `%%`, pass `%k` separately, and invoke their sibling
+scripts through an explicit shell. GIO launched both shortcuts from a
+folder with spaces; play_gui.sh and native gameplay code were unchanged.
+Fresh build/v7-85 has ROM MD5 940b597bef3be3f4041021b47a2f4096
+and all 202 objects byte-identical to build/us/obj.
+Next: real Deck double-click acceptance, then save/load, CRT, fullscreen
+and rumble checks. No Linux push or release.
+
 Linux graphical launcher preview (2026-10-22): the Deck standalone B-button
 closure was confirmed as Desktop Layout mapping B to Escape; Gamepad Mode fixed
 it without changing game input code. A native SDL3 Linux front window now

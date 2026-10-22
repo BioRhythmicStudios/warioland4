@@ -2,7 +2,7 @@
 Type=Application
 Name=Play Wario Land 4
 Comment=Private native Linux test with saves in this folder
-Exec=/bin/sh -c "exec \"$(dirname \"$0\")/play_gui.sh\"" %k
+Exec=/bin/sh -c "cd -- \\"\\${0%%/*}\\" && exec ./play_gui.sh" %k
 Icon=applications-games
 Terminal=false
 StartupNotify=true
