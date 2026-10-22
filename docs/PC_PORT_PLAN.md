@@ -176,6 +176,20 @@ Steps 1–3 change shared code under the byte-identical invariant and can merge 
 
 ### Where we are (2026-10-18)
 
+Windows v0.3.1-beta private review (2026-10-22), local and unpublished:
+Toy Block Tower fix 4b61e24 and user-acceptance documentation a032856 are committed.
+The user completed the former crash route through Keyzer, the large red pipe,
+and back to the pyramid. A focused nearby address audit found no second
+confirmed instance; see docs/WINDOWS_BETA31_REVIEW.md for scope and evidence.
+Fresh Release binaries from committed Git archive pass tile-wrap, runtime/save,
+settings/input, rumble and CRT checks. The 8500-frame Hall dump matches Beta 3;
+focused ASan checks pass. A 20-file review ZIP and extracted copy are in
+C:\Users\Benny\Downloads\WarioLand4-v0.3.1-beta-review, SHA-256
+edcc81af9151a1b1f143f22a052e836c8a3147265313dc04bf51890941f239b8.
+Fresh GBA v7-81: MD5 940b597bef3be3f4041021b47a2f4096, ROM-SAME,
+all 202 objects OBJ-SAME; next fresh v7-82 if gameplay source changes.
+No push, tag or publication. Next: user reviews contents and playtests package.
+
 Windows v0.3.0-beta release preparation (2026-10-21), The Rumble Update:
 user manually confirms completed native rumble gameplay and authorizes verified
 integration/publication. Rumble commit 20fc6e4 follows cleaned Beta 2 d777f81.
